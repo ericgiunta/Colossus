@@ -1,0 +1,26 @@
+Initial:
+  Loads list of risk groups, manually calculates risks, etc
+  Prep Matrices:
+    Separating the derivative term for risk calculation
+  Prep Risks
+    Calculating the terms and starting risks for each row
+  Calculation
+    Loading row file and calculating initial log-likelihood
+  Steps
+    Taking Half steps and derivatives, updating risk
+  Revert
+    updating the parameter list
+
+
+Iteration:
+  uses filled list of risk groups, updates risks, etc
+  Prep Matrices:
+    Separating the derivative term for risk calculation
+  Update Risks
+    Updates the risk derivatives for the new derivative term
+  Calculation
+    Uses a filled vector of risk group info, calculates the log-likelihood
+  Steps
+    Taking Half steps and derivatives, updating risk
+  Revert
+    updating the parameter list
