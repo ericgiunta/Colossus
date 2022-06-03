@@ -36,7 +36,7 @@ NumericVector peanut_transition(NumericVector a_lin,NumericVector a_loglin,Numer
     const Map<MatrixXd> df_loglin(as<Map<MatrixXd> >(x_loglin));
     const Map<MatrixXd> df_plin(as<Map<MatrixXd> >(x_plin));
     string IterStyle = "constant";
-    //
+    // Converts from Rcpp types to efficient Eigen types
     //----------------------------------------------------------------------------------------------------------------//
     VectorXd res = LogLik_PEANUT(beta_lin,beta_loglin,beta_plin,df_lin,df_loglin,df_plin,fir,modelform,IterStyle,ntime,include_bool);
     //----------------------------------------------------------------------------------------------------------------//
@@ -45,30 +45,30 @@ NumericVector peanut_transition(NumericVector a_lin,NumericVector a_loglin,Numer
 
 VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT,MatrixXd df_lin,MatrixXd df_loglin,MatrixXd df_plin,int fir,string modelform, string IterStyle,int ntime,NumericVector include_bool){//    cout << "start Risk" << endl;
     VectorXd beta_0(1);
-    VectorXd df0(df_lin.rows(), 1);
+    VectorXd df0(df_lin.rows(), 1); // stores memory for the derivative term parameter and column
     string tform;
     int totalnum = 0;
-    int ind0 = fir;
-    double lr = 0.95;
+    int ind0 = fir; //starts by always using the derivative of the "first" term
+    double lr = 0.95; //learning rate
     double Ll = 0.0;
     double Ll_old = 0.0;
     double Lld = 0.0;
     double Lldd = 0.0;
-    int maxiter = 500;
-    int halfmax = 10;
+    int maxiter = 500; //maximum iterations
+    int halfmax = 10; //maximum halfsteps/derivative steps per iteration
     //
-    cout.precision(10);
-    int nthreads = Eigen::nbThreads();
+    cout.precision(10); //forces higher precision numbers printed to terminal
+    int nthreads = Eigen::nbThreads(); //stores how many threads are allocated
     //
     VectorXd beta_lin;
-    VectorXd beta_loglin;
+    VectorXd beta_loglin; //The vectors of parameter used
     VectorXd beta_plin;
         //
     if (include_bool[0]==1){
         beta_lin = beta_linT.tail(beta_linT.size()-1);
     }
     if (include_bool[1]==1){
-        beta_loglin = beta_loglinT.tail(beta_loglinT.size()-1);
+        beta_loglin = beta_loglinT.tail(beta_loglinT.size()-1); //creates the used vectors
     }
     if (include_bool[2]==1){
         beta_plin = beta_plinT.tail(beta_plinT.size()-1);
@@ -78,20 +78,20 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         totalnum = totalnum + beta_lin.size();
     }
     if (include_bool[1]==1){
-        totalnum = totalnum + beta_loglin.size();
+        totalnum = totalnum + beta_loglin.size(); //determines how many parameters are needed
     }
     if (include_bool[2]==1){
         totalnum = totalnum + beta_plin.size();
     }
     //
-    VectorXd res(totalnum);
-    vector <double> Ll_check(2);
+    VectorXd res(totalnum); //preallocates a vector of final parameters
+    vector <double> Ll_check(2); //preallocates a vector of log-likelihood progress comparisons
     double epsilon = 1e-5;
-    double totem = df_loglin.rows();
+    double totem = df_loglin.rows();//precalculates how many rows
     //
-    double dbeta_max = 1.0;
-    double dbeta_kill = 1e6;
-    double deriv_epsilon = 1e-3;//1e-5*totem;
+    double dbeta_max = 1.0; //maximum parameter change allowed
+    double dbeta_kill = 1e6; //maximum estimated parameter before skipping
+    double deriv_epsilon = 1e-3;//derivative threshold for iteration stopping
     //
     srand (time(NULL));
     //
@@ -101,7 +101,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     start_point = high_resolution_clock::now();
     auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     end_point = high_resolution_clock::now();
-    auto end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+    auto end = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
     // ---------------------------------------------
     // To Start, needs to seperate the derivative term
     // ---------------------------------------------
@@ -179,16 +179,30 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     //
     end_point = high_resolution_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+    // ----------------------------------------------//
+    // The terminal output is in the form:
+    // df101 to identify the row
+    // the elapsed time since starting
+    // the number of half-steps/derivative steps taken
+    // the current log-likelihood
+    // the current log-likelihood first derivative
+    // the current log-likelihood second derivative
+    // the current best log-likelihood
+    // the parameter value change in that half-step/derivative step
+    // the current variance calculated
+    //
+    // zeros denote places without calculations
+    // ----------------------------------------------//
    cout<<"df101,"<<(end-start)<<",0,0,0,0,0,0"<<endl;
     //
-    MatrixXd T0 = MatrixXd::Zero(df0.rows(), 1);
-    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1);
-    MatrixXd Td0 = MatrixXd::Zero(df0.rows(), 2);
-    MatrixXd R = MatrixXd::Zero(df0.rows(), 3);
-    if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){
-        Te = Te.array() * 0;
+    MatrixXd T0 = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Derivative column term
+    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for non-Derivative column terms
+    MatrixXd Td0 = MatrixXd::Zero(df0.rows(), 2); //preallocates matrix for Derivative column term derivatives
+    MatrixXd R = MatrixXd::Zero(df0.rows(), 3); //preallocates matrix for Risks and derivatives
+    if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
+        Te = Te.array() * 0; //checks that the inital sum of terms are zero
         //
-        T0 = df0 * beta_0;
+        T0 = df0 * beta_0; //calculates the derivative column values
         if (tform=="lin") {
             Td0 << df0, 0*df0;
         } else if (tform=="loglin") {
@@ -198,7 +212,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
             T0 = 1 + T0.array();
             Td0 << df0, 0*df0;
         }
-        //
+        // combines every used term values
         if (include_bool[0]==1){
             Te = Te.array() + (df_lin.array().rowwise() * beta_lin.transpose().array()).matrix().rowwise().sum().array();
         }
@@ -208,6 +222,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         if (include_bool[2]==1){
             Te = Te.array() + (1 + df_plin.array().rowwise() * beta_plin.transpose().array()).matrix().rowwise().sum().array();
         }
+        // computes intial risk and derivatives
         if (modelform=="A"){
             R << Te.array(),Td0.col(0),Td0.col(1);
         } else if (modelform=="PA"){
@@ -218,9 +233,9 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
             R << T0.array() * Te.array(),  Td0.col(0).array() * Te.array(), Td0.col(1).array() * Te.array();
         }
     }else if (modelform=="M"){
-        Te = Te.array() * 0 + 1;
+        Te = Te.array() * 0 + 1; //verifies the initial term product is 1
         //
-        T0 = df0 * beta_0;
+        T0 = df0 * beta_0; //calculates the derivative column values
         if (tform=="lin") {
             Td0 << df0, 0*df0;
         } else if (tform=="loglin") {
@@ -230,7 +245,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
             T0 = 1 + T0.array();
             Td0 << df0, 0*df0;
         }
-        //
+        // combines every used term values
         if (include_bool[0]==1){
             Te = Te.array() * (df_lin.array().rowwise() * beta_lin.transpose().array()).matrix().rowwise().prod().array();
         }
@@ -240,10 +255,14 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         if (include_bool[2]==1){
             Te = Te.array() * (1 + df_plin.array().rowwise() * beta_plin.transpose().array()).matrix().rowwise().prod().array();
         }
+        // computes intial risk and derivatives
         Te = Te.array() * T0.array().pow(-1);
         R << T0.array() * Te.array(),Td0.col(0).array() * Te.array(), Td0.col(1).array() * Te.array();
     } else if (modelform=="GM"){
+        //currently isn't implemented, it can be calculated but not optimized the same way
         throw invalid_argument( "GM isn't implemented" );
+    } else {
+        throw invalid_argument( "Model isn't implemented" );
     }
     R =(R.array().isFinite()).select(R,0);
     //
@@ -252,9 +271,9 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     Lldd = 0.0;
     //
     string line;
-    ifstream infile("test.txt");
-    vector<string>  RiskGroup(ntime);
-    IntegerMatrix RiskFail(ntime,2);
+    ifstream infile("test.txt"); //The file of risk group rows
+    vector<string>  RiskGroup(ntime); //vector of strings detailing the rows
+    IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
     int j_iter = 0;
     //
     end_point = high_resolution_clock::now();
@@ -286,6 +305,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     // --------------------------
     // now a vector exists with row locations
     // --------------------------
+    //The log-likelihood is calculated in parallel over the risk groups
     #pragma omp parallel for num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
     for (int j=0;j<ntime;j++){
 //        cout << j << endl;
@@ -302,7 +322,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
             if (ss.peek() == ',')
                 ss.ignore();
         }
-        //Now has the groupings
+        //Now has the grouping pairs
         int at_risk = 0;
         for (int i = 0; i < InGroup.size()-1; i=i+2){
             Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
@@ -315,7 +335,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         MatrixXd Ld = R.block(RiskFail(j,0),0,dj,3);//sum of risks in group
         //
         MatrixXd Ldm = MatrixXd::Zero(dj,3);
-        for (int i = 1; i < dj; i++){
+        for (int i = 1; i < dj; i++){ //adds in the efron approximation terms
             Ldm.row(i) = (-double(i) / double(dj)) * Ld.row(0).colwise().sum().array();
         }
         Ldm.col(0) = Ldm.col(0).array() + Rs1;
@@ -341,9 +361,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         //
         Ll += Ld1 - Rs1;
         Lld += Ld2 - Rs2;
-        Lldd += Ld3 - Rs3;
-//        cout << Ld2 - Rs2 << ", " << Ld3 - Rs3 << ", " << dj << endl;
-//        cout << 2 << endl;
+        Lldd += Ld3 - Rs3; //sums the log-likelihood and derivatives
     }
     // --------------------------
     // stores the value to compare to in the iteration step
@@ -387,7 +405,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     while (((halves==0)||(abs(beta_b)>epsilon))&&(halves<halfmax)&&(dbeta!=0.0)&&(abs(Lld)>deriv_epsilon)){
         halves++;
         beta_c = beta_a + dbeta;
-        if (modelform=="A"){
+        if (modelform=="A"){//The risks can be updated instead of recalculated for the models/terms allowed
             if (tform == "lin"){
                 R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(0).array();
             } else if (tform == "plin"){
@@ -472,7 +490,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         }else if (modelform=="GM"){
             throw invalid_argument( "GM isn't implemented" );
         } else {
-            throw invalid_argument( "GM isn't implemented" );
+            throw invalid_argument( "Model isn't implemented" );
         }
         Ll = 0.0;
         Lld = 0.0;
@@ -543,7 +561,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         // updates the change in initial guess
         // --------------------------
         if ((abs(lr*Lld/Lldd)<dbeta_kill)&&(halves<halfmax)&&(Lldd!=0.0)&&(abs(Lld)>deriv_epsilon)){
-            if (Ll > Ll_best){
+            if (Ll > Ll_best){ //if it improves, it trys the derivative again
                 if ((Lld > 0)&&(Lldd<0)){
                     beta_b = - lr * Lld / Lldd;
                 } else if ((Lld<0)&&(Lldd>0)){
@@ -555,7 +573,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
                 } else {
                     beta_b= 0.0;
                 }
-            } else{
+            } else{ //if it doesn't improve, it takes a half step
                 if (dbeta!=0){
                     beta_b=-0.25*dbeta;
                 }else{
@@ -584,7 +602,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     beta_0[0] = beta_best;
     beta_c = beta_best;
     // --------------------------
-    // sets rates to best guess values
+    // sets risks to best guess values
     // --------------------------
     if (modelform=="A"){
         if (tform == "lin"){
@@ -674,7 +692,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         throw invalid_argument( "GM isn't implemented" );
     }
     // --------------------------
-    // recombines the list of parameters
+    // updates the list of parameters
     // --------------------------
     if (tform == "lin"){
         beta_lin[ind0] = beta_0[0];
@@ -683,7 +701,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     } else {
         beta_plin[ind0] = beta_0[0];
     }
-    Ll_check[1] = Ll;
+    Ll_check[1] = Ll; //stores the next log-likelihood to compare against
     end_point = high_resolution_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df101,"<<(end-start)<<","<<halves<<","<< Ll<<","<<Lld<<","<<Lldd<<","<<Ll_best<<",0"<<endl;
@@ -694,7 +712,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     double upper_bound = 1;
     double rand_i;
     // --------------------------
-    // repeats atleast 1 x the number of total parameters, then every 1 x number of parameters checks for convergence
+    // repeats atleast 2 x the number of total parameters, then every 2 x number of parameters checks for convergence
     // --------------------------
     while (iteration < maxiter){
         // --------------------------
@@ -713,6 +731,8 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         //
         i = ind0;
         iteration++;
+        //
+        // stores the new derivative column and parameter
         //
         if (include_bool[0]==1){
             if (ind0 < beta_lin.size()){
@@ -790,6 +810,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         //
         beta_c = beta_0[0];
         beta_c = beta_p;
+        // The risks don't change, but the derivatives are updated for the new term
         if (modelform=="A"){
             if (tform == "lin"){
                 R.col(1) = df0.col(0);
@@ -1159,7 +1180,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         beta_0[0] = beta_best;
         beta_c = beta_best;
         //
-        //Stores how much improvement it made, uses to randomly sample better covariates
+        //Stores how much improvement it made, uses to randomly sample better covariates, always positive non-zero
         //
         Improve[i] = Ll_best - Improve[i];
         //
@@ -1248,7 +1269,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         }else if (modelform=="GM"){
             throw invalid_argument( "GM isn't implemented" );
         } else {
-            throw invalid_argument( "GM isn't implemented" );
+            throw invalid_argument( "Model isn't implemented" );
         }
         //
         if (tform == "lin"){
@@ -1261,12 +1282,12 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         end_point = high_resolution_clock::now();
         end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
         cout<<"df101,"<<(end-start)<<","<<halves<<","<< Ll<<","<<Lld<<","<<Lldd<<","<<Ll_best<<",0"<<endl;
-        if ((iteration > totalnum * 2)&&(iteration % (totalnum*2) == 0)){
+        if ((iteration > totalnum * 2)&&(iteration % (totalnum*2) == 0)){ //checks if it should check for convergence
             Ll_check[0] = Ll_check[1];
-            Ll_check[1] = Ll;
+            Ll_check[1] = Ll; //the values to compare are the current against the first/last time it checked
             //
             if (abs(Ll_check[0] - Ll_check[1]) / abs(Ll_check[0]) < epsilon){
-                iteration = maxiter;
+                iteration = maxiter; //if it meets the threshold it just uses the iteration to exit
             }
         }
     }
