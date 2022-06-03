@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# File Inputs/Outputs
+*.png
+*.csv
