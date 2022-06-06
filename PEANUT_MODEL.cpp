@@ -55,7 +55,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     double Lld = 0.0;
     double Lldd = 0.0;
     int maxiter = 500; //maximum iterations
-    int halfmax = 10; //maximum halfsteps/derivative steps per iteration
+    int halfmax = 20; //maximum halfsteps/derivative steps per iteration
     //
     cout.precision(10); //forces higher precision numbers printed to terminal
     int nthreads = Eigen::nbThreads(); //stores how many threads are allocated
@@ -89,7 +89,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     double epsilon = 1e-5;
     double totem = df_loglin.rows();//precalculates how many rows
     //
-    double dbeta_max = 1.0; //maximum parameter change allowed
+    double dbeta_max = 0.1; //maximum parameter change allowed
     double dbeta_kill = 1e6; //maximum estimated parameter before skipping
     double deriv_epsilon = 1e-3;//derivative threshold for iteration stopping
     //
@@ -401,7 +401,8 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     double Ll_best = Ll;
     int halves = 0;
     int i = fir;
-    double beta_b=10.0;
+    double beta_b=dbeta;
+    double beta_prev=dbeta;
     while (((halves==0)||(abs(beta_b)>epsilon))&&(halves<halfmax)&&(dbeta!=0.0)&&(abs(Lld)>deriv_epsilon)){
         halves++;
         beta_c = beta_a + dbeta;
@@ -575,14 +576,16 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
                 }
             } else{ //if it doesn't improve, it takes a half step
                 if (dbeta!=0){
-                    beta_b=-0.25*dbeta;
+                    beta_b=-0.5 * beta_prev;
                 }else{
                     beta_b=0.0;
                 }
             }
+            beta_b = beta_b * pow(.9,halves);
             if (abs(beta_b)>dbeta_max){
                 beta_b = dbeta_max * sign(beta_b);
             }
+            beta_prev = beta_b;
             dbeta = dbeta + beta_b;
         }
         // --------------------------
@@ -973,7 +976,8 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         if (abs(dbeta)>dbeta_max){
             dbeta = dbeta_max * sign(dbeta);
         }
-        beta_b = 10.0;
+        beta_b=dbeta;
+        beta_prev=dbeta;
         //
         beta_p = beta_0[0];
         beta_c = beta_p;
@@ -1140,36 +1144,44 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         //        cout << 2 << endl;
             }
             beta_b = 0.0;
-            if ((abs(lr*Lld/Lldd)<dbeta_kill)&&(halves<halfmax)&&(Lldd!=0.0)&&(abs(Lld)>deriv_epsilon)){
-                //
-                if (Ll > Ll_best){
-                    if ((Lld > 0)&&(Lldd<0)){
-                        beta_b = - lr * Lld / Lldd;
-                    } else if ((Lld<0)&&(Lldd>0)){
-                        beta_b = lr * Lld / Lldd;
-                    } else if ((Lld > 0)&&(Lldd>0)){
-                        beta_b = lr * Lld / Lldd;
-                    } else if ((Lld<0)&&(Lldd<0)){
-                        beta_b = - lr * Lld / Lldd;
-                    } else {
-                        beta_b= 0.0;
-                    }
-                } else{
-                    if (dbeta!=0){
-                        beta_b=-0.25*dbeta;
-                    }else{
-                        beta_b=0.0;
-                    }
+        //
+        // --------------------------
+        // updates the change in initial guess
+        // --------------------------
+        if ((abs(lr*Lld/Lldd)<dbeta_kill)&&(halves<halfmax)&&(Lldd!=0.0)&&(abs(Lld)>deriv_epsilon)){
+            if (Ll > Ll_best){ //if it improves, it trys the derivative again
+                if ((Lld > 0)&&(Lldd<0)){
+                    beta_b = - lr * Lld / Lldd;
+                } else if ((Lld<0)&&(Lldd>0)){
+                    beta_b = lr * Lld / Lldd;
+                } else if ((Lld > 0)&&(Lldd>0)){
+                    beta_b = lr * Lld / Lldd;
+                } else if ((Lld<0)&&(Lldd<0)){
+                    beta_b = - lr * Lld / Lldd;
+                } else {
+                    beta_b= 0.0;
                 }
-                if (abs(beta_b)>dbeta_max){
-                    beta_b = dbeta_max * sign(beta_b);
+            } else{ //if it doesn't improve, it takes a half step
+                if (dbeta!=0){
+                    beta_b=-0.5 * beta_prev;
+                }else{
+                    beta_b=0.0;
                 }
-                dbeta = dbeta + beta_b;
             }
-            if (Ll > Ll_best){
-                Ll_best = Ll;
-                beta_best = beta_c;
+            beta_b = beta_b * pow(.9,halves);
+            if (abs(beta_b)>dbeta_max){
+                beta_b = dbeta_max * sign(beta_b);
             }
+            beta_prev = beta_b;
+            dbeta = dbeta + beta_b;
+        }
+        // --------------------------
+        // updates best guess
+        // --------------------------
+        if (Ll > Ll_best){
+            Ll_best = Ll;
+            beta_best = beta_c;
+        }
             end_point = high_resolution_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
             cout<<"df101,"<<(end-start)<<","<<halves<<","<< Ll<<","<<Lld<<","<<Lldd<<","<<Ll_best<<","<<beta_b<<endl;

@@ -93,7 +93,7 @@ VectorXd LogLik_AMFIT( MatrixXd PyrC, VectorXd beta_linT,VectorXd beta_loglinT,V
     double epsilon = 1e-5;
     double totem = PyrC.rows(); //precalculates how many rows
     //
-    double dbeta_max = 1.0; //maximum parameter change allowed
+    double dbeta_max = 0.1; //maximum parameter change allowed
     double dbeta_kill = 1e6; //maximum estimated parameter before skipping
     double deriv_epsilon = 1e-3;//derivative threshold for iteration stopping
     //
@@ -328,7 +328,8 @@ VectorXd LogLik_AMFIT( MatrixXd PyrC, VectorXd beta_linT,VectorXd beta_loglinT,V
     double Ll_best = Ll;
     int halves = 0;
     int i = fir;
-    double beta_b=10.0;
+    double beta_b=dbeta;
+    double beta_prev=dbeta;
     while (((halves==0)||(abs(beta_b)>epsilon))&&(halves<halfmax)&&(dbeta!=0.0)&&(abs(Lld)>deriv_epsilon)){
         halves++;
         beta_c = beta_a + dbeta;
@@ -450,14 +451,16 @@ VectorXd LogLik_AMFIT( MatrixXd PyrC, VectorXd beta_linT,VectorXd beta_loglinT,V
                 }
             } else{ //if it doesn't improve, it takes a half step
                 if (dbeta!=0){
-                    beta_b=-0.25*dbeta;
+                    beta_b=-0.5 * beta_prev;
                 }else{
                     beta_b=0.0;
                 }
             }
+            beta_b = beta_b * pow(.9,halves);
             if (abs(beta_b)>dbeta_max){
                 beta_b = dbeta_max * sign(beta_b);
             }
+            beta_prev = beta_b;
             dbeta = dbeta + beta_b;
         }
         // --------------------------
@@ -799,7 +802,8 @@ VectorXd LogLik_AMFIT( MatrixXd PyrC, VectorXd beta_linT,VectorXd beta_loglinT,V
         if (abs(dbeta)>dbeta_max){
             dbeta = dbeta_max * sign(dbeta);
         }
-        beta_b = 10.0;
+        beta_b=dbeta;
+        beta_prev=dbeta;
         //
         beta_p = beta_0[0];
         beta_c = beta_p;
@@ -914,36 +918,44 @@ VectorXd LogLik_AMFIT( MatrixXd PyrC, VectorXd beta_linT,VectorXd beta_loglinT,V
             Lldd = (temp.array().isFinite()).select(temp,0).sum();
             //
             beta_b = 0.0;
-            if ((abs(lr*Lld/Lldd)<dbeta_kill)&&(halves<halfmax)&&(Lldd!=0.0)&&(abs(Lld)>deriv_epsilon)){
-                //
-                if (Ll > Ll_best){
-                    if ((Lld > 0)&&(Lldd<0)){
-                        beta_b = - lr * Lld / Lldd;
-                    } else if ((Lld<0)&&(Lldd>0)){
-                        beta_b = lr * Lld / Lldd;
-                    } else if ((Lld > 0)&&(Lldd>0)){
-                        beta_b = lr * Lld / Lldd;
-                    } else if ((Lld<0)&&(Lldd<0)){
-                        beta_b = - lr * Lld / Lldd;
-                    } else {
-                        beta_b= 0.0;
-                    }
-                } else{
-                    if (dbeta!=0){
-                        beta_b=-0.25*dbeta;
-                    }else{
-                        beta_b=0.0;
-                    }
+        //
+        // --------------------------
+        // updates the change in initial guess
+        // --------------------------
+        if ((abs(lr*Lld/Lldd)<dbeta_kill)&&(halves<halfmax)&&(Lldd!=0.0)&&(abs(Lld)>deriv_epsilon)){
+            if (Ll > Ll_best){ //if it improves, it trys the derivative again
+                if ((Lld > 0)&&(Lldd<0)){
+                    beta_b = - lr * Lld / Lldd;
+                } else if ((Lld<0)&&(Lldd>0)){
+                    beta_b = lr * Lld / Lldd;
+                } else if ((Lld > 0)&&(Lldd>0)){
+                    beta_b = lr * Lld / Lldd;
+                } else if ((Lld<0)&&(Lldd<0)){
+                    beta_b = - lr * Lld / Lldd;
+                } else {
+                    beta_b= 0.0;
                 }
-                if (abs(beta_b)>dbeta_max){
-                    beta_b = dbeta_max * sign(beta_b);
+            } else{ //if it doesn't improve, it takes a half step
+                if (dbeta!=0){
+                    beta_b=-0.5 * beta_prev;
+                }else{
+                    beta_b=0.0;
                 }
-                dbeta = dbeta + beta_b;
             }
-            if (Ll > Ll_best){
-                Ll_best = Ll;
-                beta_best = beta_c;
+            beta_b = beta_b * pow(.9,halves);
+            if (abs(beta_b)>dbeta_max){
+                beta_b = dbeta_max * sign(beta_b);
             }
+            beta_prev = beta_b;
+            dbeta = dbeta + beta_b;
+        }
+        // --------------------------
+        // updates best guess
+        // --------------------------
+        if (Ll > Ll_best){
+            Ll_best = Ll;
+            beta_best = beta_c;
+        }
             dev = pow((PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array()).pow(2).sum(),.5)/totem;
             end_point = high_resolution_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
