@@ -5,8 +5,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include<chrono>
-#include<random>
+#include <chrono>
+#include <random>
+#include<ctime>
 
 
 // [[Rcpp::depends(RcppEigen)]]
@@ -44,6 +45,21 @@ List peanut_transition(NumericVector a_lin,NumericVector a_loglin,NumericVector 
 
 List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT,MatrixXd df_lin,MatrixXd df_loglin,MatrixXd df_plin,int fir,string modelform,int ntime,NumericVector include_bool, double lr, int maxiter, int halfmax, double epsilon, double dbeta_max, double deriv_epsilon, int batch_size){
     //    cout << "start Risk" << endl;
+    //
+    srand (time(NULL));
+    //
+
+    using namespace std::chrono;
+    cout << "START_NEW" << endl;
+    time_point<steady_clock> start_point, end_point;
+    start_point = steady_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = steady_clock::now();
+    auto end = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //
+    auto gibtime = steady_clock::to_time_t(steady_clock::now());
+    cout << ctime(&gibtime) << endl;
+    //
     int totalnum = 0;
     //
     cout.precision(10); //forces higher precision numbers printed to terminal
@@ -86,6 +102,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     while (i_temp<totem-batch_size){
         if (j_temp==batch_size){
             batch_cols.push_back(i_temp);
+            j_temp=0;
         }
         i_temp++;
         j_temp++;
@@ -95,15 +112,14 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     }
     batch_cols.push_back(totem-1);
     //
-    srand (time(NULL));
-    //
-    using namespace std::chrono;
-    cout << "START_NEW" << endl;
-    time_point<high_resolution_clock> start_point, end_point;
-    start_point = high_resolution_clock::now();
-    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    end_point = high_resolution_clock::now();
-    auto end = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //for (int ij=0; ij < batch_cols.size(); ij++){
+    //    cout << batch_cols[ij] << endl;
+    //}
+    end_point = steady_clock::now();
+    end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+    cout<<"df99,"<<(end-start)<<",Batches"<<endl;
+    gibtime = steady_clock::to_time_t(steady_clock::now());
+    cout << ctime(&gibtime) << endl;
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
@@ -200,10 +216,11 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         }
     }
     //
-    end_point = high_resolution_clock::now();
+    end_point = steady_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-    cout <<"df100 "<<(end-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_T"<<endl;
-//    cout << T0 << endl;
+    cout<<"df99,"<<(end-start)<<",Terms"<<endl;
+    gibtime = steady_clock::to_time_t(steady_clock::now());
+    cout << ctime(&gibtime) << endl;
     //
     MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for non-Derivative column terms
     MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks and derivatives
@@ -268,8 +285,12 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     ij++;
                     jk-=ij;
                 }
-                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                if (ij==jk){
+                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                } else {
+                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                }
             }
         }
     } else if (modelform=="GM"){
@@ -278,8 +299,16 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     } else {
         throw invalid_argument( "Model isn't implemented" );
     }
+    R = (R.array().isFinite()).select(R,0);
+    Rd = (Rd.array().isFinite()).select(Rd,0);
+    Rdd = (Rdd.array().isFinite()).select(Rdd,0);
     //
     // -------------------------------------------------------------------------------------------
+    //
+//    cout << df0.block(0,1,10,1).transpose() << endl;
+//    cout << R.block(0,1,10,1).transpose() << endl;
+//    cout << Rd.block(0,1,10,1).transpose() << endl;
+//    cout << Rdd.block(0,totalnum+1,10,1).transpose() << endl;
     //
     string line;
     ifstream infile("test.txt"); //The file of risk group rows
@@ -287,9 +316,11 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
     int j_iter = 0;
     //
-    end_point = high_resolution_clock::now();
+    end_point = steady_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df100 "<<(end-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
+    gibtime = steady_clock::to_time_t(steady_clock::now());
+    cout << ctime(&gibtime) << endl;
     // --------------------------
     // A file is created previously that stores what rows belong to which risk sections
     // --------------------------
@@ -324,7 +355,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             int ij = 0;
             int jk = ijk;
@@ -334,6 +365,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             }
             double Rs1 = 0;
             double Rs2 = 0;
+            double Rs2t = 0;
             double Rs3 = 0;
             //
             vector<int> InGroup;
@@ -351,72 +383,82 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             for (int i = 0; i < InGroup.size()-1; i=i+2){
                 Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
+                Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs3 += Rdd.block(InGroup[i]-1,ij*totalnum+jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                 at_risk += InGroup[i+1]-InGroup[i]+1;
             }
             //
-            MatrixXd Ld = MatrixXd::Zero(dj,3);
-            Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1) ,Rdd.block(RiskFail(j,0),ij*totalnum+jk,dj,1);//sum of risks in group
+            MatrixXd Ld = MatrixXd::Zero(dj,4);
+            Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ij*totalnum+jk,dj,1);//sum of risks in group
             //
-            MatrixXd Ldm = MatrixXd::Zero(dj,3);
+            MatrixXd Ldm = MatrixXd::Zero(dj,4);
             for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
                 Ldm.row(i) = (-double(i) / double(dj)) * Ld.colwise().sum().array();
             }
             Ldm.col(0) = Ldm.col(0).array() + Rs1;
             Ldm.col(1) = Ldm.col(1).array() + Rs2;
-            Ldm.col(2) = Ldm.col(2).array() + Rs3;
+            Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+            Ldm.col(3) = Ldm.col(3).array() + Rs3;
             //
             MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+            MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
             temp1 = Ld.col(0).array().log();
             double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-            temp1 = Ld.col(1).array() * (Ld.col(0).array().pow(-1));
+            temp1 = Ld.col(1).array() * (Ld.col(0).array().pow(-1).array());
+            temp2 = Ld.col(2).array() * (Ld.col(0).array().pow(-1).array());
             double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
-            temp1 = Ld.col(2).array() * (Ld.col(0).array().pow(-1)) - temp1.array().pow(2);
+            temp1 = Ld.col(3).array() * (Ld.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
             double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
             //
             temp1 = Ldm.col(0).array().log();
             Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-            temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1));
+            temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+            temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
             Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
-            temp1 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1)) - temp1.array().pow(2);
+            temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
             Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
             //
             if (ij==jk){
                 Ll[ij] += Ld1 - Rs1;
                 Lld[ij] += Ld2 - Rs2;
+                Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+            } else {
+                Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+                Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
             }
-            Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-            Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+//            cout <<ij << "," << jk << "," << j << "," << Ld1 - Rs1 <<","<< Ld2 - Rs2 <<","<< Ld3 - Rs3 << endl;
         }
     }
-    end_point = high_resolution_clock::now();
+    end_point = steady_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df100 "<<(end-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;
-    cout << "df101 ";
-    for (int ij=0;ij<totalnum;ij++){
-        cout << Ll[ij] << " ";
-    }
-    cout << " " << endl;
-    cout << "df102 ";
-    for (int ij=0;ij<totalnum;ij++){
-        cout << Lld[ij] << " ";
-    }
-    cout << " " << endl;
-    cout << "df103 ";
-    for (int ij=0;ij<totalnum;ij++){
-        cout << Lldd[ij*totalnum+ij] << " ";
-    }
-    for (int ij=0;ij<totalnum;ij++){
-        if (abs(Lld[ij]) > Lld_worst){
-            Lld_worst = abs(Lld[ij]);
-        }
-    }
-    cout << " " << endl;
-    cout << "df104 ";
-    for (int ij=0;ij<totalnum;ij++){
-        cout << beta_0[ij] << " ";
-    }
-    cout << " " << endl;
+    gibtime = steady_clock::to_time_t(steady_clock::now());
+    cout << ctime(&gibtime) << endl;
+//    cout << "df101 ";
+//    for (int ij=0;ij<totalnum;ij++){
+//        cout << Ll[ij] << " ";
+//    }
+//    cout << " " << endl;
+//    cout << "df102 ";
+//    for (int ij=0;ij<totalnum;ij++){
+//        cout << Lld[ij] << " ";
+//    }
+//    cout << " " << endl;
+//    cout << "df103 ";
+//    for (int ij=0;ij<totalnum;ij++){
+//        cout << Lldd[ij*totalnum+ij] << " ";
+//    }
+//    for (int ij=0;ij<totalnum;ij++){
+//        if (abs(Lld[ij]) > Lld_worst){
+//            Lld_worst = abs(Lld[ij]);
+//        }
+//    }
+//    cout << " " << endl;
+//    cout << "df104 ";
+//    for (int ij=0;ij<totalnum;ij++){
+//        cout << beta_0[ij] << " ";
+//    }
+//    cout << " " << endl;
     //
     double dbeta=0;
     //
@@ -434,6 +476,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     double beta_b=dbeta;
     double beta_prev=dbeta;
     int iteration=0;
+    //
     while (iteration < maxiter){
         iteration++;
         //
@@ -469,195 +512,127 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)&&(abs(dbeta) > epsilon)){
             halves++;
             beta_c = beta_a + dbeta;
-            #pragma omp parallel for num_threads(nthreads)
-            for (int bl=0;bl<batch_cols.size()-1;bl++){
-                if (modelform=="A"){//The risks can be updated instead of recalculated for the models/terms allowed
-                    if (tform[ind0] == "lin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    } else if (tform[ind0] == "plin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    } else{
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp();
-                    }
-                } else if (modelform=="PA"){
-                    if (tform[ind0] == "lin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) * beta_c / beta_p;
-                            T0.col(ind0) = T0.col(ind0) * beta_c / beta_p;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else if (tform[ind0] == "plin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = (R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() - Te.array()) * beta_c / beta_p + Te.array();
-                            T0.col(ind0) = (T0.col(ind0).array() - 1) * beta_c / beta_p + 1;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else{
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array() * T0.col(ind0).array();
-                            Te = Te.array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
-                        }
-                    }
-                } else if (modelform=="PAE"){
-                    if (tform[ind0] == "lin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) * beta_c / beta_p;
-                            T0.col(ind0) = T0.col(ind0) * beta_c / beta_p;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else if (tform[ind0] == "plin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = (R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() - Te.array()) * beta_c / beta_p + Te.array();
-                            T0.col(ind0) = (T0.col(ind0).array() - 1) * beta_c / beta_p + 1;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else{
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()) * T0.array();
-                            Te = Te.array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
-                        }
-                    }
-                }else if (modelform=="M"){
-                    if (tform[ind0] == "lin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) * beta_c / beta_p;
-                    } else if (tform[ind0] == "plin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * (1 + beta_c * df0.col(ind0).array()) / (1 + beta_p * df0.col(ind0).array());
-                    } else{
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                    }
-                }else if (modelform=="GM"){
-                    throw invalid_argument( "GM isn't implemented" );
-                } else {
-                    throw invalid_argument( "Model isn't implemented" );
-                }
+            if (tform[ind0]=="lin"){
+                T0.col(ind0) = T0.col(ind0).array() * (beta_c / beta_p);
+            } else if (tform[ind0]=="plin"){
+                T0.col(ind0) = T0.col(ind0).array() * (1 + beta_c * df0.col(ind0).array()) / (1 + beta_p * df0.col(ind0).array());
+            } else {
+                T0.col(ind0) = T0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                Td0.col(ind0) = Td0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                Tdd0.col(ind0) = Tdd0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
             }
-            #pragma omp parallel for num_threads(nthreads) collapse(2)
-            for (int bl=0;bl<batch_cols.size()-1;bl++){
-                for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                    int ij = 0;
-                    int jk = ijk;
-                    while (jk>ij){
-                        ij++;
-                        jk-=ij;
-                    }
-                    if (modelform=="A"){
-                        if (ij==jk){
-                            if (tform[ij] == "lin"){
-                                ;
-                            } else if (tform[ij] == "plin"){
-                                ;
-                            } else{
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            }
-                        }
-                    } else if (modelform=="PA"){
-                        if (tform[ij] == "lin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.col(fir).array();
-                                }
-                            }
-                        } else if (tform[ij] == "plin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.col(fir).array();
-                                }
-                            }
-                        } else if (tform[jk] == "loglin"){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) =T0.col(fir).array() * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_0[ij]) * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                }
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                if (ij!=jk){
-                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                }
-                            }
-                    } else if (modelform=="PAE"){
-                        if (tform[ij] == "lin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.col(fir).array();
-                                }
-                            }
-                        } else if (tform[ij] == "plin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                }
-                            }
-                        } else{
-                            if (ij==fir){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                Rdd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            } else if (tform[jk] == "loglin"){
-                                    if (ij==fir){
-                                        Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                    } else {
-                                        Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) =T0.col(fir).array() * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_0[ij]) * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                    }
-                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                    if (ij!=jk){
-                                        Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                    }
-                                }
-                            }
-                    }else if (modelform=="M"){
-                        if (tform[ij] == "lin"){
-                            if (ij==jk){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) / beta_0[ij];
-                            }
-                        } else if (tform[ij] == "plin"){
-                            if (ij==jk){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * (df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array()) / (1 + beta_0[ij] * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array());
-                            }
-                        } else{
-                            if (ij==jk){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            }
-                            if (tform[jk] == "loglin"){
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                if (ij!=jk){
-                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                }
-                            }
-                        }
+            if (modelform=="A"){//The risks can be updated instead of recalculated for the models/terms allowed
+                if (tform[ind0] == "lin"){
+                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                } else if (tform[ind0] == "plin"){
+                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                } else{
+                    R.col(0) = R.col(0).array() + (beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp();
+                    Rd.col(ind0) = Rd.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                    Rdd.col(ind0*totalnum+ind0) = Rdd.col(ind0*totalnum+ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                }
+            } else if ((modelform=="PA")||(modelform=="PAE")){
+                if (tform[ind0] == "lin"){
+                    if (ind0==fir){
+                        R.col(0) = R.col(0) * beta_c / beta_p;
                     } else {
-                        throw invalid_argument( "GM isn't implemented" );
+                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
+                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                    }
+                } else if (tform[ind0] == "plin"){
+                    if (ind0==fir){
+                        R.col(0) = (R.col(0).array() - Te.array()) * beta_c / beta_p + Te.col(0).array();
+                    } else {
+                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
+                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                    }
+                } else{
+                    if (ind0==fir){
+                        R.col(0) = R.col(0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
+                    } else {
+                        R.col(0) = R.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array() * T0.col(fir).array();
+                        Te.col(0) = Te.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
                     }
                 }
+                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                for (int bl=0;bl<batch_cols.size()-1;bl++){
+                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk>ij){
+                            ij++;
+                            jk-=ij;
+                        }
+                        if (ij==ind0){
+                            if (ij==jk){
+                                if (tform[ij]=="loglin"){
+                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                } else {
+                                    ;
+                                }
+                            } else{
+                                if ((ij!=fir)&&(jk!=fir)){
+                                    ;
+                                } else if (tform[ind0]=="loglin"){
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                }
+                            }
+                        } else if (jk==ind0){
+                            if ((ij!=fir)&&(jk!=fir)){
+                                ;
+                            } else if (tform[jk]=="loglin"){
+                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                            }
+                        }
+                    }
+                }
+            }else if (modelform=="M"){
+                Te = Te.array() * 0 + 1; //verifies the initial term product is 1
+                //
+                Te = T0.array().rowwise().prod();
+                // computes intial risk and derivatives
+                R << Te.array();
+                Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
+                Rd = Rd.array() * Td0.array();
+                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                for (int bl=0;bl<batch_cols.size()-1;bl++){
+                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk>ij){
+                            ij++;
+                            jk-=ij;
+                        }
+                        if (ij==jk){
+                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        } else {
+                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        }
+                    }
+                }
+            }else if (modelform=="GM"){
+                throw invalid_argument( "GM isn't implemented" );
+            } else {
+                throw invalid_argument( "Model isn't implemented" );
             }
-            end_point = high_resolution_clock::now();
+            R = (R.array().isFinite()).select(R,0);
+            Rd = (Rd.array().isFinite()).select(Rd,0);
+            Rdd = (Rdd.array().isFinite()).select(Rdd,0);
+            end_point = steady_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
             cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_R"<<endl;
+            gibtime = steady_clock::to_time_t(steady_clock::now());
+            cout << ctime(&gibtime) << endl;
             fill(Ll.begin(), Ll.end(), 0.0);
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(Lldd.begin(), Lldd.end(), 0.0);
             #pragma omp parallel for num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-            for (int j=0;j<ntime;j++){
-                for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+                for (int j=0;j<ntime;j++){
                     int ij = 0;
                     int jk = ijk;
                     while (jk>ij){
@@ -666,6 +641,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     }
                     double Rs1 = 0;
                     double Rs2 = 0;
+                    double Rs2t = 0;
                     double Rs3 = 0;
                     //
                     vector<int> InGroup;
@@ -683,42 +659,50 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     for (int i = 0; i < InGroup.size()-1; i=i+2){
                         Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
+                        Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs3 += Rdd.block(InGroup[i]-1,ij*totalnum+jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                         at_risk += InGroup[i+1]-InGroup[i]+1;
                     }
                     //
-                    MatrixXd Ld = MatrixXd::Zero(dj,3);
-                    Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1) ,Rdd.block(RiskFail(j,0),ij*totalnum+jk,dj,1);//sum of risks in group
+                    MatrixXd Ld = MatrixXd::Zero(dj,4);
+                    Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ij*totalnum+jk,dj,1);//sum of risks in group
                     //
-                    MatrixXd Ldm = MatrixXd::Zero(dj,3);
+                    MatrixXd Ldm = MatrixXd::Zero(dj,4);
                     for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
                         Ldm.row(i) = (-double(i) / double(dj)) * Ld.colwise().sum().array();
                     }
                     Ldm.col(0) = Ldm.col(0).array() + Rs1;
                     Ldm.col(1) = Ldm.col(1).array() + Rs2;
-                    Ldm.col(2) = Ldm.col(2).array() + Rs3;
+                    Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+                    Ldm.col(3) = Ldm.col(3).array() + Rs3;
                     //
                     MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
                     temp1 = Ld.col(0).array().log();
                     double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ld.col(1).array() * (Ld.col(0).array().pow(-1));
+                    temp1 = Ld.col(1).array() * (Ld.col(0).array().pow(-1).array());
+                    temp2 = Ld.col(2).array() * (Ld.col(0).array().pow(-1).array());
                     double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ld.col(2).array() * (Ld.col(0).array().pow(-1)) - temp1.array().pow(2);
+                    temp1 = Ld.col(3).array() * (Ld.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                     double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
                     //
                     temp1 = Ldm.col(0).array().log();
                     Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1));
+                    temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+                    temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
                     Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1)) - temp1.array().pow(2);
+                    temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                     Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
                     //
                     if (ij==jk){
                         Ll[ij] += Ld1 - Rs1;
                         Lld[ij] += Ld2 - Rs2;
+                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+                    } else {
+                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+                        Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
                     }
-                    Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                    Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+        //            cout <<ij << "," << jk << "," << j << "," << Ld1 - Rs1 <<","<< Ld2 - Rs2 <<","<< Ld3 - Rs3 << endl;
                 }
             }
             if (Ll[ind0] <= Ll_best){
@@ -726,240 +710,174 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             } else{
                 beta_best = beta_c;
             }
-            end_point = high_resolution_clock::now();
+            end_point = steady_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
             beta_p = beta_c;
             cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
-            cout << "df101 ";
-            for (int ij=0;ij<totalnum;ij++){
-                cout << Ll[ij] << " ";
-            }
-            cout << " " << endl;
-            cout << "df102 ";
-            for (int ij=0;ij<totalnum;ij++){
-                cout << Lld[ij] << " ";
-            }
-            cout << " " << endl;
-            cout << "df103 ";
-            for (int ij=0;ij<totalnum;ij++){
-                cout << Lldd[ij*totalnum+ij] << " ";
-            }
-            for (int ij=0;ij<totalnum;ij++){
-                if (abs(Lld[ij]) > Lld_worst){
-                    Lld_worst = abs(Lld[ij]);
-                }
-            }
-            cout << " " << endl;
-            beta_0[ind0] = beta_c;
-            cout << "df104 ";
-            for (int ij=0;ij<totalnum;ij++){
-                cout << beta_0[ij] << " ";
-            }
-            cout << " " << endl;
+            gibtime = steady_clock::to_time_t(steady_clock::now());
+            cout << ctime(&gibtime) << endl;
+//            cout << "df101 ";
+//            for (int ij=0;ij<totalnum;ij++){
+//                cout << Ll[ij] << " ";
+//            }
+//            cout << " " << endl;
+//            cout << "df102 ";
+//            for (int ij=0;ij<totalnum;ij++){
+//                cout << Lld[ij] << " ";
+//            }
+//            cout << " " << endl;
+//            cout << "df103 ";
+//            for (int ij=0;ij<totalnum;ij++){
+//                cout << Lldd[ij*totalnum+ij] << " ";
+//            }
+//            for (int ij=0;ij<totalnum;ij++){
+//                if (abs(Lld[ij]) > Lld_worst){
+//                    Lld_worst = abs(Lld[ij]);
+//                }
+//            }
+//            cout << " " << endl;
+//            beta_0[ind0] = beta_c;
+//            cout << "df104 ";
+//            for (int ij=0;ij<totalnum;ij++){
+//                cout << beta_0[ij] << " ";
+//            }
+//            cout << " " << endl;
             beta_0[ind0] = beta_best;
 //            cout << beta_best << ", " << Ll[ind0] << endl;
         }
         if (beta_best!=beta_p){
             beta_c = beta_best;
 //            cout << beta_c << ":" << beta_p << endl;
-            #pragma omp parallel for num_threads(nthreads)
-            for (int bl=0;bl<batch_cols.size()-1;bl++){
-                if (modelform=="A"){//The risks can be updated instead of recalculated for the models/terms allowed
-                    if (tform[ind0] == "lin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    } else if (tform[ind0] == "plin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    } else{
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp();
-                    }
-                } else if (modelform=="PA"){
-                    if (tform[ind0] == "lin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) * beta_c / beta_p;
-                            T0.col(ind0) = T0.col(ind0) * beta_c / beta_p;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else if (tform[ind0] == "plin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = (R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() - Te.array()) * beta_c / beta_p + Te.array();
-                            T0.col(ind0) = (T0.col(ind0).array() - 1) * beta_c / beta_p + 1;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else{
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array() * T0.col(ind0).array();
-                            Te = Te.array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
-                        }
-                    }
-                } else if (modelform=="PAE"){
-                    if (tform[ind0] == "lin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) * beta_c / beta_p;
-                            T0.col(ind0) = T0.col(ind0) * beta_c / beta_p;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else if (tform[ind0] == "plin"){
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = (R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() - Te.array()) * beta_c / beta_p + Te.array();
-                            T0.col(ind0) = (T0.col(ind0).array() - 1) * beta_c / beta_p + 1;
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(ind0).array();
-                            Te = Te.array() + (beta_c - beta_p) * df0.col(ind0).array();
-                        }
-                    } else{
-                        if (i==fir){
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
-                        } else {
-                            R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()) * T0.array();
-                            Te = Te.array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
-                        }
-                    }
-                }else if (modelform=="M"){
-                    if (tform[ind0] == "lin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) * beta_c / beta_p;
-                    } else if (tform[ind0] == "plin"){
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * (1 + beta_c * df0.col(ind0).array()) / (1 + beta_p * df0.col(ind0).array());
-                    } else{
-                        R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                    }
-                }else if (modelform=="GM"){
-                    throw invalid_argument( "GM isn't implemented" );
-                } else {
-                    throw invalid_argument( "Model isn't implemented" );
-                }
+            if (tform[ind0]=="lin"){
+                T0.col(ind0) = T0.col(ind0).array() * (beta_c / beta_p);
+            } else if (tform[ind0]=="plin"){
+                T0.col(ind0) = T0.col(ind0).array() * (1 + beta_c * df0.col(ind0).array()) / (1 + beta_p * df0.col(ind0).array());
+            } else {
+                T0.col(ind0) = T0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                Td0.col(ind0) = Td0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                Tdd0.col(ind0) = Tdd0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
             }
-            #pragma omp parallel for num_threads(nthreads) collapse(2)
-            for (int bl=0;bl<batch_cols.size()-1;bl++){
-                for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                    int ij = 0;
-                    int jk = ijk;
-                    while (jk>ij){
-                        ij++;
-                        jk-=ij;
-                    }
-                    if (modelform=="A"){
-                        if (ij==jk){
-                            if (tform[ij] == "lin"){
-                                ;
-                            } else if (tform[ij] == "plin"){
-                                ;
-                            } else{
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            }
-                        }
-                    } else if (modelform=="PA"){
-                        if (tform[ij] == "lin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.col(fir).array();
-                                }
-                            }
-                        } else if (tform[ij] == "plin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.col(fir).array();
-                                }
-                            }
-                        } else if (tform[jk] == "loglin"){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) =T0.col(fir).array() * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_0[ij]) * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                }
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                if (ij!=jk){
-                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                }
-                            }
-                    } else if (modelform=="PAE"){
-                        if (tform[ij] == "lin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.col(fir).array();
-                                }
-                            }
-                        } else if (tform[ij] == "plin"){
-                            if (ij==jk){
-                                if (ij==fir){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.array();
-                                } else {
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                }
-                            }
-                        } else{
-                            if (ij==fir){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                Rdd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            } else if (tform[jk] == "loglin"){
-                                    if (ij==fir){
-                                        Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                    } else {
-                                        Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) =T0.col(fir).array() * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_0[ij]) * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                    }
-                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                    if (ij!=jk){
-                                        Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                    }
-                                }
-                            }
-                    }else if (modelform=="M"){
-                        if (tform[ij] == "lin"){
-                            if (ij==jk){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1) / beta_0[ij];
-                            }
-                        } else if (tform[ij] == "plin"){
-                            if (ij==jk){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array() * (df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array()) / (1 + beta_0[ij] * df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array());
-                            }
-                        } else{
-                            if (ij==jk){
-                                Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * R.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            }
-                            if (tform[jk] == "loglin"){
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                if (ij!=jk){
-                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = df0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                                }
-                            }
-                        }
+            if (modelform=="A"){//The risks can be updated instead of recalculated for the models/terms allowed
+                if (tform[ind0] == "lin"){
+                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                } else if (tform[ind0] == "plin"){
+                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                } else{
+                    R.col(0) = R.col(0).array() + (beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp();
+                    Rd.col(ind0) = Rd.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                    Rdd.col(ind0*totalnum+ind0) = Rdd.col(ind0*totalnum+ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+                }
+            } else if ((modelform=="PA")||(modelform=="PAE")){
+                if (tform[ind0] == "lin"){
+                    if (ind0==fir){
+                        R.col(0) = R.col(0) * beta_c / beta_p;
                     } else {
-                        throw invalid_argument( "GM isn't implemented" );
+                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
+                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                    }
+                } else if (tform[ind0] == "plin"){
+                    if (ind0==fir){
+                        R.col(0) = (R.col(0).array() - Te.array()) * beta_c / beta_p + Te.col(0).array();
+                    } else {
+                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
+                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
+                    }
+                } else{
+                    if (ind0==fir){
+                        R.col(0) = R.col(0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
+                    } else {
+                        R.col(0) = R.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array() * T0.col(fir).array();
+                        Te.col(0) = Te.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
                     }
                 }
+                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                for (int bl=0;bl<batch_cols.size()-1;bl++){
+                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk>ij){
+                            ij++;
+                            jk-=ij;
+                        }
+                        if (ij==ind0){
+                            if (ij==jk){
+                                if (tform[ij]=="loglin"){
+                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                } else {
+                                    ;
+                                }
+                            } else{
+                                if ((ij!=fir)&&(jk!=fir)){
+                                    ;
+                                } else if (tform[ind0]=="loglin"){
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                }
+                            }
+                        } else if (jk==ind0){
+                            if ((ij!=fir)&&(jk!=fir)){
+                                ;
+                            } else if (tform[jk]=="loglin"){
+                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                            }
+                        }
+                    }
+                }
+            }else if (modelform=="M"){
+                Te = Te.array() * 0 + 1; //verifies the initial term product is 1
+                //
+                Te = T0.array().rowwise().prod();
+                // computes intial risk and derivatives
+                R << Te.array();
+                Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
+                Rd = Rd.array() * Td0.array();
+                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                for (int bl=0;bl<batch_cols.size()-1;bl++){
+                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk>ij){
+                            ij++;
+                            jk-=ij;
+                        }
+                        if (ij==jk){
+                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        } else {
+                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        }
+                    }
+                }
+            }else if (modelform=="GM"){
+                throw invalid_argument( "GM isn't implemented" );
+            } else {
+                throw invalid_argument( "Model isn't implemented" );
             }
+            R = (R.array().isFinite()).select(R,0);
+            Rd = (Rd.array().isFinite()).select(Rd,0);
+            Rdd = (Rdd.array().isFinite()).select(Rdd,0);
             fill(Ll.begin(), Ll.end(), 0.0);
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(Lldd.begin(), Lldd.end(), 0.0);
-            end_point = high_resolution_clock::now();
+            end_point = steady_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
             cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Revert"<<endl;
+            gibtime = steady_clock::to_time_t(steady_clock::now());
+            cout << ctime(&gibtime) << endl;
             #pragma omp parallel for num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-            for (int j=0;j<ntime;j++){
-                for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+                for (int j=0;j<ntime;j++){
                     int ij = 0;
                     int jk = ijk;
                     while (jk>ij){
                         ij++;
                         jk-=ij;
                     }
-                   
                     double Rs1 = 0;
                     double Rs2 = 0;
+                    double Rs2t = 0;
                     double Rs3 = 0;
                     //
                     vector<int> InGroup;
@@ -977,44 +895,53 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     for (int i = 0; i < InGroup.size()-1; i=i+2){
                         Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
+                        Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs3 += Rdd.block(InGroup[i]-1,ij*totalnum+jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                         at_risk += InGroup[i+1]-InGroup[i]+1;
                     }
                     //
-                    MatrixXd Ld = MatrixXd::Zero(dj,3);
-                    Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1) ,Rdd.block(RiskFail(j,0),ij*totalnum+jk,dj,1);//sum of risks in group
+                    MatrixXd Ld = MatrixXd::Zero(dj,4);
+                    Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ij*totalnum+jk,dj,1);//sum of risks in group
                     //
-                    MatrixXd Ldm = MatrixXd::Zero(dj,3);
+                    MatrixXd Ldm = MatrixXd::Zero(dj,4);
                     for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
                         Ldm.row(i) = (-double(i) / double(dj)) * Ld.colwise().sum().array();
                     }
                     Ldm.col(0) = Ldm.col(0).array() + Rs1;
                     Ldm.col(1) = Ldm.col(1).array() + Rs2;
-                    Ldm.col(2) = Ldm.col(2).array() + Rs3;
+                    Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+                    Ldm.col(3) = Ldm.col(3).array() + Rs3;
                     //
                     MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
                     temp1 = Ld.col(0).array().log();
                     double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ld.col(1).array() * (Ld.col(0).array().pow(-1));
+                    temp1 = Ld.col(1).array() * (Ld.col(0).array().pow(-1).array());
+                    temp2 = Ld.col(2).array() * (Ld.col(0).array().pow(-1).array());
                     double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ld.col(2).array() * (Ld.col(0).array().pow(-1)) - temp1.array().pow(2);
+                    temp1 = Ld.col(3).array() * (Ld.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                     double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
                     //
                     temp1 = Ldm.col(0).array().log();
                     Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1));
+                    temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+                    temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
                     Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1)) - temp1.array().pow(2);
+                    temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                     Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
                     //
                     if (ij==jk){
                         Ll[ij] += Ld1 - Rs1;
                         Lld[ij] += Ld2 - Rs2;
+                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+                    } else {
+                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+                        Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
                     }
-                    Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                    Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+        //            cout <<ij << "," << jk << "," << j << "," << Ld1 - Rs1 <<","<< Ld2 - Rs2 <<","<< Ld3 - Rs3 << endl;
                 }
             }
+            beta_0[ind0] = beta_best;
         }
         for (int ij=0;ij<totalnum;ij++){
             if (abs(Lld[ij]) > Lld_worst){
@@ -1029,30 +956,33 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 }
             }
         }
-        end_point = high_resolution_clock::now();
+        end_point = steady_clock::now();
         end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
         cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Recalc"<<endl;
-        cout << "df101 ";
-        for (int ij=0;ij<totalnum;ij++){
-            cout << Ll[ij] << " ";
-        }
-        cout << " " << endl;
-        cout << "df102 ";
-        for (int ij=0;ij<totalnum;ij++){
-            cout << Lld[ij] << " ";
-        }
-        cout << " " << endl;
-        cout << "df103 ";
-        for (int ij=0;ij<totalnum;ij++){
-            cout << Lldd[ij*totalnum+ij] << " ";
-        }
-        cout << " " << endl;
-        cout << "df104 ";
-        for (int ij=0;ij<totalnum;ij++){
-            cout << beta_0[ij] << " ";
-        }
-        cout << " " << endl;
+        gibtime = steady_clock::to_time_t(steady_clock::now());
+        cout << ctime(&gibtime) << endl;
+//        cout << "df101 ";
+//        for (int ij=0;ij<totalnum;ij++){
+//            cout << Ll[ij] << " ";
+//        }
+//        cout << " " << endl;
+//        cout << "df102 ";
+//        for (int ij=0;ij<totalnum;ij++){
+//            cout << Lld[ij] << " ";
+//        }
+//        cout << " " << endl;
+//        cout << "df103 ";
+//        for (int ij=0;ij<totalnum;ij++){
+//            cout << Lldd[ij*totalnum+ij] << " ";
+//        }
+//        cout << " " << endl;
+//        cout << "df104 ";
+//        for (int ij=0;ij<totalnum;ij++){
+//            cout << beta_0[ij] << " ";
+//        }
+//        cout << " " << endl;
     }
+//    NumericVector 
     NumericVector Lldd_vec = wrap(Lldd);
     Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
     //
