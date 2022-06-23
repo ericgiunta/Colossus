@@ -51,13 +51,13 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
 
     using namespace std::chrono;
     cout << "START_NEW" << endl;
-    time_point<steady_clock> start_point, end_point;
-    start_point = steady_clock::now();
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
     auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    end_point = steady_clock::now();
+    end_point = system_clock::now();
     auto end = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
     //
-    auto gibtime = steady_clock::to_time_t(steady_clock::now());
+    auto gibtime = system_clock::to_time_t(system_clock::now());
     cout << ctime(&gibtime) << endl;
     //
     int totalnum = 0;
@@ -115,10 +115,10 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     //for (int ij=0; ij < batch_cols.size(); ij++){
     //    cout << batch_cols[ij] << endl;
     //}
-    end_point = steady_clock::now();
+    end_point = system_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df99,"<<(end-start)<<",Batches"<<endl;
-    gibtime = steady_clock::to_time_t(steady_clock::now());
+    gibtime = system_clock::to_time_t(system_clock::now());
     cout << ctime(&gibtime) << endl;
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -216,10 +216,10 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         }
     }
     //
-    end_point = steady_clock::now();
+    end_point = system_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df99,"<<(end-start)<<",Terms"<<endl;
-    gibtime = steady_clock::to_time_t(steady_clock::now());
+    gibtime = system_clock::to_time_t(system_clock::now());
     cout << ctime(&gibtime) << endl;
     //
     MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for non-Derivative column terms
@@ -244,7 +244,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             R << T0.col(fir).array() * Te.array();
             Rd << Td0.array() * T0.col(fir).array();//, Td0.col(0).array() * Te.array(), Td0.col(1).array() * Te.array();
             Rd.col(fir) = Td0.col(fir).array() * Te.array();
-            #pragma omp parallel for num_threads(nthreads) collapse(2)
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
             for (int bl=0;bl<batch_cols.size()-1;bl++){
                 for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                     int ij = 0;
@@ -276,7 +276,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         R << Te.array();
         Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
         Rd = Rd.array() * Td0.array();
-        #pragma omp parallel for num_threads(nthreads) collapse(2)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
         for (int bl=0;bl<batch_cols.size()-1;bl++){
             for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                 int ij = 0;
@@ -316,10 +316,10 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
     int j_iter = 0;
     //
-    end_point = steady_clock::now();
+    end_point = system_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df100 "<<(end-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
-    gibtime = steady_clock::to_time_t(steady_clock::now());
+    gibtime = system_clock::to_time_t(system_clock::now());
     cout << ctime(&gibtime) << endl;
     // --------------------------
     // A file is created previously that stores what rows belong to which risk sections
@@ -354,7 +354,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
-    #pragma omp parallel for num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             int ij = 0;
@@ -379,13 +379,13 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             }
             //Now has the grouping pairs
             int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-            int at_risk = 0;
+//            int at_risk = 0;
             for (int i = 0; i < InGroup.size()-1; i=i+2){
                 Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs3 += Rdd.block(InGroup[i]-1,ij*totalnum+jk,InGroup[i+1]-InGroup[i]+1,1).sum();
-                at_risk += InGroup[i+1]-InGroup[i]+1;
+//                at_risk += InGroup[i+1]-InGroup[i]+1;
             }
             //
             MatrixXd Ld = MatrixXd::Zero(dj,4);
@@ -429,36 +429,36 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
 //            cout <<ij << "," << jk << "," << j << "," << Ld1 - Rs1 <<","<< Ld2 - Rs2 <<","<< Ld3 - Rs3 << endl;
         }
     }
-    end_point = steady_clock::now();
+    end_point = system_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df100 "<<(end-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;
-    gibtime = steady_clock::to_time_t(steady_clock::now());
+    gibtime = system_clock::to_time_t(system_clock::now());
     cout << ctime(&gibtime) << endl;
-//    cout << "df101 ";
-//    for (int ij=0;ij<totalnum;ij++){
-//        cout << Ll[ij] << " ";
-//    }
-//    cout << " " << endl;
-//    cout << "df102 ";
-//    for (int ij=0;ij<totalnum;ij++){
-//        cout << Lld[ij] << " ";
-//    }
-//    cout << " " << endl;
-//    cout << "df103 ";
-//    for (int ij=0;ij<totalnum;ij++){
-//        cout << Lldd[ij*totalnum+ij] << " ";
-//    }
-//    for (int ij=0;ij<totalnum;ij++){
-//        if (abs(Lld[ij]) > Lld_worst){
-//            Lld_worst = abs(Lld[ij]);
-//        }
-//    }
-//    cout << " " << endl;
-//    cout << "df104 ";
-//    for (int ij=0;ij<totalnum;ij++){
-//        cout << beta_0[ij] << " ";
-//    }
-//    cout << " " << endl;
+    cout << "df101 ";
+    for (int ij=0;ij<totalnum;ij++){
+        cout << Ll[ij] << " ";
+    }
+    cout << " " << endl;
+    cout << "df102 ";
+    for (int ij=0;ij<totalnum;ij++){
+        cout << Lld[ij] << " ";
+    }
+    cout << " " << endl;
+    cout << "df103 ";
+    for (int ij=0;ij<totalnum;ij++){
+        cout << Lldd[ij*totalnum+ij] << " ";
+    }
+    for (int ij=0;ij<totalnum;ij++){
+        if (abs(Lld[ij]) > Lld_worst){
+            Lld_worst = abs(Lld[ij]);
+        }
+    }
+    cout << " " << endl;
+    cout << "df104 ";
+    for (int ij=0;ij<totalnum;ij++){
+        cout << beta_0[ij] << " ";
+    }
+    cout << " " << endl;
     //
     double dbeta=0;
     //
@@ -554,7 +554,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                         Te.col(0) = Te.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
                     }
                 }
-                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
                 for (int bl=0;bl<batch_cols.size()-1;bl++){
                     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                         int ij = 0;
@@ -597,7 +597,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 R << Te.array();
                 Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
                 Rd = Rd.array() * Td0.array();
-                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
                 for (int bl=0;bl<batch_cols.size()-1;bl++){
                     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                         int ij = 0;
@@ -622,15 +622,15 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             R = (R.array().isFinite()).select(R,0);
             Rd = (Rd.array().isFinite()).select(Rd,0);
             Rdd = (Rdd.array().isFinite()).select(Rdd,0);
-            end_point = steady_clock::now();
+            end_point = system_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
             cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_R"<<endl;
-            gibtime = steady_clock::to_time_t(steady_clock::now());
+            gibtime = system_clock::to_time_t(system_clock::now());
             cout << ctime(&gibtime) << endl;
             fill(Ll.begin(), Ll.end(), 0.0);
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(Lldd.begin(), Lldd.end(), 0.0);
-            #pragma omp parallel for num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
             for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                 for (int j=0;j<ntime;j++){
                     int ij = 0;
@@ -655,13 +655,13 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     }
                     //Now has the grouping pairs
                     int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-                    int at_risk = 0;
+//                    int at_risk = 0;
                     for (int i = 0; i < InGroup.size()-1; i=i+2){
                         Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs3 += Rdd.block(InGroup[i]-1,ij*totalnum+jk,InGroup[i+1]-InGroup[i]+1,1).sum();
-                        at_risk += InGroup[i+1]-InGroup[i]+1;
+//                        at_risk += InGroup[i+1]-InGroup[i]+1;
                     }
                     //
                     MatrixXd Ld = MatrixXd::Zero(dj,4);
@@ -710,38 +710,38 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             } else{
                 beta_best = beta_c;
             }
-            end_point = steady_clock::now();
+            end_point = system_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
             beta_p = beta_c;
             cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
-            gibtime = steady_clock::to_time_t(steady_clock::now());
+            gibtime = system_clock::to_time_t(system_clock::now());
             cout << ctime(&gibtime) << endl;
-//            cout << "df101 ";
-//            for (int ij=0;ij<totalnum;ij++){
-//                cout << Ll[ij] << " ";
-//            }
-//            cout << " " << endl;
-//            cout << "df102 ";
-//            for (int ij=0;ij<totalnum;ij++){
-//                cout << Lld[ij] << " ";
-//            }
-//            cout << " " << endl;
-//            cout << "df103 ";
-//            for (int ij=0;ij<totalnum;ij++){
-//                cout << Lldd[ij*totalnum+ij] << " ";
-//            }
-//            for (int ij=0;ij<totalnum;ij++){
-//                if (abs(Lld[ij]) > Lld_worst){
-//                    Lld_worst = abs(Lld[ij]);
-//                }
-//            }
-//            cout << " " << endl;
-//            beta_0[ind0] = beta_c;
-//            cout << "df104 ";
-//            for (int ij=0;ij<totalnum;ij++){
-//                cout << beta_0[ij] << " ";
-//            }
-//            cout << " " << endl;
+            cout << "df101 ";
+            for (int ij=0;ij<totalnum;ij++){
+                cout << Ll[ij] << " ";
+            }
+            cout << " " << endl;
+            cout << "df102 ";
+            for (int ij=0;ij<totalnum;ij++){
+                cout << Lld[ij] << " ";
+            }
+            cout << " " << endl;
+            cout << "df103 ";
+            for (int ij=0;ij<totalnum;ij++){
+                cout << Lldd[ij*totalnum+ij] << " ";
+            }
+            for (int ij=0;ij<totalnum;ij++){
+                if (abs(Lld[ij]) > Lld_worst){
+                    Lld_worst = abs(Lld[ij]);
+                }
+            }
+            cout << " " << endl;
+            beta_0[ind0] = beta_c;
+            cout << "df104 ";
+            for (int ij=0;ij<totalnum;ij++){
+                cout << beta_0[ij] << " ";
+            }
+            cout << " " << endl;
             beta_0[ind0] = beta_best;
 //            cout << beta_best << ", " << Ll[ind0] << endl;
         }
@@ -790,7 +790,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                         Te.col(0) = Te.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
                     }
                 }
-                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
                 for (int bl=0;bl<batch_cols.size()-1;bl++){
                     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                         int ij = 0;
@@ -833,7 +833,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 R << Te.array();
                 Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
                 Rd = Rd.array() * Td0.array();
-                #pragma omp parallel for num_threads(nthreads) collapse(2)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
                 for (int bl=0;bl<batch_cols.size()-1;bl++){
                     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                         int ij = 0;
@@ -861,12 +861,12 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             fill(Ll.begin(), Ll.end(), 0.0);
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(Lldd.begin(), Lldd.end(), 0.0);
-            end_point = steady_clock::now();
+            end_point = system_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
             cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Revert"<<endl;
-            gibtime = steady_clock::to_time_t(steady_clock::now());
+            gibtime = system_clock::to_time_t(system_clock::now());
             cout << ctime(&gibtime) << endl;
-            #pragma omp parallel for num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
             for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                 for (int j=0;j<ntime;j++){
                     int ij = 0;
@@ -891,13 +891,13 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     }
                     //Now has the grouping pairs
                     int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-                    int at_risk = 0;
+//                    int at_risk = 0;
                     for (int i = 0; i < InGroup.size()-1; i=i+2){
                         Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                         Rs3 += Rdd.block(InGroup[i]-1,ij*totalnum+jk,InGroup[i+1]-InGroup[i]+1,1).sum();
-                        at_risk += InGroup[i+1]-InGroup[i]+1;
+//                        at_risk += InGroup[i+1]-InGroup[i]+1;
                     }
                     //
                     MatrixXd Ld = MatrixXd::Zero(dj,4);
@@ -956,31 +956,31 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 }
             }
         }
-        end_point = steady_clock::now();
+        end_point = system_clock::now();
         end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
         cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Recalc"<<endl;
-        gibtime = steady_clock::to_time_t(steady_clock::now());
+        gibtime = system_clock::to_time_t(system_clock::now());
         cout << ctime(&gibtime) << endl;
-//        cout << "df101 ";
-//        for (int ij=0;ij<totalnum;ij++){
-//            cout << Ll[ij] << " ";
-//        }
-//        cout << " " << endl;
-//        cout << "df102 ";
-//        for (int ij=0;ij<totalnum;ij++){
-//            cout << Lld[ij] << " ";
-//        }
-//        cout << " " << endl;
-//        cout << "df103 ";
-//        for (int ij=0;ij<totalnum;ij++){
-//            cout << Lldd[ij*totalnum+ij] << " ";
-//        }
-//        cout << " " << endl;
-//        cout << "df104 ";
-//        for (int ij=0;ij<totalnum;ij++){
-//            cout << beta_0[ij] << " ";
-//        }
-//        cout << " " << endl;
+        cout << "df101 ";
+        for (int ij=0;ij<totalnum;ij++){
+            cout << Ll[ij] << " ";
+        }
+        cout << " " << endl;
+        cout << "df102 ";
+        for (int ij=0;ij<totalnum;ij++){
+            cout << Lld[ij] << " ";
+        }
+        cout << " " << endl;
+        cout << "df103 ";
+        for (int ij=0;ij<totalnum;ij++){
+            cout << Lldd[ij*totalnum+ij] << " ";
+        }
+        cout << " " << endl;
+        cout << "df104 ";
+        for (int ij=0;ij<totalnum;ij++){
+            cout << beta_0[ij] << " ";
+        }
+        cout << " " << endl;
     }
 //    NumericVector 
     NumericVector Lldd_vec = wrap(Lldd);
