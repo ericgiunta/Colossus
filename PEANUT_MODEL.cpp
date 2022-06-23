@@ -306,7 +306,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
     // now a vector exists with row locations
     // --------------------------
     //The log-likelihood is calculated in parallel over the risk groups
-    #pragma omp parallel for num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
     for (int j=0;j<ntime;j++){
 //        cout << j << endl;
         double Rs1 = 0;
@@ -497,7 +497,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         Lld = 0.0;
         Lldd = 0.0;
         //
-        #pragma omp parallel for num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
         for (int j=0;j<ntime;j++){
     //        cout << j << endl;
             double Rs1 = 0;
@@ -898,7 +898,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
         Lld = 0.0;
         Lldd = 0.0;
         //
-        #pragma omp parallel for num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
             for (int j=0;j<ntime;j++){
     //        cout << j << endl;
             double Rs1 = 0;
@@ -1084,7 +1084,7 @@ VectorXd LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_p
             Lld = 0.0;
             Lldd = 0.0;
             //
-            #pragma omp parallel for num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(+:Ll,Lld,Lldd)
             for (int j=0;j<ntime;j++){
         //        cout << j << endl;
                 double Rs1 = 0;
