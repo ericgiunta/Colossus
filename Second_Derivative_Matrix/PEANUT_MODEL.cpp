@@ -27,28 +27,31 @@ template <typename T> int sign(T val) {
 }
 
 // [[Rcpp::export]]
-List peanut_transition(NumericVector a_lin,NumericVector a_loglin,NumericVector a_plin, NumericMatrix x_lin, NumericMatrix x_loglin, NumericMatrix x_plin,int fir,string modelform,int ntime, NumericVector include_bool, double lr, int maxiter, int halfmax, double epsilon, double dbeta_max, double deriv_epsilon, int batch_size){
+List peanut_transition(NumericVector a_lin,NumericVector a_loglin,NumericVector a_plin, NumericVector a_dose, NumericMatrix x_lin, NumericMatrix x_loglin, NumericMatrix x_plin, NumericMatrix x_dose,int fir,string modelform, string doseform, StringVector dose_terms,int ntime, NumericVector include_bool, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double deriv_epsilon, int batch_size){
     //----------------------------------------------------------------------------------------------------------------//
     //
+//    cout << ntime << endl;
     Map<VectorXd> beta_lin(as<Map<VectorXd> >(a_lin));
     Map<VectorXd> beta_loglin(as<Map<VectorXd> >(a_loglin));
     Map<VectorXd> beta_plin(as<Map<VectorXd> >(a_plin));
+    Map<VectorXd> beta_dose(as<Map<VectorXd> >(a_dose));
     const Map<MatrixXd> df_lin(as<Map<MatrixXd> >(x_lin));
     const Map<MatrixXd> df_loglin(as<Map<MatrixXd> >(x_loglin));
     const Map<MatrixXd> df_plin(as<Map<MatrixXd> >(x_plin));
+    const Map<MatrixXd> df_dose(as<Map<MatrixXd> >(x_dose));
     // Converts from Rcpp types to efficient Eigen types
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_PEANUT(beta_lin,beta_loglin,beta_plin,df_lin,df_loglin,df_plin,fir,modelform,ntime,include_bool, lr, maxiter, halfmax, epsilon, dbeta_max, deriv_epsilon, batch_size);
+    List res = LogLik_PEANUT(beta_lin,beta_loglin,beta_plin, beta_dose,df_lin,df_loglin,df_plin, df_dose,fir,modelform, doseform, dose_terms,ntime,include_bool, lr, maxiter, halfmax, epsilon, dbeta_cap, deriv_epsilon, batch_size);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
 
-List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT,MatrixXd df_lin,MatrixXd df_loglin,MatrixXd df_plin,int fir,string modelform,int ntime,NumericVector include_bool, double lr, int maxiter, int halfmax, double epsilon, double dbeta_max, double deriv_epsilon, int batch_size){
+List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT,VectorXd beta_dose,MatrixXd df_lin,MatrixXd df_loglin,MatrixXd df_plin, MatrixXd df_dose,int fir,string modelform, string doseform, StringVector dose_terms,int ntime,NumericVector include_bool, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double deriv_epsilon, int batch_size){
     //    cout << "start Risk" << endl;
     //
     srand (time(NULL));
     //
-
+//    cout << ntime << endl;
     using namespace std::chrono;
     cout << "START_NEW" << endl;
     time_point<system_clock> start_point, end_point;
@@ -60,7 +63,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     auto gibtime = system_clock::to_time_t(system_clock::now());
     cout << ctime(&gibtime) << endl;
     //
-    int totalnum = 0;
+    int totalnum = beta_dose.size();
     //
     cout.precision(10); //forces higher precision numbers printed to terminal
     int nthreads = Eigen::nbThreads(); //stores how many threads are allocated
@@ -123,6 +126,8 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
+    //
+    //
     VectorXd beta_0(totalnum);
     MatrixXd df0 = MatrixXd::Zero(df_lin.rows(), totalnum); // stores memory for the derivative term parameters and columns
     MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Derivative column terms
@@ -131,25 +136,63 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     #pragma omp parallel for num_threads(nthreads)
     for (int ij=0;ij<totalnum;ij++){
         int ind0 = ij;
-        if (include_bool[0]==1){
-            if (ind0 < beta_lin.size()){
-                // one exists and is one
-                beta_0[ij] = beta_lin[ind0];
-                df0.col(ij) = df_lin.col(ind0);
-                tform[ij] = "lin";
-                //
-            } else {
-                //one exists and its not one
-                ind0 = ind0 - beta_lin.size();
+        if (ind0 < beta_dose.size()){
+            beta_0[ij] = beta_dose[ind0];
+            df0.col(ij) = df_dose.col(ind0);
+            tform[ij] = dose_terms[ij];
+        } else {
+            ind0 = ind0 - beta_dose.size();
+            if (include_bool[0]==1){
+                if (ind0 < beta_lin.size()){
+                    // one exists and is one
+                    beta_0[ij] = beta_lin[ind0];
+                    df0.col(ij) = df_lin.col(ind0);
+                    tform[ij] = "lin";
+                    //
+                } else {
+                    //one exists and its not one
+                    ind0 = ind0 - beta_lin.size();
+                    if (include_bool[1]==1){
+                        if (ind0 < beta_loglin.size()){
+                            //one and two exists and is two
+                            beta_0[ij] = beta_loglin[ind0];
+                            df0.col(ij) = df_loglin.col(ind0);
+                            tform[ij] = "loglin";
+                            //
+                        } else{
+                            //one exists, two does, must be three
+                            if (include_bool[2]!=1){
+                                throw invalid_argument( "Are all three used?" );
+                            }
+                            ind0 = ind0 - beta_loglin.size();
+                            beta_0[ij] = beta_plin[ind0];
+                            df0.col(ij) = df_plin.col(ind0);
+                            tform[ij] = "plin";
+                            //
+                        }
+                    } else{
+                        //one exists, and two doesn't exist, must be three
+                        if (include_bool[2]!=1){
+                            throw invalid_argument( "Are all first and third used?" );
+                        }
+                        beta_0[ij] = beta_plin[ind0];
+                        df0.col(ij) = df_plin.col(ind0);
+                        tform[ij] = "plin";
+                        //
+                    }
+                }
+            }else{
+                //one doesn't exist
                 if (include_bool[1]==1){
                     if (ind0 < beta_loglin.size()){
-                        //one and two exists and is two
+                        //one doesn't exist and two exists and is two
                         beta_0[ij] = beta_loglin[ind0];
+        //                cout << ind0 << ", " << beta_0 << ", " << beta_loglin.transpose() << endl;
                         df0.col(ij) = df_loglin.col(ind0);
                         tform[ij] = "loglin";
                         //
                     } else{
-                        //one exists, two does, must be three
+                        //one doesn't exist, two does, must be three
                         if (include_bool[2]!=1){
                             throw invalid_argument( "Are all three used?" );
                         }
@@ -160,7 +203,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                         //
                     }
                 } else{
-                    //one exists, and two doesn't exist, must be three
+                    //one doesn't exist, and two doesn't exist, must be three
                     if (include_bool[2]!=1){
                         throw invalid_argument( "Are all first and third used?" );
                     }
@@ -170,39 +213,8 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     //
                 }
             }
-        }else{
-            //one doesn't exist
-            if (include_bool[1]==1){
-                if (ind0 < beta_loglin.size()){
-                    //one doesn't exist and two exists and is two
-                    beta_0[ij] = beta_loglin[ind0];
-    //                cout << ind0 << ", " << beta_0 << ", " << beta_loglin.transpose() << endl;
-                    df0.col(ij) = df_loglin.col(ind0);
-                    tform[ij] = "loglin";
-                    //
-                } else{
-                    //one doesn't exist, two does, must be three
-                    if (include_bool[2]!=1){
-                        throw invalid_argument( "Are all three used?" );
-                    }
-                    ind0 = ind0 - beta_loglin.size();
-                    beta_0[ij] = beta_plin[ind0];
-                    df0.col(ij) = df_plin.col(ind0);
-                    tform[ij] = "plin";
-                    //
-                }
-            } else{
-                //one doesn't exist, and two doesn't exist, must be three
-                if (include_bool[2]!=1){
-                    throw invalid_argument( "Are all first and third used?" );
-                }
-                beta_0[ij] = beta_plin[ind0];
-                df0.col(ij) = df_plin.col(ind0);
-                tform[ij] = "plin";
-                //
-            }
         }
-//        cout << df0.col(ij).array().transpose() << endl;
+        //        cout << df0.col(ij).array().transpose() << endl;
         T0.col(ij) = (df0.col(ij).array() * beta_0[ij]).matrix();
         if (tform[ij]=="lin") {
             Td0.col(ij) = df0.col(ij);
@@ -210,9 +222,12 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             T0.col(ij) = T0.col(ij).array().exp();
             Td0.col(ij) = df0.col(ij).array() * T0.col(ij).array();
             Tdd0.col(ij) = df0.col(ij).array() * Td0.col(ij).array();
-        } else {
+        } else if (tform[ij]=="plin") {
             T0.col(ij) = 1 + T0.col(ij).array();
             Td0.col(ij) = df0.col(ij);
+        } else {
+            cout << tform[ij] << " is invalid" << endl;
+            throw invalid_argument( "Invalid term type" );
         }
     }
     //
@@ -223,46 +238,98 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     cout << ctime(&gibtime) << endl;
     //
     MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for non-Derivative column terms
+    MatrixXd De = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for non-Derivative column terms
+    MatrixXd Dde = MatrixXd::Zero(df0.rows(), beta_dose.size()); //preallocates matrix for non-Derivative column terms
+    MatrixXd Ddde = MatrixXd::Zero(df0.rows(), pow(beta_dose.size(),2)); //preallocates matrix for non-Derivative column terms
     MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks and derivatives
     MatrixXd Rd = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risks and derivatives
     MatrixXd Rdd = MatrixXd::Zero(df0.rows(), pow(totalnum,2));
+    if (doseform=="A"){
+        De = T0.array().block(0,0,T0.rows(),beta_dose.size()).rowwise().sum();
+        Dde = Td0.array().block(0,0,T0.rows(),beta_dose.size());
+        #pragma omp parallel for num_threads(nthreads)
+        for (int ij=0;ij<beta_dose.size();ij++){
+            Ddde.col(ij*beta_dose.size()+ij) = Tdd0.col(ij);
+        }
+    } else {
+        throw invalid_argument( "That Dose model isn't implemented" );
+    }
     if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
-        Te = T0.array().rowwise().sum();
+        Te = T0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size()).rowwise().sum() + De.array();
         // computes intial risk and derivatives
         if (modelform=="A"){
             R << Te.array();
-            Rd << Td0.array();
+            Rd << Dde.array(), Td0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size());
             #pragma omp parallel for num_threads(nthreads)
             for (int ij=0;ij<totalnum;ij++){
-                Rdd.col(ij*totalnum+ij) = Tdd0.col(ij);
+                if (ij<beta_dose.size()){
+                    Rdd.col(ij*totalnum+ij) = Ddde.col(ij);
+                } else {
+                    Rdd.col(ij*totalnum+ij) = Tdd0.col(ij);
+                }
             }
         } else if ((modelform=="PAE")||(modelform=="PA")){
-            Te = Te.array() - T0.col(fir).array();
+            if (fir!=0){
+                Te = Te.array() - T0.col(fir).array();
+            } else {
+                Te = Te.array() - De.array();
+            }
             if (modelform=="PAE"){
                 Te = Te.array() + 1;
             }
-            R << T0.col(fir).array() * Te.array();
-            Rd << Td0.array() * T0.col(fir).array();//, Td0.col(0).array() * Te.array(), Td0.col(1).array() * Te.array();
-            Rd.col(fir) = Td0.col(fir).array() * Te.array();
+            if (fir!=0){
+                R << T0.col(fir).array() * Te.array();
+                Rd << Td0.array() * T0.col(fir).array();//, Td0.col(0).array() * Te.array(), Td0.col(1).array() * Te.array();
+                Rd.col(fir) = Td0.col(fir).array() * Te.array();
+            } else {
+                R << De.array() * Te.array();
+                Rd << Td0.array() * De.array();
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                for (int ij=0;ij<beta_dose.size();ij++){
+                    Rd.col(ij) = Dde.col(ij).array() * Te.array();
+                }
+            }
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
             for (int bl=0;bl<batch_cols.size()-1;bl++){
-                for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                    int ij = 0;
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    int ij = ijk;
                     int jk = ijk;
                     while (jk>ij){
                         ij++;
                         jk-=ij;
                     }
                     if (ij==jk){
-                        if (ij==fir){
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.block(batch_cols[bl],1,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        if (fir!=0){
+                            if (ij==fir){
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            } else {
+                                if (ij<beta_dose.size()){
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],fir,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                } else {
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],fir,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                }
+                            }
                         } else {
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],fir,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            if (ij<beta_dose.size()){
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            } else {
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            }
                         }
                     } else {
-                        if ((ij==fir)||(jk==fir)){
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        if (fir!=0){
+                            if ((ij==fir)||(jk==fir)){
+                                if (ij<beta_dose.size()){
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                } else {
+                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                }
+                            } else if ((ij<beta_dose.size())&&(jk<beta_dose.size())){
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            }
                         }
                     }
                 }
@@ -271,25 +338,41 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     }else if (modelform=="M"){
         Te = Te.array() * 0 + 1; //verifies the initial term product is 1
         //
-        Te = T0.array().rowwise().prod();
+        Te = T0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size()).rowwise().prod() * De.array();
         // computes intial risk and derivatives
         R << Te.array();
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum;ijk++){
+            if (ijk<beta_dose.size()){
+                Rd.col(ijk) = De.col(ijk).array().pow(-1).array()* Te.array();
+                Rd.col(ijk) = Rd.col(ijk).array() * Dde.col(ijk).array();
+            }
+        }
         Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
         Rd = Rd.array() * Td0.array();
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
         for (int bl=0;bl<batch_cols.size()-1;bl++){
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                int ij = 0;
+            for (int ijk=0;ijk<totalnum;ijk++){
+                int ij = ijk;
                 int jk = ijk;
                 while (jk>ij){
                     ij++;
                     jk-=ij;
                 }
                 if (ij==jk){
-                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                    if (ij<beta_dose.size()){
+                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                    } else {
+                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                    }
                 } else {
-                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                    if ((ij<beta_dose.size())||(ij<beta_dose.size())){
+                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                    } else{
+                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                        Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                    }
                 }
             }
         }
@@ -305,10 +388,6 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     //
     // -------------------------------------------------------------------------------------------
     //
-//    cout << df0.block(0,1,10,1).transpose() << endl;
-//    cout << R.block(0,1,10,1).transpose() << endl;
-//    cout << Rd.block(0,1,10,1).transpose() << endl;
-//    cout << Rdd.block(0,totalnum+1,10,1).transpose() << endl;
     //
     string line;
     ifstream infile("test.txt"); //The file of risk group rows
@@ -341,6 +420,8 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         ostringstream group_str;
         copy(row.begin(), row.end()-2, ostream_iterator<int>(group_str, ","));
         RiskGroup[j_iter] = group_str.str();
+//        cout << group_str.str() << endl;
+//        cout << j_iter << endl;
         j_iter++;
     }
     //
@@ -355,9 +436,10 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
-            int ij = 0;
+//            cout << "_____________________________" << endl;
+            int ij = ijk;
             int jk = ijk;
             while (jk>ij){
                 ij++;
@@ -367,6 +449,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             double Rs2 = 0;
             double Rs2t = 0;
             double Rs3 = 0;
+//            cout << 1 << endl;
             //
             vector<int> InGroup;
             string Groupstr = RiskGroup[j];
@@ -377,16 +460,22 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 if (ss.peek() == ',')
                     ss.ignore();
             }
+//            cout << 1 << endl;
             //Now has the grouping pairs
             int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+//            cout << 2 << endl;
+//            cout << Groupstr << endl;
+//            cout << InGroup.size() << endl;
 //            int at_risk = 0;
             for (int i = 0; i < InGroup.size()-1; i=i+2){
+//                cout << InGroup[i] << "," << InGroup[i+1] << "," << ij << "," << jk << endl;
                 Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                 Rs3 += Rdd.block(InGroup[i]-1,ij*totalnum+jk,InGroup[i+1]-InGroup[i]+1,1).sum();
 //                at_risk += InGroup[i+1]-InGroup[i]+1;
             }
+//            cout << 1 << endl;
             //
             MatrixXd Ld = MatrixXd::Zero(dj,4);
             Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ij*totalnum+jk,dj,1);//sum of risks in group
@@ -395,11 +484,13 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
                 Ldm.row(i) = (-double(i) / double(dj)) * Ld.colwise().sum().array();
             }
+//            cout << 1 << endl;
             Ldm.col(0) = Ldm.col(0).array() + Rs1;
             Ldm.col(1) = Ldm.col(1).array() + Rs2;
             Ldm.col(2) = Ldm.col(2).array() + Rs2t;
             Ldm.col(3) = Ldm.col(3).array() + Rs3;
             //
+//            cout << 1 << endl;
             MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
             MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
             temp1 = Ld.col(0).array().log();
@@ -410,6 +501,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             temp1 = Ld.col(3).array() * (Ld.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
             double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
             //
+//            cout << 1 << endl;
             temp1 = Ldm.col(0).array().log();
             Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
             temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
@@ -421,13 +513,22 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             if (ij==jk){
                 Ll[ij] += Ld1 - Rs1;
                 Lld[ij] += Ld2 - Rs2;
-                Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-            } else {
-                Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
             }
+            Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+//            cout << 1 << endl;
 //            cout <<ij << "," << jk << "," << j << "," << Ld1 - Rs1 <<","<< Ld2 - Rs2 <<","<< Ld3 - Rs3 << endl;
         }
+    }
+//    cout << 1 << endl;
+    #pragma omp parallel for num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+        int ij = ijk;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd[jk*totalnum+ij] = Lldd[ij*totalnum+jk];
     }
     end_point = system_clock::now();
     end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
@@ -459,132 +560,178 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         cout << beta_0[ij] << " ";
     }
     cout << " " << endl;
+    cout << "df105 ";
+    for (int ij=0;ij<totalnum;ij++){
+        cout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+    }
+    cout << " " << endl;
+    cout << "df106 ";
+    for (int ij=0;ij<totalnum;ij++){
+        cout << Ll[ij]/Lld[ij] << " ";
+    }
+    cout << " " << endl;
     //
-    double dbeta=0;
+    vector<double> dbeta(totalnum,0.0);
     //
     // --------------------------
     // always starts from intial guess
     // --------------------------
-    double beta_p = 0.0;
-    double beta_c = 0.0;
-    double beta_a = 0.0;
-    double beta_best = 0.0;
+    vector<double> beta_p(totalnum,0.0);
+    vector<double> beta_c(totalnum,0.0);
+    vector<double> beta_a(totalnum,0.0);
+    vector<double> beta_best(totalnum,0.0);
+    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;//wrap(beta_0);
+    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;//beta_c = wrap(beta_0);
+    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;//beta_a = wrap(beta_0);
+    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;//beta_best = wrap(beta_0);
     double Ll_best = 0.0;
     int halves = 0;
     int ind0 = fir;
     int i = ind0;
-    double beta_b=dbeta;
-    double beta_prev=dbeta;
     int iteration=0;
     //
     while (iteration < maxiter){
         iteration++;
+        VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;//wrap(beta_0);
+        VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;//beta_c = wrap(beta_0);
+        VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;//beta_a = wrap(beta_0);
+        VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;//beta_best = wrap(beta_0);
         //
-        ind0 = rand() % totalnum;
-        if ((Lld[ind0] > 0)&&(Lldd[ind0*totalnum+ind0]<0)){
-            dbeta = -lr * Lld[ind0] / Lldd[ind0*totalnum+ind0];// decreases left, zeros right, ratio left
-        } else if ((Lld[ind0]<0)&&(Lldd[ind0*totalnum+ind0]>0)){
-            dbeta = -lr * Lld[ind0] / Lldd[ind0*totalnum+ind0];// decreases right, zeros right, ratio left
-        } else if ((Lld[ind0] > 0)&&(Lldd[ind0*totalnum+ind0]>0)){
-            dbeta = -lr * Lld[ind0] / Lldd[ind0*totalnum+ind0];// decreases left, zeros left, ratio right
-        } else if ((Lld[ind0]<0)&&(Lldd[ind0*totalnum+ind0]<0)){
-            dbeta = -lr * Lld[ind0] / Lldd[ind0*totalnum+ind0];// decreases right, zeros left, ratio right
-        } else {
-            dbeta=0.0;
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum;ijk++){
+            if ((Lld[ijk] > 0)&&(Lldd[ijk*totalnum+ijk]<0)){
+                dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];// decreases left, zeros right, ratio left
+            } else if ((Lld[ijk]<0)&&(Lldd[ijk*totalnum+ijk]>0)){
+                dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];// decreases right, zeros right, ratio left
+            } else if ((Lld[ijk] > 0)&&(Lldd[ijk*totalnum+ijk]>0)){
+                dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];// decreases left, zeros left, ratio right
+            } else if ((Lld[ijk]<0)&&(Lldd[ijk*totalnum+ijk]<0)){
+                dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];// decreases right, zeros left, ratio right
+            } else {
+                dbeta[ijk]=0.0;
+            }
+            //
+            double dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);
+            if (abs(dbeta[ijk])>dbeta_max){
+                dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+            }
+            if (ijk!=fir){
+                dbeta[ijk] = 0.0;
+            }
+//            dbeta[ijk] = 0.0;
         }
         //
-        if (abs(dbeta)>dbeta_max){
-            dbeta = dbeta_max * sign(dbeta);
-        }
-        //
-        beta_p = beta_0[ind0];
-        beta_c = beta_p;
-        beta_a = beta_0[ind0];
-        beta_best = beta_p;
+        VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;//wrap(beta_0);
+        VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;//beta_c = wrap(beta_0);
+        VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;//beta_a = wrap(beta_0);
+        VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;//beta_best = wrap(beta_0);
         Ll_best = Ll[ind0];
         // int halves = 0;
         i = ind0;
-        beta_b=dbeta;
-        beta_prev=dbeta;
 //        cout << beta_best << ", " << Ll[ind0] << endl;
         //
         halves=0;
-        while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)&&(abs(dbeta) > epsilon)){
+        while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)&&(abs(dbeta[ind0]) > epsilon)){
             halves++;
-            beta_c = beta_a + dbeta;
-            if (tform[ind0]=="lin"){
-                T0.col(ind0) = T0.col(ind0).array() * (beta_c / beta_p);
-            } else if (tform[ind0]=="plin"){
-                T0.col(ind0) = T0.col(ind0).array() * (1 + beta_c * df0.col(ind0).array()) / (1 + beta_p * df0.col(ind0).array());
-            } else {
-                T0.col(ind0) = T0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
-                Td0.col(ind0) = Td0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
-                Tdd0.col(ind0) = Tdd0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){
+                beta_c[ijk] = beta_a[ijk] + dbeta[ijk];
+                if (tform[ijk]=="lin"){
+                    T0.col(ijk) = T0.col(ijk).array() * (beta_c[ijk] / beta_p[ijk]);
+                } else if (tform[ijk]=="plin"){
+                    T0.col(ijk) = T0.col(ijk).array() * (1 + beta_c[ijk] * df0.col(ijk).array()) / (1 + beta_p[ijk] * df0.col(ijk).array());
+                } else {
+                    T0.col(ijk) = T0.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                    Td0.col(ijk) = Td0.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                    Tdd0.col(ijk) = Tdd0.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                }
             }
-            if (modelform=="A"){//The risks can be updated instead of recalculated for the models/terms allowed
-                if (tform[ind0] == "lin"){
-                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                } else if (tform[ind0] == "plin"){
-                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                } else{
-                    R.col(0) = R.col(0).array() + (beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp();
-                    Rd.col(ind0) = Rd.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
-                    Rdd.col(ind0*totalnum+ind0) = Rdd.col(ind0*totalnum+ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+            if (doseform=="A"){
+                De = T0.array().block(0,0,T0.rows(),beta_dose.size()).rowwise().sum();
+                Dde = Td0.array().block(0,0,T0.rows(),beta_dose.size()));
+                #pragma omp parallel for num_threads(nthreads)
+                for (int ij=0;ij<beta_dose.size();ij++){
+                    Ddde.col(ij*totalnum+ij) = Tdd0.col(ij);
                 }
-            } else if ((modelform=="PA")||(modelform=="PAE")){
-                if (tform[ind0] == "lin"){
-                    if (ind0==fir){
-                        R.col(0) = R.col(0) * beta_c / beta_p;
-                    } else {
-                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
-                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    }
-                } else if (tform[ind0] == "plin"){
-                    if (ind0==fir){
-                        R.col(0) = (R.col(0).array() - Te.array()) * beta_c / beta_p + Te.col(0).array();
-                    } else {
-                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
-                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    }
-                } else{
-                    if (ind0==fir){
-                        R.col(0) = R.col(0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
-                    } else {
-                        R.col(0) = R.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array() * T0.col(fir).array();
-                        Te.col(0) = Te.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
-                    }
-                }
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
-                for (int bl=0;bl<batch_cols.size()-1;bl++){
-                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                        int ij = 0;
-                        int jk = ijk;
-                        while (jk>ij){
-                            ij++;
-                            jk-=ij;
+            }
+            if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
+                Te = T0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size()).rowwise().sum() + De.array();
+                // computes intial risk and derivatives
+                if (modelform=="A"){
+                    R << Te.array();
+                    Rd << Dde.array(), Td0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size());
+                    #pragma omp parallel for num_threads(nthreads)
+                    for (int ij=0;ij<totalnum;ij++){
+                        if (ij<beta_dose.size()){
+                            Rdd.col(ij*totalnum+ij) = Ddde.col(ij);
+                        } else {
+                            Rdd.col(ij*totalnum+ij) = Tdd0.col(ij);
                         }
-                        if (ij==ind0){
-                            if (ij==jk){
-                                if (tform[ij]=="loglin"){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                } else {
-                                    ;
-                                }
-                            } else{
-                                if ((ij!=fir)&&(jk!=fir)){
-                                    ;
-                                } else if (tform[ind0]=="loglin"){
-                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                }
+                    }
+                } else if ((modelform=="PAE")||(modelform=="PA")){
+                    if (fir!=0){
+                        Te = Te.array() - T0.col(fir).array();
+                    } else {
+                        Te = Te.array() - De.array();
+                    }
+                    if (modelform=="PAE"){
+                        Te = Te.array() + 1;
+                    }
+                    if (fir!=0){
+                        R << T0.col(fir).array() * Te.array();
+                        Rd << Td0.array() * T0.col(fir).array();//, Td0.col(0).array() * Te.array(), Td0.col(1).array() * Te.array();
+                        Rd.col(fir) = Td0.col(fir).array() * Te.array();
+                    } else {
+                        R << De.array() * Te.array();
+                        Rd << Td0.array() * De.array();
+                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        for (int ij=0;ij<beta_dose.size();ij++){
+                            Rd.col(ij) = Dde.col(ij).array() * Te.array();
+                        }
+                    }
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+                    for (int bl=0;bl<batch_cols.size()-1;bl++){
+
+                        for (int ijk=0;ijk<totalnum;ijk++){
+                            int ij = ijk;
+                            int jk = ijk;
+                            while (jk>ij){
+                                ij++;
+                                jk-=ij;
                             }
-                        } else if (jk==ind0){
-                            if ((ij!=fir)&&(jk!=fir)){
-                                ;
-                            } else if (tform[jk]=="loglin"){
-                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                            if (ij==jk){
+                                if (fir!=0){
+                                    if (ij==fir){
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    } else {
+                                        if (ij<beta_dose.size()){
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],fir,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        } else {
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],fir,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        }
+                                    }
+                                } else {
+                                    if (ij<beta_dose.size()){
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    } else {
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    }
+                                }
+                            } else {
+                                if (fir!=0){
+                                    if ((ij==fir)||(jk==fir)){
+                                        if (ij<beta_dose.size()){
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        } else {
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        }
+                                    } else if ((ij<beta_dose.size())&&(jk<beta_dose.size())){
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    }
+                                }
                             }
                         }
                     }
@@ -592,29 +739,46 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             }else if (modelform=="M"){
                 Te = Te.array() * 0 + 1; //verifies the initial term product is 1
                 //
-                Te = T0.array().rowwise().prod();
+                Te = T0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size()).rowwise().sum() * De.array();
                 // computes intial risk and derivatives
                 R << Te.array();
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    if (ijk<beta_dose.size()){
+                        Rd.col(ijk) = De.col(ijk).array().pow(-1).array()* Te.array();
+                        Rd.col(ijk) = Rd.col(ijk).array() * Dde.col(ijk).array();
+                    }
+                }
                 Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
                 Rd = Rd.array() * Td0.array();
                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
                 for (int bl=0;bl<batch_cols.size()-1;bl++){
-                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                        int ij = 0;
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        int ij = ijk;
                         int jk = ijk;
                         while (jk>ij){
                             ij++;
                             jk-=ij;
                         }
                         if (ij==jk){
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            if (ij<beta_dose.size()){
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            } else {
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            }
                         } else {
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            if ((ij<beta_dose.size())||(ij<beta_dose.size())){
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            } else{
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            }
                         }
                     }
                 }
-            }else if (modelform=="GM"){
+            } else if (modelform=="GM"){
+                //currently isn't implemented, it can be calculated but not optimized the same way
                 throw invalid_argument( "GM isn't implemented" );
             } else {
                 throw invalid_argument( "Model isn't implemented" );
@@ -631,9 +795,9 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(Lldd.begin(), Lldd.end(), 0.0);
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+            for (int ijk=0;ijk<totalnum;ijk++){
                 for (int j=0;j<ntime;j++){
-                    int ij = 0;
+                    int ij = ijk;
                     int jk = ijk;
                     while (jk>ij){
                         ij++;
@@ -697,22 +861,38 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     if (ij==jk){
                         Ll[ij] += Ld1 - Rs1;
                         Lld[ij] += Ld2 - Rs2;
-                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                    } else {
-                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                        Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
                     }
+                    Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
         //            cout <<ij << "," << jk << "," << j << "," << Ld1 - Rs1 <<","<< Ld2 - Rs2 <<","<< Ld3 - Rs3 << endl;
                 }
             }
+            #pragma omp parallel for num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                int ij = ijk;
+                int jk = ijk;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
+                Lldd[jk*totalnum+ij] = Lldd[ij*totalnum+jk];
+            }
             if (Ll[ind0] <= Ll_best){
-                dbeta = dbeta / 2.0;
+                #pragma omp parallel for num_threads(nthreads)
+                for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                    dbeta[ijk] = dbeta[ijk] / 2.0;
+                }
             } else{
-                beta_best = beta_c;
+                #pragma omp parallel for num_threads(nthreads)
+                for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                    beta_best[ijk] = beta_c[ijk];
+                }
             }
             end_point = system_clock::now();
             end = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            beta_p = beta_c;
+            #pragma omp parallel for num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                beta_p[ijk] = beta_c[ijk];
+            }
             cout<<"df100 "<<(end-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
             gibtime = system_clock::to_time_t(system_clock::now());
             cout << ctime(&gibtime) << endl;
@@ -736,91 +916,132 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 }
             }
             cout << " " << endl;
-            beta_0[ind0] = beta_c;
+            #pragma omp parallel for num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                beta_0[ijk] = beta_c[ijk];
+            }
             cout << "df104 ";
             for (int ij=0;ij<totalnum;ij++){
                 cout << beta_0[ij] << " ";
             }
             cout << " " << endl;
-            beta_0[ind0] = beta_best;
+            cout << "df105 ";
+            for (int ij=0;ij<totalnum;ij++){
+                cout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+            }
+            cout << " " << endl;
+            cout << "df106 ";
+            for (int ij=0;ij<totalnum;ij++){
+                cout << Ll[ij]/Lld[ij] << " ";
+            }
+            cout << " " << endl;
+            #pragma omp parallel for num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                beta_0[ijk] = beta_best[ijk];
+            }
 //            cout << beta_best << ", " << Ll[ind0] << endl;
         }
         if (beta_best!=beta_p){
-            beta_c = beta_best;
+//            beta_c = beta_best;
 //            cout << beta_c << ":" << beta_p << endl;
-            if (tform[ind0]=="lin"){
-                T0.col(ind0) = T0.col(ind0).array() * (beta_c / beta_p);
-            } else if (tform[ind0]=="plin"){
-                T0.col(ind0) = T0.col(ind0).array() * (1 + beta_c * df0.col(ind0).array()) / (1 + beta_p * df0.col(ind0).array());
-            } else {
-                T0.col(ind0) = T0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
-                Td0.col(ind0) = Td0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
-                Tdd0.col(ind0) = Tdd0.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){
+                beta_c[ijk] = beta_best[ijk];
+                if (tform[ijk]=="lin"){
+                    T0.col(ijk) = T0.col(ijk).array() * (beta_c[ijk] / beta_p[ijk]);
+                } else if (tform[ijk]=="plin"){
+                    T0.col(ijk) = T0.col(ijk).array() * (1 + beta_c[ijk] * df0.col(ijk).array()) / (1 + beta_p[ijk] * df0.col(ijk).array());
+                } else {
+                    T0.col(ijk) = T0.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                    Td0.col(ijk) = Td0.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                    Tdd0.col(ijk) = Tdd0.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                }
             }
-            if (modelform=="A"){//The risks can be updated instead of recalculated for the models/terms allowed
-                if (tform[ind0] == "lin"){
-                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                } else if (tform[ind0] == "plin"){
-                    R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                } else{
-                    R.col(0) = R.col(0).array() + (beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp();
-                    Rd.col(ind0) = Rd.col(ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
-                    Rdd.col(ind0*totalnum+ind0) = Rdd.col(ind0*totalnum+ind0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp().array();
+            if (doseform=="A"){
+                De = T0.array().block(0,0,beta_dose.size(),T0.rows()).rowwise().sum();
+                Dde = Td0.array().block(0,0,beta_dose.size(),T0.rows());
+                #pragma omp parallel for num_threads(nthreads)
+                for (int ij=0;ij<beta_dose.size();ij++){
+                    Ddde.col(ij*totalnum+ij) = Tdd0.col(ij);
                 }
-            } else if ((modelform=="PA")||(modelform=="PAE")){
-                if (tform[ind0] == "lin"){
-                    if (ind0==fir){
-                        R.col(0) = R.col(0) * beta_c / beta_p;
-                    } else {
-                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
-                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    }
-                } else if (tform[ind0] == "plin"){
-                    if (ind0==fir){
-                        R.col(0) = (R.col(0).array() - Te.array()) * beta_c / beta_p + Te.col(0).array();
-                    } else {
-                        R.col(0) = R.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array() * T0.col(fir).array();
-                        Te.col(0) = Te.col(0).array() + (beta_c - beta_p) * df0.col(ind0).array();
-                    }
-                } else{
-                    if (ind0==fir){
-                        R.col(0) = R.col(0).array() * ((beta_c - beta_p) * df0.col(ind0)).array().exp();
-                    } else {
-                        R.col(0) = R.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array() * T0.col(fir).array();
-                        Te.col(0) = Te.col(0).array() + ((beta_c * df0.col(ind0)).array().exp() - (beta_p * df0.col(ind0)).array().exp()).array();
-                    }
-                }
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
-                for (int bl=0;bl<batch_cols.size()-1;bl++){
-                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                        int ij = 0;
-                        int jk = ijk;
-                        while (jk>ij){
-                            ij++;
-                            jk-=ij;
+            }
+            if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
+                Te = T0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size()).rowwise().sum() + De.array();
+                // computes intial risk and derivatives
+                if (modelform=="A"){
+                    R << Te.array();
+                    Rd << Dde.array(), Td0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size());
+                    #pragma omp parallel for num_threads(nthreads)
+                    for (int ij=0;ij<totalnum;ij++){
+                        if (ij<beta_dose.size()){
+                            Rdd.col(ij*totalnum+ij) = Ddde.col(ij);
+                        } else {
+                            Rdd.col(ij*totalnum+ij) = Tdd0.col(ij);
                         }
-                        if (ij==ind0){
-                            if (ij==jk){
-                                if (tform[ij]=="loglin"){
-                                    Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1) = Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                } else {
-                                    ;
-                                }
-                            } else{
-                                if ((ij!=fir)&&(jk!=fir)){
-                                    ;
-                                } else if (tform[ind0]=="loglin"){
-                                    Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                    Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                }
+                    }
+                } else if ((modelform=="PAE")||(modelform=="PA")){
+                    if (fir!=0){
+                        Te = Te.array() - T0.col(fir).array();
+                    } else {
+                        Te = Te.array() - De.array();
+                    }
+                    if (modelform=="PAE"){
+                        Te = Te.array() + 1;
+                    }
+                    if (fir!=0){
+                        R << T0.col(fir).array() * Te.array();
+                        Rd << Td0.array() * T0.col(fir).array();//, Td0.col(0).array() * Te.array(), Td0.col(1).array() * Te.array();
+                        Rd.col(fir) = Td0.col(fir).array() * Te.array();
+                    } else {
+                        R << De.array() * Te.array();
+                        Rd << Td0.array() * De.array();
+                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        for (int ij=0;ij<beta_dose.size();ij++){
+                            Rd.col(ij) = Dde.col(ij).array() * Te.array();
+                        }
+                    }
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+                    for (int bl=0;bl<batch_cols.size()-1;bl++){
+                        for (int ijk=0;ijk<totalnum;ijk++){
+                            int ij = ijk;
+                            int jk = ijk;
+                            while (jk>ij){
+                                ij++;
+                                jk-=ij;
                             }
-                        } else if (jk==ind0){
-                            if ((ij!=fir)&&(jk!=fir)){
-                                ;
-                            } else if (tform[jk]=="loglin"){
-                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
-                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1).array() * ((beta_c - beta_p) * df0.block(batch_cols[bl],ind0,batch_cols[bl+1]-batch_cols[bl],1)).array().exp();
+                            if (ij==jk){
+                                if (fir!=0){
+                                    if (ij==fir){
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    } else {
+                                        if (ij<beta_dose.size()){
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],fir,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        } else {
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],fir,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        }
+                                    }
+                                } else {
+                                    if (ij<beta_dose.size()){
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Te.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    } else {
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],0,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    }
+                                }
+                            } else {
+                                if (fir!=0){
+                                    if ((ij==fir)||(jk==fir)){
+                                        if (ij<beta_dose.size()){
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        } else {
+                                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        }
+                                    } else if ((ij<beta_dose.size())&&(jk<beta_dose.size())){
+                                        Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                        Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                    }
+                                }
                             }
                         }
                     }
@@ -828,29 +1049,46 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             }else if (modelform=="M"){
                 Te = Te.array() * 0 + 1; //verifies the initial term product is 1
                 //
-                Te = T0.array().rowwise().prod();
+                Te = T0.array().block(0,beta_dose.size(),T0.rows(),T0.cols()-beta_dose.size()).rowwise().sum() * De.array();
                 // computes intial risk and derivatives
                 R << Te.array();
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    if (ijk<beta_dose.size()){
+                        Rd.col(ijk) = De.col(ijk).array().pow(-1).array()* Te.array();
+                        Rd.col(ijk) = Rd.col(ijk).array() * Dde.col(ijk).array();
+                    }
+                }
                 Rd = T0.array().pow(-1).array() * Te.colwise().replicate(totalnum).array();
                 Rd = Rd.array() * Td0.array();
                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
                 for (int bl=0;bl<batch_cols.size()-1;bl++){
-                    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                        int ij = 0;
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        int ij = ijk;
                         int jk = ijk;
                         while (jk>ij){
                             ij++;
                             jk-=ij;
                         }
                         if (ij==jk){
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            if (ij<beta_dose.size()){
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Ddde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Dde.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            } else {
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Tdd0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            }
                         } else {
-                            Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
-                            Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            if ((ij<beta_dose.size())||(ij<beta_dose.size())){
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Dde.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * De.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            } else{
+                                Rdd.block(batch_cols[bl],ij*totalnum+jk,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array();
+                                Rdd.block(batch_cols[bl],jk*totalnum+ij,batch_cols[bl+1]-batch_cols[bl],1) = Td0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array() * T0.block(batch_cols[bl],ij,batch_cols[bl+1]-batch_cols[bl],1).array().pow(-1).array() * Rd.block(batch_cols[bl],jk,batch_cols[bl+1]-batch_cols[bl],1).array();
+                            }
                         }
                     }
                 }
-            }else if (modelform=="GM"){
+            } else if (modelform=="GM"){
+                //currently isn't implemented, it can be calculated but not optimized the same way
                 throw invalid_argument( "GM isn't implemented" );
             } else {
                 throw invalid_argument( "Model isn't implemented" );
@@ -867,9 +1105,9 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             gibtime = system_clock::to_time_t(system_clock::now());
             cout << ctime(&gibtime) << endl;
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+            for (int ijk=0;ijk<totalnum;ijk++){
                 for (int j=0;j<ntime;j++){
-                    int ij = 0;
+                    int ij = ijk;
                     int jk = ijk;
                     while (jk>ij){
                         ij++;
@@ -933,22 +1171,35 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                     if (ij==jk){
                         Ll[ij] += Ld1 - Rs1;
                         Lld[ij] += Ld2 - Rs2;
-                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                    } else {
-                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                        Lldd[jk*totalnum+ij] += Ld3 - Rs3; //sums the log-likelihood and derivatives
                     }
+                    Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
         //            cout <<ij << "," << jk << "," << j << "," << Ld1 - Rs1 <<","<< Ld2 - Rs2 <<","<< Ld3 - Rs3 << endl;
                 }
             }
-            beta_0[ind0] = beta_best;
+            #pragma omp parallel for num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                int ij = ijk;
+                int jk = ijk;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
+                Lldd[jk*totalnum+ij] = Lldd[ij*totalnum+jk];
+            }
+            #pragma omp parallel for num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                beta_0[ijk] = beta_best[ijk];
+            }
         }
         for (int ij=0;ij<totalnum;ij++){
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
             }
         }
-        beta_0[ind0] = beta_best;
+        #pragma omp parallel for num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+            beta_0[ijk] = beta_best[ijk];
+        }
         if (iteration > totalnum * 3){
             if (iteration % (2 * totalnum)){
                 if (Lld_worst < deriv_epsilon){
@@ -979,6 +1230,16 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         cout << "df104 ";
         for (int ij=0;ij<totalnum;ij++){
             cout << beta_0[ij] << " ";
+        }
+        cout << " " << endl;
+        cout << "df105 ";
+        for (int ij=0;ij<totalnum;ij++){
+            cout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+        }
+        cout << " " << endl;
+        cout << "df106 ";
+        for (int ij=0;ij<totalnum;ij++){
+            cout << Ll[ij]/Lld[ij] << " ";
         }
         cout << " " << endl;
     }

@@ -1,4 +1,3 @@
-start_all <- Sys.time()
 library(survival)
 library(parallel)
 library(dplyr)
@@ -6,14 +5,9 @@ library(data.table)
 library(Rcpp)
 library(RcppEigen)
 
-end <- Sys.time()
-
-print(paste("df99,",difftime(end, start_all, units = "secs")[[1]],",libraries"))
 
 Rcpp::sourceCpp("PEANUT_MODEL.cpp") 
 
-end <- Sys.time()
-print(paste("df99,",difftime(end, start_all, units = "secs")[[1]],",RCPP_source"))
 
 #' Defines Time Dependent Parameters
 #' \code{time_factor} uses user provided bins and a list of columns to define interaction terms and update the data.table.
@@ -126,15 +120,69 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
     return -2*(alternative_model["LogLik"] - null_model["LogLik"])
 }
 
-run_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,fir,control,time1,time2,event){
+DoseForm <- function(df, parameters){
+    names = unlist(parameters['names'],use.name=FALSE)
+    types = unlist(parameters['types'],use.name=FALSE)
+    intercepts = unlist(parameters['intercepts'],use.name=FALSE)
+    steps = unlist(parameters['steps'],use.name=FALSE)
+    i=0
+    cols<-c()
+    d_types<-c()
+#    print(names(df))
+    for (i in 1:length(names)){
+        type <- types[i]
+        name <- names[i]
+        if (type=="LNT"){
+            new_name <- paste(name,"_l",i,sep="")
+            df[,new_name] <- df[,..name]
+            d_types <- c(d_types,"lin")
+        } else if (type=="quadratic"){
+            new_name <- paste(name,"_q",i,sep="")
+            df[,new_name] <- df[,..name] * df[,..name]
+            d_types <- c(d_types,"lin")
+        } else if (type=="lin-quad"){
+            print(paste("Linear-Quadratic isn't implemented"))
+            stop()
+        } else if (type=="lin-exp"){
+            new_name <- paste(name,"_le",i,sep="")
+            df[,new_name] <- df[,..name]
+            d_types <- c(d_types,"loglin")
+        } else if (type=="LT"){
+            new_name <- paste(name,"_lt",i,sep="")
+            df[,new_name] <- df[,..name] - intercepts[i]
+            df[get(new_name)<0.0] <- 0.0
+            d_types <- c(d_types,"lin")
+        } else if (type=="step"){
+            new_name <- paste(name,"_s",i,sep="")
+            df[,new_name] <- 1
+            df[get(new_name)<steps[i]] <- 0.0
+            d_types <- c(d_types,"lin")
+        } else if (type=="inv-step"){
+            new_name <- paste(name,"_is",i,sep="")
+            df[,new_name] <- 1
+            df[get(new_name)>steps[i]] <- 0.0
+            d_types <- c(d_types,"lin")
+        } else if (type=="step-slope"){
+            new_name <- paste(name,"_ss",i,sep="")
+            df[,new_name] <- df[,..name] - intercepts[i]
+            df[get(new_name)<steps[i]] <- 0.0
+            d_types <- c(d_types,"lin")
+        }
+        cols <- c(cols,new_name)
+        i=i+1
+    }
+    return (list('df'=df, 'names'=cols, 'd_types'=d_types))
+#    return list('df'=df, 'names'=cols)
+}
+
+
+run_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event){
     #-------------------------------------------------------------------------------------------------------------#
     #   df is the data that will be used
     #   df is changed to a data.table to make filtering easier
     colTypes=c("integer","double","double","double","integer","character","integer","integer","character","integer","integer", "integer","integer","character","character","character","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer")
     df <- fread(fname,nThread=detectCores(),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=TRUE,fill=TRUE)
     setkeyv(df, c(time2, event,time1))
-    end <- Sys.time()
-    print(paste("df99,",difftime(end, start_all, units = "secs")[[1]],",load_and_sort"))
     #-------------------------------------------------------------------------------------------------------------#
     #   The goal is to precompute the indices needed for each event time
     #   The file has structure {start of all data, end of all data, first event index, second event index, ...,}
@@ -163,13 +211,22 @@ run_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform
             cat(c(cons_all,event_ind[1],event_ind[length(event_ind)],'\n'),file='test.txt',sep=',',append=TRUE) #writes to file to be loaded later on, non-constant length
         }
     }
-    end <- Sys.time()
-    print(paste("df99,",difftime(end, start_all, units = "secs")[[1]],",write_risk_groups"))
+    #
+#    print(names(df))
+    d_control <- DoseForm(df, dose_paras)
+    doseform <- dose_paras$doseform
+    df <- d_control$df
+    dose_n <- d_control$names
+    dose_terms <- d_control$d_types
+    #
+#    print(df,nrows=10)
     #
     #-------------------------------------------------------------------------------------------------------------#
+#    print(lin_n)
     if (length(lin_n)==0){
         lin_n = c(event)
     }
+#    print(lin_n)
     if (length(loglin_n)==0){
         loglin_n = c(event)
     }
@@ -179,6 +236,7 @@ run_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform
     x_lin=as.matrix(df[,..lin_n])
     x_loglin=as.matrix(df[,..loglin_n])
     x_plin=as.matrix(df[,..plin_n])
+    x_dose=as.matrix(df[,..dose_n])
     term_bool=c(0,0,0)
     if (length(a_lin)>0){
         term_bool[1]=1
@@ -190,38 +248,42 @@ run_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform
         term_bool[3]=1
     }
     ##
-    lr = unlist(control["lr"],use.name=FALSE)
-    maxiter = unlist(control["maxiter"], use.name=FALSE)
-    halfmax = unlist(control["halfmax"], use.name=FALSE)
-    epsilon = unlist(control["epsilon"], use.name=FALSE)
-    dbeta_max = unlist(control["dbeta_max"], use.name=FALSE)
-    deriv_epsilon = unlist(control["deriv_epsilon"],use.name=FALSE)
-    batch_size = unlist(control["batch_size"],use.name=FALSE)
+    lr = control$lr
+    maxiter = control$maxiter
+    halfmax = control$halfmax
+    epsilon = control$epsilon
+    dbeta_max = control$dbeta_max
+    deriv_epsilon = control$deriv_epsilon
+    batch_size = control$batch_size
     ##
-    end <- Sys.time()
-    print(paste("df99,",end-start_all,",at_start"))
-    #NumericVector a_lin,NumericVector a_loglin,NumericVector a_plin, NumericMatrix x_lin, NumericMatrix x_loglin, NumericMatrix x_plin,int fir,string modelform,int ntime, NumericVector include_bool, double lr, int maxiter, int halfmax, double epsilon, double dbeta_max, double deriv_epsilon, int batch_size
-    e <- peanut_transition(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, fir, modelform,length(tu),term_bool, lr, maxiter, halfmax, epsilon, dbeta_max, deriv_epsilon,batch_size)
-    print(e)
+    for (i in 1:2000){
+        print(a_{term})
+        e <- peanut_transition(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),a_dose,  x_lin,  x_loglin,  x_plin,x_dose, fir, modelform,doseform,dose_terms,length(tu),term_bool, lr, maxiter, halfmax, epsilon, dbeta_max, deriv_epsilon,batch_size)
+        a_{term}[{ind2}] <- runif(1,{spread}) + {best}
 }
 
-fname <- '../Combined MW NPP IR Lung Lag10 - TEST 4.18.22.csv'
-lin_n <- c()
-loglin_n <- c("cumulative_dose_lung_lag10","sexm","YOB1","YOB2","YOB3","YOB4","COH_EDUC1","COH_EDUC2","COH_EDUC3","COH_EDUC4","COH_EDUC5","COH_EDUC6","COH_EDUC7","COH_EDUC8","COH_EDUC9")
-plin_n <- c()
+#fname <- '../Combined MW NPP IR Lung Lag10 - TEST 4.18.22.csv'
+fname <- '../Documents/CMS/Combined MW NPP IR Lung Lag10 - TEST 4.18.22.csv'
+{term1}_n <- c() <- c()
+{term}_n <- c("sexm","YOB1","YOB2","YOB3","YOB4","COH_EDUC1","COH_EDUC2","COH_EDUC3","COH_EDUC4","COH_EDUC5","COH_EDUC6","COH_EDUC7","COH_EDUC8","COH_EDUC9")
+{term0}_n <- c()
 
-a_lin=c()
-a_loglin <- rep(-.1,length(loglin_n))
-a_plin=c()
+a_{term1}=c()
+a_{term} <- c(-0.0006300516,-0.0630181076,-0.3932366917,-0.6613753288,-1.1079753794,-0.7946066410,-0.1990600045,0.1616788011,-0.6317184838,-0.0572978471,-0.5560610214,-1.1076729774,-1.2444050074,-1.4178535299)
+a_{term0}=c()
+a_dose=c(0.0001946145)
 
-modelform <- 'M'
-fir=0
+modelform <- '{model}'
+fir={ind1}
 
-control <- list('lr' = 0.95,'maxiter' = 500,'halfmax' = 5,'epsilon' = 1e-8,'dbeta_max' = 0.1,'deriv_epsilon' = 1e-8,'run'=TRUE,'batch_size'=500000)
+
+control <- list('lr' = 0.95,'maxiter' = 1,'halfmax' = 1,'epsilon' = 1e-8,'dbeta_max' = 0.1,'deriv_epsilon' = 1e-8,'run'=TRUE,'batch_size'=1000)
 
 time1="age_entry"
 time2="age_exit"
 event="lung"
 
-run_coxph(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,fir,control,time1,time2,event)
+dose_paras <- list('names' =c('cumulative_dose_lung_lag10'), 'types'=c('lin-exp'), 'intercepts'=c(0), 'steps'=c(0), 'doseform'='A')
+
+run_coxph(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event)
 
