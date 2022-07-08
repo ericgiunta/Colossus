@@ -648,7 +648,7 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             }
             if (doseform=="A"){
                 De = T0.array().block(0,0,T0.rows(),beta_dose.size()).rowwise().sum();
-                Dde = Td0.array().block(0,0,T0.rows(),beta_dose.size()));
+                Dde = Td0.array().block(0,0,T0.rows(),beta_dose.size());
                 #pragma omp parallel for num_threads(nthreads)
                 for (int ij=0;ij<beta_dose.size();ij++){
                     Ddde.col(ij*totalnum+ij) = Tdd0.col(ij);
@@ -958,8 +958,8 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 }
             }
             if (doseform=="A"){
-                De = T0.array().block(0,0,beta_dose.size(),T0.rows()).rowwise().sum();
-                Dde = Td0.array().block(0,0,beta_dose.size(),T0.rows());
+                De = T0.array().block(0,0,T0.rows(),beta_dose.size()).rowwise().sum();
+                Dde = Td0.array().block(0,0,T0.rows(),beta_dose.size());
                 #pragma omp parallel for num_threads(nthreads)
                 for (int ij=0;ij<beta_dose.size();ij++){
                     Ddde.col(ij*totalnum+ij) = Tdd0.col(ij);
