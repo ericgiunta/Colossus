@@ -355,6 +355,7 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     #
     tu <- unlist(unique(dfend[,..time2]))
     print(length(tu))
+    print("its going")
     dose_n <- dose_paras$names
     #
     all_names <- c()
@@ -394,14 +395,14 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
 #    print(length(tu))
     ce <- c(time1,time2,event)
     e <- peanut_transition(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df[,..ce]),tu)
-#    print(e)
+    print(e)
     b = e$beta_0
     er = e$Standard_Deviation
-    print(er)
-    print("all results")
-    print(nrow(df))
-    print(length(tu))
-    print(names(dose_paras))
+#    print(er)
+#    print("all results")
+#    print(nrow(df))
+#    print(length(tu))
+#    print(names(dose_paras))
     Plot_Type=c("SURV","not_used")
     print("start survival calculations")
     #                      a_lin,        a_loglin,        a_plin,   x_lin,  x_loglin,  x_plin, x_dose, fir, modelform, ntime,    include_bool,  Control,  Dose_paras,  d  f_groups,  tu 
@@ -417,111 +418,155 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
         ch <- c(ch, temp)
         surv <- c(surv, exp(-1*temp))
     }
-    time_i <- df[,get(time2)]
-    ch_i <- approx(x=t,y=ch,xout=time_i,rule=2)
-    e_i <- df[,get(event)]
-    dfr=data.table("time"=time_i,"ch"=ch_i,"e"=e_i)
-    dfr$res = dfr$e - dfr$ch * dfr$time
+    print("martin plots")
+#    print(unique(df[,studyID]))
+    time_s <- df[,get(time1)]
+    time_e <- df[,get(time2)]
+    ch_fun <- approxfun(x=t,y=ch,rule=2)
+    ch_e <- ch_fun(time_e)
+    ch_s <- ch_fun(time_s)
     #
-#    Ls <- log(surv)
-#    LLs <- log(-Ls)
-#    Lt <- log(t)
-#    model <- lm(ch ~ t)
-#    resids <- residuals(model)
-    print("plotting martingale residuals")
-    jpeg('martin_plot.jpg')
-    plot(time_i,dfr$res, xlab="age",ylab="Martingale Residuals")
+#    stop()
+    e_i <- df[,get(event)]
+    dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=df$studyID,"time"=time_e,"doses"=df$cumulative_dose_lung_lag10)
+    dfr$res = dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
+    #
+#    temp_list <- c("time","res")
+    Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
+    times <- dfr[, lapply(.SD,max), by=IDS]
+    ##
+    print("plotting dose by dose")
+    jpeg('dose_sum_by_max.jpg', units="in", width=5, height=5, res=1200)
+#    smoothScatter(times[,doses],Martingale_Error[,doses], xlab="Max Dose",ylab="Sum of Doses",nbin=100, colramp= colorRampPalette(c("white","red")))
+    plot(times[,doses],Martingale_Error[,doses], xlab="Max Dose",ylab="Sum of Doses",type='p')
     dev.off()
+    ##
+    print("plotting martingale residuals")
+    jpeg('martin_plot.jpg', units="in", width=5, height=5, res=1200)
+    smoothScatter(times[,time],Martingale_Error[,res], xlab="age",ylab="Martingale Residuals",nbin=100, colramp= colorRampPalette(c("white","red")))
+#    plot(times[,time],Martingale_Error[,res], xlab="age",ylab="Martingale Residuals")
+    dev.off()
+    print("plotting martingale residuals by dose")
+    jpeg('martin_plot_dose.jpg', units="in", width=5, height=5, res=1200)
+    smoothScatter(times[doses>0,doses],Martingale_Error[doses>0,res], xlab="Cumulative Dose",ylab="Martingale Residuals",nbin=200, colramp= colorRampPalette(c("white","red")))
+#    plot(times[,doses],Martingale_Error[,res], xlab="age",ylab="Martingale Residuals")
+    dev.off()
+#    #    stop()
 #    #
-#    print("plotting cumulative hazard")
-#    jpeg('ch_plot.jpg')
-#    plot(t,ch, xlab="age",ylab="Cumulative Hazard")
-#    dev.off()
-#    #
-#    print("plotting ch residuals")
-#    jpeg('t_ch_er_plot.jpg')
-#    plot(t,resids, xlab="age",ylab="Cumulative Hazard Error")
-#    dev.off()
-#    #
-#    print("plotting ch residuals by ch")
-#    jpeg('ch_ch_er_plot.jpg')
-#    plot(ch,resids, xlab="Cumulative Hazard",ylab="Cumulative Hazard Error")
-#    dev.off()
-#    #
-#    print("plotting survival curve")
-#    jpeg('surv_plot.jpg')
-#    plot(t,surv, type="s", xlab="age",ylab="Survival")
-#    dev.off()
-#    #
-#    print("Plotting log-log curves")
-#    fir=0
-#    for (fir in 1:length(all_names)){
-#        print(paste("survival:",all_names[fir]))
-#        lfir <- c(all_names[fir])
-#        dfend <- df[get(event)==1, ]
-#        fir_c <- mean(dfend[,get(all_names[fir])])
-#        fmean <- mean(fir_c)
-#        print(fmean)
-#        df_u <- df[get(all_names[fir])>=fmean,]
-#        df_l <- df[get(all_names[fir])<=fmean,]
-#        ##
-#        x_lin=as.matrix(df_l[,..lin_n])
-#        x_loglin=as.matrix(df_l[,..loglin_n])
-#        x_plin=as.matrix(df_l[,..plin_n])
-#        x_dose=as.matrix(df_l[,..dose_n])
-#        print(dim(x_dose))
-#        dfend <- df_l[get(event)==1, ]
-#        #
-#        tu <- unlist(unique(dfend[,..time2]))
-#        e <- peanut_plot(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df_l[,..ce]),tu,Plot_Type,0)
-#        t <- c()
-#        ch <- c()
-#        surv <- c()
-#        dt <- 1
-#        dft=data.table("time"=tu,"base"=e$baseline)
-#        for (i in tu[1]:tu[length(tu)]){
-#            t <- c(t,i)
-#            temp <- sum(dft[time<i, base])
-#            ch <- c(ch, temp)
-#            surv <- c(surv, exp(-1*temp))
-#        }
-#        #
-#        Ls <- log(surv)
-#        LLs_l <- log(-Ls)
-#        Lt_l <- log(t)
-#        ##
-#        x_lin=as.matrix(df_u[,..lin_n])
-#        x_loglin=as.matrix(df_u[,..loglin_n])
-#        x_plin=as.matrix(df_u[,..plin_n])
-#        x_dose=as.matrix(df_u[,..dose_n])
-#        dfend <- df_u[get(event)==1, ]
-#        #
-#        tu <- unlist(unique(dfend[,..time2]))
-#        e <- peanut_plot(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df_u[,..ce]),tu,Plot_Type,0)
-#        t <- c()
-#        ch <- c()
-#        surv <- c()
-#        dt <- 1
-#        dft=data.table("time"=tu,"base"=e$baseline)
-#        for (i in tu[1]:tu[length(tu)]){
-#            t <- c(t,i)
-#            temp <- sum(dft[time<i, base])
-#            ch <- c(ch, temp)
-#            surv <- c(surv, exp(-1*temp))
-#        }
-#        #
-#        Ls <- log(surv)
-#        LLs_u <- log(-Ls)
-#        Lt_u <- log(t)
-#        ##
-#        jpeg(paste('log_log_surv_plot',fir,'.jpg',sep='_'))
-#        plot(Lt_l,LLs_l, xlab="Log-Age",ylab="Log of Log Survival",col='red',type='l')
-#        lines(Lt_u,LLs_u,col='blue')
-#        legend("topleft", legend=c("Below Mean", "Above Mean"), col=c("red", "blue"), lty=1:2, cex=0.8,title=all_names[fir])
-#        lines(Ls ~ t)
-#        dev.off()
-#    }
-    stop()
+    print("plotting cumulative hazard")
+    jpeg('ch_plot.jpg', units="in", width=5, height=5, res=1200)
+    plot(t,ch, xlab="age",ylab="Cumulative Hazard")
+    dev.off()
+    #
+    print("plotting survival curve")
+    jpeg('surv_plot.jpg', units="in", width=5, height=5, res=1200)
+    plot(t,surv, type="s", xlab="age",ylab="Survival")
+    dev.off()
+    #
+    fir=0
+    for (fir in 1:length(all_names)){
+        print(paste("survival:",all_names[fir]))
+        lfir <- c(all_names[fir])
+        dfend <- df[get(event)==1, ]
+        fir_c <- mean(dfend[,get(all_names[fir])])
+        fmean <- mean(fir_c)
+        print(fmean)
+        df_u <- df[get(all_names[fir])>=fmean,]
+        df_l <- df[get(all_names[fir])<=fmean,]
+        #
+        u_num = unlist(unique(df_u[,studyID]),use.names=FALSE)
+        l_num = unlist(unique(df_l[,studyID]),use.names=FALSE)
+        #
+        t_u <- c(0)
+        t_l <- c(0)
+        n_u <- c(1)
+        n_l <- c(1)
+        tu <- unlist(unique(dfend[,..time2]))
+        for (i in tu[1]:tu[length(tu)]){
+            #
+            df0 <- df_u[get(time2)<i,]
+            u_num = length(unlist(unique(df0[,studyID]),use.names=FALSE))
+            u_ev = sum(df0[, get(event)])
+            df0 <- df_l[get(time2)<i,]
+            l_num = length(unlist(unique(df0[,studyID]),use.names=FALSE))
+            l_ev = sum(df0[, get(event)])
+            #
+            if (u_num>0){
+                t_u <- c(t_u,i)
+                temp <- (u_num - u_ev)/u_num
+                n_u <- c(n_u, temp)
+            }
+            if (l_num>0){
+                t_l <- c(t_l,i)
+                temp <- (l_num - l_ev)/l_num
+                n_l <- c(n_l, temp)
+            }
+        }
+        print(min(n_u))
+        print(min(n_l))
+        print("plotting KM")
+        jpeg(paste("KM_",fir,".jpg",sep=""), units="in", width=5, height=5, res=1200)
+        plot(t_u,n_u, xlab=all_names[fir],ylab="Survival Fraction",ylim=c(min(n_l),max(n_u)),col='red',type='l')
+        lines(t_l,n_l,col='blue')
+        legend("topright", legend=c("Below Mean", "Above Mean"), col=c("red", "blue"), lty=1:2, cex=0.8,title=all_names[fir])
+        dev.off()
+        x_lin=as.matrix(df_l[,..lin_n])
+        x_loglin=as.matrix(df_l[,..loglin_n])
+        x_plin=as.matrix(df_l[,..plin_n])
+        x_dose=as.matrix(df_l[,..dose_n])
+        print(dim(x_dose))
+        dfend <- df_l[get(event)==1, ]
+        #
+        tu <- unlist(unique(dfend[,..time2]))
+        e <- peanut_plot(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df_l[,..ce]),tu,Plot_Type,0)
+        t <- c()
+        ch <- c()
+        surv <- c()
+        dt <- 1
+        dft=data.table("time"=tu,"base"=e$baseline)
+        for (i in tu[1]:tu[length(tu)]){
+            t <- c(t,i)
+            temp <- sum(dft[time<i, base])
+            ch <- c(ch, temp)
+            surv <- c(surv, exp(-1*temp))
+        }
+        #
+        Ls <- log(surv)
+        LLs_l <- log(-Ls)
+        Lt_l <- log(t)
+        ##
+        x_lin=as.matrix(df_u[,..lin_n])
+        x_loglin=as.matrix(df_u[,..loglin_n])
+        x_plin=as.matrix(df_u[,..plin_n])
+        x_dose=as.matrix(df_u[,..dose_n])
+        dfend <- df_u[get(event)==1, ]
+        #
+        tu <- unlist(unique(dfend[,..time2]))
+        e <- peanut_plot(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df_u[,..ce]),tu,Plot_Type,0)
+        t <- c()
+        ch <- c()
+        surv <- c()
+        dt <- 1
+        dft=data.table("time"=tu,"base"=e$baseline)
+        for (i in tu[1]:tu[length(tu)]){
+            t <- c(t,i)
+            temp <- sum(dft[time<i, base])
+            ch <- c(ch, temp)
+            surv <- c(surv, exp(-1*temp))
+        }
+        #
+        Ls <- log(surv)
+        LLs_u <- log(-Ls)
+        Lt_u <- log(t)
+        ##
+        jpeg(paste('log_log_surv_plot',fir,'.jpg',sep='_'), units="in", width=5, height=5, res=1200)
+        plot(Lt_l,LLs_l, xlab="Log-Age",ylab="Log of Log Survival",col='red',type='l')
+        lines(Lt_u,LLs_u,col='blue')
+        legend("topleft", legend=c("Below Mean", "Above Mean"), col=c("red", "blue"), lty=1:2, cex=0.8,title=all_names[fir])
+        lines(Ls ~ t)
+        dev.off()
+    }
+#    stop()
     Plot_Type=c("RISK","not_used")
     fir=0
     dfend <- df[get(event)==1, ]
@@ -555,7 +600,7 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     #        stop()
             print(length(x))
             print("plotting risk")
-            jpeg(paste("risk_plot_",fir,".jpg",sep=""))
+            jpeg(paste("risk_plot_",fir,".jpg",sep=""), units="in", width=5, height=5, res=1200)
             plot(x,y, type="l", xlab=all_names[fir],ylab="Relative Risk",col='black',ylim=c(min(yl),max(yu)))
             lines(xl,yl,col='black')
             lines(xu,yu,col='black')
@@ -583,10 +628,10 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     #        stop()
             print(length(x))
             print("plotting risk")
-            jpeg(paste("risk_plot_",fir,".jpg",sep=""))
-            plot(x,y, type="l", xlab=all_names[fir],ylab="Relative Risk",col='black',ylim=c(min(yl),max(yu)))
-            lines(xl,yl,col='black')
-            lines(xu,yu,col='black')
+            jpeg(paste("risk_plot_",fir,".jpg",sep=""), units="in", width=5, height=5, res=1200)
+            plot(x,y, type="p", xlab=all_names[fir],ylab="Relative Risk",col='black',ylim=c(min(yl),max(yu)))
+            lines(xl,yl,col='black',type="b")
+            lines(xu,yu,col='black',type="b")
             dev.off()
             #
         }
@@ -654,7 +699,7 @@ time_var_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,mode
         print(i)
         pname<-paste("rplot",i,".jpg",sep="")
         df_res <- data.frame(x=tu,y=e[,i])
-        jpeg(pname)
+        jpeg(pname, units="in", width=5, height=5, res=1200)
         smoothScatter(df_res$x,df_res$y, xlab="age",ylab="Residual",main=all_names[i],nbin=200, colramp= colorRampPalette(c("white","red")))
         #
         level=0.95
@@ -668,6 +713,115 @@ time_var_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,mode
         lines(y ~ tu,lwd=2.0)
         dev.off()
         #
+    }
+}
+
+Stratified_Baseline <- function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event,strat_cov,strat_count){
+    #-------------------------------------------------------------------------------------------------------------#
+    #   df is the data that will be used
+    #   df is changed to a data.table to make filtering easier
+    colTypes=c("integer","double","double","double","integer","character","integer","integer","character","integer","integer", "integer","integer","character","character","character","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer")
+    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=TRUE,fill=TRUE)
+    df <- df[sexm==1,]
+    setkeyv(df, c(time2, event,time1))
+    #-------------------------------------------------------------------------------------------------------------#
+    #   The goal is to precompute the indices needed for each event time
+    #   The file has structure {start of all data, end of all data, first event index, second event index, ...,}
+    #
+    #
+    #
+    if (length(lin_n)!=0){
+        lin_n = Check_Dupe_Columns(df,lin_n)
+    }
+#    print(lin_n)
+    if (length(loglin_n)!=0){
+        loglin_n = Check_Dupe_Columns(df,loglin_n)
+    }
+    if (length(plin_n)!=0){
+        plin_n = Check_Dupe_Columns(df,plin_n)
+    }
+    if (length(dose_paras$names)!=0){
+        dose_paras$names = Check_Dupe_Columns(df,dose_paras$names)
+    }
+    #
+    dose_n <- dose_paras$names
+    #
+    all_names <- c()
+    all_names <- c(all_names, dose_paras$terms)
+    all_names <- c(all_names, lin_n)
+    all_names <- c(all_names, loglin_n)
+    all_names <- c(all_names, plin_n)
+#    print(df,nrows=10)
+    #
+    #-------------------------------------------------------------------------------------------------------------#
+#    print(lin_n)
+    if (length(lin_n)==0){
+        lin_n = c(event)
+    }
+#    print(lin_n)
+    if (length(loglin_n)==0){
+        loglin_n = c(event)
+    }
+    if (length(plin_n)==0){
+        plin_n = c(event)
+    }
+    term_bool=c(0,0,0)
+    if (length(a_lin)>0){
+        term_bool[1]=1
+    }
+    if (length(a_loglin)>0){
+        term_bool[2]=1
+    }
+    if (length(a_plin)>0){
+        term_bool[3]=1
+    }
+    ce <- c(time1,time2,event)
+    #
+    dfend <- df[get(event)==1, ]
+    cov_vals <- unlist(unique(dfend[,..strat_cov]))
+    if (length(cov_vals)>strat_count){
+        strat_count <- length(cov_vals)
+    }
+    #
+    Prob_vals <- quantile(cov_vals,probs=seq(0,1,1/strat_count),names=FALSE)
+    print(Prob_vals)
+    for (check_i in 1:strat_count){
+        df_0 <- df[(get(strat_cov)>=Prob_vals[check_i])&(get(strat_cov)<=Prob_vals[check_i+1]),]
+        x_lin=as.matrix(df_0[,..lin_n])
+        x_loglin=as.matrix(df_0[,..loglin_n])
+        x_plin=as.matrix(df_0[,..plin_n])
+        x_dose=as.matrix(df_0[,..dose_n])
+        dfend <- df_0[get(event)==1, ]
+        #
+        tu <- unlist(unique(dfend[,..time2]))
+        print(length(tu))
+        ##
+    #    print(length(tu))
+        ce <- c(time1,time2,event)
+        e <- peanut_transition(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df_0[,..ce]),tu)
+        #
+        a_lin <- e$Parameter_Lists$beta_lin
+        a_loglin <- e$Parameter_Lists$beta_loglin
+        a_plin <- e$Parameter_Lists$beta_plin
+        dose_paras$beta_loglin_top <- e$Parameter_Lists$beta_loglin_tops
+        #
+        Plot_Type=c("SURV","not_used")
+        #                      a_lin,        a_loglin,        a_plin,   x_lin,  x_loglin,  x_plin, x_dose, fir, modelform, ntime,    include_bool,  Control,  Dose_paras,  d  f_groups,  tu 
+        e <- peanut_plot(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df_0[,..ce]),tu,Plot_Type,0)
+        t <- c()
+    #    ch <- c()
+        surv <- c()
+        dt <- 1
+        dft=data.table("time"=tu,"base"=e$baseline)
+        for (i in tu[1]:tu[length(tu)]){
+            t <- c(t,i)
+            temp <- sum(dft[time<i, base])
+    #        ch <- c(ch, temp)
+            surv <- c(surv, exp(-1*temp))
+        }
+        jpeg(paste('surv_',strat_cov,'_plot_',check_i,'.jpg',sep=""), units="in", width=5, height=5, res=1200)
+        plot(t,surv, type="s", xlab="age",ylab="Survival")
+        dev.off()
     }
 }
 
@@ -693,8 +847,28 @@ event="lung"
 
 dose_paras <- list('names' =c('cumulative_dose_lung_lag10'),'terms'=c('beta_loglin_top'), 'beta_loglin_slope'=list(c(1.0)), 'beta_loglin_top'=list(c(0.0001946145)), 'beta_lin_slope'=list(c(0.0)), 'beta_lin_int'=list(c(0.0)),'beta_quad'=list(c(0.0)),'beta_step_slope'=list(c(0.0)),'beta_step_int'=list(c(0.0)))
 #
-#plot_coxph(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event)
+plot_coxph(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event)
 
+
+#
+lin_n <- c()
+loglin_n <- c("sexm","YOB1","YOB2","YOB3","YOB4","COH_EDUC1","COH_EDUC2","COH_EDUC3","COH_EDUC4","COH_EDUC5","COH_EDUC6","COH_EDUC7","COH_EDUC8","COH_EDUC9")
+plin_n <- c()
+
+a_lin=c()
+a_loglin <- rep(-.01,length(loglin_n)-1)
+a_plin=c()
+a_dose=c(-0.1)
+
+modelform <- 'M'
+fir=0
+
+control <- list('lr' = 0.75,'maxiter' = 30,'halfmax' = 5,'epsilon' = 1e-7,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-7, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=10.0)
+
+for (i in 1:length(a_loglin)){
+    cov_name <- loglin_n[i]
+    Stratified_Baseline(fname,lin_n,loglin_n,plin_n,a_lin,setdiff(a_loglin,c(cov_name)),a_plin,modelform,dose_paras,fir,control,time1,time2,event,cov_name,2)
+}
 
 
 

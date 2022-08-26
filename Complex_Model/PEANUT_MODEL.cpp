@@ -508,7 +508,6 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 ArrayXd temp1 = (df_dose.col(ijk).array() - beta_lin_int[jk]+dint);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size - dub_off + 2*jk;
-//                int ind2 = (ind1 + 1); 
                 //
                 beta_0[ind1] = beta_lin_slope[jk];
                 beta_0[(ind1 + 1)] = beta_lin_int[jk];
@@ -548,7 +547,6 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 ArrayXd temp1 = (df_dose.col(ijk).array() - beta_step_int[jk]+dint);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size - dub_off  + 2*lin_size + quad_size + 2*jk;
-//                int ind2 = ind1 + 1;
                 //
                 beta_0[ind1] = beta_step_slope[jk];
                 beta_0[(ind1 + 1)] = beta_step_int[jk];
@@ -675,26 +673,26 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     // ---------------------------------------------------------
     // Prints off a series of calaculations to check at what point values are changing
     // ---------------------------------------------------------
-    cout << "values checked ";
-    for (int ijk=0;ijk<totalnum;ijk++){
-        cout << beta_0[ijk] << " ";
-    }
-    cout << " " << endl;
-    cout << "sums checked ";
-    for (int ijk=0;ijk<totalnum;ijk++){
-        cout << T0.col(ijk).sum() << " ";
-    }
-    cout << " " << endl;
+//    cout << "values checked ";
+//    for (int ijk=0;ijk<totalnum;ijk++){
+//        cout << beta_0[ijk] << " ";
+//    }
+//    cout << " " << endl;
+//    cout << "sums checked ";
+//    for (int ijk=0;ijk<totalnum;ijk++){
+//        cout << T0.col(ijk).sum() << " ";
+//    }
+//    cout << " " << endl;
 //    cout << "doses checked ";
 //    for (int ijk=0;ijk<totalnum;ijk++){
 //        cout << df0.col(ijk).sum() << " ";
 //    }
 //    cout << " " << endl;
-    cout << "derivs checked ";
-    for (int ijk=0;ijk<totalnum;ijk++){
-        cout << Td0.col(ijk).sum() << " ";
-    }
-    cout << " " << endl;
+//    cout << "derivs checked ";
+//    for (int ijk=0;ijk<totalnum;ijk++){
+//        cout << Td0.col(ijk).sum() << " ";
+//    }
+//    cout << " " << endl;
 //    cout << "forms checked ";
 //    for (int ijk=0;ijk<totalnum;ijk++){
 //        cout << tform[ijk] << " ";
@@ -794,7 +792,6 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         RddR << R.rowwise().replicate(totalnum*(totalnum+1)/2).array().pow(-1).array() * Rdd.array();
     }else if (modelform=="M"){
         Te = Te.array() * 0 + 1; //verifies the initial term product is 1
-//        cout << "Te checked " << Te.array().sum() << " " << T0.array().block(0,dose_num_tot,T0.rows(),T0.cols()-dose_num_tot).rowwise().prod().sum() << " " << Dose.array().sum() << " " << T0.array().rowwise().prod().sum() << endl;
         //
         Te = T0.array().block(0,dose_num_tot,T0.rows(),T0.cols()-dose_num_tot).rowwise().prod() * Dose.array();
         // computes intial risk and derivatives
@@ -849,16 +846,16 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         return temp_list;
     }
     //
-    cout << "risk checked ";
-    for (int ijk=0;ijk<totalnum;ijk++){
-        cout << R.col(0).sum() << " ";
-    }
-    cout << " " << endl;
-    cout << "risk1 checked ";
-    for (int ijk=0;ijk<totalnum;ijk++){
-        cout << Rd.col(ijk).sum() << " ";
-    }
-    cout << " " << endl;
+//    cout << "risk checked ";
+//    for (int ijk=0;ijk<totalnum;ijk++){
+//        cout << R.col(0).sum() << " ";
+//    }
+//    cout << " " << endl;
+//    cout << "risk1 checked ";
+//    for (int ijk=0;ijk<totalnum;ijk++){
+//        cout << Rd.col(ijk).sum() << " ";
+//    }
+//    cout << " " << endl;
 //    cout << "risk2 checked ";
 //    for (int ijk=0;ijk<totalnum;ijk++){
 //        cout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
@@ -940,14 +937,14 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
     vector<double> Lldd(pow(totalnum,2),0.0);//The second derivative matrix has room for every combination, but only the lower triangle is calculated
     //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
-    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
-            int ij = 0;
+            int ij = ijk;
             int jk = ijk;
-            while (jk>ij){
-                ij++;
-                jk-=ij;
-            }
+//            while (jk>ij){
+//                ij++;
+//                jk-=ij;
+//            }
             double Rs1 = 0;
             double Rs2 = 0;
             double Rs2t = 0;
@@ -1024,14 +1021,14 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
+    for (int ijk=0;ijk<totalnum;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
-            int ij = 0;
+            int ij = ijk;
             int jk = ijk;
-            while (jk>ij){
-                ij++;
-                jk-=ij;
-            }
+//            while (jk>ij){
+//                ij++;
+//                jk-=ij;
+//            }
             double Rs1 = Rls1(j,0);
             double Rs2 = Rls2(j,ij);
             double Rs2t = Rls2(j,jk);
@@ -1189,11 +1186,11 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 }
             }
         }
-        cout << "testing dbeta: ";//prints the final changes for validation
-        for (int ijk=0;ijk<totalnum;ijk++){
-            cout << dbeta[ijk] << " ";
-        }
-        cout << " " << endl;
+//        cout << "testing dbeta: ";//prints the final changes for validation
+//        for (int ijk=0;ijk<totalnum;ijk++){
+//            cout << dbeta[ijk] << " ";
+//        }
+//        cout << " " << endl;
         //
         Ll_best = Ll[ind0];
         i = ind0;
@@ -1576,7 +1573,6 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             }else if (modelform=="M"){
                 Te = Te.array() * 0 + 1; //verifies the initial term product is 1
                 //
-//                cout << "Te checked " << Te.array().sum() << " " << T0.array().block(0,dose_num_tot,T0.rows(),T0.cols()-dose_num_tot).rowwise().prod().sum() << " " << Dose.array().sum() << " " << T0.array().rowwise().prod().sum() << endl;
                 Te = T0.array().block(0,dose_num_tot,T0.rows(),T0.cols()-dose_num_tot).rowwise().prod() * Dose.array();
                 // computes intial risk and derivatives
                 R << Te.array();
@@ -1654,14 +1650,14 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(Lldd.begin(), Lldd.end(), 0.0);
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                 for (int j=0;j<ntime;j++){
-                    int ij = 0;
+                    int ij = ijk;
                     int jk = ijk;
-                    while (jk>ij){
-                        ij++;
-                        jk-=ij;
-                    }
+//                    while (jk>ij){
+//                        ij++;
+//                        jk-=ij;
+//                    }
                     double Rs1 = 0;
                     double Rs2 = 0;
                     double Rs2t = 0;
@@ -1700,52 +1696,52 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 }
             }
             //
-            cout << "riskr checked ";
-            for (int ijk=0;ijk<totalnum;ijk++){
-                cout << Rls1.col(0).sum() << " ";
-            }
-            cout << " " << endl;
-            cout << "risk1r checked ";
-            for (int ijk=0;ijk<totalnum;ijk++){
-                cout << Rls2.col(ijk).sum() << " ";
-            }
-            cout << " " << endl;
-            cout << "risk2r checked ";
-            for (int ijk=0;ijk<totalnum;ijk++){
-                cout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-            }
-            cout << " " << endl;
-            //
-            //
-            cout << "riskl checked ";
-            for (int ijk=0;ijk<totalnum;ijk++){
-                cout << Lls1.col(0).sum() << " ";
-            }
-            cout << " " << endl;
-            cout << "risk1l checked ";
-            for (int ijk=0;ijk<totalnum;ijk++){
-                cout << Lls2.col(ijk).sum() << " ";
-            }
-            cout << " " << endl;
-            cout << "risk2l checked ";
-            for (int ijk=0;ijk<totalnum;ijk++){
-                cout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-            }
-            cout << " " << endl;
+//            cout << "riskr checked ";
+//            for (int ijk=0;ijk<totalnum;ijk++){
+//                cout << Rls1.col(0).sum() << " ";
+//            }
+//            cout << " " << endl;
+//            cout << "risk1r checked ";
+//            for (int ijk=0;ijk<totalnum;ijk++){
+//                cout << Rls2.col(ijk).sum() << " ";
+//            }
+//            cout << " " << endl;
+//            cout << "risk2r checked ";
+//            for (int ijk=0;ijk<totalnum;ijk++){
+//                cout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+//            }
+//            cout << " " << endl;
+//            //
+//            //
+//            cout << "riskl checked ";
+//            for (int ijk=0;ijk<totalnum;ijk++){
+//                cout << Lls1.col(0).sum() << " ";
+//            }
+//            cout << " " << endl;
+//            cout << "risk1l checked ";
+//            for (int ijk=0;ijk<totalnum;ijk++){
+//                cout << Lls2.col(ijk).sum() << " ";
+//            }
+//            cout << " " << endl;
+//            cout << "risk2l checked ";
+//            for (int ijk=0;ijk<totalnum;ijk++){
+//                cout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+//            }
+//            cout << " " << endl;
             //
             //
             #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
                 std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
                 initializer(omp_priv = omp_orig)
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                 for (int j=0;j<ntime;j++){
-                    int ij = 0;
+                    int ij = ijk;
                     int jk = ijk;
-                    while (jk>ij){
-                        ij++;
-                        jk-=ij;
-                    }
+//                    while (jk>ij){
+//                        ij++;
+//                        jk-=ij;
+//                    }
                     double Rs1 = Rls1(j,0);
                     double Rs2 = Rls2(j,ij);
                     double Rs2t = Rls2(j,jk);
@@ -2143,7 +2139,6 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
 //            }
 //            cout << " " << endl;
             //
-            Dose << De.rowwise().sum();
             //
             if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
                 Te = T0.array().block(0,dose_num_tot,T0.rows(),T0.cols()-dose_num_tot).rowwise().sum() + Dose.array();
@@ -2285,14 +2280,14 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             gibtime = system_clock::to_time_t(system_clock::now());
             cout << ctime(&gibtime) << endl;
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                 for (int j=0;j<ntime;j++){
-                    int ij = 0;
+                    int ij = ijk;
                     int jk = ijk;
-                    while (jk>ij){
-                        ij++;
-                        jk-=ij;
-                    }
+//                    while (jk>ij){
+//                        ij++;
+//                        jk-=ij;
+//                    }
                     double Rs1 = 0;
                     double Rs2 = 0;
                     double Rs2t = 0;
@@ -2335,14 +2330,14 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
                 std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
                 initializer(omp_priv = omp_orig)
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                 for (int j=0;j<ntime;j++){
-                    int ij = 0;
+                    int ij = ijk;
                     int jk = ijk;
-                    while (jk>ij){
-                        ij++;
-                        jk-=ij;
-                    }
+//                    while (jk>ij){
+//                        ij++;
+//                        jk-=ij;
+//                    }
                     double Rs1 = Rls1(j,0);
                     double Rs2 = Rls2(j,ij);
                     double Rs2t = Rls2(j,jk);
@@ -2456,6 +2451,123 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
         cout << " " << endl;
         cout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
     }
+    // -----------------------------------------------
+    // Performing Full Calculation to get full second derivative matrix
+    // -----------------------------------------------
+    fill(Ll.begin(), Ll.end(), 0.0);
+    fill(Lld.begin(), Lld.end(), 0.0);
+    fill(Lldd.begin(), Lldd.end(), 0.0);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            double Rs1 = 0;
+            double Rs2 = 0;
+            double Rs2t = 0;
+            double Rs3 = 0;
+            //
+            vector<int> InGroup;
+            string Groupstr = RiskGroup[j];
+            stringstream ss(Groupstr);
+            //
+            for (int i; ss >> i;) {
+                InGroup.push_back(i);    
+                if (ss.peek() == ',')
+                    ss.ignore();
+            }
+            //Now has the grouping pairs
+            int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+            for (int i = 0; i < InGroup.size()-1; i=i+2){
+                Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
+                Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
+                Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
+                Rs3 += Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).sum();
+            }
+            MatrixXd Ld = MatrixXd::Zero(dj,4);
+            Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
+            //
+            if (ij==jk){
+                if (ij==0){
+                    Rls1(j,0) = Rs1;
+                    Lls1(j,0) = Ld.col(0).sum();
+                }
+                Rls2(j,ij) = Rs2;
+                Lls2(j,ij) = Ld.col(1).sum();
+            }
+            Rls3(j,ijk) = Rs3;
+            Lls3(j,ijk) = Ld.col(3).sum();
+        }
+    }
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            double Rs1 = Rls1(j,0);
+            double Rs2 = Rls2(j,ij);
+            double Rs2t = Rls2(j,jk);
+            double Rs3 = Rls3(j,ijk);
+            //
+            int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+            MatrixXd Ld = MatrixXd::Zero(dj,4);
+            Ld << R.block(RiskFail(j,0),0,dj,1), RdR.block(RiskFail(j,0),ij,dj,1), RdR.block(RiskFail(j,0),jk,dj,1) ,RddR.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
+            //
+            MatrixXd Ldm = MatrixXd::Zero(dj,4);
+            Vector4d Ldcs;
+            Ldcs << Lls1(j,0), Lls2(j,ij), Lls2(j,jk), Lls3(j,ijk);
+            for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
+                Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+            }
+            Ldm.col(0) = Ldm.col(0).array() + Rs1;
+            Ldm.col(1) = Ldm.col(1).array() + Rs2;
+            Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+            Ldm.col(3) = Ldm.col(3).array() + Rs3;
+            //
+            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+            MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
+            temp1 = Ld.col(0).array().log();
+            double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+            temp1 = Ld.col(1).array();
+            temp2 = Ld.col(2).array();
+            double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+            temp1 = Ld.col(3).array() - temp1.array() * temp2.array();
+            double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
+            //
+            temp1 = Ldm.col(0).array().log();
+            Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+            temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+            temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
+            Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+            temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
+            Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
+            //
+            if (ij==jk){
+                Ll[ij] += Ld1 - Rs1;
+                Lld[ij] += Ld2 - Rs2;
+            }
+            Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+        }
+    }
+    #pragma omp parallel for num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd[jk*totalnum+ij] = Lldd[ij*totalnum+jk];
+    }
     // Changes the parameter back into the original form
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ij=0;ij<totalnum;ij++){
@@ -2520,7 +2632,9 @@ List LogLik_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_plinT
             }
         }
     }
-//    cout << "Making the list" << endl;
+    // --------------------------------
+    // Return the results
+    // --------------------------------
     vector<double> beta_loglin_slope;
     vector<double> beta_loglin_top;
     vector<double> beta_lin_slope;
@@ -2769,8 +2883,9 @@ List PEANUT_PLOT_SURV(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
     double dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
     int total_dose=0; //used later on for a section summing the dose terms
     //
-    ArrayXd Dose(df_dose.rows(),1); //Matrix of the total dose term values
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    VectorXd Dose = VectorXd::Zero(df_dose.rows()); //Matrix of the total dose term values
+    #pragma omp declare reduction (eig_plus: VectorXd: omp_out=omp_out+omp_in) initializer(omp_priv=VectorXd::Zero(omp_orig.size()))
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose)
     for (int ij=0;ij<(totalnum-dose_num_tot+dose_term_tot);ij++){
         if (ij < dose_term_tot){//Dose terms are indexed originally by complete term, i.e. step function not the slope and threshold seperately
             int ind0 = ij;
@@ -2830,7 +2945,7 @@ List PEANUT_PLOT_SURV(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
                     df0.col(ind1) = df_dose.col(ijk);
                     //
                     De.col(ind1) = temp1;
-                    Dose = Dose + temp1.array();
+                    Dose = Dose.array() + temp1.array();
                     Dde.col(ind1) = temp1.array() * df_dose.col(ijk).array();
                     Ddde.col(ind1 * (ind1+1)/2) = temp1.array() * df_dose.col(ijk).array().square().array();
                     //
@@ -2846,7 +2961,7 @@ List PEANUT_PLOT_SURV(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
                     //
                     De.col(ind1) = temp1;
                     De.col(ind1 + 1) = temp1;
-                    Dose = Dose + temp1.array();
+                    Dose = Dose.array() + temp1.array();
                     Dde.col(ind1) = temp.array();
                     Dde.col(ind1 + 1) = temp1.array() * df_dose.col(ijk).array();
                     Ddde.col((ind1 + 1) * (ind1 + 2)/2 + ind1) = temp.array() * df_dose.col(ijk).array();
@@ -2856,8 +2971,8 @@ List PEANUT_PLOT_SURV(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
             } else if (ind0 < loglin_size + lin_size){
                 int jk = ind0 - loglin_size; // The linear threshold model has no closed form equation for derivatives
                 ArrayXd temp = (df_dose.col(ijk).array() - beta_lin_int[jk]);
-                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_lin_int[jk]-dint);//derivatives are approximated
-                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_lin_int[jk]+dint);
+                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_lin_int[jk]+dint);//derivatives are approximated
+                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_lin_int[jk]-dint);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size - dub_off + 2*jk;
     //                int ind2 = (ind1 + 1); 
@@ -2875,7 +2990,7 @@ List PEANUT_PLOT_SURV(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
                 //
                 De.col(ind1) = beta_lin_slope[jk] * temp.array();
                 De.col((ind1 + 1)) = beta_lin_slope[jk] * temp.array();
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
                 Dde.col(ind1) = temp.array();
                 Dde.col((ind1 + 1)) = beta_lin_slope[jk] * (temp1.array() -temp0.array()) / 2.0/dint;
                 //
@@ -2892,12 +3007,12 @@ List PEANUT_PLOT_SURV(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
                 //
                 De.col(ind1) = beta_quad[jk] * temp.array();
                 Dde.col(ind1) = temp.array();
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
             } else {
                 int jk = ind0 - loglin_size - lin_size - quad_size;
                 ArrayXd temp = (df_dose.col(ijk).array() - beta_step_int[jk]);// Step function also has approximated derivatives
-                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_step_int[jk]-dint);
-                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_step_int[jk]+dint);
+                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_step_int[jk]+dint);
+                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_step_int[jk]-dint);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size - dub_off  + 2*lin_size + quad_size + 2*jk;
     //                int ind2 = ind1 + 1;
@@ -2920,7 +3035,7 @@ List PEANUT_PLOT_SURV(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
                 //
                 Ddde.col((ind1 + 1) * ((ind1 + 1)+1)/2 + ind1) = (temp1.array() - temp0.array()) / 2.0/dint;
                 Ddde.col((ind1 + 1) * ((ind1 + 1)+1)/2 + (ind1 + 1)) = beta_step_slope[jk] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
             }
             //
         } else {//past this point, non-dose terms are calcualted
@@ -3363,7 +3478,7 @@ List PEANUT_PLOT_RISK(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
     MatrixXd T0 = MatrixXd::Zero(vv.size(), totalnum); //preallocates matrix for Derivative column terms
     if (fir < df_dose.cols()){;
         int ijk=fir;
-        dx = (df_dose.col(ijk).maxCoeff() - df_dose.col(ijk).minCoeff())/vv.size();//varies from max to minimum
+        dx = (df_dose.col(ijk).maxCoeff() - df_dose.col(ijk).minCoeff())/(vv.size()-1);//varies from max to minimum
         vv[0] = df_dose.col(ijk).minCoeff();
         generate(vv.begin(), vv.end(), [n = 0, &dx]() mutable { return n++ * dx; });
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -3512,7 +3627,7 @@ List PEANUT_PLOT_RISK(VectorXd beta_linT,VectorXd beta_loglinT,VectorXd beta_pli
                 //
             }
         }
-        dx = (vmax - vmin)/vv.size();
+        dx = (vmax - vmin)/(vv.size()-1);
         vv[0] = vmin;
         generate(vv.begin(), vv.end(), [n = 0, &dx]() mutable { return n++ * dx; });
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -3706,10 +3821,11 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
     double dint = dose_abs_max;
     int total_dose=0;
     //
-    ArrayXd Dose(df_dose.rows(),1);
     //
     int dub_off=0;
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    VectorXd Dose = VectorXd::Zero(df_dose.rows()); //Matrix of the total dose term values
+    #pragma omp declare reduction (eig_plus: VectorXd: omp_out=omp_out+omp_in) initializer(omp_priv=VectorXd::Zero(omp_orig.size()))
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose)
     for (int ij=0;ij<(totalnum-dose_num_tot+dose_term_tot);ij++){
         if (ij < dose_term_tot){
             int ind0 = ij;
@@ -3772,7 +3888,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     df0.col(ind1) = df_dose.col(ijk);
                     //
                     De.col(ind1) = temp1;
-                    Dose = Dose + temp1.array();
+                    Dose = Dose.array() + temp1.array();
                     Dde.col(ind1) = temp1.array() * df_dose.col(ijk).array();
                     Ddde.col(ind1 * (ind1+1)/2) = temp1.array() * df_dose.col(ijk).array().square().array();
                     //
@@ -3788,7 +3904,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     //
                     De.col(ind1) = temp1;
                     De.col(ind1 + 1) = temp1;
-                    Dose = Dose + temp1.array();
+                    Dose = Dose.array() + temp1.array();
                     Dde.col(ind1) = temp.array();
                     Dde.col(ind1 + 1) = temp1.array() * df_dose.col(ijk).array();
                     Ddde.col((ind1 + 1) * (ind1 + 2)/2 + ind1) = temp.array() * df_dose.col(ijk).array();
@@ -3798,8 +3914,8 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             } else if (ind0 < loglin_size + lin_size){
                 int jk = ind0 - loglin_size;
                 ArrayXd temp = (df_dose.col(ijk).array() - beta_lin_int[jk]);
-                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_lin_int[jk]-dint);
-                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_lin_int[jk]+dint);
+                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_lin_int[jk]+dint);
+                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_lin_int[jk]-dint);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size - dub_off + 2*jk;
                 //
@@ -3816,7 +3932,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                 //
                 De.col(ind1) = beta_lin_slope[jk] * temp.array();
                 De.col((ind1 + 1)) = beta_lin_slope[jk] * temp.array();
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
                 Dde.col(ind1) = temp.array();
                 Dde.col((ind1 + 1)) = beta_lin_slope[jk] * (temp1.array() - temp0.array()) / 2.0/dint;
                 //
@@ -3833,12 +3949,12 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                 //
                 De.col(ind1) = beta_quad[jk] * temp.array();
                 Dde.col(ind1) = temp.array();
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
             } else {
                 int jk = ind0 - loglin_size - lin_size - quad_size;
                 ArrayXd temp = (df_dose.col(ijk).array() - beta_step_int[jk]);
-                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_step_int[jk]-dint);
-                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_step_int[jk]+dint);
+                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_step_int[jk]+dint);
+                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_step_int[jk]-dint);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size - dub_off  + 2*lin_size + quad_size + 2*jk;
     //                int ind2 = ind1 + 1;
@@ -3861,7 +3977,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                 //
                 Ddde.col((ind1 + 1) * ((ind1 + 1)+1)/2 + ind1) = (temp1.array() - temp0.array()) / 2.0/dint;
                 Ddde.col((ind1 + 1) * ((ind1 + 1)+1)/2 + (ind1 + 1)) = beta_step_slope[jk] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
             }
             //
         } else {
@@ -3956,8 +4072,6 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
     //
 //    const SparseMatrix df_s0 = df0.sparseView();
     //
-    T0.block(0,0,T0.rows(),dose_num_tot) = De.block(0,0,T0.rows(),dose_num_tot);
-    Td0.block(0,0,T0.rows(),dose_num_tot) = Dde.block(0,0,T0.rows(),dose_num_tot);
     //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<dose_num_tot;ijk++){
@@ -3965,6 +4079,22 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
         Td0.col(ijk) = Dde.col(ijk);
         T0.col(ijk) = De.col(ijk);
     }
+    //
+    cout << "values checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << beta_0[ijk] << " ";
+    }
+    cout << " " << endl;
+    cout << "sums checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << T0.col(ijk).sum() << " ";
+    }
+    cout << " " << endl;
+    cout << "derivs checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Td0.col(ijk).sum() << " ";
+    }
+    cout << " " << endl;
     //
     MatrixXd RdR = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk to derivative ratios
     MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
@@ -4071,13 +4201,6 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
         }
         R = (R.array().isFinite()).select(R,0);
         Rd = (Rd.array().isFinite()).select(Rd,0);
-    //        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    //        for (int ijk=0;ijk<totalnum;ijk++){
-    //            if (ijk<dose_num_tot){
-    //                Rd.col(ijk) = De.col(ijk).array().pow(-1).array()* Te.array();
-    //                Rd.col(ijk) = Rd.col(ijk).array() * Dde.col(ijk).array();
-    //            }
-    //        }
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
             int ij = 0;
@@ -4113,6 +4236,23 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
     R = (R.array().isFinite()).select(R,0);
     Rd = (Rd.array().isFinite()).select(Rd,0);
     Rdd = (Rdd.array().isFinite()).select(Rdd,0);
+    //
+    cout << "risk checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << R.col(0).sum() << " ";
+    }
+    cout << " " << endl;
+    cout << "risk1 checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Rd.col(ijk).sum() << " ";
+    }
+    cout << " " << endl;
+    cout << "risk2 checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+    }
+    cout << " " << endl;
+    //
     end_point = system_clock::now();
     ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
     cout<<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
@@ -4121,6 +4261,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
     //
     // -------------------------------------------------------------------------------------------
     //
+//    cout << 0 << endl;
     vector<string>  RiskGroup(ntime); //vector of strings detailing the rows
     IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
     //
@@ -4233,6 +4374,39 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             Lls3(j,ijk) = Ld.col(3).sum();
         }
     }
+    //
+    cout << "riskr checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Rls1.col(0).sum() << " ";
+    }
+    cout << " " << endl;
+    cout << "risk1r checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Rls2.col(ijk).sum() << " ";
+    }
+    cout << " " << endl;
+    cout << "risk2r checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+    }
+    cout << " " << endl;
+    //
+    //
+    cout << "riskl checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Lls1.col(0).sum() << " ";
+    }
+    cout << " " << endl;
+    cout << "risk1l checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Lls2.col(ijk).sum() << " ";
+    }
+    cout << " " << endl;
+    cout << "risk2l checked ";
+    for (int ijk=0;ijk<totalnum;ijk++){
+        cout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+    }
+    cout << " " << endl;
     //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
@@ -4372,6 +4546,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
     vector<double> quad_coefs(3,0);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<totalnum;ijk++){
+        cout << "__________________" << endl;
         MatrixXd dL2dOm2  = MatrixXd::Zero(totalnum,totalnum);
         VectorXd dL2dOmdBet(totalnum-1);
         VectorXd dOmdBet(totalnum-1);
@@ -4385,24 +4560,29 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
         dOmdBet = -1 * dL2dOm2.inverse().matrix() * dL2dOmdBet;
         //
         //
-        h = Lld_mat.coeff(ijk,ijk) - dL2dOmdBet.transpose().matrix() * dL2dOm2.inverse().matrix() * dL2dOmdBet.matrix();
-        h = abs(sqrt( q1 / h)) / 2;
-        //
-        //
-//        Theta(ijk,ijk) = Theta(ijk,ijk) + h;
-        Dbeta(ijk,ijk) = h;
-        
         if (ijk==0){
-//            Theta.block(1,ijk,totalnum-1,1) = Theta.block(1,ijk,totalnum-1,1) + h * dOmdBet.block(0,ijk,totalnum-1,1);
+            cout << h << endl;
+            h = Lld_mat.coeff(ijk,ijk) - dL2dOmdBet.transpose().matrix() * dL2dOm2.inverse().matrix() * dL2dOmdBet.matrix();
+            cout << h << endl;
+            h = abs(sqrt( q1 / h)) / 2;
+            //
+            //
+            Dbeta(ijk,ijk) = h;
+            cout << h << endl;
+        } else {
+            h = Lld_mat.coeff(ijk,ijk) - dL2dOmdBet.transpose().matrix() * dL2dOm2.inverse().matrix() * dL2dOmdBet.matrix();
+            h = abs(sqrt( q1 / h)) / 2;
+            //
+            //
+            Dbeta(ijk,ijk) = h;
+        }
+        if (ijk==0){
             Dbeta.block(1,ijk,totalnum-1,1) =  h * dOmdBet.col(0);
         } else if (ijk==totalnum-1){
-//            Theta.block(0,ijk,totalnum-1,1) = Theta.block(0,ijk,totalnum-1,1) + h * dOmdBet.block(0,ijk,totalnum-1,1);
             Dbeta.block(0,ijk,totalnum-1,1) =  h * dOmdBet.col(0);
             //
         } else {
             ;
-//            Theta.block(0,ijk,ijk,1) = Theta.block(0,ijk,ijk,1) + h * dOmdBet.block(0,0,ijk,1);
-//            Theta.block(ijk+1,ijk,totalnum-ijk-1,1) = Theta.block(1,ijk+1,totalnum-ijk-1,1) + h * dOmdBet.block(ijk,0,totalnum-ijk-2,1);
             //
             Dbeta.block(0,ijk,ijk,1) = h * dOmdBet.block(0,0,ijk,1);
             Dbeta.block(ijk+1,ijk,totalnum-ijk-1,1) =  h * dOmdBet.block(ijk,0,totalnum-ijk-2,1);
@@ -4458,6 +4638,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             VectorXd::Map(&beta_best[0], beta_p.size()) = Theta.col(ijk_ind);//beta_best = wrap(beta_0);
             //
             //
+            cout << "df111, " << Dbeta.col(ijk_ind).transpose() << endl;
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){
                 double lim_0 = abs((lstar - Ll[0]) / Lld[ijk]);
@@ -4484,8 +4665,12 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
 //                }
             }
             cout << "df111, " << Dbeta.col(ijk_ind).transpose() << endl;
+            if (true){
+                throw invalid_argument( "stopping" );
+            }
             //
-            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            Dose = VectorXd::Zero(df_dose.rows());
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose)
             for (int ijk=0;ijk<totalnum;ijk++){
                 //
                 if (tform[ijk]=="lin"){
@@ -4503,7 +4688,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
                     beta_c[ijk+1] = beta_a[ijk+1] + Dbeta.coeff(ijk+1,ijk_ind);
                     double ach = beta_c[ijk]/beta_p[ijk];
-                    MatrixXd bch = ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                    MatrixXd bch = ((beta_c[ijk+1] - beta_p[ijk+1]) * df0.col(ijk)).array().exp().array();
                     //
                     De.col(ijk) = ach * bch.array() * De.col(ijk).array();
                     De.col(ijk+1) = ach * bch.array() * De.col(ijk+1).array();
@@ -4511,22 +4696,25 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     Dde.col(ijk+1) = ach * bch.array() * Dde.col(ijk+1).array();
                     Ddde.col((ijk+1)*(ijk+2)/2+ijk) = bch.array() * Ddde.col((ijk+1)*(ijk+2)/2+ijk).array();
                     Ddde.col((ijk+1)*(ijk+2)/2+ijk+1) = ach * bch.array() * Ddde.col((ijk+1)*(ijk+2)/2+ijk+1).array();
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else if (tform[ijk]=="loglin_top"){
                     if (ijk==0){
                         beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
+                        MatrixXd bch = ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
                         //
-                        De.col(ijk) = De.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Dde.col(ijk) = Dde.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                        De.col(ijk) = De.col(ijk).array() * bch.array();
+                        Dde.col(ijk) = Dde.col(ijk).array() * bch.array();
+                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * bch.array();
+                        Dose = Dose.array() + De.col(ijk).array();
                         //
                     } else if (tform[ijk-1]!="loglin_slope"){
                         beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
-                        //
-                        De.col(ijk) = De.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Dde.col(ijk) = Dde.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        //
+                        MatrixXd bch = ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                        De.col(ijk) = De.col(ijk).array() * bch.array();
+                        Dde.col(ijk) = Dde.col(ijk).array() * bch.array();
+                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * bch.array();
+                        Dose = Dose.array() + De.col(ijk).array();
                     } else {
                         ;
                     }
@@ -4537,19 +4725,25 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     ArrayXd temp = (df0.col(ijk).array() - beta_c[ijk+1]);
                     ArrayXd temp0 = (df0.col(ijk).array() - beta_c[ijk+1]-dint);
                     ArrayXd temp1 = (df0.col(ijk).array() - beta_c[ijk+1]+dint);
-                    ArrayXd temp2 = (temp1.array() < 0).select(0, temp1) - (temp0.array() < 0).select(0, temp0);
                     //
-                    De.col(ijk) = beta_c[ijk] * (temp.array() < 0).select(0.0, temp);
-                    De.col((ijk+1)) = beta_c[ijk] * (temp.array() < 0).select(0.0, temp);
-                    Dde.col(ijk) = (temp.array() < 0).select(0.0, temp);
-                    Dde.col((ijk+1)) = beta_c[ijk] * (temp2) / 2/dint;
+                    temp = (temp.array() < 0).select(0.0, temp);
+                    temp0 = (temp0.array() < 0).select(0.0, temp0);
+                    temp1 = (temp1.array() < 0).select(0.0, temp1);
                     //
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk) = (temp2) / 2/dint;
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk+1) = beta_c[ijk] * (temp2) / pow(dint,2);
+                    De.col(ijk) = beta_c[ijk] * temp.array();
+                    De.col((ijk + 1)) = beta_c[ijk] * temp.array();
+                    //
+                    Dde.col(ijk) = temp.array();
+                    Dde.col((ijk + 1)) = beta_c[ijk] * (temp1.array()-temp0.array()) / 2.0/dint;
+                    //
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + ijk) = (temp1.array()-temp0.array()) / 2.0/dint;
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + (ijk + 1)) = beta_c[ijk] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else if (tform[ijk]=="quad_slope"){
                     beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
-                    De.col(ijk) = beta_c[ijk] * df0.col(ijk).array().square().array();
+                    De.col(ijk) = (beta_c[ijk]/beta_p[ijk]) * De.col(ijk).array();
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else if (tform[ijk]=="step_slope"){
                     beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
@@ -4558,15 +4752,20 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     ArrayXd temp = (df0.col(ijk).array() - beta_0[ijk+1]);
                     ArrayXd temp0 = (df0.col(ijk).array() - beta_0[ijk+1]-dint);
                     ArrayXd temp1 = (df0.col(ijk).array() - beta_0[ijk+1]+dint);
-                    ArrayXd temp2 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0) - (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
                     //
-                    De.col(ijk) = beta_0[ijk] * (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-                    De.col(ijk+1) = beta_0[ijk] * (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-                    Dde.col(ijk) = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-                    Dde.col(ijk+1) = beta_0[ijk] * (temp2) / 2/dint;
+                    temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
+                    temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
+                    temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
                     //
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk) = (temp2) / 2/dint;
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk+1) = beta_0[ijk] * (temp2) / pow(dint,2);
+                    De.col(ijk) = beta_c[ijk] * temp.array();
+                    De.col((ijk + 1)) = beta_c[ijk] * temp.array();
+                    //
+                    Dde.col(ijk) = temp.array();
+                    Dde.col((ijk + 1)) = beta_c[ijk] * (temp1.array()-temp0.array()) / 2.0/dint;
+                    //
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + ijk) = (temp1.array()-temp0.array()) / 2.0/dint;
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + (ijk + 1)) = beta_c[ijk] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else {
                     ;
@@ -4576,7 +4775,6 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             }
             //
             //
-            Dose << De.rowwise().sum();
             //
             if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
                 Te = T0.array().block(0,dose_num_tot,T0.rows(),T0.cols()-dose_num_tot).rowwise().sum() + Dose.array();
@@ -4964,7 +5162,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             beta_0[ij] = Theta_0.coeff(ij,ijk_ind);
         }
         Dose = VectorXd::Zero(df_dose.rows());
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose)
         for (int ij=0;ij<totalnum;ij++){
             int ind0 = ij;
             if (ind0 < dose_num_tot){
@@ -4979,6 +5177,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     Dde.col(ij+1) = temp1.array() * df0.col(ij).array();
                     Ddde.col((ij+1)*(ij+2)/2+ij) = temp.array() * df0.col(ij).array();
                     Ddde.col((ij+1)*(ij+2)/2+ij+1) = temp1.array() * df0.col(ij).array().square().array();
+                    Dose = Dose.array() + De.col(ij).array();
                     
                 } else if (tform[ij]=="loglin_top"){
                     if (ij==0){
@@ -4986,11 +5185,13 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                         De.col(ij) = temp;
                         Dde.col(ij) = temp.array() * df0.col(ij).array();
                         Ddde.col(ij * (ij+1)/2.0 + ij) = temp.array() * df0.col(ij).array().square().array();
+                        Dose = Dose.array() + De.col(ij).array();
                     } else if (tform[ij-1]!="loglin_slope"){
                         ArrayXd temp = (beta_0[ij] * df0.col(ij)).array().exp();
                         De.col(ij) = temp;
                         Dde.col(ij) = temp.array() * df0.col(ij).array();
                         Ddde.col(ij * (ij+1)/2.0 + ij) = temp.array() * df0.col(ij).array().square().array();
+                        Dose = Dose.array() + De.col(ij).array();
                         //
                     } else {
                         ;
@@ -5011,11 +5212,13 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     //
                     Ddde.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
                     Ddde.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ij).array();
                 } else if (tform[ij]=="quad_slope"){
                     ArrayXd temp = df0.col(ij).array().square();
                     //
                     De.col(ij) = beta_0[ij] * temp.array();
                     Dde.col(ij) = temp.array();
+                    Dose = Dose.array() + De.col(ij).array();
                 } else if (tform[ij]=="step_slope"){
                     ArrayXd temp = (df0.col(ij).array() - beta_0[ij]);
                     ArrayXd temp0 = (df0.col(ij).array() - beta_0[ij]-dint);
@@ -5032,6 +5235,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     //
                     Ddde.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
                     Ddde.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ij).array();
                 } else {
                     ;
                 }
@@ -5436,7 +5640,8 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             }
             cout << "df111, " << Dbeta.col(ijk_ind).transpose() << endl;
             //
-            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            Dose = VectorXd::Zero(df_dose.rows());
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose)
             for (int ijk=0;ijk<totalnum;ijk++){
                 //
                 if (tform[ijk]=="lin"){
@@ -5454,7 +5659,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
                     beta_c[ijk+1] = beta_a[ijk+1] + Dbeta.coeff(ijk+1,ijk_ind);
                     double ach = beta_c[ijk]/beta_p[ijk];
-                    MatrixXd bch = ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                    MatrixXd bch = ((beta_c[ijk+1] - beta_p[ijk+1]) * df0.col(ijk)).array().exp().array();
                     //
                     De.col(ijk) = ach * bch.array() * De.col(ijk).array();
                     De.col(ijk+1) = ach * bch.array() * De.col(ijk+1).array();
@@ -5462,22 +5667,25 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     Dde.col(ijk+1) = ach * bch.array() * Dde.col(ijk+1).array();
                     Ddde.col((ijk+1)*(ijk+2)/2+ijk) = bch.array() * Ddde.col((ijk+1)*(ijk+2)/2+ijk).array();
                     Ddde.col((ijk+1)*(ijk+2)/2+ijk+1) = ach * bch.array() * Ddde.col((ijk+1)*(ijk+2)/2+ijk+1).array();
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else if (tform[ijk]=="loglin_top"){
                     if (ijk==0){
                         beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
+                        MatrixXd bch = ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
                         //
-                        De.col(ijk) = De.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Dde.col(ijk) = Dde.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
+                        De.col(ijk) = De.col(ijk).array() * bch.array();
+                        Dde.col(ijk) = Dde.col(ijk).array() * bch.array();
+                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * bch.array();
+                        Dose = Dose.array() + De.col(ijk).array();
                         //
                     } else if (tform[ijk-1]!="loglin_slope"){
                         beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
-                        //
-                        De.col(ijk) = De.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Dde.col(ijk) = Dde.col(ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();
-                        //
+                        MatrixXd bch = ((beta_c[ijk] - beta_p[ijk]) * df0.col(ijk)).array().exp().array();                        
+                        De.col(ijk) = De.col(ijk).array() * bch.array();
+                        Dde.col(ijk) = Dde.col(ijk).array() * bch.array();
+                        Ddde.col((ijk)*(ijk+1)/2+ijk) = Ddde.col((ijk)*(ijk+1)/2+ijk).array() * bch.array();
+                        Dose = Dose.array() + De.col(ijk).array();
                     } else {
                         ;
                     }
@@ -5488,19 +5696,25 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     ArrayXd temp = (df0.col(ijk).array() - beta_c[ijk+1]);
                     ArrayXd temp0 = (df0.col(ijk).array() - beta_c[ijk+1]-dint);
                     ArrayXd temp1 = (df0.col(ijk).array() - beta_c[ijk+1]+dint);
-                    ArrayXd temp2 = (temp1.array() < 0).select(0, temp1) - (temp0.array() < 0).select(0, temp0);
                     //
-                    De.col(ijk) = beta_c[ijk] * (temp.array() < 0).select(0.0, temp);
-                    De.col((ijk+1)) = beta_c[ijk] * (temp.array() < 0).select(0.0, temp);
-                    Dde.col(ijk) = (temp.array() < 0).select(0.0, temp);
-                    Dde.col((ijk+1)) = beta_c[ijk] * (temp2) / 2/dint;
+                    temp = (temp.array() < 0).select(0.0, temp);
+                    temp0 = (temp0.array() < 0).select(0.0, temp0);
+                    temp1 = (temp1.array() < 0).select(0.0, temp1);
                     //
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk) = (temp2) / 2/dint;
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk+1) = beta_c[ijk] * (temp2) / pow(dint,2);
+                    De.col(ijk) = beta_c[ijk] * temp.array();
+                    De.col((ijk + 1)) = beta_c[ijk] * temp.array();
+                    //
+                    Dde.col(ijk) = temp.array();
+                    Dde.col((ijk + 1)) = beta_c[ijk] * (temp1.array()-temp0.array()) / 2.0/dint;
+                    //
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + ijk) = (temp1.array()-temp0.array()) / 2.0/dint;
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + (ijk + 1)) = beta_c[ijk] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else if (tform[ijk]=="quad_slope"){
                     beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
-                    De.col(ijk) = beta_c[ijk] * df0.col(ijk).array().square().array();
+                    De.col(ijk) = (beta_c[ijk]/beta_p[ijk]) * De.col(ijk).array();
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else if (tform[ijk]=="step_slope"){
                     beta_c[ijk] = beta_a[ijk] + Dbeta.coeff(ijk,ijk_ind);
@@ -5509,15 +5723,20 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     ArrayXd temp = (df0.col(ijk).array() - beta_0[ijk+1]);
                     ArrayXd temp0 = (df0.col(ijk).array() - beta_0[ijk+1]-dint);
                     ArrayXd temp1 = (df0.col(ijk).array() - beta_0[ijk+1]+dint);
-                    ArrayXd temp2 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0) - (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
                     //
-                    De.col(ijk) = beta_0[ijk] * (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-                    De.col(ijk+1) = beta_0[ijk] * (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-                    Dde.col(ijk) = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-                    Dde.col(ijk+1) = beta_0[ijk] * (temp2) / 2/dint;
+                    temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
+                    temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
+                    temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
                     //
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk) = (temp2) / 2/dint;
-                    Ddde.col((ijk+1)*(ijk+2)/2+ijk+1) = beta_0[ijk] * (temp2) / pow(dint,2);
+                    De.col(ijk) = beta_c[ijk] * temp.array();
+                    De.col((ijk + 1)) = beta_c[ijk] * temp.array();
+                    //
+                    Dde.col(ijk) = temp.array();
+                    Dde.col((ijk + 1)) = beta_c[ijk] * (temp1.array()-temp0.array()) / 2.0/dint;
+                    //
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + ijk) = (temp1.array()-temp0.array()) / 2.0/dint;
+                    Ddde.col((ijk + 1) * ((ijk + 1)+1)/2 + (ijk + 1)) = beta_c[ijk] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ijk).array();
                     //
                 } else {
                     ;
@@ -5527,7 +5746,6 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             }
             //
             //
-            Dose << De.rowwise().sum();
             //
             if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
                 Te = T0.array().block(0,dose_num_tot,T0.rows(),T0.cols()-dose_num_tot).rowwise().sum() + Dose.array();
@@ -5913,7 +6131,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
             beta_0[ij] = Theta_0.coeff(ij,ijk_ind);
         }
         Dose = VectorXd::Zero(df_dose.rows());
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose)
         for (int ij=0;ij<totalnum;ij++){
             int ind0 = ij;
             if (ind0 < dose_num_tot){
@@ -5928,6 +6146,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     Dde.col(ij+1) = temp1.array() * df0.col(ij).array();
                     Ddde.col((ij+1)*(ij+2)/2+ij) = temp.array() * df0.col(ij).array();
                     Ddde.col((ij+1)*(ij+2)/2+ij+1) = temp1.array() * df0.col(ij).array().square().array();
+                    Dose = Dose.array() + De.col(ij).array();
                     
                 } else if (tform[ij]=="loglin_top"){
                     if (ij==0){
@@ -5935,11 +6154,13 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                         De.col(ij) = temp;
                         Dde.col(ij) = temp.array() * df0.col(ij).array();
                         Ddde.col(ij * (ij+1)/2.0 + ij) = temp.array() * df0.col(ij).array().square().array();
+                        Dose = Dose.array() + De.col(ij).array();
                     } else if (tform[ij-1]!="loglin_slope"){
                         ArrayXd temp = (beta_0[ij] * df0.col(ij)).array().exp();
                         De.col(ij) = temp;
                         Dde.col(ij) = temp.array() * df0.col(ij).array();
                         Ddde.col(ij * (ij+1)/2.0 + ij) = temp.array() * df0.col(ij).array().square().array();
+                        Dose = Dose.array() + De.col(ij).array();
                         //
                     } else {
                         ;
@@ -5960,11 +6181,13 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     //
                     Ddde.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
                     Ddde.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ij).array();
                 } else if (tform[ij]=="quad_slope"){
                     ArrayXd temp = df0.col(ij).array().square();
                     //
                     De.col(ij) = beta_0[ij] * temp.array();
                     Dde.col(ij) = temp.array();
+                    Dose = Dose.array() + De.col(ij).array();
                 } else if (tform[ij]=="step_slope"){
                     ArrayXd temp = (df0.col(ij).array() - beta_0[ij]);
                     ArrayXd temp0 = (df0.col(ij).array() - beta_0[ij]-dint);
@@ -5981,6 +6204,7 @@ List LogLik_Bounds( double q1, VectorXd beta_linT,VectorXd beta_loglinT,VectorXd
                     //
                     Ddde.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
                     Ddde.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
+                    Dose = Dose.array() + De.col(ij).array();
                 } else {
                     ;
                 }
@@ -6160,9 +6384,9 @@ NumericMatrix Schoenfeld_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,Vector
     double dint = dose_abs_max;
     int total_dose=0;
     //
-    ArrayXd Dose(df_dose.rows(),1);
-    //
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    VectorXd Dose = VectorXd::Zero(df_dose.rows()); //Matrix of the total dose term values
+    #pragma omp declare reduction (eig_plus: VectorXd: omp_out=omp_out+omp_in) initializer(omp_priv=VectorXd::Zero(omp_orig.size()))
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose)
     for (int ij=0;ij<(totalnum-dose_num_tot+dose_term_tot);ij++){
         if (ij < dose_term_tot){
             int ind0 = ij;
@@ -6222,7 +6446,7 @@ NumericMatrix Schoenfeld_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,Vector
                     df0.col(ind1) = df_dose.col(ijk);
                     //
                     De.col(ind1) = temp1;
-                    Dose = Dose + temp1.array();
+                    Dose = Dose.array() + temp1.array();
 //                    Dde.col(ind1) = temp1.array() * df_dose.col(ijk).array();
 //                    Ddde.col(ind1 * (ind1+1)/2) = temp1.array() * df_dose.col(ijk).array().square().array();
                     //
@@ -6239,7 +6463,7 @@ NumericMatrix Schoenfeld_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,Vector
                     //
                     De.col(ind1) = temp1;
                     De.col((ind1 + 1)) = temp1;
-                    Dose = Dose + temp1.array();
+                    Dose = Dose.array() + temp1.array();
 //                    Dde.col(ind1) = temp.array();
 //                    Dde.col((ind1 + 1)) = temp1.array() * df_dose.col(ijk).array();
 //                    Ddde.col((ind1 + 1) * ((ind1 + 1)+1)/2 + ind1) = temp.array() * df_dose.col(ijk).array();
@@ -6249,8 +6473,8 @@ NumericMatrix Schoenfeld_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,Vector
             } else if (ind0 < loglin_size + lin_size){
                 int jk = ind0 - loglin_size;
                 ArrayXd temp = (df_dose.col(ijk).array() - beta_lin_int[jk]);
-                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_lin_int[jk]-dint);
-                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_lin_int[jk]+dint);
+                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_lin_int[jk]+dint);
+                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_lin_int[jk]-dint);
                 ArrayXd temp2 = (temp1.array() < 0).select(0, temp1) - (temp0.array() < 0).select(0, temp0);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size + 2*jk;
@@ -6265,7 +6489,7 @@ NumericMatrix Schoenfeld_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,Vector
                 //
                 De.col(ind1) = beta_lin_slope[jk] * (temp.array() < 0).select(0.0, temp);
                 De.col((ind1 + 1)) = beta_lin_slope[jk] * (temp.array() < 0).select(0.0, temp);
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
 //                Dde.col(ind1) = (temp.array() < 0).select(0.0, temp);
 //                Dde.col((ind1 + 1)) = beta_lin_slope[jk] * (temp2) / 2/dint;
                 //
@@ -6282,12 +6506,12 @@ NumericMatrix Schoenfeld_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,Vector
                 //
 //                De.col(ind1) = beta_quad[jk] * temp.array();
 //                Dde.col(ind1) = temp.array();
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
             } else {
                 int jk = ind0 - loglin_size - lin_size - quad_size;
                 ArrayXd temp = (df_dose.col(ijk).array() - beta_step_int[jk]);
-                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_step_int[jk]-dint);
-                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_step_int[jk]+dint);
+                ArrayXd temp0 = (df_dose.col(ijk).array() - beta_step_int[jk]+dint);
+                ArrayXd temp1 = (df_dose.col(ijk).array() - beta_step_int[jk]-dint);
                 ArrayXd temp2 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0) - (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
                 //
                 int ind1 = cumulative_dose_num[ijk]+2*loglin_size + 2*lin_size + quad_size + 2*jk;
@@ -6307,7 +6531,7 @@ NumericMatrix Schoenfeld_PEANUT( VectorXd beta_linT,VectorXd beta_loglinT,Vector
                 //
 //                Ddde.col((ind1 + 1) * ((ind1 + 1)+1)/2 + ind1) = (temp2) / 2/dint;
 //                Ddde.col((ind1 + 1) * ((ind1 + 1)+1)/2 + (ind1 + 1)) = beta_step_slope[jk] * (temp2) / pow(dint,2);
-                Dose = Dose + De.col(ind1).array();
+                Dose = Dose.array() + De.col(ind1).array();
             }
             //
         } else {
