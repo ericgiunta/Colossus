@@ -209,6 +209,23 @@ Check_Dupe_Columns <- function(df,cols){
     }
     return(c())
 }
+
+Check_Trunc <- function(df,ce){
+    if (ce[1]=="%trunc%"){
+        tname <- ce[2]
+        tmin <- min(df[,get(tname)])
+        df[,':='(right_trunc=tmin)]
+        ce[1]="right_trunc"
+    } else if (ce[2]=="%trunc%")
+        tname <- ce[1]
+        tmax <- max(df[,get(tname)])
+        df[,':='(left_trunc=tmax)]
+        ce[2]="left_trunc"
+    }
+    return list('df'=df,'ce'=ce)
+}
+
+
 calc_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event){
     #-------------------------------------------------------------------------------------------------------------#
     #   df is the data that will be used
@@ -238,9 +255,9 @@ calc_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     }
     if (length(dose_paras$names)!=0){
         dose_paras$names = Check_Dupe_Columns(df,dose_paras$names)
+        dose_n <- dose_paras$names
     }
     #
-    dose_n <- dose_paras$names
     #
     all_names <- c()
     all_names <- c(all_names, dose_paras$terms)
@@ -261,11 +278,14 @@ calc_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     if (length(plin_n)==0){
         plin_n = c(event)
     }
+    if (length(dose_paras$names)==0){
+        dose_n <- c(event)
+    }
     x_lin=as.matrix(df[,..lin_n])
     x_loglin=as.matrix(df[,..loglin_n])
     x_plin=as.matrix(df[,..plin_n])
     x_dose=as.matrix(df[,..dose_n])
-    term_bool=c(0,0,0)
+    term_bool=c(0,0,0,0)
     if (length(a_lin)>0){
         term_bool[1]=1
     }
@@ -275,9 +295,17 @@ calc_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     if (length(a_plin)>0){
         term_bool[3]=1
     }
+    if (length(dose_paras$names)>0){
+        term_bool[4]=1
+    }
     ##
 #    print(length(tu))
     ce <- c(time1,time2,event)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
     print("all results")
     print(nrow(df))
     print(length(tu))
@@ -377,11 +405,14 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     if (length(plin_n)==0){
         plin_n = c(event)
     }
+    if (length(dose_paras$names)==0){
+        dose_n <- c(event)
+    }
     x_lin=as.matrix(df[,..lin_n])
     x_loglin=as.matrix(df[,..loglin_n])
     x_plin=as.matrix(df[,..plin_n])
     x_dose=as.matrix(df[,..dose_n])
-    term_bool=c(0,0,0)
+    term_bool=c(0,0,0,0)
     if (length(a_lin)>0){
         term_bool[1]=1
     }
@@ -391,9 +422,17 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
     if (length(a_plin)>0){
         term_bool[3]=1
     }
+    if (length(dose_paras$names)>0){
+        term_bool[4]=1
+    }
     ##
 #    print(length(tu))
     ce <- c(time1,time2,event)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
     e <- peanut_transition(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df[,..ce]),tu)
     print(e)
     b = e$beta_0
@@ -484,22 +523,22 @@ plot_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelfor
         tu <- unlist(unique(dfend[,..time2]))
         for (i in tu[1]:tu[length(tu)]){
             #
-            df0 <- df_u[get(time2)<i,]
+            df0 <- df_u[(get(time1)<i)&(get(time2)>i),]
             u_num = length(unlist(unique(df0[,studyID]),use.names=FALSE))
             u_ev = sum(df0[, get(event)])
-            df0 <- df_l[get(time2)<i,]
+            df0 <- df_l[(get(time1)<i)&(get(time2)>i),]
             l_num = length(unlist(unique(df0[,studyID]),use.names=FALSE))
             l_ev = sum(df0[, get(event)])
             #
             if (u_num>0){
                 t_u <- c(t_u,i)
                 temp <- (u_num - u_ev)/u_num
-                n_u <- c(n_u, temp)
+                n_u <- c(n_u, temp*n_u[length(n_u)])
             }
             if (l_num>0){
                 t_l <- c(t_l,i)
                 temp <- (l_num - l_ev)/l_num
-                n_l <- c(n_l, temp)
+                n_l <- c(n_l, temp*n_l[length(n_l)])
             }
         }
         print(min(n_u))
@@ -676,7 +715,14 @@ time_var_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,mode
     if (length(plin_n)==0){
         plin_n = c(event)
     }
-    term_bool=c(0,0,0)
+    if (length(dose_paras$names)==0){
+        dose_n <- c(event)
+    }
+    x_lin=as.matrix(df[,..lin_n])
+    x_loglin=as.matrix(df[,..loglin_n])
+    x_plin=as.matrix(df[,..plin_n])
+    x_dose=as.matrix(df[,..dose_n])
+    term_bool=c(0,0,0,0)
     if (length(a_lin)>0){
         term_bool[1]=1
     }
@@ -686,9 +732,17 @@ time_var_coxph <-function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,mode
     if (length(a_plin)>0){
         term_bool[3]=1
     }
+    if (length(dose_paras$names)>0){
+        term_bool[4]=1
+    }
     ##
 #    print(length(tu))
     ce <- c(time1,time2,event)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
     x_lin=as.matrix(df[,..lin_n])
     x_loglin=as.matrix(df[,..loglin_n])
     x_plin=as.matrix(df[,..plin_n])
@@ -765,7 +819,14 @@ Stratified_Baseline <- function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_pli
     if (length(plin_n)==0){
         plin_n = c(event)
     }
-    term_bool=c(0,0,0)
+    if (length(dose_paras$names)==0){
+        dose_n <- c(event)
+    }
+    x_lin=as.matrix(df[,..lin_n])
+    x_loglin=as.matrix(df[,..loglin_n])
+    x_plin=as.matrix(df[,..plin_n])
+    x_dose=as.matrix(df[,..dose_n])
+    term_bool=c(0,0,0,0)
     if (length(a_lin)>0){
         term_bool[1]=1
     }
@@ -775,7 +836,15 @@ Stratified_Baseline <- function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_pli
     if (length(a_plin)>0){
         term_bool[3]=1
     }
+    if (length(dose_paras$names)>0){
+        term_bool[4]=1
+    }
     ce <- c(time1,time2,event)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
     #
     dfend <- df[get(event)==1, ]
     cov_vals <- unlist(unique(dfend[,..strat_cov]))
@@ -797,7 +866,6 @@ Stratified_Baseline <- function(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_pli
         print(length(tu))
         ##
     #    print(length(tu))
-        ce <- c(time1,time2,event)
         e <- peanut_transition(c(0.0,a_lin), c(0.0,a_loglin), c(0.0,a_plin),  x_lin,  x_loglin,  x_plin, x_dose, fir, modelform,length(tu),term_bool, control, dose_paras,as.matrix(df_0[,..ce]),tu)
         #
         a_lin <- e$Parameter_Lists$beta_lin
@@ -839,7 +907,7 @@ a_dose=c(0.0001946145)
 modelform <- 'M'
 fir=0
 
-control <- list('lr' = 0.75,'maxiter' = 1,'halfmax' = 1,'epsilon' = 1e-5,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-5, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0)
+control <- list('lr' = 0.75,'maxiter' = 1,'halfmax' = 1,'epsilon' = 1e-5,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-5, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE)
 
 time1="age_entry"
 time2="age_exit"
@@ -847,27 +915,21 @@ event="lung"
 
 dose_paras <- list('names' =c('cumulative_dose_lung_lag10'),'terms'=c('beta_loglin_top'), 'beta_loglin_slope'=list(c(1.0)), 'beta_loglin_top'=list(c(0.0001946145)), 'beta_lin_slope'=list(c(0.0)), 'beta_lin_int'=list(c(0.0)),'beta_quad'=list(c(0.0)),'beta_step_slope'=list(c(0.0)),'beta_step_int'=list(c(0.0)))
 #
-plot_coxph(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event)
 
+if (FALSE){
+    plot_coxph(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event)
+}
+if (FALSE){
+    calc_coxph(fname,lin_n,loglin_n,plin_n,a_lin,a_loglin,a_plin,modelform,dose_paras,fir,control,time1,time2,event)
+}
 
-#
-lin_n <- c()
-loglin_n <- c("sexm","YOB1","YOB2","YOB3","YOB4","COH_EDUC1","COH_EDUC2","COH_EDUC3","COH_EDUC4","COH_EDUC5","COH_EDUC6","COH_EDUC7","COH_EDUC8","COH_EDUC9")
-plin_n <- c()
+if (FALSE){
+    control <- list('lr' = 0.75,'maxiter' = 30,'halfmax' = 5,'epsilon' = 1e-7,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-7, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=10.0)
 
-a_lin=c()
-a_loglin <- rep(-.01,length(loglin_n)-1)
-a_plin=c()
-a_dose=c(-0.1)
-
-modelform <- 'M'
-fir=0
-
-control <- list('lr' = 0.75,'maxiter' = 30,'halfmax' = 5,'epsilon' = 1e-7,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-7, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=10.0)
-
-for (i in 1:length(a_loglin)){
-    cov_name <- loglin_n[i]
-    Stratified_Baseline(fname,lin_n,loglin_n,plin_n,a_lin,setdiff(a_loglin,c(cov_name)),a_plin,modelform,dose_paras,fir,control,time1,time2,event,cov_name,2)
+    for (i in 1:length(a_loglin)){
+        cov_name <- loglin_n[i]
+        Stratified_Baseline(fname,lin_n,loglin_n,plin_n,a_lin,setdiff(a_loglin,c(cov_name)),a_plin,modelform,dose_paras,fir,control,time1,time2,event,cov_name,2)
+    }
 }
 
 
