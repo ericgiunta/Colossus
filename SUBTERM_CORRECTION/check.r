@@ -227,96 +227,41 @@ Check_Trunc <- function(df,ce){
 }
 
 
-calc_coxph <-function(fname,names,Term_n,tform,a_n,fir,der_iden,control,time1,time2,event,keep_constant){
-    #-------------------------------------------------------------------------------------------------------------#
-    #   df is the data that will be used
-    #   df is changed to a data.table to make filtering easier
-    colTypes=c("integer","double","double","double","integer","character","integer","integer","character","integer","integer", "integer","integer","character","character","character","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=TRUE,fill=TRUE)
-    df <- df[sexm==1,]
-    setkeyv(df, c(time2, event,time1))
-    #-------------------------------------------------------------------------------------------------------------#
-    #   The goal is to precompute the indices needed for each event time
-    #   The file has structure {start of all data, end of all data, first event index, second event index, ...,}
-    #
-    #
-    dfend <- df[get(event)==1, ]
-    #
-    tu <- unlist(unique(dfend[,..time2]))
-    print(length(tu))
-    #
-    dfc <- c()
-    dmax <- 0
-    all_names <- unique(names)
-    dfc <- match(names,all_names)
-    #-------------------------------------------------------------------------------------------------------------#
-    ##
-    term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,..all_names])
-    ##
-#    print(length(tu))
-    ce <- c(time1,time2,event)
-    #
-    t_check <- Check_Trunc(df,ce)
-    df <- t_check$df
-    ce <- t_check$ce
-    #
-    print("all results")
-    print(nrow(df))
-    print(length(tu))
-    print(dfc)
-    #                      Term_n,  tform, a_n, dfc, x_all,  fir, modelform,  Control,  df_groups,  tu,  KeepConstant,  term_tot
-    e <- peanut_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,..ce]),tu,keep_constant,term_tot)
-#    print(e)
-#    b = e$beta_0
-#    er = e$Standard_Deviation
-#    for (i in 1:length(b)){
-#        temp = paste(all_names[i],": ",sprintf("%.5e",b[i])," +/- ",sprintf("%.5e",2.0*er[i])," (",sprintf("%.5e",b[i]-2.0*er[i]),", ",sprintf("%.5e",b[i]+2.0*er[i]),")",sep="")
-#        print(temp)
-#    }
-}
+control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 1,'epsilon' = 1e-5,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-5, 'abs_max'=1.0,'change_all'=FALSE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='efron')
+
+time1="%trunc%"
+time2="time"
+event="cases"
+
+#
+df <- read.table("LUNG.DAT",header=FALSE,skip=0,col.names=c("cases","time","status","dxmnths","age","prior","trmnt","cell"))
+df <- as.data.table(df)
+setkeyv(df, c(time2, event))
+
+df[,stat50 := status - 50]
+df[,age60 :=  age - 60]
+df[,trmnt := trmnt - 1 ]
+df[,prior := prior / 10 ]
+df0 <- data.table("cell_0"=c(0), "cell_1"=c(0), "cell_2"=c(0), "cell_3"=c(0), "stat50"=c(40), "age60"=c(20), "dxmnths"=c(6), "prior"=c(1), "trmnt"=c(1)) 
 
 
-#fname <- '../Combined MW NPP IR Lung Lag10 - TEST 4.18.22.csv'
-fname <- '/home/user/Documents/CMS/Combined_MW_NPP_IR_Lung_Lag10_-_TEST_4.18.22.csv'
-#lin_n <- list(c())
-#loglin_n <- list(c("sexm","YOB1","YOB2","YOB3","YOB4","COH_EDUC1","COH_EDUC2","COH_EDUC3","COH_EDUC4","COH_EDUC5","COH_EDUC6","COH_EDUC7","COH_EDUC8","COH_EDUC9"))
-#plin_n <- list(c())
+val <- factorize(df, c("cell"))
+
+df <- val$df
+
+names <- c(val$cols,"stat50", "age60", "dxmnths", "prior", "trmnt")
+
 #
-#a_lin <- list(c())
-#a_loglin <- list(c(-0.0006300516,-0.0630181076,-0.3932366917,-0.6613753288,-1.1079753794,-0.7946066410,-0.1990600045,0.1616788011,-0.6317184838,-0.0572978471,-0.5560610214,-1.1076729774,-1.2444050074,-1.4178535299))
-#a_plin <- list(c())
-#
-modelform <- 'M'
+modelform <- 'A'
 fir=0
-der_iden=0
-
-control <- list('lr' = 0.75,'maxiter' = 2,'halfmax' = 1,'epsilon' = 1e-5,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-5, 'abs_max'=1.0,'change_all'=FALSE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='efron')
-
-time1="age_entry"
-time2="age_exit"
-event="lung"
-
-#
-names <- rep('cumulative_dose_lung_lag10',5)
-names <- c(names,"YOB1","YOB2","YOB3","YOB4","COH_EDUC1","COH_EDUC2","COH_EDUC3","COH_EDUC4","COH_EDUC5","COH_EDUC6","COH_EDUC7","COH_EDUC8","COH_EDUC9")
+der_iden=3
 Term_n <- rep(0,length(names))
 #STerm_n <- c(1,0,3,2,4,6,5)
 #STerm_n <- c(STerm_n,rep(0,length(Term_n)-length(STerm_n)))
-tform <- c("loglin_top","lin_slope","lin_int","quad_slope","step_slope","step_int")
-tform <- c(tform,rep("loglin",,length(Term_n)-length(tform)))
-a_n <- c(0.0001946145,0.001,10,.0001,.01,100,-0.0630181076,-0.3932366917,-0.6613753288, -1.1079753794,-0.7946066410,-0.1990600045,0.1616788011,-0.6317184838,-0.0572978471,-0.5560610214,-1.1076729774,-1.2444050074,-1.4178535299)
+tform <- rep("loglin",length(names))
+a_n <- rep(-0.1,length(names))
 keep_constant <- rep(0,length(names))
-#
-#
 
-#calc_coxph(fname,names,Term_n,tform,a_n,fir,der_iden,control,time1,time2,event,keep_constant)
-
-##
-colTypes=c("integer","double","double","double","integer","character","integer","integer","character","integer","integer", "integer","integer","character","character","character","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer")
-df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=TRUE,fill=TRUE)
-df <- df[sexm==1,]
-setkeyv(df, c(time2, event,time1))
 #-------------------------------------------------------------------------------------------------------------#
 #   The goal is to precompute the indices needed for each event time
 #   The file has structure {start of all data, end of all data, first event index, second event index, ...,}
@@ -333,7 +278,9 @@ all_names <- unique(names)
 dfc <- match(names,all_names)
 #-------------------------------------------------------------------------------------------------------------#
 ##
+term_tot <- max(Term_n)+1
 x_all=as.matrix(df[,..all_names])
+x0_all=as.matrix(df0[,..all_names])
 ##
 #    print(length(tu))
 ce <- c(time1,time2,event)
@@ -342,24 +289,17 @@ t_check <- Check_Trunc(df,ce)
 df <- t_check$df
 ce <- t_check$ce
 #
-print("all results")
-print(nrow(df))
-print(length(tu))
-for (i in 1:3){
-    Term_n <- rep(-1,length(names))
-    Tcount<- table(Term_n)
-    while (!((0%in%names(Tcount))&&(1%in%names(Tcount))&&(2%in%names(Tcount)))){
-        Term_n <- c(rep(0,5),floor(runif(length(Term_n)-5, min=0, max=3)))
-        Tcount<- table(Term_n)
-    }
-    print(Term_n)
-    term_tot <- max(Term_n)+1
-#    #                      Term_n,  tform, a_n, dfc, x_all,  fir, modelform,  Control,  df_groups,  tu,  KeepConstant,  term_tot
-#    a_n <- c(-0.3+.01*i,0.001,10,.00001,.01,100,-0.0630181076,-0.3932366917,-0.6613753288, -1.1079753794,-0.7946066410,-0.1990600045,0.1616788011,-0.6317184838,-0.0572978471,-0.5560610214,-1.1076729774,-1.2444050074,-1.4178535299)
-#    e <- peanut_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,..ce]),tu,keep_constant,term_tot)
-#    ##
-}
-
-
-
-
+print(df)
+print(names)
+print(ce)
+term_tot <- max(Term_n)+1
+out <- tryCatch(
+    {
+        #R <- peanut_risk_sub(Term_n, tform, a_n,dfc,x0_all, fir, modelform, control, term_tot)
+        e <- peanut_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,..ce]),tu,keep_constant,term_tot)
+        #
+    },
+    error=function(cond){message(cond)},
+    warning=function(cond){message(cond)},
+    finally={print("_________________")}
+)
