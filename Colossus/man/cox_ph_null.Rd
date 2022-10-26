@@ -5,11 +5,9 @@
 \title{Interface between R code and the Cox PH null model function
 \code{Stress_Test} Called directly from R, Defines the control variables and calls the calculation function}
 \usage{
-cox_ph_null(ntime, Control, df_groups, tu)
+cox_ph_null(Control, df_groups, tu)
 }
 \arguments{
-\item{ntime}{number of unique event times used}
-
 \item{Control}{control list}
 
 \item{df_groups}{time and event matrix}

@@ -30,8 +30,8 @@ Open_File <- function(fname,time1,time2,event){
 #'
 time_factor <- function(df,time_bins,col_list,time_col){
     cols <- c()
-    for (i in 1:length(col_list)){
-        col <- col_list[i]
+    for (j in 1:length(col_list)){
+        col <- col_list[j]
         for (i in 1:(length(time_bins)-1)){
             newcol <- c(paste(col,i,sep="_T"))
             if (sum(((df[,time_col, with = FALSE]>=time_bins[i])&(df[,time_col, with = FALSE]<time_bins[i+1])))>0){
@@ -39,8 +39,12 @@ time_factor <- function(df,time_bins,col_list,time_col){
                 cols <- c(cols, newcol)
                 #
                 newcol <- c(paste(i,"_T",sep=""))
-                df[, newcol] <- 1*((df[,time_col, with = FALSE]>=time_bins[i])&(df[,time_col, with = FALSE]<time_bins[i+1]))
-                cols <- c(cols, newcol)
+                if ( newcol %in% cols){
+                    ;
+                } else {
+                    df[, newcol] <- 1*((df[,time_col, with = FALSE]>=time_bins[i])&(df[,time_col, with = FALSE]<time_bins[i+1]))
+                    cols <- c(cols, newcol)
+                }
             }
         }
     }

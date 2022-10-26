@@ -24,6 +24,7 @@ LogLik_Cox_PH(
   deriv_epsilon,
   df_groups,
   tu,
+  double_step,
   change_all,
   verbose,
   debugging,
@@ -68,6 +69,8 @@ LogLik_Cox_PH(
 \item{df_groups}{matrix with time and event information}
 
 \item{tu}{event times}
+
+\item{double_step}{controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices}
 
 \item{change_all}{boolean if every parameter is being updated}
 

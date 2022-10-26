@@ -1377,6 +1377,7 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 
 //' Utility function to calculate the change to make each iteration
 //' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations    
+//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 //' @param     nthreads    number of threads
 //' @param     totalnum    total number of parameter
 //' @param     fir    first term number
@@ -1397,76 +1398,206 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 //'
 //' @return Updates matrices in place: parameter change matrix
 // [[Rcpp::export]]
-void Calc_Change(const int& nthreads, const int& totalnum,const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all,const StringVector&   tform, const double& dint, IntegerVector KeepConstant, bool debugging){
+void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum,const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all,const StringVector&   tform, const double& dint, IntegerVector KeepConstant, bool debugging){
     //
     //Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
     //
     if (debugging){
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        for (int ijk=0;ijk<totalnum;ijk++){
-            if (change_all){
-                if (KeepConstant[ijk]==0){
-                    dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                    //
-                    double dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-                    if (abs(dbeta[ijk])>dbeta_max){
-                        dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-                    }
-                    if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
-                        if (abs(dbeta[ijk])>dose_abs_max){
-                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+        if (double_step==1){
+            NumericVector Lldd_vec = wrap(Lldd);//
+            NumericVector Lld_vec  = wrap(Lld);//
+            Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+            //
+            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+            //
+            VectorXd Lldd_solve = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+//            if (totalnum < 16){
+//                JacobiSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
+//            } else {
+//                BDCSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
+//            }
+//            MatrixXd Lldd_solve = svd.solve(-1*Lld_mat);
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){
+                if (change_all){
+                    if (KeepConstant[ijk]==0){
+                        dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                        //
+                        double dbeta_max;
+                        if (Lld[ijk]!=0){
+                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+                        }else{
+                            dbeta_max = 0;
                         }
-                    }else{
-                        if (abs(dbeta[ijk])>abs_max){
-                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                        if (abs(dbeta[ijk])>dbeta_max){
+                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
                         }
-                    }
-                } else {
-                    dbeta[ijk]=0;
-                }
-            }else{
-                if (ijk!=der_iden){//Validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
-                        dbeta[ijk] = dint;
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                            if (abs(dbeta[ijk])>dose_abs_max){
+                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                            }
+                        }else{
+                            if (abs(dbeta[ijk])>abs_max){
+                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                            }
+                        }
                     } else {
-                        dbeta[ijk] = 0.001;
+                        dbeta[ijk]=0;
+                    }
+                }else{
+                    if (ijk!=der_iden){//Validation requires controlled changes
+                        dbeta[ijk] = 0.0;
+                    } else {
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                            dbeta[ijk] = dint;
+                        } else {
+                            dbeta[ijk] = 0.001;
+                        }
+                    }
+                }
+            }
+        } else {
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){
+                if (change_all){
+                    if (KeepConstant[ijk]==0){
+                        if (Lldd[ijk*totalnum+ijk] != 0 ){
+                            dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                        } else {
+                            dbeta[ijk] = 0;
+                        }
+                        //
+                        double dbeta_max;
+                        if (Lld[ijk]!=0){
+                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+                        }else{
+                            dbeta_max = 0;
+                        }
+                        if (abs(dbeta[ijk])>dbeta_max){
+                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+                        }
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                            if (abs(dbeta[ijk])>dose_abs_max){
+                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                            }
+                        }else{
+                            if (abs(dbeta[ijk])>abs_max){
+                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                            }
+                        }
+                    } else {
+                        dbeta[ijk]=0;
+                    }
+                }else{
+                    if (ijk!=der_iden){//Validation requires controlled changes
+                        dbeta[ijk] = 0.0;
+                    } else {
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                            dbeta[ijk] = dint;
+                        } else {
+                            dbeta[ijk] = 0.001;
+                        }
                     }
                 }
             }
         }
     } else {
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        for (int ijk=0;ijk<totalnum;ijk++){
-            if (change_all){
-                if (KeepConstant[ijk]==0){
-                    dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                    //
-                    double dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-                    if (abs(dbeta[ijk])>dbeta_max){
-                        dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-                    }
-                    if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
-                        if (abs(dbeta[ijk])>dose_abs_max){
-                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+        if (double_step==1){
+            NumericVector Lldd_vec = wrap(Lldd);//
+            NumericVector Lld_vec  = wrap(Lld);//
+            Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+            //
+            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+            //
+            VectorXd Lldd_solve = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+//            if (totalnum < 16){
+//                JacobiSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
+//            } else {
+//                BDCSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
+//            }
+//            MatrixXd Lldd_solve = svd.solve(-1*Lld_mat);
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){
+                if (change_all){
+                    if (KeepConstant[ijk]==0){
+                        dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                        //
+                        double dbeta_max;
+                        if (Lld[ijk]!=0){
+                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+                        }else{
+                            dbeta_max = 0;
                         }
-                    }else{
-                        if (abs(dbeta[ijk])>abs_max){
-                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                        if (abs(dbeta[ijk])>dbeta_max){
+                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
                         }
-                    }
-                } else {
-                    dbeta[ijk]=0;
-                }
-            }else{
-                if (ijk!=der_iden){//Validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
-                        dbeta[ijk] = dint;
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                            if (abs(dbeta[ijk])>dose_abs_max){
+                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                            }
+                        }else{
+                            if (abs(dbeta[ijk])>abs_max){
+                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                            }
+                        }
                     } else {
-                        dbeta[ijk] = abs_max;
+                        dbeta[ijk]=0;
+                    }
+                }else{
+                    if (ijk!=der_iden){//Validation requires controlled changes
+                        dbeta[ijk] = 0.0;
+                    } else {
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                            dbeta[ijk] = dint;
+                        } else {
+                            dbeta[ijk] = 0.001;
+                        }
+                    }
+                }
+            }
+        } else {
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){
+                if (change_all){
+                    if (KeepConstant[ijk]==0){
+                        if (Lldd[ijk*totalnum+ijk] != 0 ){
+                            dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                        } else {
+                            dbeta[ijk] = 0;
+                        }
+                        //
+                        double dbeta_max;
+                        if (Lld[ijk]!=0){
+                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+                        }else{
+                            dbeta_max = 0;
+                        }
+                        if (abs(dbeta[ijk])>dbeta_max){
+                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+                        }
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                            if (abs(dbeta[ijk])>dose_abs_max){
+                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                            }
+                        }else{
+                            if (abs(dbeta[ijk])>abs_max){
+                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                            }
+                        }
+                    } else {
+                        dbeta[ijk]=0;
+                    }
+                }else{
+                    if (ijk!=der_iden){//Validation requires controlled changes
+                        dbeta[ijk] = 0.0;
+                    } else {
+                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                            dbeta[ijk] = dint;
+                        } else {
+                            dbeta[ijk] = 0.001;
+                        }
                     }
                 }
             }

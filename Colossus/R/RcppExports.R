@@ -167,6 +167,7 @@ Poisson_LogLik <- function(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, 
 
 #' Utility function to calculate the change to make each iteration
 #' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations    
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param     nthreads    number of threads
 #' @param     totalnum    total number of parameter
 #' @param     fir    first term number
@@ -186,8 +187,8 @@ Poisson_LogLik <- function(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, 
 #' @param     debugging    debugging boolean
 #'
 #' @return Updates matrices in place: parameter change matrix
-Calc_Change <- function(nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change`, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging))
+Calc_Change <- function(double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging))
 }
 
 #' Utility function to perform null model equivalent of Calculate_Sides
@@ -243,6 +244,7 @@ Calc_Null_LogLik <- function(nthreads, RiskFail, RiskGroup, ntime, R, Rls1, Lls1
 #' @param     deriv_epsilon    threshold for near-zero derivative
 #' @param     df_groups    matrix with time and event information
 #' @param     tu    event times
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param     change_all    boolean if every parameter is being updated
 #' @param     verbose    verbosity boolean
 #' @param     debugging    debugging boolean
@@ -251,8 +253,8 @@ Calc_Null_LogLik <- function(nthreads, RiskFail, RiskGroup, ntime, R, Rls1, Lls1
 #' @param     ties_method    ties method
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, change_all, verbose, debugging, KeepConstant, term_tot, ties_method) {
-    .Call(`_Colossus_LogLik_Cox_PH`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, change_all, verbose, debugging, KeepConstant, term_tot, ties_method)
+LogLik_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method) {
+    .Call(`_Colossus_LogLik_Cox_PH`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method)
 }
 
 #' Primary Cox PH baseline hazard function
@@ -352,6 +354,7 @@ Schoenfeld_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, mod
 #' @param     abs_max    Maximum allowed parameter change
 #' @param     dose_abs_max    Maximum allowed threshold parameter change
 #' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param     change_all    boolean if every parameter is being updated
 #' @param     verbose    verbosity boolean
 #' @param     debugging    debugging boolean
@@ -359,8 +362,8 @@ Schoenfeld_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, mod
 #' @param     term_tot    total number of terms
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, change_all, verbose, debugging, KeepConstant, term_tot) {
-    .Call(`_Colossus_LogLik_Poisson`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, change_all, verbose, debugging, KeepConstant, term_tot)
+LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot) {
+    .Call(`_Colossus_LogLik_Poisson`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot)
 }
 
 #' Primary Cox PH stress test function
@@ -384,6 +387,7 @@ LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     deriv_epsilon    threshold for near-zero derivative
 #' @param     df_groups    matrix with time and event information
 #' @param     tu    event times
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param     change_all    boolean if every parameter is being updated
 #' @param     verbose    verbosity boolean
 #' @param     debugging    debugging boolean
@@ -393,22 +397,21 @@ LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     ties_method    ties method
 #'
 #' @return NULL
-Stress_Run <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method) {
-    invisible(.Call(`_Colossus_Stress_Run`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method))
+Stress_Run <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method) {
+    invisible(.Call(`_Colossus_Stress_Run`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method))
 }
 
 #' Primary Cox PH null model function
 #' \code{LogLik_Cox_PH_null} Performs the calls to calculation functions, Structures the Cox PH null model, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
-#' @param     ntime    number of event times
 #' @param     df_groups    status/time matrix
 #' @param     tu    vector of event times
 #' @param     verbose    verbose boolean
 #' @param     ties_method    tied event method
 #'
 #' @return List of results: Log-likelihood of optimum, AIC
-LogLik_Cox_PH_null <- function(ntime, df_groups, tu, verbose, ties_method) {
-    .Call(`_Colossus_LogLik_Cox_PH_null`, ntime, df_groups, tu, verbose, ties_method)
+LogLik_Cox_PH_null <- function(df_groups, tu, verbose, ties_method) {
+    .Call(`_Colossus_LogLik_Cox_PH_null`, df_groups, tu, verbose, ties_method)
 }
 
 #' Primary reference vector risk function
@@ -539,14 +542,13 @@ Stress_Test <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform
 
 #' Interface between R code and the Cox PH null model function
 #' \code{Stress_Test} Called directly from R, Defines the control variables and calls the calculation function
-#' @param ntime number of unique event times used
 #' @param Control control list
 #' @param df_groups time and event matrix
 #' @param tu event times
 #'
 #' @return LogLike_Cox_PH_null output : Log-likelihood of optimum, AIC
-cox_ph_null <- function(ntime, Control, df_groups, tu) {
-    .Call(`_Colossus_cox_ph_null`, ntime, Control, df_groups, tu)
+cox_ph_null <- function(Control, df_groups, tu) {
+    .Call(`_Colossus_cox_ph_null`, Control, df_groups, tu)
 }
 
 #' Interface between R code and the reference risk calculation

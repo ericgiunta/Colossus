@@ -67,6 +67,7 @@ void visit_lambda(const Mat& m, const Func& f)
 // [[Rcpp::export]]
 List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
     bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
@@ -81,7 +82,7 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, change_all,verbose, debugging, KeepConstant, term_tot, ties_method);
+    List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -179,6 +180,7 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     //
     bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
     double lr = Control["lr"];
     int maxiter = Control["maxiter"];
     int halfmax = Control["halfmax"];
@@ -191,7 +193,7 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
     bool debugging = FALSE;
     // calculates the poisson regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, change_all,verbose, debugging, KeepConstant, term_tot);
+    List res = LogLik_Poisson(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -217,6 +219,7 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
 // [[Rcpp::export]]
 void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, StringVector test_point){
     bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
     bool verbose = FALSE;
     bool debugging = FALSE;
     double lr = Control["lr"];
@@ -229,20 +232,19 @@ void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,Int
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
 
-    Stress_Run(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, change_all,verbose, debugging, KeepConstant, term_tot,test_point, ties_method );
+    Stress_Run(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot,test_point, ties_method );
     return;
 }
 
 //' Interface between R code and the Cox PH null model function
 //' \code{Stress_Test} Called directly from R, Defines the control variables and calls the calculation function
-//' @param ntime number of unique event times used
 //' @param Control control list
 //' @param df_groups time and event matrix
 //' @param tu event times
 //'
 //' @return LogLike_Cox_PH_null output : Log-likelihood of optimum, AIC
 // [[Rcpp::export]]
-List cox_ph_null(int ntime, List Control, NumericMatrix df_groups, NumericVector tu){
+List cox_ph_null( List Control, NumericMatrix df_groups, NumericVector tu){
     //----------------------------------------------------------------------------------------------------------------//
     //
     // Calculates null model
@@ -252,7 +254,7 @@ List cox_ph_null(int ntime, List Control, NumericMatrix df_groups, NumericVector
     string ties_method =Control["ties"];
     //
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_null(ntime, df_groups, tu, verbose, ties_method);
+    List res = LogLik_Cox_PH_null( df_groups, tu, verbose, ties_method);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

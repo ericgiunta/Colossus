@@ -23,6 +23,7 @@ LogLik_Poisson(
   abs_max,
   dose_abs_max,
   deriv_epsilon,
+  double_step,
   change_all,
   verbose,
   debugging,
@@ -64,6 +65,8 @@ LogLik_Poisson(
 \item{dose_abs_max}{Maximum allowed threshold parameter change}
 
 \item{deriv_epsilon}{threshold for near-zero derivative}
+
+\item{double_step}{controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices}
 
 \item{change_all}{boolean if every parameter is being updated}
 

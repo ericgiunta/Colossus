@@ -6,6 +6,7 @@
 \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations}
 \usage{
 Calc_Change(
+  double_step,
   nthreads,
   totalnum,
   fir,
@@ -26,6 +27,8 @@ Calc_Change(
 )
 }
 \arguments{
+\item{double_step}{controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices}
+
 \item{nthreads}{number of threads}
 
 \item{totalnum}{total number of parameter}

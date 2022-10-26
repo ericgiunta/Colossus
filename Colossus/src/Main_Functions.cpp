@@ -66,6 +66,7 @@ void visit_lambda(const Mat& m, const Func& f)
 //' @param     deriv_epsilon    threshold for near-zero derivative
 //' @param     df_groups    matrix with time and event information
 //' @param     tu    event times
+//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 //' @param     change_all    boolean if every parameter is being updated
 //' @param     verbose    verbosity boolean
 //' @param     debugging    debugging boolean
@@ -75,7 +76,7 @@ void visit_lambda(const Mat& m, const Func& f)
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method){
+List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -402,7 +403,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             Rcout << Ll[ij]/Lld[ij] << " ";
         }
         Rcout << " " << endl;
-        Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+        Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
     }
     //
     vector<double> dbeta(totalnum,0.0);
@@ -433,7 +434,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
         beta_best = beta_c;//
         //
         // Calcualtes the initial change in parameter
-        Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
+        Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }
@@ -443,9 +444,8 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
         //
         halves=0;
         while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-            beta_p = beta_c;//
-            beta_a = beta_c;//
-            beta_best = beta_c;//
+//            beta_p = beta_c;//
+//            beta_a = beta_c;//
             halves++;
             //Refreshes the matrices used
             Dose = MatrixXd::Zero(df0.rows(),term_tot);
@@ -652,7 +652,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                     Rcout << Ll[ij]/Lld[ij] << " ";
                 }
                 Rcout << " " << endl;
-                Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
             }
             #pragma omp parallel for num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
@@ -663,17 +663,20 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             if (verbose){
                 Rcout << "Changing back to best"<<endl;
             }
-            beta_p = beta_c;//
-            beta_a = beta_c;//
-            beta_best = beta_c;//
+            // If it goes through every half step without improvement, then the maximum change needs to be decreased
+            abs_max = abs_max*pow(0.75,halfmax); // reduces the step sizes
+            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            //
+            beta_p = beta_best;//
+            beta_a = beta_best;//
+            beta_c = beta_best;//
             Dose = MatrixXd::Zero(df0.rows(),term_tot);
             nonDose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
             nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0);
             nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
             nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
             for (int ij=0;ij<totalnum;ij++){
-                beta_0[ij] = beta_a[ij] + dbeta[ij];
-                beta_c[ij] = beta_0[ij];
+                beta_0[ij] = beta_best[ij];
             }
             Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,nthreads, debugging);;
             if (verbose){
@@ -830,10 +833,10 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                     iter_stop = 1;
                 }
                 Ll_comp[1]=Ll[0];
-                if (abs(Ll_comp[1]-Ll_comp[0])/abs(Ll_comp[1])<.01){//if the change in log-likelihood isn't high enough, the maximum step size is reduced
-                    abs_max = abs_max*0.1; // reduces the step sizes
-                    dose_abs_max = dose_abs_max*0.5;
-                }
+//                if (abs(Ll_comp[1]-Ll_comp[0])/abs(Ll_comp[1])<.01){//if the change in log-likelihood isn't high enough, the maximum step size is reduced
+//                    abs_max = abs_max*0.1; // reduces the step sizes
+//                    dose_abs_max = dose_abs_max*0.5;
+//                }
                 if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
                     iter_stop = 1;
                 }
@@ -875,7 +878,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                 Rcout << Ll[ij]/Lld[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+            Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
             Rcout << "Finshed iteration" << endl;
         }
     }
@@ -902,7 +905,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     //
     MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*totalnum-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*totalnum-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -1136,9 +1139,21 @@ List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_
         //
     }
     //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" " << R.rows() <<" Finishing Baseline"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    NumericVector w_base = wrap(baseline);
+    NumericVector w_R = wrap(R.col(0));
     // returns the baseline approximates and the risk information
-    List res_list = List::create(_["baseline"]=wrap(baseline), _["Risks"]=wrap(R));
+    List res_list = List::create(_["baseline"]=w_base, _["Risks"]=w_R);
     //
+    if (verbose){
+        Rcout << "returning" << endl;
+    }
     return res_list;
 }
 
@@ -1500,6 +1515,7 @@ NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, Numer
 //' @param     abs_max    Maximum allowed parameter change
 //' @param     dose_abs_max    Maximum allowed threshold parameter change
 //' @param     deriv_epsilon    threshold for near-zero derivative
+//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 //' @param     change_all    boolean if every parameter is being updated
 //' @param     verbose    verbosity boolean
 //' @param     debugging    debugging boolean
@@ -1508,7 +1524,7 @@ NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, Numer
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 // [[Rcpp::export]]
-List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot){
+List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -1777,7 +1793,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             Rcout << Ll[ij]/Lld[ij] << " ";
         }
         Rcout << " " << endl;
-        Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+        Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
     }
     //
     vector<double> dbeta(totalnum,0.0);
@@ -1806,7 +1822,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         beta_best = beta_c;//
         //
         // Calcualtes the initial change in parameter
-        Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
+        Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }
@@ -1815,9 +1831,8 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         //
         halves=0;
         while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-            beta_p = beta_c;//
-            beta_a = beta_c;//
-            beta_best = beta_c;//
+//            beta_p = beta_c;//
+//            beta_a = beta_c;//
             halves++;
             Dose = MatrixXd::Zero(df0.rows(),term_tot);
             nonDose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
@@ -1989,29 +2004,31 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                     Rcout << Ll[ij]/Lld[ij] << " ";
                 }
                 Rcout << " " << endl;
-                Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
             }
             #pragma omp parallel for num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                 beta_0[ijk] = beta_c[ijk];
             }
-            beta_best = beta_c;
         }
         if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
             if (verbose){
                 Rcout << "Changing back to best"<<endl;
             }
-            beta_p = beta_c;//
-            beta_a = beta_c;//
-            beta_best = beta_c;//
+            // If it goes through every half step without improvement, then the maximum change needs to be decreased
+            abs_max = abs_max*pow(0.75,halfmax);
+            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            //
+            beta_p = beta_best;//
+            beta_a = beta_best;//
+            beta_c = beta_best;//
             Dose = MatrixXd::Zero(df0.rows(),term_tot);
             nonDose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
             nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0);
             nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
             nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
             for (int ij=0;ij<totalnum;ij++){
-                beta_0[ij] = beta_a[ij] + dbeta[ij];
-                beta_c[ij] = beta_0[ij];
+                beta_0[ij] = beta_best[ij];
             }
             Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,nthreads, debugging);;
             if (verbose){
@@ -2134,10 +2151,10 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                     iteration = maxiter;
                 }
                 Ll_comp[1]=Ll[0];
-                if (abs(Ll_comp[1]-Ll_comp[0])/abs(Ll_comp[1])<.01){//if the change in log-likelihood isn't high enough, the maximum step size if reduced
-                    abs_max = abs_max*0.1;
-                    dose_abs_max = dose_abs_max*0.5;
-                }
+//                if (abs(Ll_comp[1]-Ll_comp[0])/abs(Ll_comp[1])<.01){//if the change in log-likelihood isn't high enough, the maximum step size if reduced
+//                    abs_max = abs_max*0.1;
+//                    dose_abs_max = dose_abs_max*0.5;
+//                }
                 if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
                     iteration = maxiter;
                 }
@@ -2181,7 +2198,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                 Rcout << Ll[ij]/Lld[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+            Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
         }
     }
     // -----------------------------------------------
@@ -2236,7 +2253,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             Rcout << Ll[ij]/Lld[ij] << " ";
         }
         Rcout << " " << endl;
-        Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+        Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
         Rcout << "Checking Deviance " << dev << endl;
         Rcout << "Finshed iteration" << endl;
     }
@@ -2250,7 +2267,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     //
     MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*totalnum-2*Ll[fir],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*totalnum-2*Ll[fir],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -2276,6 +2293,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
 //' @param     deriv_epsilon    threshold for near-zero derivative
 //' @param     df_groups    matrix with time and event information
 //' @param     tu    event times
+//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 //' @param     change_all    boolean if every parameter is being updated
 //' @param     verbose    verbosity boolean
 //' @param     debugging    debugging boolean
@@ -2286,7 +2304,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
 //'
 //' @return NULL
 // [[Rcpp::export]]
-void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, StringVector debug_checks, string ties_method){
+void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, StringVector debug_checks, string ties_method){
 ;
     //
     // Runs through a single calculation with some functions printing additional information printed
@@ -2615,7 +2633,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
             Rcout << Ll[ij]/Lld[ij] << " ";
         }
         Rcout << " " << endl;
-        Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+        Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
     }
     //
     vector<double> dbeta(totalnum,0.0);
@@ -2646,9 +2664,9 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
         //
         // Calcualtes the initial change in parameter
         if (Debug_It[5]){
-            Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, TRUE);
+            Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, TRUE);
         } else {
-            Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, FALSE);
+            Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, FALSE);
         }
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
@@ -2658,9 +2676,9 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
         //
         halves=0;
         while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-            beta_p = beta_c;//
-            beta_a = beta_c;//
-            beta_best = beta_c;//
+//            beta_p = beta_c;//
+//            beta_a = beta_c;//
+//            beta_best = beta_c;//
             halves++;
             Dose = MatrixXd::Zero(df0.rows(),term_tot); //Refreshes the matrices used
             nonDose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
@@ -2882,7 +2900,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
                     Rcout << Ll[ij]/Lld[ij] << " ";
                 }
                 Rcout << " " << endl;
-                Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
             }
             #pragma omp parallel for num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
@@ -2926,7 +2944,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
                 Rcout << Ll[ij]/Lld[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df107 " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+            Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
             Rcout << "Finshed iteration" << endl;
         }
     }
@@ -2939,7 +2957,6 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
 //' Primary Cox PH null model function
 //' \code{LogLik_Cox_PH_null} Performs the calls to calculation functions, Structures the Cox PH null model, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 //'
-//' @param     ntime    number of event times
 //' @param     df_groups    status/time matrix
 //' @param     tu    vector of event times
 //' @param     verbose    verbose boolean
@@ -2947,7 +2964,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
 //'
 //' @return List of results: Log-likelihood of optimum, AIC
 // [[Rcpp::export]]
-List LogLik_Cox_PH_null( int ntime, NumericMatrix df_groups, NumericVector tu, bool verbose, string ties_method){
+List LogLik_Cox_PH_null( NumericMatrix df_groups, NumericVector tu, bool verbose, string ties_method){
     ;
     //
     // null model value calculation
@@ -3006,6 +3023,7 @@ List LogLik_Cox_PH_null( int ntime, NumericMatrix df_groups, NumericVector tu, b
     //
     // -------------------------------------------------------------------------------------------
     //
+    int ntime = tu.size();
     vector<string>  RiskGroup(ntime); //vector of strings detailing the rows
     IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
     //
@@ -3047,7 +3065,7 @@ List LogLik_Cox_PH_null( int ntime, NumericMatrix df_groups, NumericVector tu, b
     //
     Calc_Null_LogLik( nthreads, RiskFail, RiskGroup, ntime, R, Rls1, Lls1, Ll, ties_method);
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll),_["AIC"]=-2*Ll[0]);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["AIC"]=-2*Ll[0]);
     // returns a list of results
     return res_list;
 }

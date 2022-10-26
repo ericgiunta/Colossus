@@ -17,6 +17,6 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
 
 void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, StringVector test_point);
 
-List cox_ph_null(int ntime, List Control, NumericMatrix df_groups, NumericVector tu);
+List cox_ph_null( List Control, NumericMatrix df_groups, NumericVector tu);
 
 NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, int term_tot);

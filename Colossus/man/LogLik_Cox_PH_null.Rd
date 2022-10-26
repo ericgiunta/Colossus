@@ -5,11 +5,9 @@
 \title{Primary Cox PH null model function
 \code{LogLik_Cox_PH_null} Performs the calls to calculation functions, Structures the Cox PH null model, With verbose option prints out time stamps and intermediate sums of terms and derivatives}
 \usage{
-LogLik_Cox_PH_null(ntime, df_groups, tu, verbose, ties_method)
+LogLik_Cox_PH_null(df_groups, tu, verbose, ties_method)
 }
 \arguments{
-\item{ntime}{number of event times}
-
 \item{df_groups}{status/time matrix}
 
 \item{tu}{vector of event times}
