@@ -5,7 +5,7 @@
 \title{Defines Interactions
 \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates}
 \usage{
-interact_them(df, interactions, new_names, verbose)
+interact_them(df, interactions, new_names, verbose = FALSE)
 }
 \arguments{
 \item{df}{a datatable containing the columns of interest}

@@ -9,6 +9,7 @@ cox_ph_plot(
   Term_n,
   tform,
   a_n,
+  a_er,
   dfc,
   x_all,
   fir,
@@ -28,7 +29,9 @@ cox_ph_plot(
 
 \item{tform}{subterm types}
 
-\item{a_n}{starting values}
+\item{a_n}{optimal values}
+
+\item{a_er}{optimal value standard error}
 
 \item{dfc}{covariate column numbers}
 

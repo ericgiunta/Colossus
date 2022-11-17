@@ -109,12 +109,12 @@ test_that("Duplicate with column not in df error", {
 test_that("Improve Ratio test", {
     a <- list("LogLik"=-400)
     b <- list("LogLik"=-350)
-    expect_equal(Likelihood_Ratio_Test(a,b), 100)
+    expect_equal(Likelihood_Ratio_Test(b,a), 100)
 })
 test_that("Worse Ratio test", {
     a <- list("LogLik"=-300)
     b <- list("LogLik"=-350)
-    expect_equal(Likelihood_Ratio_Test(a,b), -100)
+    expect_equal(Likelihood_Ratio_Test(b,a), -100)
 })
 test_that("Same Ratio test", {
     a <- list("LogLik"=-300)

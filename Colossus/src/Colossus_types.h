@@ -9,7 +9,7 @@
 #include <random>
 #include <ctime>
 #include <Eigen/Core>
-#include <Rinterface.h>
+#include "R_Interface.h"
 
 
 // [[Rcpp::depends(RcppEigen)]]

@@ -45,8 +45,21 @@ void visit_lambda(const Mat& m, const Func& f)
     m.visit(visitor);
 }
 
-
-
+//' Utility function to take the norm of a vector
+//' \code{vec_norm} Called within the code, takes a vector and length and finds the norm
+//' @param     x    std::vector to take norm of, assumed doubles
+//' @param     totalnum    vector length
+//'
+//' @return double of the norm
+// [[Rcpp::export]]
+double vec_norm(const vector<double>& x,int totalnum){
+  double total = 0;
+  for (int i = 0; i < totalnum; i++)
+  {
+    total += x[i] * x[i];
+  }
+  return sqrt(total);
+}
 
 //' Utility function to remove rows
 //' \code{removeRow} Called within the code, removes and resizes the matrix
@@ -86,6 +99,8 @@ void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove){
     matrix.conservativeResize(numRows,numCols);
 }
 
+
+
 //' Utility function to calculate the term and subterm values
 //' \code{Make_Subterms} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 //' @param     totalnum    Total number of terms
@@ -116,9 +131,14 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
     //
     // Calculates the sub term values
     //
+    vector<int> lin_count(nonDose.cols(),0);
+    vector<int> dose_count(nonDose.cols(),0);
     #pragma omp declare reduction (eig_plus: MatrixXd: omp_out=omp_out.array() + omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),0.0))
     #pragma omp declare reduction (eig_mult: MatrixXd: omp_out=omp_out.array() * omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),1.0))
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose,nonDose_LIN,nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN)
+    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+            initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose,nonDose_LIN,nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count,dose_count)
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
@@ -130,17 +150,20 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             T0.col(ij) = temp1;
             T0.col(ij+1) = temp1;
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
             
         } else if (as< string>(tform[ij])=="loglin_top"){
             if (ij==0){
                 ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
                 T0.col(ij) = temp;
                 Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+                dose_count[tn]=dose_count[tn]+1;
 
             } else if (tform[ij-1]!="loglin_slope"){
                 ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
                 T0.col(ij) = temp;
                 Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+                dose_count[tn]=dose_count[tn]+1;
                 //
 
             } else {
@@ -159,12 +182,14 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             T0.col(ij+1) = beta_0[ij] * temp.array();
             //
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
 
         } else if (as< string>(tform[ij])=="quad_slope"){
             ArrayXd temp = df0.col(df0_c).array().square();
             //
             T0.col(ij) = beta_0[ij] * temp.array();
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="step_slope"){
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
             ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
@@ -177,10 +202,12 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             T0.col(ij) = beta_0[ij] * temp.array();
             T0.col(ij+1) = beta_0[ij] * temp.array();
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
 
         } else if (as< string>(tform[ij])=="lin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
             nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
+            lin_count[tn]=lin_count[tn]+1;
 
         } else if (as< string>(tform[ij])=="loglin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
@@ -201,11 +228,16 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
     //
     //
     //
-    Dose = (Dose.array() != 0).select(Dose,1.0);
-    nonDose_LIN = (nonDose_LIN.array() != 0).select(nonDose_LIN,1.0);//replaces missing data with 1
 //    nonDose_LOGLIN = (nonDose_LOGLIN.array() != 1).select(nonDose_LOGLIN,1.0);
 //    nonDose_PLIN = (nonDose_PLIN.array() != 0).select(nonDose_PLIN,1.0);
     for (int ijk=0; ijk<nonDose.cols();ijk++){ //combines non-dose terms into a single term
+//        Rcout << dose_count[ijk] << " " << lin_count[ijk] << endl;
+        if (dose_count[ijk]==0){
+            Dose.col(ijk) = Dose.col(ijk).array() * 0.0 + 1;
+        }
+        if (lin_count[ijk]==0){
+            nonDose_LIN.col(ijk) = nonDose_LIN.col(ijk).array() * 0.0 + 1;//replaces missing data with 1
+        }
         nonDose.col(ijk) = nonDose_LIN.col(ijk).array()  * nonDose_PLIN.col(ijk).array()  * nonDose_LOGLIN.col(ijk).array() ;
     }
     TTerm << Dose.array() * nonDose.array();
@@ -761,7 +793,7 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
             auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
             //
             double t0 = tu[ijk];
-            VectorXi select_ind_all = ((df_m.col(0).array() <= t0)&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
+            VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
             vector<int> indices_all;
             //
             end_point = system_clock::now();
@@ -853,11 +885,14 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         for (int ijk=0;ijk<ntime;ijk++){
             double t0 = tu[ijk];
-            VectorXi select_ind_all = ((df_m.col(0).array() <= t0)&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
+            VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
             vector<int> indices_all;
             VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
             vector<int> indices_end;
             //
+            // for (int i=0;i<df_m.rows();i++){
+            //     Rcout << df_m.row(i) << " " << select_ind_all[i] << " " << select_ind_end[i] << " " << t0 << endl;
+            // }
             //
             int th = 1;
             visit_lambda(select_ind_all,
@@ -890,6 +925,99 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
             copy(indices.begin(), indices.end(),
                 std::ostream_iterator<int>(oss, ","));
             RiskGroup[ijk] = oss.str();//stores risk groups in string
+            // Rcout << oss.str() << ":" << RiskGroup[ijk] << endl;
+        }
+    }
+    return;
+}
+
+//' Utility function to define risk groups with STRATA
+//' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
+//' @param     ntime    number of event times
+//' @param     df_m    event/time matrix
+//' @param     RiskFail    Matrix of event rows for each event time
+//' @param     RiskGroup    vectors of strings with rows at risk for each event time
+//' @param     tu    Event time vector
+//' @param     nthreads    number of threads
+//' @param     debugging    debugging boolean
+//' @param     STRATA_vals vector of strata identifier values
+//'
+//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
+// [[Rcpp::export]]
+void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, IntegerVector& STRATA_vals){
+    //
+    //Make_Subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
+    //
+    //
+//    Rcout << "Creating" << endl;
+    vector<vector<int>> safe_fail(ntime);
+    vector<vector<string>> safe_group(ntime);
+    for (int i=0;i<ntime;i++){
+        safe_fail[i] = vector<int>(RiskFail.cols(),0);
+        safe_group[i] = vector<string>(RiskGroup.cols(),"");
+    }
+//    Rcout << "Starting" << endl;
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+        for (int ijk=0;ijk<ntime;ijk++){
+            double t0 = tu[ijk];
+            VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices at risk
+            vector<int> indices_all;
+            VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices with events
+            vector<int> indices_end;
+            //
+            //
+            int th = 1;
+            visit_lambda(select_ind_all,
+                [&indices_all, th](double v, int i, int j) {
+                    if (v==th)
+                        indices_all.push_back(i+1);
+                });
+            visit_lambda(select_ind_end,
+                [&indices_end, th](double v, int i, int j) {
+                    if (v==th)
+                        indices_end.push_back(i+1);
+                });
+            //
+            vector<int> indices; //generates vector of (start,end) pairs for indices at risk
+            if (indices_end.size()>0){
+                for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+                    if (indices.size()==0){
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else if (indices[indices.size()-1]+1<*it){
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else {
+                        indices[indices.size()-1] = *it;
+                    }
+                }
+//                Rcout << s_ij << " " << ijk << endl;
+                safe_fail[ijk][2*s_ij+0] = indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
+                safe_fail[ijk][2*s_ij+1] = indices_end[indices_end.size()-1]-1;
+//                RiskFail(ijk,2*s_ij + 0)=indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
+//                RiskFail(ijk,2*s_ij + 1)=indices_end[indices_end.size()-1]-1;
+                //
+                ostringstream oss;
+                copy(indices.begin(), indices.end(),
+                    std::ostream_iterator<int>(oss, ","));
+                safe_group[ijk][s_ij] = oss.str();//stores risk groups in string
+//                RiskGroup(ijk,s_ij) = oss.str();//stores risk groups in string
+            } else {
+                safe_fail[ijk][2*s_ij+0] = -1;
+                safe_fail[ijk][2*s_ij+1] = -1;
+//                RiskFail(ijk,2*s_ij + 0)=-1;
+//                RiskFail(ijk,2*s_ij + 1)=-1;
+            }
+        }
+    }
+//    Rcout << "Ending" << endl;
+    for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+        for (int ijk=0;ijk<ntime;ijk++){
+            RiskFail(ijk,2*s_ij + 0)= safe_fail[ijk][2*s_ij+0];
+            RiskFail(ijk,2*s_ij + 1)= safe_fail[ijk][2*s_ij+1];
+            RiskGroup(ijk,s_ij) = safe_group[ijk][s_ij];
         }
     }
     return;
@@ -1069,6 +1197,83 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
     return;
 }
 
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
+//' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+//' @param     RiskFail    Matrix of event rows for each event time
+//' @param     RiskGroup    vectors of strings with rows at risk for each event time
+//' @param     totalnum    total number of parameters
+//' @param     ntime    number of event times
+//' @param     R    Risk matrix
+//' @param     Rd    Risk derivative matrix
+//' @param     Rdd    Risk second derivative matrix
+//' @param     Rls1    First Risk sum storage
+//' @param     Rls2    First Risk sum derivative storage
+//' @param     Rls3    First Risk sum second derivative storage
+//' @param     Lls1    Second Risk sum storage
+//' @param     Lls2    Second Risk sum derivative storage
+//' @param     Lls3    Second Risk sum second derivative storage
+//' @param     nthreads    number of threads
+//' @param     debugging    debugging boolean
+//' @param     STRATA_vals vector of strata identifier values
+//'
+//' @return Updates matrices in place: risk storage matrices
+// [[Rcpp::export]]
+void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, IntegerVector& STRATA_vals){
+    //
+    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+                int ij = 0;
+                int jk = ijk;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
+                double Rs1 = 0;
+                double Rs2 = 0;
+                double Rs2t = 0;
+                double Rs3 = 0;
+                //
+                vector<int> InGroup;
+                //Now has the grouping pairs
+                if (RiskFail(j,2*s_ij + 1)>-1){
+                    string Groupstr = as<std::string>(RiskGroup(j,s_ij));
+                    stringstream ss(Groupstr);
+                    //
+                    for (int i; ss >> i;) {
+                        InGroup.push_back(i);    
+                        if (ss.peek() == ',')
+                            ss.ignore();
+                    }
+                    int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+                    for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+                        Rs1 += R.block(  InGroup[i]-1, 0,  InGroup[i+1]-InGroup[i]+1,1).sum();
+                        Rs2 += Rd.block( InGroup[i]-1, ij, InGroup[i+1]-InGroup[i]+1,1).sum();
+                        Rs2t += Rd.block(InGroup[i]-1, jk, InGroup[i+1]-InGroup[i]+1,1).sum();
+                        Rs3 += Rdd.block(InGroup[i]-1, ijk,InGroup[i+1]-InGroup[i]+1,1).sum();
+                    } //precalculates the sums of risk groups
+                    MatrixXd Ld = MatrixXd::Zero(dj,4);
+                    Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), Rd.block(RiskFail(j,2*s_ij),ij,dj,1), Rd.block(RiskFail(j,2*s_ij),jk,dj,1) ,Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
+                    // only assigns values once
+                    if (ij==jk){
+                        if (ij==0){
+                            Rls1(j,s_ij) = Rs1;
+                            Lls1(j,s_ij) = Ld.col(0).sum();
+                        }
+                        Rls2(j,ij*STRATA_vals.size() + s_ij) = Rs2;
+                        Lls2(j,ij*STRATA_vals.size() + s_ij) = Ld.col(1).sum();
+                    }
+                    Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
+                    Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(3).sum();
+                }
+            }
+        }
+    }
+    return;
+}
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives
 //' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
@@ -1280,6 +1485,113 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
             }
         }
         
+    }
+    #pragma omp parallel for num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd[jk*totalnum+ij] = Lldd[ij*totalnum+jk];
+    }
+    return;
+}
+
+//' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
+//' \code{Calc_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' @param     nthreads    number of threads
+//' @param     RiskFail    Matrix of event rows for each event time
+//' @param     RiskGroup    vectors of strings with rows at risk for each event time
+//' @param     totalnum    total number of parameters
+//' @param     ntime    number of event times
+//' @param     R    Risk matrix
+//' @param     Rd    Risk derivative matrix
+//' @param     Rdd    Risk second derivative matrix
+//' @param     RdR    Risk to first derivative ratio matrix
+//' @param     RddR    Risk to second derivative ratio matrix
+//' @param     Rls1    First Risk sum storage
+//' @param     Rls2    First Risk sum derivative storage
+//' @param     Rls3    First Risk sum second derivative storage
+//' @param     Lls1    Second Risk sum storage
+//' @param     Lls2    Second Risk sum derivative storage
+//' @param     Lls3    Second Risk sum second derivative storage
+//' @param     Ll    Log-likelihood vector
+//' @param     Lld    Log-likelihood first derivative vector
+//' @param     Lldd    Log-likelihood second derivative matrix
+//' @param     debugging    debugging boolean
+//' @param     ties_method    Ties method
+//' @param     STRATA_vals vector of strata identifier values
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+// [[Rcpp::export]]
+void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, IntegerVector& STRATA_vals){
+    //
+    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
+    //
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(3)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
+        for (int j=0;j<ntime;j++){
+            for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+                int ij = 0;
+                int jk = ijk;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
+                double Rs1 = Rls1(j,s_ij);
+                double Rs2 =  Rls2(j,ij*STRATA_vals.size() + s_ij);
+                double Rs2t = Rls2(j,jk*STRATA_vals.size() + s_ij);
+                double Rs3 = Rls3(j,ijk*STRATA_vals.size() + s_ij);
+                //
+                int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+                if (RiskFail(j,2*s_ij + 1)>-1){
+                    MatrixXd Ld = MatrixXd::Zero(dj,4);
+                    Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), RdR.block(RiskFail(j,2*s_ij),ij,dj,1), RdR.block(RiskFail(j,2*s_ij),jk,dj,1) ,RddR.block(RiskFail(j,2*s_ij),ijk,dj,1);//rows with events
+                    //
+                    MatrixXd Ldm = MatrixXd::Zero(dj,4);
+                    Vector4d Ldcs;
+                    if (ties_method=="efron"){
+                        Ldcs << Lls1(j,s_ij), Lls2(j,ij*STRATA_vals.size() + s_ij), Lls2(j,jk*STRATA_vals.size() + s_ij), Lls3(j,ijk*STRATA_vals.size() + s_ij);
+                        for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
+                            Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                        }
+                    }
+                    Ldm.col(0) = Ldm.col(0).array() + Rs1;
+                    Ldm.col(1) = Ldm.col(1).array() + Rs2;
+                    Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+                    Ldm.col(3) = Ldm.col(3).array() + Rs3;
+                    // Calculates the left-hand side terms
+                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
+                    temp1 = Ld.col(0).array().log();
+                    double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                    temp1 = Ld.col(1).array();
+                    temp2 = Ld.col(2).array();
+                    double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                    temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                    double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
+                    // calculates the right-hand side terms
+                    temp1 = Ldm.col(0).array().log();
+                    Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                    temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+                    temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
+                    Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                    temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
+                    Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
+                    //
+                    if (ij==jk){
+                        Ll[ij] += Ld1 - Rs1;
+                        Lld[ij] += Ld2 - Rs2;
+                    }
+                    Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
+                }
+            }
+        }
     }
     #pragma omp parallel for num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
@@ -1524,15 +1836,15 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                     if (KeepConstant[ijk]==0){
                         dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                         //
-                        double dbeta_max;
-                        if (Lld[ijk]!=0){
-                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-                        }else{
-                            dbeta_max = 0;
-                        }
-                        if (abs(dbeta[ijk])>dbeta_max){
-                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-                        }
+//                        double dbeta_max;
+//                        if (Lld[ijk]!=0){
+//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+//                        }else{
+//                            dbeta_max = 0;
+//                        }
+//                        if (abs(dbeta[ijk])>dbeta_max){
+//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+//                        }
                         if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
@@ -1637,7 +1949,7 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  
         }
         //Now has the grouping pairs
         int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+        for (int i = 0; i < InGroup.size()-1; i=i+2){
             Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
         } //precalculates the sums of risk groups
         MatrixXd Ld = MatrixXd::Zero(dj,1);

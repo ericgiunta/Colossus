@@ -9,6 +9,7 @@ Cox_PH_PLOT_SURV(
   Term_n,
   tform,
   a_n,
+  a_er,
   x_all,
   dfc,
   fir,
@@ -29,7 +30,9 @@ Cox_PH_PLOT_SURV(
 
 \item{tform}{subterm types}
 
-\item{a_n}{starting values}
+\item{a_n}{Optimal values}
+
+\item{a_er}{Optimal value standard error}
 
 \item{x_all}{covariate matrix}
 

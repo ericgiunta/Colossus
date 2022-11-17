@@ -3,9 +3,9 @@
 \name{Check_Dupe_Columns}
 \alias{Check_Dupe_Columns}
 \title{checks for duplicated column names
-\code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value}
+\code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms}
 \usage{
-Check_Dupe_Columns(df, cols, verbose)
+Check_Dupe_Columns(df, cols, verbose = FALSE)
 }
 \arguments{
 \item{df}{dataframe of data to use as reference}
@@ -19,5 +19,5 @@ returns the usable columns
 }
 \description{
 checks for duplicated column names
-\code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value
+\code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
 }

@@ -5,7 +5,7 @@
 \title{Opens a file for reading
 \code{Open_File} uses user provided file name, time columns, and event column to load and sort.}
 \usage{
-Open_File(fname, time1, time2, event)
+Open_File(fname, time1 = "age_start", time2 = "age_exit", event = "cases")
 }
 \arguments{
 \item{fname}{a string file name}

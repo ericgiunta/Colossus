@@ -2,8 +2,6 @@
 #' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @param df data used for regression
-#' @param time1 column used for time period starts, may not be needed
-#' @param time2 column used for time period end, may not be needed
 #' @param pyr column used for person-years per row
 #' @param event column used for event status
 #' @param names columns names for elements of the model, used to identify data columns
@@ -19,7 +17,14 @@
 #' @return prints the final results and return null
 #' @export
 #'
-RunPoissonRegression <- function(df, time1, time2, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     all_names <- unique(names)
     dfc <- match(names,all_names)
     if (sum(df[,event, with = FALSE])==0){
@@ -29,7 +34,7 @@ RunPoissonRegression <- function(df, time1, time2, pyr, event, names, Term_n, tf
     x_all=as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event)
     #
-    #
     e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
+    ;
     return (e)
 }

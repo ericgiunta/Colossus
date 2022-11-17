@@ -5,10 +5,10 @@
 \title{Calculates a chi-squared value, used in a non-functioning bounds formula
 \code{get_conf_int} uses an interval parameter to return the score statistic}
 \usage{
-get_conf_int(alpha)
+get_conf_int(alpha = 0.95)
 }
 \arguments{
-\item{alpha}{decimal 1-confidence interval}
+\item{alpha}{decimal 1 - (confidence interval)}
 }
 \value{
 returns the score statistic

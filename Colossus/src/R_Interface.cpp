@@ -87,11 +87,53 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
     return res;
 }
 
+//' Interface between R code and the Cox PH regression with STRATA
+//' \code{cox_ph_STRATA} Called directly from R, Defines the control variables and calls the regression function
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_n starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param der_iden subterm number for derivative tests
+//' @param modelform model string
+//' @param Control control list
+//' @param df_groups time and event matrix
+//' @param tu event times
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//' @param     STRATA_vals vector of strata identifier values
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, IntegerVector STRATA_vals){
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_STRATA(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 //' Interface between R code and the Cox PH plotting
 //' \code{cox_ph_plot} Called directly from R, Defines the control variables and calls the correct plotting function
 //' @param Term_n Term numbers
 //' @param tform subterm types
-//' @param a_n starting values
+//' @param a_n optimal values
+//' @param a_er optimal value standard error
 //' @param dfc covariate column numbers
 //' @param x_all covariate matrix
 //' @param fir first term number
@@ -107,7 +149,7 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
 //'
 //' @return Cox_PH_PLOT_SURV : ( baseline harzard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
 // [[Rcpp::export]]
-List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, vector<string> Plot_Type ,int uniq_v){
+List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericVector a_er,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, vector<string> Plot_Type ,int uniq_v){
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     double abs_max = Control["abs_max"];
@@ -117,7 +159,7 @@ List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n,Int
     // there are two types of plots that can be generated, survival curve and risk by covariate value
     //----------------------------------------------------------------------------------------------------------------//
     if (Plot_Type[0]=="SURV"){
-        res = Cox_PH_PLOT_SURV(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot);
+        res = Cox_PH_PLOT_SURV(Term_n, tform, a_n, a_er, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot);
     }else if (Plot_Type[0]=="RISK"){
         res = Cox_PH_PLOT_RISK(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, uniq_v);
     } else {
@@ -282,4 +324,202 @@ NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericV
     // calculates risk for a reference vector
     res = RISK_SUBSET(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot);
     return res;
+}
+
+//' Generates csv file with time-dependent columns
+//' \code{Write_Time_Indep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
+//' @param df0_Times Matrix with (starting time, ending time)
+//' @param df0_dep matrix with pairs of (covariate at start, covariate at end) for each time-dependent covariate
+//' @param df0_const matrix with values that are held constant
+//' @param df0_event matrix with event status, zero up to the last entry for each original row
+//' @param dt spacing in time
+//' @param filename file to save the data to
+//' @param tform vector with types of time dependent variables
+//' @param tu list of event times
+//' @param iscox boolean of cox formatting is used
+//'
+//' @return saves a dataframe to be used with time-dependent covariate analysis
+// [[Rcpp::export]]
+void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform, NumericVector tu, bool iscox){
+    const Map<MatrixXd> df_Times(as<Map<MatrixXd> >(df0_Times));
+    const Map<MatrixXd> df_dep(as<Map<MatrixXd> >(df0_dep));
+    const Map<MatrixXd> df_const(as<Map<MatrixXd> >(df0_const));
+    Rcout.precision(10); //forces higher precision numbers printed to terminal
+    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    if (df_dep.cols() % 2 !=0 ){
+        Rcout << "Dependent columns not even" << endl;
+        return;
+    }
+    double epsilon=1e-2 * dt;
+    int tot_covs = ceil(2 + df_dep.cols()/2 + df_const.cols() + 1);
+    int max_rows = 0;
+    if (iscox){
+        max_rows = tu.size();
+        dt = tu[1] - tu[0];
+        for (int i =0; i<tu.size()-1;i++){
+            if (dt > (tu[i+1] - tu[i])){
+                dt = tu[i+1] - tu[i];
+            }
+        }
+    } else {
+        max_rows = ceil( ((df_Times.col(1).array() - df_Times.col(0).array()).array().abs().maxCoeff()) / dt);
+    }
+    // Rcout << tu << " " << dt << endl;
+    int True_Rows=0;
+    VectorXd row_store = VectorXd::Zero(tot_covs);
+    MatrixXd new_row_store = MatrixXd::Zero(max_rows, tot_covs);
+    //
+    const static IOFormat CSVFormat(FullPrecision, DontAlignCols, ", ", "\n");
+    ofstream file(filename);
+    //
+    int serial_0 = 0;
+    int serial_1 = 0;
+    // Rcout << "step 0" << endl;
+    for (int i_row=0; i_row<df_Times.rows(); i_row++){
+        new_row_store = MatrixXd::Zero(max_rows, tot_covs);
+        if (iscox){
+            // Rcout << "step 1 " << i_row << endl;
+            True_Rows=0;
+            serial_0 = 0;
+            serial_1 = 0;
+            for (int i=0;i<tu.size(); i++){
+                if (df_Times.coeff(i_row,1) >= tu[i]){
+                    serial_1 = i;
+                }
+                if (df_Times.coeff(i_row,0) > tu[i]){
+                    serial_0 = i+1;
+                }
+            }
+            True_Rows = serial_1 - serial_0 + 1;
+            // Rcout << tu[serial_0] << " "<< tu[serial_1] << " " << serial_0 << " " << serial_1 << endl;
+            // Rcout << "step 2 " << i_row << endl;
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int i_inner=serial_0;i_inner<serial_1+1;i_inner++){
+                VectorXd dep_temp = VectorXd::Zero(df_dep.cols()/2);
+                double t0 = tu[i_inner]- dt/2;
+                double t1 = tu[i_inner];
+                double ratio = 0;
+                if ((df_Times.coeff(i_row,1) - df_Times.coeff(i_row,0)) > 0){
+                    ratio = (t1 - df_Times.coeff(i_row,0))/(df_Times.coeff(i_row,1) - df_Times.coeff(i_row,0));
+                }
+                string func_id = "";
+                string delim = "?";
+                size_t pos = 0;
+                string token = "";
+                double temp_tok =0;
+                int gather_val=0;
+                char tok_char = 'a';
+                for (int i=0; i<dep_temp.size();i++){
+                    func_id = as<std::string>(tform[i]);
+                    if (func_id=="lin"){
+                        dep_temp[i] = ratio * df_dep.coeff(i_row,i+1) + (1 - ratio) * df_dep.coeff(i_row,i);
+                    } else {
+                        pos = func_id.find(delim);
+                        token = func_id.substr(0, pos);
+                        if (token=="step"){
+                            func_id.erase(0, pos + delim.length());
+                            gather_val=0;
+                            while ((pos = func_id.find(delim)) != std::string::npos) {
+                                token = func_id.substr(0, pos);
+                                //
+                                tok_char = token[token.length()-1];
+                                if (tok_char == 'u'){
+                                    token.pop_back();
+                                    temp_tok = stod(token);
+                                    if (t0>=temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
+                                } else if (tok_char == 'l'){
+                                    token.pop_back();
+                                    temp_tok = stod(token);
+                                    if (t1<=temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
+                                } else {
+                                    ;
+                                }
+                                //
+                                func_id.erase(0, pos + delim.length());
+                            }
+                            dep_temp[i] = gather_val;
+                        }
+                    }
+                }
+                int event0 = 0;
+                if (i_inner==True_Rows-1){
+                    t1 = df_Times.coeff(i_row,1);
+                    event0 = df0_event[i_row];
+                }
+                new_row_store.row(i_inner) << t0, t1, dep_temp, df_const.row(i_row), event0;
+            }
+        } else {
+            True_Rows = ceil( (df_Times.coeff(i_row,1) - df_Times.coeff(i_row,0))/dt);
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int i_inner=0;i_inner<True_Rows;i_inner++){
+                VectorXd dep_temp = VectorXd::Zero(df_dep.cols()/2);
+                double ratio = (i_inner+0.5)/True_Rows;
+                double t0 = df_Times.coeff(i_row,0) + i_inner * dt;
+                double t1 = t0 + dt;
+                string func_id = "";
+                string delim = "?";
+                size_t pos = 0;
+                string token = "";
+                double temp_tok =0;
+                int gather_val=0;
+                char tok_char = 'a';
+                for (int i=0; i<dep_temp.size();i++){
+                    func_id = as<std::string>(tform[i]);
+                    if (func_id=="lin"){
+                        dep_temp[i] = ratio * df_dep.coeff(i_row,i+1) + (1 - ratio) * df_dep.coeff(i_row,i);
+                    } else {
+                        pos = func_id.find(delim);
+                        token = func_id.substr(0, pos);
+                        if (token=="step"){
+                            func_id.erase(0, pos + delim.length());
+                            gather_val=0;
+                            while ((pos = func_id.find(delim)) != std::string::npos) {
+                                token = func_id.substr(0, pos);
+                                //
+                                tok_char = token[token.length()-1];
+                                if (tok_char == 'u'){
+                                    token.pop_back();
+                                    temp_tok = stod(token);
+                                    if (t0>=temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
+                                } else if (tok_char == 'l'){
+                                    token.pop_back();
+                                    temp_tok = stod(token);
+                                    if (t1<=temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
+                                } else {
+                                    ;
+                                }
+                                //
+                                func_id.erase(0, pos + delim.length());
+                            }
+                            dep_temp[i] = gather_val;
+                        }
+                    }
+                }
+                // Rcout << "step 3 " << i_row << endl;
+                int event0 = 0;
+                if (i_inner==True_Rows-1){
+                    t1 = df_Times.coeff(i_row,1);
+                    event0 = df0_event[i_row];
+                }
+                new_row_store.row(i_inner) << t0 + (t1-t0)*1e-1, t1, dep_temp, df_const.row(i_row), event0;
+            }
+        }
+        // Rcout << "step 4: " << True_Rows << " " << tot_covs << endl;
+        if (file.is_open()){
+            file << new_row_store.block(0,0,True_Rows,tot_covs).format(CSVFormat);
+            file << "\n";
+        }
+        // Rcout << "step 5" << endl;
+    }
+    if (file.is_open()){
+        file.close();
+    }
 }

@@ -7,8 +7,6 @@
 \usage{
 RunPoissonRegression(
   df,
-  time1,
-  time2,
   pyr,
   event,
   names,
@@ -24,10 +22,6 @@ RunPoissonRegression(
 }
 \arguments{
 \item{df}{data used for regression}
-
-\item{time1}{column used for time period starts, may not be needed}
-
-\item{time2}{column used for time period end, may not be needed}
 
 \item{pyr}{column used for person-years per row}
 

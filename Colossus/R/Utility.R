@@ -9,7 +9,7 @@
 #' @return returns a sorted dataframe
 #' @export
 #'
-Open_File <- function(fname,time1,time2,event){
+Open_File <- function(fname,time1="age_start", time2="age_exit", event="cases"){
     colTypes=c("integer","double","double","double","integer","character","integer","integer","character","integer","integer", "integer","integer","character","character","character","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer")
     df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=TRUE,fill=TRUE)
     setkeyv(df, c(time2, event,time1))
@@ -90,7 +90,7 @@ factorize <-function(df,col_list){
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
 #'
-interact_them <- function(df,interactions,new_names,verbose){
+interact_them <- function(df,interactions,new_names,verbose=FALSE){
     cols <- c()
     for (i in 1:length(interactions)){
         interac <- interactions[i]
@@ -140,7 +140,7 @@ interact_them <- function(df,interactions,new_names,verbose){
 #'
 Likelihood_Ratio_Test <- function(alternative_model, null_model){
     if (("LogLik" %in% names(alternative_model))&&("LogLik" %in% names(null_model))){
-        return (-2*(unlist(alternative_model["LogLik"],use.names=FALSE) - unlist(null_model["LogLik"],use.names=FALSE)))
+        return (2*(unlist(alternative_model["LogLik"],use.names=FALSE) - unlist(null_model["LogLik"],use.names=FALSE)))
     }
     stop()
     return (NULL)
@@ -150,19 +150,19 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 #' Calculates a chi-squared value, used in a non-functioning bounds formula
 #' \code{get_conf_int} uses an interval parameter to return the score statistic
 #'
-#' @param alpha decimal 1-confidence interval
+#' @param alpha decimal 1 - (confidence interval)
 #'
 #' @return returns the score statistic
 #' @export
 #'
-get_conf_int <-function(alpha){
+get_conf_int <-function(alpha=0.95){
     q1 <- qchisq(1-alpha, df=1)
     return (q1)
 }
 
 
 #' checks for duplicated column names
-#' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value
+#' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
 #'
 #' @param df dataframe of data to use as reference
 #' @param cols columns to check
@@ -171,24 +171,24 @@ get_conf_int <-function(alpha){
 #' @return returns the usable columns
 #' @export
 #'
-Check_Dupe_Columns <- function(df,cols,verbose){
+Check_Dupe_Columns <- function(df,cols,verbose=FALSE){
     ##
     if (length(cols)>1){
         features_pair <- combn(cols, 2, simplify = F) # list all column pairs
         toRemove <- c() # init a vector to store duplicates
         for(pair in features_pair) { # put the pairs for testing into temp objects
-        f1 <- pair[1]
-        f2 <- pair[2]
-        df[,get(f1)]
-        df[,get(f2)]
-        if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
-            if (all(df[[f1]] == df[[f2]])) { # test for duplicates
-                if (verbose){
-                    print(paste(f1, " and ", f2, " are equals.",sep=""))
+            f1 <- pair[1]
+            f2 <- pair[2]
+            df[,get(f1)]
+            df[,get(f2)]
+            if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
+                if (all(df[[f1]] == df[[f2]])) { # test for duplicates
+                    if (verbose){
+                        print(paste(f1, " and ", f2, " are equals.",sep=""))
+                    }
+                    toRemove <- c(toRemove, f2) # build the list of duplicates
                 }
-                toRemove <- c(toRemove, f2) # build the list of duplicates
             }
-        }
         }
         newcol <- setdiff(cols, toRemove)
         if (length(newcol)==1){
@@ -223,14 +223,147 @@ Check_Dupe_Columns <- function(df,cols,verbose){
 Check_Trunc <- function(df,ce){
     if (ce[1]=="%trunc%"){
         tname <- ce[2]
-        tmin <- min(df[,get(tname)])
-        df[,':='(right_trunc=tmin)]
+        tmin <- min(df[,get(tname)])-1
+        if (!("right_trunc" %in% names(df))){
+            df[,':='(right_trunc=tmin)]
+        }
         ce[1]="right_trunc"
     } else if (ce[2]=="%trunc%") {
         tname <- ce[1]
-        tmax <- max(df[,get(tname)])
-        df[,':='(left_trunc=tmax)]
+        tmax <- max(df[,get(tname)])+1
+        if (!("left_trunc" %in% names(df))){
+            df[,':='(left_trunc=tmax)]
+        }
         ce[2]="left_trunc"
     }
     return (list('df'=df,'ce'=ce))
+}
+
+#' Applies time depedence to parameters
+#' \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time
+#'
+#' @param df dataframe of data to use as reference
+#' @param time0 starting time column
+#' @param time1 ending time column
+#' @param event event column
+#' @param iscox boolean if rows not at event times should be kept
+#' @param dt spacing in time for new rows
+#' @param new_names vector of new column names for the time dependent columns
+#' @param dep_cols columns that are not needed in the new dataframe
+#' @param func_form vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
+#' @param fname filename used for new dataframe
+#' @param tform list of string function identifiers, used for linear/step
+#'
+#' @return returns the updated dataframe
+#' @export
+#'
+gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols, func_form,fname, tform){
+    dfn <- names(df)
+    ce <- c(time0,time1,event)
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    time0 <- ce[1]
+    time1 <- ce[2]
+    dfn_same <- dfn[!(dfn %in% dep_cols)]
+    dfn_dep <- c()
+    for (i in 1:length(new_names)){
+        name0 <- paste(new_names[i],0,sep="_")
+        name1 <- paste(new_names[i],1,sep="_")
+        func <- func_form[i]
+        df[, name0] = lapply(func, function(f) f(df, time0))
+        df[, name1] = lapply(func, function(f) f(df, time1))
+        dfn_dep <- c(dfn_dep, name0, name1)
+    }
+    dfn_time <- c(time0, time1)
+    # print(dfn_time)
+    dfn_event <- c(event)
+    dfn_same <- dfn_same[!(dfn_same %in% dfn_time)]
+    dfn_same <- dfn_same[!(dfn_same %in% dfn_event)]
+    x_time = as.matrix(df[,dfn_time, with = FALSE])
+    x_dep = as.matrix(df[,dfn_dep, with = FALSE])
+    x_same = as.matrix(df[,dfn_same, with = FALSE])
+    x_event = as.matrix(df[,dfn_event, with = FALSE])
+    # print(df)
+    # print(x_time)
+    #
+    if (grepl(".csv", fname, fixed = TRUE)){
+        ;
+    } else {
+        fname <- paste(fname,".csv",sep="_")
+    }
+    #
+    dfend <- df[get(event)==1, ]
+    tu <- sort(unlist(unique(dfend[,time1, with = FALSE]), use.names=FALSE))
+    #
+    Write_Time_Indep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox)
+    df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time0,time1,new_names,dfn_same,event))
+    setkeyv(df_new, c(time1, event))
+    if (iscox){
+        dfend <- df_new[get(event)==1, ]
+        tu <- sort(unlist(unique(dfend[,time1, with = FALSE]), use.names=FALSE))
+        df_new <- df_new[(get(time0)<=tu[length(tu)])&(get(time1)>=tu[1]),]
+#        df_new[,cox_iden] = 0
+#        tu_id <- 1
+#        for (i in 1:nrow(df_new)){
+#            if (df_new[i,(get(time0)<=tu[tu_id])&(get(time1)>=tu[tu_id])]){
+#                df_new[i,cox_iden] = 1
+#            }
+#            while (df_new[i,(get(time0)>tu[tu_id])]){
+#                tu_id = tu_id + 1
+#            }
+#        }
+    }
+    return (df_new)
+}
+
+#' Automates creating a date difference column
+#' \code{Date_Shift} generates a new dataframe with a column containing time difference in a given unit
+#'
+#' @param df dataframe of data to use as reference
+#' @param dcol0 list of starting month, day, and year
+#' @param dcol1 list of ending month, day, and year
+#' @param col_name new column name
+#' @param units time unit to use
+#'
+#' @return returns the updated dataframe
+#' @export
+#'
+Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
+    def_cols <- names(df)
+    #
+    df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
+    df$dt1 <- paste(df[[match(dcol1[1],names(df))]],df[[match(dcol1[2],names(df))]],df[[match(dcol1[3],names(df))]],sep="-")
+    #
+    #
+    # df[,dt0:=as.Date(dt0, format="$m-$d-%Y")]
+    # df[,dt1:=as.Date(dt1, format="$m-$d-%Y")]
+    #
+    # df[, col_name] = df$dt1 - df$dt0
+    df[, col_name] = difftime(strptime(df$dt1, format = "%m-%d-%Y"), strptime(df$dt0,  format = "%m-%d-%Y"), units = units)
+    def_cols <- c(def_cols, col_name)
+    return (df[,def_cols,with=FALSE])
+}
+
+#' Automates creating a date since a reference column
+#' \code{Time_Since} generates a new dataframe with a column containing time since a reference in a given unit
+#'
+#' @param df dataframe of data to use as reference
+#' @param dcol0 list of starting month, day, and year
+#' @param tref reference time in date format
+#' @param col_name new column name
+#' @param units time unit to use
+#'
+#' @return returns the updated dataframe
+#' @export
+#'
+Time_Since <- function(df, dcol0, tref, col_name, units="days"){
+    def_cols <- names(df)
+    #
+    df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
+    #
+    #
+    df[, col_name] = lapply(df$dt0, function(x) (difftime(strptime(x,  format = "%m-%d-%Y"), tref, units = units)))
+    def_cols <- c(def_cols, col_name)
+    return (df[,def_cols,with=FALSE])
 }
