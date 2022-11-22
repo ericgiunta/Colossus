@@ -5,7 +5,7 @@
 \title{calculates and plots survival plots of the smoothed estimated baseline hazard
 \code{CoxSmoothHazard} uses user provided data, band-width, and identifier to create plots}
 \usage{
-CoxSmoothHazard(dft, Plot_Name, verbose, bw, time_lims)
+CoxSmoothHazard(dft, Plot_Name, verbose, bw, time_lims, age_unit)
 }
 \arguments{
 \item{dft}{dataframe of times and hazards}
@@ -17,6 +17,8 @@ CoxSmoothHazard(dft, Plot_Name, verbose, bw, time_lims)
 \item{bw}{band-width used for smoothing}
 
 \item{time_lims}{limits for x axis of plot}
+
+\item{age_unit}{age unit}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed

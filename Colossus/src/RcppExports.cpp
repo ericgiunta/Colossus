@@ -776,6 +776,8 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport SEXP run_testthat_tests(SEXP);
+
 static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_vec_norm", (DL_FUNC) &_Colossus_vec_norm, 2},
     {"_Colossus_removeRow", (DL_FUNC) &_Colossus_removeRow, 2},
@@ -810,6 +812,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_cox_ph_null", (DL_FUNC) &_Colossus_cox_ph_null, 3},
     {"_Colossus_cox_ph_risk_sub", (DL_FUNC) &_Colossus_cox_ph_risk_sub, 9},
     {"_Colossus_Write_Time_Indep", (DL_FUNC) &_Colossus_Write_Time_Indep, 9},
+    {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 1},
     {NULL, NULL, 0}
 };
 

@@ -1193,6 +1193,9 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     vector<double> beta_a(totalnum,0.0);
     vector<double> beta_best(totalnum,0.0);
     vector<double> beta_p(totalnum,0.0);
+    //
+    Rcout << totalnum << " " << beta_0.size() << endl;
+    //
     int risk_check_iter=0;
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
@@ -1211,8 +1214,6 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
         beta_p = beta_c;//
         beta_a = beta_c;//
         beta_best = beta_c;//
-        //
-        // Calcualtes the initial change in parameter
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
@@ -1225,8 +1226,6 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
         Lld_comp[0] = vec_norm(Lld, totalnum);
         Lld_comp[1] = vec_norm(Lld, totalnum);
         while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-//            beta_p = beta_c;//
-//            beta_a = beta_c;//
             //Refreshes the matrices used
             Dose = MatrixXd::Zero(df0.rows(),term_tot);
             nonDose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
@@ -1347,18 +1346,24 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
                 Lls1 =MatrixXd::Zero(ntime, STRATA_vals.size());
                 Lls2 =MatrixXd::Zero(ntime, totalnum*STRATA_vals.size());
                 Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2*STRATA_vals.size());
+                //
                 Calculate_Sides_STRATA( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging, STRATA_vals);
                 //
                 Calc_LogLik_STRATA( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals);
-                
                 if (change_all){ //If every covariate is to be changed
                     if (Ll[ind0] <= Ll_best){//takes a half-step if needed
+                        if (verbose){
+                            Rcout << "changing " << Lld_comp[1] << endl;
+                        }
                         #pragma omp parallel for num_threads(nthreads)
                         for (int ijk=0;ijk<totalnum;ijk++){
                             dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
                         }
                         Lld_comp[1] = vec_norm(Lld, totalnum);
                     } else{//If improved, updates the best vector
+                        if (verbose){
+                            Rcout << "Optimal" << endl;
+                        }
                         #pragma omp parallel for num_threads(nthreads)
                         for (int ijk=0;ijk<totalnum;ijk++){
                             beta_best[ijk] = beta_c[ijk];
@@ -1576,20 +1581,20 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             Rcout << "Finshed iteration" << endl;
         }
     }
+//    return (temp_list);
     // -----------------------------------------------
     // Performing Full Calculation to get full second derivative matrix
     // -----------------------------------------------
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    Rls1 =MatrixXd::Zero(ntime, STRATA_vals.size()); //precomputes a series of sums used frequently in the log-liklihood calculations
-    Rls2 =MatrixXd::Zero(ntime, totalnum*STRATA_vals.size()); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
-    Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2*STRATA_vals.size());
-    Lls1 =MatrixXd::Zero(ntime, STRATA_vals.size());
-    Lls2 =MatrixXd::Zero(ntime, totalnum*STRATA_vals.size());
-    Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2*STRATA_vals.size());
+//    Rls1 =MatrixXd::Zero(ntime, STRATA_vals.size()); //precomputes a series of sums used frequently in the log-liklihood calculations
+//    Rls2 =MatrixXd::Zero(ntime, totalnum*STRATA_vals.size()); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
+//    Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2*STRATA_vals.size());
+//    Lls1 =MatrixXd::Zero(ntime, STRATA_vals.size());
+//    Lls2 =MatrixXd::Zero(ntime, totalnum*STRATA_vals.size());
+//    Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2*STRATA_vals.size());
     Calculate_Sides_STRATA( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging, STRATA_vals);
-    //
     if (verbose){
         Rcout << "Wrapping up" << endl;
     }

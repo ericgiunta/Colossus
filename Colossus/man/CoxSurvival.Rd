@@ -5,7 +5,7 @@
 \title{calculates and plots survival plots of the estimated baseline
 \code{CoxSurvival} uses user provided data, columns, and identifier to create plots}
 \usage{
-CoxSurvival(t, h, ch, surv, Plot_Name, verbose, time_lims)
+CoxSurvival(t, h, ch, surv, Plot_Name, verbose, time_lims, age_unit)
 }
 \arguments{
 \item{t}{event times}
@@ -21,6 +21,8 @@ CoxSurvival(t, h, ch, surv, Plot_Name, verbose, time_lims)
 \item{verbose}{boolean controlling additional printing}
 
 \item{time_lims}{limits for x axis of plot}
+
+\item{age_unit}{age unit}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed

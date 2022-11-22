@@ -198,7 +198,7 @@ test_that("Factorize discrete", {
     col_list <- c("a")
     expect_equal(factorize(df,col_list)$cols, c("a_0","a_1","a_2","a_3","a_4","a_5","a_6"))
 })
-test_that("Factorize discrete", {
+test_that("Factorize missing", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,0,0,0,0,0,0)
@@ -207,7 +207,84 @@ test_that("Factorize discrete", {
     expect_error(factorize(df,col_list))
 })
 
+#######################################
+## Time Dependent Cov gens
+#######################################
 
+test_that("Gen_time_dep time error", {
+    a <- c(20,20,5,10,15)
+    b <- c(1,2,1,1,2)
+    c <- c(0,0,1,1,1)
+    df <- data.table("a"=a,"b"=b,"c"=c)
+    #
+    time1="%trunc%"
+    time2="a_bad"
+    event="c"
+    control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    grt_f <- function(df,time_col){
+        return ((df[,"b"] * df[,get(time_col)])[[1]])
+    }
+    func_form <- c("lin")
+    
+    #
+    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
+})
+test_that("Gen_time_dep event error", {
+    a <- c(20,20,5,10,15)
+    b <- c(1,2,1,1,2)
+    c <- c(0,0,1,1,1)
+    df <- data.table("a"=a,"b"=b,"c"=c)
+    #
+    time1="%trunc%"
+    time2="a"
+    event="c_bad"
+    control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    grt_f <- function(df,time_col){
+        return ((df[,"b"] * df[,get(time_col)])[[1]])
+    }
+    func_form <- c("lin")
+    
+    #
+    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
+})
+test_that("Gen_time_dep function error", {
+    a <- c(20,20,5,10,15)
+    b <- c(1,2,1,1,2)
+    c <- c(0,0,1,1,1)
+    df <- data.table("a"=a,"b"=b,"c"=c)
+    #
+    time1="%trunc%"
+    time2="a"
+    event="c_bad"
+    control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    grt_f <- function(df,time_col){
+        stop()
+        return ((df[,"b"] * df[,get(time_col)])[[1]])
+    }
+    func_form <- c("lin")
+    
+    #
+    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
+})
+
+test_that("Gen_time_dep no error", {
+    a <- c(20,20,5,10,15)
+    b <- c(1,2,1,1,2)
+    c <- c(0,0,1,1,1)
+    df <- data.table("a"=a,"b"=b,"c"=c)
+    #
+    time1="%trunc%"
+    time2="a"
+    event="c"
+    control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    grt_f <- function(df,time_col){
+        return ((df[,"b"] * df[,get(time_col)])[[1]])
+    }
+    func_form <- c("lin")
+    
+    #
+    expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
+})
 
 
 

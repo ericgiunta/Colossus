@@ -24,7 +24,8 @@ CoxKaplanMeier(
   modelform,
   control,
   keep_constant,
-  Plot_Type
+  Plot_Type,
+  age_unit
 )
 }
 \arguments{
@@ -65,6 +66,8 @@ CoxKaplanMeier(
 \item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
 
 \item{Plot_Type}{list of parameters controlling the plot options}
+
+\item{age_unit}{age unit}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed

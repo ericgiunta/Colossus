@@ -14,7 +14,7 @@ RunCoxRegression_STRATA(
   Term_n = rep(0, length(names)),
   tform = rep("loglin", length(names)),
   keep_constant = rep(0, length(names)),
-  a_n = rep(0.01, length(names)),
+  a_n = c(0.01),
   modelform = "M",
   fir = 0,
   der_iden = 0,

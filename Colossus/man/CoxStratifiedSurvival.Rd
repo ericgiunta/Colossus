@@ -23,7 +23,8 @@ CoxStratifiedSurvival(
   keep_constant,
   Plot_Type,
   Strat_Col,
-  time_lims
+  time_lims,
+  age_unit
 )
 }
 \arguments{
@@ -62,6 +63,8 @@ CoxStratifiedSurvival(
 \item{Strat_Col}{column to stratify by}
 
 \item{time_lims}{limits for x axis of plot}
+
+\item{age_unit}{age unit}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed

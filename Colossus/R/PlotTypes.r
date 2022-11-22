@@ -11,11 +11,12 @@
 #' @param ch cumulative hazards
 #' @param dname dose column
 #' @param Plot_Name plot identifier
+#' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
 #'
-CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dname, Plot_Name){
+CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dname, Plot_Name, age_unit){
     IDS <- base <- res <- doses <- NULL
     if (verbose){
         print("Martingale Plots")
@@ -39,7 +40,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dname, Plot
     dev.off()
     ##
     jpeg(paste('martin_plot',Plot_Name,'.jpg',sep='_'), units="in", width=5, height=5, res=1200)
-    smoothScatter(times[,time],Martingale_Error[,res], xlab="age",ylab="Martingale Residuals",nbin=100, colramp= colorRampPalette(c("white","red")))
+    smoothScatter(times[,time],Martingale_Error[,res], xlab=paste("age (",age_unit,")",sep=""),ylab="Martingale Residuals",nbin=100, colramp= colorRampPalette(c("white","red")))
     dev.off()
     jpeg(paste('martin_plot_dose',Plot_Name,'.jpg',sep="_"), units="in", width=5, height=5, res=1200)
     smoothScatter(times[doses>0,doses],Martingale_Error[doses>0,res], xlab="Dose",ylab="Martingale Residuals",nbin=200, colramp= colorRampPalette(c("white","red")))
@@ -58,10 +59,11 @@ CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dname, Plot
 #' @param Plot_Name plot identifier
 #' @param verbose boolean controlling additional printing
 #' @param time_lims limits for x axis of plot
+#' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
-CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims){
+CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
     if (verbose){
         print("Survival Plots")
     }
@@ -70,25 +72,15 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims){
     setkeyv(dft,"t")
     dft <- dft[(t>=time_lims[1])&(t<=time_lims[2]),]
     #
-#    jpeg(paste('ch_plot',Plot_Name,'.jpg',sep="_"), units="in", width=5, height=5, res=1200)
-#    plot(t,ch, type="s", xlab="age",ylab="Cumulative Hazard",xlim=c(min(t),max(t)), ylim=c(min(ch),max(ch)))
-#    dev.off()
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) + ggplot2::geom_step(color="black") + ggplot2::labs(x="age", y="Cumulative Hazard")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
     ggplot2::ggsave(paste('ggplot2_ch_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     #
-#    jpeg(paste('surv_plot',Plot_Name,'.jpg',sep="_"), units="in", width=5, height=5, res=1200)
-#    plot(t,surv, type="s", xlab="age",ylab="Survival",xlim=c(min(t),max(t)),ylim=c(min(surv),max(surv)))
-#    dev.off()
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) + ggplot2::geom_step(color="black") + ggplot2::labs(x="age", y="Survival")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
     ggplot2::ggsave(paste('ggplot2_surv_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     #
-#    jpeg(paste("H_plot",Plot_Name,".jpg",sep="_"), units="in", width=5, height=5, res=1200)
-#    plot(t,h, xlab="age",ylab="Hazard",col='black',type='s',xlim=c(min(t),max(t)),ylim=c(min(h),max(h)))
-#    dev.off()
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) + ggplot2::geom_point(color="black") + ggplot2::labs(x="age", y="Survival")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
     ggplot2::ggsave(paste('ggplot2_H_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     #
-    ;
     return ("passed")
 }
 
@@ -114,10 +106,11 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims){
 #' @param control list of parameters controlling the convergence            
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant       
 #' @param Plot_Type list of parameters controlling the plot options  
+#' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
-CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type){
+CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit){
     if (verbose){
         print("KM Plots")
     }
@@ -177,7 +170,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
         #
         dft <- data.table("t_u"=t_u,"t_l"=t_l,"n_u"=n_u,"n_l"=n_l)
         #
-        g <- ggplot2::ggplot() + ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u, color="red"))+ ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u), color="red") + ggplot2::labs(x="age", y="Survival")
+        g <- ggplot2::ggplot() + ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u, color="red"))+ ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u), color="red") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
         g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$t_l, y=.data$n_l, color="blue")) + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$t_l, y=.data$n_l), color="blue")
         g <- g + ggplot2::scale_color_manual(name = all_names[fir_KM], values = c("Above Mean" = "red", "Below Mean" = "blue"))      
         ggplot2::ggsave(paste("KM_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
@@ -378,10 +371,11 @@ CoxRisk <- function(verbose,df, event, time1, time2, names,Term_n, tform, a_n, f
 #' @param Plot_Type list of parameters controlling the plot options
 #' @param Strat_Col column to stratify by
 #' @param time_lims limits for x axis of plot
+#' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
-CoxStratifiedSurvival <- function(verbose, df, event, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims){
+CoxStratifiedSurvival <- function(verbose, df, event, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims, age_unit){
     setkeyv(df, c(time2, event, Strat_Col))
     dfend <- df[get(event)==1, ]
     base  <- NULL
@@ -467,9 +461,9 @@ CoxStratifiedSurvival <- function(verbose, df, event, time1, time2, names,Term_n
         print("plotting survival data")
 #            print(t)
     }
-    g <- ggplot2::ggplot() + ggplot2::geom_step(data=dft,ggplot2::aes(x=.data$t, y=.data$surv,group=.data$cat_group,color=.data$cat_group), direction="vh")
+    g <- ggplot2::ggplot() + ggplot2::geom_point(data=dft,ggplot2::aes(x=.data$t, y=.data$surv,group=.data$cat_group,color=.data$cat_group))#, direction="vh")
     g <- g + ggplot2::scale_colour_discrete(breaks=sbreaks, labels=slabels)
-    g <- g + ggplot2::labs(x="age", y="Survival") + ggplot2::ylim(0,1)
+    g <- g + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival") + ggplot2::ylim(0,1)
     if (verbose){
         print("saving survival data")
     }
@@ -499,10 +493,11 @@ K_Smooth <- function(x){
 #' @param verbose boolean controlling additional printing
 #' @param bw band-width used for smoothing
 #' @param time_lims limits for x axis of plot
+#' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
-CoxSmoothHazard <- function(dft,Plot_Name,verbose,bw,time_lims){ 
+CoxSmoothHazard <- function(dft,Plot_Name,verbose,bw,time_lims, age_unit){ 
     if (verbose){
         print("writing survival data")
     }
@@ -533,9 +528,9 @@ CoxSmoothHazard <- function(dft,Plot_Name,verbose,bw,time_lims){
         h_l[j] = h[j] - er_h[j]
     }
     dft <- data.table("ti"=ti,"h"=h,"h_l"=h_l,"h_u"=h_u)
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$ti, y=.data$h)) + ggplot2::geom_step(color="black") + ggplot2::labs(x="age", y="Survival")
-    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$ti, y=.data$h_u), color="black")
-    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$ti, y=.data$h_l), color="black")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$ti, y=.data$h)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+#    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$ti, y=.data$h_u), color="black")
+#    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$ti, y=.data$h_l), color="black")
     ggplot2::ggsave(paste('H_smooth_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     ;
     return ("passed")

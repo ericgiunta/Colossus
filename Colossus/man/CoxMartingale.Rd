@@ -5,7 +5,19 @@
 \title{calculates and plots martingale residuals with a named dose column
 \code{CoxMartingale} uses user provided data, columns, and identifier to create plots}
 \usage{
-CoxMartingale(verbose, df, time1, time2, event, e, t, ch, dname, Plot_Name)
+CoxMartingale(
+  verbose,
+  df,
+  time1,
+  time2,
+  event,
+  e,
+  t,
+  ch,
+  dname,
+  Plot_Name,
+  age_unit
+)
 }
 \arguments{
 \item{verbose}{boolean controlling additional printing}
@@ -27,6 +39,8 @@ CoxMartingale(verbose, df, time1, time2, event, e, t, ch, dname, Plot_Name)
 \item{dname}{dose column}
 
 \item{Plot_Name}{plot identifier}
+
+\item{age_unit}{age unit}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed

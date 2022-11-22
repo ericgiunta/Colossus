@@ -25,7 +25,13 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
     dfend <- df[get(event)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
         stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
     }
     all_names <- unique(names)
     dfc <- match(names,all_names)
@@ -38,7 +44,16 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
     df <- t_check$df
     ce <- t_check$ce
     #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    #
     a_n0 <- copy(a_n)
+    control <- Def_Control(control)
     e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     a_n <- a_n0
     ;
@@ -66,7 +81,7 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
 #' @return returns a list of the final results
 #' @export
 #'
-RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", event="cases",  names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1), Strat_Col="cell"){
+RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", event="cases",  names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=c(0.01), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1), Strat_Col="cell"){
     setkeyv(df, c(time2, event, Strat_Col))
     dfend <- df[get(event)==1, ]
     #
@@ -78,12 +93,33 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
     x_all=as.matrix(df[,all_names, with = FALSE])
     #
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    #
+    for (i in 1:length(uniq)){
+        df0 <- dfend[get(Strat_Col)==uniq[i],]
+        tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+        if (length(tu0)==0){
+            if (control$verbose){
+                print(paste("no events for strata group:",uniq[i],sep=" "))
+            }
+            stop()
+        }
+    }
     #
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
     #
+    control <- Def_Control(control)
     e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
     return (e)
 }
@@ -115,9 +151,8 @@ Cox_Relative_Risk <- function(df, time1="age_start", time2="age_exit", event="ca
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
     #
-    #
+    control <- Def_Control(control)
     e <- cox_ph_risk_sub(Term_n, tform, a_n, dfc, x_all,  fir, modelform, control, term_tot)
-    ;
     return (e)
 }
 
@@ -138,14 +173,20 @@ RunCoxNull <- function(df, time1="age_start", time2="age_exit", event="cases",co
     dfend <- df[get(event)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
         stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
     }
     ce <- c(time1,time2,event)
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
+    control <- Def_Control(control)
     e <- cox_ph_null( control, as.matrix(df[,ce, with = FALSE]), tu)
-    ;
     return (e)
 
 }
@@ -179,13 +220,24 @@ RunCoxPlots <- function(df, time1="age_start", time2="age_exit", event="cases", 
     dfend <- df[get(event)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
         stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
     }
     if ("type" %in% names(plot_options)){
         ;
     } else {
         print("Plot type not given")
         stop()
+    }
+    if ("age_unit" %in% names(plot_options)){
+        ;
+    } else {
+        plot_options$age_unit <- "unitless"
     }
     if ("strat_haz" %in% names(plot_options)){
         if (plot_options$strat_haz){
@@ -256,7 +308,7 @@ RunCoxPlots <- function(df, time1="age_start", time2="age_exit", event="cases", 
             plot_options$time_lims <- c(min(tu),max(tu))
         }
     }
-    for (iden_col in c("verbose","Martingale","surv_curv","strat_haz","smooth_haz")){
+    for (iden_col in c("verbose","Martingale","surv_curv","strat_haz","smooth_haz","KM")){
         if (iden_col %in% names(plot_options)){
             ;
         } else {
@@ -268,6 +320,9 @@ RunCoxPlots <- function(df, time1="age_start", time2="age_exit", event="cases", 
     dfend <- df[get(event)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
         stop()
     }
     all_names <- unique(names)
@@ -313,24 +368,25 @@ RunCoxPlots <- function(df, time1="age_start", time2="age_exit", event="cases", 
         surv <- c(surv, exp(-1*temp))
     }
     #
+    age_unit <- plot_options$age_unit
     if (Plot_Type[1]=="SURV"){
         if (plot_options$Martingale==TRUE){
             #
-            CoxMartingale(verbose, df, time1, time2, event, e, t, ch, plot_options$dose_col, Plot_Type[2])
+            CoxMartingale(verbose, df, time1, time2, event, e, t, ch, plot_options$dose_col, Plot_Type[2], age_unit)
             #
         }
         if (plot_options$surv_curv==TRUE){
-            CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,plot_options$time_lims)
+            CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,plot_options$time_lims, age_unit)
             if (plot_options$strat_haz==TRUE){
-                CoxStratifiedSurvival(verbose, df, event, time1, time2, all_names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, plot_options$Strat_Col,plot_options$time_lims)
+                CoxStratifiedSurvival(verbose, df, event, time1, time2, all_names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, plot_options$Strat_Col,plot_options$time_lims,age_unit)
             }
             if (plot_options$smooth_haz==TRUE){
-                CoxSmoothHazard(dft,Plot_Type[2],verbose,plot_options$bw,plot_options$time_lims)
+                CoxSmoothHazard(dft,Plot_Type[2],verbose,plot_options$bw,plot_options$time_lims,age_unit)
             }
         }
         if (plot_options$KM==TRUE){
             #
-            CoxKaplanMeier(verbose, verbosec, plot_options$studyID,all_names,df,event,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type)
+            CoxKaplanMeier(verbose, verbosec, plot_options$studyID,all_names,df,event,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type,age_unit)
         }
     } else if (Plot_Type[1]=="RISK"){
         CoxRisk(verbose, df, event, time1, time2, all_names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type)

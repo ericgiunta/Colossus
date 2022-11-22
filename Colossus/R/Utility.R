@@ -1,3 +1,24 @@
+#' Automatically assigns missing control values
+#' \code{Def_Control} checks and assigns default values
+#'
+#' @param control list of control parameters
+#'
+#' @return returns a filled list
+#' @export
+#'
+Def_Control <- function(control){
+    control_def=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    for (nm in names(control_def)){
+        if (nm %in% names(control)){
+            ;
+        } else {
+            control[nm] = control_def[nm]
+        }
+    }
+    return (control)
+}
+
+
 #' Opens a file for reading
 #' \code{Open_File} uses user provided file name, time columns, and event column to load and sort.
 #'
@@ -275,8 +296,9 @@ gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols
         df[, name1] = lapply(func, function(f) f(df, time1))
         dfn_dep <- c(dfn_dep, name0, name1)
     }
+    #
+    #
     dfn_time <- c(time0, time1)
-    # print(dfn_time)
     dfn_event <- c(event)
     dfn_same <- dfn_same[!(dfn_same %in% dfn_time)]
     dfn_same <- dfn_same[!(dfn_same %in% dfn_event)]
@@ -284,8 +306,6 @@ gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols
     x_dep = as.matrix(df[,dfn_dep, with = FALSE])
     x_same = as.matrix(df[,dfn_same, with = FALSE])
     x_event = as.matrix(df[,dfn_event, with = FALSE])
-    # print(df)
-    # print(x_time)
     #
     if (grepl(".csv", fname, fixed = TRUE)){
         ;
@@ -299,21 +319,6 @@ gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols
     Write_Time_Indep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox)
     df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time0,time1,new_names,dfn_same,event))
     setkeyv(df_new, c(time1, event))
-    if (iscox){
-        dfend <- df_new[get(event)==1, ]
-        tu <- sort(unlist(unique(dfend[,time1, with = FALSE]), use.names=FALSE))
-        df_new <- df_new[(get(time0)<=tu[length(tu)])&(get(time1)>=tu[1]),]
-#        df_new[,cox_iden] = 0
-#        tu_id <- 1
-#        for (i in 1:nrow(df_new)){
-#            if (df_new[i,(get(time0)<=tu[tu_id])&(get(time1)>=tu[tu_id])]){
-#                df_new[i,cox_iden] = 1
-#            }
-#            while (df_new[i,(get(time0)>tu[tu_id])]){
-#                tu_id = tu_id + 1
-#            }
-#        }
-    }
     return (df_new)
 }
 
@@ -335,12 +340,9 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
     df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
     df$dt1 <- paste(df[[match(dcol1[1],names(df))]],df[[match(dcol1[2],names(df))]],df[[match(dcol1[3],names(df))]],sep="-")
     #
-    #
-    # df[,dt0:=as.Date(dt0, format="$m-$d-%Y")]
-    # df[,dt1:=as.Date(dt1, format="$m-$d-%Y")]
-    #
-    # df[, col_name] = df$dt1 - df$dt0
-    df[, col_name] = difftime(strptime(df$dt1, format = "%m-%d-%Y"), strptime(df$dt0,  format = "%m-%d-%Y"), units = units)
+    # TO NOT ENCOUNTER DAYLIGHT SAVINGS ISSUES, THE UTC TIMEZONE IS USED
+    # IF NOT USED THEN RESULTS MAY HAVE TIMES OFF BY 1/24 decimals
+    df[, col_name] = difftime(strptime(df$dt1, format = "%m-%d-%Y",tz = 'UTC'), strptime(df$dt0,  format = "%m-%d-%Y"), units = units,tz = 'UTC')
     def_cols <- c(def_cols, col_name)
     return (df[,def_cols,with=FALSE])
 }
@@ -363,7 +365,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
     df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
     #
     #
-    df[, col_name] = lapply(df$dt0, function(x) (difftime(strptime(x,  format = "%m-%d-%Y"), tref, units = units)))
+    df[, col_name] = lapply(df$dt0, function(x) (difftime(strptime(x,  format = "%m-%d-%Y",tz = 'UTC'), tref, units = units)))
     def_cols <- c(def_cols, col_name)
     return (df[,def_cols,with=FALSE])
 }

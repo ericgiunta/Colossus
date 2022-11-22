@@ -220,7 +220,7 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
 
         } else {
-            ;
+            throw invalid_argument( "incorrect subterm type" );
         }
     }
     //
@@ -325,7 +325,7 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             T0.col(ij) = nonDose_PLIN.col(tn);
             Td0.col(ij) = df0.col(df0_c);
         } else {
-            ;
+            throw invalid_argument( "incorrect subterm type" );
         }
     }
     //
@@ -949,14 +949,12 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
     //Make_Subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
     //
     //
-//    Rcout << "Creating" << endl;
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
     for (int i=0;i<ntime;i++){
         safe_fail[i] = vector<int>(RiskFail.cols(),0);
         safe_group[i] = vector<string>(RiskGroup.cols(),"");
     }
-//    Rcout << "Starting" << endl;
     //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -1222,7 +1220,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
     //
     //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -1239,6 +1237,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
                 //
                 vector<int> InGroup;
                 //Now has the grouping pairs
+//                Rcout << ijk << " " << j << " " << s_ij << endl;
                 if (RiskFail(j,2*s_ij + 1)>-1){
                     string Groupstr = as<std::string>(RiskGroup(j,s_ij));
                     stringstream ss(Groupstr);
@@ -1269,6 +1268,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
                     Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
                     Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(3).sum();
                 }
+//                Rcout << ijk << " " << j << " " << s_ij << endl;
             }
         }
     }

@@ -391,7 +391,7 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                 }
             }
             True_Rows = serial_1 - serial_0 + 1;
-            // Rcout << tu[serial_0] << " "<< tu[serial_1] << " " << serial_0 << " " << serial_1 << endl;
+//            Rcout << tu[serial_0] << " " << df_Times.coeff(i_row,0)  << " " << df_Times.coeff(i_row,1) << " " << tu[serial_1] << endl;
             // Rcout << "step 2 " << i_row << endl;
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             for (int i_inner=serial_0;i_inner<serial_1+1;i_inner++){
@@ -409,10 +409,11 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                 double temp_tok =0;
                 int gather_val=0;
                 char tok_char = 'a';
+                // step string is either g, l, a ,b for >=, <=, >, <
                 for (int i=0; i<dep_temp.size();i++){
                     func_id = as<std::string>(tform[i]);
                     if (func_id=="lin"){
-                        dep_temp[i] = ratio * df_dep.coeff(i_row,i+1) + (1 - ratio) * df_dep.coeff(i_row,i);
+                        dep_temp[i] = ratio * df_dep.coeff(i_row,2*i+1) + (1 - ratio) * df_dep.coeff(i_row,2*i);
                     } else {
                         pos = func_id.find(delim);
                         token = func_id.substr(0, pos);
@@ -423,7 +424,7 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                                 token = func_id.substr(0, pos);
                                 //
                                 tok_char = token[token.length()-1];
-                                if (tok_char == 'u'){
+                                if (tok_char == 'g'){
                                     token.pop_back();
                                     temp_tok = stod(token);
                                     if (t0>=temp_tok){
@@ -435,6 +436,18 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                                     if (t1<=temp_tok){
                                         gather_val = gather_val + 1;
                                     }
+                                } else if (tok_char == 'a'){
+                                    token.pop_back();
+                                    temp_tok = stod(token);
+                                    if (t0>temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
+                                } else if (tok_char == 'b'){
+                                    token.pop_back();
+                                    temp_tok = stod(token);
+                                    if (t1<temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
                                 } else {
                                     ;
                                 }
@@ -442,15 +455,18 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                                 func_id.erase(0, pos + delim.length());
                             }
                             dep_temp[i] = gather_val;
+                        } else {
+                            Rcout << func_id << " _:_ " << token << endl;
+                            throw invalid_argument( "time dependent identifier is bad" );
                         }
                     }
                 }
                 int event0 = 0;
                 if (i_inner==True_Rows-1){
-                    t1 = df_Times.coeff(i_row,1);
+//                    t1 = df_Times.coeff(i_row,1);
                     event0 = df0_event[i_row];
                 }
-                new_row_store.row(i_inner) << t0, t1, dep_temp, df_const.row(i_row), event0;
+                new_row_store.row(i_inner) << t0, t1, dep_temp.transpose(), df_const.row(i_row), event0;
             }
         } else {
             True_Rows = ceil( (df_Times.coeff(i_row,1) - df_Times.coeff(i_row,0))/dt);
@@ -470,7 +486,7 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                 for (int i=0; i<dep_temp.size();i++){
                     func_id = as<std::string>(tform[i]);
                     if (func_id=="lin"){
-                        dep_temp[i] = ratio * df_dep.coeff(i_row,i+1) + (1 - ratio) * df_dep.coeff(i_row,i);
+                        dep_temp[i] = ratio * df_dep.coeff(i_row,2*i+1) + (1 - ratio) * df_dep.coeff(i_row,2*i);
                     } else {
                         pos = func_id.find(delim);
                         token = func_id.substr(0, pos);

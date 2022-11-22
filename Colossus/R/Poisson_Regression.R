@@ -28,13 +28,23 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
     all_names <- unique(names)
     dfc <- match(names,all_names)
     if (sum(df[,event, with = FALSE])==0){
+        if (control$verbose){
+            print("no events")
+        }
         stop()
     }
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event)
     #
+    control <- Def_Control(control)
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
     e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
-    ;
     return (e)
 }
