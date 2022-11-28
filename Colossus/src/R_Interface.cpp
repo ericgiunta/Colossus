@@ -424,22 +424,29 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                                 token = func_id.substr(0, pos);
                                 //
                                 tok_char = token[token.length()-1];
+//                                Rcout << tok_char << " " << gather_val << " " << stod(token) << " " << t1 << endl;
                                 if (tok_char == 'g'){
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t0>=temp_tok){
+                                    if (t1>temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
+                                    if (t1==temp_tok){
                                         gather_val = gather_val + 1;
                                     }
                                 } else if (tok_char == 'l'){
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t1<=temp_tok){
+                                    if (t1<temp_tok){
+                                        gather_val = gather_val + 1;
+                                    }
+                                    if (t1==temp_tok){
                                         gather_val = gather_val + 1;
                                     }
                                 } else if (tok_char == 'a'){
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t0>temp_tok){
+                                    if (t1>temp_tok){
                                         gather_val = gather_val + 1;
                                     }
                                 } else if (tok_char == 'b'){
@@ -451,6 +458,7 @@ void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep
                                 } else {
                                     ;
                                 }
+//                                Rcout << tok_char << " " << gather_val << " " << stod(token) << " " << t1 << endl;
                                 //
                                 func_id.erase(0, pos + delim.length());
                             }

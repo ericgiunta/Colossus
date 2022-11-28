@@ -1716,6 +1716,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
     //
     if (debugging){
         if (double_step==1){
+            //
             NumericVector Lldd_vec = wrap(Lldd);//
             NumericVector Lld_vec  = wrap(Lld);//
             Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
@@ -1724,12 +1725,43 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
             const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
             //
             VectorXd Lldd_solve = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
-//            if (totalnum < 16){
-//                JacobiSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
-//            } else {
-//                BDCSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
+            Rcout << Lldd_solve.transpose() << endl;
+            //
+//            int kept_covs = totalnum - sum(KeepConstant);
+//            NumericVector Lldd_vec(kept_covs * kept_cov);
+//            NumericVector Lld_vec(kept_covs);
+//            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+//                int ij = 0;
+//                int jk = ijk;
+//                while (jk>ij){
+//                    ij++;
+//                    jk-=ij;
+//                }
+//                if (KeepConstant[ij]==0){
+//                    int pij_ind = ij - sum(head(KeepConstant,ij));
+//                    if (ij==jk){
+//                        Lld_vec[pij_ind]=Lld[ij];
+//                    }
+//                    if (KeepConstant[jk]==0){
+//                        int pjk_ind = jk - sum(head(KeepConstant,jk));
+//                        Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd_vec[ijk];
+//                    }
+//                }
 //            }
-//            MatrixXd Lldd_solve = svd.solve(-1*Lld_mat);
+//            for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+//                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd_vec[pjk_ind * kept_covs + pij_ind];
+//            }
+//            Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+//            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+//            VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+//            VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+//            for (int ij=0;ij<totalnum;ij++){
+//                int pij_ind = ij - sum(head(KeepConstant,ij));
+//                Lldd_solve(ij) = Lldd_solve0(pij_ind)
+//            }
+            //
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){
                 if (change_all){
@@ -1816,20 +1848,78 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         }
     } else {
         if (double_step==1){
-            NumericVector Lldd_vec = wrap(Lldd);//
-            NumericVector Lld_vec  = wrap(Lld);//
-            Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+//            
+//            NumericVector Lldd_vec = wrap(Lldd);//
+//            NumericVector Lld_vec  = wrap(Lld);//
+//            Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+//            //
+//            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+//            //
+//            VectorXd Lldd_solve = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+//            Rcout << Lldd_solve.transpose() << endl;
             //
+            int kept_covs = totalnum - sum(KeepConstant);
+            NumericVector Lldd_vec(kept_covs * kept_covs);
+            NumericVector Lld_vec(kept_covs);
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+                int ij = 0;
+                int jk = ijk;
+                int pij_ind=-100;
+                int pjk_ind=-100;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
+                if (KeepConstant[jk]==0){
+                    pjk_ind = jk - sum(head(KeepConstant,jk));
+                }
+                if (KeepConstant[ij]==0){
+                    pij_ind = ij - sum(head(KeepConstant,ij));
+                    if (ij==jk){
+                        Lld_vec[pij_ind]=Lld[ij];
+                    }
+                    if (KeepConstant[jk]==0){
+                        pjk_ind = jk - sum(head(KeepConstant,jk));
+                        Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
+                    }
+                }
+//                Rcout << "(" << ij <<"," << jk << ") (" << pij_ind << "," << pjk_ind << ") (" << KeepConstant[ij] << "," << KeepConstant[jk] << ") " << Lldd[ij*totalnum+jk] << endl;
+            }
+            for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+                int ij = 0;
+                int jk = ijk;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
+                Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+            }
+//            Rcout << Lld_vec << endl;
+//            Rcout << Lldd_vec << endl;
+//            for (int i=0;i<totalnum;i++){
+//                Rcout << Lld[i] << " ";
+//            }
+//            Rcout << " " << endl;
+//            for (int i=0;i<totalnum*totalnum;i++){
+//                Rcout << Lldd[i] << " ";
+//            }
+//            Rcout << " " << endl;
+            Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
             const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
             const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+            VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+            VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+//            Rcout << Lldd_solve0.transpose() << endl;
+            for (int ij=0;ij<totalnum;ij++){
+                if (KeepConstant[ij]==0){
+                    int pij_ind = ij - sum(head(KeepConstant,ij));
+                    Lldd_solve(ij) = Lldd_solve0(pij_ind);
+                }
+            }
+//            Rcout << Lldd_solve.transpose() << endl;
             //
-            VectorXd Lldd_solve = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
-//            if (totalnum < 16){
-//                JacobiSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
-//            } else {
-//                BDCSVD<MatrixXd, ComputeThinU | ComputeThinV> svd(Lldd_mat);
-//            }
-//            MatrixXd Lldd_solve = svd.solve(-1*Lld_mat);
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){
                 if (change_all){
