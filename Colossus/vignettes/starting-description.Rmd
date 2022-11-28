@@ -1,5 +1,5 @@
 ---
-title: "Colossus Description"
+title: "Colossus_Description"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Colossus_Description}
@@ -23,18 +23,21 @@ library(Colossus)
 
 ## Model Structure
 
-At its full potential, Colossus is able to analyze a vast number of possible risk models. The model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
+At its full potential, Colossus is able to analyze a vast number of possible risk/rate models. Specifically Colossus is designed to allow for a combination of linear and non-linear models to estimate cox proportional hazards as well as Poisson model rates. The simplest of which is a exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
 
+<p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
     R(\vec{\beta},\vec{x})=\exp(\vec{\beta} \cdot \vec{x})
 \end{aligned}
 $$
+</p>
 
-In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependenton the product of sub-terms ($S$). Each subterm is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
+In Colossus, this general model is extended by abstracting to the sum and product of terms and sub-terms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In poisson modeling the risk calculated is an estaimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of sub-terms ($S$). Each sub-term is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
 
-There are currently four types of risk models avaliable. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), or multiplicative excess model ($R_M$).
+There are currently four types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), or multiplicative excess model ($R_M$).
 
+<p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
     R_{A}= \sum_{i=0}^n T_i\\
@@ -43,61 +46,77 @@ $$
     R_{M}= T_0 \times \prod_{i=1}^n( 1 + T_i)
 \end{aligned}
 $$
+</p>
 
-Each term is composed of a combination of 4 types of subterms. Every covaraite is part of a log-linear subterm, a linear subterm, a product-libear subterm, or a general non-linear term. The log-linear subterm ($S_{ll}$) is exponential of a linear equation of covariates. The linear subterm ($S_l$) is a linear equation of covariates. The product-linear subterm ($S_{PL}$) is one plus a linear equation of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms, and step function terms. Each term is the product of the non-empty subterms.
+Each term is composed of a combination of 4 types of sub-terms. Every covaraite is part of a log-linear sub-term, a linear sub-term, a product-linear sub-term, or a general non-linear term. The log-linear sub-term ($S_{ll}$) is exponential of a linear equation of covariates. The linear sub-term ($S_l$) is a linear equation of covariates. The product-linear sub-term ($S_{PL}$) is one plus a linear equation of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms, and step function terms. Each term is the product of the non-empty sub-terms.
 
+<p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    S_{LL}=\prod_{i} (\exp{x_i \cdot \beta_i})\\
+    S_{LL}=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
     S_{L}=\sum_i (x_i \cdot \beta_i)\\
     S_{PL}=1+ \sum (x_i \cdot \beta_i)\\
-    S_{NL}=\sum_i (\exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i (\alpha_i \cdot (x-\beta_i)) + \sum_i (\alpha_i \cdot (x>\beta_i)\\
+    S_{NL}=\sum_i (\exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP}\\
+    F_{LT} = \begin{cases} \alpha_i*(x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
+    F_{STP} = \begin{cases} \alpha_i & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
     T_j=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 $$
+</p>
 
-In short, every element of the risk model has a subterm type, term number, covariate, and parameter value
+
+
+In short, every element of the risk model has a sub-term type, term number, covariate, and parameter value
 
 ## Using The Standard Model
 
-In Colossus every equation is defined in a very similar fashion. On the user side of the code, elements of the risk equation are defined as rows of a dataframe. The dataframe columns store covariate names, term numbers, subterms types, and a starting point. For more complex regression each parameter can be also be set to remain constant over the regression. Doing so does not change the parameter value, but the risks and derivatives include the element. For a multiplicative risk model the following table and equation are equivalent.
+In Colossus every equation is defined in a very similar fashion. On the user side of the code, elements of the risk equation are defined as rows of a data-frame. The data-frame columns store covariate names, term numbers, sub-terms types, and a starting point. For more complex regression each parameter can be also be set to remain constant over the regression. Doing so forces the parameter value to remain constant but not remove the element from the derivative and risk calculations. For a multiplicative excess risk model the following table and equation are equivalent.
 
 
-| Term number | subterm type | covariate | Parameter value | Constant |
-| :---------: | :----------: | :-------: | :-------------: | :------: |
-| 0           | LogLinear    | a         | 0               | True     |
-| 0           | Linear       | b         | 0               | True     |
-| 1           | Linear       | c         | 0               | True     |
+| Term number | sub-term type | covariate|
+| :---------: | :----------: | :-------: |
+| 0           | LogLinear    | a         |
+| 1           | Linear       | b         |
+| 1           | Linear       | c         |
 
+<p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = (\beta_{b} \cdot x_{b}) \times \exp{\beta_{a} \cdot x_{a}} \times (1 + \beta_{c} \cdot x_{c})
+    R = (1 + \exp{(\beta_{a} \cdot x_{a})}) \times (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})
 \end{aligned}
 $$
+</p>
 
-If the user wanted to update the model to include a linear term, then the table would only need to be updated with a new row.
 
-| Term number | subterm type | covariate | Parameter value | Constant |
-| :---------: | :----------: | :-------: | :-------------: | :------: |
-| 0           | LogLinear    | a         | 0               | True     |
-| 0           | Linear       | b         | 0               | True     |
-| 1           | Linear       | c         | 0               | True     |
-| 2           | Linear       | d         | 0               | True     |
+If the user wanted to update the model to include a new term with a product-linear sub-term, then the table would only need to be updated with a new row.
 
+| Term number | sub-term type | covariate |
+| :---------: | :----------: | :-------: |
+| 0           | LogLinear    | a         |
+| 1           | Linear       | b         |
+| 1           | Linear       | c         |
+| 2           | Product-Linear       | d         |
+
+<p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = (\beta_{b} \cdot x_{b}) \times \exp{\beta_{a} \cdot x_{a}} \times (1 + \beta_{c} \cdot x_{c}) \times (1 + \beta_{d} \cdot x_{d})
+    R = (1 + \exp{(\beta_{a} \cdot x_{a})} \times (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c}) \times (1 + \beta_{d} \cdot x_{d})
 \end{aligned}
 $$
+</p>
 
-The specific model options are passed to the code as seperate variables. The model identifier (A, M, PA, PAE) is passed as a string. Every model except the additive model has a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term, however it can be set to any arbitrary term number without producing an error.
+Note that the multiplicative model is taking the product of terms, each of which is the product of subterms. The same equation could be written with LogLinear sub-terms distributed over different terms without changing the final value. The only exception is subterms in the "first" term in the multiplicative excess model, which is equal to one plus a product of subterms.
+
+The specific model options are passed to the code as separate variables. The model identifier (A, M, PA, PAE) is passed as a string. Every model except the additive model has a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term, however it can be set to any arbitrary term number without producing an error.
 
 ## Survival Time and Event Data
 
-Colossus performs survival analysis via either a Cox Proportinal Hazards regression or a Poisson Regression. In both cases the user specifies which columns contain time duration and events of interest. For the Poisson regression these would be which column contains the person-years and number of events for each row of data. For the Cox Proportinal Hazards regression the user identifies which columns provide starting and ending times, and what column gives the event status. Colossus supports left censored data, right censored data, and interval censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints at the minimum or maximum event time.
+Colossus performs survival analysis via either a Cox Proportional Hazards regression or a Poisson regression. In both cases the user specifies which columns contain time duration and events of interest. For the Poisson regression these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression the user identifies which columns provide starting and ending times, and what column gives the event status. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. Colossus supports left censored data, right censored data, and interval censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times. For Poisson regression the user only provides columns for the person-years per row and number of events. Poisson regression supports any non-negative number of events.
 
 ## Control and Verbosity
 
-Colossus offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information. The more common options is the verbosity. The verbose mode prints timesteps and intermediate values for the sum of terms, sum of risks, and log-likelihood each iteration. A less common option is the der_iden parameter, which is used change only one parameter at a time by a set amount. This was used in the debugging process for recording itermediate values on a plane. This option could be used by the user in conjunction with the verbose option to plot intermediate values by parameter value.
+Colossus offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information. A more common option is the verbosity. The verbose mode prints time-steps and intermediate values for the sum of terms, sum of risks, and log-likelihood each iteration. A less common option is the $der_iden$ parameter, which is used change only one parameter at a time by a set amount. This was used in the debugging process for recording intermediate values on a plane. This option could be used by the user in conjunction with the verbose option to plot intermediate values by parameter value.
+
+
 
 
