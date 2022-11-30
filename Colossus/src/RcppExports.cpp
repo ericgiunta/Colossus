@@ -515,6 +515,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// LogLik_Poisson_STRATA
+List LogLik_Poisson_STRATA(MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, int double_step, bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, IntegerVector& STRATA_vals);
+RcppExport SEXP _Colossus_LogLik_Poisson_STRATA(SEXP PyrCSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP double_stepSEXP, SEXP change_allSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< MatrixXd >::type PyrC(PyrCSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< int >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< double >::type dbeta_cap(dbeta_capSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
+    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type change_all(change_allSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Poisson_STRATA(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Stress_Run
 void Stress_Run(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, StringVector debug_checks, string ties_method);
 RcppExport SEXP _Colossus_Stress_Run(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP change_allSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP debug_checksSEXP, SEXP ties_methodSEXP) {
@@ -702,6 +736,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// poisson_strata_transition
+List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, IntegerVector KeepConstant, int term_tot, IntegerVector STRATA_vals);
+RcppExport SEXP _Colossus_poisson_strata_transition(SEXP dfeSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type dfe(dfeSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< int >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type STRATA_vals(STRATA_valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(poisson_strata_transition(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, STRATA_vals));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Stress_Test
 void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, StringVector test_point);
 RcppExport SEXP _Colossus_Stress_Test(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP test_pointSEXP) {
@@ -757,9 +814,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// Write_Time_Indep
-void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event, double dt, string filename, StringVector tform, NumericVector tu, bool iscox);
-RcppExport SEXP _Colossus_Write_Time_Indep(SEXP df0_TimesSEXP, SEXP df0_depSEXP, SEXP df0_constSEXP, SEXP df0_eventSEXP, SEXP dtSEXP, SEXP filenameSEXP, SEXP tformSEXP, SEXP tuSEXP, SEXP iscoxSEXP) {
+// Write_Time_Dep
+void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event, double dt, string filename, StringVector tform, NumericVector tu, bool iscox);
+RcppExport SEXP _Colossus_Write_Time_Dep(SEXP df0_TimesSEXP, SEXP df0_depSEXP, SEXP df0_constSEXP, SEXP df0_eventSEXP, SEXP dtSEXP, SEXP filenameSEXP, SEXP tformSEXP, SEXP tuSEXP, SEXP iscoxSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix >::type df0_Times(df0_TimesSEXP);
@@ -771,7 +828,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
     Rcpp::traits::input_parameter< bool >::type iscox(iscoxSEXP);
-    Write_Time_Indep(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform, tu, iscox);
+    Write_Time_Dep(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform, tu, iscox);
     return R_NilValue;
 END_RCPP
 }
@@ -800,6 +857,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Cox_PH_PLOT_RISK", (DL_FUNC) &_Colossus_Cox_PH_PLOT_RISK, 17},
     {"_Colossus_Schoenfeld_Cox_PH", (DL_FUNC) &_Colossus_Schoenfeld_Cox_PH, 17},
     {"_Colossus_LogLik_Poisson", (DL_FUNC) &_Colossus_LogLik_Poisson, 23},
+    {"_Colossus_LogLik_Poisson_STRATA", (DL_FUNC) &_Colossus_LogLik_Poisson_STRATA, 24},
     {"_Colossus_Stress_Run", (DL_FUNC) &_Colossus_Stress_Run, 26},
     {"_Colossus_LogLik_Cox_PH_null", (DL_FUNC) &_Colossus_LogLik_Cox_PH_null, 4},
     {"_Colossus_RISK_SUBSET", (DL_FUNC) &_Colossus_RISK_SUBSET, 10},
@@ -808,10 +866,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_cox_ph_plot", (DL_FUNC) &_Colossus_cox_ph_plot, 16},
     {"_Colossus_cox_ph_schoenfeld_transition", (DL_FUNC) &_Colossus_cox_ph_schoenfeld_transition, 13},
     {"_Colossus_poisson_transition", (DL_FUNC) &_Colossus_poisson_transition, 12},
+    {"_Colossus_poisson_strata_transition", (DL_FUNC) &_Colossus_poisson_strata_transition, 13},
     {"_Colossus_Stress_Test", (DL_FUNC) &_Colossus_Stress_Test, 14},
     {"_Colossus_cox_ph_null", (DL_FUNC) &_Colossus_cox_ph_null, 3},
     {"_Colossus_cox_ph_risk_sub", (DL_FUNC) &_Colossus_cox_ph_risk_sub, 9},
-    {"_Colossus_Write_Time_Indep", (DL_FUNC) &_Colossus_Write_Time_Indep, 9},
+    {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 9},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 1},
     {NULL, NULL, 0}
 };

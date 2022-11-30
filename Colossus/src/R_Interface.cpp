@@ -102,7 +102,7 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
 //' @param tu event times
 //' @param KeepConstant vector of parameters to keep constant
 //' @param term_tot total number of terms
-//' @param     STRATA_vals vector of strata identifier values
+//' @param STRATA_vals vector of strata identifier values
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
@@ -240,6 +240,47 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
     return res;
 }
 
+//' Interface between R code and the poisson regression with strata effect
+//' \code{poisson_strata_transition} Called directly from R, Defines the control variables and calls the regression function with strata effect
+//' @param dfe Matrix with person-year/event count information
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_n starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param der_iden subterm number for derivative tests
+//' @param modelform model string
+//' @param Control control list
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//' @param STRATA_vals vector of strata identifier values
+//'
+//' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+// [[Rcpp::export]]
+List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, IntegerVector STRATA_vals){
+    //----------------------------------------------------------------------------------------------------------------//
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    //
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    double lr = Control["lr"];
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    // calculates the poisson regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, STRATA_vals);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 //' Interface between R code and the Cox PH stress tester
 //' \code{Stress_Test} Called directly from R, Defines the verbosity and tie method variables, Calls the calculation function
 //' @param Term_n Term numbers
@@ -327,7 +368,7 @@ NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericV
 }
 
 //' Generates csv file with time-dependent columns
-//' \code{Write_Time_Indep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
+//' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
 //' @param df0_Times Matrix with (starting time, ending time)
 //' @param df0_dep matrix with pairs of (covariate at start, covariate at end) for each time-dependent covariate
 //' @param df0_const matrix with values that are held constant
@@ -340,7 +381,7 @@ NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericV
 //'
 //' @return saves a dataframe to be used with time-dependent covariate analysis
 // [[Rcpp::export]]
-void Write_Time_Indep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform, NumericVector tu, bool iscox){
+void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform, NumericVector tu, bool iscox){
     const Map<MatrixXd> df_Times(as<Map<MatrixXd> >(df0_Times));
     const Map<MatrixXd> df_dep(as<Map<MatrixXd> >(df0_dep));
     const Map<MatrixXd> df_const(as<Map<MatrixXd> >(df0_const));

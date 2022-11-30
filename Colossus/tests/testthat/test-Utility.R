@@ -23,12 +23,16 @@ test_that("Truncation right column not in df error", {
     df <- data.table("time0"=c(0,1,2,3,4,5,6),"time1"=c(1,2,3,4,5,6,7),"dummy"=c(0,0,1,1,0,1,0))
     expect_error(Check_Trunc(df,c("%trunc%","timebad")))
 })
+test_that("Truncation both sides", {
+    df <- data.table("time0"=c(0,1,2,3,4,5,6),"time1"=c(1,2,3,4,5,6,7),"dummy"=c(0,0,1,1,0,1,0))
+    expect_error(Check_Trunc(df,c("%trunc%","%trunc%")))
+})
 
 
 test_that("No dupe columns", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     expect_equal(Check_Dupe_Columns(df,c("a","b","c","d"),FALSE), c("a","b","c","d"))
@@ -36,7 +40,7 @@ test_that("No dupe columns", {
 test_that("No columns", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     expect_equal(Check_Dupe_Columns(df,c(),FALSE), c())
@@ -44,7 +48,7 @@ test_that("No columns", {
 test_that("One column with varying", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     expect_equal(Check_Dupe_Columns(df,c("a"),FALSE), c("a"))
@@ -52,7 +56,7 @@ test_that("One column with varying", {
 test_that("One column with constant", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     expect_equal(Check_Dupe_Columns(df,c("c"),FALSE), c())
@@ -60,7 +64,7 @@ test_that("One column with constant", {
 test_that("One duplicate column", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d,"e"=a)
     expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","e"),FALSE), c("a","b","c","d"))
@@ -68,7 +72,7 @@ test_that("One duplicate column", {
 test_that("Multiple duplicate columns", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d,"e"=a,"f"=b)
     expect_equal(Check_Dupe_Columns(df,c("a","b","c","e","f"),FALSE), c("a","b","c"))
@@ -76,7 +80,7 @@ test_that("Multiple duplicate columns", {
 test_that("Repeated duplicate columns", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=a,"e"=a,"f"=a)
     expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","f"),FALSE), c("a","b","c"))
@@ -84,7 +88,7 @@ test_that("Repeated duplicate columns", {
 test_that("All but one duplicate column with varying", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=a,"c"=a)
     expect_equal(Check_Dupe_Columns(df,c("a","b","c"),FALSE), c("a"))
@@ -92,7 +96,7 @@ test_that("All but one duplicate column with varying", {
 test_that("All but one duplicate column with constant", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=c,"b"=c,"c"=c)
     expect_equal(Check_Dupe_Columns(df,c("a","b","c"),FALSE), c())
@@ -100,7 +104,7 @@ test_that("All but one duplicate column with constant", {
 test_that("Duplicate with column not in df error", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
+    c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=c,"b"=c,"c"=c)
     expect_error(Check_Dupe_Columns(df,c("a","b","c","e"),FALSE))

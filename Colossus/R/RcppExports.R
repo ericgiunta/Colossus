@@ -482,6 +482,39 @@ LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
     .Call(`_Colossus_LogLik_Poisson`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot)
 }
 
+#' Primary poisson regression function with strata effect
+#' \code{LogLik_Poisson_STRATA} Performs the calls to calculation functions, Structures the poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives, all with strata effects
+#'
+#' @param     PyrC    person-year matrix
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     der_iden    subterm number for derivative tests
+#' @param     modelform    model string
+#' @param     lr    learning rate for newton step toward 0 derivative
+#' @param     maxiter    maximum number of iterations
+#' @param     halfmax    maximum number of half steps
+#' @param     epsilon    minimum acceptable maximum parameter change
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     dose_abs_max    Maximum allowed threshold parameter change
+#' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     change_all    boolean if every parameter is being updated
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     STRATA_vals vector of strata identifier values
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals) {
+    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals)
+}
+
 #' Primary Cox PH stress test function
 #' \code{Stress_Run} Performs the calls to calculation functions, Structures running one iteration of the cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives, Prints out further timestamps within calculation calls
 #'
@@ -585,7 +618,7 @@ cox_ph_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, mod
 #' @param tu event times
 #' @param KeepConstant vector of parameters to keep constant
 #' @param term_tot total number of terms
-#' @param     STRATA_vals vector of strata identifier values
+#' @param STRATA_vals vector of strata identifier values
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 cox_ph_STRATA <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals) {
@@ -657,6 +690,27 @@ poisson_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_ide
     .Call(`_Colossus_poisson_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot)
 }
 
+#' Interface between R code and the poisson regression with strata effect
+#' \code{poisson_strata_transition} Called directly from R, Defines the control variables and calls the regression function with strata effect
+#' @param dfe Matrix with person-year/event count information
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param der_iden subterm number for derivative tests
+#' @param modelform model string
+#' @param Control control list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#' @param STRATA_vals vector of strata identifier values
+#'
+#' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+poisson_strata_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, STRATA_vals) {
+    .Call(`_Colossus_poisson_strata_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, STRATA_vals)
+}
+
 #' Interface between R code and the Cox PH stress tester
 #' \code{Stress_Test} Called directly from R, Defines the verbosity and tie method variables, Calls the calculation function
 #' @param Term_n Term numbers
@@ -708,7 +762,7 @@ cox_ph_risk_sub <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Cont
 }
 
 #' Generates csv file with time-dependent columns
-#' \code{Write_Time_Indep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
+#' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
 #' @param df0_Times Matrix with (starting time, ending time)
 #' @param df0_dep matrix with pairs of (covariate at start, covariate at end) for each time-dependent covariate
 #' @param df0_const matrix with values that are held constant
@@ -720,7 +774,7 @@ cox_ph_risk_sub <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Cont
 #' @param iscox boolean of cox formatting is used
 #'
 #' @return saves a dataframe to be used with time-dependent covariate analysis
-Write_Time_Indep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform, tu, iscox) {
-    invisible(.Call(`_Colossus_Write_Time_Indep`, df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform, tu, iscox))
+Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform, tu, iscox) {
+    invisible(.Call(`_Colossus_Write_Time_Dep`, df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform, tu, iscox))
 }
 

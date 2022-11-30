@@ -120,6 +120,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
     dfc <- match(names,all_names)
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
+#    stop()
     #
     for (fir_KM in 1:length(all_names)){
         if (verbose){
@@ -134,15 +135,17 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
         u_num = length(unlist(unique(df_u[,studyID, with = FALSE]),use.names=FALSE))
         l_num = length(unlist(unique(df_l[,studyID, with = FALSE]),use.names=FALSE))
         #
-        t_u <- c(0)
-        t_l <- c(0)
-        n_u <- c(1)
-        n_l <- c(1)
+        t_u <- c(0,0)
+#        t_l <- c(0)
+        n_u <- c(1,1)
+        iden <- c("above","below")
+#        n_l <- c(1)
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
         #
         if (verbose){
             print("Starting times Plots")
         }
+#        stop()
         #
         for (i in tu[1]:tu[length(tu)]){
             #
@@ -155,29 +158,29 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
                 t_u <- c(t_u,i)
                 temp <- (u_num - u_ev)/u_num
                 n_u <- c(n_u, temp)
+                iden <- c(iden,"above")
             }
             if (l_ev>0){
-                t_l <- c(t_l,i)
                 temp <- (l_num - l_ev)/l_num
-                n_l <- c(n_l, temp)
+                t_u <- c(t_u,i)
+                n_u <- c(n_u, temp)
+                iden <- c(iden,"below")
             }
         }
+#        stop()
 #        jpeg(paste("KM_",fir_KM,"_",Plot_Type[2],".jpg",sep=""), units="in", width=5, height=5, res=1200)
 #        plot(t_u,n_u, xlab=all_names[fir_KM],ylab="Survival Fraction",ylim=c(min(n_l),max(n_u)),col='red',type='l')
 #        lines(t_l,n_l,col='blue')
 #        legend("topright", legend=c("Below Mean", "Above Mean"), col=c("red", "blue"), lty=1:2, cex=0.8,title=all_names[fir_KM])
 #        dev.off()
         #
-        dft <- data.table("t_u"=t_u,"t_l"=t_l,"n_u"=n_u,"n_l"=n_l)
+#        print(iden)
+        dft <- data.table("t_u"=t_u,"n_u"=n_u,"iden"=iden)
         #
-        g <- ggplot2::ggplot() + ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u, color="red"))+ ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u), color="red") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-        g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$t_l, y=.data$n_l, color="blue")) + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$t_l, y=.data$n_l), color="blue")
-        g <- g + ggplot2::scale_color_manual(name = all_names[fir_KM], values = c("Above Mean" = "red", "Below Mean" = "blue"))      
+        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u,color=.data$iden)) + ggplot2::geom_line() + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+        g <- g + ggplot2::scale_color_discrete(name = all_names[fir_KM])
         ggplot2::ggsave(paste("KM_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-        #
-        if (verbose){
-            print("Starting times Plots")
-        }
+#        stop()
         #
         x_all=as.matrix(df_l[,all_names, with = FALSE])
         dfend <- df_l[get(event)==1, ]
@@ -188,25 +191,8 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
         }
         #
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df_l[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
-        t <- c()
-        ch <- c()
-        surv <- c()
-        dt <- 1
-        if (verbose){
-            print("writing survival")
-        }
-        dft=data.table("time"=tu,"base"=e$baseline)
-        for (i in tu[1]:tu[length(tu)]){
-            t <- c(t,i)
-            temp <- sum(dft[time<=i, base])
-            ch <- c(ch, temp)
-            surv <- c(surv, exp(-1*temp))
-        }
-        #
-        Ls <- log(surv)
-        Lls_l <- log(-Ls)
-        Lt_l <- log(t)
+        e0 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df_l[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        tu0 <- tu
         ##
         x_all=as.matrix(df_u[,all_names, with = FALSE])
         dfend <- df_u[get(event)==1, ]
@@ -217,20 +203,28 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
         }
         #
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df_u[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
-        t <- c()
-        ch <- c()
-        surv <- c()
+        e1 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df_u[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        tu1 <- tu
+        tmin <- min(c(min(tu0),min(tu1)))
+        t <- c(tmin,tmin)
+        surv <- c(1,1)
+        iden <- c('below','above')
         dt <- 1
         if (verbose){
             print("writing survival")
         }
-        dft=data.table("time"=tu,"base"=e$baseline)
+        dft0=data.table("time"=tu0,"base"=e0$baseline)
+        dft1=data.table("time"=tu1,"base"=e1$baseline)
+        dfend <- df[get(event)==1, ]
+        tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
         for (i in tu[1]:tu[length(tu)]){
             t <- c(t,i)
-            temp <- sum(dft[time<i, base])
-            ch <- c(ch, temp)
-            surv <- c(surv, exp(-1*temp))
+            t <- c(t,i)
+            temp0 <- sum(dft0[time<i, base])
+            temp1 <- sum(dft1[time<i, base])
+            surv <- c(surv, exp(-1*temp0))
+            surv <- c(surv, exp(-1*temp1))
+            iden <- c(iden,"below","above")
         }
         #
         Ls <- log(surv)
@@ -248,11 +242,11 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
 #        legend("topleft", legend=c("Below Mean", "Above Mean"), col=c("red", "blue"), lty=1:2, cex=0.8,title=all_names[fir_KM])
 #        dev.off()
         #
-        dft <- data.table("Lt_u"=Lt_u,"Lt_l"=Lt_l,"Lls_u"=Lls_u,"Lls_l"=Lls_l)
+        dft <- data.table("t"=Lt_u,"s"=Lls_u,"iden"=iden)
         #
-        g <- ggplot2::ggplot() + ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$Lt_u, y=.data$Lls_u, color="red")) + ggplot2::geom_line(data=dft,ggplot2::aes(x=.data$Lt_u, y=.data$Lls_u), color="red") + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
-        g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$Lt_l, y=.data$Lls_l, color="blue")) + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$Lt_l, y=.data$Lls_l), color="blue")
-        g <- g + ggplot2::scale_color_manual(name = all_names[fir_KM], values = c("Above Mean" = "red", "Below Mean" = "blue")) 
+
+        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s,color=.data$iden)) + ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
+        g <- g + ggplot2::scale_color_discrete(name = all_names[fir_KM]) 
         ggplot2::ggsave(paste("log_log_surv_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
     }
     ;
@@ -438,10 +432,6 @@ CoxStratifiedSurvival <- function(verbose, df, event, time1, time2, names,Term_n
                 }
                 surv <- c(surv, exp(-1*temp))
             }
-        }
-        if (verbose){
-            print("plotting survival data")
-#            print(t)
         }
         tt <- c(tt, t)
         tsurv <- c(tsurv, surv)

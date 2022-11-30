@@ -209,6 +209,11 @@ Check_Dupe_Columns <- function(df,cols,verbose=FALSE){
                     }
                     toRemove <- c(toRemove, f2) # build the list of duplicates
                 }
+                if (min(df[[f2]])==max(df[[f2]])){
+                    if (min(df[[f2]])==0){
+                        toRemove <- c(toRemove, f2) # remove zero values
+                    }
+                }
             }
         }
         newcol <- setdiff(cols, toRemove)
@@ -243,6 +248,10 @@ Check_Dupe_Columns <- function(df,cols,verbose=FALSE){
 #'
 Check_Trunc <- function(df,ce){
     if (ce[1]=="%trunc%"){
+        if (ce[2]=="%trunc%"){
+            print("Both endpoints are truncated, not acceptable")
+            stop()
+        }
         tname <- ce[2]
         tmin <- min(df[,get(tname)])-1
         if (!("right_trunc" %in% names(df))){
@@ -302,6 +311,16 @@ gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols
     dfn_event <- c(event)
     dfn_same <- dfn_same[!(dfn_same %in% dfn_time)]
     dfn_same <- dfn_same[!(dfn_same %in% dfn_event)]
+    ##
+    dfend <- df[get(event)==1, ]
+    tu <- sort(unlist(unique(dfend[,time1, with = FALSE]), use.names=FALSE))
+    if (iscox){
+        #
+        df <- df[get(time1)>=min(tu),]
+        df <- df[get(time0)<=max(tu),]
+        #
+    }
+    ##
     x_time = as.matrix(df[,dfn_time, with = FALSE])
     x_dep = as.matrix(df[,dfn_dep, with = FALSE])
     x_same = as.matrix(df[,dfn_same, with = FALSE])
@@ -312,11 +331,7 @@ gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols
     } else {
         fname <- paste(fname,".csv",sep="_")
     }
-    #
-    dfend <- df[get(event)==1, ]
-    tu <- sort(unlist(unique(dfend[,time1, with = FALSE]), use.names=FALSE))
-    #
-    Write_Time_Indep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox)
+    Write_Time_Dep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox)
     df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time0,time1,new_names,dfn_same,event))
     setkeyv(df_new, c(time1, event))
     return (df_new)
@@ -351,7 +366,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
 #' \code{Time_Since} generates a new dataframe with a column containing time since a reference in a given unit
 #'
 #' @param df dataframe of data to use as reference
-#' @param dcol0 list of starting month, day, and year
+#' @param dcol0 list of ending month, day, and year
 #' @param tref reference time in date format
 #' @param col_name new column name
 #' @param units time unit to use

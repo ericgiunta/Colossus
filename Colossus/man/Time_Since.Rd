@@ -10,7 +10,7 @@ Time_Since(df, dcol0, tref, col_name, units = "days")
 \arguments{
 \item{df}{dataframe of data to use as reference}
 
-\item{dcol0}{list of starting month, day, and year}
+\item{dcol0}{list of ending month, day, and year}
 
 \item{tref}{reference time in date format}
 
