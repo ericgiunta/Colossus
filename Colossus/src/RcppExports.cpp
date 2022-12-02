@@ -516,8 +516,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // LogLik_Poisson_STRATA
-List LogLik_Poisson_STRATA(MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, int double_step, bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, IntegerVector& STRATA_vals);
-RcppExport SEXP _Colossus_LogLik_Poisson_STRATA(SEXP PyrCSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP double_stepSEXP, SEXP change_allSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP) {
+List LogLik_Poisson_STRATA(MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, int double_step, bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, IntegerVector& STRATA_vals, bool keep_strata);
+RcppExport SEXP _Colossus_LogLik_Poisson_STRATA(SEXP PyrCSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP double_stepSEXP, SEXP change_allSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP, SEXP keep_strataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -545,7 +545,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
     Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Poisson_STRATA(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals));
+    Rcpp::traits::input_parameter< bool >::type keep_strata(keep_strataSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Poisson_STRATA(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -857,7 +858,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Cox_PH_PLOT_RISK", (DL_FUNC) &_Colossus_Cox_PH_PLOT_RISK, 17},
     {"_Colossus_Schoenfeld_Cox_PH", (DL_FUNC) &_Colossus_Schoenfeld_Cox_PH, 17},
     {"_Colossus_LogLik_Poisson", (DL_FUNC) &_Colossus_LogLik_Poisson, 23},
-    {"_Colossus_LogLik_Poisson_STRATA", (DL_FUNC) &_Colossus_LogLik_Poisson_STRATA, 24},
+    {"_Colossus_LogLik_Poisson_STRATA", (DL_FUNC) &_Colossus_LogLik_Poisson_STRATA, 25},
     {"_Colossus_Stress_Run", (DL_FUNC) &_Colossus_Stress_Run, 26},
     {"_Colossus_LogLik_Cox_PH_null", (DL_FUNC) &_Colossus_LogLik_Cox_PH_null, 4},
     {"_Colossus_RISK_SUBSET", (DL_FUNC) &_Colossus_RISK_SUBSET, 10},

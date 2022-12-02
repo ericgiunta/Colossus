@@ -509,10 +509,11 @@ LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
 #' @param     STRATA_vals vector of strata identifier values
+#' @param     keep_strata boolean to return the strata parameter values
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals) {
-    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals)
+LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata) {
+    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata)
 }
 
 #' Primary Cox PH stress test function

@@ -29,7 +29,8 @@ LogLik_Poisson_STRATA(
   debugging,
   KeepConstant,
   term_tot,
-  STRATA_vals
+  STRATA_vals,
+  keep_strata
 )
 }
 \arguments{
@@ -80,6 +81,8 @@ LogLik_Poisson_STRATA(
 \item{term_tot}{total number of terms}
 
 \item{STRATA_vals}{vector of strata identifier values}
+
+\item{keep_strata}{boolean to return the strata parameter values}
 }
 \value{
 List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information

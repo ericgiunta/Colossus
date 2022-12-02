@@ -866,14 +866,57 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     //
     List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform); //stores the term information
     List control_list = List::create(_["Iteration"]=iteration); //stores the total number of iterations used
-    NumericVector Lldd_vec = wrap(Lldd);//
-    Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
     //
+    int kept_covs = totalnum - sum(KeepConstant);
+    NumericVector Lldd_vec(kept_covs * kept_covs);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        int pij_ind=-100;
+        int pjk_ind=-100;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        if (KeepConstant[ij]==0){
+            pij_ind = ij - sum(head(KeepConstant,ij));
+            if (KeepConstant[jk]==0){
+                pjk_ind = jk - sum(head(KeepConstant,jk));
+                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
+            }
+        }
+//                Rcout << "(" << ij <<"," << jk << ") (" << pij_ind << "," << pjk_ind << ") (" << KeepConstant[ij] << "," << KeepConstant[jk] << ") " << Lldd[ij*totalnum+jk] << endl;
+    }
+    for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+    }
+    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
     MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            stdev(ij) = sqrt(Lldd_inv(pij_ind,pij_ind));
+        }
+    }
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+//    NumericVector Lldd_vec = wrap(Lldd);//
+//    Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+//    //
+//    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//    //
+//    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    //
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -1194,7 +1237,6 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     vector<double> beta_best(totalnum,0.0);
     vector<double> beta_p(totalnum,0.0);
     //
-    Rcout << totalnum << " " << beta_0.size() << endl;
     //
     int risk_check_iter=0;
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
@@ -1603,14 +1645,57 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     //
     List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform); //stores the term information
     List control_list = List::create(_["Iteration"]=iteration); //stores the total number of iterations used
-    NumericVector Lldd_vec = wrap(Lldd);//
-    Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
     //
+    int kept_covs = totalnum - sum(KeepConstant);
+    NumericVector Lldd_vec(kept_covs * kept_covs);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        int pij_ind=-100;
+        int pjk_ind=-100;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        if (KeepConstant[ij]==0){
+            pij_ind = ij - sum(head(KeepConstant,ij));
+            if (KeepConstant[jk]==0){
+                pjk_ind = jk - sum(head(KeepConstant,jk));
+                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
+            }
+        }
+//                Rcout << "(" << ij <<"," << jk << ") (" << pij_ind << "," << pjk_ind << ") (" << KeepConstant[ij] << "," << KeepConstant[jk] << ") " << Lldd[ij*totalnum+jk] << endl;
+    }
+    for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+    }
+    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
     MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            stdev(ij) = sqrt(Lldd_inv(pij_ind,pij_ind));
+        }
+    }
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+//    NumericVector Lldd_vec = wrap(Lldd);//
+//    Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+//    //
+//    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//    //
+//    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    //
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -2956,14 +3041,57 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     // Changes the parameter back into the original form
     List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform);
     List control_list = List::create(_["Iteration"]=iteration);
-    NumericVector Lldd_vec = wrap(Lldd);//creates list of dose parameters
-    Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
     //
+    int kept_covs = totalnum - sum(KeepConstant);
+    NumericVector Lldd_vec(kept_covs * kept_covs);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        int pij_ind=-100;
+        int pjk_ind=-100;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        if (KeepConstant[ij]==0){
+            pij_ind = ij - sum(head(KeepConstant,ij));
+            if (KeepConstant[jk]==0){
+                pjk_ind = jk - sum(head(KeepConstant,jk));
+                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
+            }
+        }
+//                Rcout << "(" << ij <<"," << jk << ") (" << pij_ind << "," << pjk_ind << ") (" << KeepConstant[ij] << "," << KeepConstant[jk] << ") " << Lldd[ij*totalnum+jk] << endl;
+    }
+    for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+    }
+    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
     MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            stdev(ij) = sqrt(Lldd_inv(pij_ind,pij_ind));
+        }
+    }
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+//    NumericVector Lldd_vec = wrap(Lldd);//creates list of dose parameters
+//    Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+//    //
+//    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//    //
+//    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    //
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -2995,10 +3123,11 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     term_tot    total number of terms
 //' @param     STRATA_vals vector of strata identifier values
+//' @param     keep_strata boolean to return the strata parameter values
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 // [[Rcpp::export]]
-List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, IntegerVector& STRATA_vals){
+List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, IntegerVector& STRATA_vals, bool keep_strata){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -3031,6 +3160,11 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         Rcout << "Term checked ";
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Term_n[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "Constant checked ";
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << KeepConstant[ij] << " ";
         }
         Rcout << " " << endl;
     }
@@ -3235,7 +3369,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             Rcout << beta_0[ij] << " ";
         }
         Rcout << " " << endl;
-        Rcout << "Checking Deviance " << dev << endl;
+        Rcout << "Checking Best Deviance " << dev << endl;
         Rcout << "df105 ";
         for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero derivative
             Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
@@ -3640,7 +3774,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
                 Rcout << beta_c[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "Checking Deviance " << dev << endl;
+            Rcout << "Checking Best Deviance " << dev << endl;
             Rcout << "Finshed iteration" << endl;
             Rcout << "df105 ";
             for (int ij=0;ij<totalnum;ij++){
@@ -3709,11 +3843,14 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         }
         Rcout << " " << endl;
         Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
-        Rcout << "Checking Deviance " << dev << endl;
+        Rcout << "Checking Best Deviance " << dev << endl;
         Rcout << "Finshed iteration" << endl;
     }
     // Account for the strata parameters
     int true_totalnum = totalnum - STRATA_vals.length();
+    if (keep_strata){
+        true_totalnum = totalnum;
+    }
     //
     // Changes the parameter back into the original form
     List para_list = List::create(_["Term_n"]=head(Term_n,true_totalnum),_["tforms"]=head(tform,true_totalnum));

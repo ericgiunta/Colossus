@@ -60,6 +60,204 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
     return (e)
 }
 
+#' Performs basic Cox Proportional Hazards regression, Allows for multiple starting guesses
+#' \code{RunCoxRegression_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param Term_n term numbers for each element of the model
+#' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param modelform string specifying the model type
+#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
+#' @param control list of parameters controlling the convergence
+#' @param guesses_control list of parameters to control how the guessing works
+#' @param Strat_Col column to stratify by if needed
+#'
+#' @return returns a list of the final results
+#' @export
+#'
+#' @importFrom rlang .data
+RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", event="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1), guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform","loglin_method"="uniform",stata=FALSE),Strat_Col='cell'){
+    if (guesses_control$stata==FALSE){
+        setkeyv(df, c(time2, event))
+        dfend <- df[get(event)==1, ]
+        tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+        if (length(tu)==0){
+            if (control$verbose){
+                print("no events")
+            }
+            stop()
+        }
+        if (control$verbose){
+            print(paste(length(tu)," risk groups",sep=""))
+        }
+        all_names <- unique(names)
+        dfc <- match(names,all_names)
+
+        term_tot <- max(Term_n)+1
+        x_all=as.matrix(df[,all_names, with = FALSE])
+        ce <- c(time1,time2,event)
+        #
+        t_check <- Check_Trunc(df,ce)
+        df <- t_check$df
+        ce <- t_check$ce
+        #
+        if (length(a_n)<length(names)){
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+            a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        } else if (length(a_n)>length(names)){
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        #
+        iteration0 <- control$maxiter
+        control$maxiter <- guesses_control$Iterations
+        #
+        df_res <- data.table()
+        e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+#        print(e$beta_0)
+        for (i in 1:length(e$beta_0)){
+            df_res[,paste(i):=e$beta_0[i]]
+#            print(df_res)
+        }
+        df_res[,paste(length(e$beta_0)+1):=e$LogLik]
+        for (it in 1:guesses_control$guesses){
+            for (i in 1:length(tform)){
+                if ("log" %in% tform[i]){
+                    if (guesses_control$loglin_method == "uniform"){
+                        a_n[i] <- runif(1,min=guesses_control$loglin_min,max=guesses_control$loglin_max)
+                    } else {
+                        print("bad")
+                        stop()
+                    }
+                } else {
+                    if (guesses_control$lin_method == "uniform"){
+                        a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max)
+                    } else {
+                        print("bad")
+                        stop()
+                    }
+                }
+            }
+            df_res0 <- data.table()
+            e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+            for (i in 1:length(e$beta_0)){
+                df_res0[,paste(i):=e$beta_0[i]]
+            }
+            df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
+            df_res <- rbindlist(list(df_res, df_res0)) 
+            
+        }
+        print(df_res)
+#        stop()
+        a_n_ind <- which.max(df_res[,get(paste(length(e$beta_0)+1))])
+#        print(a_n_ind)
+#        stop()
+        a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[1:length(a_n)]
+        #
+        control$maxiter <- iteration0
+        a_n0 <- copy(a_n)
+        control <- Def_Control(control)
+        e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+        a_n <- a_n0
+        ;
+        return (e)
+    } else {
+        setkeyv(df, c(time2, event, Strat_Col))
+        dfend <- df[get(event)==1, ]
+        #
+        ce <- c(time1,time2,event,Strat_Col)
+        all_names <- unique(names)
+        dfc <- match(names,all_names)
+
+        term_tot <- max(Term_n)+1
+        x_all=as.matrix(df[,all_names, with = FALSE])
+        #
+        tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+        if (length(tu)==0){
+            if (control$verbose){
+                print("no events")
+            }
+            stop()
+        }
+        if (control$verbose){
+            print(paste(length(tu)," risk groups",sep=""))
+        }
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        #
+        for (i in 1:length(uniq)){
+            df0 <- dfend[get(Strat_Col)==uniq[i],]
+            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+            if (length(tu0)==0){
+                if (control$verbose){
+                    print(paste("no events for strata group:",uniq[i],sep=" "))
+                }
+                stop()
+            }
+        }
+        #
+        t_check <- Check_Trunc(df,ce)
+        df <- t_check$df
+        ce <- t_check$ce
+        #
+        control <- Def_Control(control)
+        #
+        iteration0 <- control$maxiter
+        control$maxiter <- guesses_control$Iterations
+        #
+        df_res <- data.table()
+        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+#        print(e$beta_0)
+        for (i in 1:length(e$beta_0)){
+            df_res[,paste(i):=e$beta_0[i]]
+#            print(df_res)
+        }
+        df_res[,paste(length(e$beta_0)+1):=e$LogLik]
+        for (it in 1:guesses_control$guesses){
+            for (i in 1:length(tform)){
+                if ("log" %in% tform[i]){
+                    if (guesses_control$loglin_method == "uniform"){
+                        a_n[i] <- runif(1,min=guesses_control$loglin_min,max=guesses_control$loglin_max)
+                    } else {
+                        print("bad")
+                        stop()
+                    }
+                } else {
+                    if (guesses_control$lin_method == "uniform"){
+                        a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max)
+                    } else {
+                        print("bad")
+                        stop()
+                    }
+                }
+            }
+            df_res0 <- data.table()
+            e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+            for (i in 1:length(e$beta_0)){
+                df_res0[,paste(i):=e$beta_0[i]]
+            }
+            df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
+            df_res <- rbindlist(list(df_res, df_res0)) 
+            
+        }
+        print(df_res)
+        #
+        a_n_ind <- which.max(df_res[,get(paste(length(e$beta_0)+1))])
+#        print(a_n_ind)
+#        stop()
+        a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[1:length(a_n)]
+        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+        return (e)
+    }
+    return (NULL)
+}
+
 #' Performs basic Cox Proportional Hazards regression with strata effect
 #' \code{RunCoxRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'

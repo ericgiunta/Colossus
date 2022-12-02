@@ -263,6 +263,7 @@ List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVe
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     //
     bool change_all = Control["change_all"];
+    bool keep_strata = Control["keep_strata"];
     int double_step = Control["double_step"];
     double lr = Control["lr"];
     int maxiter = Control["maxiter"];
@@ -276,7 +277,7 @@ List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVe
     bool debugging = FALSE;
     // calculates the poisson regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, STRATA_vals);
+    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, STRATA_vals,keep_strata);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
