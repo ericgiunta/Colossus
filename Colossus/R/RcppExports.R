@@ -58,6 +58,21 @@ Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose
     invisible(.Call(`_Colossus_Make_Subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, nthreads, debugging))
 }
 
+#' Utility function to calculate the term and subterm values with the basic model
+#' \code{Make_Subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+#' @param     totalnum    Total number of terms
+#' @param     dfc    covariate column numbers
+#' @param     T0    subterm values
+#' @param     beta_0    parameter list
+#' @param     df0    covariate matrix
+#' @param     nthreads    number of threads to use
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: Sub-term matrices, Term matrices
+Make_Subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Make_Subterms_Basic`, totalnum, dfc, T0, beta_0, df0, nthreads, debugging))
+}
+
 #' Utility function to calculate the risk and risk ratios
 #' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
 #' @param     modelform    Model string
@@ -86,6 +101,25 @@ Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose
 #' @return Updates matrices in place: Risk, Risk ratios
 Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging) {
     invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging))
+}
+
+#' Utility function to calculate the risk and risk ratios for the basic model
+#' \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
+#' @param     totalnum    total number of terms
+#' @param     T0    Term by subterm matrix
+#' @param     R    Risk matrix
+#' @param     Rd    Risk first derivative matrix
+#' @param     Rdd    Risk second derivative matrix
+#' @param     RdR    Risk to first derivative ratio matrix
+#' @param     RddR    Risk to second derivative ratio matrix
+#' @param     nthreads    number of threads to use
+#' @param     debugging    debugging boolean
+#' @param     df0    covariate matrix
+#' @param     dfc    covariate column numbers
+#'
+#' @return Updates matrices in place: Risk, Risk ratios
+Make_Risks_Basic <- function(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging, df0, dfc) {
+    invisible(.Call(`_Colossus_Make_Risks_Basic`, totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging, df0, dfc))
 }
 
 #' Utility function to define risk groups
@@ -271,6 +305,28 @@ Calc_Change <- function(double_step, nthreads, totalnum, fir, der_iden, dbeta_ca
     invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging))
 }
 
+#' Utility function to calculate the change to make each iteration, with basic model
+#' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations    
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     nthreads    number of threads
+#' @param     totalnum    total number of parameter
+#' @param     der_iden    subterm number for derivative tests
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     lr    learning rate fo newton step toward 0 derivative
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     Ll    Log-Likelihood
+#' @param     Lld    Log-Likelihood first derivative
+#' @param     Lldd    Log-Likelihood second derivative
+#' @param     dbeta    parameter change vector
+#' @param     change_all    boolean to change every parameter
+#' @param     KeepConstant    vector of parameters to keep constant
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: parameter change matrix
+Calc_Change_Basic <- function(double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_Basic`, double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging))
+}
+
 #' Utility function to perform null model equivalent of Calculate_Sides
 #' \code{Calculate_Null_Sides} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
 #' @param     RiskFail    Matrix of event rows for each event time
@@ -335,6 +391,35 @@ Calc_Null_LogLik <- function(nthreads, RiskFail, RiskGroup, ntime, R, Rls1, Lls1
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 LogLik_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method) {
     .Call(`_Colossus_LogLik_Cox_PH`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method)
+}
+
+#' Primary Cox PH regression with basic model
+#' \code{LogLik_Cox_PH_basic} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     der_iden    subterm number for derivative tests
+#' @param     lr    learning rate for newton step toward 0 derivative
+#' @param     maxiter    maximum number of iterations
+#' @param     halfmax    maximum number of half steps
+#' @param     epsilon    minimum acceptable maximum parameter change
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     dose_abs_max    Maximum allowed threshold parameter change
+#' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     change_all    boolean if every parameter is being updated
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     ties_method    ties method
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Cox_PH_basic <- function(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method) {
+    .Call(`_Colossus_LogLik_Cox_PH_basic`, a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method)
 }
 
 #' Primary Cox PH regression with STRATA effect
@@ -602,6 +687,22 @@ RISK_SUBSET <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose,
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 cox_ph_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot) {
     .Call(`_Colossus_cox_ph_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot)
+}
+
+#' Interface between R code and the Cox PH regression for basic model
+#' \code{cox_ph_transition_basic} Called directly from R, Defines the control variables and calls the regression function
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param der_iden subterm number for derivative tests
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param KeepConstant vector of parameters to keep constant
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+cox_ph_transition_basic <- function(a_n, dfc, x_all, der_iden, Control, df_groups, tu, KeepConstant) {
+    .Call(`_Colossus_cox_ph_transition_basic`, a_n, dfc, x_all, der_iden, Control, df_groups, tu, KeepConstant)
 }
 
 #' Interface between R code and the Cox PH regression with STRATA

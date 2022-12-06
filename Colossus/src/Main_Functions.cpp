@@ -398,7 +398,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     vector<double> beta_a(totalnum,0.0);
     vector<double> beta_best(totalnum,0.0);
     vector<double> beta_p(totalnum,0.0);
-    int risk_check_iter=0;
+    //int //risk_check_iter=0;
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
@@ -406,7 +406,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     double Ll_best = 0.0; //a comparison log-likelihood
     double halves = 0; //number of half-steps taken
     int ind0 = fir; //used for validations
-    int i = ind0;
+    //int //i = ind0;
     int iteration=0; //iteration number
     //
     int iter_stop =0;
@@ -424,7 +424,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
         }
         //
         Ll_best = Ll[ind0];
-        i = ind0;
+        //i = ind0;
         //
         halves=0;
         Lld_comp[0] = vec_norm(Lld, totalnum);
@@ -722,7 +722,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             RddR = (RddR.array().isFinite()).select(RddR,0);
             //
             temp_list = List::create(_["betas"]=wrap(beta_0),_["Status"]="FAILED"); //used as a dummy return value for code checking
-            risk_check_iter=0;
+            //risk_check_iter=0;
             if (verbose){
                 Rcout << "risk checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -916,7 +916,745 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
 //    //
 //    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    // returns a list of results
+    return res_list;
+}
+
+//' Primary Cox PH regression with basic model
+//' \code{LogLik_Cox_PH_basic} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+//'
+//' @param     a_n    starting values
+//' @param     x_all    covariate matrix
+//' @param     dfc    covariate column numbers
+//' @param     der_iden    subterm number for derivative tests
+//' @param     lr    learning rate for newton step toward 0 derivative
+//' @param     maxiter    maximum number of iterations
+//' @param     halfmax    maximum number of half steps
+//' @param     epsilon    minimum acceptable maximum parameter change
+//' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+//' @param     abs_max    Maximum allowed parameter change
+//' @param     dose_abs_max    Maximum allowed threshold parameter change
+//' @param     deriv_epsilon    threshold for near-zero derivative
+//' @param     df_groups    matrix with time and event information
+//' @param     tu    event times
+//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+//' @param     change_all    boolean if every parameter is being updated
+//' @param     verbose    verbosity boolean
+//' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
+//' @param     ties_method    ties method
+//'
+//' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector dfc, int der_iden, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, string ties_method){
+    ;
+    //
+    List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
+    if (verbose){
+        Rcout << "START_NEW" << endl;
+    }
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //
+    auto gibtime = system_clock::to_time_t(system_clock::now());
+    if (verbose){
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // Time durations are measured from this point on in microseconds
+    //
+    // df0: covariate data
+    // ntime: number of event times for Cox PH
+    // totalnum: number of terms used
+    //
+    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    int ntime = tu.size();
+    //
+    int totalnum = a_n.size();
+    //
+    // cout.precision: controls the number of significant digits printed
+    // nthreads: number of threads used for parallel operations
+    //
+    Rcout.precision(7); //forces higher precision numbers printed to terminal
+    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    //
+    //
+    // Lld_worst: stores the highest magnitude log-likelihood derivative
+    // totem: number of rows needed
+    //
+    //
+    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Starting"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    // ---------------------------------------------
+    // To Start, needs to seperate the derivative terms
+    // ---------------------------------------------
+    //
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+    //
+    MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
+    MatrixXd Rd = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk derivatives
+    MatrixXd Rdd = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Risk second derivatives
+    //
+    //
+    // Calculates the subterm and term values
+    Make_Subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
+    // ---------------------------------------------------------
+    // Prints off a series of calculations to check at what point values are changing
+    // ---------------------------------------------------------
+    //
+    //
+    if (verbose){
+        Rcout << "values checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "sums checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << T0.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    MatrixXd RdR = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk to derivative ratios
+    MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Risk to second derivative ratios
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // Calculates the risk for each row
+    Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging,df0,dfc);
+    //
+    // Removes infinite values
+    RdR = (RdR.array().isFinite()).select(RdR,0);
+    RddR = (RddR.array().isFinite()).select(RddR,0);
+    //
+    if (R.minCoeff()<=0){
+        Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
+        Rcout << "final failing values ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        return temp_list;
+    }
+    //
+    if (verbose){
+        Rcout << "risk checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << R.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk1 checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rd.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk2 checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        //
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // -------------------------------------------------------------------------------------------
+    //
+    vector<string>  RiskGroup(ntime); //vector of strings detailing the rows
+    IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
+    //
+    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    // Creates matrices used to identify the event risk groups
+    Make_Groups( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging);
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_List"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // --------------------------
+    // now a vector exists with row locations
+    // --------------------------
+    //
+    MatrixXd Rls1 =MatrixXd::Zero(ntime, 1); //precomputes a series of sums used frequently in the log-liklihood calculations
+    MatrixXd Rls2 =MatrixXd::Zero(ntime, totalnum); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
+    MatrixXd Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2); //Sum and its derivatives are precomputed
+    MatrixXd Lls1 =MatrixXd::Zero(ntime, 1); //The log-likelihood calculation has a Right and Left sum used
+    MatrixXd Lls2 =MatrixXd::Zero(ntime, totalnum);
+    MatrixXd Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+    //The log-likelihood is calculated in parallel over the risk groups
+    vector<double> Ll(totalnum,0.0); //Log-likelihood values
+    vector<double> Lld(totalnum,0.0); //Log-likelihood derivative values
+    vector<double> Lldd(pow(totalnum,2),0.0);//The second derivative matrix has room for every combination, but only the lower triangle is calculated initially
+    //
+    if (verbose){
+        Rcout << "Made Risk Side Lists" << endl;
+    }
+    // Calculates the side sum terms used
+    Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
+    //
+    //
+    if (verbose){
+        Rcout << "riskr checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rls1.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk1r checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rls2.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk2r checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        //
+        Rcout << "riskl checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Lls1.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk1l checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Lls2.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk2l checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    // Calculates log-likelihood
+    Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+    //
+    vector <double> Ll_comp(2,Ll[0]); //vector to compare values
+    vector <double> Lld_comp(2, vec_norm(Lld, totalnum));
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+        Rcout << "df101 ";//prints the log-likelihoods
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Ll[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df102 ";//prints the first derivatives
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Lld[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df103 ";//prints the second derivatives
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Lldd[ij*totalnum+ij] << " ";
+        }
+        for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
+            if (abs(Lld[ij]) > Lld_worst){
+                Lld_worst = abs(Lld[ij]);
+            }
+        }
+        Rcout << " " << endl;
+        Rcout << "df104 ";//prints parameter values
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << beta_0[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df105 ";
+        for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero derivative
+            Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df106 ";
+        for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero log-likelihood
+            Rcout << Ll[ij]/Lld[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+    }
+    //
+    vector<double> dbeta(totalnum,0.0);
+    //
+    // --------------------------
+    // always starts from intial guess
+    // --------------------------
+    vector<double> beta_c(totalnum,0.0);
+    vector<double> beta_a(totalnum,0.0);
+    vector<double> beta_best(totalnum,0.0);
+    vector<double> beta_p(totalnum,0.0);
+    //int //risk_check_iter=0;
+    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
+    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
+    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
+    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;// stores the best parameters
+    double Ll_best = 0.0; //a comparison log-likelihood
+    double halves = 0; //number of half-steps taken
+    int ind0 = 0; //used for validations
+    //int //i = ind0;
+    int iteration=0; //iteration number
+    //
+    int iter_stop =0;
+    //
+    while ((iteration < maxiter)&&(iter_stop==0)){
+        iteration++;
+        beta_p = beta_c;//
+        beta_a = beta_c;//
+        beta_best = beta_c;//
+        //
+        // Calcualtes the initial change in parameter
+        Calc_Change_Basic( double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
+        if (verbose){
+            Rcout << "Starting Halves"<<endl;//prints the final changes for validation
+        }
+        //
+        Ll_best = Ll[ind0];
+        //i = ind0;
+        //
+        halves=0;
+        Lld_comp[0] = vec_norm(Lld, totalnum);
+        Lld_comp[1] = vec_norm(Lld, totalnum);
+        while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
+//            beta_p = beta_c;//
+//            beta_a = beta_c;//
+            //Refreshes the matrices used
+            T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+            for (int ij=0;ij<totalnum;ij++){
+                beta_0[ij] = beta_a[ij] + dbeta[ij];
+                beta_c[ij] = beta_0[ij];
+            }
+            // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+            // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+            // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+            Make_Subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
+            if (verbose){
+                Rcout << "values checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << beta_c[ijk] << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "sums checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << T0.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            RdR = MatrixXd::Zero(df0.rows(), totalnum);
+            RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
+            //
+            //
+            Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging,df0,dfc);
+            //
+            halves++;
+            RdR = (RdR.array().isFinite()).select(RdR,0);
+            RddR = (RddR.array().isFinite()).select(RddR,0);
+            //
+            if (verbose){
+                Rcout << "risk checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << R.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1 checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rd.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2 checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_R"<<endl;
+                //
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
+            }
+            fill(Ll.begin(), Ll.end(), 0.0);
+            fill(Lld.begin(), Lld.end(), 0.0);
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+            Rls1 =MatrixXd::Zero(ntime, 1); //precomputes a series of sums used frequently in the log-liklihood calculations
+            Rls2 =MatrixXd::Zero(ntime, totalnum); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
+            Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+            Lls1 =MatrixXd::Zero(ntime, 1);
+            Lls2 =MatrixXd::Zero(ntime, totalnum);
+            Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+            Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
+            //
+            if (verbose){
+                Rcout << "riskr checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls1.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1r checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls2.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2r checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                //
+                //
+                Rcout << "riskl checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls1.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1l checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls2.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2l checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+            
+            if (change_all){ //If every covariate is to be changed
+                if (Ll[ind0] <= Ll_best){//takes a half-step if needed
+                    #pragma omp parallel for num_threads(nthreads)
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                    }
+                    Lld_comp[1] = vec_norm(Lld, totalnum);
+                } else{//If improved, updates the best vector
+                    #pragma omp parallel for num_threads(nthreads)
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        beta_best[ijk] = beta_c[ijk];
+                    }
+                }
+            } else {//For validation, the step is always carried over
+                //used if a single parameter is being changed
+                #pragma omp parallel for num_threads(nthreads)
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    beta_best[ijk] = beta_c[ijk];
+                }
+            }
+            if (verbose){
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
+                Rcout << "df101 ";
+                for (int ij=0;ij<totalnum;ij++){
+                    Rcout << Ll[ij] << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "df102 ";
+                for (int ij=0;ij<totalnum;ij++){
+                    Rcout << Lld[ij] << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "df103 ";
+                for (int ij=0;ij<totalnum;ij++){
+                    Rcout << Lldd[ij*totalnum+ij] << " ";
+                }
+                for (int ij=0;ij<totalnum;ij++){
+                    if (abs(Lld[ij]) > Lld_worst){
+                        Lld_worst = abs(Lld[ij]);
+                    }
+                }
+                Rcout << " " << endl;
+                Rcout << "df104 ";
+                for (int ij=0;ij<totalnum;ij++){
+                    Rcout << beta_c[ij] << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "df105 ";
+                for (int ij=0;ij<totalnum;ij++){
+                    Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "df106 ";
+                for (int ij=0;ij<totalnum;ij++){
+                    Rcout << Ll[ij]/Lld[ij] << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+            }
+            #pragma omp parallel for num_threads(nthreads)
+            for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                beta_0[ijk] = beta_c[ijk];
+            }
+        }
+        if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
+            if (verbose){
+                Rcout << "Changing back to best"<<endl;
+            }
+            // If it goes through every half step without improvement, then the maximum change needs to be decreased
+            abs_max = abs_max*pow(0.75,halfmax); // reduces the step sizes
+            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            //
+            beta_p = beta_best;//
+            beta_a = beta_best;//
+            beta_c = beta_best;//
+            for (int ij=0;ij<totalnum;ij++){
+                beta_0[ij] = beta_best[ij];
+            }
+            Make_Subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
+            if (verbose){
+                Rcout << "values checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << beta_c[ijk] << " ";
+                }
+                Rcout << " " << endl;
+                //
+                //
+                Rcout << "sums checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << T0.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            RdR = MatrixXd::Zero(df0.rows(), totalnum);
+            RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
+            //
+            //
+            Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging,df0,dfc);
+            R = (R.array().isFinite()).select(R,0);
+            Rd = (Rd.array().isFinite()).select(Rd,0);
+            Rdd = (Rdd.array().isFinite()).select(Rdd,0);
+            RdR = (RdR.array().isFinite()).select(RdR,0);
+            RddR = (RddR.array().isFinite()).select(RddR,0);
+            //
+            temp_list = List::create(_["betas"]=wrap(beta_0),_["Status"]="FAILED"); //used as a dummy return value for code checking
+            //risk_check_iter=0;
+            if (verbose){
+                Rcout << "risk checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << R.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1 checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rd.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2 checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_R"<<endl;
+                //
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
+            }
+            fill(Ll.begin(), Ll.end(), 0.0);
+            fill(Lld.begin(), Lld.end(), 0.0);
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+            Rls1 =MatrixXd::Zero(ntime, 1); //precomputes a series of sums used frequently in the log-liklihood calculations
+            Rls2 =MatrixXd::Zero(ntime, totalnum); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
+            Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+            Lls1 =MatrixXd::Zero(ntime, 1);
+            Lls2 =MatrixXd::Zero(ntime, totalnum);
+            Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+            Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
+            //
+            if (verbose){
+                Rcout << "riskr checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls1.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1r checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls2.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2r checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                //
+                //
+                Rcout << "riskl checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls1.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1l checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls2.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2l checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+        }
+        for (int ij=0;ij<totalnum;ij++){
+            if (abs(Lld[ij]) > Lld_worst){
+                Lld_worst = abs(Lld[ij]);
+            }
+        }
+        if (iteration > totalnum){//Doesn't check the first several iterations for convergence
+            if (iteration % (2*totalnum)){//Checks every set number of iterations
+                if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
+                    iter_stop = 1;
+                }
+                Ll_comp[1]=Ll[0];
+                if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
+                    iter_stop = 1;
+                }
+            }
+        }
+        if (verbose){
+            end_point = system_clock::now();
+            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+            Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Recalc"<<endl;
+            gibtime = system_clock::to_time_t(system_clock::now());
+            Rcout << ctime(&gibtime) << endl;
+            Rcout << "df101 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << Ll[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df102 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << Lld[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df103 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << Lldd[ij*totalnum+ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df104 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << beta_c[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df105 ";
+            for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero derivative
+                Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df106 ";
+            for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero log-likelihood
+                Rcout << Ll[ij]/Lld[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+            Rcout << "Finshed iteration" << endl;
+        }
+    }
+    // -----------------------------------------------
+    // Performing Full Calculation to get full second derivative matrix
+    // -----------------------------------------------
+    fill(Ll.begin(), Ll.end(), 0.0);
+    fill(Lld.begin(), Lld.end(), 0.0);
+    fill(Lldd.begin(), Lldd.end(), 0.0);
+    Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
+    //
+    if (verbose){
+        Rcout << "Wrapping up" << endl;
+    }
+    //
+    Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+    //
+    List control_list = List::create(_["Iteration"]=iteration); //stores the total number of iterations used
+    //
+    int kept_covs = totalnum - sum(KeepConstant);
+    NumericVector Lldd_vec(kept_covs * kept_covs);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        int pij_ind=-100;
+        int pjk_ind=-100;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        if (KeepConstant[ij]==0){
+            pij_ind = ij - sum(head(KeepConstant,ij));
+            if (KeepConstant[jk]==0){
+                pjk_ind = jk - sum(head(KeepConstant,jk));
+                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
+            }
+        }
+//                Rcout << "(" << ij <<"," << jk << ") (" << pij_ind << "," << pjk_ind << ") (" << KeepConstant[ij] << "," << KeepConstant[jk] << ") " << Lldd[ij*totalnum+jk] << endl;
+    }
+    for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+    }
+    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    //
+    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            stdev(ij) = sqrt(Lldd_inv(pij_ind,pij_ind));
+        }
+    }
+    //
+//    NumericVector Lldd_vec = wrap(Lldd);//
+//    Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
+//    //
+//    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//    //
+//    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    //
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -1238,7 +1976,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     vector<double> beta_p(totalnum,0.0);
     //
     //
-    int risk_check_iter=0;
+    //int //risk_check_iter=0;
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
@@ -1246,7 +1984,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     double Ll_best = 0.0; //a comparison log-likelihood
     double halves = 0; //number of half-steps taken
     int ind0 = fir; //used for validations
-    int i = ind0;
+    //int //i = ind0;
     int iteration=0; //iteration number
     //
     int iter_stop =0;
@@ -1262,7 +2000,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
         }
         //
         Ll_best = Ll[ind0];
-        i = ind0;
+        //i = ind0;
         //
         halves=0;
         Lld_comp[0] = vec_norm(Lld, totalnum);
@@ -1529,7 +2267,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             RddR = (RddR.array().isFinite()).select(RddR,0);
             //
             temp_list = List::create(_["betas"]=wrap(beta_0),_["Status"]="FAILED"); //used as a dummy return value for code checking
-            risk_check_iter=0;
+            //risk_check_iter=0;
             if (verbose){
                 Rcout << "risk checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -1695,7 +2433,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
 //    //
 //    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -2574,7 +3312,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         Rcout << " " << endl;
         Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
     }
-    double R_lim = 1e-12;
+    //double R_lim = 1e-12;
     if (R.minCoeff()<=0){
         Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
         Rcout << "final failing values ";
@@ -2596,7 +3334,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     vector<double> beta_a(totalnum,0.0);
     vector<double> beta_best(totalnum,0.0);
     vector<double> beta_p(totalnum,0.0);
-    int risk_check_iter=0;
+    //int //risk_check_iter=0;
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
@@ -2884,7 +3622,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             RddR = (RddR.array().isFinite()).select(RddR,0);
             //
             temp_list = List::create(_["betas"]=wrap(beta_0),_["Status"]="FAILED"); //used as a dummy return value for code checking
-            risk_check_iter=0;
+            //risk_check_iter=0;
             if (verbose){
                 Rcout << "risk checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -3091,7 +3829,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
 //    //
 //    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }
@@ -3382,7 +4120,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         Rcout << " " << endl;
         Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
     }
-    double R_lim = 1e-12;
+    //double R_lim = 1e-12;
     if (R.minCoeff()<=0){
         Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
         Rcout << "final failing values ";
@@ -3404,7 +4142,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     vector<double> beta_a(totalnum,0.0);
     vector<double> beta_best(totalnum,0.0);
     vector<double> beta_p(totalnum,0.0);
-    int risk_check_iter=0;
+    //int //risk_check_iter=0;
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
@@ -3692,7 +4430,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             RddR = (RddR.array().isFinite()).select(RddR,0);
             //
             temp_list = List::create(_["betas"]=wrap(beta_0),_["Status"]="FAILED"); //used as a dummy return value for code checking
-            risk_check_iter=0;
+            //risk_check_iter=0;
             if (verbose){
                 Rcout << "risk checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -3889,7 +4627,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
     Lld.resize(true_totalnum);
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0.head(true_totalnum)) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*(true_totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[fir],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0.head(true_totalnum)) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*(true_totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
     // returns a list of results
     return res_list;
 }

@@ -100,7 +100,6 @@ void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove){
 }
 
 
-
 //' Utility function to calculate the term and subterm values
 //' \code{Make_Subterms} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 //' @param     totalnum    Total number of terms
@@ -352,6 +351,34 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
                 }
             }
         }
+    }
+    return;
+}
+
+//' Utility function to calculate the term and subterm values with the basic model
+//' \code{Make_Subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+//' @param     totalnum    Total number of terms
+//' @param     dfc    covariate column numbers
+//' @param     T0    subterm values
+//' @param     beta_0    parameter list
+//' @param     df0    covariate matrix
+//' @param     nthreads    number of threads to use
+//' @param     debugging    debugging boolean
+//'
+//' @return Updates matrices in place: Sub-term matrices, Term matrices
+// [[Rcpp::export]]
+void Make_Subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd& T0, const VectorXd& beta_0,const MatrixXd& df0, const int& nthreads, bool debugging){
+    //
+    //Make_Subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
+    //
+    // Calculates the sub term values
+    //
+
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ij=0;ij<(totalnum);ij++){
+        int df0_c = dfc[ij]-1;
+        T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+        T0.col(ij) = T0.col(ij).array().exp();
     }
     return;
 }
@@ -755,6 +782,69 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             RdR.col(ij)=R.col(0).array().pow(-1).array() * Rd.col(jk).array();
         }
         RddR.col(ijk)=R.col(0).array().pow(-1).array() * Rdd.col(ijk).array();
+    }
+    return;
+}
+
+//' Utility function to calculate the risk and risk ratios for the basic model
+//' \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
+//' @param     totalnum    total number of terms
+//' @param     T0    Term by subterm matrix
+//' @param     R    Risk matrix
+//' @param     Rd    Risk first derivative matrix
+//' @param     Rdd    Risk second derivative matrix
+//' @param     RdR    Risk to first derivative ratio matrix
+//' @param     RddR    Risk to second derivative ratio matrix
+//' @param     nthreads    number of threads to use
+//' @param     debugging    debugging boolean
+//' @param     df0    covariate matrix
+//' @param     dfc    covariate column numbers
+//'
+//' @return Updates matrices in place: Risk, Risk ratios
+// [[Rcpp::export]]
+void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc){
+    //
+    //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
+    //
+    //
+    //
+    
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum;ijk++){
+        int df0_c = dfc[ijk]-1;
+        Rd.col(ijk) = R.col(0).array() * df0.col(df0_c).array() ;
+    }
+    R = (R.array().isFinite()).select(R,0);
+    Rd = (Rd.array().isFinite()).select(Rd,0);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        int df0_c = dfc[ij]-1;
+        Rdd.col(ijk) = Rd.col(jk).array() * df0.col(df0_c).array();
+    }
+    //
+    R = (R.array().isFinite()).select(R,0);
+    Rd = (Rd.array().isFinite()).select(Rd,0);
+    Rdd = (Rdd.array().isFinite()).select(Rdd,0);
+    //
+    for (int ijk=0;ijk<(totalnum*(totalnum+1)/2);ijk++){//Calculates ratios
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        int df0_ij = dfc[ij]-1;
+        int df0_jk = dfc[jk]-1;
+        if (ij==jk){
+            RdR.col(ij)=df0.col(df0_ij).array();
+        }
+        RddR.col(ijk)=df0.col(df0_ij).array() * df0.col(df0_jk).array();
     }
     return;
 }
@@ -2001,6 +2091,130 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                             dbeta[ijk] = 0.001;
                         }
                     }
+                }
+            }
+        }
+    }
+    return;
+}
+
+//' Utility function to calculate the change to make each iteration, with basic model
+//' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations    
+//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+//' @param     nthreads    number of threads
+//' @param     totalnum    total number of parameter
+//' @param     der_iden    subterm number for derivative tests
+//' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+//' @param     lr    learning rate fo newton step toward 0 derivative
+//' @param     abs_max    Maximum allowed parameter change
+//' @param     Ll    Log-Likelihood
+//' @param     Lld    Log-Likelihood first derivative
+//' @param     Lldd    Log-Likelihood second derivative
+//' @param     dbeta    parameter change vector
+//' @param     change_all    boolean to change every parameter
+//' @param     KeepConstant    vector of parameters to keep constant
+//' @param     debugging    debugging boolean
+//'
+//' @return Updates matrices in place: parameter change matrix
+// [[Rcpp::export]]
+void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, IntegerVector KeepConstant, bool debugging){
+    if (double_step==1){
+        //
+        int kept_covs = totalnum - sum(KeepConstant);
+        NumericVector Lldd_vec(kept_covs * kept_covs);
+        NumericVector Lld_vec(kept_covs);
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+            int ij = 0;
+            int jk = ijk;
+            int pij_ind=-100;
+            int pjk_ind=-100;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            if (KeepConstant[jk]==0){
+                pjk_ind = jk - sum(head(KeepConstant,jk));
+            }
+            if (KeepConstant[ij]==0){
+                pij_ind = ij - sum(head(KeepConstant,ij));
+                if (ij==jk){
+                    Lld_vec[pij_ind]=Lld[ij];
+                }
+                if (KeepConstant[jk]==0){
+                    pjk_ind = jk - sum(head(KeepConstant,jk));
+                    Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
+                }
+            }
+        }
+        for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+        }
+        Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+        VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+        VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+        for (int ij=0;ij<totalnum;ij++){
+            if (KeepConstant[ij]==0){
+                int pij_ind = ij - sum(head(KeepConstant,ij));
+                Lldd_solve(ij) = Lldd_solve0(pij_ind);
+            }
+        }
+        //
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum;ijk++){
+            if (change_all){
+                if (KeepConstant[ijk]==0){
+                    dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                    //
+                    if (abs(dbeta[ijk])>abs_max){
+                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    }
+                } else {
+                    dbeta[ijk]=0;
+                }
+            }else{
+                if (ijk!=der_iden){//Validation requires controlled changes
+                    dbeta[ijk] = 0.0;
+                }
+            }
+        }
+    } else {
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum;ijk++){
+            if (change_all){
+                if (KeepConstant[ijk]==0){
+                    if (Lldd[ijk*totalnum+ijk] != 0 ){
+                        dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                    } else {
+                        dbeta[ijk] = 0;
+                    }
+                    //
+                    double dbeta_max;
+                    if (Lld[ijk]!=0){
+                        dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+                    }else{
+                        dbeta_max = 0;
+                    }
+                    if (abs(dbeta[ijk])>dbeta_max){
+                        dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+                    }
+                    if (abs(dbeta[ijk])>abs_max){
+                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    }
+                } else {
+                    dbeta[ijk]=0;
+                }
+            }else{
+                if (ijk!=der_iden){//Validation requires controlled changes
+                    dbeta[ijk] = 0.0;
                 }
             }
         }

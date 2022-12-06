@@ -87,6 +87,41 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
     return res;
 }
 
+//' Interface between R code and the Cox PH regression for basic model
+//' \code{cox_ph_transition_basic} Called directly from R, Defines the control variables and calls the regression function
+//' @param a_n starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param der_iden subterm number for derivative tests
+//' @param Control control list
+//' @param df_groups time and event matrix
+//' @param tu event times
+//' @param KeepConstant vector of parameters to keep constant
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List cox_ph_transition_basic( NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int der_iden, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant){
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_basic(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, ties_method);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 //' Interface between R code and the Cox PH regression with STRATA
 //' \code{cox_ph_STRATA} Called directly from R, Defines the control variables and calls the regression function
 //' @param Term_n Term numbers
@@ -392,7 +427,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
         Rcout << "Dependent columns not even" << endl;
         return;
     }
-    double epsilon=1e-2 * dt;
+    //double epsilon=1e-2 * dt;
     int tot_covs = ceil(2 + df_dep.cols()/2 + df_const.cols() + 1);
     int max_rows = 0;
     if (iscox){

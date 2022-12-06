@@ -60,6 +60,63 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
     return (e)
 }
 
+#' Performs basic Cox Proportional Hazards regression with a basic model
+#' \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
+#' @param control list of parameters controlling the convergence
+#'
+#' @return returns a list of the final results
+#' @export
+#'
+#' @importFrom rlang .data
+
+RunCoxRegression_Basic <- function(df, time1, time2, event, names, keep_constant, a_n, der_iden, control){
+    setkeyv(df, c(time2, event))
+    dfend <- df[get(event)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+    if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    x_all=as.matrix(df[,all_names, with = FALSE])
+    ce <- c(time1,time2,event)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    #
+    a_n0 <- copy(a_n)
+    control <- Def_Control(control)
+    e <- cox_ph_transition_basic(a_n,dfc,x_all, der_iden, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant)
+    a_n <- a_n0
+    ;
+    return (e)
+}
+
 #' Performs basic Cox Proportional Hazards regression, Allows for multiple starting guesses
 #' \code{RunCoxRegression_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'
