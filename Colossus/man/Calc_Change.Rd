@@ -22,6 +22,7 @@ Calc_Change(
   change_all,
   tform,
   dint,
+  dslp,
   KeepConstant,
   debugging
 )
@@ -58,6 +59,8 @@ Calc_Change(
 \item{tform}{subterm type}
 
 \item{dint}{value used for threshold derivative calculation}
+
+\item{dslp}{value used for slope derivative finite step}
 
 \item{KeepConstant}{vector of parameters to keep constant}
 

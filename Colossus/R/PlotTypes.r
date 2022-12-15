@@ -292,50 +292,70 @@ CoxRisk <- function(verbose,df, event, time1, time2, names,Term_n, tform, a_n, f
     if (verbose){
         print("start risk calculations")
     }
-    for (fir_KM in 1:length(all_names)){
-        lfir <- c(all_names[fir_KM])
+    for (fir_KM in 1:length(names)){
+        lfir <- c(names[fir_KM])
         uniq <- unlist(unique(df[,lfir, with = FALSE]), use.names=FALSE)
         #
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type ,length(uniq))
-        x <- e$x
-        y <- e$y
-        #
-        a_n[fir_KM] <- b[fir_KM] - er[fir_KM]
-        #
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , length(uniq))
-        xl <- e$x
-        yl <- e$y
-        #
-        a_n[fir_KM] <- b[fir_KM] + er[fir_KM]
-        #
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , length(uniq))
-        xu <- e$x
-        yu <- e$y
-        #
-        dft <- data.table("xu"=xu,"yu"=yu,"xl"=xl,"yl"=yl,"x"=x,"y"=y)
-        if (length(uniq)>100){
-#            jpeg(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""), units="in", width=5, height=5, res=1200)
-#            plot(x,y, type="l", xlab=all_names[fir_KM],ylab="Relative Risk",col='black',ylim=c(min(yl),max(yu)))
-#            lines(xl,yl,col='black')
-#            lines(xu,yu,col='black')
-#            dev.off()
+        der_iden <- fir_KM-1
+#        print(lfir)
+#        print(min(uniq))
+#        print(max(uniq))
+        if (TRUE){
+            #    cox_ph_plot(Term_n, tform, a_n, a_er,dfc,x_all, fir, der_iden, modelform, Control, df_groups,                        tu, KeepConstant,  term_tot, Plot_Type , uniq_v)
             #
-            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_line(color="black") + ggplot2::labs(x=all_names[fir_KM], y="Relative Risk")
-            g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xl, y=.data$yl), color="black")
-            g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xu, y=.data$yu), color="black")
-            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+#            print("in")
+            e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type ,length(uniq))
+#            print("out")
+            x <- e$x
+            y <- e$y
             #
-        } else {
-#            jpeg(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""), units="in", width=5, height=5, res=1200)
-#            plot(x,y, type="p", xlab=all_names[fir_KM],ylab="Relative Risk",col='black',ylim=c(min(yl),max(yu)))
-#            lines(xl,yl,col='black',type="b")
-#            lines(xu,yu,col='black',type="b")
-#            dev.off()
-            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=all_names[fir_KM], y="Relative Risk")
-            g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xl, y=.data$yl), color="black")
-            g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xu, y=.data$yu), color="black")
-            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-            #
+#            stop()
+#            print(length(x))
+#            print(length(y))
+            if (TRUE){
+                dft <- data.table("x"=x,"y"=y)
+#                print(c(x[1],x[length(x)]))
+                if (length(uniq)>100){
+                    #
+                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_line(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+                    #
+                } else {
+                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+                    #
+                }
+            } else {
+#                print(length(x))
+                a_n[fir_KM] <- b[fir_KM] - er[fir_KM]
+                #
+                e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , length(uniq))
+                xl <- e$x
+                yl <- e$y
+                #
+                a_n[fir_KM] <- b[fir_KM] + er[fir_KM]
+                #
+                e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , length(uniq))
+                xu <- e$x
+                yu <- e$y
+                #
+                dft <- data.table("xu"=xu,"yu"=yu,"xl"=xl,"yl"=yl,"x"=x,"y"=y)
+                if (length(uniq)>100){
+                    #
+                    print(length(x))
+                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_line(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xl, y=.data$yl), color="black")
+                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xu, y=.data$yu), color="black")
+                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+                    #
+                } else {
+                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xl, y=.data$yl), color="black")
+                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xu, y=.data$yu), color="black")
+                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+                    #
+                }
+            }
         }
         #
     }

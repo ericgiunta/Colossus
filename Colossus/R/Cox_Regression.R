@@ -599,32 +599,35 @@ RunCoxPlots <- function(df, time1="age_start", time2="age_exit", event="cases", 
     b <- e$beta_0
     er <- e$Standard_Deviation
     #
-    #
-    e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
-    #
-    t <- c()
-    h <- c()
-    ch <- c()
-    surv <- c()
-    dt <- 1
-    if (verbose){
-        print("writing survival data")
-    }
-    dft=data.table("time"=tu,"base"=e$baseline,"basehaz"=e$standard_error)
-    for (i in tu){
-        t <- c(t,i)
-        temp <- sum(dft[time<i, base])
-        ch <- c(ch, temp)
-        if (length(h)==0){
-            h <- c(temp)
-        } else {
-            h <- c(h, ch[length(ch)]-ch[length(ch)-1])
-        }
-        surv <- c(surv, exp(-1*temp))
-    }
-    #
-    age_unit <- plot_options$age_unit
     if (Plot_Type[1]=="SURV"){
+        if (verbose){
+            print("starting ph_plot")
+        }
+        #
+        e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        #
+        t <- c()
+        h <- c()
+        ch <- c()
+        surv <- c()
+        dt <- 1
+        if (verbose){
+            print("writing survival data")
+        }
+        dft=data.table("time"=tu,"base"=e$baseline,"basehaz"=e$standard_error)
+        for (i in tu){
+            t <- c(t,i)
+            temp <- sum(dft[time<i, base])
+            ch <- c(ch, temp)
+            if (length(h)==0){
+                h <- c(temp)
+            } else {
+                h <- c(h, ch[length(ch)]-ch[length(ch)-1])
+            }
+            surv <- c(surv, exp(-1*temp))
+        }
+        #
+        age_unit <- plot_options$age_unit
         if (plot_options$Martingale==TRUE){
             #
             CoxMartingale(verbose, df, time1, time2, event, e, t, ch, plot_options$dose_col, Plot_Type[2], age_unit)
@@ -644,7 +647,8 @@ RunCoxPlots <- function(df, time1="age_start", time2="age_exit", event="cases", 
             CoxKaplanMeier(verbose, verbosec, plot_options$studyID,all_names,df,event,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type,age_unit)
         }
     } else if (Plot_Type[1]=="RISK"){
-        CoxRisk(verbose, df, event, time1, time2, all_names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type)
+        CoxRisk(verbose, df, event, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er)
+        #      (verbose, df, event, time1, time2, names,    Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er)
     }
     ;
     return ("Passed")

@@ -47,8 +47,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Make_Subterms
-void Make_Subterms(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const double& dint, const int& nthreads, bool debugging);
-RcppExport SEXP _Colossus_Make_Subterms(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP dintSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
+void Make_Subterms(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const double& dint, const double& dslp, const int& nthreads, bool debugging);
+RcppExport SEXP _Colossus_Make_Subterms(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
@@ -68,9 +68,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
     Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
     Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Make_Subterms(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, nthreads, debugging);
+    Make_Subterms(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging);
     return R_NilValue;
 END_RCPP
 }
@@ -306,8 +307,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Calc_Change
-void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, IntegerVector KeepConstant, bool debugging);
-RcppExport SEXP _Colossus_Calc_Change(SEXP double_stepSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP change_allSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
+void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging);
+RcppExport SEXP _Colossus_Calc_Change(SEXP double_stepSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP change_allSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type double_step(double_stepSEXP);
@@ -326,9 +327,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const bool >::type change_all(change_allSEXP);
     Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
     Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Calc_Change(double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
+    Calc_Change(double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging);
     return R_NilValue;
 END_RCPP
 }
@@ -947,7 +949,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_vec_norm", (DL_FUNC) &_Colossus_vec_norm, 2},
     {"_Colossus_removeRow", (DL_FUNC) &_Colossus_removeRow, 2},
     {"_Colossus_removeColumn", (DL_FUNC) &_Colossus_removeColumn, 2},
-    {"_Colossus_Make_Subterms", (DL_FUNC) &_Colossus_Make_Subterms, 19},
+    {"_Colossus_Make_Subterms", (DL_FUNC) &_Colossus_Make_Subterms, 20},
     {"_Colossus_Make_Subterms_Basic", (DL_FUNC) &_Colossus_Make_Subterms_Basic, 7},
     {"_Colossus_Make_Risks", (DL_FUNC) &_Colossus_Make_Risks, 22},
     {"_Colossus_Make_Risks_Basic", (DL_FUNC) &_Colossus_Make_Risks_Basic, 11},
@@ -958,7 +960,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_LogLik", (DL_FUNC) &_Colossus_Calc_LogLik, 21},
     {"_Colossus_Calc_LogLik_STRATA", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA, 22},
     {"_Colossus_Poisson_LogLik", (DL_FUNC) &_Colossus_Poisson_LogLik, 12},
-    {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 18},
+    {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 19},
     {"_Colossus_Calc_Change_Basic", (DL_FUNC) &_Colossus_Calc_Change_Basic, 14},
     {"_Colossus_Calculate_Null_Sides", (DL_FUNC) &_Colossus_Calculate_Null_Sides, 7},
     {"_Colossus_Calc_Null_LogLik", (DL_FUNC) &_Colossus_Calc_Null_LogLik, 9},

@@ -19,6 +19,130 @@ Def_Control <- function(control){
 }
 
 
+#' Calculates Full Parameter list for Special Dose Formula
+#' \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas
+#'
+#' @param tforms list of formula types
+#' @param paras list of formula parameters
+#' @param verbose verbosity argument, for error returns
+#'
+#' @return returns list of full parameters
+#' @export
+#'
+Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
+    full_paras <- list()
+    for (nm in names(tforms)){
+        if (tforms[nm]=="quad"){
+            plist <- unlist(paras[nm],use.names=FALSE)
+            a0 <- plist[1]
+            y <- plist[2]
+            if (is.numeric(a0)){
+                ;
+            } else {
+                if (verbose){
+                    print("a0 arguement was not a number")
+                }
+                stop()
+            }
+            if (is.numeric(y)){
+                ;
+            } else {
+                if (verbose){
+                    print("threshold arguement was not a number")
+                }
+                stop()
+            }
+            a1 <- a0/2/y
+            b1 <- a0*y/2
+            full_paras[[nm]] <- c(y,a0,a1,b1)
+        } else if (tforms[nm]=="exp"){
+            plist <- unlist(paras[nm],use.names=FALSE)
+            a0 <- plist[1]
+            y <- plist[2]
+            b1 <-plist[3]
+            if (is.numeric(a0)){
+                ;
+            } else {
+                if (verbose){
+                    print("a0 arguement was not a number")
+                }
+                stop()
+            }
+            if (is.numeric(y)){
+                ;
+            } else {
+                if (verbose){
+                    print("threshold arguement was not a number")
+                }
+                stop()
+            }
+            if (is.numeric(b1)){
+                ;
+            } else {
+                if (verbose){
+                    print("exponential arguement was not a number")
+                }
+                stop()
+            }
+            c1 <- log(a0)-log(b1)+b1*y
+            a1 <- a0*y+exp(c1-b1*y)
+            full_paras[[nm]] <- c(y,a0,a1,b1,c1)
+        }
+    }
+    return (full_paras)
+}
+
+#' Calculates The Additional Parameter For a linear-exponential formula with known maximum
+#' \code{Linked_Lin_Exp_Para} Calculates what the additional parameter would be for a desired maximum
+#'
+#' @param y point formula switch
+#' @param a0 linear slope
+#' @param a1_goal exponential maximum desired
+#' @param verbose verbosity argument, for error returns
+#'
+#' @return returns parameter used by Colossus
+#' @export
+#'
+Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
+    b1 <- 10
+    lr <- 1.0
+    db1_max <- 1
+    if (a1_goal > y*a0){
+        ;
+    } else {
+        if (verbose){
+            print("goal is too low")
+        }
+        stop()
+    }
+    iter_i <- 0
+    while (iter_i<100){
+        iter_i = iter_i + 1
+        c1=log(a0/b1)+b1*y
+        a1=a0*y+exp(c1-b1*y)
+        print(c(a1,c1,a0,b1,a1_goal))
+        a_dif <- a1-a1_goal
+#        if (abs(a_dif)<1e-3){
+#            stop()
+#        }
+        if (abs(a_dif)<1e-3){
+            break   
+        }
+        da1=-1/b1*exp(c1-b1*y)
+        db1=(a1_goal-a1)/da1#-b1*a1_goal*np.exp(b1*y-c1)+b1*a0*y*np.exp(b1*y-c1)+b1
+        if (abs(db1)>db1_max){
+            db1=abs(db1)/db1*db1_max
+        }
+        if (-1*db1 > b1){
+            db1=-0.9*b1
+        }
+        b1 = b1 + lr*db1
+    }
+    return (b1)
+}
+
+
+
 #' Opens a file for reading
 #' \code{Open_File} uses user provided file name, time columns, and event column to load and sort.
 #'

@@ -290,6 +290,23 @@ test_that("Gen_time_dep no error", {
     expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
 })
 
+test_that("linked quad no error", {
+    tforms <- list("first"="quad")
+    paras  <- list("first"=c(0.1,10))
+    expect_no_error(Linked_Dose_Formula(tforms,paras,TRUE))
+})
+test_that("linked exp no error", {
+    tforms <- list("first"="exp")
+    paras  <- list("first"=c(0.1,10,5))
+    expect_no_error(Linked_Dose_Formula(tforms,paras,TRUE))
+})
+test_that("linked exp parameter no error", {
+    y=10
+    a0=0.1
+    a_goal=5
+    expect_no_error(Linked_Lin_Exp_Para(y,a0,a_goal,TRUE))
+})
+
 
 
 

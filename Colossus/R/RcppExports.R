@@ -50,12 +50,13 @@ removeColumn <- function(matrix, colToRemove) {
 #' @param     beta_0    parameter list
 #' @param     df0    covariate matrix
 #' @param     dint    value used for threshold derivative finite step
+#' @param     dslp    value used for slope derivative finite step
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
 #'
 #' @return Updates matrices in place: Sub-term matrices, Term matrices
-Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Make_Subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, nthreads, debugging))
+Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Make_Subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging))
 }
 
 #' Utility function to calculate the term and subterm values with the basic model
@@ -297,12 +298,13 @@ Poisson_LogLik <- function(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, 
 #' @param     change_all    boolean to change every parameter
 #' @param     tform    subterm type
 #' @param     dint    value used for threshold derivative calculation
+#' @param     dslp    value used for slope derivative finite step
 #' @param     KeepConstant    vector of parameters to keep constant
 #' @param     debugging    debugging boolean
 #'
 #' @return Updates matrices in place: parameter change matrix
-Calc_Change <- function(double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging))
+Calc_Change <- function(double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging))
 }
 
 #' Utility function to calculate the change to make each iteration, with basic model

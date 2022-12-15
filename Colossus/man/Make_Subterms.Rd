@@ -23,6 +23,7 @@ Make_Subterms(
   beta_0,
   df0,
   dint,
+  dslp,
   nthreads,
   debugging
 )
@@ -61,6 +62,8 @@ Make_Subterms(
 \item{df0}{covariate matrix}
 
 \item{dint}{value used for threshold derivative finite step}
+
+\item{dslp}{value used for slope derivative finite step}
 
 \item{nthreads}{number of threads to use}
 

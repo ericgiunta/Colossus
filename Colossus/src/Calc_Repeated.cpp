@@ -119,12 +119,13 @@ void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove){
 //' @param     beta_0    parameter list
 //' @param     df0    covariate matrix
 //' @param     dint    value used for threshold derivative finite step
+//' @param     dslp    value used for slope derivative finite step
 //' @param     nthreads    number of threads to use
 //' @param     debugging    debugging boolean
 //'
 //' @return Updates matrices in place: Sub-term matrices, Term matrices
 // [[Rcpp::export]]
-void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const int& nthreads, bool debugging){
+void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const double& dslp, const int& nthreads, bool debugging){
     //
     //Make_Subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
     //
@@ -170,12 +171,12 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             }
         } else if (as< string>(tform[ij])=="lin_slope"){
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
             temp = (temp.array() < 0).select(0, temp);
-            temp0 = (temp0.array() < 0).select(0, temp0);
-            temp1 = (temp1.array() < 0).select(0, temp1);
+//            temp0 = (temp0.array() < 0).select(0, temp0);
+//            temp1 = (temp1.array() < 0).select(0, temp1);
             //
             T0.col(ij) = beta_0[ij] * temp.array();
             T0.col(ij+1) = beta_0[ij] * temp.array();
@@ -191,18 +192,58 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="step_slope"){
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
             temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
-            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
+//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
+//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
             //
             T0.col(ij) = beta_0[ij] * temp.array();
             T0.col(ij+1) = beta_0[ij] * temp.array();
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
-
+        } else if (as< string>(tform[ij])=="lin_quad_slope") {
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            double a1 = beta_0[ij] /2 / beta_0[ij+1];
+            double b1 = beta_0[ij] /2 * beta_0[ij+1];
+            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
+            ArrayXd temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            temp = (temp.array() < 0).select(temp0, temp1);
+//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
+//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
+            //
+            T0.col(ij) = temp.array();
+            T0.col(ij+1) = temp.array();
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+        } else if (as< string>(tform[ij])=="lin_quad_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_slope") {
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            double c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij+1] * beta_0[ij+2];
+            double a1 = beta_0[ij] * beta_0[ij+1] + exp(c1 - beta_0[ij+2] * beta_0[ij+1]);
+            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
+            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            temp = (temp.array() < 0).select(temp0, temp1);
+//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
+//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
+            //
+            T0.col(ij) = temp.array();
+            T0.col(ij+1) = temp.array();
+            T0.col(ij+2) = temp.array();
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+        } else if (as< string>(tform[ij])=="lin_exp_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
+            ;
         } else if (as< string>(tform[ij])=="lin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
             nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
@@ -312,6 +353,213 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
             Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
 
+        } else if (as< string>(tform[ij])=="lin_quad_slope") {
+            //
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            double a1 = beta_0[ij] /2 / (beta_0[ij+1]-dint);
+            double b1 = beta_0[ij] /2 * (beta_0[ij+1]-dint);
+            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
+            ArrayXd temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            ArrayXd temp01 = (temp.array() < 0).select(temp0, temp1);
+            //
+            a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij+1]-dint);
+            b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij+1]-dint);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            ArrayXd temp00 = (temp.array() < 0).select(temp0, temp1);
+            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij+1]);
+            b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij+1]);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            ArrayXd temp10 = (temp.array() < 0).select(temp0, temp1);
+            //
+            a1 = (beta_0[ij]) /2 / (beta_0[ij+1]);
+            b1 = (beta_0[ij]) /2 * (beta_0[ij+1]);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            ArrayXd temp11 = (temp.array() < 0).select(temp0, temp1);
+            //
+            a1 = (beta_0[ij]+dslp) /2 / (beta_0[ij+1]);
+            b1 = (beta_0[ij]+dslp) /2 * (beta_0[ij+1]);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            ArrayXd temp12 = (temp.array() < 0).select(temp0, temp1);
+            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            //
+            a1 = (beta_0[ij]) /2 / (beta_0[ij+1]+dint);
+            b1 = (beta_0[ij]) /2 * (beta_0[ij+1]+dint);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            ArrayXd temp21 = (temp.array() < 0).select(temp0, temp1);
+            //
+            a1 = (beta_0[ij]+dslp) /2 / (beta_0[ij+1]+dint);
+            b1 = (beta_0[ij]+dslp) /2 * (beta_0[ij+1]+dint);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            ArrayXd temp22 = (temp.array() < 0).select(temp0, temp1);
+            //
+//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
+//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
+            //
+            T0.col(ij) = Dose.col(tn);
+            T0.col(ij+1) = Dose.col(tn);
+            //
+            Td0.col(ij)   = (temp21.array()-temp01.array()) / 2/dslp;
+            Td0.col(ij+1) = (temp12.array()-temp10.array()) / 2/dint;
+            //
+            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (temp21.array()-2*temp11.array()+temp01.array()) / pow(dslp,2);
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (temp12.array()-2*temp11.array()+temp10.array()) / pow(dint,2);
+            Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (temp22.array()-2*temp11.array()+temp00.array()) / (pow(dint,2)+pow(dslp,2));
+            //
+        } else if (as< string>(tform[ij])=="lin_quad_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_slope") {
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            double c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
+            double a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]));
+            ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp111 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp011 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]-dslp);
+            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dslp) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp010 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]+dslp);
+            a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]+dslp) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp212 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp211 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij])/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]-dslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp110 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij])/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]+dslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp112 = (temp.array() < 0).select(temp0, temp1);
+            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij+1]-dint) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]-dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp101 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij])/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-dslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]-dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp100 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2])) + (beta_0[ij+1]-dint) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]-dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp001 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-dslp);
+            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]-dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp000 = (temp.array() < 0).select(temp0, temp1);
+            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij+1]+dint) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]+dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp121 = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij])/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]+dint) * (beta_0[ij+2]+dslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]+dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp122 = (temp.array() < 0).select(temp0, temp1);
+            //
+//            double c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-dslp);
+//            double a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]-dint));
+//            ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+//            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+//            //
+//            temp000 = (temp.array() < 0).select(temp0, temp1);
+            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2])) + (beta_0[ij+1]+dint) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]+dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            ArrayXd temp221 = (temp.array() < 0).select(temp0, temp1);
+            //
+//            double c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]+dint) * (beta_0[ij+2]+dslp);
+//            double a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]+dint));
+//            ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
+//            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+//            //
+//            temp222 = (temp.array() < 0).select(temp0, temp1);
+            //
+            T0.col(ij) = Dose.col(tn);
+            T0.col(ij+1) = Dose.col(tn);
+            T0.col(ij+2) = Dose.col(tn);
+            //
+            Td0.col(ij)   = (temp211.array()-temp011.array()) / 2/dslp;
+            Td0.col(ij+1) = (temp121.array()-temp101.array()) / 2/dint;
+            Td0.col(ij+2) = (temp112.array()-temp110.array()) / 2/dslp;
+            //
+            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (temp211.array()-2*temp111.array()+temp011.array()) / pow(dslp,2);
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (temp121.array()-2*temp111.array()+temp101.array()) / pow(dint,2);
+            Tdd0.col((ij+2)*(ij+3)/2+ij+2) = (temp112.array()-2*temp111.array()+temp110.array()) / pow(dslp,2);
+            //
+            Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (temp221.array()-2*temp111.array()+temp001.array()) / (pow(dint,2)+pow(dslp,2));
+            Tdd0.col((ij+2)*(ij+3)/2+ij+0) = (temp212.array()-2*temp111.array()+temp010.array()) / (pow(dint,2)+pow(dslp,2));
+            Tdd0.col((ij+2)*(ij+3)/2+ij+1) = (temp122.array()-2*temp111.array()+temp100.array()) / (pow(dslp,2)+pow(dslp,2));
+            //
+        } else if (as< string>(tform[ij])=="lin_exp_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
+            ;
         } else if (as< string>(tform[ij])=="lin") {
             T0.col(ij) = nonDose_LIN.col(tn);
             Td0.col(ij) = df0.col(df0_c);
@@ -423,6 +671,11 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     Dose_Iden.insert("quad_slope");
     Dose_Iden.insert("step_slope");
     Dose_Iden.insert("step_int");
+    Dose_Iden.insert("lin_quad_slope");
+    Dose_Iden.insert("lin_quad_int");
+    Dose_Iden.insert("lin_exp_slope");
+    Dose_Iden.insert("lin_exp_int");
+    Dose_Iden.insert("lin_exp_exp_slope");
     //
     if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
         Te = TTerm.array().rowwise().sum().array();
@@ -1795,12 +2048,13 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 //' @param     change_all    boolean to change every parameter
 //' @param     tform    subterm type
 //' @param     dint    value used for threshold derivative calculation
+//' @param     dslp    value used for slope derivative finite step
 //' @param     KeepConstant    vector of parameters to keep constant
 //' @param     debugging    debugging boolean
 //'
 //' @return Updates matrices in place: parameter change matrix
 // [[Rcpp::export]]
-void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum,const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all,const StringVector&   tform, const double& dint, IntegerVector KeepConstant, bool debugging){
+void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum,const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging){
     //
     //Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
     //
@@ -1867,7 +2121,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                         if (abs(dbeta[ijk])>dbeta_max){
                             dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
                         }
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
                             }
@@ -1883,7 +2137,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                     if (ijk!=der_iden){//Validation requires controlled changes
                         dbeta[ijk] = 0.0;
                     } else {
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
                             dbeta[ijk] = dint;
                         } else {
                             dbeta[ijk] = 0.001;
@@ -1911,7 +2165,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                         if (abs(dbeta[ijk])>dbeta_max){
                             dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
                         }
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
                             }
@@ -1927,7 +2181,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                     if (ijk!=der_iden){//Validation requires controlled changes
                         dbeta[ijk] = 0.0;
                     } else {
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
                             dbeta[ijk] = dint;
                         } else {
                             dbeta[ijk] = 0.001;
@@ -2025,7 +2279,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
 //                        if (abs(dbeta[ijk])>dbeta_max){
 //                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
 //                        }
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
                             }
@@ -2041,7 +2295,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                     if (ijk!=der_iden){//Validation requires controlled changes
                         dbeta[ijk] = 0.0;
                     } else {
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
                             dbeta[ijk] = dint;
                         } else {
                             dbeta[ijk] = 0.001;
@@ -2069,7 +2323,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                         if (abs(dbeta[ijk])>dbeta_max){
                             dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
                         }
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
                             }
@@ -2085,7 +2339,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                     if (ijk!=der_iden){//Validation requires controlled changes
                         dbeta[ijk] = 0.0;
                     } else {
-                        if ((tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
                             dbeta[ijk] = dint;
                         } else {
                             dbeta[ijk] = 0.001;
@@ -2290,8 +2544,8 @@ void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const v
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
     for (int j=0;j<ntime;j++){
         double Rs1 = Rls1(j,0);
-        //
         int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+        //
         MatrixXd Ld = MatrixXd::Zero(dj,1);
         Ld << R.block(RiskFail(j,0),0,dj,1);//rows with events
         //
