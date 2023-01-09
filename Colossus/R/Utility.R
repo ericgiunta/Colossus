@@ -1,3 +1,43 @@
+#' Automatically assigns missing values in listed columns
+#' \code{Replace_Missing} checks each column and fills in NA values
+#'
+#' @param df datatable being replaced in
+#' @param name_list vector of string column names to check
+#' @param MSV value to replace na with, same used for every column used
+#' @param verbose verbosity for printing which columns needed fills
+#'
+#' @return returns a filled datatable
+#' @export
+#'
+Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
+    if (is.na(MSV)){
+        if (verbose){
+            print("The missing-value replacement is also NA")
+        }
+        stop()
+    }
+    for (j in name_list){
+        #
+        if (j %in% names(df)){
+            ;
+        } else {
+            if (verbose){
+                print(paste(j," missing from column names",sep=""))
+            }
+            stop()
+        }
+        #
+        if (sum(is.na(df[[j]]))){
+            set(df,which(is.na(df[[j]])),j,MSV)
+            if (verbose){
+                print(paste("Column ",j," had replaced values",sep=""))
+            }
+        }
+    }
+    return (df)
+}
+
+
 #' Automatically assigns missing control values
 #' \code{Def_Control} checks and assigns default values
 #'
@@ -7,7 +47,7 @@
 #' @export
 #'
 Def_Control <- function(control){
-    control_def=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,"keep_strata"=FALSE)
+    control_def=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=detectCores())
     for (nm in names(control_def)){
         if (nm %in% names(control)){
             ;
@@ -36,6 +76,12 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             plist <- unlist(paras[nm],use.names=FALSE)
             a0 <- plist[1]
             y <- plist[2]
+            if (a0 < 0 ){
+                if (verbose){
+                    print("a0 arguement was negative")
+                }
+                stop()
+            }
             if (is.numeric(a0)){
                 ;
             } else {
@@ -60,6 +106,12 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             a0 <- plist[1]
             y <- plist[2]
             b1 <-plist[3]
+            if (a0 < 0 ){
+                if (verbose){
+                    print("a0 arguement was negative")
+                }
+                stop()
+            }
             if (is.numeric(a0)){
                 ;
             } else {
@@ -106,7 +158,12 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
 Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
     b1 <- 10
     lr <- 1.0
-    db1_max <- 1
+    if (a0 < 0 ){
+        if (verbose){
+            print("a0 arguement was negative")
+        }
+        stop()
+    }
     if (a1_goal > y*a0){
         ;
     } else {
@@ -120,7 +177,6 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
         iter_i = iter_i + 1
         c1=log(a0/b1)+b1*y
         a1=a0*y+exp(c1-b1*y)
-        print(c(a1,c1,a0,b1,a1_goal))
         a_dif <- a1-a1_goal
 #        if (abs(a_dif)<1e-3){
 #            stop()
@@ -130,9 +186,6 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
         }
         da1=-1/b1*exp(c1-b1*y)
         db1=(a1_goal-a1)/da1#-b1*a1_goal*np.exp(b1*y-c1)+b1*a0*y*np.exp(b1*y-c1)+b1
-        if (abs(db1)>db1_max){
-            db1=abs(db1)/db1*db1_max
-        }
         if (-1*db1 > b1){
             db1=-0.9*b1
         }
@@ -366,14 +419,17 @@ Check_Dupe_Columns <- function(df,cols,verbose=FALSE){
 #'
 #' @param df dataframe of data to use as reference
 #' @param ce columns to check for truncation
+#' @param verbose verbosity argument, for error returns
 #'
 #' @return returns the updated data and time period columns
 #' @export
 #'
-Check_Trunc <- function(df,ce){
+Check_Trunc <- function(df,ce,verbose=FALSE){
     if (ce[1]=="%trunc%"){
         if (ce[2]=="%trunc%"){
-            print("Both endpoints are truncated, not acceptable")
+            if (verbose){
+                print("Both endpoints are truncated, not acceptable")
+            }
             stop()
         }
         tname <- ce[2]

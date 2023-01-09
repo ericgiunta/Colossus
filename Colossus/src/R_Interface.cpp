@@ -79,10 +79,11 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
     double dose_abs_max = Control["dose_abs_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
+    int nthreads = nthreads = Control["Ncores"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method);
+    List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -115,9 +116,10 @@ List cox_ph_transition_basic( NumericVector a_n,IntegerVector dfc,NumericMatrix 
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     //
+    int nthreads = nthreads = Control["Ncores"];
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_basic(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, ties_method);
+    List res = LogLik_Cox_PH_basic(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -156,9 +158,10 @@ List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n,I
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     //
+    int nthreads = nthreads = Control["Ncores"];
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_STRATA(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals);
+    List res = LogLik_Cox_PH_STRATA(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -191,12 +194,13 @@ List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n, Nu
     double dose_abs_max = Control["dose_abs_max"];
     string ties_method =Control["ties"];
     List res;
+    int nthreads = nthreads = Control["Ncores"];
     // there are two types of plots that can be generated, survival curve and risk by covariate value
     //----------------------------------------------------------------------------------------------------------------//
     if (Plot_Type[0]=="SURV"){
-        res = Cox_PH_PLOT_SURV(Term_n, tform, a_n, a_er, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot);
+        res = Cox_PH_PLOT_SURV(Term_n, tform, a_n, a_er, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, nthreads);
     }else if (Plot_Type[0]=="RISK"){
-        res = Cox_PH_PLOT_RISK(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, uniq_v);
+        res = Cox_PH_PLOT_RISK(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, uniq_v, nthreads);
     } else {
         throw invalid_argument("Invalid plot type");
     }
@@ -229,8 +233,9 @@ NumericMatrix cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tf
     double dose_abs_max = Control["dose_abs_max"];
     string ties_method =Control["ties"];
     //
+    int nthreads = nthreads = Control["Ncores"];
     // performs schoenfeld residual calculation
-    NumericMatrix res = Schoenfeld_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method);
+    NumericMatrix res = Schoenfeld_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -269,8 +274,9 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     // calculates the poisson regression
+    int nthreads = nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot);
+    List res = LogLik_Poisson(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -311,8 +317,9 @@ List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVe
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     // calculates the poisson regression
+    int nthreads = nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, STRATA_vals,keep_strata);
+    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, STRATA_vals,keep_strata, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -350,8 +357,8 @@ void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,Int
     double dose_abs_max = Control["dose_abs_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
-
-    Stress_Run(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot,test_point, ties_method );
+    int nthreads = nthreads = Control["Ncores"];
+    Stress_Run(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot,test_point, ties_method , nthreads);
     return;
 }
 
@@ -372,8 +379,9 @@ List cox_ph_null( List Control, NumericMatrix df_groups, NumericVector tu){
     bool verbose = Control["verbose"];
     string ties_method =Control["ties"];
     //
+    int nthreads = nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_null( df_groups, tu, verbose, ties_method);
+    List res = LogLik_Cox_PH_null( df_groups, tu, verbose, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -397,9 +405,10 @@ NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericV
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     NumericVector res;
+    int nthreads = nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
     // calculates risk for a reference vector
-    res = RISK_SUBSET(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot);
+    res = RISK_SUBSET(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot, nthreads);
     return res;
 }
 

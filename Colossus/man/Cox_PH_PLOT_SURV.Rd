@@ -22,7 +22,8 @@ Cox_PH_PLOT_SURV(
   verbose,
   debugging,
   KeepConstant,
-  term_tot
+  term_tot,
+  nthreads
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ Cox_PH_PLOT_SURV(
 \item{KeepConstant}{vector identifying constant parameters}
 
 \item{term_tot}{total number of terms}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 List of results: baseline harzard, risk for each row

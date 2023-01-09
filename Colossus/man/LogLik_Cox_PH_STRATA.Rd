@@ -31,7 +31,8 @@ LogLik_Cox_PH_STRATA(
   KeepConstant,
   term_tot,
   ties_method,
-  STRATA_vals
+  STRATA_vals,
+  nthreads
 )
 }
 \arguments{
@@ -86,6 +87,8 @@ LogLik_Cox_PH_STRATA(
 \item{ties_method}{ties method}
 
 \item{STRATA_vals}{vector of strata identifier values}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information

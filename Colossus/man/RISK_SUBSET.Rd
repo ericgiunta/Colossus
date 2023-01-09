@@ -15,7 +15,8 @@ RISK_SUBSET(
   modelform,
   verbose,
   debugging,
-  term_tot
+  term_tot,
+  nthreads
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ RISK_SUBSET(
 \item{debugging}{debugging boolean}
 
 \item{term_tot}{total number of terms}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 List of results: Risk at the reference

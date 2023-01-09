@@ -28,7 +28,8 @@ LogLik_Poisson(
   verbose,
   debugging,
   KeepConstant,
-  term_tot
+  term_tot,
+  nthreads
 )
 }
 \arguments{
@@ -77,6 +78,8 @@ LogLik_Poisson(
 \item{KeepConstant}{vector identifying constant parameters}
 
 \item{term_tot}{total number of terms}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information

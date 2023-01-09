@@ -949,6 +949,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         TTerm_p << TTerm.array() + 1.0;
         TTerm_p.col(fir) = TTerm.col(fir).array();
         Te = TTerm_p.array().rowwise().prod().array();
+//        Rcout << TTerm.row(0) << ":" << TTerm_p.row(0) << ":" << Te.row(0) << endl;
         R << Te.array();
         //
         Rd = Td0.array();
@@ -1061,7 +1062,7 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
     //
     //
     //
-    
+    R.col(0) = T0.rowwise().prod();
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<totalnum;ijk++){
         int df0_c = dfc[ijk]-1;
@@ -2192,17 +2193,6 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         }
     } else {
         if (double_step==1){
-//            
-//            NumericVector Lldd_vec = wrap(Lldd);//
-//            NumericVector Lld_vec  = wrap(Lld);//
-//            Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
-//            //
-//            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-//            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-//            //
-//            VectorXd Lldd_solve = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
-//            Rcout << Lldd_solve.transpose() << endl;
-            //
             int kept_covs = totalnum - sum(KeepConstant);
             NumericVector Lldd_vec(kept_covs * kept_covs);
             NumericVector Lld_vec(kept_covs);
@@ -2240,16 +2230,6 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                 }
                 Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
             }
-//            Rcout << Lld_vec << endl;
-//            Rcout << Lldd_vec << endl;
-//            for (int i=0;i<totalnum;i++){
-//                Rcout << Lld[i] << " ";
-//            }
-//            Rcout << " " << endl;
-//            for (int i=0;i<totalnum*totalnum;i++){
-//                Rcout << Lldd[i] << " ";
-//            }
-//            Rcout << " " << endl;
             Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
             const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
             const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
@@ -2270,15 +2250,6 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                     if (KeepConstant[ijk]==0){
                         dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                         //
-//                        double dbeta_max;
-//                        if (Lld[ijk]!=0){
-//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-//                        }else{
-//                            dbeta_max = 0;
-//                        }
-//                        if (abs(dbeta[ijk])>dbeta_max){
-//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-//                        }
                         if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);

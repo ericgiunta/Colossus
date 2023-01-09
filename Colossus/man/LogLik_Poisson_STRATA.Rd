@@ -30,7 +30,8 @@ LogLik_Poisson_STRATA(
   KeepConstant,
   term_tot,
   STRATA_vals,
-  keep_strata
+  keep_strata,
+  nthreads
 )
 }
 \arguments{
@@ -83,6 +84,8 @@ LogLik_Poisson_STRATA(
 \item{STRATA_vals}{vector of strata identifier values}
 
 \item{keep_strata}{boolean to return the strata parameter values}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information

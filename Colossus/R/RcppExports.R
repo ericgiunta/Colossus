@@ -389,10 +389,11 @@ Calc_Null_LogLik <- function(nthreads, RiskFail, RiskGroup, ntime, R, Rls1, Lls1
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
 #' @param     ties_method    ties method
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method) {
-    .Call(`_Colossus_LogLik_Cox_PH`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method)
+LogLik_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
 }
 
 #' Primary Cox PH regression with basic model
@@ -418,10 +419,11 @@ LogLik_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelfo
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     ties_method    ties method
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Cox_PH_basic <- function(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method) {
-    .Call(`_Colossus_LogLik_Cox_PH_basic`, a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method)
+LogLik_Cox_PH_basic <- function(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_basic`, a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method, nthreads)
 }
 
 #' Primary Cox PH regression with STRATA effect
@@ -453,10 +455,11 @@ LogLik_Cox_PH_basic <- function(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax,
 #' @param     term_tot    total number of terms
 #' @param     ties_method    ties method
 #' @param     STRATA_vals vector of strata identifier values
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Cox_PH_STRATA <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals) {
-    .Call(`_Colossus_LogLik_Cox_PH_STRATA`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals)
+LogLik_Cox_PH_STRATA <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_STRATA`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads)
 }
 
 #' Primary Cox PH baseline hazard function
@@ -479,10 +482,11 @@ LogLik_Cox_PH_STRATA <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: baseline harzard, risk for each row
-Cox_PH_PLOT_SURV <- function(Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot) {
-    .Call(`_Colossus_Cox_PH_PLOT_SURV`, Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot)
+Cox_PH_PLOT_SURV <- function(Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, nthreads) {
+    .Call(`_Colossus_Cox_PH_PLOT_SURV`, Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, nthreads)
 }
 
 #' Primary Cox PH risk plotting function
@@ -505,10 +509,11 @@ Cox_PH_PLOT_SURV <- function(Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
 #' @param     uniq_v    number of unqiue covariate values
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: covariate values, risks for each row
-Cox_PH_PLOT_RISK <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, uniq_v) {
-    .Call(`_Colossus_Cox_PH_PLOT_RISK`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, uniq_v)
+Cox_PH_PLOT_RISK <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, uniq_v, nthreads) {
+    .Call(`_Colossus_Cox_PH_PLOT_RISK`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, uniq_v, nthreads)
 }
 
 #' Primary Cox PH schoenfeld residual function
@@ -531,10 +536,11 @@ Cox_PH_PLOT_RISK <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, mode
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
 #' @param     ties_method    ties method
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: scaled schoenfeld residuals
-Schoenfeld_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method) {
-    .Call(`_Colossus_Schoenfeld_Cox_PH`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method)
+Schoenfeld_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads) {
+    .Call(`_Colossus_Schoenfeld_Cox_PH`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
 }
 
 #' Primary poisson regression function
@@ -563,10 +569,11 @@ Schoenfeld_Cox_PH <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, mod
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot) {
-    .Call(`_Colossus_LogLik_Poisson`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot)
+LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads)
 }
 
 #' Primary poisson regression function with strata effect
@@ -597,10 +604,11 @@ LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     term_tot    total number of terms
 #' @param     STRATA_vals vector of strata identifier values
 #' @param     keep_strata boolean to return the strata parameter values
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata) {
-    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata)
+LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata, nthreads)
 }
 
 #' Primary Cox PH stress test function
@@ -632,10 +640,11 @@ LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der
 #' @param     term_tot    total number of terms
 #' @param     debug_checks    string vector of functions to test
 #' @param     ties_method    ties method
+#' @param     nthreads number of threads to use
 #'
 #' @return NULL
-Stress_Run <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method) {
-    invisible(.Call(`_Colossus_Stress_Run`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method))
+Stress_Run <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method, nthreads) {
+    invisible(.Call(`_Colossus_Stress_Run`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, debug_checks, ties_method, nthreads))
 }
 
 #' Primary Cox PH null model function
@@ -645,10 +654,11 @@ Stress_Run <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform,
 #' @param     tu    vector of event times
 #' @param     verbose    verbose boolean
 #' @param     ties_method    tied event method
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, AIC
-LogLik_Cox_PH_null <- function(df_groups, tu, verbose, ties_method) {
-    .Call(`_Colossus_LogLik_Cox_PH_null`, df_groups, tu, verbose, ties_method)
+LogLik_Cox_PH_null <- function(df_groups, tu, verbose, ties_method, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_null`, df_groups, tu, verbose, ties_method, nthreads)
 }
 
 #' Primary reference vector risk function
@@ -664,10 +674,11 @@ LogLik_Cox_PH_null <- function(df_groups, tu, verbose, ties_method) {
 #' @param     verbose    verbosity boolean
 #' @param     debugging    debugging boolean
 #' @param     term_tot    total number of terms
+#' @param     nthreads number of threads to use
 #'
 #' @return List of results: Risk at the reference
-RISK_SUBSET <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot) {
-    .Call(`_Colossus_RISK_SUBSET`, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot)
+RISK_SUBSET <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot, nthreads) {
+    .Call(`_Colossus_RISK_SUBSET`, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot, nthreads)
 }
 
 #' Interface between R code and the Cox PH regression

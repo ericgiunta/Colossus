@@ -290,25 +290,115 @@ test_that("Gen_time_dep no error", {
     expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
 })
 
+test_that("linked quad negative slope error", {
+    tforms <- list("first"="quad")
+    paras  <- list("first"=c(-0.1,10))
+    expect_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
+test_that("linked quad string slope error", {
+    tforms <- list("first"="quad")
+    paras  <- list("first"=c("a",10))
+    expect_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
+test_that("linked quad string threshold error", {
+    tforms <- list("first"="quad")
+    paras  <- list("first"=c(0.1,"a"))
+    expect_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
 test_that("linked quad no error", {
     tforms <- list("first"="quad")
     paras  <- list("first"=c(0.1,10))
-    expect_no_error(Linked_Dose_Formula(tforms,paras,TRUE))
+    expect_no_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
+test_that("linked exp negative slope error", {
+    tforms <- list("first"="exp")
+    paras  <- list("first"=c(-0.1,10,5))
+    expect_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
+test_that("linked exp string slope error", {
+    tforms <- list("first"="exp")
+    paras  <- list("first"=c("a",10,5))
+    expect_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
+test_that("linked exp string threshold error", {
+    tforms <- list("first"="exp")
+    paras  <- list("first"=c(0.1,"a",5))
+    expect_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
+test_that("linked exp string exp slope error", {
+    tforms <- list("first"="exp")
+    paras  <- list("first"=c(0.1,10,"a"))
+    expect_error(Linked_Dose_Formula(tforms,paras,FALSE))
 })
 test_that("linked exp no error", {
     tforms <- list("first"="exp")
     paras  <- list("first"=c(0.1,10,5))
-    expect_no_error(Linked_Dose_Formula(tforms,paras,TRUE))
+    expect_no_error(Linked_Dose_Formula(tforms,paras,FALSE))
+})
+
+test_that("linked exp parameter low goal error", {
+    y=10
+    a0=1
+    a_goal=5
+    expect_error(Linked_Lin_Exp_Para(y,a0,a_goal,FALSE))
+})
+test_that("linked exp parameter negative slope error", {
+    y=10
+    a0=-0.1
+    a_goal=5
+    expect_error(Linked_Lin_Exp_Para(y,a0,a_goal,FALSE))
 })
 test_that("linked exp parameter no error", {
     y=10
     a0=0.1
     a_goal=5
-    expect_no_error(Linked_Lin_Exp_Para(y,a0,a_goal,TRUE))
+    expect_no_error(Linked_Lin_Exp_Para(y,a0,a_goal,FALSE))
 })
 
-
-
+test_that("Missing Value missing column error", {
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(1,2,3,4,5,6,7)
+    c <- c(1,1,1,1,1,1,1)
+    d <- c(3,4,5,6,7,8,9)
+    df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+    expect_error(Replace_Missing(df,c("a","e"),0.0))
+})
+test_that("Missing Value NA replacement error", {
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(1,2,3,4,5,6,7)
+    c <- c(1,1,1,1,1,1,1)
+    d <- c(3,4,5,6,7,8,9)
+    df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+    expect_error(Replace_Missing(df,c("a","b","c","d"),NA))
+})
+test_that("Missing Value no error", {
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(1,2,3,4,5,6,7)
+    c <- c(1,1,1,1,1,1,1)
+    d <- c(3,4,5,6,7,8,9)
+    df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+    expect_no_error(Replace_Missing(df,c("a","b","c","d"),0.0))
+})
+test_that("Missing Value checked replaced 0", {
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(NA,0,0,1,0,0,1)
+    c <- c(1,1,1,1,1,1,1)
+    d <- c(3,4,5,6,7,8,9)
+    df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+    #
+    df0 <- Replace_Missing(df,c("a","b"),0.0)
+    expect_equal(c(sum(df0$a),sum(df0$b)),c(sum(df$a),2))
+})
+test_that("Missing Value checked replaced 1", {
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(NA,0,0,1,0,0,1)
+    c <- c(1,1,1,1,1,1,1)
+    d <- c(3,4,5,6,7,8,9)
+    df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+    #
+    df0 <- Replace_Missing(df,c("a","b"),1.0)
+    expect_equal(c(sum(df0$a),sum(df0$b)),c(sum(df$a),3))
+})
 
 
 

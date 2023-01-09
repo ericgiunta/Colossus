@@ -31,7 +31,8 @@ Stress_Run(
   KeepConstant,
   term_tot,
   debug_checks,
-  ties_method
+  ties_method,
+  nthreads
 )
 }
 \arguments{
@@ -86,6 +87,8 @@ Stress_Run(
 \item{debug_checks}{string vector of functions to test}
 
 \item{ties_method}{ties method}
+
+\item{nthreads}{number of threads to use}
 }
 \description{
 Primary Cox PH stress test function

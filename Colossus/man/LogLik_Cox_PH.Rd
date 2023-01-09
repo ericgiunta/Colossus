@@ -30,7 +30,8 @@ LogLik_Cox_PH(
   debugging,
   KeepConstant,
   term_tot,
-  ties_method
+  ties_method,
+  nthreads
 )
 }
 \arguments{
@@ -83,6 +84,8 @@ LogLik_Cox_PH(
 \item{term_tot}{total number of terms}
 
 \item{ties_method}{ties method}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information

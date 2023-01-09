@@ -26,6 +26,9 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
         }
     }
     all_names <- unique(names)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
     dfc <- match(names,all_names)
     if (sum(df[,event, with = FALSE])==0){
         if (control$verbose){
@@ -88,6 +91,9 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
     a_n <- c(a_n, runif(length(val$cols),min=-0.01,0.01))
     #
     all_names <- unique(names)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
     dfc <- match(names,all_names)
     if (sum(df[,event, with = FALSE])==0){
         if (control$verbose){
@@ -134,6 +140,11 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
 #'
 #' @importFrom rlang .data
 RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
+    if ("verbose" %in% names(guesses_control)){
+        ;
+    } else {
+        guesses_control$verbose <- FALSE
+    }
     if (guesses_control$stata==FALSE){
         if ("CONST" %in% names){
             if ("CONST" %in% names(df)){
@@ -143,9 +154,12 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
             }
         }
         all_names <- unique(names)
+        #
+        df <- Replace_Missing(df,all_names,0.0,control$verbose)
+        #
         dfc <- match(names,all_names)
         if (sum(df[,event, with = FALSE])==0){
-            if (control$verbose){
+            if (guesses_control$verbose){
                 print("no events")
             }
             stop()
@@ -176,7 +190,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         df_res[,paste(length(e$beta_0)+1):=e$Deviation]
         for (it in 1:guesses_control$guesses){
             for (i in 1:length(tform)){
-                if ("log" %in% tform[i]){
+                if (grepl("log",tform[i],fixed=FALSE)){
                     if (guesses_control$loglin_method == "uniform"){
                         a_n[i] <- runif(1,min=guesses_control$loglin_min,max=guesses_control$loglin_max)
                     } else {
@@ -198,10 +212,17 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
                 df_res0[,paste(i):=e$beta_0[i]]
             }
             df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-            df_res <- rbindlist(list(df_res, df_res0)) 
+            if (is.na(e$Deviation)){
+                ;
+            } else {
+                df_res <- rbindlist(list(df_res, df_res0)) 
+            }
             
         }
-        print(df_res)
+        if (guesses_control$verbose){
+            print(df_res)
+            fwrite(df_res,"last_guess.csv")
+        }
         a_n_ind <- which.min(df_res[,get(paste(length(e$beta_0)+1))])
 #        print(a_n_ind)
 #        stop()
@@ -231,9 +252,12 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         a_n <- c(a_n, runif(length(val$cols),min=-0.01,0.01))
         #
         all_names <- unique(names)
+        #
+        df <- Replace_Missing(df,all_names,0.0,control$verbose)
+        #
         dfc <- match(names,all_names)
         if (sum(df[,event, with = FALSE])==0){
-            if (control$verbose){
+            if (guesses_control$verbose){
                 print("no events")
             }
             stop()
@@ -268,7 +292,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         df_res[,paste(length(e$beta_0)+1):=e$Deviation]
         for (it in 1:guesses_control$guesses){
             for (i in 1:length(tform)){
-                if ("log" %in% tform[i]){
+                if (grepl("log",tform[i],fixed=FALSE)){
                     if (guesses_control$loglin_method == "uniform"){
                         a_n[i] <- runif(1,min=guesses_control$loglin_min,max=guesses_control$loglin_max)
                     } else {
@@ -290,10 +314,17 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
                 df_res0[,paste(i):=e$beta_0[i]]
             }
             df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-            df_res <- rbindlist(list(df_res, df_res0)) 
+            if (is.na(e$Deviation)){
+                ;
+            } else {
+                df_res <- rbindlist(list(df_res, df_res0)) 
+            }
             
         }
-        print(df_res)
+        if (guesses_control$verbose){
+            print(df_res)
+            fwrite(df_res,"last_guess.csv")
+        }
         #
         a_n_ind <- which.min(df_res[,get(paste(length(e$beta_0)+1))])
 #        print(a_n_ind)

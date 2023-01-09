@@ -73,10 +73,11 @@ void visit_lambda(const Mat& m, const Func& f)
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     term_tot    total number of terms
 //' @param     ties_method    ties method
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method){
+List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -117,7 +118,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
@@ -325,6 +326,13 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     // Calculates the side sum terms used
     Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_Sides"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
     //
     if (verbose){
         Rcout << "riskr checked ";
@@ -576,7 +584,13 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                 Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
                 Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
                 //
+                
                 if (verbose){
+                    end_point = system_clock::now();
+                    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                    Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+                    gibtime = system_clock::to_time_t(system_clock::now());
+                    Rcout << ctime(&gibtime) << endl;
                     Rcout << "riskr checked ";
                     for (int ijk=0;ijk<totalnum;ijk++){
                         Rcout << Rls1.col(0).sum() << " ";
@@ -780,6 +794,11 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
             //
             if (verbose){
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
                 Rcout << "riskr checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
                     Rcout << Rls1.col(0).sum() << " ";
@@ -881,6 +900,11 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
     if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
         Rcout << "Wrapping up" << endl;
     }
     //
@@ -966,10 +990,11 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
 //' @param     debugging    debugging boolean
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     ties_method    ties method
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector dfc, int der_iden, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, string ties_method){
+List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector dfc, int der_iden, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, string ties_method, int nthreads){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -1002,7 +1027,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
@@ -1142,6 +1167,11 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     //
     //
     if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_Sides"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
         Rcout << "riskr checked ";
         for (int ijk=0;ijk<totalnum;ijk++){
             Rcout << Rls1.col(0).sum() << " ";
@@ -1337,6 +1367,12 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
             //
             if (verbose){
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+                //
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
                 Rcout << "riskr checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
                     Rcout << Rls1.col(0).sum() << " ";
@@ -1519,6 +1555,12 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
             //
             if (verbose){
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+                //
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
                 Rcout << "riskr checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
                     Rcout << Rls1.col(0).sum() << " ";
@@ -1620,6 +1662,12 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
     if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+        //
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
         Rcout << "Wrapping up" << endl;
     }
     //
@@ -1710,10 +1758,11 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
 //' @param     term_tot    total number of terms
 //' @param     ties_method    ties method
 //' @param     STRATA_vals vector of strata identifier values
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, IntegerVector& STRATA_vals){
+List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, IntegerVector& STRATA_vals, int nthreads){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -1754,7 +1803,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
@@ -2482,10 +2531,11 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
 //' @param     debugging    debugging boolean
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     term_tot    total number of terms
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: baseline harzard, risk for each row
 // [[Rcpp::export]]
-List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericVector a_er,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot){
+List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericVector a_er,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads){
     //
     // Calculates the baseline hazard
     //
@@ -2521,7 +2571,7 @@ List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(10); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     //
@@ -2739,10 +2789,11 @@ List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     term_tot    total number of terms
 //' @param     uniq_v    number of unqiue covariate values
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: covariate values, risks for each row
 // [[Rcpp::export]]
-List Cox_PH_PLOT_RISK(IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int uniq_v){
+List Cox_PH_PLOT_RISK(IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int uniq_v, int nthreads){
     ;
     //
     // Plots the risk over a series of covariate values
@@ -2786,7 +2837,7 @@ List Cox_PH_PLOT_RISK(IntegerVector Term_n, StringVector tform, NumericVector a_
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     //
@@ -2922,10 +2973,11 @@ List Cox_PH_PLOT_RISK(IntegerVector Term_n, StringVector tform, NumericVector a_
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     term_tot    total number of terms
 //' @param     ties_method    ties method
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: scaled schoenfeld residuals
 // [[Rcpp::export]]
-NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method){
+NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads){
     ;
     //
     // Calculates the schoenfeld residuals
@@ -2971,7 +3023,7 @@ NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, Numer
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     //
@@ -3124,10 +3176,11 @@ NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, Numer
 //' @param     debugging    debugging boolean
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     term_tot    total number of terms
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 // [[Rcpp::export]]
-List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot){
+List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -3169,7 +3222,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
@@ -3210,6 +3263,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     }
     // Calculates the subterm and term values
     Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging);
+//    Rcout << T0.row(0) << endl;
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -3326,9 +3380,20 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
     dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
     //
+    dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+    //
     dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
     dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
     dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+    dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
+//    Rcout << "person-years counts risk dev rhs sex_1 sex_2 time sex_1_lage sex_2_lage sex_1_lage2 sex_2_lage2 dose dose2 female agex ltime" << endl;
+//    for (int ijk=0;ijk< dev_temp.rows();ijk++){
+//        Rcout << PyrC.row(ijk) << " " << R.row(ijk) << " " << dev_temp.row(ijk);
+//        for (int i=0; i<x_all.cols(); i++){
+//             Rcout << " " << x_all(ijk,i);
+//        }
+//        Rcout << " " << endl;
+//    }
     double dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
     //
     vector <double> Ll_comp(2,Ll[0]); //vector to compare values
@@ -3386,7 +3451,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
-        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=dev,_["Status"]="FAILED");
+        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
 //        R = (R.array() < R_lim).select(R_lim, R);
         return temp_list;
     }
@@ -3396,6 +3461,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     // --------------------------
     // always starts from intial guess
     // --------------------------
+//    Rcout << "temp1" << endl;
     vector<double> beta_c(totalnum,0.0);
     vector<double> beta_a(totalnum,0.0);
     vector<double> beta_best(totalnum,0.0);
@@ -3410,6 +3476,12 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     int ind0 = fir; //used for validations
     int iteration=0; //iteration number
     //
+    if (sum(KeepConstant)==totalnum){
+        iteration=maxiter;
+        if (verbose){
+            Rcout << "No parameters to change" << endl;
+        }
+    }
     //
     while (iteration < maxiter){
         iteration++;
@@ -3418,7 +3490,9 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         beta_best = beta_c;//
         //
         // Calcualtes the initial change in parameter
+//        Rcout << "temp1" << endl;
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
+//        Rcout << "temp2" << endl;
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }
@@ -3551,10 +3625,13 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                 dev_temp.col(0) = dev_temp.col(0).array().log().array();
                 dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
                 dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
-                dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
                 //
+                dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+                //
+                dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
                 dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
                 dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+                dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
                 dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
                 
                 if (change_all){
@@ -3722,9 +3799,12 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
             dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
             //
+            dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+            //
             dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
             dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
             dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+            dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
             dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
             
         }
@@ -3798,15 +3878,12 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
     dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
     //
-    //
-//    for (int i=0; i < dev_temp.rows(); i++){
-//        Rcout << PyrC.row(i) << " " << dev_temp.row(i) << " " << R.row(i) << endl;
-//    }
-    //
+    dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
     //
     dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
     dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
     dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+    dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
     dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
     if (verbose){
         end_point = system_clock::now();
@@ -3934,10 +4011,11 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
 //' @param     term_tot    total number of terms
 //' @param     STRATA_vals vector of strata identifier values
 //' @param     keep_strata boolean to return the strata parameter values
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 // [[Rcpp::export]]
-List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, IntegerVector& STRATA_vals, bool keep_strata){
+List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, IntegerVector& STRATA_vals, bool keep_strata, int nthreads){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -3984,7 +4062,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
@@ -4141,9 +4219,12 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
     dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
     //
+    dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+    //
     dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
     dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
     dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+    dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
     double dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
     //
     vector <double> Ll_comp(2,Ll[0]); //vector to compare values
@@ -4201,7 +4282,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
-        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=dev,_["Status"]="FAILED");
+        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
 //        R = (R.array() < R_lim).select(R_lim, R);
         return temp_list;
     }
@@ -4225,6 +4306,12 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     int ind0 = fir; //used for validations
     int iteration=0; //iteration number
     //
+    if (sum(KeepConstant)==totalnum){
+        iteration=maxiter;
+        if (verbose){
+            Rcout << "No parameters to change" << endl;
+        }
+    }
     //
     while (iteration < maxiter){
         iteration++;
@@ -4366,10 +4453,13 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
                 dev_temp.col(0) = dev_temp.col(0).array().log().array();
                 dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
                 dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
-                dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
                 //
+                dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+                //
+                dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
                 dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
                 dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+                dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
                 dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
                 
                 if (change_all){
@@ -4537,9 +4627,12 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
             dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
             //
+            dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+            //
             dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
             dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
             dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+            dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
             dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
             
         }
@@ -4613,9 +4706,12 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
     dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
     //
+    dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+    //
     dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
     dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
     dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+    dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
     dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
     if (verbose){
         end_point = system_clock::now();
@@ -4734,10 +4830,11 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
 //' @param     term_tot    total number of terms
 //' @param     debug_checks    string vector of functions to test
 //' @param     ties_method    ties method
+//' @param     nthreads number of threads to use
 //'
 //' @return NULL
 // [[Rcpp::export]]
-void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, StringVector debug_checks, string ties_method){
+void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, StringVector debug_checks, string ties_method, int nthreads){
 ;
     //
     // Runs through a single calculation with some functions printing additional information printed
@@ -4788,7 +4885,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(10); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated    //
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated    //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
     // totem: number of rows needed
     //
@@ -5089,6 +5186,12 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
     int ind0 = fir; //used for validations
     int iteration=0; //iteration number
     //
+    if (sum(KeepConstant)==totalnum){
+        iteration=maxiter;
+        if (verbose){
+            Rcout << "No parameters to change" << endl;
+        }
+    }
     //
     while (iteration < maxiter){
         iteration++;
@@ -5399,10 +5502,11 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
 //' @param     tu    vector of event times
 //' @param     verbose    verbose boolean
 //' @param     ties_method    tied event method
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: Log-likelihood of optimum, AIC
 // [[Rcpp::export]]
-List LogLik_Cox_PH_null( NumericMatrix df_groups, NumericVector tu, bool verbose, string ties_method){
+List LogLik_Cox_PH_null( NumericMatrix df_groups, NumericVector tu, bool verbose, string ties_method, int nthreads){
     ;
     //
     // null model value calculation
@@ -5426,7 +5530,7 @@ List LogLik_Cox_PH_null( NumericMatrix df_groups, NumericVector tu, bool verbose
     }
     //
     Rcout.precision(10); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -5521,10 +5625,11 @@ List LogLik_Cox_PH_null( NumericMatrix df_groups, NumericVector tu, bool verbose
 //' @param     verbose    verbosity boolean
 //' @param     debugging    debugging boolean
 //' @param     term_tot    total number of terms
+//' @param     nthreads number of threads to use
 //'
 //' @return List of results: Risk at the reference
 // [[Rcpp::export]]
-NumericVector RISK_SUBSET(IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, bool verbose, bool debugging, int term_tot){
+NumericVector RISK_SUBSET(IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, bool verbose, bool debugging, int term_tot, int nthreads){
     ;
     //
     // Calculates the terms and risks for a reference vector
@@ -5561,7 +5666,7 @@ NumericVector RISK_SUBSET(IntegerVector Term_n, StringVector tform, NumericVecto
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
     //
     if (verbose){

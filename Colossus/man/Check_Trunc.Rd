@@ -5,12 +5,14 @@
 \title{Applies time duration truncation limits
 \code{Check_Trunc} creates columns to use for truncation}
 \usage{
-Check_Trunc(df, ce)
+Check_Trunc(df, ce, verbose = FALSE)
 }
 \arguments{
 \item{df}{dataframe of data to use as reference}
 
 \item{ce}{columns to check for truncation}
+
+\item{verbose}{verbosity argument, for error returns}
 }
 \value{
 returns the updated data and time period columns

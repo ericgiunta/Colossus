@@ -269,7 +269,7 @@ test_that("Coxph plot time column missing", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot no events", {
@@ -290,7 +290,7 @@ test_that("Coxph plot no events", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot no type", {
@@ -311,7 +311,7 @@ test_that("Coxph plot no type", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a")
+    plot_options=list("Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot strata col not in data", {
@@ -332,7 +332,7 @@ test_that("Coxph plot strata col not in data", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE,"Strat_Col"="e", "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE,"Strat_Col"="e", "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot strata col not given", {
@@ -353,7 +353,7 @@ test_that("Coxph plot strata col not given", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE, "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot bandwidth 0", {
@@ -374,7 +374,7 @@ test_that("Coxph plot bandwidth 0", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=TRUE, "bw"=0, "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=TRUE, "bw"=0, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot bandwidth below 0", {
@@ -395,7 +395,7 @@ test_that("Coxph plot bandwidth below 0", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=TRUE, "bw"=-1, "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=TRUE, "bw"=-1, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot martingale dose col not in data", {
@@ -416,7 +416,7 @@ test_that("Coxph plot martingale dose col not in data", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE, "dose_col"="e","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE, "dose_col"="e","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot martingale dose col not given", {
@@ -437,7 +437,7 @@ test_that("Coxph plot martingale dose col not given", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot Survival ID col not in data", {
@@ -458,7 +458,7 @@ test_that("Coxph plot Survival ID col not in data", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="f")
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="f",'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot Survival ID col not given", {
@@ -479,7 +479,7 @@ test_that("Coxph plot Survival ID col not given", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE,'verbose'=FALSE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 
@@ -501,7 +501,7 @@ test_that("Coxph plot no error", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"), "studyID"="a")
+    plot_options=list("type"=c("SURV","run"), "studyID"="a",'verbose'=FALSE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 

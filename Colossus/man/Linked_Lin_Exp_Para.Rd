@@ -5,7 +5,7 @@
 \title{Calculates The Additional Parameter For a linear-exponential formula with known maximum
 \code{Linked_Lin_Exp_Para} Calculates what the additional parameter would be for a desired maximum}
 \usage{
-Linked_Lin_Exp_Para(y, a0, a1_goal)
+Linked_Lin_Exp_Para(y, a0, a1_goal, verbose = FALSE)
 }
 \arguments{
 \item{y}{point formula switch}
@@ -13,6 +13,8 @@ Linked_Lin_Exp_Para(y, a0, a1_goal)
 \item{a0}{linear slope}
 
 \item{a1_goal}{exponential maximum desired}
+
+\item{verbose}{verbosity argument, for error returns}
 }
 \value{
 returns parameter used by Colossus

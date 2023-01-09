@@ -25,7 +25,8 @@ LogLik_Cox_PH_basic(
   verbose,
   debugging,
   KeepConstant,
-  ties_method
+  ties_method,
+  nthreads
 )
 }
 \arguments{
@@ -68,6 +69,8 @@ LogLik_Cox_PH_basic(
 \item{KeepConstant}{vector identifying constant parameters}
 
 \item{ties_method}{ties method}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information

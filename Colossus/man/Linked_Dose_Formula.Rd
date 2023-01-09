@@ -5,12 +5,14 @@
 \title{Calculates Full Parameter list for Special Dose Formula
 \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas}
 \usage{
-Linked_Dose_Formula(tforms, paras)
+Linked_Dose_Formula(tforms, paras, verbose = FALSE)
 }
 \arguments{
 \item{tforms}{list of formula types}
 
 \item{paras}{list of formula parameters}
+
+\item{verbose}{verbosity argument, for error returns}
 }
 \value{
 returns list of full parameters
