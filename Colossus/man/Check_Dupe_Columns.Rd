@@ -5,12 +5,14 @@
 \title{checks for duplicated column names
 \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms}
 \usage{
-Check_Dupe_Columns(df, cols, verbose = FALSE)
+Check_Dupe_Columns(df, cols, term_n, verbose = FALSE)
 }
 \arguments{
 \item{df}{dataframe of data to use as reference}
 
 \item{cols}{columns to check}
+
+\item{term_n}{term numbers}
 
 \item{verbose}{verbosity}
 }

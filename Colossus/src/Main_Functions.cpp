@@ -395,6 +395,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Lldd[ij*totalnum+ij] << " ";
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -439,6 +440,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     //int //i = ind0;
     int iteration=0; //iteration number
     //
+    bool convgd = FALSE;
     int iter_stop =0;
     //
     while ((iteration < maxiter)&&(iter_stop==0)){
@@ -667,6 +669,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                     for (int ij=0;ij<totalnum;ij++){
                         Rcout << Lldd[ij*totalnum+ij] << " ";
                     }
+                    Lld_worst=0;
                     for (int ij=0;ij<totalnum;ij++){
                         if (abs(Lld[ij]) > Lld_worst){
                             Lld_worst = abs(Lld[ij]);
@@ -835,6 +838,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             //
             Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -844,6 +848,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             if (iteration % (2*totalnum)){//Checks every set number of iterations
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
+                    convgd = TRUE;
                 }
                 Ll_comp[1]=Ll[0];
                 if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
@@ -911,7 +916,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
     //
     List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform); //stores the term information
-    List control_list = List::create(_["Iteration"]=iteration); //stores the total number of iterations used
+    List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst); //stores the total number of iterations used
     //
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -941,7 +946,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             ij++;
             jk-=ij;
         }
-        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+        Lldd_vec[jk * kept_covs + ij]=Lldd_vec[ij * kept_covs + jk];
     }
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
@@ -962,7 +967,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
 //    //
 //    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Convgerged"]=convgd);
     // returns a list of results
     return res_list;
 }
@@ -1232,6 +1237,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Lldd[ij*totalnum+ij] << " ";
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -1277,6 +1283,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     int iteration=0; //iteration number
     //
     int iter_stop =0;
+    bool convgd = FALSE;
     //
     while ((iteration < maxiter)&&(iter_stop==0)){
         iteration++;
@@ -1449,6 +1456,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
                 for (int ij=0;ij<totalnum;ij++){
                     Rcout << Lldd[ij*totalnum+ij] << " ";
                 }
+                Lld_worst=0;
                 for (int ij=0;ij<totalnum;ij++){
                     if (abs(Lld[ij]) > Lld_worst){
                         Lld_worst = abs(Lld[ij]);
@@ -1597,6 +1605,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             //
             Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -1606,6 +1615,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             if (iteration % (2*totalnum)){//Checks every set number of iterations
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
+                    convgd = TRUE;
                 }
                 Ll_comp[1]=Ll[0];
                 if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
@@ -1673,7 +1683,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     //
     Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
     //
-    List control_list = List::create(_["Iteration"]=iteration); //stores the total number of iterations used
+    List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst);//stores the total number of iterations used
     //
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -1703,7 +1713,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             ij++;
             jk-=ij;
         }
-        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+        Lldd_vec[jk * kept_covs + ij]=Lldd_vec[ij * kept_covs + jk];
     }
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
@@ -1724,7 +1734,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
 //    //
 //    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Control_List"]=control_list,_["Converged"]=convgd);
     // returns a list of results
     return res_list;
 }
@@ -2013,6 +2023,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Lldd[ij*totalnum+ij] << " ";
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -2060,6 +2071,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     int iteration=0; //iteration number
     //
     int iter_stop =0;
+    bool convgd = FALSE;
     //
     while ((iteration < maxiter)&&(iter_stop==0)){
         iteration++;
@@ -2248,6 +2260,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
                     for (int ij=0;ij<totalnum;ij++){
                         Rcout << Lldd[ij*totalnum+ij] << " ";
                     }
+                    Lld_worst=0;
                     for (int ij=0;ij<totalnum;ij++){
                         if (abs(Lld[ij]) > Lld_worst){
                             Lld_worst = abs(Lld[ij]);
@@ -2377,6 +2390,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             //
             Calc_LogLik_STRATA( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals);
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -2386,6 +2400,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             if (iteration % (2*totalnum)){//Checks every set number of iterations
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
+                    convgd = TRUE;
                 }
                 Ll_comp[1]=Ll[0];
                 if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
@@ -2454,7 +2469,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     Calc_LogLik_STRATA( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals);
     //
     List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform); //stores the term information
-    List control_list = List::create(_["Iteration"]=iteration); //stores the total number of iterations used
+    List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst); //stores the total number of iterations used
     //
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -2484,7 +2499,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             ij++;
             jk-=ij;
         }
-        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+        Lldd_vec[jk * kept_covs + ij]=Lldd_vec[ij * kept_covs + jk];
     }
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
@@ -2505,7 +2520,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
 //    //
 //    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
     // returns a list of results
     return res_list;
 }
@@ -3419,6 +3434,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Lldd[ij*totalnum+ij] << " ";
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -3476,14 +3492,17 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     int ind0 = fir; //used for validations
     int iteration=0; //iteration number
     //
+    int iter_stop = 0;
+    bool convgd = FALSE;
+    //
     if (sum(KeepConstant)==totalnum){
-        iteration=maxiter;
+        iter_stop = 1;
         if (verbose){
             Rcout << "No parameters to change" << endl;
         }
     }
     //
-    while (iteration < maxiter){
+    while ((iteration < maxiter)&&(iter_stop==0)){
         iteration++;
         beta_p = beta_c;//
         beta_a = beta_c;//
@@ -3673,6 +3692,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                     for (int ij=0;ij<totalnum;ij++){
                         Rcout << Lldd[ij*totalnum+ij] << " ";
                     }
+                    Lld_worst=0;
                     for (int ij=0;ij<totalnum;ij++){
                         if (abs(Lld[ij]) > Lld_worst){
                             Lld_worst = abs(Lld[ij]);
@@ -3808,6 +3828,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
             
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -3816,11 +3837,12 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         if (iteration > totalnum){//Sets the minimum number of iterations
             if (iteration % (2*totalnum)){//Checks every set number of iterations
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
-                    iteration = maxiter;
+                    iter_stop = 1;
+                    convgd = TRUE;
                 }
                 Ll_comp[1]=Ll[0];
                 if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
-                    iteration = maxiter;
+                    iter_stop = 1;
                 }
             }
         }
@@ -3927,7 +3949,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     }
     // Changes the parameter back into the original form
     List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform);
-    List control_list = List::create(_["Iteration"]=iteration);
+    List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst);
     //
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -3957,7 +3979,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             ij++;
             jk-=ij;
         }
-        Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+        Lldd_vec[jk * kept_covs + ij]=Lldd_vec[ij * kept_covs + jk];
     }
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
@@ -3978,7 +4000,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
 //    //
 //    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))+dev,_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))+dev,_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
     // returns a list of results
     return res_list;
 }
@@ -4250,6 +4272,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Lldd[ij*totalnum+ij] << " ";
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -4306,14 +4329,17 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     int ind0 = fir; //used for validations
     int iteration=0; //iteration number
     //
+    int iter_stop = 0;
+    bool convgd = FALSE;
+    //
     if (sum(KeepConstant)==totalnum){
-        iteration=maxiter;
+        iter_stop = 1;
         if (verbose){
             Rcout << "No parameters to change" << endl;
         }
     }
     //
-    while (iteration < maxiter){
+    while ((iteration < maxiter)&&(iter_stop==0)){
         iteration++;
         beta_p = beta_c;//
         beta_a = beta_c;//
@@ -4501,6 +4527,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
                     for (int ij=0;ij<totalnum;ij++){
                         Rcout << Lldd[ij*totalnum+ij] << " ";
                     }
+                    Lld_worst=0;
                     for (int ij=0;ij<totalnum;ij++){
                         if (abs(Lld[ij]) > Lld_worst){
                             Lld_worst = abs(Lld[ij]);
@@ -4636,6 +4663,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
             
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -4644,11 +4672,12 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         if (iteration > totalnum){//Sets the minimum number of iterations
             if (iteration % (2*totalnum)){//Checks every set number of iterations
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
-                    iteration = maxiter;
+                    iter_stop = 1;
+                    convgd = TRUE;
                 }
                 Ll_comp[1]=Ll[0];
                 if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
-                    iteration = maxiter;
+                    iter_stop = 1;
                 }
             }
         }
@@ -4761,7 +4790,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     //
     // Changes the parameter back into the original form
     List para_list = List::create(_["Term_n"]=head(Term_n,true_totalnum),_["tforms"]=head(tform,true_totalnum));
-    List control_list = List::create(_["Iteration"]=iteration);
+    List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst);
     //
     NumericVector Lldd_vec(true_totalnum * true_totalnum);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -4786,7 +4815,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             ij++;
             jk-=ij;
         }
-        Lldd_vec[ij * true_totalnum + jk]=Lldd_vec[jk * true_totalnum + ij];
+        Lldd_vec[jk * true_totalnum + ij]=Lldd_vec[ij * true_totalnum + jk];
     }
     //
     Lldd_vec.attr("dim") = Dimension(true_totalnum, true_totalnum);
@@ -4796,7 +4825,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
     //
     Lld.resize(true_totalnum);
-    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0.head(true_totalnum)) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*(true_totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))+dev,_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list);
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0.head(true_totalnum)) ,_["Standard_Deviation"]=wrap(Lldd_inv.diagonal().cwiseSqrt()) ,_["AIC"]=2*(true_totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))+dev,_["Deviation"]=dev,_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
     // returns a list of results
     return res_list;
 }
@@ -5144,6 +5173,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Lldd[ij*totalnum+ij] << " ";
         }
+        Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
             if (abs(Lld[ij]) > Lld_worst){
                 Lld_worst = abs(Lld[ij]);
@@ -5420,6 +5450,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
                 for (int ij=0;ij<totalnum;ij++){
                     Rcout << Lldd[ij*totalnum+ij] << " ";
                 }
+                Lld_worst=0;
                 for (int ij=0;ij<totalnum;ij++){
                     if (abs(Lld[ij]) > Lld_worst){
                         Lld_worst = abs(Lld[ij]);
@@ -5764,6 +5795,487 @@ NumericVector RISK_SUBSET(IntegerVector Term_n, StringVector tform, NumericVecto
         Rcout << " " << endl;
     }
     return wrap(R.col(0));
+}
+
+//' Primary Cox PH calculation
+//' \code{LogLik_Cox_PH_Single} Calculates just the log-likelihood
+//'
+//' @param     Term_n    Term numbers
+//' @param     tform    subterm types
+//' @param     a_n    starting values
+//' @param     x_all    covariate matrix
+//' @param     dfc    covariate column numbers
+//' @param     fir    first term number
+//' @param     modelform    model string
+//' @param     df_groups    matrix with time and event information
+//' @param     tu    event times
+//' @param     verbose    verbosity boolean
+//' @param     debugging    debugging boolean
+//' @param     term_tot    total number of terms
+//' @param     ties_method    ties method
+//' @param     nthreads number of threads to use
+//'
+//' @return List of results: Log-likelihood, parameter list, AIC, model information
+// [[Rcpp::export]]
+List LogLik_Cox_PH_Single( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, int term_tot, string ties_method, int nthreads){
+    ;
+    //
+    List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
+    if (verbose){
+        Rcout << "START_NEW" << endl;
+    }
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //
+    auto gibtime = system_clock::to_time_t(system_clock::now());
+    if (verbose){
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    int ntime = tu.size();
+    //
+    int totalnum = Term_n.size();
+    //
+    if (verbose){
+        Rcout << "Term checked ";
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Term_n[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    Rcout.precision(7); //forces higher precision numbers printed to terminal
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    //
+    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Starting"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    // ---------------------------------------------
+    // To Start, needs to seperate the derivative terms
+    // ---------------------------------------------
+    //
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+    //
+    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
+    MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
+    //
+    MatrixXd Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
+    MatrixXd nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
+    MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
+    MatrixXd nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
+    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
+    MatrixXd TTerm=MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
+    //
+    if (verbose){
+        Rcout << "starting subterms " << term_tot << endl;
+    }
+    // Calculates the subterm and term values
+    Make_Subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging);
+    // ---------------------------------------------------------
+    // Prints off a series of calculations to check at what point values are changing
+    // ---------------------------------------------------------
+    //
+    //
+    if (verbose){
+        Rcout << "values checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "sums checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << T0.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << Dose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "LIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "PLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "LOGLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // Calculates the risk for each row
+    Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging);
+    //
+    // Removes infinite values
+    //
+    if (R.minCoeff()<=0){
+        Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
+        Rcout << "final failing values ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        return temp_list;
+    }
+    //
+    if (verbose){
+        Rcout << "risk checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << R.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        //
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // -------------------------------------------------------------------------------------------
+    //
+    vector<string>  RiskGroup(ntime); //vector of strings detailing the rows
+    IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
+    //
+    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    // Creates matrices used to identify the event risk groups
+    Make_Groups( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging);
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_List"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // --------------------------
+    // now a vector exists with row locations
+    // --------------------------
+    //
+    MatrixXd Rls1 =MatrixXd::Zero(ntime, 1); //precomputes a series of sums used frequently in the log-liklihood calculations
+    MatrixXd Lls1 =MatrixXd::Zero(ntime, 1); //The log-likelihood calculation has a Right and Left sum used
+    //The log-likelihood is calculated in parallel over the risk groups
+    vector<double> Ll(1,0.0); //Log-likelihood values
+    //
+    if (verbose){
+        Rcout << "Made Risk Side Lists" << endl;
+    }
+    // Calculates the side sum terms used
+    Calculate_Sides_Single( RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1,nthreads, debugging);
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_Sides"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    if (verbose){
+        Rcout << "riskr checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rls1.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        //
+        Rcout << "riskl checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Lls1.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    // Calculates log-likelihood
+    Calc_LogLik_Single( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method);
+    //
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+        Rcout << "df101 ";//prints the log-likelihoods
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Ll[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df104 ";//prints parameter values
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << beta_0[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["beta_0"]=wrap(beta_0) ,_["AIC"]=2*(totalnum-2*Ll[0]));
+    // returns a list of results
+    return res_list;
+}
+
+//' Primary poisson calculation function
+//' \code{LogLik_Poisson_Single} Performs the calls to calculation functions, Structures the poisson calculation
+//'
+//' @param     PyrC    person-year matrix
+//' @param     Term_n    Term numbers
+//' @param     tform    subterm types
+//' @param     a_n    starting values
+//' @param     x_all    covariate matrix
+//' @param     dfc    covariate column numbers
+//' @param     fir    first term number
+//' @param     modelform    model string
+//' @param     verbose    verbosity boolean
+//' @param     debugging    debugging boolean
+//' @param     term_tot    total number of terms
+//' @param     nthreads number of threads to use
+//'
+//' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+// [[Rcpp::export]]
+List LogLik_Poisson_Single( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, bool verbose, bool debugging, int term_tot, int nthreads){
+    ;
+    //
+    List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
+    if (verbose){
+        Rcout << "START_NEW" << endl;
+    }
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //
+    //
+    // Time durations are measured from this point on in microseconds
+    //
+    auto gibtime = system_clock::to_time_t(system_clock::now());
+    if (verbose){
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    //
+    // df0: covariate data
+    // totalnum: number of terms used
+    //
+    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    //
+    int totalnum = Term_n.size();
+    //
+    if (verbose){
+        Rcout << "Term checked ";
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Term_n[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    // cout.precision: controls the number of significant digits printed
+    // nthreads: number of threads used for parallel operations
+    //
+    Rcout.precision(7); //forces higher precision numbers printed to terminal
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    //
+    //
+    // Lld_worst: stores the highest magnitude log-likelihood derivative
+    // totem: number of rows needed
+    //
+    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Starting"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    // ---------------------------------------------
+    // To Start, needs to seperate the derivative terms
+    // ---------------------------------------------
+    //
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+    //
+    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
+    MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
+    //
+    MatrixXd Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
+    MatrixXd nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
+    MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0);
+    MatrixXd nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
+    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
+    MatrixXd TTerm=MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
+    if (verbose){
+        Rcout << "starting subterms " << term_tot << endl;
+    }
+    // Calculates the subterm and term values
+    Make_Subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging);
+//    Rcout << T0.row(0) << endl;
+    // ---------------------------------------------------------
+    // Prints off a series of calculations to check at what point values are changing
+    // ---------------------------------------------------------
+//    for (int ijk=0;ijk<totalnum;ijk++){
+//        Rcout << beta_0[ijk] << endl;
+//        Rcout << T0.col(ijk).transpose() << endl;
+//        Rcout << df0.col(dfc[ijk]-1).transpose() << endl;
+//    }
+//    Rcout << "temp" << endl;
+    if (verbose){
+        Rcout << "values checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "sums checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << T0.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << Dose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "LIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "PLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "LOGLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    MatrixXd RdR = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk to derivative ratios
+    MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // Calculates the risk for each row
+    Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging);
+    //
+    //
+    //
+    if (verbose){
+        Rcout << "risk checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << R.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        //
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // -------------------------------------------------------------------------------------------
+    //
+    vector<double> Ll(totalnum,0.0);
+    //
+    //
+    Poisson_LogLik_Single( nthreads, totalnum, PyrC, R, Ll, debugging);
+    //
+    MatrixXd dev_temp = MatrixXd::Zero(PyrC.rows(),2);
+    dev_temp.col(0) = PyrC.col(0).array() * R.col(0).array();
+    dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array().pow(-1).array();
+    dev_temp.col(0) = dev_temp.col(0).array().log().array();
+    dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
+    dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array();
+    //
+    dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0),0);
+    //
+    dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
+    dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();//.sqrt();
+    dev_temp = (dev_temp.array().isFinite()).select(dev_temp,0);
+    dev_temp.col(0) = (R.col(0).array()<0).select(0,dev_temp.col(0));
+    double dev = dev_temp.col(0).sum(); //deviation calculation is split into steps
+    //
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+        Rcout << "df101 ";//prints the log-likelihoods
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Ll[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df104 ";//prints parameter values
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << beta_0[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //double R_lim = 1e-12;
+    if (R.minCoeff()<=0){
+        Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
+        Rcout << "final failing values ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
+//        R = (R.array() < R_lim).select(R_lim, R);
+        return temp_list;
+    }
+    //
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["beta_0"]=wrap(beta_0) ,_["AIC"]=2*(totalnum)+dev,_["Deviation"]=dev);
+    // returns a list of results
+    return res_list;
 }
 
 

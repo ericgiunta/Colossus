@@ -79,11 +79,43 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
     double dose_abs_max = Control["dose_abs_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the Cox PH calculation
+//' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_n starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param modelform model string
+//' @param Control control list
+//' @param df_groups time and event matrix
+//' @param tu event times
+//' @param term_tot total number of terms
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List cox_ph_transition_single(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, int term_tot){
+    bool change_all = Control["change_all"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["Ncores"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_Single(Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu,verbose, debugging, term_tot, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -116,7 +148,7 @@ List cox_ph_transition_basic( NumericVector a_n,IntegerVector dfc,NumericMatrix 
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     //
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH_basic(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, ties_method, nthreads);
@@ -158,7 +190,7 @@ List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n,I
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     //
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH_STRATA(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
@@ -194,7 +226,7 @@ List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n, Nu
     double dose_abs_max = Control["dose_abs_max"];
     string ties_method =Control["ties"];
     List res;
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     // there are two types of plots that can be generated, survival curve and risk by covariate value
     //----------------------------------------------------------------------------------------------------------------//
     if (Plot_Type[0]=="SURV"){
@@ -233,7 +265,7 @@ NumericMatrix cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tf
     double dose_abs_max = Control["dose_abs_max"];
     string ties_method =Control["ties"];
     //
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     // performs schoenfeld residual calculation
     NumericMatrix res = Schoenfeld_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
@@ -274,9 +306,38 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     // calculates the poisson regression
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Poisson(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the poisson calculation
+//' \code{poisson_transition_single} Called directly from R, Defines the control variables and calls the calculation function
+//' @param dfe Matrix with person-year/event count information
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_n starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param modelform model string
+//' @param Control control list
+//' @param term_tot total number of terms
+//'
+//' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+// [[Rcpp::export]]
+List poisson_transition_single(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, int term_tot){
+    //----------------------------------------------------------------------------------------------------------------//
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    //
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    // calculates the poisson regression
+    int nthreads = Control["Ncores"];
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Poisson_Single(PyrC,Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -317,7 +378,7 @@ List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVe
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     // calculates the poisson regression
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, STRATA_vals,keep_strata, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
@@ -357,7 +418,7 @@ void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,Int
     double dose_abs_max = Control["dose_abs_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     Stress_Run(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot,test_point, ties_method , nthreads);
     return;
 }
@@ -379,7 +440,7 @@ List cox_ph_null( List Control, NumericMatrix df_groups, NumericVector tu){
     bool verbose = Control["verbose"];
     string ties_method =Control["ties"];
     //
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH_null( df_groups, tu, verbose, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
@@ -405,7 +466,7 @@ NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericV
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     NumericVector res;
-    int nthreads = nthreads = Control["Ncores"];
+    int nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
     // calculates risk for a reference vector
     res = RISK_SUBSET(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot, nthreads);

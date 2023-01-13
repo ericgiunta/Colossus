@@ -214,41 +214,6 @@ Open_File <- function(fname,time1="age_start", time2="age_exit", event="cases"){
     return (df)
 }
 
-#' Defines Time Dependent Parameters
-#' \code{time_factor} uses user provided bins and a list of columns to define interaction terms and update the data.table.
-#' Technically could be used to define interaction terms for a binned column and a list of non-binned values
-#'
-#' @param df a data.table containing the columns of interest
-#' @param time_bins an array of bins to apply to the time column to split by
-#' @param col_list an array of column names that should have interaction terms defined
-#' @param time_col the column name of the time column the data is binned by
-#'
-#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
-#' @export
-#'
-time_factor <- function(df,time_bins,col_list,time_col){
-    cols <- c()
-    for (j in 1:length(col_list)){
-        col <- col_list[j]
-        for (i in 1:(length(time_bins)-1)){
-            newcol <- c(paste(col,i,sep="_T"))
-            if (sum(((df[,time_col, with = FALSE]>=time_bins[i])&(df[,time_col, with = FALSE]<time_bins[i+1])))>0){
-                df[, newcol] <- df[,col, with = FALSE]*((df[,time_col, with = FALSE]>=time_bins[i])&(df[,time_col, with = FALSE]<time_bins[i+1]))
-                cols <- c(cols, newcol)
-                #
-                newcol <- c(paste(i,"_T",sep=""))
-                if ( newcol %in% cols){
-                    ;
-                } else {
-                    df[, newcol] <- 1*((df[,time_col, with = FALSE]>=time_bins[i])&(df[,time_col, with = FALSE]<time_bins[i+1]))
-                    cols <- c(cols, newcol)
-                }
-            }
-        }
-    }
-    list('df'=df, 'cols'=cols)
-}
-
 #' Splits a parameter into factors
 #' \code{factorize} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 #' Not for interaction terms
@@ -364,31 +329,39 @@ get_conf_int <-function(alpha=0.95){
 #'
 #' @param df dataframe of data to use as reference
 #' @param cols columns to check
+#' @param term_n term numbers
 #' @param verbose verbosity
 #'
 #' @return returns the usable columns
 #' @export
 #'
-Check_Dupe_Columns <- function(df,cols,verbose=FALSE){
+Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE){
     ##
     if (length(cols)>1){
         features_pair <- combn(cols, 2, simplify = F) # list all column pairs
+        terms_pair <- combn(term_n, 2, simplify = F) # list all term pairs
         toRemove <- c() # init a vector to store duplicates
-        for(pair in features_pair) { # put the pairs for testing into temp objects
+        for(pair_n in 1:length(features_pair)) { # put the pairs for testing into temp objects
+            pair <- unlist(features_pair[pair_n])
+            term <- unlist(terms_pair[pair_n])
             f1 <- pair[1]
             f2 <- pair[2]
-            df[,get(f1)]
-            df[,get(f2)]
-            if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
-                if (all(df[[f1]] == df[[f2]])) { # test for duplicates
-                    if (verbose){
-                        print(paste(f1, " and ", f2, " are equals.",sep=""))
+            t1 <- term[1]
+            t2 <- term[2]
+            if (t1==t2){
+                df[,get(f1)]
+                df[,get(f2)]
+                if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
+                    if (all(df[[f1]] == df[[f2]])) { # test for duplicates
+                        if (verbose){
+                            print(paste(f1, " and ", f2, " are equals.",sep=""))
+                        }
+                        toRemove <- c(toRemove, f2) # build the list of duplicates
                     }
-                    toRemove <- c(toRemove, f2) # build the list of duplicates
-                }
-                if (min(df[[f2]])==max(df[[f2]])){
-                    if (min(df[[f2]])==0){
-                        toRemove <- c(toRemove, f2) # remove zero values
+                    if (min(df[[f2]])==max(df[[f2]])){
+                        if (min(df[[f2]])==0){
+                            toRemove <- c(toRemove, f2) # remove zero values
+                        }
                     }
                 }
             }

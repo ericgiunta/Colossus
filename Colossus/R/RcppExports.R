@@ -59,6 +59,30 @@ Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose
     invisible(.Call(`_Colossus_Make_Subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging))
 }
 
+#' Utility function to calculate the term and subterm values, but not derivatives
+#' \code{Make_Subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+#' @param     totalnum    Total number of terms
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     T0    Term by subterm matrix
+#' @param     Dose    Dose term matrix
+#' @param     nonDose    nonDose term matrix
+#' @param     TTerm    Total term matrix
+#' @param     nonDose_LIN    Linear term matrix
+#' @param     nonDose_PLIN    Product linear term matrix
+#' @param     nonDose_LOGLIN    Loglinear term matrix
+#' @param     beta_0    parameter list
+#' @param     df0    covariate matrix
+#' @param     nthreads    number of threads to use
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: Sub-term matrices, Term matrices
+Make_Subterms_Single <- function(totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Make_Subterms_Single`, totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging))
+}
+
 #' Utility function to calculate the term and subterm values with the basic model
 #' \code{Make_Subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 #' @param     totalnum    Total number of terms
@@ -102,6 +126,30 @@ Make_Subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugg
 #' @return Updates matrices in place: Risk, Risk ratios
 Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging) {
     invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging))
+}
+
+#' Utility function to calculate the risk, but not derivatives
+#' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
+#' @param     modelform    Model string
+#' @param     tform    subterm types
+#' @param     Term_n    term numbers
+#' @param     totalnum    total number of terms
+#' @param     fir    first term number
+#' @param     T0    Term by subterm matrix
+#' @param     Te    Temporary term storage matrix
+#' @param     R    Risk matrix
+#' @param     Dose    Dose term matrix
+#' @param     nonDose    nonDose term matrix
+#' @param     TTerm    Total term matrix
+#' @param     nonDose_LIN    Linear term matrix
+#' @param     nonDose_PLIN    Product linear term matrix
+#' @param     nonDose_LOGLIN    Loglinear term matrix
+#' @param     nthreads    number of threads to use
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: Risk, Risk ratios
+Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Make_Risks_Single`, modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging))
 }
 
 #' Utility function to calculate the risk and risk ratios for the basic model
@@ -177,6 +225,23 @@ Calculate_Sides <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rl
     invisible(.Call(`_Colossus_Calculate_Sides`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging))
 }
 
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
+#' \code{Calculate_Sides_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: risk storage matrices
+Calculate_Sides_Single <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Calculate_Sides_Single`, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging))
+}
+
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
 #' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @param     RiskFail    Matrix of event rows for each event time
@@ -230,6 +295,25 @@ Calc_LogLik <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, R
     invisible(.Call(`_Colossus_Calc_LogLik`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method))
 }
 
+#' Utility function to calculate Cox Log-Likelihood
+#' \code{Calc_LogLik_Single} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @param     nthreads    number of threads
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     Ll    Log-likelihood vector
+#' @param     debugging    debugging boolean
+#' @param     ties_method    Ties method
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+Calc_LogLik_Single <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method) {
+    invisible(.Call(`_Colossus_Calc_LogLik_Single`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method))
+}
+
 #' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
 #' \code{Calc_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @param     nthreads    number of threads
@@ -278,6 +362,20 @@ Calc_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R
 #' @return Updates matrices in place: Log-likelihood vectors/matrix
 Poisson_LogLik <- function(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging) {
     invisible(.Call(`_Colossus_Poisson_LogLik`, nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging))
+}
+
+#' Utility function to calculate poisson log-likelihood
+#' \code{Poisson_LogLik_Single} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
+#' @param     nthreads    number of threads
+#' @param     totalnum    total number of parameters
+#' @param     PyrC    person-year matrix
+#' @param     R    Risk matrix
+#' @param     Ll    Log-likelihood vector
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+Poisson_LogLik_Single <- function(nthreads, totalnum, PyrC, R, Ll, debugging) {
+    invisible(.Call(`_Colossus_Poisson_LogLik_Single`, nthreads, totalnum, PyrC, R, Ll, debugging))
 }
 
 #' Utility function to calculate the change to make each iteration
@@ -681,6 +779,50 @@ RISK_SUBSET <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose,
     .Call(`_Colossus_RISK_SUBSET`, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot, nthreads)
 }
 
+#' Primary Cox PH calculation
+#' \code{LogLik_Cox_PH_Single} Calculates just the log-likelihood
+#'
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     modelform    model string
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     term_tot    total number of terms
+#' @param     ties_method    ties method
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood, parameter list, AIC, model information
+LogLik_Cox_PH_Single <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, term_tot, ties_method, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_Single`, Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, term_tot, ties_method, nthreads)
+}
+
+#' Primary poisson calculation function
+#' \code{LogLik_Poisson_Single} Performs the calls to calculation functions, Structures the poisson calculation
+#'
+#' @param     PyrC    person-year matrix
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     modelform    model string
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     term_tot    total number of terms
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+LogLik_Poisson_Single <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_Single`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot, nthreads)
+}
+
 #' Interface between R code and the Cox PH regression
 #' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @param Term_n Term numbers
@@ -700,6 +842,25 @@ RISK_SUBSET <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose,
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 cox_ph_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot) {
     .Call(`_Colossus_cox_ph_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot)
+}
+
+#' Interface between R code and the Cox PH calculation
+#' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param modelform model string
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param term_tot total number of terms
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+cox_ph_transition_single <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, term_tot) {
+    .Call(`_Colossus_cox_ph_transition_single`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, term_tot)
 }
 
 #' Interface between R code and the Cox PH regression for basic model
@@ -803,6 +964,24 @@ cox_ph_schoenfeld_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, de
 #' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 poisson_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot) {
     .Call(`_Colossus_poisson_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot)
+}
+
+#' Interface between R code and the poisson calculation
+#' \code{poisson_transition_single} Called directly from R, Defines the control variables and calls the calculation function
+#' @param dfe Matrix with person-year/event count information
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param modelform model string
+#' @param Control control list
+#' @param term_tot total number of terms
+#'
+#' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+poisson_transition_single <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, term_tot) {
+    .Call(`_Colossus_poisson_transition_single`, dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, term_tot)
 }
 
 #' Interface between R code and the poisson regression with strata effect

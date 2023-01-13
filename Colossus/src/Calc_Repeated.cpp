@@ -184,6 +184,8 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
 
+        } else if (as< string>(tform[ij])=="lin_int") {
+            ;
         } else if (as< string>(tform[ij])=="quad_slope"){
             ArrayXd temp = df0.col(df0_c).array().square();
             //
@@ -203,6 +205,8 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             T0.col(ij+1) = beta_0[ij] * temp.array();
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
+        } else if (as< string>(tform[ij])=="step_int") {
+            ;
         } else if (as< string>(tform[ij])=="lin_quad_slope") {
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
 //            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
@@ -331,6 +335,8 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
             Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
 
+        } else if (as< string>(tform[ij])=="lin_int") {
+            ;
         } else if (as< string>(tform[ij])=="quad_slope"){
             ArrayXd temp = df0.col(df0_c).array().square();
             //
@@ -353,6 +359,8 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
             Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
 
+        } else if (as< string>(tform[ij])=="step_int") {
+            ;
         } else if (as< string>(tform[ij])=="lin_quad_slope") {
             //
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
@@ -603,6 +611,237 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
     return;
 }
 
+//' Utility function to calculate the term and subterm values, but not derivatives
+//' \code{Make_Subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+//' @param     totalnum    Total number of terms
+//' @param     Term_n    Term numbers
+//' @param     tform    subterm types
+//' @param     dfc    covariate column numbers
+//' @param     fir    first term number
+//' @param     T0    Term by subterm matrix
+//' @param     Dose    Dose term matrix
+//' @param     nonDose    nonDose term matrix
+//' @param     TTerm    Total term matrix
+//' @param     nonDose_LIN    Linear term matrix
+//' @param     nonDose_PLIN    Product linear term matrix
+//' @param     nonDose_LOGLIN    Loglinear term matrix
+//' @param     beta_0    parameter list
+//' @param     df0    covariate matrix
+//' @param     nthreads    number of threads to use
+//' @param     debugging    debugging boolean
+//'
+//' @return Updates matrices in place: Sub-term matrices, Term matrices
+// [[Rcpp::export]]
+void Make_Subterms_Single(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging){
+    //
+    //Make_Subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
+    //
+    // Calculates the sub term values
+    //
+    vector<int> lin_count(nonDose.cols(),0);
+    vector<int> dose_count(nonDose.cols(),0);
+    #pragma omp declare reduction (eig_plus: MatrixXd: omp_out=omp_out.array() + omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),0.0))
+    #pragma omp declare reduction (eig_mult: MatrixXd: omp_out=omp_out.array() * omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),1.0))
+    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+            initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose,nonDose_LIN,nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count,dose_count)
+    for (int ij=0;ij<(totalnum);ij++){
+        int df0_c = dfc[ij]-1;
+        int tn = Term_n[ij];
+        if (as< string>(tform[ij])=="loglin_slope"){
+            ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
+            ArrayXd temp1 = beta_0[ij] * temp;
+            //
+            //
+            T0.col(ij) = temp1;
+            T0.col(ij+1) = temp1;
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+            
+        } else if (as< string>(tform[ij])=="loglin_top"){
+            if (ij==0){
+                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
+                T0.col(ij) = temp;
+                Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+                dose_count[tn]=dose_count[tn]+1;
+
+            } else if (tform[ij-1]!="loglin_slope"){
+                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
+                T0.col(ij) = temp;
+                Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+                dose_count[tn]=dose_count[tn]+1;
+                //
+
+            } else {
+                ;
+            }
+        } else if (as< string>(tform[ij])=="lin_slope"){
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            //
+            temp = (temp.array() < 0).select(0, temp);
+            //
+            T0.col(ij) = beta_0[ij] * temp.array();
+            T0.col(ij+1) = beta_0[ij] * temp.array();
+            //
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+
+        } else if (as< string>(tform[ij])=="lin_int") {
+            ;
+        } else if (as< string>(tform[ij])=="quad_slope"){
+            ArrayXd temp = df0.col(df0_c).array().square();
+            //
+            T0.col(ij) = beta_0[ij] * temp.array();
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+        } else if (as< string>(tform[ij])=="step_slope"){
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            //
+            temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
+            //
+            T0.col(ij) = beta_0[ij] * temp.array();
+            T0.col(ij+1) = beta_0[ij] * temp.array();
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+        } else if (as< string>(tform[ij])=="step_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_quad_slope") {
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            double a1 = beta_0[ij] /2 / beta_0[ij+1];
+            double b1 = beta_0[ij] /2 * beta_0[ij+1];
+            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
+            ArrayXd temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            temp = (temp.array() < 0).select(temp0, temp1);
+            //
+            T0.col(ij) = temp.array();
+            T0.col(ij+1) = temp.array();
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+        } else if (as< string>(tform[ij])=="lin_quad_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_slope") {
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            double c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij+1] * beta_0[ij+2];
+            double a1 = beta_0[ij] * beta_0[ij+1] + exp(c1 - beta_0[ij+2] * beta_0[ij+1]);
+            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
+            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            temp = (temp.array() < 0).select(temp0, temp1);
+            //
+            T0.col(ij) = temp.array();
+            T0.col(ij+1) = temp.array();
+            T0.col(ij+2) = temp.array();
+            Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
+            dose_count[tn]=dose_count[tn]+1;
+        } else if (as< string>(tform[ij])=="lin_exp_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
+            ;
+        } else if (as< string>(tform[ij])=="lin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
+            lin_count[tn]=lin_count[tn]+1;
+
+        } else if (as< string>(tform[ij])=="loglin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            T0.col(ij) = T0.col(ij).array().exp();;
+            nonDose_LOGLIN.col(tn) = nonDose_LOGLIN.col(tn).array() * T0.col(ij).array();
+
+        } else if (as< string>(tform[ij])=="plin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            T0.col(ij) = 1 + T0.col(ij).array();
+            nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
+
+        } else {
+            throw invalid_argument( "incorrect subterm type" );
+        }
+    }
+    //
+    // Calculates the terms and derivatives
+    //
+    //
+    //
+    for (int ijk=0; ijk<nonDose.cols();ijk++){ //combines non-dose terms into a single term
+//        Rcout << dose_count[ijk] << " " << lin_count[ijk] << endl;
+        if (dose_count[ijk]==0){
+            Dose.col(ijk) = Dose.col(ijk).array() * 0.0 + 1;
+        }
+        if (lin_count[ijk]==0){
+            nonDose_LIN.col(ijk) = nonDose_LIN.col(ijk).array() * 0.0 + 1;//replaces missing data with 1
+        }
+        nonDose.col(ijk) = nonDose_LIN.col(ijk).array()  * nonDose_PLIN.col(ijk).array()  * nonDose_LOGLIN.col(ijk).array() ;
+    }
+    TTerm << Dose.array() * nonDose.array();
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ij=0;ij<(totalnum);ij++){
+        int df0_c = dfc[ij]-1;
+        int tn = Term_n[ij];
+        if (as< string>(tform[ij])=="loglin_slope"){
+            //
+            //
+            T0.col(ij) = Dose.col(tn);
+            T0.col(ij+1) = Dose.col(tn);
+            
+        } else if (as< string>(tform[ij])=="loglin_top"){
+            if (ij==0){
+                T0.col(ij) = Dose.col(tn);
+
+            } else if (tform[ij-1]!="loglin_slope"){
+                T0.col(ij) = Dose.col(tn);
+                //
+
+            } else {
+                ;
+            }
+        } else if (as< string>(tform[ij])=="lin_slope"){
+            //
+            T0.col(ij) = Dose.col(tn);
+            T0.col(ij+1) = Dose.col(tn);
+
+        } else if (as< string>(tform[ij])=="quad_slope"){
+            //
+            T0.col(ij) = Dose.col(tn);
+        } else if (as< string>(tform[ij])=="step_slope"){
+            //
+            T0.col(ij) = Dose.col(tn);
+            T0.col(ij+1) = Dose.col(tn);
+
+        } else if (as< string>(tform[ij])=="lin_quad_slope") {
+            //
+            //
+            T0.col(ij) = Dose.col(tn);
+            T0.col(ij+1) = Dose.col(tn);
+            //
+        } else if (as< string>(tform[ij])=="lin_quad_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_slope") {
+            //
+            //
+            T0.col(ij) = Dose.col(tn);
+            T0.col(ij+1) = Dose.col(tn);
+            T0.col(ij+2) = Dose.col(tn);
+            //
+            //
+        } else if (as< string>(tform[ij])=="lin_exp_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
+            ;
+        } else if (as< string>(tform[ij])=="lin") {
+            T0.col(ij) = nonDose_LIN.col(tn);
+
+        } else if (as< string>(tform[ij])=="loglin") {
+            T0.col(ij) = nonDose_LOGLIN.col(tn);
+        } else if (as< string>(tform[ij])=="plin") {
+            T0.col(ij) = nonDose_PLIN.col(tn);
+        } else {
+            ;
+        }
+    }
+    return;
+}
+
 //' Utility function to calculate the term and subterm values with the basic model
 //' \code{Make_Subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 //' @param     totalnum    Total number of terms
@@ -677,7 +916,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     Dose_Iden.insert("lin_exp_int");
     Dose_Iden.insert("lin_exp_exp_slope");
     //
-    if ((modelform=="A")||(modelform=="PA")||(modelform=="PAE")){ //same process used for all of the additive type models
+    if (((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()>1)){ //same process used for all of the additive type models
         Te = TTerm.array().rowwise().sum().array();
         // computes intial risk and derivatives
         if (modelform=="A"){
@@ -943,7 +1182,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                 }
             }
         }
-    }else if (modelform=="M"){
+    }else if ((modelform=="M")||(((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()==1))){
         //
         MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(),TTerm.cols());
         TTerm_p << TTerm.array() + 1.0;
@@ -1037,6 +1276,79 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         }
         RddR.col(ijk)=R.col(0).array().pow(-1).array() * Rdd.col(ijk).array();
     }
+    return;
+}
+
+//' Utility function to calculate the risk, but not derivatives
+//' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
+//' @param     modelform    Model string
+//' @param     tform    subterm types
+//' @param     Term_n    term numbers
+//' @param     totalnum    total number of terms
+//' @param     fir    first term number
+//' @param     T0    Term by subterm matrix
+//' @param     Te    Temporary term storage matrix
+//' @param     R    Risk matrix
+//' @param     Dose    Dose term matrix
+//' @param     nonDose    nonDose term matrix
+//' @param     TTerm    Total term matrix
+//' @param     nonDose_LIN    Linear term matrix
+//' @param     nonDose_PLIN    Product linear term matrix
+//' @param     nonDose_LOGLIN    Loglinear term matrix
+//' @param     nthreads    number of threads to use
+//' @param     debugging    debugging boolean
+//'
+//' @return Updates matrices in place: Risk, Risk ratios
+// [[Rcpp::export]]
+void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging){
+    //
+    //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
+    //
+    set<string> Dose_Iden; //List of dose subterms
+    Dose_Iden.insert("loglin_top");
+    Dose_Iden.insert("loglin_slope");
+    Dose_Iden.insert("lin_slope");
+    Dose_Iden.insert( "lin_int");
+    Dose_Iden.insert("quad_slope");
+    Dose_Iden.insert("step_slope");
+    Dose_Iden.insert("step_int");
+    Dose_Iden.insert("lin_quad_slope");
+    Dose_Iden.insert("lin_quad_int");
+    Dose_Iden.insert("lin_exp_slope");
+    Dose_Iden.insert("lin_exp_int");
+    Dose_Iden.insert("lin_exp_exp_slope");
+    //
+    if (((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()>1)){ //same process used for all of the additive type models
+        Te = TTerm.array().rowwise().sum().array();
+        // computes intial risk and derivatives
+        if (modelform=="A"){
+            R << Te.array();
+        } else if ((modelform=="PAE")||(modelform=="PA")){
+            Te = Te.array() - TTerm.col(fir).array();
+            if (modelform=="PAE"){
+                Te = Te.array() + 1;
+            }
+            R << TTerm.col(fir).array() * Te.array();
+        }
+    }else if ((modelform=="M")||(((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()==1))){
+        //
+        MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(),TTerm.cols());
+        TTerm_p << TTerm.array() + 1.0;
+        TTerm_p.col(fir) = TTerm.col(fir).array();
+        Te = TTerm_p.array().rowwise().prod().array();
+//        Rcout << TTerm.row(0) << ":" << TTerm_p.row(0) << ":" << Te.row(0) << endl;
+        R << Te.array();
+        //
+        R = (R.array().isFinite()).select(R,0);
+    } else if (modelform=="GM"){
+        //currently isn't implemented, it can be calculated but not optimized the same way
+        throw invalid_argument( "GM isn't implemented" );
+    } else {
+        throw invalid_argument( "Model isn't implemented" );
+    }
+    //
+    //
+    R = (R.array().isFinite()).select(R,0);
     return;
 }
 
@@ -1539,6 +1851,50 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
     return;
 }
 
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
+//' \code{Calculate_Sides_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+//' @param     RiskFail    Matrix of event rows for each event time
+//' @param     RiskGroup    vectors of strings with rows at risk for each event time
+//' @param     totalnum    total number of parameters
+//' @param     ntime    number of event times
+//' @param     R    Risk matrix
+//' @param     Rls1    First Risk sum storage
+//' @param     Lls1    Second Risk sum storage
+//' @param     nthreads    number of threads
+//' @param     debugging    debugging boolean
+//'
+//' @return Updates matrices in place: risk storage matrices
+// [[Rcpp::export]]
+void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging){
+    //
+    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int j=0;j<ntime;j++){
+        double Rs1 = 0;
+        //
+        vector<int> InGroup;
+        string Groupstr = RiskGroup[j];
+        stringstream ss(Groupstr);
+        //
+        for (int i; ss >> i;) {
+            InGroup.push_back(i);    
+            if (ss.peek() == ',')
+                ss.ignore();
+        }
+        //Now has the grouping pairs
+        int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+            Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
+        } //precalculates the sums of risk groups
+        MatrixXd Ld = MatrixXd::Zero(dj,1);
+        Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
+        Rls1(j,0) = Rs1;
+        Lls1(j,0) = Ld.col(0).sum();
+    }
+    return;
+}
+
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
 //' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @param     RiskFail    Matrix of event rows for each event time
@@ -1843,6 +2199,59 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
     return;
 }
 
+//' Utility function to calculate Cox Log-Likelihood
+//' \code{Calc_LogLik_Single} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' @param     nthreads    number of threads
+//' @param     RiskFail    Matrix of event rows for each event time
+//' @param     RiskGroup    vectors of strings with rows at risk for each event time
+//' @param     totalnum    total number of parameters
+//' @param     ntime    number of event times
+//' @param     R    Risk matrix
+//' @param     Rls1    First Risk sum storage
+//' @param     Lls1    Second Risk sum storage
+//' @param     Ll    Log-likelihood vector
+//' @param     debugging    debugging boolean
+//' @param     ties_method    Ties method
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+// [[Rcpp::export]]
+void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method){
+    //
+    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
+    //
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
+    for (int j=0;j<ntime;j++){
+        double Rs1 = Rls1(j,0);
+        //
+        int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+        MatrixXd Ld = MatrixXd::Zero(dj,1);
+        Ld << R.block(RiskFail(j,0),0,dj,1);//rows with events
+        //
+        MatrixXd Ldm = MatrixXd::Zero(dj,1);
+        double Ldcs;
+        if (ties_method=="efron"){
+            Ldcs = Lls1(j,0);
+            for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
+                Ldm(i,0) = (-double(i) / double(dj)) * Ldcs;
+            }
+        }
+        Ldm.col(0) = Ldm.col(0).array() + Rs1;
+        // Calculates the left-hand side terms
+        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+        temp1 = Ld.col(0).array().log();
+        double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+        // calculates the right-hand side terms
+        temp1 = Ldm.col(0).array().log();
+        Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+        //
+        Ll[0] += Ld1 - Rs1;
+    }
+    return;
+}
+
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
 //' \code{Calc_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @param     nthreads    number of threads
@@ -2030,6 +2439,29 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
     return;
 }
 
+//' Utility function to calculate poisson log-likelihood
+//' \code{Poisson_LogLik_Single} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
+//' @param     nthreads    number of threads
+//' @param     totalnum    total number of parameters
+//' @param     PyrC    person-year matrix
+//' @param     R    Risk matrix
+//' @param     Ll    Log-likelihood vector
+//' @param     debugging    debugging boolean
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+// [[Rcpp::export]]
+void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, vector<double>& Ll, bool debugging){
+    //
+    // Poisson_LogLik( nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging)
+    //
+    MatrixXd temp(R.rows(),totalnum);
+    
+    temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
+    fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp,0).sum());
+    
+    return;
+}
+
 
 //' Utility function to calculate the change to make each iteration
 //' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations    
@@ -2113,15 +2545,15 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                     if (KeepConstant[ijk]==0){
                         dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                         //
-                        double dbeta_max;
-                        if (Lld[ijk]!=0){
-                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-                        }else{
-                            dbeta_max = 0;
-                        }
-                        if (abs(dbeta[ijk])>dbeta_max){
-                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-                        }
+//                        double dbeta_max;
+//                        if (Lld[ijk]!=0){
+//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+//                        }else{
+//                            dbeta_max = 0;
+//                        }
+//                        if (abs(dbeta[ijk])>dbeta_max){
+//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+//                        }
                         if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
@@ -2157,15 +2589,15 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                             dbeta[ijk] = 0;
                         }
                         //
-                        double dbeta_max;
-                        if (Lld[ijk]!=0){
-                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-                        }else{
-                            dbeta_max = 0;
-                        }
-                        if (abs(dbeta[ijk])>dbeta_max){
-                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-                        }
+//                        double dbeta_max;
+//                        if (Lld[ijk]!=0){
+//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+//                        }else{
+//                            dbeta_max = 0;
+//                        }
+//                        if (abs(dbeta[ijk])>dbeta_max){
+//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+//                        }
                         if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
@@ -2285,15 +2717,15 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                             dbeta[ijk] = 0;
                         }
                         //
-                        double dbeta_max;
-                        if (Lld[ijk]!=0){
-                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-                        }else{
-                            dbeta_max = 0;
-                        }
-                        if (abs(dbeta[ijk])>dbeta_max){
-                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-                        }
+//                        double dbeta_max;
+//                        if (Lld[ijk]!=0){
+//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
+//                        }else{
+//                            dbeta_max = 0;
+//                        }
+//                        if (abs(dbeta[ijk])>dbeta_max){
+//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+//                        }
                         if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                             if (abs(dbeta[ijk])>dose_abs_max){
                                 dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
