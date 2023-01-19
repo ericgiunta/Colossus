@@ -633,7 +633,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                     if (Ll[ind0] <= Ll_best){//takes a half-step if needed
                         #pragma omp parallel for num_threads(nthreads)
                         for (int ijk=0;ijk<totalnum;ijk++){
-                            dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                            dbeta[ijk] = dbeta[ijk] * 0.5; //Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
                         }
                         Lld_comp[1] = vec_norm(Lld, totalnum);
                     } else{//If improved, updates the best vector
@@ -1420,7 +1420,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
                 if (Ll[ind0] <= Ll_best){//takes a half-step if needed
                     #pragma omp parallel for num_threads(nthreads)
                     for (int ijk=0;ijk<totalnum;ijk++){
-                        dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                        dbeta[ijk] = dbeta[ijk] * 0.5; //Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
                     }
                     Lld_comp[1] = vec_norm(Lld, totalnum);
                 } else{//If improved, updates the best vector
@@ -2221,7 +2221,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
                         }
                         #pragma omp parallel for num_threads(nthreads)
                         for (int ijk=0;ijk<totalnum;ijk++){
-                            dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                            dbeta[ijk] = dbeta[ijk] * 0.5; //Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
                         }
                         Lld_comp[1] = vec_norm(Lld, totalnum);
                     } else{//If improved, updates the best vector
@@ -3657,7 +3657,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                     if (Ll[ind0] <= Ll_best){//takes a half-step if needed
                         #pragma omp parallel for num_threads(nthreads)
                         for (int ijk=0;ijk<totalnum;ijk++){
-                            dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                            dbeta[ijk] = dbeta[ijk] * 0.5; //Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
                         }
                         Lld_comp[1] = vec_norm(Lld, totalnum);
                     } else{//If improved, updates the best vector
@@ -4349,6 +4349,10 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
+            for (int ijk=0;ijk<totalnum;ijk++){
+                Rcout << dbeta[ijk] << " ";
+            }
+            Rcout << " " << endl;
         }
         //
         Ll_best = Ll[ind0];
@@ -4367,6 +4371,13 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
             Td0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term derivative columns
             Tdd0 = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Term second derivative columns
+            if (verbose){
+                Rcout << "Starting Half Step "<<halves<<endl;//prints the final changes for validation
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << dbeta[ijk] << " ";
+                }
+                Rcout << " " << endl;
+            }
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_a[ij] + dbeta[ij];
                 beta_c[ij] = beta_0[ij];
@@ -4492,7 +4503,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
                     if (Ll[ind0] <= Ll_best){//takes a half-step if needed
                         #pragma omp parallel for num_threads(nthreads)
                         for (int ijk=0;ijk<totalnum;ijk++){
-                            dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                            dbeta[ijk] = dbeta[ijk] * 0.5;//Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
                         }
                         Lld_comp[1] = vec_norm(Lld, totalnum);
                     } else{//If improved, updates the best vector
@@ -5415,7 +5426,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
                 if (Ll[ind0] <= Ll_best){//takes a half-step if needed
                     #pragma omp parallel for num_threads(nthreads)
                     for (int ijk=0;ijk<totalnum;ijk++){
-                        dbeta[ijk] = dbeta[ijk] * Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                        dbeta[ijk] = dbeta[ijk] * 0.5; //Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
                     }
                     Lld_comp[1] = vec_norm(Lld, totalnum);
                 } else{//If improved, updates the best vector
@@ -5747,6 +5758,8 @@ NumericVector RISK_SUBSET(IntegerVector Term_n, StringVector tform, NumericVecto
     // Calculates risk
     //
     Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging);
+    //
+    //
     if (verbose){
         Rcout << "values checked ";
         for (int ijk=0;ijk<totalnum;ijk++){

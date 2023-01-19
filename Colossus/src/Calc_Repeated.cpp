@@ -422,11 +422,11 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
             //
-            Td0.col(ij)   = (temp21.array()-temp01.array()) / 2/dslp;
-            Td0.col(ij+1) = (temp12.array()-temp10.array()) / 2/dint;
+            Td0.col(ij)   = (temp12.array()-temp10.array()) / 2/dslp;
+            Td0.col(ij+1) = (temp21.array()-temp01.array()) / 2/dint;
             //
-            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (temp21.array()-2*temp11.array()+temp01.array()) / pow(dslp,2);
-            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (temp12.array()-2*temp11.array()+temp10.array()) / pow(dint,2);
+            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (temp12.array()-2*temp11.array()+temp10.array()) / pow(dslp,2);
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (temp21.array()-2*temp11.array()+temp01.array()) / pow(dint,2);
             Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (temp22.array()-2*temp11.array()+temp00.array()) / (pow(dint,2)+pow(dslp,2));
             //
         } else if (as< string>(tform[ij])=="lin_quad_int") {
