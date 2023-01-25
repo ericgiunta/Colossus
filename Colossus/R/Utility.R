@@ -220,16 +220,17 @@ Open_File <- function(fname,time1="age_start", time2="age_exit", event="cases"){
 #'
 #' @param df a data.table containing the columns of interest
 #' @param col_list an array of column names that should have factor terms defined
+#' @param verbose verbosity argument, for error returns
 #'
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
 #'
-factorize <-function(df,col_list){
+factorize <-function(df,col_list,verbose=FALSE){
     cols <- c()
+    col0 <- names(df)
     for (i in 1:length(col_list)){
         col <- col_list[i]
         x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))
-    #    print(x)
         for (i in x){
             newcol <- c(paste(col,i,sep="_"))
             if (sum(df[,col, with = FALSE]==i)>0){
@@ -237,6 +238,51 @@ factorize <-function(df,col_list){
                 cols <- c(cols, newcol)
             }
         }
+    }
+    #
+    cols <- setdiff(names(df), col0)
+    #
+    cols <- Check_Dupe_Columns(df,cols,rep(0,length(cols)),verbose)
+    if (verbose){
+        print(paste("Number of factors:",length(cols),sep=""))
+    }
+#    print(df)
+    list('df'=df, 'cols'=cols)
+}
+
+#' Splits a parameter into factors, parallelized
+#' \code{factorize_parallel} uses user provided list of columns to define new parameter for each unique value and update the data.table.
+#' Not for interaction terms
+#'
+#' @param df a data.table containing the columns of interest
+#' @param col_list an array of column names that should have factor terms defined
+#' @param verbose verbosity argument, for error returns
+#'
+#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
+#' @export
+#'
+factorize_parallel <-function(df,col_list,verbose=FALSE){
+    cols <- c()
+    col0 <- names(df)
+    for (i in 1:length(col_list)){
+        col <- col_list[i]
+        x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))
+        #
+        par_res <- do.call("cbind",mclapply(X=c(x), FUN=function(i) {
+            newcol <- c(paste(col,i,sep="_"))
+            dt <- as.data.table(1*(df[,col, with = FALSE]==i))
+            setnames(dt,newcol)
+            dt
+        }, mc.cores = detectCores()))
+        #
+        df <- cbind(df,par_res)
+    }
+    #
+    cols <- setdiff(names(df), col0)
+    #
+    cols <- Check_Dupe_Columns(df,cols,rep(0,length(cols)),verbose)
+    if (verbose){
+        print(paste("Number of factors:",length(cols),sep=""))
     }
 #    print(df)
     list('df'=df, 'cols'=cols)
@@ -377,7 +423,11 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE){
         return(newcol)
     } else if (length(cols)==1){
         if (min(df[,cols, with = FALSE])==max(df[,cols, with = FALSE])){
-            return(c())
+            if (min(df[,cols, with = FALSE])==0){
+                return(c())
+            } else {
+                return(cols)
+            }
         } else {
             return(cols)
         }
@@ -537,3 +587,97 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
     def_cols <- c(def_cols, col_name)
     return (df[,def_cols,with=FALSE])
 }
+
+
+#' Checks for clusters of scores
+#' \code{Check_Cluster} generates the center of a cluster
+#'
+#' @param df dataframe of data to use as reference
+#' @param names list of columns names
+#' @param dev_column column with scores
+#'
+#' @return returns the updated dataframe
+#' @export
+#'
+Check_Cluster <- function(df,names,dev_column){
+    #
+    if (nrow(df)<2){
+        stop()
+    }
+    if (dev_column %in% names(df)){
+        ;
+    } else {
+        stop()
+    }
+    for (j in 1:length(names)){
+        if (names[j] %in% names(df)){
+            ;
+        } else {
+            stop()
+        }
+    }
+    #
+    setkeyv(df, c(dev_column))
+    all_names <- c(names,dev_column)
+    df <- df[,all_names, with = FALSE]
+    #
+    #
+    a_n <- rep(0,length(df[1])-1)
+    #
+    score_ref <- unlist(df[1,dev_column,with=FALSE],use.names=FALSE)
+    a_n_ref <- unlist(df[1,names,with=FALSE],use.names=FALSE)
+    a_n_match <- rep(0,length(a_n))
+    for (i in 2:nrow(df)){
+        #
+        #
+        score_temp <- unlist(df[i,dev_column,with=FALSE],use.names=FALSE)
+        a_n_temp <- unlist(df[i,names,with=FALSE],use.names=FALSE)
+        #
+        #
+        a_n_dif <- 0
+        if (abs(score_ref-score_temp)/score_ref > 0.1){
+            for (j in 1:length(a_n)){
+                if (a_n_match[j]>=(i-2)*0.9){
+                    a_n_match[j]=1
+                    a_n[j] = a_n_ref[j]
+                } else {
+                    a_n_match[j]=0
+                    a_n[j] = 0
+                }
+            }
+            return (list("a_n"=a_n,"guess_constant"=a_n_match))
+        }
+        for (j in 1:length(a_n)){
+            a_n_dif=abs(a_n_ref[j]-a_n_temp[j])
+            a_n_dif=a_n_dif/abs(a_n_ref[j])
+            if (abs(a_n_ref[j]-a_n_temp[j])/abs(a_n_ref[j]) < 0.1){
+                a_n_match[j] = a_n_match[j] + 1
+            }
+        }
+    }
+    for (j in 1:length(a_n)){
+        if (a_n_match[j]>=(length(a_n)-1)*0.9){
+            a_n_match[j]=1
+            a_n[j] = a_n_ref[j]
+        } else {
+            a_n_match[j]=0
+            a_n[j] = 0
+        }
+    }
+    return (list("a_n"=a_n,"guess_constant"=a_n_match))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

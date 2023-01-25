@@ -14,7 +14,7 @@ CoxMartingale(
   e,
   t,
   ch,
-  dname,
+  dnames,
   Plot_Name,
   age_unit
 )
@@ -36,7 +36,7 @@ CoxMartingale(
 
 \item{ch}{cumulative hazards}
 
-\item{dname}{dose column}
+\item{dnames}{list of covariate columns to plot by}
 
 \item{Plot_Name}{plot identifier}
 

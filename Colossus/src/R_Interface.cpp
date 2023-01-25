@@ -257,7 +257,7 @@ List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n, Nu
 //'
 //' @return Schoenfeld_Cox_PH output: scaled schoenfeld residuals
 // [[Rcpp::export]]
-NumericMatrix cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
+List cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
     //
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
@@ -267,7 +267,7 @@ NumericMatrix cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tf
     //
     int nthreads = Control["Ncores"];
     // performs schoenfeld residual calculation
-    NumericMatrix res = Schoenfeld_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
+    List res = Schoenfeld_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -472,6 +472,7 @@ NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericV
     res = RISK_SUBSET(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot, nthreads);
     return res;
 }
+
 
 //' Generates csv file with time-dependent columns
 //' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid

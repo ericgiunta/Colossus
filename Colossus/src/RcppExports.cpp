@@ -655,7 +655,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // Schoenfeld_Cox_PH
-NumericMatrix Schoenfeld_Cox_PH(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double abs_max, double dose_abs_max, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads);
+List Schoenfeld_Cox_PH(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double abs_max, double dose_abs_max, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads);
 RcppExport SEXP _Colossus_Schoenfeld_Cox_PH(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -983,7 +983,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // cox_ph_schoenfeld_transition
-NumericMatrix cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot);
+List cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot);
 RcppExport SEXP _Colossus_cox_ph_schoenfeld_transition(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

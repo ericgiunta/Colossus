@@ -2992,7 +2992,7 @@ List Cox_PH_PLOT_RISK(IntegerVector Term_n, StringVector tform, NumericVector a_
 //'
 //' @return List of results: scaled schoenfeld residuals
 // [[Rcpp::export]]
-NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads){
+List Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads){
     ;
     //
     // Calculates the schoenfeld residuals
@@ -3129,6 +3129,8 @@ NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, Numer
     // now a vector exists with row locations
     // --------------------------
     MatrixXd residuals = MatrixXd::Zero(ntime,totalnum);
+    MatrixXd res_var = MatrixXd::Zero(ntime,totalnum);
+    VectorXd res_df = VectorXd::Zero(ntime);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
@@ -3146,23 +3148,46 @@ NumericMatrix Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, Numer
             double x_expect =0;
             double Vscale=0;
             //
+            vector<double> t_sum_j(totalnum,0.0);
+            vector<double> x_expect_j(totalnum,0.0);
+            //
             // calculates the total term value
             //
             for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
                 t_sum += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
                 x_expect +=  (df0.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array()).sum();
+                for (int j=0;j<totalnum;i++){
+                    t_sum_j[j] += Rd.block(InGroup[i]-1,j,InGroup[i+1]-InGroup[i]+1,1).sum();
+                    x_expect_j[j] +=  (df0.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * Rd.block(InGroup[i]-1,j,InGroup[i+1]-InGroup[i]+1,1).array()).sum();
+                }
             }
-            x_expect = x_expect / t_sum; //calculates the averaged covariate value
             int dj = RiskFail(j,1)-RiskFail(j,0)+1;
             double x_risks = df0.block(RiskFail(j,0),ijk,dj,1).sum()/dj; //calculate the average covariate value with events
+            x_expect = x_expect / t_sum / dj; //calculates the averaged covariate value
+            double var_exp = 0.0;
+            double temp=0;
+            for (int j=0;j<totalnum;j++){
+                temp = t_sum*x_expect_j[j] - x_expect*t_sum_j[j];
+                temp = temp*stdev[j];
+                var_exp += pow(temp,2);
+            }
+            var_exp = var_exp / pow(t_sum,4);
+            double var_est = ((df0.block(RiskFail(j,0),ijk,dj,1).array() - df0.block(RiskFail(j,0),ijk,dj,1).array().sum()/dj).pow(2).sum())/(dj-1);
             //
-            Vscale = dj/stdev(ijk); //the residual is scaled by the number of events divided by a measure of the variation
+            if (dj==1){
+                var_est=0;
+            }
             //
-            residuals(j,ijk) = (x_risks - x_expect)*Vscale;
+            residuals(j,ijk) = (x_risks - x_expect);
+            res_var(j,ijk) = var_est + var_exp;
+            if (ijk==0){
+                res_df(j) = dj;
+            }
         }
     }
+    List res_list = List::create(_["residuals"]=wrap(residuals), _["stdev"]=wrap(res_var), _["df"]=wrap(res_df));
     // returns residuals
-    return wrap(residuals);
+    return res_list;
 }
 
 //' Primary poisson regression function
