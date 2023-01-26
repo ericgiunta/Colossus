@@ -12,11 +12,12 @@
 #' @param dnames list of covariate columns to plot by
 #' @param Plot_Name plot identifier
 #' @param age_unit age unit
+#' @param studyID id to group by, NaN for no grouping
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
 #'
-CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dnames, Plot_Name, age_unit){
+CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dnames, Plot_Name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
     if (verbose){
         print("Martingale Plots")
@@ -29,22 +30,53 @@ CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dnames, Plo
     ch_s <- ch_fun(time_s)
     #
     e_i <- df[,get(event)]
+    if (verbose){
+        print("Cumulative Hazard Functions Estimated")
+    }
     for (cov_i in 1:length(dnames)){
         dname <- dnames[cov_i]
-        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=df$studyID,"time"=time_e,"cov"=df[, dname, with = FALSE])
-        dfr$res = dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
-        #
-        Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
-        times <- dfr[, lapply(.SD,max), by=IDS]
-        #
-        name_temp <- names(times)
-        for (i in 1:length(name_temp)){
-            if (grepl( "cov", name_temp[i], fixed = TRUE)){
-                setnames(Martingale_Error,name_temp[i],c("cov"))
-                setnames(times,name_temp[i],c("cov"))
-            }
+        if (verbose){
+            print(paste("Martingale Plot: ",dname,sep=""))
         }
+        if (studyID %in% names(df)){
+            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.name=FALSE),"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.name=FALSE))
+            #
+            name_temp <- names(dfr)
+            for (i in 1:length(name_temp)){
+                if (grepl( "cov", name_temp[i], fixed = TRUE)){
+                    setnames(dfr,name_temp[i],c("cov"))
+                } else if (grepl( "IDS", name_temp[i], fixed = TRUE)){
+                    setnames(dfr,name_temp[i],c("IDS"))
+                }
+            }
+            #
+            dfr$res = dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
+            #
+            #
+            Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
+            times <- dfr[, lapply(.SD,max), by=IDS]
+        } else {
+            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.name=FALSE))
+            #
+            name_temp <- names(dfr)
+            for (i in 1:length(name_temp)){
+                if (grepl( "cov", name_temp[i], fixed = TRUE)){
+                    setnames(dfr,name_temp[i],c("cov"))
+                } else if (grepl( "IDS", name_temp[i], fixed = TRUE)){
+                    setnames(dfr,name_temp[i],c("IDS"))
+                }
+            }
+            #
+            dfr$res = dfr$e - (dfr$ch_e) * dfr$Risks
+            #
+            Martingale_Error <- dfr
+            times <- dfr
+        }
+        #
         ##
+        if (verbose){
+            print(paste("Martingale Plotting",sep=""))
+        }
         dft <- data.table("cov_max"=times$cov,"time_max"=times$time,"res_sum"=Martingale_Error$res)
         ##
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$cov_max, y=.data$res_sum)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
@@ -52,14 +84,39 @@ CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dnames, Plo
         ##
     }
     #
-    dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=df$studyID,"time"=time_e)
-    dfr$res = dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
-    #
-    Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
-    times <- dfr[, lapply(.SD,max), by=IDS]
+    if (studyID %in% names(df)){
+        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.name=FALSE),"time"=time_e)
+        #
+        #
+        name_temp <- names(dfr)
+        for (i in 1:length(name_temp)){
+            if (grepl( "IDS", name_temp[i], fixed = TRUE)){
+                setnames(dfr,name_temp[i],c("IDS"))
+            }
+        }
+        #
+        dfr$res = dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
+        #
+        Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
+        times <- dfr[, lapply(.SD,max), by=IDS]
+    } else {
+        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e)
+        #
+        name_temp <- names(dfr)
+        for (i in 1:length(name_temp)){
+            if (grepl( "IDS", name_temp[i], fixed = TRUE)){
+                setnames(dfr,name_temp[i],c("IDS"))
+            }
+        }
+        #
+        dfr$res = dfr$e - (dfr$ch_e) * dfr$Risks
+        #
+        Martingale_Error <- dfr
+        times <- dfr
+    }
     dft <- data.table("time_max"=times$time,"res_sum"=Martingale_Error$res)
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("Max Age",sep=" "), y="Martingale Residuals")
     ggplot2::ggsave(paste('martin_plot',Plot_Name,'.jpg',sep='_'),device="jpeg",dpi="retina")
     ##
     return ("passed")
@@ -138,26 +195,31 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
     x_all=as.matrix(df[,all_names, with = FALSE])
 #    stop()
     #
+    df_study <- df[, lapply(.SD,max), by=studyID]
+    #
     for (fir_KM in 1:length(all_names)){
         if (verbose){
             print(fir_KM)
         }
-        dfend <- df[get(event)==1, ]
+        dfend <- df_study[get(event)==1, ]
         fir_c <- mean(dfend[,get(all_names[fir_KM])])
         fmean <- mean(fir_c) #average value to split by
-        df_u <- df[get(all_names[fir_KM])>=fmean,] #data above the mean
-        df_l <- df[get(all_names[fir_KM])<=fmean,] #data below the mean
+        df_u <- df_study[get(all_names[fir_KM])>=fmean,] #data above the mean
+        df_l <- df_study[get(all_names[fir_KM])<=fmean,] #data below the mean
         #
         df_u_end <- df_u[get(event)==1, ]
         df_l_end <- df_l[get(event)==1, ]
         #
         u_num = length(unlist(unique(df_u[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in upper set
         l_num = length(unlist(unique(df_l[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in lower set
-        t_num = length(unlist(unique(df[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in total set
+        t_num = length(unlist(unique(df_study[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in total set
         #
-        t_u <- c(0,0,0) #time data
-#        t_l <- c(0)
-        n_u <- c(1,1,1) #surviving decimal
+        t_u <- c(0) #time data
+        t_l <- c(0)
+        t_t <- c(0)
+        n_u <- c(1) #surviving decimal
+        n_l <- c(1)
+        n_t <- c(1)
         iden <- c("above","below","combined") #list of which set
 #        n_l <- c(1)
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)) #all event times
@@ -167,41 +229,63 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
         }
 #        stop()
         #
-        for (i in tu[1]:tu[length(tu)]){
+        tu_s <- c(0.0,tu)
+        for (i_t in 1:length(tu)){
+            i <- tu[i_t]
+            #
+#            print("----------")
+#            print(i)
             #
             df0 <- df_u_end[get(time2)<=i,] #set of all intervals prior to this point in upper set
+            df0 <- df0[(get(time2)>tu_s[i_t]),]
+            df1 <- df_u[(get(time2)>tu_s[i_t]),]
             u_ev = sum(df0[, get(event)]) #number of intervals with event in upper set prior to the time point
+            u_num = nrow(df1)
+#            print("0")
             df0 <- df_l_end[get(time2)<=i,] #set of all intervals prior to this point in lower set
+            df0 <- df0[(get(time2)>tu_s[i_t]),]
+            df1 <- df_l[(get(time2)>tu_s[i_t]),]
             l_ev = sum(df0[, get(event)]) #number of intervals with event in lower set prior to the time point
-            df0 <- dfend[get(time2)<=i,] #set of all intervals prior to this point in lower set
+            l_num = nrow(df1)
+#            print("1")
+            df0 <- dfend[get(time2)<=i,] #set of all intervals prior to this point in lower setv
+            df0 <- df0[(get(time2)>tu_s[i_t]),]
+            df1 <- df_study[(get(time2)>tu_s[i_t]),]
             t_ev = sum(df0[, get(event)]) #number of intervals with event in lower set prior to the time point
+            t_num = nrow(df1)
+#            print("2")
             #
             if (u_ev>0){ #if there are events in the upper set
                 t_u <- c(t_u,i) #adds new time
                 temp <- (u_num - u_ev)/u_num #compares number of events to maximum total
-                n_u <- c(n_u, temp) #adds to list of survival decimals
-                iden <- c(iden,"above") #adds identifier
+                n_u <- c(n_u, n_u[length(n_u)]*temp) #adds to list of survival decimals
             }
             if (l_ev>0){
                 temp <- (l_num - l_ev)/l_num
-                t_u <- c(t_u,i)
-                n_u <- c(n_u, temp)
-                iden <- c(iden,"below")
+                t_l <- c(t_l,i)
+                n_l <- c(n_l, n_l[length(n_l)]*temp)
             }
             if (t_ev>0){
                 temp <- (t_num - t_ev)/t_num
-                t_u <- c(t_u,i)
-                n_u <- c(n_u, temp)
-                iden <- c(iden,"combined")
+                t_t <- c(t_t,i)
+                n_t <- c(n_t, n_t[length(n_t)]*temp)
             }
+#            print("3")
         }
 #        print(iden)
-        dft <- data.table("t_u"=t_u,"n_u"=n_u,"iden"=iden)
+        n <- c(n_u,n_l,n_t)
+        t <- c(t_u,t_l,t_t)
+        iden <- c(rep("above",length(n_u)),rep("below",length(n_l)),rep("combined",length(n_t)))
+        #
+        dft <- data.table("t_u"=t,"n_u"=n,"iden"=iden)
         #
         g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u,color=.data$iden)) + ggplot2::geom_line() + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
         g <- g + ggplot2::scale_color_discrete(name = all_names[fir_KM])
         ggplot2::ggsave(paste("KM_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
 #        stop()
+        #
+        df_u <- df[get(all_names[fir_KM])>=fmean,] #data above the mean
+        df_l <- df[get(all_names[fir_KM])<=fmean,] #data below the mean
         #
         x_all=as.matrix(df_l[,all_names, with = FALSE])
         dfend <- df_l[get(event)==1, ]
@@ -644,29 +728,22 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event, names, Term_n, 
     #
     res_list <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     res <- res_list$residual
-    res_stdev <- res_list$stdev
+    res_scaled <- res_list$scaled
     degree_f <- res_list$df
     #
     for (cov in 1:length(a_n)){
         print(names[cov])
         y <- unlist(res[,cov],use.names=FALSE)
-        st <- unlist(res_stdev[,cov],use.names=FALSE)
+        y_scale <- unlist(res_scaled[,cov],use.names=FALSE)
         #
         dft <- data.table("time"=tu,"y"=y)
-        y_low <- c()
-        y_high <- c()
-        for (i in 1:length(y)){
-            t <- qt(1-alpha/2.0,degree_f[i], lower.tail=FALSE)
-            y_low <- c(y_low,y[i]-t*st[i])
-            y_high <- c(y_high,y[i]+t*st[i])
-        }
-        dft$y_low <- y_low
-        dft$y_high <- y_high
+        dft$y_scale <- y_scale
         #
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual (",names[cov],")",sep=" "))
-#        g <- g + ggplot2::geom_point(data=dft, ggplot2::aes(x=.data$time, y=.data$y_low), color="red")
-#        g <- g + ggplot2::geom_point(data=dft, ggplot2::aes(x=.data$time, y=.data$y_high), color="red")
         ggplot2::ggsave(paste("schoenfeld_",cov,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
+        #
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual Scaled (",names[cov],")",sep=" "))
+        ggplot2::ggsave(paste("schoenfeld_scaled_",cov,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
         #
     }
     return ("Passed")

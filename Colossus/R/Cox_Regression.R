@@ -691,22 +691,26 @@ RunCoxPlots <- function(df, time1, time2, event, names, Term_n, tform, keep_cons
     } else {
         plot_options$Martingale <- FALSE
     }
-    if (Plot_Type[1]=="SURV"){
-        if ("studyID" %in%  names(plot_options)){
-            if (plot_options$studyID%in% names(df)){
-                ;
+    if ("KM" %in% names(plot_options)){
+        if (plot_options$KM){
+            if ("studyID" %in%  names(plot_options)){
+                if (plot_options$studyID%in% names(df)){
+                    ;
+                } else {
+                    if (plot_options$verbose){
+                        print("ID column is not in the dataframe")
+                    }
+                    stop()
+                }
             } else {
                 if (plot_options$verbose){
-                    print("ID column is not in the dataframe")
+                    print("ID column not given")
                 }
                 stop()
             }
-        } else {
-            if (plot_options$verbose){
-                print("ID column not given")
-            }
-            stop()
         }
+    }
+    if (Plot_Type[1]=="SURV"){
         if ("time_lims" %in% names(plot_options)){
             ;
         } else {
@@ -787,7 +791,7 @@ RunCoxPlots <- function(df, time1, time2, event, names, Term_n, tform, keep_cons
         age_unit <- plot_options$age_unit
         if (plot_options$Martingale==TRUE){
             #
-            CoxMartingale(verbose, df, time1, time2, event, e, t, ch, plot_options$cov_cols, Plot_Type[2], age_unit)
+            CoxMartingale(verbose, df, time1, time2, event, e, t, ch, plot_options$cov_cols, Plot_Type[2], age_unit,plot_options$studyID)
             #
         }
         if (plot_options$surv_curv==TRUE){

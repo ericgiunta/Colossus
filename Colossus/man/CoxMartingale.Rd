@@ -16,7 +16,8 @@ CoxMartingale(
   ch,
   dnames,
   Plot_Name,
-  age_unit
+  age_unit,
+  studyID
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ CoxMartingale(
 \item{Plot_Name}{plot identifier}
 
 \item{age_unit}{age unit}
+
+\item{studyID}{id to group by, NaN for no grouping}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed
