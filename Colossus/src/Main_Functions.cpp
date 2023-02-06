@@ -261,6 +261,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
+        //
         return temp_list;
     }
     //
@@ -441,7 +442,8 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     int iteration=0; //iteration number
     //
     bool convgd = FALSE;
-    int iter_stop =0;
+    int iter_stop =0; //tracks if the iterations should be stopped for convergence
+    int iter_check=0; //signal to check for convergence
     //
     while ((iteration < maxiter)&&(iter_stop==0)){
         iteration++;
@@ -655,43 +657,43 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                     Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
                     gibtime = system_clock::to_time_t(system_clock::now());
                     Rcout << ctime(&gibtime) << endl;
-                    Rcout << "df101 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df102 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df103 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Lld_worst=0;
-                    for (int ij=0;ij<totalnum;ij++){
-                        if (abs(Lld[ij]) > Lld_worst){
-                            Lld_worst = abs(Lld[ij]);
-                        }
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df104 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << beta_c[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df105 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df106 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij]/Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+//                    Rcout << "df101 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df102 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df103 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Lld_worst=0;
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        if (abs(Lld[ij]) > Lld_worst){
+//                            Lld_worst = abs(Lld[ij]);
+//                        }
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df104 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << beta_c[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df105 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df106 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij]/Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
                 }
                 #pragma omp parallel for num_threads(nthreads)
                 for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
@@ -704,8 +706,9 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                 Rcout << "Changing back to best"<<endl;
             }
             // If it goes through every half step without improvement, then the maximum change needs to be decreased
-            abs_max = abs_max*pow(0.75,halfmax); // reduces the step sizes
-            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            abs_max = abs_max*pow(0.5,halfmax); // reduces the step sizes
+            dose_abs_max = dose_abs_max*pow(0.5,halfmax);
+            iter_check = 1;
             //
             beta_p = beta_best;//
             beta_a = beta_best;//
@@ -845,7 +848,8 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             }
         }
         if (iteration > totalnum){//Doesn't check the first several iterations for convergence
-            if (iteration % (2*totalnum)){//Checks every set number of iterations
+            if ((iteration % (totalnum))||(iter_check==1)){//Checks every set number of iterations
+                iter_check=0;
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
                     convgd = TRUE;
@@ -1081,7 +1085,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     }
     //
     MatrixXd RdR = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk to derivative ratios
-    MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Risk to second derivative ratios
+//    MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Risk to second derivative ratios
     //
     if (verbose){
         end_point = system_clock::now();
@@ -1092,11 +1096,11 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     }
     //
     // Calculates the risk for each row
-    Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging,df0,dfc);
+    Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging,df0,dfc);
     //
     // Removes infinite values
     RdR = (RdR.array().isFinite()).select(RdR,0);
-    RddR = (RddR.array().isFinite()).select(RddR,0);
+//    RddR = (RddR.array().isFinite()).select(RddR,0);
     //
     if (R.minCoeff()<=0){
         Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
@@ -1212,7 +1216,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     //
     //
     // Calculates log-likelihood
-    Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+    Calc_LogLik_Basic( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
     //
     vector <double> Ll_comp(2,Ll[0]); //vector to compare values
     vector <double> Lld_comp(2, vec_norm(Lld, totalnum));
@@ -1282,7 +1286,8 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     //int //i = ind0;
     int iteration=0; //iteration number
     //
-    int iter_stop =0;
+    int iter_stop =0; //tracks if the iterations should be stopped for convergence
+    int iter_check=0; //signal to check for convergence
     bool convgd = FALSE;
     //
     while ((iteration < maxiter)&&(iter_stop==0)){
@@ -1330,14 +1335,14 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             }
             //
             RdR = MatrixXd::Zero(df0.rows(), totalnum);
-            RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
+//            RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
             //
             //
-            Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging,df0,dfc);
+            Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging,df0,dfc);
             //
             halves++;
             RdR = (RdR.array().isFinite()).select(RdR,0);
-            RddR = (RddR.array().isFinite()).select(RddR,0);
+//            RddR = (RddR.array().isFinite()).select(RddR,0);
             //
             if (verbose){
                 Rcout << "risk checked ";
@@ -1414,7 +1419,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
                 Rcout << " " << endl;
             }
             //
-            Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+            Calc_LogLik_Basic( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
             
             if (change_all){ //If every covariate is to be changed
                 if (Ll[ind0] <= Ll_best){//takes a half-step if needed
@@ -1442,43 +1447,43 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
                 Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
                 gibtime = system_clock::to_time_t(system_clock::now());
                 Rcout << ctime(&gibtime) << endl;
-                Rcout << "df101 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Ll[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df102 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Lld[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df103 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Lldd[ij*totalnum+ij] << " ";
-                }
-                Lld_worst=0;
-                for (int ij=0;ij<totalnum;ij++){
-                    if (abs(Lld[ij]) > Lld_worst){
-                        Lld_worst = abs(Lld[ij]);
-                    }
-                }
-                Rcout << " " << endl;
-                Rcout << "df104 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << beta_c[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df105 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df106 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Ll[ij]/Lld[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+//                Rcout << "df101 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Ll[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df102 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Lld[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df103 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Lldd[ij*totalnum+ij] << " ";
+//                }
+//                Lld_worst=0;
+//                for (int ij=0;ij<totalnum;ij++){
+//                    if (abs(Lld[ij]) > Lld_worst){
+//                        Lld_worst = abs(Lld[ij]);
+//                    }
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df104 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << beta_c[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df105 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df106 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Ll[ij]/Lld[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
             }
             #pragma omp parallel for num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
@@ -1490,8 +1495,9 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
                 Rcout << "Changing back to best"<<endl;
             }
             // If it goes through every half step without improvement, then the maximum change needs to be decreased
-            abs_max = abs_max*pow(0.75,halfmax); // reduces the step sizes
-            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            abs_max = abs_max*pow(0.5,halfmax); // reduces the step sizes
+            dose_abs_max = dose_abs_max*pow(0.5,halfmax);
+            iter_check = 1;
             //
             beta_p = beta_best;//
             beta_a = beta_best;//
@@ -1516,15 +1522,15 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             }
             //
             RdR = MatrixXd::Zero(df0.rows(), totalnum);
-            RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
+            //RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
             //
             //
-            Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging,df0,dfc);
+            Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging,df0,dfc);
             R = (R.array().isFinite()).select(R,0);
             Rd = (Rd.array().isFinite()).select(Rd,0);
             Rdd = (Rdd.array().isFinite()).select(Rdd,0);
             RdR = (RdR.array().isFinite()).select(RdR,0);
-            RddR = (RddR.array().isFinite()).select(RddR,0);
+//            RddR = (RddR.array().isFinite()).select(RddR,0);
             //
             temp_list = List::create(_["betas"]=wrap(beta_0),_["Status"]="FAILED"); //used as a dummy return value for code checking
             //risk_check_iter=0;
@@ -1603,7 +1609,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
                 Rcout << " " << endl;
             }
             //
-            Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+            Calc_LogLik_Basic( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
         }
         Lld_worst=0;
         for (int ij=0;ij<totalnum;ij++){
@@ -1612,7 +1618,8 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             }
         }
         if (iteration > totalnum){//Doesn't check the first several iterations for convergence
-            if (iteration % (2*totalnum)){//Checks every set number of iterations
+            if ((iteration % (totalnum))||(iter_check==1)){//Checks every set number of iterations
+                iter_check=0;
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
                     convgd = TRUE;
@@ -1681,7 +1688,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
         Rcout << "Wrapping up" << endl;
     }
     //
-    Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+    Calc_LogLik_Basic( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
     //
     List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst);//stores the total number of iterations used
     //
@@ -2070,7 +2077,8 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     //int //i = ind0;
     int iteration=0; //iteration number
     //
-    int iter_stop =0;
+    int iter_stop =0; //tracks if the iterations should be stopped for convergence
+    int iter_check=0; //signal to check for convergence
     bool convgd = FALSE;
     //
     while ((iteration < maxiter)&&(iter_stop==0)){
@@ -2246,43 +2254,43 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
                     Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
                     gibtime = system_clock::to_time_t(system_clock::now());
                     Rcout << ctime(&gibtime) << endl;
-                    Rcout << "df101 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df102 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df103 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Lld_worst=0;
-                    for (int ij=0;ij<totalnum;ij++){
-                        if (abs(Lld[ij]) > Lld_worst){
-                            Lld_worst = abs(Lld[ij]);
-                        }
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df104 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << beta_c[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df105 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df106 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij]/Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+//                    Rcout << "df101 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df102 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df103 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Lld_worst=0;
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        if (abs(Lld[ij]) > Lld_worst){
+//                            Lld_worst = abs(Lld[ij]);
+//                        }
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df104 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << beta_c[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df105 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df106 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij]/Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
                 }
                 #pragma omp parallel for num_threads(nthreads)
                 for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
@@ -2295,8 +2303,9 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
                 Rcout << "Changing back to best"<<endl;
             }
             // If it goes through every half step without improvement, then the maximum change needs to be decreased
-            abs_max = abs_max*pow(0.75,halfmax); // reduces the step sizes
-            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            abs_max = abs_max*pow(0.5,halfmax); // reduces the step sizes
+            dose_abs_max = dose_abs_max*pow(0.5,halfmax);
+            iter_check = 1;
             //
             beta_p = beta_best;//
             beta_a = beta_best;//
@@ -2397,7 +2406,8 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             }
         }
         if (iteration > totalnum){//Doesn't check the first several iterations for convergence
-            if (iteration % (2*totalnum)){//Checks every set number of iterations
+            if ((iteration % (totalnum))||(iter_check==1)){//Checks every set number of iterations
+                iter_check=0;
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
                     convgd = TRUE;
@@ -3503,7 +3513,8 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     int ind0 = fir; //used for validations
     int iteration=0; //iteration number
     //
-    int iter_stop = 0;
+    int iter_stop =0; //tracks if the iterations should be stopped for convergence
+    int iter_check=0; //signal to check for convergence
     bool convgd = FALSE;
     //
     if (sum(KeepConstant)==totalnum){
@@ -3689,44 +3700,44 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                     Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
                     gibtime = system_clock::to_time_t(system_clock::now());
                     Rcout << ctime(&gibtime) << endl;
-                    Rcout << "df101 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df102 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df103 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Lld_worst=0;
-                    for (int ij=0;ij<totalnum;ij++){
-                        if (abs(Lld[ij]) > Lld_worst){
-                            Lld_worst = abs(Lld[ij]);
-                        }
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df104 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << beta_c[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "Checking Deviance " << dev << endl;
-                    Rcout << "df105 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df106 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij]/Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+//                    Rcout << "df101 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df102 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df103 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Lld_worst=0;
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        if (abs(Lld[ij]) > Lld_worst){
+//                            Lld_worst = abs(Lld[ij]);
+//                        }
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df104 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << beta_c[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "Checking Deviance " << dev << endl;
+//                    Rcout << "df105 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df106 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij]/Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
                 }
                 #pragma omp parallel for num_threads(nthreads)
                 for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
@@ -3739,8 +3750,9 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                 Rcout << "Changing back to best"<<endl;
             }
             // If it goes through every half step without improvement, then the maximum change needs to be decreased
-            abs_max = abs_max*pow(0.75,halfmax);
-            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            abs_max = abs_max*pow(0.5,halfmax);
+            dose_abs_max = dose_abs_max*pow(0.5,halfmax);
+            iter_check = 1;
             //
             beta_p = beta_best;//
             beta_a = beta_best;//
@@ -3846,7 +3858,8 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             }
         }
         if (iteration > totalnum){//Sets the minimum number of iterations
-            if (iteration % (2*totalnum)){//Checks every set number of iterations
+            if ((iteration % (totalnum))||(iter_check==1)){//Checks every set number of iterations
+                iter_check=0;
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
                     convgd = TRUE;
@@ -4340,7 +4353,8 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     int ind0 = fir; //used for validations
     int iteration=0; //iteration number
     //
-    int iter_stop = 0;
+    int iter_stop =0; //tracks if the iterations should be stopped for convergence
+    int iter_check=0; //signal to check for convergence
     bool convgd = FALSE;
     //
     if (sum(KeepConstant)==totalnum){
@@ -4535,44 +4549,44 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
                     Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
                     gibtime = system_clock::to_time_t(system_clock::now());
                     Rcout << ctime(&gibtime) << endl;
-                    Rcout << "df101 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df102 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df103 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Lld_worst=0;
-                    for (int ij=0;ij<totalnum;ij++){
-                        if (abs(Lld[ij]) > Lld_worst){
-                            Lld_worst = abs(Lld[ij]);
-                        }
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df104 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << beta_c[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "Checking Deviance " << dev << endl;
-                    Rcout << "df105 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df106 ";
-                    for (int ij=0;ij<totalnum;ij++){
-                        Rcout << Ll[ij]/Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+//                    Rcout << "df101 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df102 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df103 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Lld_worst=0;
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        if (abs(Lld[ij]) > Lld_worst){
+//                            Lld_worst = abs(Lld[ij]);
+//                        }
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df104 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << beta_c[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "Checking Deviance " << dev << endl;
+//                    Rcout << "df105 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df106 ";
+//                    for (int ij=0;ij<totalnum;ij++){
+//                        Rcout << Ll[ij]/Lld[ij] << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
                 }
                 #pragma omp parallel for num_threads(nthreads)
                 for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
@@ -4585,8 +4599,9 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
                 Rcout << "Changing back to best"<<endl;
             }
             // If it goes through every half step without improvement, then the maximum change needs to be decreased
-            abs_max = abs_max*pow(0.75,halfmax);
-            dose_abs_max = dose_abs_max*pow(0.75,halfmax);
+            abs_max = abs_max*pow(0.5,halfmax);
+            dose_abs_max = dose_abs_max*pow(0.5,halfmax);
+            iter_check = 1;
             //
             beta_p = beta_best;//
             beta_a = beta_best;//
@@ -4692,7 +4707,8 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             }
         }
         if (iteration > totalnum){//Sets the minimum number of iterations
-            if (iteration % (2*totalnum)){//Checks every set number of iterations
+            if ((iteration % (totalnum))||(iter_check==1)){//Checks every set number of iterations
+                iter_check=0;
                 if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
                     iter_stop = 1;
                     convgd = TRUE;
@@ -5458,43 +5474,43 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
                 Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
                 gibtime = system_clock::to_time_t(system_clock::now());
                 Rcout << ctime(&gibtime) << endl;
-                Rcout << "df101 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Ll[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df102 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Lld[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df103 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Lldd[ij*totalnum+ij] << " ";
-                }
-                Lld_worst=0;
-                for (int ij=0;ij<totalnum;ij++){
-                    if (abs(Lld[ij]) > Lld_worst){
-                        Lld_worst = abs(Lld[ij]);
-                    }
-                }
-                Rcout << " " << endl;
-                Rcout << "df104 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << beta_c[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df105 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df106 ";
-                for (int ij=0;ij<totalnum;ij++){
-                    Rcout << Ll[ij]/Lld[ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
+//                Rcout << "df101 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Ll[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df102 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Lld[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df103 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Lldd[ij*totalnum+ij] << " ";
+//                }
+//                Lld_worst=0;
+//                for (int ij=0;ij<totalnum;ij++){
+//                    if (abs(Lld[ij]) > Lld_worst){
+//                        Lld_worst = abs(Lld[ij]);
+//                    }
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df104 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << beta_c[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df105 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df106 ";
+//                for (int ij=0;ij<totalnum;ij++){
+//                    Rcout << Ll[ij]/Lld[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;
             }
             #pragma omp parallel for num_threads(nthreads)
             for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2

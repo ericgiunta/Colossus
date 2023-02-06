@@ -116,6 +116,24 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// Prep_Basic
+void Prep_Basic(const int& totalnum, const IntegerVector& dfc, VectorXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, const VectorXd& beta_0, const MatrixXd& df0, const int& nthreads, bool debugging);
+RcppExport SEXP _Colossus_Prep_Basic(SEXP totalnumSEXP, SEXP dfcSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< VectorXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Td0(Td0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Tdd0(Tdd0SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Prep_Basic(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging);
+    return R_NilValue;
+END_RCPP
+}
 // Make_Risks
 void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging);
 RcppExport SEXP _Colossus_Make_Risks(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
@@ -173,8 +191,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Make_Risks_Basic
-void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const MatrixXd& df0, const IntegerVector& dfc);
-RcppExport SEXP _Colossus_Make_Risks_Basic(SEXP totalnumSEXP, SEXP T0SEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP df0SEXP, SEXP dfcSEXP) {
+void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging, const MatrixXd& df0, const IntegerVector& dfc);
+RcppExport SEXP _Colossus_Make_Risks_Basic(SEXP totalnumSEXP, SEXP T0SEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP df0SEXP, SEXP dfcSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
@@ -183,12 +201,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
     Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
     Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type RddR(RddRSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
     Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
-    Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging, df0, dfc);
+    Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc);
     return R_NilValue;
 END_RCPP
 }
@@ -319,6 +336,35 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
     Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
     Calc_LogLik(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
+    return R_NilValue;
+END_RCPP
+}
+// Calc_LogLik_Basic
+void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method);
+RcppExport SEXP _Colossus_Calc_LogLik_Basic(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP debuggingSEXP, SEXP ties_methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
+    Rcpp::traits::input_parameter< const vector<string>& >::type RiskGroup(RiskGroupSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls1(Rls1SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls2(Rls2SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls3(Rls3SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls1(Lls1SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls2(Lls2SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls3(Lls3SEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Ll(LlSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Lld(LldSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Lldd(LlddSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
+    Calc_LogLik_Basic(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method);
     return R_NilValue;
 END_RCPP
 }
@@ -1153,15 +1199,17 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Make_Subterms", (DL_FUNC) &_Colossus_Make_Subterms, 20},
     {"_Colossus_Make_Subterms_Single", (DL_FUNC) &_Colossus_Make_Subterms_Single, 16},
     {"_Colossus_Make_Subterms_Basic", (DL_FUNC) &_Colossus_Make_Subterms_Basic, 7},
+    {"_Colossus_Prep_Basic", (DL_FUNC) &_Colossus_Prep_Basic, 9},
     {"_Colossus_Make_Risks", (DL_FUNC) &_Colossus_Make_Risks, 22},
     {"_Colossus_Make_Risks_Single", (DL_FUNC) &_Colossus_Make_Risks_Single, 16},
-    {"_Colossus_Make_Risks_Basic", (DL_FUNC) &_Colossus_Make_Risks_Basic, 11},
+    {"_Colossus_Make_Risks_Basic", (DL_FUNC) &_Colossus_Make_Risks_Basic, 10},
     {"_Colossus_Make_Groups", (DL_FUNC) &_Colossus_Make_Groups, 7},
     {"_Colossus_Make_Groups_STRATA", (DL_FUNC) &_Colossus_Make_Groups_STRATA, 8},
     {"_Colossus_Calculate_Sides", (DL_FUNC) &_Colossus_Calculate_Sides, 15},
     {"_Colossus_Calculate_Sides_Single", (DL_FUNC) &_Colossus_Calculate_Sides_Single, 9},
     {"_Colossus_Calculate_Sides_STRATA", (DL_FUNC) &_Colossus_Calculate_Sides_STRATA, 16},
     {"_Colossus_Calc_LogLik", (DL_FUNC) &_Colossus_Calc_LogLik, 21},
+    {"_Colossus_Calc_LogLik_Basic", (DL_FUNC) &_Colossus_Calc_LogLik_Basic, 20},
     {"_Colossus_Calc_LogLik_Single", (DL_FUNC) &_Colossus_Calc_LogLik_Single, 11},
     {"_Colossus_Calc_LogLik_STRATA", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA, 22},
     {"_Colossus_Poisson_LogLik", (DL_FUNC) &_Colossus_Poisson_LogLik, 12},

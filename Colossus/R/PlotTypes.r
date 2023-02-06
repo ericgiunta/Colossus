@@ -39,7 +39,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dnames, Plo
             print(paste("Martingale Plot: ",dname,sep=""))
         }
         if (studyID %in% names(df)){
-            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.name=FALSE),"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.name=FALSE))
+            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
             #
             name_temp <- names(dfr)
             for (i in 1:length(name_temp)){
@@ -56,7 +56,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dnames, Plo
             Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
             times <- dfr[, lapply(.SD,max), by=IDS]
         } else {
-            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.name=FALSE))
+            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
             #
             name_temp <- names(dfr)
             for (i in 1:length(name_temp)){
@@ -85,7 +85,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event,e, t, ch, dnames, Plo
     }
     #
     if (studyID %in% names(df)){
-        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.name=FALSE),"time"=time_e)
+        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),"time"=time_e)
         #
         #
         name_temp <- names(dfr)

@@ -231,38 +231,6 @@ test_that("Factorize missing", {
     expect_error(factorize(df,col_list))
 })
 
-test_that("Factorize parallel", {
-    a <- c(0,1,2,3,4,5,6)
-    b <- c(1,2,3,4,5,6,7)
-    c <- c(1,0,2,0,1,2,1)
-    df <- data.table("a"=a,"b"=b,"c"=c)
-    col_list <- c("c")
-    expect_no_error(factorize_parallel(df,col_list))
-})
-test_that("Factorize factor parallel", {
-    a <- c(0,1,2,3,4,5,6)
-    b <- c(1,2,3,4,5,6,7)
-    c <- c(1,1,1,1,1,1,1)
-    df <- data.table("a"=a,"b"=b,"c"=c)
-    col_list <- c("c")
-    expect_equal(factorize_parallel(df,col_list)$cols, c("c_1"))
-})
-test_that("Factorize discrete parallel", {
-    a <- c(0,1,2,3,4,5,6)
-    b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
-    df <- data.table("a"=a,"b"=b,"c"=c)
-    col_list <- c("a")
-    expect_equal(factorize_parallel(df,col_list)$cols, c("a_0","a_1","a_2","a_3","a_4","a_5","a_6"))
-})
-test_that("Factorize missing parallel", {
-    a <- c(0,1,2,3,4,5,6)
-    b <- c(1,2,3,4,5,6,7)
-    c <- c(0,0,0,0,0,0,0)
-    df <- data.table("a"=a,"b"=b,"c"=c)
-    col_list <- c("d")
-    expect_error(factorize_parallel(df,col_list))
-})
 
 
 #######################################

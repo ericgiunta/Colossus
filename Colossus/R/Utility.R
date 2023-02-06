@@ -250,44 +250,6 @@ factorize <-function(df,col_list,verbose=FALSE){
     list('df'=df, 'cols'=cols)
 }
 
-#' Splits a parameter into factors, parallelized
-#' \code{factorize_parallel} uses user provided list of columns to define new parameter for each unique value and update the data.table.
-#' Not for interaction terms
-#'
-#' @param df a data.table containing the columns of interest
-#' @param col_list an array of column names that should have factor terms defined
-#' @param verbose verbosity argument, for error returns
-#'
-#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
-#' @export
-#'
-factorize_parallel <-function(df,col_list,verbose=FALSE){
-    cols <- c()
-    col0 <- names(df)
-    for (i in 1:length(col_list)){
-        col <- col_list[i]
-        x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))
-        #
-        par_res <- do.call("cbind",mclapply(X=c(x), FUN=function(i) {
-            newcol <- c(paste(col,i,sep="_"))
-            dt <- as.data.table(1*(df[,col, with = FALSE]==i))
-            setnames(dt,newcol)
-            dt
-        }, mc.cores = detectCores()))
-        #
-        df <- cbind(df,par_res)
-    }
-    #
-    cols <- setdiff(names(df), col0)
-    #
-    cols <- Check_Dupe_Columns(df,cols,rep(0,length(cols)),verbose)
-    if (verbose){
-        print(paste("Number of factors:",length(cols),sep=""))
-    }
-#    print(df)
-    list('df'=df, 'cols'=cols)
-}
-
 #' Defines Interactions
 #' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 #'

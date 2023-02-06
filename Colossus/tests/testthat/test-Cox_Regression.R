@@ -458,7 +458,7 @@ test_that("Coxph plot Survival ID col not in data", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="f",'verbose'=FALSE)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="f",'verbose'=FALSE,"KM"=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot Survival ID col not given", {
@@ -479,7 +479,7 @@ test_that("Coxph plot Survival ID col not given", {
     fir <- 0
     der_iden <- 0
     control=list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE,'verbose'=FALSE)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE,'verbose'=FALSE,"KM"=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 

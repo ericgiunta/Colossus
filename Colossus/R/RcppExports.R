@@ -98,6 +98,23 @@ Make_Subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugg
     invisible(.Call(`_Colossus_Make_Subterms_Basic`, totalnum, dfc, T0, beta_0, df0, nthreads, debugging))
 }
 
+#' Utility function to calculate risks and derivatives for basic case
+#' \code{Prep_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+#' @param     totalnum    Total number of terms
+#' @param     dfc    covariate column numbers
+#' @param     T0    term values
+#' @param     Td0    term derivative values
+#' @param     Tdd0    term second derivatives values
+#' @param     beta_0    parameter list
+#' @param     df0    covariate matrix
+#' @param     nthreads    number of threads to use
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: Sub-term matrices, Term matrices
+Prep_Basic <- function(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Prep_Basic`, totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging))
+}
+
 #' Utility function to calculate the risk and risk ratios
 #' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
 #' @param     modelform    Model string
@@ -160,15 +177,14 @@ Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R
 #' @param     Rd    Risk first derivative matrix
 #' @param     Rdd    Risk second derivative matrix
 #' @param     RdR    Risk to first derivative ratio matrix
-#' @param     RddR    Risk to second derivative ratio matrix
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
 #' @param     df0    covariate matrix
 #' @param     dfc    covariate column numbers
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks_Basic <- function(totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging, df0, dfc) {
-    invisible(.Call(`_Colossus_Make_Risks_Basic`, totalnum, T0, R, Rd, Rdd, RdR, RddR, nthreads, debugging, df0, dfc))
+Make_Risks_Basic <- function(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc) {
+    invisible(.Call(`_Colossus_Make_Risks_Basic`, totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc))
 }
 
 #' Utility function to define risk groups
@@ -293,6 +309,34 @@ Calculate_Sides_STRATA <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, 
 #' @return Updates matrices in place: Log-likelihood vectors/matrix
 Calc_LogLik <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method) {
     invisible(.Call(`_Colossus_Calc_LogLik`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method))
+}
+
+#' Utility function to calculate Cox Log-Likelihood and derivatives, basic model
+#' \code{Calc_LogLik_Basic} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @param     nthreads    number of threads
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rd    Risk derivative matrix
+#' @param     Rdd    Risk second derivative matrix
+#' @param     RdR    Risk to first derivative ratio matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Rls2    First Risk sum derivative storage
+#' @param     Rls3    First Risk sum second derivative storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     Lls2    Second Risk sum derivative storage
+#' @param     Lls3    Second Risk sum second derivative storage
+#' @param     Ll    Log-likelihood vector
+#' @param     Lld    Log-likelihood first derivative vector
+#' @param     Lldd    Log-likelihood second derivative matrix
+#' @param     debugging    debugging boolean
+#' @param     ties_method    Ties method
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+Calc_LogLik_Basic <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method) {
+    invisible(.Call(`_Colossus_Calc_LogLik_Basic`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method))
 }
 
 #' Utility function to calculate Cox Log-Likelihood

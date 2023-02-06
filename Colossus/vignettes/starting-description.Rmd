@@ -48,7 +48,7 @@ $$
 $$
 </p>
 
-Each term is composed of a combination of 4 types of sub-terms. Every covaraite is part of a log-linear sub-term, a linear sub-term, a product-linear sub-term, or a general non-linear term. The log-linear sub-term ($S_{ll}$) is exponential of a linear equation of covariates. The linear sub-term ($S_l$) is a linear equation of covariates. The product-linear sub-term ($S_{PL}$) is one plus a linear equation of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms, and step function terms. Each term is the product of the non-empty sub-terms.
+Each term is composed of a combination of 4 types of sub-terms. Every covaraite is part of a log-linear sub-term, a linear sub-term, a product-linear sub-term, or a general non-linear term. The log-linear sub-term ($S_{ll}$) is exponential of a linear equation of covariates. The linear sub-term ($S_l$) is a linear equation of covariates. The product-linear sub-term ($S_{PL}$) is one plus a linear equation of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms ($F_{LT}$), step function terms ($F_{STP}$), linear-quadratic terms ($F_{LQ}$), and linear-exponential terms ($F_{LEXP}$). Each term is the product of the non-empty sub-terms.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -56,9 +56,11 @@ $$
     S_{LL}=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
     S_{L}=\sum_i (x_i \cdot \beta_i)\\
     S_{PL}=1+ \sum (x_i \cdot \beta_i)\\
-    S_{NL}=\sum_i (\exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP}\\
-    F_{LT} = \begin{cases} \alpha_i*(x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
+    S_{NL}=\sum_i (\exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
+    F_{LT} = \begin{cases} \alpha_i \cdot (x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
     F_{STP} = \begin{cases} \alpha_i & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
+    F_{LQ} = \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
+    F_{LEXP} = \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i - \exp{(\nu_i + \mu \cdot x)} &\text{else} \end{cases}\\
     T_j=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 $$

@@ -271,6 +271,10 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
     // Calculates the terms and derivatives
     //
     //
+//    Rcout << "Term Results " << endl;
+//    for (int ijk=0;ijk<T0.rows();ijk++){
+//        Rcout << T0.row(ijk) << endl;
+//    }
     //
 //    nonDose_LOGLIN = (nonDose_LOGLIN.array() != 1).select(nonDose_LOGLIN,1.0);
 //    nonDose_PLIN = (nonDose_PLIN.array() != 0).select(nonDose_PLIN,1.0);
@@ -870,6 +874,52 @@ void Make_Subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
     return;
 }
 
+//' Utility function to calculate risks and derivatives for basic case
+//' \code{Prep_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+//' @param     totalnum    Total number of terms
+//' @param     dfc    covariate column numbers
+//' @param     T0    term values
+//' @param     Td0    term derivative values
+//' @param     Tdd0    term second derivatives values
+//' @param     beta_0    parameter list
+//' @param     df0    covariate matrix
+//' @param     nthreads    number of threads to use
+//' @param     debugging    debugging boolean
+//'
+//' @return Updates matrices in place: Sub-term matrices, Term matrices
+// [[Rcpp::export]]
+void Prep_Basic(const int& totalnum, const IntegerVector& dfc, VectorXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, const VectorXd& beta_0,const MatrixXd& df0, const int& nthreads, bool debugging){
+    //
+    //Make_Subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
+    //
+    // Calculates the sub term values
+    //
+
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ij=0;ij<(totalnum);ij++){
+        int df0_c = dfc[ij]-1;
+        T0.col(0) = T0.col(0).array() + (df0.col(df0_c).array() * beta_0[ij]).array();
+    }
+    T0 = T0.array().exp();
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ij=0;ij<(totalnum);ij++){
+        int df0_c = dfc[ij]-1;
+        Td0.col(ij) = T0.array() * df0.col(df0_c).array();
+    }
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        int df0_c = dfc[ij]-1;
+        Tdd0.col(ijk) = Td0.col(jk).array() * df0.col(df0_c).array();
+    }
+    return;
+}
+
 
 //' Utility function to calculate the risk and risk ratios
 //' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
@@ -1360,7 +1410,6 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 //' @param     Rd    Risk first derivative matrix
 //' @param     Rdd    Risk second derivative matrix
 //' @param     RdR    Risk to first derivative ratio matrix
-//' @param     RddR    Risk to second derivative ratio matrix
 //' @param     nthreads    number of threads to use
 //' @param     debugging    debugging boolean
 //' @param     df0    covariate matrix
@@ -1368,7 +1417,7 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
-void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc){
+void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc){
     //
     //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
     //
@@ -1398,19 +1447,9 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
     Rd = (Rd.array().isFinite()).select(Rd,0);
     Rdd = (Rdd.array().isFinite()).select(Rdd,0);
     //
-    for (int ijk=0;ijk<(totalnum*(totalnum+1)/2);ijk++){//Calculates ratios
-        int ij = 0;
-        int jk = ijk;
-        while (jk>ij){
-            ij++;
-            jk-=ij;
-        }
+    for (int ij=0;ij<totalnum;ij++){//Calculates ratios
         int df0_ij = dfc[ij]-1;
-        int df0_jk = dfc[jk]-1;
-        if (ij==jk){
-            RdR.col(ij)=df0.col(df0_ij).array();
-        }
-        RddR.col(ijk)=df0.col(df0_ij).array() * df0.col(df0_jk).array();
+        RdR.col(ij)=df0.col(df0_ij).array();
     }
     return;
 }
@@ -2185,6 +2224,107 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
             }
         }
         
+    }
+    #pragma omp parallel for num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd[jk*totalnum+ij] = Lldd[ij*totalnum+jk];
+    }
+    return;
+}
+
+//' Utility function to calculate Cox Log-Likelihood and derivatives, basic model
+//' \code{Calc_LogLik_Basic} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' @param     nthreads    number of threads
+//' @param     RiskFail    Matrix of event rows for each event time
+//' @param     RiskGroup    vectors of strings with rows at risk for each event time
+//' @param     totalnum    total number of parameters
+//' @param     ntime    number of event times
+//' @param     R    Risk matrix
+//' @param     Rd    Risk derivative matrix
+//' @param     Rdd    Risk second derivative matrix
+//' @param     RdR    Risk to first derivative ratio matrix
+//' @param     Rls1    First Risk sum storage
+//' @param     Rls2    First Risk sum derivative storage
+//' @param     Rls3    First Risk sum second derivative storage
+//' @param     Lls1    Second Risk sum storage
+//' @param     Lls2    Second Risk sum derivative storage
+//' @param     Lls3    Second Risk sum second derivative storage
+//' @param     Ll    Log-likelihood vector
+//' @param     Lld    Log-likelihood first derivative vector
+//' @param     Lldd    Log-likelihood second derivative matrix
+//' @param     debugging    debugging boolean
+//' @param     ties_method    Ties method
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+// [[Rcpp::export]]
+void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method){
+    //
+    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
+    //
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
+        for (int j=0;j<ntime;j++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            double Rs1 = Rls1(j,0);
+            double Rs2 = Rls2(j,ij);
+            double Rs2t = Rls2(j,jk);
+            double Rs3 = Rls3(j,ijk);
+            //
+            int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+            MatrixXd Ld = MatrixXd::Zero(dj,4);
+            Ld << R.block(RiskFail(j,0),0,dj,1), RdR.block(RiskFail(j,0),ij,dj,1), RdR.block(RiskFail(j,0),jk,dj,1);//rows with events
+            //
+            MatrixXd Ldm = MatrixXd::Zero(dj,4);
+            Vector4d Ldcs;
+            if (ties_method=="efron"){
+                Ldcs << Lls1(j,0), Lls2(j,ij), Lls2(j,jk), Lls3(j,ijk);
+                for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
+                    Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                }
+            }
+            Ldm.col(0) = Ldm.col(0).array() + Rs1;
+            Ldm.col(1) = Ldm.col(1).array() + Rs2;
+            Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+            Ldm.col(3) = Ldm.col(3).array() + Rs3;
+            // Calculates the left-hand side terms
+            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+            MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
+            temp1 = Ld.col(0).array().log();
+            double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+            temp1 = Ld.col(1).array();
+            temp2 = Ld.col(2).array();
+            double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+//            temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+//            double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
+            // calculates the right-hand side terms
+            temp1 = Ldm.col(0).array().log();
+            Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+            temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+            temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
+            Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+            temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
+            Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
+            //
+            if (ij==jk){
+                Ll[ij] += Ld1 - Rs1;
+                Lld[ij] += Ld2 - Rs2;
+            }
+            Lldd[ij*totalnum+jk] += 0 - Rs3; //sums the log-likelihood and derivatives
+        }
     }
     #pragma omp parallel for num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
