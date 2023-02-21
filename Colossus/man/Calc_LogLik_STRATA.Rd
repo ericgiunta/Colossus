@@ -27,7 +27,8 @@ Calc_LogLik_STRATA(
   Lldd,
   debugging,
   ties_method,
-  STRATA_vals
+  STRATA_vals,
+  KeepConstant
 )
 }
 \arguments{
@@ -74,6 +75,8 @@ Calc_LogLik_STRATA(
 \item{ties_method}{Ties method}
 
 \item{STRATA_vals}{vector of strata identifier values}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Log-likelihood vectors/matrix

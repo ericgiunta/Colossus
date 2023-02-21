@@ -15,6 +15,7 @@ poisson_transition_single(
   fir,
   modelform,
   Control,
+  KeepConstant,
   term_tot
 )
 }
@@ -36,6 +37,8 @@ poisson_transition_single(
 \item{modelform}{model string}
 
 \item{Control}{control list}
+
+\item{KeepConstant}{vector of parameters to keep constant}
 
 \item{term_tot}{total number of terms}
 }

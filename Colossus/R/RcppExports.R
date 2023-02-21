@@ -53,10 +53,11 @@ removeColumn <- function(matrix, colToRemove) {
 #' @param     dslp    value used for slope derivative finite step
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Sub-term matrices, Term matrices
-Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Make_Subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging))
+Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the term and subterm values, but not derivatives
@@ -77,10 +78,11 @@ Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose
 #' @param     df0    covariate matrix
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Sub-term matrices, Term matrices
-Make_Subterms_Single <- function(totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Make_Subterms_Single`, totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging))
+Make_Subterms_Single <- function(totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Subterms_Single`, totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the term and subterm values with the basic model
@@ -109,10 +111,11 @@ Make_Subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugg
 #' @param     df0    covariate matrix
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Sub-term matrices, Term matrices
-Prep_Basic <- function(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Prep_Basic`, totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging))
+Prep_Basic <- function(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Prep_Basic`, totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the risk and risk ratios
@@ -139,10 +142,11 @@ Prep_Basic <- function(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debu
 #' @param     RddR    Risk to second derivative ratio matrix
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging))
+Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the risk, but not derivatives
@@ -163,10 +167,11 @@ Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, T
 #' @param     nonDose_LOGLIN    Loglinear term matrix
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Make_Risks_Single`, modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging))
+Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Risks_Single`, modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the risk and risk ratios for the basic model
@@ -181,10 +186,11 @@ Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R
 #' @param     debugging    debugging boolean
 #' @param     df0    covariate matrix
 #' @param     dfc    covariate column numbers
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks_Basic <- function(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc) {
-    invisible(.Call(`_Colossus_Make_Risks_Basic`, totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc))
+Make_Risks_Basic <- function(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Risks_Basic`, totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc, KeepConstant))
 }
 
 #' Utility function to define risk groups
@@ -235,10 +241,11 @@ Make_Groups_STRATA <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, d
 #' @param     Lls3    Second Risk sum second derivative storage
 #' @param     nthreads    number of threads
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: risk storage matrices
-Calculate_Sides <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Calculate_Sides`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging))
+Calculate_Sides <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
@@ -276,10 +283,11 @@ Calculate_Sides_Single <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1
 #' @param     nthreads    number of threads
 #' @param     debugging    debugging boolean
 #' @param     STRATA_vals vector of strata identifier values
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: risk storage matrices
-Calculate_Sides_STRATA <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, STRATA_vals) {
-    invisible(.Call(`_Colossus_Calculate_Sides_STRATA`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, STRATA_vals))
+Calculate_Sides_STRATA <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides_STRATA`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, STRATA_vals, KeepConstant))
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives
@@ -305,10 +313,11 @@ Calculate_Sides_STRATA <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, 
 #' @param     Lldd    Log-likelihood second derivative matrix
 #' @param     debugging    debugging boolean
 #' @param     ties_method    Ties method
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Log-likelihood vectors/matrix
-Calc_LogLik <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method) {
-    invisible(.Call(`_Colossus_Calc_LogLik`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method))
+Calc_LogLik <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant))
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives, basic model
@@ -333,10 +342,11 @@ Calc_LogLik <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, R
 #' @param     Lldd    Log-likelihood second derivative matrix
 #' @param     debugging    debugging boolean
 #' @param     ties_method    Ties method
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Log-likelihood vectors/matrix
-Calc_LogLik_Basic <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method) {
-    invisible(.Call(`_Colossus_Calc_LogLik_Basic`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method))
+Calc_LogLik_Basic <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_Basic`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant))
 }
 
 #' Utility function to calculate Cox Log-Likelihood
@@ -382,10 +392,11 @@ Calc_LogLik_Single <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R
 #' @param     debugging    debugging boolean
 #' @param     ties_method    Ties method
 #' @param     STRATA_vals vector of strata identifier values
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Log-likelihood vectors/matrix
-Calc_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals) {
-    invisible(.Call(`_Colossus_Calc_LogLik_STRATA`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals))
+Calc_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_STRATA`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant))
 }
 
 #' Utility function to calculate poisson log-likelihood and derivatives
@@ -402,10 +413,11 @@ Calc_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R
 #' @param     Lld    Log-likelihood first derivative vector
 #' @param     Lldd    Log-likelihood second derivative matrix
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #'
 #' @return Updates matrices in place: Log-likelihood vectors/matrix
-Poisson_LogLik <- function(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging) {
-    invisible(.Call(`_Colossus_Poisson_LogLik`, nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging))
+Poisson_LogLik <- function(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Poisson_LogLik`, nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging, KeepConstant))
 }
 
 #' Utility function to calculate poisson log-likelihood
@@ -837,13 +849,14 @@ RISK_SUBSET <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose,
 #' @param     tu    event times
 #' @param     verbose    verbosity boolean
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
 #' @param     ties_method    ties method
 #' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood, parameter list, AIC, model information
-LogLik_Cox_PH_Single <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, term_tot, ties_method, nthreads) {
-    .Call(`_Colossus_LogLik_Cox_PH_Single`, Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, term_tot, ties_method, nthreads)
+LogLik_Cox_PH_Single <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_Single`, Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
 }
 
 #' Primary poisson calculation function
@@ -859,12 +872,13 @@ LogLik_Cox_PH_Single <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform,
 #' @param     modelform    model string
 #' @param     verbose    verbosity boolean
 #' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
 #' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-LogLik_Poisson_Single <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot, nthreads) {
-    .Call(`_Colossus_LogLik_Poisson_Single`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, term_tot, nthreads)
+LogLik_Poisson_Single <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_Single`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads)
 }
 
 #' Interface between R code and the Cox PH regression
@@ -900,11 +914,12 @@ cox_ph_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, mod
 #' @param Control control list
 #' @param df_groups time and event matrix
 #' @param tu event times
+#' @param KeepConstant vector of parameters to keep constant
 #' @param term_tot total number of terms
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-cox_ph_transition_single <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, term_tot) {
-    .Call(`_Colossus_cox_ph_transition_single`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, term_tot)
+cox_ph_transition_single <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot) {
+    .Call(`_Colossus_cox_ph_transition_single`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot)
 }
 
 #' Interface between R code and the Cox PH regression for basic model
@@ -1021,11 +1036,12 @@ poisson_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_ide
 #' @param fir first term number
 #' @param modelform model string
 #' @param Control control list
+#' @param KeepConstant vector of parameters to keep constant
 #' @param term_tot total number of terms
 #'
 #' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-poisson_transition_single <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, term_tot) {
-    .Call(`_Colossus_poisson_transition_single`, dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, term_tot)
+poisson_transition_single <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot) {
+    .Call(`_Colossus_poisson_transition_single`, dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot)
 }
 
 #' Interface between R code and the poisson regression with strata effect

@@ -100,11 +100,12 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
 //' @param Control control list
 //' @param df_groups time and event matrix
 //' @param tu event times
+//' @param KeepConstant vector of parameters to keep constant
 //' @param term_tot total number of terms
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List cox_ph_transition_single(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, int term_tot){
+List cox_ph_transition_single(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
     bool change_all = Control["change_all"];
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
@@ -115,7 +116,7 @@ List cox_ph_transition_single(IntegerVector Term_n, StringVector tform, NumericV
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Single(Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu,verbose, debugging, term_tot, ties_method, nthreads);
+    List res = LogLik_Cox_PH_Single(Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -324,11 +325,12 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
 //' @param fir first term number
 //' @param modelform model string
 //' @param Control control list
+//' @param KeepConstant vector of parameters to keep constant
 //' @param term_tot total number of terms
 //'
 //' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 // [[Rcpp::export]]
-List poisson_transition_single(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, int term_tot){
+List poisson_transition_single(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, IntegerVector KeepConstant, int term_tot){
     //----------------------------------------------------------------------------------------------------------------//
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     //
@@ -337,7 +339,7 @@ List poisson_transition_single(NumericMatrix dfe, IntegerVector Term_n, StringVe
     // calculates the poisson regression
     int nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_Single(PyrC,Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot, nthreads);
+    List res = LogLik_Poisson_Single(PyrC,Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, KeepConstant, term_tot, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

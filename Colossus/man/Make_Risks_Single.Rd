@@ -21,7 +21,8 @@ Make_Risks_Single(
   nonDose_PLIN,
   nonDose_LOGLIN,
   nthreads,
-  debugging
+  debugging,
+  KeepConstant
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ Make_Risks_Single(
 \item{nthreads}{number of threads to use}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Risk, Risk ratios

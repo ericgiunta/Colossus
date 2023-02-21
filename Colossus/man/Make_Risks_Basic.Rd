@@ -5,7 +5,19 @@
 \title{Utility function to calculate the risk and risk ratios for the basic model
 \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas}
 \usage{
-Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc)
+Make_Risks_Basic(
+  totalnum,
+  T0,
+  R,
+  Rd,
+  Rdd,
+  RdR,
+  nthreads,
+  debugging,
+  df0,
+  dfc,
+  KeepConstant
+)
 }
 \arguments{
 \item{totalnum}{total number of terms}
@@ -27,6 +39,8 @@ Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc)
 \item{df0}{covariate matrix}
 
 \item{dfc}{covariate column numbers}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Risk, Risk ratios

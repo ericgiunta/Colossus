@@ -15,7 +15,8 @@ RunPoissonRegression_Single(
   a_n,
   modelform,
   fir,
-  control
+  control,
+  keep_constant = rep(0, length(names))
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ RunPoissonRegression_Single(
 \item{fir}{term number for the intial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{control}{list of parameters controlling the convergence}
+
+\item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
 }
 \value{
 prints the final results and return null

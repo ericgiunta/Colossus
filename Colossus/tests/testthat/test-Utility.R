@@ -1,4 +1,13 @@
 
+test_that("Default control no error", {
+    control_def=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=detectCores())
+    expect_no_error(Def_Control(control_def))
+})
+test_that("Default control core error", {
+    control_def=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()+2))
+    expect_error(Def_Control(control_def))
+})
+
 test_that("No truncation columns", {
     df <- data.table("time0"=c(0,1,2,3,4,5,6),"time1"=c(1,2,3,4,5,6,7),"dummy"=c(0,0,1,1,0,1,0))
     expect_equal(Check_Trunc(df,c("time0","time1"))$ce, c("time0","time1"))
@@ -474,6 +483,68 @@ test_that("Build Cluster, missing name", {
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     expect_error(Check_Cluster(df,c("a","e"),"d"))
 })
+
+test_that("Check Date Shift", {
+    m0 <- c(1,1,2,2)
+    m1 <- c(2,2,3,3)
+    d0 <- c(1,2,3,4)
+    d1 <- c(6,7,8,9)
+    y0 <- c(1990,1991,1997,1998)
+    y1 <- c(2001,2003,2005,2006)
+    df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+    expect_no_error(Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since"))
+})
+test_that("Check Date Shift, exact value", {
+    m0 <- c(1,1,2,2)
+    m1 <- c(2,2,3,3)
+    d0 <- c(1,2,3,4)
+    d1 <- c(6,7,8,9)
+    y0 <- c(1990,1991,1997,1998)
+    y1 <- c(2001,2003,2005,2006)
+    df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+    e <- Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since")
+    expect_equal(as.numeric(e$date_since), c(4054,4419,2955,2955))
+})
+
+test_that("Check Date Since", {
+    m0 <- c(1,1,2,2)
+    m1 <- c(2,2,3,3)
+    d0 <- c(1,2,3,4)
+    d1 <- c(6,7,8,9)
+    y0 <- c(1990,1991,1997,1998)
+    y1 <- c(2001,2003,2005,2006)
+    df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+    tref <- strptime( "3-22-1997", format = "%m-%d-%Y",tz = 'UTC')
+    expect_no_error(Time_Since(df,c("m1","d1","y1"),tref,"date_since"))
+})
+test_that("Check Date Since", {
+    m0 <- c(1,1,2,2)
+    m1 <- c(2,2,3,3)
+    d0 <- c(1,2,3,4)
+    d1 <- c(6,7,8,9)
+    y0 <- c(1990,1991,1997,1998)
+    y1 <- c(2001,2003,2005,2006)
+    df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+    tref <- "3-22-1997"
+    expect_error(Time_Since(df,c("m1","d1","y1"),tref,"date_since"))
+})
+test_that("Check Date Since, exact value", {
+    m0 <- c(1,1,2,2)
+    m1 <- c(2,2,3,3)
+    d0 <- c(1,2,3,4)
+    d1 <- c(6,7,8,9)
+    y0 <- c(1990,1991,1997,1998)
+    y1 <- c(2001,2003,2005,2006)
+    df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+    tref <- strptime( "3-22-1997", format = "%m-%d-%Y",tz = 'UTC')
+    e <- Time_Since(df,c("m1","d1","y1"),tref,"date_since")
+    expect_equal(as.numeric(e$date_since), c(1417,2148,2908,3274))
+})
+
+
+
+
+
 
 
 

@@ -16,6 +16,7 @@ cox_ph_transition_single(
   Control,
   df_groups,
   tu,
+  KeepConstant,
   term_tot
 )
 }
@@ -39,6 +40,8 @@ cox_ph_transition_single(
 \item{df_groups}{time and event matrix}
 
 \item{tu}{event times}
+
+\item{KeepConstant}{vector of parameters to keep constant}
 
 \item{term_tot}{total number of terms}
 }

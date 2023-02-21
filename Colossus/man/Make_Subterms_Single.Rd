@@ -21,7 +21,8 @@ Make_Subterms_Single(
   beta_0,
   df0,
   nthreads,
-  debugging
+  debugging,
+  KeepConstant
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ Make_Subterms_Single(
 \item{nthreads}{number of threads to use}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Sub-term matrices, Term matrices

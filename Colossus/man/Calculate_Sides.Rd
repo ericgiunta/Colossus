@@ -20,7 +20,8 @@ Calculate_Sides(
   Lls2,
   Lls3,
   nthreads,
-  debugging
+  debugging,
+  KeepConstant
 )
 }
 \arguments{
@@ -53,6 +54,8 @@ Calculate_Sides(
 \item{nthreads}{number of threads}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: risk storage matrices

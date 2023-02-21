@@ -18,7 +18,8 @@ RunCoxRegression_Single(
   fir = 0,
   control = list(lr = 0.75, maxiter = 20, halfmax = 5, epsilon = 1e-09, dbeta_max = 0.5,
     deriv_epsilon = 1e-09, abs_max = 1, change_all = TRUE, dose_abs_max = 100, verbose =
-    FALSE, ties = "breslow", double_step = 1)
+    FALSE, ties = "breslow", double_step = 1),
+  keep_constant = rep(0, length(names))
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ RunCoxRegression_Single(
 \item{fir}{term number for the intial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{control}{list of parameters controlling the convergence}
+
+\item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
 }
 \value{
 returns a list of the final results

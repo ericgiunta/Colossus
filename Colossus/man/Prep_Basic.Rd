@@ -5,7 +5,18 @@
 \title{Utility function to calculate risks and derivatives for basic case
 \code{Prep_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas}
 \usage{
-Prep_Basic(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging)
+Prep_Basic(
+  totalnum,
+  dfc,
+  T0,
+  Td0,
+  Tdd0,
+  beta_0,
+  df0,
+  nthreads,
+  debugging,
+  KeepConstant
+)
 }
 \arguments{
 \item{totalnum}{Total number of terms}
@@ -25,6 +36,8 @@ Prep_Basic(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging)
 \item{nthreads}{number of threads to use}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Sub-term matrices, Term matrices

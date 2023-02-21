@@ -25,7 +25,8 @@ Calc_LogLik_Basic(
   Lld,
   Lldd,
   debugging,
-  ties_method
+  ties_method,
+  KeepConstant
 )
 }
 \arguments{
@@ -68,6 +69,8 @@ Calc_LogLik_Basic(
 \item{debugging}{debugging boolean}
 
 \item{ties_method}{Ties method}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Log-likelihood vectors/matrix

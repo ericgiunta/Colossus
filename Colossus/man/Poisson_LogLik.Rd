@@ -17,7 +17,8 @@ Poisson_LogLik(
   Ll,
   Lld,
   Lldd,
-  debugging
+  debugging,
+  KeepConstant
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ Poisson_LogLik(
 \item{Lldd}{Log-likelihood second derivative matrix}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Log-likelihood vectors/matrix

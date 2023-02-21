@@ -16,6 +16,7 @@ LogLik_Poisson_Single(
   modelform,
   verbose,
   debugging,
+  KeepConstant,
   term_tot,
   nthreads
 )
@@ -40,6 +41,8 @@ LogLik_Poisson_Single(
 \item{verbose}{verbosity boolean}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 
 \item{term_tot}{total number of terms}
 

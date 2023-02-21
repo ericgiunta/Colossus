@@ -46,10 +46,29 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
         stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
     }
     #
     a_n0 <- copy(a_n)
@@ -77,13 +96,14 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
 #' @param modelform string specifying the model type
 #' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param control list of parameters controlling the convergence
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #'
 #' @return returns a list of the final results
 #' @export
 #'
 #' @importFrom rlang .data
 
-RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", event="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
+RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", event="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1),keep_constant=rep(0,length(names))){
     setkeyv(df, c(time2, event))
     dfend <- df[get(event)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
@@ -109,9 +129,23 @@ RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", eve
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
         stop()
     }
     #
@@ -120,7 +154,7 @@ RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", eve
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_transition_single(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,term_tot)
+    e <- cox_ph_transition_single(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     a_n <- a_n0
     ;
     return (e)
@@ -169,10 +203,15 @@ RunCoxRegression_Basic <- function(df, time1, time2, event, names, keep_constant
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
         stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
     }
     #
     a_n0 <- copy(a_n)
@@ -255,10 +294,29 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         #
         if (length(a_n)<length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-            a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+            a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
         } else if (length(a_n)>length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
             stop()
+        }
+        if (length(Term_n)<length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(Term_n)>length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(tform)<length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(tform)>length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(keep_constant)<length(names)){
+            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+        } else if (length(keep_constant)>length(names)){
+            keep_constant <- keep_constant[1:length(names)]
         }
         #
         iteration0 <- control$maxiter
@@ -489,6 +547,32 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
             stop()
         }
     }
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
     #
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
@@ -528,6 +612,33 @@ Cox_Relative_Risk <- function(df, time1="age_start", time2="age_exit", event="ca
 
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
+    #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
     #
     control <- Def_Control(control)
     e <- cox_ph_risk_sub(Term_n, tform, a_n, dfc, x_all,  fir, modelform, control, term_tot)
@@ -752,6 +863,33 @@ RunCoxPlots <- function(df, time1, time2, event, names, Term_n, tform, keep_cons
     time1 <- ce[1]
     time2 <- ce[2]
     #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
     control$maxiter <- -1
 #    control$verbose <- verbose
     e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
@@ -859,6 +997,33 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event, names, Term_n
     }
     t_initial <- guesses_control$term_initial
     #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
     name_initial <- c()
     term_n_initial <- c()
     tform_initial <- c()
@@ -948,10 +1113,29 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event, names, Term_n, t
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
         stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
     }
     #
     a_n0 <- copy(a_n)

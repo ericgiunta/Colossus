@@ -21,7 +21,8 @@ Calculate_Sides_STRATA(
   Lls3,
   nthreads,
   debugging,
-  STRATA_vals
+  STRATA_vals,
+  KeepConstant
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ Calculate_Sides_STRATA(
 \item{debugging}{debugging boolean}
 
 \item{STRATA_vals}{vector of strata identifier values}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: risk storage matrices

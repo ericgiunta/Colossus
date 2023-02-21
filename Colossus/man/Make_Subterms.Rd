@@ -25,7 +25,8 @@ Make_Subterms(
   dint,
   dslp,
   nthreads,
-  debugging
+  debugging,
+  KeepConstant
 )
 }
 \arguments{
@@ -68,6 +69,8 @@ Make_Subterms(
 \item{nthreads}{number of threads to use}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Sub-term matrices, Term matrices

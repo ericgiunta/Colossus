@@ -17,6 +17,7 @@ LogLik_Cox_PH_Single(
   tu,
   verbose,
   debugging,
+  KeepConstant,
   term_tot,
   ties_method,
   nthreads
@@ -44,6 +45,8 @@ LogLik_Cox_PH_Single(
 \item{verbose}{verbosity boolean}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 
 \item{term_tot}{total number of terms}
 

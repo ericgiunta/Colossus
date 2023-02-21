@@ -122,10 +122,11 @@ void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove){
 //' @param     dslp    value used for slope derivative finite step
 //' @param     nthreads    number of threads to use
 //' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Sub-term matrices, Term matrices
 // [[Rcpp::export]]
-void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const double& dslp, const int& nthreads, bool debugging){
+void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     //Make_Subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
     //
@@ -171,12 +172,8 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             }
         } else if (as< string>(tform[ij])=="lin_slope"){
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
             temp = (temp.array() < 0).select(0, temp);
-//            temp0 = (temp0.array() < 0).select(0, temp0);
-//            temp1 = (temp1.array() < 0).select(0, temp1);
             //
             T0.col(ij) = beta_0[ij] * temp.array();
             T0.col(ij+1) = beta_0[ij] * temp.array();
@@ -194,12 +191,8 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="step_slope"){
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
             temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
-//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
             //
             T0.col(ij) = beta_0[ij] * temp.array();
             T0.col(ij+1) = beta_0[ij] * temp.array();
@@ -209,16 +202,12 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             ;
         } else if (as< string>(tform[ij])=="lin_quad_slope") {
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             double a1 = beta_0[ij] /2 / beta_0[ij+1];
             double b1 = beta_0[ij] /2 * beta_0[ij+1];
             ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
             ArrayXd temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
             //
             temp = (temp.array() < 0).select(temp0, temp1);
-//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
-//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
             //
             T0.col(ij) = temp.array();
             T0.col(ij+1) = temp.array();
@@ -228,16 +217,12 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             ;
         } else if (as< string>(tform[ij])=="lin_exp_slope") {
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-//            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-//            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             double c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij+1] * beta_0[ij+2];
             double a1 = beta_0[ij] * beta_0[ij+1] + exp(c1 - beta_0[ij+2] * beta_0[ij+1]);
             ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
             ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
             temp = (temp.array() < 0).select(temp0, temp1);
-//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
-//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
             //
             T0.col(ij) = temp.array();
             T0.col(ij+1) = temp.array();
@@ -271,15 +256,8 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
     // Calculates the terms and derivatives
     //
     //
-//    Rcout << "Term Results " << endl;
-//    for (int ijk=0;ijk<T0.rows();ijk++){
-//        Rcout << T0.row(ijk) << endl;
-//    }
     //
-//    nonDose_LOGLIN = (nonDose_LOGLIN.array() != 1).select(nonDose_LOGLIN,1.0);
-//    nonDose_PLIN = (nonDose_PLIN.array() != 0).select(nonDose_PLIN,1.0);
     for (int ijk=0; ijk<nonDose.cols();ijk++){ //combines non-dose terms into a single term
-//        Rcout << dose_count[ijk] << " " << lin_count[ijk] << endl;
         if (dose_count[ijk]==0){
             Dose.col(ijk) = Dose.col(ijk).array() * 0.0 + 1;
         }
@@ -420,8 +398,6 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             //
             ArrayXd temp22 = (temp.array() < 0).select(temp0, temp1);
             //
-//            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
-//            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
             //
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
@@ -530,12 +506,6 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             //
             ArrayXd temp122 = (temp.array() < 0).select(temp0, temp1);
             //
-//            double c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-dslp);
-//            double a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]-dint));
-//            ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
-//            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
-//            //
-//            temp000 = (temp.array() < 0).select(temp0, temp1);
             //
             temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2])) + (beta_0[ij+1]+dint) * (beta_0[ij+2]);
@@ -545,12 +515,6 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
             //
             ArrayXd temp221 = (temp.array() < 0).select(temp0, temp1);
             //
-//            double c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]+dint) * (beta_0[ij+2]+dslp);
-//            double a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]+dint));
-//            ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
-//            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
-//            //
-//            temp222 = (temp.array() < 0).select(temp0, temp1);
             //
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
@@ -633,10 +597,11 @@ void Make_Subterms(const int& totalnum, const IntegerVector& Term_n,const String
 //' @param     df0    covariate matrix
 //' @param     nthreads    number of threads to use
 //' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Sub-term matrices, Term matrices
 // [[Rcpp::export]]
-void Make_Subterms_Single(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging){
+void Make_Subterms_Single(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     //Make_Subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
     //
@@ -768,7 +733,6 @@ void Make_Subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     //
     //
     for (int ijk=0; ijk<nonDose.cols();ijk++){ //combines non-dose terms into a single term
-//        Rcout << dose_count[ijk] << " " << lin_count[ijk] << endl;
         if (dose_count[ijk]==0){
             Dose.col(ijk) = Dose.col(ijk).array() * 0.0 + 1;
         }
@@ -885,10 +849,11 @@ void Make_Subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 //' @param     df0    covariate matrix
 //' @param     nthreads    number of threads to use
 //' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Sub-term matrices, Term matrices
 // [[Rcpp::export]]
-void Prep_Basic(const int& totalnum, const IntegerVector& dfc, VectorXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, const VectorXd& beta_0,const MatrixXd& df0, const int& nthreads, bool debugging){
+void Prep_Basic(const int& totalnum, const IntegerVector& dfc, VectorXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, const VectorXd& beta_0,const MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     //Make_Subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
     //
@@ -945,10 +910,11 @@ void Prep_Basic(const int& totalnum, const IntegerVector& dfc, VectorXd& T0, Mat
 //' @param     RddR    Risk to second derivative ratio matrix
 //' @param     nthreads    number of threads to use
 //' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
-void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging){
+void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
     //
@@ -1238,7 +1204,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         TTerm_p << TTerm.array() + 1.0;
         TTerm_p.col(fir) = TTerm.col(fir).array();
         Te = TTerm_p.array().rowwise().prod().array();
-//        Rcout << TTerm.row(0) << ":" << TTerm_p.row(0) << ":" << Te.row(0) << endl;
         R << Te.array();
         //
         Rd = Td0.array();
@@ -1347,10 +1312,11 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 //' @param     nonDose_LOGLIN    Loglinear term matrix
 //' @param     nthreads    number of threads to use
 //' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
-void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging){
+void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
     //
@@ -1386,12 +1352,10 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
         TTerm_p << TTerm.array() + 1.0;
         TTerm_p.col(fir) = TTerm.col(fir).array();
         Te = TTerm_p.array().rowwise().prod().array();
-//        Rcout << TTerm.row(0) << ":" << TTerm_p.row(0) << ":" << Te.row(0) << endl;
         R << Te.array();
         //
         R = (R.array().isFinite()).select(R,0);
     } else if (modelform=="GM"){
-        //currently isn't implemented, it can be calculated but not optimized the same way
         throw invalid_argument( "GM isn't implemented" );
     } else {
         throw invalid_argument( "Model isn't implemented" );
@@ -1414,10 +1378,11 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 //' @param     debugging    debugging boolean
 //' @param     df0    covariate matrix
 //' @param     dfc    covariate column numbers
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
-void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc){
+void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant){
     //
     //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
     //
@@ -1470,158 +1435,46 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
     //
     //Make_Subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
     //
-    if (debugging){
-        Rcout << "Starting Debug" << endl;
-        vector<double> time_ref(6,0.0);
-        vector<double> time_refs(6,0.0);
-        Rcout << time_ref.size() << " " << time_refs.size() << endl;
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:time_ref,time_refs) 
-        for (int ijk=0;ijk<ntime;ijk++){
-            //
-            time_point<system_clock> start_point, end_point;
-            start_point = system_clock::now();
-            auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-            end_point = system_clock::now();
-            auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-            //
-            double t0 = tu[ijk];
-            VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
-            vector<int> indices_all;
-            //
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            time_ref[0]+=ending-start;
-            time_refs[0]+=pow(ending-start,2);
-            start=ending;
-            //
-            VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(((df_m.col(1).array()==t0))||(df_m.col(0).array()==t0))).cast<int>(); //indices with events
-            vector<int> indices_end;
-            //
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            time_ref[1]+=ending-start;
-            time_refs[1]+=pow(ending-start,2);
-            start=ending;
-            //
-            //
-            //
-            int th = 1;
-            visit_lambda(select_ind_all,
-                [&indices_all, th](double v, int i, int j) {
-                    if (v==th)
-                        indices_all.push_back(i+1);
-                });
-            //
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            time_ref[2]+=ending-start;
-            time_refs[2]+=pow(ending-start,2);
-            start=ending;
-            //
-            visit_lambda(select_ind_end,
-                [&indices_end, th](double v, int i, int j) {
-                    if (v==th)
-                        indices_end.push_back(i+1);
-                });
-            //
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            time_ref[3]+=ending-start;
-            time_refs[3]+=pow(ending-start,2);
-            start=ending;
-            //
-            vector<int> indices; //generates vector of (start,end) pairs for indices at risk
-            for (auto it = begin (indices_all); it != end (indices_all); ++it) {
-                if (indices.size()==0){
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else if (indices[indices.size()-1]+1<*it){
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else {
-                    indices[indices.size()-1] = *it;
-                }
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<ntime;ijk++){
+        double t0 = tu[ijk];
+        VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
+        vector<int> indices_all;
+        VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
+        vector<int> indices_end;
+        //
+        //
+        int th = 1;
+        visit_lambda(select_ind_all,
+            [&indices_all, th](double v, int i, int j) {
+                if (v==th)
+                    indices_all.push_back(i+1);
+            });
+        visit_lambda(select_ind_end,
+            [&indices_end, th](double v, int i, int j) {
+                if (v==th)
+                    indices_end.push_back(i+1);
+            });
+        //
+        vector<int> indices; //generates vector of (start,end) pairs for indices at risk
+        for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+            if (indices.size()==0){
+                indices.push_back(*it);
+                indices.push_back(*it);
+            } else if (indices[indices.size()-1]+1<*it){
+                indices.push_back(*it);
+                indices.push_back(*it);
+            } else {
+                indices[indices.size()-1] = *it;
             }
-            //
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            time_ref[4]+=ending-start;
-            time_refs[4]+=pow(ending-start,2);
-            start=ending;
-            //
-            RiskFail(ijk,0)=indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
-            RiskFail(ijk,1)=indices_end[indices_end.size()-1]-1;
-            //
-            ostringstream oss;
-            copy(indices.begin(), indices.end(),
-                std::ostream_iterator<int>(oss, ","));
-            RiskGroup[ijk] = oss.str();//stores risk groups in string
-            //
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            time_ref[5]+=ending-start;
-            time_refs[5]+=pow(ending-start,2);
-            start=ending;
         }
-        Rcout << "df204 ";
-        for (vector<double>::size_type ijk=0;ijk<time_ref.size();ijk++){ 
-            Rcout << (time_ref[ijk]/ntime)*1e-6 << " ";
-        }
-        Rcout << " " << endl;
-        Rcout << "df205 ";
-        for (vector<double>::size_type ijk=0;ijk<time_ref.size();ijk++){ 
-            Rcout <<  sqrt(time_refs[ijk]/ntime - pow(time_ref[ijk]/ntime,2))*1e-6 << " ";
-        }
-        Rcout << " " << endl;
-    } else {
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        for (int ijk=0;ijk<ntime;ijk++){
-            double t0 = tu[ijk];
-            VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
-            vector<int> indices_all;
-            VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
-            vector<int> indices_end;
-            //
-            // for (int i=0;i<df_m.rows();i++){
-            //     Rcout << df_m.row(i) << " " << select_ind_all[i] << " " << select_ind_end[i] << " " << t0 << endl;
-            // }
-            //
-            int th = 1;
-            visit_lambda(select_ind_all,
-                [&indices_all, th](double v, int i, int j) {
-                    if (v==th)
-                        indices_all.push_back(i+1);
-                });
-            visit_lambda(select_ind_end,
-                [&indices_end, th](double v, int i, int j) {
-                    if (v==th)
-                        indices_end.push_back(i+1);
-                });
-            //
-            vector<int> indices; //generates vector of (start,end) pairs for indices at risk
-            for (auto it = begin (indices_all); it != end (indices_all); ++it) {
-                if (indices.size()==0){
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else if (indices[indices.size()-1]+1<*it){
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else {
-                    indices[indices.size()-1] = *it;
-                }
-            }
-            RiskFail(ijk,0)=indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
-            RiskFail(ijk,1)=indices_end[indices_end.size()-1]-1;
-            //
-            ostringstream oss;
-            copy(indices.begin(), indices.end(),
-                std::ostream_iterator<int>(oss, ","));
-            RiskGroup[ijk] = oss.str();//stores risk groups in string
-            // Rcout << oss.str() << ":" << RiskGroup[ijk] << endl;
-        }
+        RiskFail(ijk,0)=indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
+        RiskFail(ijk,1)=indices_end[indices_end.size()-1]-1;
+        //
+        ostringstream oss;
+        copy(indices.begin(), indices.end(),
+            std::ostream_iterator<int>(oss, ","));
+        RiskGroup[ijk] = oss.str();//stores risk groups in string
     }
     return;
 }
@@ -1686,26 +1539,19 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
                         indices[indices.size()-1] = *it;
                     }
                 }
-//                Rcout << s_ij << " " << ijk << endl;
                 safe_fail[ijk][2*s_ij+0] = indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
                 safe_fail[ijk][2*s_ij+1] = indices_end[indices_end.size()-1]-1;
-//                RiskFail(ijk,2*s_ij + 0)=indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
-//                RiskFail(ijk,2*s_ij + 1)=indices_end[indices_end.size()-1]-1;
                 //
                 ostringstream oss;
                 copy(indices.begin(), indices.end(),
                     std::ostream_iterator<int>(oss, ","));
                 safe_group[ijk][s_ij] = oss.str();//stores risk groups in string
-//                RiskGroup(ijk,s_ij) = oss.str();//stores risk groups in string
             } else {
                 safe_fail[ijk][2*s_ij+0] = -1;
                 safe_fail[ijk][2*s_ij+1] = -1;
-//                RiskFail(ijk,2*s_ij + 0)=-1;
-//                RiskFail(ijk,2*s_ij + 1)=-1;
             }
         }
     }
-//    Rcout << "Ending" << endl;
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
         for (int ijk=0;ijk<ntime;ijk++){
             RiskFail(ijk,2*s_ij + 0)= safe_fail[ijk][2*s_ij+0];
@@ -1734,129 +1580,34 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //' @param     Lls3    Second Risk sum second derivative storage
 //' @param     nthreads    number of threads
 //' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging){
+void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
-    if (debugging){
-        Rcout << "Starting Debug" << endl;
-        vector<double> time_ref(3,0.0);
-        vector<double> time_refs(3,0.0);
-        vector<int> time_count(3,0);
-        Rcout << time_ref.size() << " " << time_refs.size() << endl;
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
-        #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
-            initializer(omp_priv = omp_orig)
-        //
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) reduction(vec_double_plus:time_ref,time_refs) reduction(vec_int_plus:time_count)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
-            for (int j=0;j<ntime;j++){
-                time_point<system_clock> start_point, end_point;
-                start_point = system_clock::now();
-                auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-                end_point = system_clock::now();
-                auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-                int ij = 0;
-                int jk = ijk;
-                while (jk>ij){
-                    ij++;
-                    jk-=ij;
-                }
-                double Rs1 = 0;
-                double Rs2 = 0;
-                double Rs2t = 0;
-                double Rs3 = 0;
-                //
-                vector<int> InGroup;
-                string Groupstr = RiskGroup[j];
-                stringstream ss(Groupstr);
-                //
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);    
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
-                //
-                end_point = system_clock::now();
-                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-                time_ref[0]+=ending-start;
-                time_refs[0]+=pow(ending-start,2);
-                time_count[0]+=1;
-                start=ending;
-                //
-                //Now has the grouping pairs
-                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-                    Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
-                    Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
-                    Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
-                    Rs3 += Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).sum();
-                } //precalculates the sums of risk groups
-                MatrixXd Ld = MatrixXd::Zero(dj,4);
-                Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
-                //
-                end_point = system_clock::now();
-                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-                time_ref[1]+=ending-start;
-                time_refs[1]+=pow(ending-start,2);
-                time_count[1]+=1;
-                start=ending;
-                //
-                // only assigns values once
-                if (ij==jk){
-                    if (ij==0){
-                        Rls1(j,0) = Rs1;
-                        Lls1(j,0) = Ld.col(0).sum();
-                    }
-                    Rls2(j,ij) = Rs2;
-                    Lls2(j,ij) = Ld.col(1).sum();
-                }
-                Rls3(j,ijk) = Rs3;
-                Lls3(j,ijk) = Ld.col(3).sum();
-                //
-                end_point = system_clock::now();
-                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-                time_ref[2]+=ending-start;
-                time_refs[2]+=pow(ending-start,2);
-                time_count[2]+=1;
-                start=ending;
-                //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
             }
-        }
-        Rcout << "df206 ";
-        for (vector<double>::size_type ijk=0;ijk<time_ref.size();ijk++){ 
-            Rcout << (time_ref[ijk]/time_count[ijk])*1e-6 << " ";
-        }
-        Rcout << " " << endl;
-        Rcout << "df207 ";
-        for (vector<double>::size_type ijk=0;ijk<time_ref.size();ijk++){ 
-            Rcout <<  sqrt(time_refs[ijk]/time_count[ijk] - pow(time_ref[ijk]/time_count[ijk],2))*1e-6 << " ";
-        }
-        Rcout << " " << endl;
-    } else {
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
-            for (int j=0;j<ntime;j++){
-                int ij = 0;
-                int jk = ijk;
-                while (jk>ij){
-                    ij++;
-                    jk-=ij;
-                }
-                double Rs1 = 0;
-                double Rs2 = 0;
-                double Rs2t = 0;
-                double Rs3 = 0;
-                //
-                vector<int> InGroup;
-                string Groupstr = RiskGroup[j];
-                stringstream ss(Groupstr);
+            double Rs1 = 0;
+            double Rs2 = 0;
+            double Rs2t = 0;
+            double Rs3 = 0;
+            //
+            vector<int> InGroup;
+            string Groupstr = RiskGroup[j];
+            stringstream ss(Groupstr);
+            //
+            //
+            if (KeepConstant[ij]+KeepConstant[jk]==0){
                 //
                 for (int i; ss >> i;) {
                     InGroup.push_back(i);    
@@ -1884,6 +1635,23 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
                 }
                 Rls3(j,ijk) = Rs3;
                 Lls3(j,ijk) = Ld.col(3).sum();
+            } else if (ij+jk==0){
+                //
+                for (int i; ss >> i;) {
+                    InGroup.push_back(i);    
+                    if (ss.peek() == ',')
+                        ss.ignore();
+                }
+                //Now has the grouping pairs
+                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+                    Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
+                } //precalculates the sums of risk groups
+                MatrixXd Ld = MatrixXd::Zero(dj,1);
+                Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
+                // only assigns values once
+                Rls1(j,0) = Rs1;
+                Lls1(j,0) = Ld.col(0).sum();
             }
         }
     }
@@ -1952,10 +1720,11 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
 //' @param     nthreads    number of threads
 //' @param     debugging    debugging boolean
 //' @param     STRATA_vals vector of strata identifier values
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, IntegerVector& STRATA_vals){
+void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
     //
     //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
@@ -1976,38 +1745,53 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
                 //
                 vector<int> InGroup;
                 //Now has the grouping pairs
-//                Rcout << ijk << " " << j << " " << s_ij << endl;
                 if (RiskFail(j,2*s_ij + 1)>-1){
                     string Groupstr = as<std::string>(RiskGroup(j,s_ij));
                     stringstream ss(Groupstr);
                     //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);    
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
-                    int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-                    for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-                        Rs1 += R.block(  InGroup[i]-1, 0,  InGroup[i+1]-InGroup[i]+1,1).sum();
-                        Rs2 += Rd.block( InGroup[i]-1, ij, InGroup[i+1]-InGroup[i]+1,1).sum();
-                        Rs2t += Rd.block(InGroup[i]-1, jk, InGroup[i+1]-InGroup[i]+1,1).sum();
-                        Rs3 += Rdd.block(InGroup[i]-1, ijk,InGroup[i+1]-InGroup[i]+1,1).sum();
-                    } //precalculates the sums of risk groups
-                    MatrixXd Ld = MatrixXd::Zero(dj,4);
-                    Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), Rd.block(RiskFail(j,2*s_ij),ij,dj,1), Rd.block(RiskFail(j,2*s_ij),jk,dj,1) ,Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
-                    // only assigns values once
-                    if (ij==jk){
-                        if (ij==0){
-                            Rls1(j,s_ij) = Rs1;
-                            Lls1(j,s_ij) = Ld.col(0).sum();
+                    if (KeepConstant[ij]+KeepConstant[jk]==0){
+                        for (int i; ss >> i;) {
+                            InGroup.push_back(i);    
+                            if (ss.peek() == ',')
+                                ss.ignore();
                         }
-                        Rls2(j,ij*STRATA_vals.size() + s_ij) = Rs2;
-                        Lls2(j,ij*STRATA_vals.size() + s_ij) = Ld.col(1).sum();
+                        int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+                        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+                            Rs1 += R.block(  InGroup[i]-1, 0,  InGroup[i+1]-InGroup[i]+1,1).sum();
+                            Rs2 += Rd.block( InGroup[i]-1, ij, InGroup[i+1]-InGroup[i]+1,1).sum();
+                            Rs2t += Rd.block(InGroup[i]-1, jk, InGroup[i+1]-InGroup[i]+1,1).sum();
+                            Rs3 += Rdd.block(InGroup[i]-1, ijk,InGroup[i+1]-InGroup[i]+1,1).sum();
+                        } //precalculates the sums of risk groups
+                        MatrixXd Ld = MatrixXd::Zero(dj,4);
+                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), Rd.block(RiskFail(j,2*s_ij),ij,dj,1), Rd.block(RiskFail(j,2*s_ij),jk,dj,1) ,Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
+                        // only assigns values once
+                        if (ij==jk){
+                            if (ij==0){
+                                Rls1(j,s_ij) = Rs1;
+                                Lls1(j,s_ij) = Ld.col(0).sum();
+                            }
+                            Rls2(j,ij*STRATA_vals.size() + s_ij) = Rs2;
+                            Lls2(j,ij*STRATA_vals.size() + s_ij) = Ld.col(1).sum();
+                        }
+                        Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
+                        Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(3).sum();
+                    }  else if (ij+jk==0){
+                        for (int i; ss >> i;) {
+                            InGroup.push_back(i);    
+                            if (ss.peek() == ',')
+                                ss.ignore();
+                        }
+                        int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+                        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+                            Rs1 += R.block(  InGroup[i]-1, 0,  InGroup[i+1]-InGroup[i]+1,1).sum();
+                        } //precalculates the sums of risk groups
+                        MatrixXd Ld = MatrixXd::Zero(dj,1);
+                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//sum of risks in group
+                        // only assigns values once
+                        Rls1(j,s_ij) = Rs1;
+                        Lls1(j,s_ij) = Ld.col(0).sum();
                     }
-                    Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
-                    Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(3).sum();
                 }
-//                Rcout << ijk << " " << j << " " << s_ij << endl;
             }
         }
     }
@@ -2037,145 +1821,27 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
 //' @param     Lldd    Log-likelihood second derivative matrix
 //' @param     debugging    debugging boolean
 //' @param     ties_method    Ties method
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
-void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method){
+void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
     //
     //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
     //
-    if (debugging){
-        //
-        Rcout << "Starting Debug" << endl;
-        vector<double> time_ref(4,0.0);
-        vector<double> time_refs(4,0.0);
-        vector<int> time_count(4,0);
-        Rcout << time_ref.size() << " " << time_refs.size() << endl;
-        #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
-            initializer(omp_priv = omp_orig)
-        //
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd, time_ref,time_refs) reduction(vec_int_plus:time_count) collapse(2)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
-            for (int j=0;j<ntime;j++){
-                //
-                time_point<system_clock> start_point, end_point;
-                start_point = system_clock::now();
-                auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-                end_point = system_clock::now();
-                auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-                //
-                int ij = 0;
-                int jk = ijk;
-                while (jk>ij){ //Splits into two indices
-                    ij++;
-                    jk-=ij;
-                }
-                double Rs1 = Rls1(j,0);
-                double Rs2 = Rls2(j,ij);
-                double Rs2t = Rls2(j,jk);
-                double Rs3 = Rls3(j,ijk);
-                //
-                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-                MatrixXd Ld = MatrixXd::Zero(dj,4);
-                Ld << R.block(RiskFail(j,0),0,dj,1), RdR.block(RiskFail(j,0),ij,dj,1), RdR.block(RiskFail(j,0),jk,dj,1) ,RddR.block(RiskFail(j,0),ijk,dj,1);//rows with events
-                //
-                MatrixXd Ldm = MatrixXd::Zero(dj,4);
-                Vector4d Ldcs;
-                if (ties_method=="efron"){
-                    Ldcs << Lls1(j,0), Lls2(j,ij), Lls2(j,jk), Lls3(j,ijk);
-                    for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
-                        Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
-                    }
-                }
-                Ldm.col(0) = Ldm.col(0).array() + Rs1;
-                Ldm.col(1) = Ldm.col(1).array() + Rs2;
-                Ldm.col(2) = Ldm.col(2).array() + Rs2t;
-                Ldm.col(3) = Ldm.col(3).array() + Rs3;
-                //
-                end_point = system_clock::now();
-                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-                time_ref[0]+=ending-start;
-                time_refs[0]+=pow(ending-start,2);
-                time_count[0]+=1;
-                start=ending;
-                //
-                // Calculates the left-hand side terms
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
-                MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
-                temp1 = Ld.col(0).array().log();
-                double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                temp1 = Ld.col(1).array();
-                temp2 = Ld.col(2).array();
-                double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
-                double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
-                //
-                end_point = system_clock::now();
-                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-                time_ref[1]+=ending-start;
-                time_refs[1]+=pow(ending-start,2);
-                time_count[1]+=1;
-                start=ending;
-                //
-                // calculates the right-hand side terms
-                temp1 = Ldm.col(0).array().log();
-                Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
-                temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
-                Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
-                Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
-                //
-                //
-                end_point = system_clock::now();
-                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-                time_ref[2]+=ending-start;
-                time_refs[2]+=pow(ending-start,2);
-                time_count[2]+=1;
-                start=ending;
-                //
-                if (ij==jk){
-                    Ll[ij] += Ld1 - Rs1;
-                    Lld[ij] += Ld2 - Rs2;
-                }
-                Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
-                //
-                end_point = system_clock::now();
-                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-                time_ref[3]+=ending-start;
-                time_refs[3]+=pow(ending-start,2);
-                time_count[3]+=1;
-                start=ending;
-                //
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
+        for (int j=0;j<ntime;j++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
             }
-        }
-        Rcout << "df208 ";
-        for (vector<double>::size_type ijk=0;ijk<time_ref.size();ijk++){ 
-            Rcout << (time_ref[ijk]/time_count[ijk])*1e-6 << " ";
-        }
-        Rcout << " " << endl;
-        Rcout << "df209 ";
-        for (vector<double>::size_type ijk=0;ijk<time_ref.size();ijk++){ 
-            Rcout <<  sqrt(time_refs[ijk]/time_count[ijk] - pow(time_ref[ijk]/time_count[ijk],2))*1e-6 << " ";
-        }
-        Rcout << " " << endl;
-    } else {
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
-            for (int j=0;j<ntime;j++){
-                int ij = 0;
-                int jk = ijk;
-                while (jk>ij){
-                    ij++;
-                    jk-=ij;
-                }
+            if (KeepConstant[ij]+KeepConstant[jk]==0){
                 double Rs1 = Rls1(j,0);
                 double Rs2 = Rls2(j,ij);
                 double Rs2t = Rls2(j,jk);
@@ -2223,8 +1889,15 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
                 Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
             }
         }
-        
     }
+    double LogLik = 0;
+    for (int i=0;i<totalnum;i++){
+        if (Ll[i]!=0){
+            LogLik=Ll[i];
+            break;
+        }
+    }
+    fill(Ll.begin(), Ll.end(), LogLik);
     #pragma omp parallel for num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
@@ -2260,10 +1933,11 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
 //' @param     Lldd    Log-likelihood second derivative matrix
 //' @param     debugging    debugging boolean
 //' @param     ties_method    Ties method
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
-void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method){
+void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
     //
     //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
     //
@@ -2279,53 +1953,74 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
                 ij++;
                 jk-=ij;
             }
-            double Rs1 = Rls1(j,0);
-            double Rs2 = Rls2(j,ij);
-            double Rs2t = Rls2(j,jk);
-            double Rs3 = Rls3(j,ijk);
-            //
-            int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-            MatrixXd Ld = MatrixXd::Zero(dj,4);
-            Ld << R.block(RiskFail(j,0),0,dj,1), RdR.block(RiskFail(j,0),ij,dj,1), RdR.block(RiskFail(j,0),jk,dj,1);//rows with events
-            //
-            MatrixXd Ldm = MatrixXd::Zero(dj,4);
-            Vector4d Ldcs;
-            if (ties_method=="efron"){
-                Ldcs << Lls1(j,0), Lls2(j,ij), Lls2(j,jk), Lls3(j,ijk);
-                for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
-                    Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+            if (KeepConstant[ij]+KeepConstant[jk]==0){
+                double Rs1 = Rls1(j,0);
+                double Rs2 = Rls2(j,ij);
+                double Rs2t = Rls2(j,jk);
+                double Rs3 = Rls3(j,ijk);
+                //
+                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+                MatrixXd Ld = MatrixXd::Zero(dj,4);
+                Ld << R.block(RiskFail(j,0),0,dj,1), RdR.block(RiskFail(j,0),ij,dj,1), RdR.block(RiskFail(j,0),jk,dj,1);//rows with events
+                //
+                MatrixXd Ldm = MatrixXd::Zero(dj,4);
+                Vector4d Ldcs;
+                if (ties_method=="efron"){
+                    Ldcs << Lls1(j,0), Lls2(j,ij), Lls2(j,jk), Lls3(j,ijk);
+                    for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
+                        Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                    }
                 }
+                Ldm.col(0) = Ldm.col(0).array() + Rs1;
+                Ldm.col(1) = Ldm.col(1).array() + Rs2;
+                Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+                Ldm.col(3) = Ldm.col(3).array() + Rs3;
+                // Calculates the left-hand side terms
+                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+                MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
+                temp1 = Ld.col(0).array().log();
+                double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                temp1 = Ld.col(1).array();
+                temp2 = Ld.col(2).array();
+                double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                // calculates the right-hand side terms
+                temp1 = Ldm.col(0).array().log();
+                Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+                temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
+                Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
+                Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
+                //
+                if (ij==jk){
+                    Ll[ij] += Ld1 - Rs1;
+                    Lld[ij] += Ld2 - Rs2;
+                }
+                Lldd[ij*totalnum+jk] += 0 - Rs3; //sums the log-likelihood and derivatives
             }
-            Ldm.col(0) = Ldm.col(0).array() + Rs1;
-            Ldm.col(1) = Ldm.col(1).array() + Rs2;
-            Ldm.col(2) = Ldm.col(2).array() + Rs2t;
-            Ldm.col(3) = Ldm.col(3).array() + Rs3;
-            // Calculates the left-hand side terms
-            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
-            MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
-            temp1 = Ld.col(0).array().log();
-            double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-            temp1 = Ld.col(1).array();
-            temp2 = Ld.col(2).array();
-            double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
-//            temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
-//            double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
-            // calculates the right-hand side terms
-            temp1 = Ldm.col(0).array().log();
-            Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-            temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
-            temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
-            Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
-            temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
-            Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
-            //
-            if (ij==jk){
-                Ll[ij] += Ld1 - Rs1;
-                Lld[ij] += Ld2 - Rs2;
-            }
-            Lldd[ij*totalnum+jk] += 0 - Rs3; //sums the log-likelihood and derivatives
         }
     }
+    Rcout << "df444 ";//prints the log-likelihoods
+    for (int ij=0;ij<totalnum;ij++){
+        Rcout << Ll[ij] << " ";
+    }
+    Rcout << " " << endl;
+    double LogLik = 0;
+    for (int i=0;i<totalnum;i++){
+        Rcout << Ll[i] << " " << LogLik << endl;
+        if (Ll[i]!=0){
+            LogLik=Ll[i];
+            break;
+        }
+        Rcout << Ll[i] << " " << LogLik << endl;
+    }
+    Rcout << LogLik << endl;
+    fill(Ll.begin(), Ll.end(), LogLik);
+     Rcout << "df445 ";//prints the log-likelihoods
+    for (int ij=0;ij<totalnum;ij++){
+        Rcout << Ll[ij] << " ";
+    }
+    Rcout << " " << endl;
     #pragma omp parallel for num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
@@ -2416,10 +2111,11 @@ void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const
 //' @param     debugging    debugging boolean
 //' @param     ties_method    Ties method
 //' @param     STRATA_vals vector of strata identifier values
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, IntegerVector& STRATA_vals){
+void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
     //
     //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
     //
@@ -2436,56 +2132,66 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
                     ij++;
                     jk-=ij;
                 }
-                double Rs1 = Rls1(j,s_ij);
-                double Rs2 =  Rls2(j,ij*STRATA_vals.size() + s_ij);
-                double Rs2t = Rls2(j,jk*STRATA_vals.size() + s_ij);
-                double Rs3 = Rls3(j,ijk*STRATA_vals.size() + s_ij);
-                //
-                int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-                if (RiskFail(j,2*s_ij + 1)>-1){
-                    MatrixXd Ld = MatrixXd::Zero(dj,4);
-                    Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), RdR.block(RiskFail(j,2*s_ij),ij,dj,1), RdR.block(RiskFail(j,2*s_ij),jk,dj,1) ,RddR.block(RiskFail(j,2*s_ij),ijk,dj,1);//rows with events
+                if (KeepConstant[ij]+KeepConstant[jk]==0){
+                    double Rs1 = Rls1(j,s_ij);
+                    double Rs2 =  Rls2(j,ij*STRATA_vals.size() + s_ij);
+                    double Rs2t = Rls2(j,jk*STRATA_vals.size() + s_ij);
+                    double Rs3 = Rls3(j,ijk*STRATA_vals.size() + s_ij);
                     //
-                    MatrixXd Ldm = MatrixXd::Zero(dj,4);
-                    Vector4d Ldcs;
-                    if (ties_method=="efron"){
-                        Ldcs << Lls1(j,s_ij), Lls2(j,ij*STRATA_vals.size() + s_ij), Lls2(j,jk*STRATA_vals.size() + s_ij), Lls3(j,ijk*STRATA_vals.size() + s_ij);
-                        for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
-                            Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                    int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+                    if (RiskFail(j,2*s_ij + 1)>-1){
+                        MatrixXd Ld = MatrixXd::Zero(dj,4);
+                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), RdR.block(RiskFail(j,2*s_ij),ij,dj,1), RdR.block(RiskFail(j,2*s_ij),jk,dj,1) ,RddR.block(RiskFail(j,2*s_ij),ijk,dj,1);//rows with events
+                        //
+                        MatrixXd Ldm = MatrixXd::Zero(dj,4);
+                        Vector4d Ldcs;
+                        if (ties_method=="efron"){
+                            Ldcs << Lls1(j,s_ij), Lls2(j,ij*STRATA_vals.size() + s_ij), Lls2(j,jk*STRATA_vals.size() + s_ij), Lls3(j,ijk*STRATA_vals.size() + s_ij);
+                            for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
+                                Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                            }
                         }
+                        Ldm.col(0) = Ldm.col(0).array() + Rs1;
+                        Ldm.col(1) = Ldm.col(1).array() + Rs2;
+                        Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+                        Ldm.col(3) = Ldm.col(3).array() + Rs3;
+                        // Calculates the left-hand side terms
+                        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+                        MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
+                        temp1 = Ld.col(0).array().log();
+                        double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        temp1 = Ld.col(1).array();
+                        temp2 = Ld.col(2).array();
+                        double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                        double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        // calculates the right-hand side terms
+                        temp1 = Ldm.col(0).array().log();
+                        Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
+                        temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
+                        Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
+                        Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        //
+                        if (ij==jk){
+                            Ll[ij] += Ld1 - Rs1;
+                            Lld[ij] += Ld2 - Rs2;
+                        }
+                        Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
                     }
-                    Ldm.col(0) = Ldm.col(0).array() + Rs1;
-                    Ldm.col(1) = Ldm.col(1).array() + Rs2;
-                    Ldm.col(2) = Ldm.col(2).array() + Rs2t;
-                    Ldm.col(3) = Ldm.col(3).array() + Rs3;
-                    // Calculates the left-hand side terms
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
-                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
-                    temp1 = Ld.col(0).array().log();
-                    double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ld.col(1).array();
-                    temp2 = Ld.col(2).array();
-                    double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
-                    double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    // calculates the right-hand side terms
-                    temp1 = Ldm.col(0).array().log();
-                    Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
-                    temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
-                    Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
-                    Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
-                    //
-                    if (ij==jk){
-                        Ll[ij] += Ld1 - Rs1;
-                        Lld[ij] += Ld2 - Rs2;
-                    }
-                    Lldd[ij*totalnum+jk] += Ld3 - Rs3; //sums the log-likelihood and derivatives
                 }
             }
         }
     }
+    double LogLik = 0;
+    for (int i=0;i<totalnum;i++){
+        if (Ll[i]!=0){
+            LogLik=Ll[i];
+            break;
+        }
+    }
+    fill(Ll.begin(), Ll.end(), LogLik);
     #pragma omp parallel for num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
@@ -2514,57 +2220,31 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
 //' @param     Lld    Log-likelihood first derivative vector
 //' @param     Lldd    Log-likelihood second derivative matrix
 //' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
-void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging){
+void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, const IntegerVector& KeepConstant){
     //
     // Poisson_LogLik( nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging)
     //
-    if (debugging){
-        MatrixXd temp(Rd.rows(),Rd.cols());
-        VectorXd CoL=VectorXd::Zero(Rd.rows());
-        
-        temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
-        fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp,0).sum());
-        
-        CoL = PyrC.col(1).array() * R.col(0).array().pow(-1).array();
+    MatrixXd temp(Rd.rows(),Rd.cols());
+    VectorXd CoL=VectorXd::Zero(Rd.rows());
+    
+    temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
+    fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp,0).sum());
+    
+    CoL = PyrC.col(1).array() * R.col(0).array().pow(-1).array();
 
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
-            int ij = 0;
-            int jk = ijk;
-            while (jk>ij){
-                ij++;
-                jk-=ij;
-            }
-            VectorXd temp(Rdd.rows(),1);
-            temp = Rdd.col(ijk).array() * ( CoL.array() - PyrC.col(0).array()) - PyrC.col(1).array() * RdR.col(ij).array() * RdR.col(jk).array();
-            Lldd[ij*totalnum+jk] = (temp.array().isFinite()).select(temp,0).sum();
-            if (ij!=jk){
-                Lldd[jk*totalnum+ij] = (temp.array().isFinite()).select(temp,0).sum();
-            } else{
-                temp = Rd.col(ij).array() * ( CoL.array() - PyrC.col(0).array());
-                Lld[ij] = (temp.array().isFinite()).select(temp,0).sum();
-            }
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
         }
-    } else {
-        MatrixXd temp(Rd.rows(),Rd.cols());
-        VectorXd CoL=VectorXd::Zero(Rd.rows());
-        
-        temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
-        fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp,0).sum());
-        
-        CoL = PyrC.col(1).array() * R.col(0).array().pow(-1).array();
-
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
-            int ij = 0;
-            int jk = ijk;
-            while (jk>ij){
-                ij++;
-                jk-=ij;
-            }
+        if (KeepConstant[ij]+KeepConstant[jk]==0){
             VectorXd temp(Rdd.rows(),1);
             temp = Rdd.col(ijk).array() * ( CoL.array() - PyrC.col(0).array()) - PyrC.col(1).array() * RdR.col(ij).array() * RdR.col(jk).array();
             Lldd[ij*totalnum+jk] = (temp.array().isFinite()).select(temp,0).sum();
@@ -2631,262 +2311,116 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
     //
     //Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
     //
-    if (debugging){
-        if (double_step==1){
-            //
-            NumericVector Lldd_vec = wrap(Lldd);//
-            NumericVector Lld_vec  = wrap(Lld);//
-            Lldd_vec.attr("dim") = Dimension(totalnum, totalnum);
-            //
-            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-            //
-            VectorXd Lldd_solve = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
-            Rcout << Lldd_solve.transpose() << endl;
-            //
-//            int kept_covs = totalnum - sum(KeepConstant);
-//            NumericVector Lldd_vec(kept_covs * kept_cov);
-//            NumericVector Lld_vec(kept_covs);
-//            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-//                int ij = 0;
-//                int jk = ijk;
-//                while (jk>ij){
-//                    ij++;
-//                    jk-=ij;
-//                }
-//                if (KeepConstant[ij]==0){
-//                    int pij_ind = ij - sum(head(KeepConstant,ij));
-//                    if (ij==jk){
-//                        Lld_vec[pij_ind]=Lld[ij];
-//                    }
-//                    if (KeepConstant[jk]==0){
-//                        int pjk_ind = jk - sum(head(KeepConstant,jk));
-//                        Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd_vec[ijk];
-//                    }
-//                }
-//            }
-//            for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
-//                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd_vec[pjk_ind * kept_covs + pij_ind];
-//            }
-//            Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
-//            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-//            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-//            VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
-//            VectorXd Lldd_solve = VectorXd::Zero(totalnum);
-//            for (int ij=0;ij<totalnum;ij++){
-//                int pij_ind = ij - sum(head(KeepConstant,ij));
-//                Lldd_solve(ij) = Lldd_solve0(pij_ind)
-//            }
-            //
-            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-            for (int ijk=0;ijk<totalnum;ijk++){
-                if (change_all){
-                    if (KeepConstant[ijk]==0){
-                        dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                        //
-//                        double dbeta_max;
-//                        if (Lld[ijk]!=0){
-//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-//                        }else{
-//                            dbeta_max = 0;
-//                        }
-//                        if (abs(dbeta[ijk])>dbeta_max){
-//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-//                        }
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
-                            if (abs(dbeta[ijk])>dose_abs_max){
-                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                            }
-                        }else{
-                            if (abs(dbeta[ijk])>abs_max){
-                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                            }
-                        }
-                    } else {
-                        dbeta[ijk]=0;
-                    }
-                }else{
-                    if (ijk!=der_iden){//Validation requires controlled changes
-                        dbeta[ijk] = 0.0;
-                    } else {
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
-                            dbeta[ijk] = dint;
-                        } else {
-                            dbeta[ijk] = 0.001;
-                        }
-                    }
+    if (double_step==1){
+        int kept_covs = totalnum - sum(KeepConstant);
+        NumericVector Lldd_vec(kept_covs * kept_covs);
+        NumericVector Lld_vec(kept_covs);
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+            int ij = 0;
+            int jk = ijk;
+            int pij_ind=-100;
+            int pjk_ind=-100;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            if (KeepConstant[jk]==0){
+                pjk_ind = jk - sum(head(KeepConstant,jk));
+            }
+            if (KeepConstant[ij]==0){
+                pij_ind = ij - sum(head(KeepConstant,ij));
+                if (ij==jk){
+                    Lld_vec[pij_ind]=Lld[ij];
+                }
+                if (KeepConstant[jk]==0){
+                    pjk_ind = jk - sum(head(KeepConstant,jk));
+                    Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
                 }
             }
-        } else {
-            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-            for (int ijk=0;ijk<totalnum;ijk++){
-                if (change_all){
-                    if (KeepConstant[ijk]==0){
-                        if (Lldd[ijk*totalnum+ijk] != 0 ){
-                            dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                        } else {
-                            dbeta[ijk] = 0;
+        }
+        for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+        }
+        Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+        VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+        VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+        for (int ij=0;ij<totalnum;ij++){
+            if (KeepConstant[ij]==0){
+                int pij_ind = ij - sum(head(KeepConstant,ij));
+                Lldd_solve(ij) = Lldd_solve0(pij_ind);
+            }
+        }
+        //
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum;ijk++){
+            if (change_all){
+                if (KeepConstant[ijk]==0){
+                    dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                    //
+                    if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                        if (abs(dbeta[ijk])>dose_abs_max){
+                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
                         }
-                        //
-//                        double dbeta_max;
-//                        if (Lld[ijk]!=0){
-//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-//                        }else{
-//                            dbeta_max = 0;
-//                        }
-//                        if (abs(dbeta[ijk])>dbeta_max){
-//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-//                        }
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
-                            if (abs(dbeta[ijk])>dose_abs_max){
-                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                            }
-                        }else{
-                            if (abs(dbeta[ijk])>abs_max){
-                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                            }
+                    }else{
+                        if (abs(dbeta[ijk])>abs_max){
+                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
                         }
-                    } else {
-                        dbeta[ijk]=0;
                     }
-                }else{
-                    if (ijk!=der_iden){//Validation requires controlled changes
-                        dbeta[ijk] = 0.0;
+                } else {
+                    dbeta[ijk]=0;
+                }
+            }else{
+                if (ijk!=der_iden){//Validation requires controlled changes
+                    dbeta[ijk] = 0.0;
+                } else {
+                    if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                        dbeta[ijk] = dint;
                     } else {
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
-                            dbeta[ijk] = dint;
-                        } else {
-                            dbeta[ijk] = 0.001;
-                        }
+                        dbeta[ijk] = 0.001;
                     }
                 }
             }
         }
     } else {
-        if (double_step==1){
-            int kept_covs = totalnum - sum(KeepConstant);
-            NumericVector Lldd_vec(kept_covs * kept_covs);
-            NumericVector Lld_vec(kept_covs);
-            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-            for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-                int ij = 0;
-                int jk = ijk;
-                int pij_ind=-100;
-                int pjk_ind=-100;
-                while (jk>ij){
-                    ij++;
-                    jk-=ij;
-                }
-                if (KeepConstant[jk]==0){
-                    pjk_ind = jk - sum(head(KeepConstant,jk));
-                }
-                if (KeepConstant[ij]==0){
-                    pij_ind = ij - sum(head(KeepConstant,ij));
-                    if (ij==jk){
-                        Lld_vec[pij_ind]=Lld[ij];
-                    }
-                    if (KeepConstant[jk]==0){
-                        pjk_ind = jk - sum(head(KeepConstant,jk));
-                        Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
-                    }
-                }
-//                Rcout << "(" << ij <<"," << jk << ") (" << pij_ind << "," << pjk_ind << ") (" << KeepConstant[ij] << "," << KeepConstant[jk] << ") " << Lldd[ij*totalnum+jk] << endl;
-            }
-            for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
-                int ij = 0;
-                int jk = ijk;
-                while (jk>ij){
-                    ij++;
-                    jk-=ij;
-                }
-                Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
-            }
-            Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
-            const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-            const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-            VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
-            VectorXd Lldd_solve = VectorXd::Zero(totalnum);
-//            Rcout << Lldd_solve0.transpose() << endl;
-            for (int ij=0;ij<totalnum;ij++){
-                if (KeepConstant[ij]==0){
-                    int pij_ind = ij - sum(head(KeepConstant,ij));
-                    Lldd_solve(ij) = Lldd_solve0(pij_ind);
-                }
-            }
-//            Rcout << Lldd_solve.transpose() << endl;
-            //
-            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-            for (int ijk=0;ijk<totalnum;ijk++){
-                if (change_all){
-                    if (KeepConstant[ijk]==0){
-                        dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                        //
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
-                            if (abs(dbeta[ijk])>dose_abs_max){
-                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                            }
-                        }else{
-                            if (abs(dbeta[ijk])>abs_max){
-                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                            }
-                        }
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        for (int ijk=0;ijk<totalnum;ijk++){
+            if (change_all){
+                if (KeepConstant[ijk]==0){
+                    if (Lldd[ijk*totalnum+ijk] != 0 ){
+                        dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                     } else {
-                        dbeta[ijk]=0;
+                        dbeta[ijk] = 0;
                     }
-                }else{
-                    if (ijk!=der_iden){//Validation requires controlled changes
-                        dbeta[ijk] = 0.0;
-                    } else {
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
-                            dbeta[ijk] = dint;
-                        } else {
-                            dbeta[ijk] = 0.001;
+                    //
+                    if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                        if (abs(dbeta[ijk])>dose_abs_max){
+                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                        }
+                    }else{
+                        if (abs(dbeta[ijk])>abs_max){
+                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
                         }
                     }
+                } else {
+                    dbeta[ijk]=0;
                 }
-            }
-        } else {
-            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-            for (int ijk=0;ijk<totalnum;ijk++){
-                if (change_all){
-                    if (KeepConstant[ijk]==0){
-                        if (Lldd[ijk*totalnum+ijk] != 0 ){
-                            dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                        } else {
-                            dbeta[ijk] = 0;
-                        }
-                        //
-//                        double dbeta_max;
-//                        if (Lld[ijk]!=0){
-//                            dbeta_max = abs(Ll[ijk]/Lld[ijk] * dbeta_cap);//uses newtonian step for zero log-likelihood as a limit
-//                        }else{
-//                            dbeta_max = 0;
-//                        }
-//                        if (abs(dbeta[ijk])>dbeta_max){
-//                            dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-//                        }
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
-                            if (abs(dbeta[ijk])>dose_abs_max){
-                                dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                            }
-                        }else{
-                            if (abs(dbeta[ijk])>abs_max){
-                                dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                            }
-                        }
+            }else{
+                if (ijk!=der_iden){//Validation requires controlled changes
+                    dbeta[ijk] = 0.0;
+                } else {
+                    if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
+                        dbeta[ijk] = dint;
                     } else {
-                        dbeta[ijk]=0;
-                    }
-                }else{
-                    if (ijk!=der_iden){//Validation requires controlled changes
-                        dbeta[ijk] = 0.0;
-                    } else {
-                        if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
-                            dbeta[ijk] = dint;
-                        } else {
-                            dbeta[ijk] = 0.001;
-                        }
+                        dbeta[ijk] = 0.001;
                     }
                 }
             }

@@ -41,13 +41,34 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
     ce <- c(pyr,event)
     #
     control <- Def_Control(control)
+    #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
         stop()
     }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
     e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
     return (e)
 }
@@ -65,11 +86,12 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
 #' @param modelform string specifying the model type
 #' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param control list of parameters controlling the convergence
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #'
 #' @return prints the final results and return null
 #' @export
 #'
-RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control){
+RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control,keep_constant=rep(0,length(names))){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             ;
@@ -93,14 +115,30 @@ RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_
     ce <- c(pyr,event)
     #
     control <- Def_Control(control)
+    #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
         stop()
     }
-    e <- poisson_transition_single(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir, modelform, control,term_tot)
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    #
+    e <- poisson_transition_single(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
     return (e)
 }
 
@@ -158,13 +196,34 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
     ce <- c(pyr,event)
     #
     control <- Def_Control(control)
+    #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
         stop()
     }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
     e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
     return (e)
 }
@@ -230,12 +289,32 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         ce <- c(pyr,event)
         #
         control <- Def_Control(control)
+        #
         if (length(a_n)<length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-            a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+            a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
         } else if (length(a_n)>length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
             stop()
+        }
+        if (length(Term_n)<length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(Term_n)>length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(tform)<length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(tform)>length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(keep_constant)<length(names)){
+            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+        } else if (length(keep_constant)>length(names)){
+            keep_constant <- keep_constant[1:length(names)]
         }
         #
         iteration0 <- control$maxiter
@@ -360,13 +439,34 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         ce <- c(pyr,event)
         #
         control <- Def_Control(control)
+        #
         if (length(a_n)<length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-            a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
+            a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
         } else if (length(a_n)>length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
             stop()
         }
+        if (length(Term_n)<length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(Term_n)>length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(tform)<length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(tform)>length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(keep_constant)<length(names)){
+            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+        } else if (length(keep_constant)>length(names)){
+            keep_constant <- keep_constant[1:length(names)]
+        }
+        #
         #
         control <- Def_Control(control)
         #
@@ -494,6 +594,33 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event, names, Term_n, tfo
     }
     t_initial <- guesses_control$term_initial
     #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
     name_initial <- c()
     term_n_initial <- c()
     tform_initial <- c()
@@ -579,6 +706,34 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event, names, Term_n, tfo
     } else {
         guesses_control$guesses_start <- guesses_control$guesses
     }
+    #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
     #
     val <- factorize(df, Strat_Cols,guesses_control$verbose)
     df <- val$df

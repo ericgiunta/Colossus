@@ -27,7 +27,8 @@ Make_Risks(
   RdR,
   RddR,
   nthreads,
-  debugging
+  debugging,
+  KeepConstant
 )
 }
 \arguments{
@@ -74,6 +75,8 @@ Make_Risks(
 \item{nthreads}{number of threads to use}
 
 \item{debugging}{debugging boolean}
+
+\item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
 Updates matrices in place: Risk, Risk ratios
