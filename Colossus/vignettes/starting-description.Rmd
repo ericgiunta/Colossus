@@ -33,7 +33,7 @@ $$
 $$
 </p>
 
-In Colossus, this general model is extended by abstracting to the sum and product of terms and sub-terms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In poisson modeling the risk calculated is an estaimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of sub-terms ($S$). Each sub-term is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
+In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
 
 There are currently four types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), or multiplicative excess model ($R_M$).
 
@@ -48,7 +48,7 @@ $$
 $$
 </p>
 
-Each term is composed of a combination of 4 types of sub-terms. Every covaraite is part of a log-linear sub-term, a linear sub-term, a product-linear sub-term, or a general non-linear term. The log-linear sub-term ($S_{ll}$) is exponential of a linear equation of covariates. The linear sub-term ($S_l$) is a linear equation of covariates. The product-linear sub-term ($S_{PL}$) is one plus a linear equation of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms ($F_{LT}$), step function terms ($F_{STP}$), linear-quadratic terms ($F_{LQ}$), and linear-exponential terms ($F_{LEXP}$). Each term is the product of the non-empty sub-terms.
+Each term is composed of a combination of 4 types of subterms. Every covariate is part of a log-linear subterm, a linear subterm, a product-linear subterm, or a general non-linear term. The log-linear subterm ($S_{ll}$) is exponential of a linear equation of covariates. The linear subterm ($S_l$) is a linear equation of covariates. The product-linear subterm ($S_{PL}$) is one plus a linear equation of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms ($F_{LT}$), step function terms ($F_{STP}$), linear-quadratic terms ($F_{LQ}$), and linear-exponential terms ($F_{LEXP}$). Each term is the product of the non-empty subterms.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -68,14 +68,14 @@ $$
 
 
 
-In short, every element of the risk model has a sub-term type, term number, covariate, and parameter value
+In short, every element of the risk model has a subterm type, term number, covariate, and parameter value
 
 ## Using The Standard Model
 
-In Colossus every equation is defined in a very similar fashion. On the user side of the code, elements of the risk equation are defined as rows of a data-frame. The data-frame columns store covariate names, term numbers, sub-terms types, and a starting point. For more complex regression each parameter can be also be set to remain constant over the regression. Doing so forces the parameter value to remain constant but not remove the element from the derivative and risk calculations. For a multiplicative excess risk model the following table and equation are equivalent.
+In Colossus every equation is defined in a very similar fashion. On the user side of the code, elements of the risk equation are defined as rows of a data-frame. The data-frame columns store covariate names, term numbers, subterms types, and a starting point. For more complex regression each parameter can be also be set to remain constant over the regression. Doing so forces the parameter value to remain constant but not remove the element from the derivative and risk calculations. For a multiplicative excess risk model the following table and equation are equivalent.
 
 
-| Term number | sub-term type | covariate|
+| Term number | subterm type | covariate|
 | :---------: | :----------: | :-------: |
 | 0           | LogLinear    | a         |
 | 1           | Linear       | b         |
@@ -90,9 +90,9 @@ $$
 </p>
 
 
-If the user wanted to update the model to include a new term with a product-linear sub-term, then the table would only need to be updated with a new row.
+If the user wanted to update the model to include a new term with a product-linear subterm, then the table would only need to be updated with a new row.
 
-| Term number | sub-term type | covariate |
+| Term number | subterm type | covariate |
 | :---------: | :----------: | :-------: |
 | 0           | LogLinear    | a         |
 | 1           | Linear       | b         |
@@ -107,7 +107,7 @@ $$
 $$
 </p>
 
-Note that the multiplicative model is taking the product of terms, each of which is the product of subterms. The same equation could be written with LogLinear sub-terms distributed over different terms without changing the final value. The only exception is subterms in the "first" term in the multiplicative excess model, which is equal to one plus a product of subterms.
+Note that the multiplicative model is taking the product of terms, each of which is the product of subterms. The same equation could be written with LogLinear subterms distributed over different terms without changing the final value. The only exception is subterms in the "first" term in the multiplicative excess model, which is equal to one plus a product of subterms.
 
 The specific model options are passed to the code as separate variables. The model identifier (A, M, PA, PAE) is passed as a string. Every model except the additive model has a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term, however it can be set to any arbitrary term number without producing an error.
 

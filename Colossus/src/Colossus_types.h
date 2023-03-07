@@ -1,5 +1,4 @@
 #include <RcppEigen.h>
-#include <RcppParallel.h>
 #include <omp.h>
 #include <fstream>
 #include <sstream>
@@ -14,7 +13,6 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::plugins(openmp)]]
-// [[Rcpp::depends(RcppParallel)]]
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;

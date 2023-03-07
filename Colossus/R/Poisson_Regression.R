@@ -10,7 +10,7 @@
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #'
@@ -84,7 +84,7 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
 #' @param tform subterm type for each element of the model
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param control list of parameters controlling the convergence
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #'
@@ -154,7 +154,7 @@ RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param Strat_Cols column to stratify by
@@ -240,7 +240,7 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param Strat_Cols column to stratify by
@@ -566,7 +566,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param Strat_Cols column to stratify by
@@ -678,7 +678,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event, names, Term_n, tfo
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param Strat_Cols column to stratify by

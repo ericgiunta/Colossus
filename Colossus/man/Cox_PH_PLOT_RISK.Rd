@@ -59,7 +59,7 @@ Cox_PH_PLOT_RISK(
 
 \item{term_tot}{total number of terms}
 
-\item{uniq_v}{number of unqiue covariate values}
+\item{uniq_v}{number of unique covariate values}
 
 \item{nthreads}{number of threads to use}
 }

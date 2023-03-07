@@ -40,7 +40,7 @@ Prep_Basic(
 \item{KeepConstant}{vector identifying constant parameters}
 }
 \value{
-Updates matrices in place: Sub-term matrices, Term matrices
+Updates matrices in place: subterm matrices, Term matrices
 }
 \description{
 Utility function to calculate risks and derivatives for basic case

@@ -17,7 +17,6 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::plugins(openmp)]]
-// [[Rcpp::depends(RcppParallel)]]
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;

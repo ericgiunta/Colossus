@@ -11,7 +11,7 @@
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #'
@@ -94,7 +94,7 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event="cas
 #' @param tform subterm type for each element of the model
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param control list of parameters controlling the convergence
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #'
@@ -238,7 +238,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event, names, keep_constant
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param guesses_control list of parameters to control how the guessing works
@@ -506,7 +506,7 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param Strat_Col column to stratify by
@@ -599,7 +599,7 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param control list of parameters for verbosity and tie method
 #'
 #' @return returns a list of the final results
@@ -694,7 +694,7 @@ RunCoxNull <- function(df, time1="age_start", time2="age_exit", event="cases",co
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param control list of parameters controlling the convergence
 #' @param plot_options list of parameters controlling the plot options
 #'
@@ -969,7 +969,7 @@ RunCoxPlots <- function(df, time1, time2, event, names, Term_n, tform, keep_cons
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param guesses_control list of parameters to control how the guessing works
@@ -1078,7 +1078,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event, names, Term_n
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #'
@@ -1144,6 +1144,92 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event, names, Term_n, t
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
     e <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    ;
+    return (e)
+}
+
+
+#' Performs basic Cox Proportional Hazards regression with competing risks
+#' \code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param Term_n term numbers for each element of the model
+#' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param modelform string specifying the model type
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
+#' @param control list of parameters controlling the convergence
+#' @param cens_weight list of weights for censoring rate
+#'
+#' @return returns a list of the final results
+#' @export
+#'
+#' @importFrom rlang .data
+
+RunCoxRegression_CR <- function(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
+    setkeyv(df, c(time2, event))
+    dfend <- df[get(event)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+    if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all=as.matrix(df[,all_names, with = FALSE])
+    ce <- c(time1,time2,event)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
+    a_n0 <- copy(a_n)
+    control <- Def_Control(control)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    a_n <- a_n0
     ;
     return (e)
 }

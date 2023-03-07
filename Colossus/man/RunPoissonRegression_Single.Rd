@@ -36,7 +36,7 @@ RunPoissonRegression_Single(
 
 \item{modelform}{string specifying the model type}
 
-\item{fir}{term number for the intial term, used for models of the form T0*f(Ti) in which the order matters}
+\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{control}{list of parameters controlling the convergence}
 

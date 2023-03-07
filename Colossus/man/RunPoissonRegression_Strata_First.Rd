@@ -41,7 +41,7 @@ RunPoissonRegression_Strata_First(
 
 \item{modelform}{string specifying the model type}
 
-\item{fir}{term number for the intial term, used for models of the form T0*f(Ti) in which the order matters}
+\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
 

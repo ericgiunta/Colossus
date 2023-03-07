@@ -32,7 +32,7 @@ removeColumn <- function(matrix, colToRemove) {
 }
 
 #' Utility function to calculate the term and subterm values
-#' \code{Make_Subterms} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+#' \code{Make_subterms} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 #' @param     totalnum    Total number of terms
 #' @param     Term_n    Term numbers
 #' @param     tform    subterm types
@@ -55,13 +55,13 @@ removeColumn <- function(matrix, colToRemove) {
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #'
-#' @return Updates matrices in place: Sub-term matrices, Term matrices
-Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant) {
-    invisible(.Call(`_Colossus_Make_Subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant))
+#' @return Updates matrices in place: subterm matrices, Term matrices
+Make_subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_subterms`, totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the term and subterm values, but not derivatives
-#' \code{Make_Subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+#' \code{Make_subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 #' @param     totalnum    Total number of terms
 #' @param     Term_n    Term numbers
 #' @param     tform    subterm types
@@ -80,13 +80,13 @@ Make_Subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #'
-#' @return Updates matrices in place: Sub-term matrices, Term matrices
-Make_Subterms_Single <- function(totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant) {
-    invisible(.Call(`_Colossus_Make_Subterms_Single`, totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant))
+#' @return Updates matrices in place: subterm matrices, Term matrices
+Make_subterms_Single <- function(totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_subterms_Single`, totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the term and subterm values with the basic model
-#' \code{Make_Subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
+#' \code{Make_subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 #' @param     totalnum    Total number of terms
 #' @param     dfc    covariate column numbers
 #' @param     T0    subterm values
@@ -95,9 +95,9 @@ Make_Subterms_Single <- function(totalnum, Term_n, tform, dfc, fir, T0, Dose, no
 #' @param     nthreads    number of threads to use
 #' @param     debugging    debugging boolean
 #'
-#' @return Updates matrices in place: Sub-term matrices, Term matrices
-Make_Subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Make_Subterms_Basic`, totalnum, dfc, T0, beta_0, df0, nthreads, debugging))
+#' @return Updates matrices in place: subterm matrices, Term matrices
+Make_subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Make_subterms_Basic`, totalnum, dfc, T0, beta_0, df0, nthreads, debugging))
 }
 
 #' Utility function to calculate risks and derivatives for basic case
@@ -113,7 +113,7 @@ Make_Subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugg
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #'
-#' @return Updates matrices in place: Sub-term matrices, Term matrices
+#' @return Updates matrices in place: subterm matrices, Term matrices
 Prep_Basic <- function(totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging, KeepConstant) {
     invisible(.Call(`_Colossus_Prep_Basic`, totalnum, dfc, T0, Td0, Tdd0, beta_0, df0, nthreads, debugging, KeepConstant))
 }
@@ -208,6 +208,23 @@ Make_Groups <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debuggin
     invisible(.Call(`_Colossus_Make_Groups`, ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging))
 }
 
+#' Utility function to define risk groups with competing risks
+#' \code{Make_Groups_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event=2 past the event time    
+#' @param     ntime    number of event times
+#' @param     df_m    event/time matrix
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     tu    Event time vector
+#' @param     cens_weight vector with censoring weights
+#' @param     cens_cutoff double threshold for adding competing risk to risk group, not implemented
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
+Make_Groups_CR <- function(ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, cens_cutoff, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Make_Groups_CR`, ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, cens_cutoff, nthreads, debugging))
+}
+
 #' Utility function to define risk groups with STRATA
 #' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
 #' @param     ntime    number of event times
@@ -222,6 +239,24 @@ Make_Groups <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debuggin
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 Make_Groups_STRATA <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals) {
     invisible(.Call(`_Colossus_Make_Groups_STRATA`, ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals))
+}
+
+#' Utility function to define risk groups with STRATA and competing risks
+#' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group , adds competing risks  
+#' @param     ntime    number of event times
+#' @param     df_m    event/time matrix
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     tu    Event time vector
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     cens_weight vector with censoring weights
+#' @param     cens_cutoff double threshold for adding competing risk to risk group, not implemented
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
+Make_Groups_STRATA_CR <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals, cens_weight, cens_cutoff) {
+    invisible(.Call(`_Colossus_Make_Groups_STRATA_CR`, ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals, cens_weight, cens_cutoff))
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
@@ -248,6 +283,31 @@ Calculate_Sides <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rl
     invisible(.Call(`_Colossus_Calculate_Sides`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, KeepConstant))
 }
 
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+#' \code{Calculate_Sides_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rd    Risk derivative matrix
+#' @param     Rdd    Risk second derivative matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Rls2    First Risk sum derivative storage
+#' @param     Rls3    First Risk sum second derivative storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     Lls2    Second Risk sum derivative storage
+#' @param     Lls3    Second Risk sum second derivative storage
+#' @param     cens_weight vector of censoring weights
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: risk storage matrices
+Calculate_Sides_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides_CR`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, debugging, KeepConstant))
+}
+
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
 #' \code{Calculate_Sides_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @param     RiskFail    Matrix of event rows for each event time
@@ -263,6 +323,24 @@ Calculate_Sides <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rl
 #' @return Updates matrices in place: risk storage matrices
 Calculate_Sides_Single <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging) {
     invisible(.Call(`_Colossus_Calculate_Sides_Single`, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging))
+}
+
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives, applies competing risks
+#' \code{Calculate_Sides_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group with competing risks
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     cens_weight vector of censoring weights
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#'
+#' @return Updates matrices in place: risk storage matrices
+Calculate_Sides_Single_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Calculate_Sides_Single_CR`, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, debugging))
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
@@ -288,6 +366,71 @@ Calculate_Sides_Single <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1
 #' @return Updates matrices in place: risk storage matrices
 Calculate_Sides_STRATA <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, STRATA_vals, KeepConstant) {
     invisible(.Call(`_Colossus_Calculate_Sides_STRATA`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, STRATA_vals, KeepConstant))
+}
+
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative
+#' \code{Calculate_Sides_STRATA_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: risk storage matrices
+Calculate_Sides_STRATA_Single <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides_STRATA_Single`, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging, STRATA_vals, KeepConstant))
+}
+
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and competing risks
+#' \code{Calculate_Sides_STRATA_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rd    Risk derivative matrix
+#' @param     Rdd    Risk second derivative matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Rls2    First Risk sum derivative storage
+#' @param     Rls3    First Risk sum second derivative storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     Lls2    Second Risk sum derivative storage
+#' @param     Lls3    Second Risk sum second derivative storage
+#' @param     cens_weight vector of censoring weights
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: risk storage matrices
+Calculate_Sides_STRATA_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, debugging, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides_STRATA_CR`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, debugging, STRATA_vals, KeepConstant))
+}
+
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative and with competing risks
+#' \code{Calculate_Sides_STRATA_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives but with competing risks
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     cens_weight vector of censoring weights
+#' @param     nthreads    number of threads
+#' @param     debugging    debugging boolean
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: risk storage matrices
+Calculate_Sides_STRATA_Single_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, debugging, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides_STRATA_Single_CR`, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, debugging, STRATA_vals, KeepConstant))
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives
@@ -349,6 +492,26 @@ Calc_LogLik_Basic <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R,
     invisible(.Call(`_Colossus_Calc_LogLik_Basic`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant))
 }
 
+#' Utility function to calculate Cox Log-Likelihood, basic model
+#' \code{Calc_LogLik_Basic_Single} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @param     nthreads    number of threads
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     Ll    Log-likelihood vector
+#' @param     debugging    debugging boolean
+#' @param     ties_method    Ties method
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+Calc_LogLik_Basic_Single <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_Basic_Single`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant))
+}
+
 #' Utility function to calculate Cox Log-Likelihood
 #' \code{Calc_LogLik_Single} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @param     nthreads    number of threads
@@ -399,6 +562,36 @@ Calc_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R
     invisible(.Call(`_Colossus_Calc_LogLik_STRATA`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant))
 }
 
+#' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
+#' \code{Calc_LogLik_STRATA_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
+#' @param     nthreads    number of threads
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rd    Risk derivative matrix
+#' @param     Rdd    Risk second derivative matrix
+#' @param     RdR    Risk to first derivative ratio matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Rls2    First Risk sum derivative storage
+#' @param     Rls3    First Risk sum second derivative storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     Lls2    Second Risk sum derivative storage
+#' @param     Lls3    Second Risk sum second derivative storage
+#' @param     Ll    Log-likelihood vector
+#' @param     Lld    Log-likelihood first derivative vector
+#' @param     Lldd    Log-likelihood second derivative matrix
+#' @param     debugging    debugging boolean
+#' @param     ties_method    Ties method
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+Calc_LogLik_STRATA_BASIC <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_STRATA_BASIC`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant))
+}
+
 #' Utility function to calculate poisson log-likelihood and derivatives
 #' \code{Poisson_LogLik} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
 #' @param     nthreads    number of threads
@@ -435,7 +628,7 @@ Poisson_LogLik_Single <- function(nthreads, totalnum, PyrC, R, Ll, debugging) {
 }
 
 #' Utility function to calculate the change to make each iteration
-#' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations    
+#' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 #' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param     nthreads    number of threads
 #' @param     totalnum    total number of parameter
@@ -462,7 +655,7 @@ Calc_Change <- function(double_step, nthreads, totalnum, fir, der_iden, dbeta_ca
 }
 
 #' Utility function to calculate the change to make each iteration, with basic model
-#' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations    
+#' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 #' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param     nthreads    number of threads
 #' @param     totalnum    total number of parameter
@@ -638,7 +831,7 @@ LogLik_Cox_PH_STRATA <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     term_tot    total number of terms
 #' @param     nthreads number of threads to use
 #'
-#' @return List of results: baseline harzard, risk for each row
+#' @return List of results: baseline hazard, risk for each row
 Cox_PH_PLOT_SURV <- function(Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, nthreads) {
     .Call(`_Colossus_Cox_PH_PLOT_SURV`, Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, nthreads)
 }
@@ -662,7 +855,7 @@ Cox_PH_PLOT_SURV <- function(Term_n, tform, a_n, a_er, x_all, dfc, fir, der_iden
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
-#' @param     uniq_v    number of unqiue covariate values
+#' @param     uniq_v    number of unique covariate values
 #' @param     nthreads number of threads to use
 #'
 #' @return List of results: covariate values, risks for each row
@@ -881,6 +1074,43 @@ LogLik_Poisson_Single <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, mod
     .Call(`_Colossus_LogLik_Poisson_Single`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads)
 }
 
+#' Primary Cox PH regression with competing risks, event=2
+#' \code{LogLik_Cox_PH_CR} Performs the calls to calculation functions, Structures the Cox PH regression with competing events weighted by censoring rates, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     der_iden    subterm number for derivative tests
+#' @param     modelform    model string
+#' @param     lr    learning rate for newton step toward 0 derivative
+#' @param     maxiter    maximum number of iterations
+#' @param     halfmax    maximum number of half steps
+#' @param     epsilon    minimum acceptable maximum parameter change
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     dose_abs_max    Maximum allowed threshold parameter change
+#' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     cens_weight censoring weight list
+#' @param     cens_thres threshold to add competing event to risk group
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     change_all    boolean if every parameter is being updated
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     ties_method    ties method
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Cox_PH_CR <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_CR`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
+}
+
 #' Interface between R code and the Cox PH regression
 #' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @param Term_n Term numbers
@@ -900,6 +1130,28 @@ LogLik_Poisson_Single <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, mod
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 cox_ph_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot) {
     .Call(`_Colossus_cox_ph_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot)
+}
+
+#' Interface between R code and the Cox PH regression
+#' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param der_iden subterm number for derivative tests
+#' @param modelform model string
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param cens_vec censoring weight list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+cox_ph_transition_CR <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot) {
+    .Call(`_Colossus_cox_ph_transition_CR`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot)
 }
 
 #' Interface between R code and the Cox PH calculation
@@ -979,7 +1231,7 @@ cox_ph_STRATA <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelfo
 #' @param Plot_Type string specifying which plot type
 #' @param uniq_v total number of unique covariate values
 #'
-#' @return Cox_PH_PLOT_SURV : ( baseline harzard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
+#' @return Cox_PH_PLOT_SURV : ( baseline hazard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
 cox_ph_plot <- function(Term_n, tform, a_n, a_er, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Plot_Type, uniq_v) {
     .Call(`_Colossus_cox_ph_plot`, Term_n, tform, a_n, a_er, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Plot_Type, uniq_v)
 }

@@ -3,7 +3,7 @@
 \name{Calc_Change}
 \alias{Calc_Change}
 \title{Utility function to calculate the change to make each iteration
-\code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations}
+\code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations}
 \usage{
 Calc_Change(
   double_step,
@@ -71,5 +71,5 @@ Updates matrices in place: parameter change matrix
 }
 \description{
 Utility function to calculate the change to make each iteration
-\code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applys newton steps and change limitations
+\code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 }

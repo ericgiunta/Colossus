@@ -47,7 +47,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' @export
 #'
 Def_Control <- function(control){
-    control_def=list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0, 'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()))
+    control_def=list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0, 'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()), "cens_thres"=0)
     for (nm in names(control_def)){
         if (nm %in% names(control)){
             if (nm=="Ncores"){
@@ -443,7 +443,7 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
     return (list('df'=df,'ce'=ce))
 }
 
-#' Applies time depedence to parameters
+#' Applies time dependence to parameters
 #' \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time
 #'
 #' @param df dataframe of data to use as reference

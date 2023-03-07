@@ -1,5 +1,4 @@
 #include <RcppEigen.h>
-#include <RcppParallel.h>
 #include <omp.h>
 #include "R_Interface.h"
 #include "Main_Functions.h"
@@ -15,7 +14,6 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::plugins(openmp)]]
-// [[Rcpp::depends(RcppParallel)]]
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
@@ -84,6 +82,51 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the Cox PH regression
+//' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_n starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param der_iden subterm number for derivative tests
+//' @param modelform model string
+//' @param Control control list
+//' @param df_groups time and event matrix
+//' @param tu event times
+//' @param cens_vec censoring weight list
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List cox_ph_transition_CR(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, NumericVector cens_vec, IntegerVector KeepConstant, int term_tot){
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["Ncores"];
+	double cens_thres = Control["cens_thres"];
+    //
+	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
+	//
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_CR(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -218,7 +261,7 @@ List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n,I
 //' @param Plot_Type string specifying which plot type
 //' @param uniq_v total number of unique covariate values
 //'
-//' @return Cox_PH_PLOT_SURV : ( baseline harzard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
+//' @return Cox_PH_PLOT_SURV : ( baseline hazard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
 // [[Rcpp::export]]
 List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericVector a_er,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, vector<string> Plot_Type ,int uniq_v){
     bool verbose = Control["verbose"];

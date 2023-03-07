@@ -1,5 +1,4 @@
 #include <RcppEigen.h>
-#include <RcppParallel.h>
 #include <omp.h>
 #include "Main_Functions.h"
 #include "Calc_Repeated.h"
@@ -15,7 +14,6 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::plugins(openmp)]]
-// [[Rcpp::depends(RcppParallel)]]
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
@@ -162,7 +160,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     }
     //
     // Calculates the subterm and term values
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -404,7 +402,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     vector<double> dbeta(totalnum,0.0);
     //
     // --------------------------
-    // always starts from intial guess
+    // always starts from initial guess
     // --------------------------
     vector<double> beta_c(totalnum,0.0);
     vector<double> beta_a(totalnum,0.0);
@@ -459,7 +457,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
             // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -661,7 +659,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_best[ij];
             }
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging, KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging, KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -1006,7 +1004,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     //
     //
     // Calculates the subterm and term values
-    Make_Subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
+    Make_subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -1208,7 +1206,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     vector<double> dbeta(totalnum,0.0);
     //
     // --------------------------
-    // always starts from intial guess
+    // always starts from initial guess
     // --------------------------
     vector<double> beta_c(totalnum,0.0);
     vector<double> beta_a(totalnum,0.0);
@@ -1255,7 +1253,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
             // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-            Make_Subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
+            Make_subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -1401,7 +1399,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_best[ij];
             }
-            Make_Subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
+            Make_subterms_Basic( totalnum,  dfc,  T0 ,beta_0, df0,nthreads, debugging);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -1748,7 +1746,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
         Rcout << "starting subterms " << term_tot << endl;
     }
     // Calculates the subterm and term values
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -1943,7 +1941,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     vector<double> dbeta(totalnum,0.0);
     //
     // --------------------------
-    // always starts from intial guess
+    // always starts from initial guess
     // --------------------------
     vector<double> beta_c(totalnum,0.0);
     vector<double> beta_a(totalnum,0.0);
@@ -1998,7 +1996,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
             // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -2165,7 +2163,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_best[ij];
             }
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -2390,7 +2388,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
 //' @param     term_tot    total number of terms
 //' @param     nthreads number of threads to use
 //'
-//' @return List of results: baseline harzard, risk for each row
+//' @return List of results: baseline hazard, risk for each row
 // [[Rcpp::export]]
 List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericVector a_er,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads){
     //
@@ -2468,7 +2466,7 @@ List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_
     if (verbose){
         Rcout << "starting subterms " << term_tot << endl;
     }
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------    
@@ -2640,7 +2638,7 @@ List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_
 //' @param     debugging    debugging boolean
 //' @param     KeepConstant    vector identifying constant parameters
 //' @param     term_tot    total number of terms
-//' @param     uniq_v    number of unqiue covariate values
+//' @param     uniq_v    number of unique covariate values
 //' @param     nthreads number of threads to use
 //'
 //' @return List of results: covariate values, risks for each row
@@ -2760,12 +2758,12 @@ List Cox_PH_PLOT_RISK(IntegerVector Term_n, StringVector tform, NumericVector a_
     }
     //
     if (verbose){
-        Rcout << "Making Subterm "<< endl;
+        Rcout << "Making subterm "<< endl;
     }
     // Calculates terms
     //
     //
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
     MatrixXd RdR = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk to derivative ratios
     MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
     //
@@ -2894,7 +2892,7 @@ List Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector 
     if (verbose){
         Rcout << "starting subterms " << term_tot << endl;
     }
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -3103,7 +3101,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         Rcout << "starting subterms " << term_tot << endl;
     }
     // Calculates the subterm and term values
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -3284,7 +3282,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     vector<double> dbeta(totalnum,0.0);
     //
     // --------------------------
-    // always starts from intial guess
+    // always starts from initial guess
     // --------------------------
     vector<double> beta_c(totalnum,0.0);
     vector<double> beta_a(totalnum,0.0);
@@ -3344,7 +3342,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
             // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -3509,7 +3507,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_best[ij];
             }
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -3883,7 +3881,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         Rcout << "starting subterms " << term_tot << endl;
     }
     // Calculates the subterm and term values
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -4064,7 +4062,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     vector<double> dbeta(totalnum,0.0);
     //
     // --------------------------
-    // always starts from intial guess
+    // always starts from initial guess
     // --------------------------
     vector<double> beta_c(totalnum,0.0);
     vector<double> beta_a(totalnum,0.0);
@@ -4135,7 +4133,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
             // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -4300,7 +4298,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_best[ij];
             }
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
             if (verbose){
                 Rcout << "values checked ";
                 for (int ijk=0;ijk<totalnum;ijk++){
@@ -4679,9 +4677,9 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
         Rcout << "starting subterms " << term_tot << endl;
     }
     if (Debug_It[0]){
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, TRUE,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, TRUE,KeepConstant);
     } else {
-            Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, FALSE,KeepConstant);
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, FALSE,KeepConstant);
     }
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
@@ -4925,7 +4923,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
     vector<double> dbeta(totalnum,0.0);
     //
     // --------------------------
-    // always starts from intial guess
+    // always starts from initial guess
     // --------------------------
     vector<double> beta_p(totalnum,0.0);
     vector<double> beta_c(totalnum,0.0);
@@ -4987,9 +4985,9 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
             // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
             if (Debug_It[4]){
-                Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, TRUE,KeepConstant);
+                Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, TRUE,KeepConstant);
             } else {
-                Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, FALSE,KeepConstant);
+                Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, FALSE,KeepConstant);
             }
             if (verbose){
                 Rcout << "values checked ";
@@ -5425,7 +5423,7 @@ NumericVector RISK_SUBSET(IntegerVector Term_n, StringVector tform, NumericVecto
     //
     // Calculates terms
     //
-    Make_Subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,1.0,1.0,nthreads, debugging,KeepConstant);
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,1.0,1.0,nthreads, debugging,KeepConstant);
     MatrixXd RdR = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk to derivative ratios
     MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
     //
@@ -5570,7 +5568,7 @@ List LogLik_Cox_PH_Single( IntegerVector Term_n, StringVector tform, NumericVect
         Rcout << "starting subterms " << term_tot << endl;
     }
     // Calculates the subterm and term values
-    Make_Subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
+    Make_subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -5830,7 +5828,7 @@ List LogLik_Poisson_Single( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         Rcout << "starting subterms " << term_tot << endl;
     }
     // Calculates the subterm and term values
-    Make_Subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
+    Make_subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -5959,3 +5957,868 @@ List LogLik_Poisson_Single( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
 }
 
 
+
+//' Primary Cox PH regression with competing risks, event=2
+//' \code{LogLik_Cox_PH_CR} Performs the calls to calculation functions, Structures the Cox PH regression with competing events weighted by censoring rates, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+//'
+//' @param     Term_n    Term numbers
+//' @param     tform    subterm types
+//' @param     a_n    starting values
+//' @param     x_all    covariate matrix
+//' @param     dfc    covariate column numbers
+//' @param     fir    first term number
+//' @param     der_iden    subterm number for derivative tests
+//' @param     modelform    model string
+//' @param     lr    learning rate for newton step toward 0 derivative
+//' @param     maxiter    maximum number of iterations
+//' @param     halfmax    maximum number of half steps
+//' @param     epsilon    minimum acceptable maximum parameter change
+//' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+//' @param     abs_max    Maximum allowed parameter change
+//' @param     dose_abs_max    Maximum allowed threshold parameter change
+//' @param     deriv_epsilon    threshold for near-zero derivative
+//' @param     df_groups    matrix with time and event information
+//' @param     tu    event times
+//' @param     cens_weight censoring weight list
+//' @param     cens_thres threshold to add competing event to risk group
+//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+//' @param     change_all    boolean if every parameter is being updated
+//' @param     verbose    verbosity boolean
+//' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
+//' @param     term_tot    total number of terms
+//' @param     ties_method    ties method
+//' @param     nthreads number of threads to use
+//'
+//' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List LogLik_Cox_PH_CR( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, const VectorXd cens_weight, const double cens_thres, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads){
+    ;
+    //
+    List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
+    if (verbose){
+        Rcout << "START_NEW" << endl;
+    }
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //
+    auto gibtime = system_clock::to_time_t(system_clock::now());
+    if (verbose){
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // Time durations are measured from this point on in microseconds
+    //
+    // df0: covariate data
+    // ntime: number of event times for Cox PH
+    // totalnum: number of terms used
+    //
+    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    int ntime = tu.size();
+    //
+    int totalnum = Term_n.size();
+    //
+    if (verbose){
+        Rcout << "Term checked ";
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Term_n[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    // cout.precision: controls the number of significant digits printed
+    // nthreads: number of threads used for parallel operations
+    //
+    Rcout.precision(7); //forces higher precision numbers printed to terminal
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    //
+    //
+    // Lld_worst: stores the highest magnitude log-likelihood derivative
+    // totem: number of rows needed
+    //
+    //
+    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Starting"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    // ---------------------------------------------
+    // To Start, needs to seperate the derivative terms
+    // ---------------------------------------------
+    //
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+    MatrixXd Td0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term derivative columns
+    MatrixXd Tdd0 = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Term second derivative columns
+    //
+    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
+    MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
+    MatrixXd Rd = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk derivatives
+    MatrixXd Rdd = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Risk second derivatives
+    //
+    MatrixXd Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
+    MatrixXd nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
+    MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
+    MatrixXd nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
+    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
+    MatrixXd TTerm=MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
+    double dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
+    double dslp = abs_max;
+    //
+    if (verbose){
+        Rcout << "starting subterms " << term_tot << endl;
+    }
+    //
+    // Calculates the subterm and term values
+    Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+    // ---------------------------------------------------------
+    // Prints off a series of calculations to check at what point values are changing
+    // ---------------------------------------------------------
+    //
+    //
+    if (verbose){
+        Rcout << "values checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "sums checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << T0.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "derivs checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Td0.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "second derivs checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << Dose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "LIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "PLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "LOGLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    MatrixXd RdR = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Risk to derivative ratios
+    MatrixXd RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Risk to second derivative ratios
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // Calculates the risk for each row
+    Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant);
+    //
+    // Removes infinite values
+    RdR = (RdR.array().isFinite()).select(RdR,0);
+    RddR = (RddR.array().isFinite()).select(RddR,0);
+    //
+    if (R.minCoeff()<=0){
+        Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
+        Rcout << "final failing values ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        //
+        return temp_list;
+    }
+    //
+    if (verbose){
+        Rcout << "risk checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << R.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk1 checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rd.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk2 checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        //
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // -------------------------------------------------------------------------------------------
+    //
+    vector<string>  RiskGroup(ntime); //vector of strings detailing the rows
+    IntegerMatrix RiskFail(ntime,2); //vector giving the event rows
+    //
+    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    // Creates matrices used to identify the event risk groups
+    Make_Groups_CR( ntime, df_m, RiskFail, RiskGroup, tu,cens_weight,cens_thres, nthreads, debugging);
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_List"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    // --------------------------
+    // now a vector exists with row locations
+    // --------------------------
+    //
+    MatrixXd Rls1 =MatrixXd::Zero(ntime, 1); //precomputes a series of sums used frequently in the log-liklihood calculations
+    MatrixXd Rls2 =MatrixXd::Zero(ntime, totalnum); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
+    MatrixXd Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2); //Sum and its derivatives are precomputed
+    MatrixXd Lls1 =MatrixXd::Zero(ntime, 1); //The log-likelihood calculation has a Right and Left sum used
+    MatrixXd Lls2 =MatrixXd::Zero(ntime, totalnum);
+    MatrixXd Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+    //The log-likelihood is calculated in parallel over the risk groups
+    vector<double> Ll(totalnum,0.0); //Log-likelihood values
+    vector<double> Lld(totalnum,0.0); //Log-likelihood derivative values
+    vector<double> Lldd(pow(totalnum,2),0.0);//The second derivative matrix has room for every combination, but only the lower triangle is calculated initially
+    //
+    if (verbose){
+        Rcout << "Made Risk Side Lists" << endl;
+    }
+    // Calculates the side sum terms used
+    Calculate_Sides_CR( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,cens_weight,nthreads, debugging,KeepConstant);
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_Sides"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+    }
+    //
+    if (verbose){
+        Rcout << "riskr checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rls1.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk1r checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rls2.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk2r checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        //
+        Rcout << "riskl checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Lls1.col(0).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk1l checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Lls2.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "risk2l checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    // Calculates log-likelihood
+    Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method,KeepConstant);
+    //
+    vector <double> Ll_comp(2,Ll[0]); //vector to compare values
+    vector <double> Lld_comp(2, vec_norm(Lld, totalnum));
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+        Rcout << "df101 ";//prints the log-likelihoods
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Ll[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df102 ";//prints the first derivatives
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Lld[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df103 ";//prints the second derivatives
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Lldd[ij*totalnum+ij] << " ";
+        }
+        Lld_worst=0;
+        for (int ij=0;ij<totalnum;ij++){//locates highest magnitude derivative
+            if (abs(Lld[ij]) > Lld_worst){
+                Lld_worst = abs(Lld[ij]);
+            }
+        }
+        Rcout << " " << endl;
+        Rcout << "df104 ";//prints parameter values
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << beta_0[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df105 ";
+        for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero derivative
+            Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df106 ";
+        for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero log-likelihood
+            Rcout << Ll[ij]/Lld[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+    }
+    //
+    vector<double> dbeta(totalnum,0.0);
+    //
+    // --------------------------
+    // always starts from initial guess
+    // --------------------------
+    vector<double> beta_c(totalnum,0.0);
+    vector<double> beta_a(totalnum,0.0);
+    vector<double> beta_best(totalnum,0.0);
+    vector<double> beta_p(totalnum,0.0);
+    //int //risk_check_iter=0;
+    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
+    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
+    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
+    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;// stores the best parameters
+    double Ll_best = 0.0; //a comparison log-likelihood
+    double halves = 0; //number of half-steps taken
+    int ind0 = fir; //used for validations
+    //int //i = ind0;
+    int iteration=0; //iteration number
+    //
+    bool convgd = FALSE;
+    int iter_stop =0; //tracks if the iterations should be stopped for convergence
+    int iter_check=0; //signal to check for convergence
+    //
+    while ((iteration < maxiter)&&(iter_stop==0)){
+        iteration++;
+        beta_p = beta_c;//
+        beta_a = beta_c;//
+        beta_best = beta_c;//
+        //
+        // Calcualtes the initial change in parameter
+        Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
+        if (verbose){
+            Rcout << "Starting Halves"<<endl;//prints the final changes for validation
+        }
+        //
+        Ll_best = Ll[ind0];
+        //
+        halves=0;
+        Lld_comp[0] = vec_norm(Lld, totalnum);
+        Lld_comp[1] = vec_norm(Lld, totalnum);
+        while ((Ll[ind0] <= Ll_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
+            //Refreshes the matrices used
+            Dose = MatrixXd::Zero(df0.rows(),term_tot);
+            nonDose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
+            nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0);
+            nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
+            nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
+            T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+            Td0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term derivative columns
+            Tdd0 = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2); //preallocates matrix for Term second derivative columns
+            for (int ij=0;ij<totalnum;ij++){
+                beta_0[ij] = beta_a[ij] + dbeta[ij];
+                beta_c[ij] = beta_0[ij];
+            }
+            // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+            // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+            // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose,  nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
+            if (verbose){
+                Rcout << "values checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << beta_c[ijk] << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "sums checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << T0.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "derivs checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Td0.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "second derivs checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "dose checked ";
+                for (int ijk=0;ijk<term_tot;ijk++){
+                    Rcout << Dose.col(ijk).array().sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "non-dose checked ";
+                for (int ijk=0;ijk<term_tot;ijk++){
+                    Rcout << nonDose.col(ijk).array().sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "LIN_non-dose checked ";
+                for (int ijk=0;ijk<term_tot;ijk++){
+                    Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "PLIN_non-dose checked ";
+                for (int ijk=0;ijk<term_tot;ijk++){
+                    Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "LOGLIN_non-dose checked ";
+                for (int ijk=0;ijk<term_tot;ijk++){
+                    Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            RdR = MatrixXd::Zero(df0.rows(), totalnum);
+            RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
+            //
+            //
+            Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant);
+            //
+            if (R.minCoeff()<=0){
+                #pragma omp parallel for num_threads(nthreads)
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    int tij = Term_n[ijk];
+                    if (TTerm.col(tij).minCoeff()<=0){
+                        dbeta[ijk] = dbeta[ijk] / 2.0;
+                    }
+                }
+                if (verbose){
+                    Rcout << "A non-positive risk was detected: " << R.minCoeff() << endl;
+                }
+                halves+=0.2;
+            } else {
+                halves++;
+                RdR = (RdR.array().isFinite()).select(RdR,0);
+                RddR = (RddR.array().isFinite()).select(RddR,0);
+                //
+                if (verbose){
+                    Rcout << "risk checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << R.col(0).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "risk1 checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Rd.col(ijk).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "risk2 checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    end_point = system_clock::now();
+                    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                    Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_R"<<endl;
+                    //
+                    gibtime = system_clock::to_time_t(system_clock::now());
+                    Rcout << ctime(&gibtime) << endl;
+                }
+                fill(Ll.begin(), Ll.end(), 0.0);
+                fill(Lld.begin(), Lld.end(), 0.0);
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+                Rls1 =MatrixXd::Zero(ntime, 1); //precomputes a series of sums used frequently in the log-liklihood calculations
+                Rls2 =MatrixXd::Zero(ntime, totalnum); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
+                Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+                Lls1 =MatrixXd::Zero(ntime, 1);
+                Lls2 =MatrixXd::Zero(ntime, totalnum);
+                Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+                Calculate_Sides_CR( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,cens_weight,nthreads, debugging,KeepConstant);
+                //
+                
+                if (verbose){
+                    end_point = system_clock::now();
+                    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                    Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+                    gibtime = system_clock::to_time_t(system_clock::now());
+                    Rcout << ctime(&gibtime) << endl;
+                    Rcout << "riskr checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Rls1.col(0).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "risk1r checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Rls2.col(ijk).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "risk2r checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    //
+                    //
+                    Rcout << "riskl checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Lls1.col(0).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "risk1l checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Lls2.col(ijk).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "risk2l checked ";
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                    }
+                    Rcout << " " << endl;
+                }
+                //
+                Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method,KeepConstant);
+                
+                if (change_all){ //If every covariate is to be changed
+                    if (Ll[ind0] <= Ll_best){//takes a half-step if needed
+                        #pragma omp parallel for num_threads(nthreads)
+                        for (int ijk=0;ijk<totalnum;ijk++){
+                            dbeta[ijk] = dbeta[ijk] * 0.5; //Lld_comp[1] /  (Lld_comp[1] + vec_norm(Lld, totalnum));
+                        }
+                        Lld_comp[1] = vec_norm(Lld, totalnum);
+                    } else{//If improved, updates the best vector
+                        #pragma omp parallel for num_threads(nthreads)
+                        for (int ijk=0;ijk<totalnum;ijk++){
+                            beta_best[ijk] = beta_c[ijk];
+                        }
+                    }
+                } else {//For validation, the step is always carried over
+                    //used if a single parameter is being changed
+                    #pragma omp parallel for num_threads(nthreads)
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        beta_best[ijk] = beta_c[ijk];
+                    }
+                }
+                if (verbose){
+                    end_point = system_clock::now();
+                    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                    Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_calc"<<endl;
+                    gibtime = system_clock::to_time_t(system_clock::now());
+                    Rcout << ctime(&gibtime) << endl;
+                }
+                #pragma omp parallel for num_threads(nthreads)
+                for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                    beta_0[ijk] = beta_c[ijk];
+                }
+            }
+        }
+        if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
+            if (verbose){
+                Rcout << "Changing back to best"<<endl;
+            }
+            // If it goes through every half step without improvement, then the maximum change needs to be decreased
+            abs_max = abs_max*pow(0.5,halfmax); // reduces the step sizes
+            dose_abs_max = dose_abs_max*pow(0.5,halfmax);
+            iter_check = 1;
+            //
+            beta_p = beta_best;//
+            beta_a = beta_best;//
+            beta_c = beta_best;//
+            Dose = MatrixXd::Zero(df0.rows(),term_tot);
+            nonDose = MatrixXd::Constant(df0.rows(),term_tot,0.0);
+            nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0);
+            nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
+            nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0);
+            for (int ij=0;ij<totalnum;ij++){
+                beta_0[ij] = beta_best[ij];
+            }
+            Make_subterms( totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN,beta_0, df0,dint,dslp,nthreads, debugging, KeepConstant);
+            if (verbose){
+                Rcout << "values checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << beta_c[ijk] << " ";
+                }
+                Rcout << " " << endl;
+                //
+                //
+                Rcout << "sums checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << T0.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "derivs checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Td0.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "second derivs checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "dose checked ";
+                for (int ijk=0;ijk<1;ijk++){
+                    Rcout << Dose.array().sum() << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            RdR = MatrixXd::Zero(df0.rows(), totalnum);
+            RddR = MatrixXd::Zero(df0.rows(), totalnum*(totalnum+1)/2);
+            //
+            //
+            Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant);
+            R = (R.array().isFinite()).select(R,0);
+            Rd = (Rd.array().isFinite()).select(Rd,0);
+            Rdd = (Rdd.array().isFinite()).select(Rdd,0);
+            RdR = (RdR.array().isFinite()).select(RdR,0);
+            RddR = (RddR.array().isFinite()).select(RddR,0);
+            //
+            temp_list = List::create(_["betas"]=wrap(beta_0),_["Status"]="FAILED"); //used as a dummy return value for code checking
+            if (verbose){
+                Rcout << "risk checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << R.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1 checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rd.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2 checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_R"<<endl;
+                //
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
+            }
+            fill(Ll.begin(), Ll.end(), 0.0);
+            fill(Lld.begin(), Lld.end(), 0.0);
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+            Rls1 =MatrixXd::Zero(ntime, 1); //precomputes a series of sums used frequently in the log-liklihood calculations
+            Rls2 =MatrixXd::Zero(ntime, totalnum); //Many are repeated due to the same risk groups and derivatives being used at mulitple points
+            Rls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+            Lls1 =MatrixXd::Zero(ntime, 1);
+            Lls2 =MatrixXd::Zero(ntime, totalnum);
+            Lls3 =MatrixXd::Zero(ntime, totalnum*(totalnum+1)/2);
+            Calculate_Sides_CR( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,cens_weight,nthreads, debugging,KeepConstant);
+            //
+            if (verbose){
+                end_point = system_clock::now();
+                ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+                gibtime = system_clock::to_time_t(system_clock::now());
+                Rcout << ctime(&gibtime) << endl;
+                Rcout << "riskr checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls1.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1r checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls2.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2r checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                //
+                //
+                Rcout << "riskl checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls1.col(0).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk1l checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls2.col(ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+                Rcout << "risk2l checked ";
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method,KeepConstant);
+        }
+        Lld_worst=0;
+        for (int ij=0;ij<totalnum;ij++){
+            if (abs(Lld[ij]) > Lld_worst){
+                Lld_worst = abs(Lld[ij]);
+            }
+        }
+        if (iteration > totalnum){//Doesn't check the first several iterations for convergence
+            if ((iteration % (totalnum))||(iter_check==1)){//Checks every set number of iterations
+                iter_check=0;
+                if (Lld_worst < deriv_epsilon){//ends if the derivatives are low enough
+                    iter_stop = 1;
+                    convgd = TRUE;
+                }
+                Ll_comp[1]=Ll[0];
+                if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
+                    iter_stop = 1;
+                }
+            }
+        }
+        if (verbose){
+            end_point = system_clock::now();
+            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+            Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Recalc"<<endl;
+            gibtime = system_clock::to_time_t(system_clock::now());
+            Rcout << ctime(&gibtime) << endl;
+            Rcout << "df101 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << Ll[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df102 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << Lld[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df103 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << Lldd[ij*totalnum+ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df104 ";
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << beta_c[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df105 ";
+            for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero derivative
+                Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df106 ";
+            for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero log-likelihood
+                Rcout << Ll[ij]/Lld[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+            Rcout << "Finshed iteration" << endl;
+        }
+    }
+    // -----------------------------------------------
+    // Performing Full Calculation to get full second derivative matrix
+    // -----------------------------------------------
+    fill(Ll.begin(), Ll.end(), 0.0);
+    fill(Lld.begin(), Lld.end(), 0.0);
+    fill(Lldd.begin(), Lldd.end(), 0.0);
+    Calculate_Sides_CR( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,cens_weight,nthreads, debugging,KeepConstant);
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<",Update_Sides"<<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << ctime(&gibtime) << endl;
+        Rcout << "Wrapping up" << endl;
+    }
+    //
+    Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method,KeepConstant);
+    //
+    List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform); //stores the term information
+    List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst); //stores the total number of iterations used
+    //
+    int kept_covs = totalnum - sum(KeepConstant);
+    NumericVector Lldd_vec(kept_covs * kept_covs);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        int pij_ind=-100;
+        int pjk_ind=-100;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        if (KeepConstant[ij]==0){
+            pij_ind = ij - sum(head(KeepConstant,ij));
+            if (KeepConstant[jk]==0){
+                pjk_ind = jk - sum(head(KeepConstant,jk));
+                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
+            }
+        }
+    }
+    for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[jk * kept_covs + ij]=Lldd_vec[ij * kept_covs + jk];
+    }
+    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    //
+    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            stdev(ij) = sqrt(Lldd_inv(pij_ind,pij_ind));
+        }
+    }
+    //
+    //
+    List res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Convgerged"]=convgd);
+    // returns a list of results
+    return res_list;
+}

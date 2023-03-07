@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{gen_time_dep}
 \alias{gen_time_dep}
-\title{Applies time depedence to parameters
+\title{Applies time dependence to parameters
 \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time}
 \usage{
 gen_time_dep(
@@ -46,6 +46,6 @@ gen_time_dep(
 returns the updated dataframe
 }
 \description{
-Applies time depedence to parameters
+Applies time dependence to parameters
 \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time
 }

@@ -173,7 +173,7 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #' @param tform subterm type for each element of the model          
 #' @param a_n starting parameters for regression      
 #' @param er standard deviation for the parameters        
-#' @param fir term number for the intial term used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at only used for testing runs with a single varying parameter
 #' @param modelform string specifying the model type             
 #' @param control list of parameters controlling the convergence            
@@ -383,7 +383,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event,time1,time2
 #' @param Term_n term numbers for each element of the model          
 #' @param tform subterm type for each element of the model          
 #' @param a_n starting parameters for regression              
-#' @param fir term number for the intial term used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at only used for testing runs with a single varying parameter
 #' @param modelform string specifying the model type             
 #' @param control list of parameters controlling the convergence            
@@ -494,7 +494,7 @@ CoxRisk <- function(verbose,df, event, time1, time2, names,Term_n, tform, a_n, f
 #' @param tform subterm type for each element of the model          
 #' @param a_n starting parameters for regression       
 #' @param er standard deviation for the parameters               
-#' @param fir term number for the intial term used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at only used for testing runs with a single varying parameter
 #' @param modelform string specifying the model type             
 #' @param control list of parameters controlling the convergence            
@@ -677,7 +677,7 @@ CoxSmoothHazard <- function(dft,Plot_Name,verbose,bw,time_lims, age_unit){
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
-#' @param fir term number for the intial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #' @param age_unit age unit
@@ -748,16 +748,172 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event, names, Term_n, 
     }
     return ("Passed")
 }
+          
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
+#' Calculates and returns data for time by cumulative hazard
+#' \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param Term_n term numbers for each element of the model
+#' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param modelform string specifying the model type
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param control list of parameters controlling the convergence
+#' @param plot_options list of parameters controlling the plot options
+#'
+#' @return saves the plots in the current directory and returns a string that it passed
+#' @export
+#'
+GetCensWeight <- function(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){
+    if (plot_options$verbose){
+        print("Starting Plot Function")
+    }
+    setkeyv(df, c(time2, event))
+    base  <- NULL
+    der_iden <- 0
+    Plot_Name <- plot_options$name
+    Plot_Type <- "SURV"
+    if (plot_options$verbose){
+        print("Getting Plot Info")
+    }
+    dfend <- df[get(event)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        if (plot_options$verbose){
+            print("no events")
+        }
+        stop()
+    }
+    if (plot_options$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+    #
+    if ("age_unit" %in% names(plot_options)){
+        ;
+    } else {
+        plot_options$age_unit <- "unitless"
+    }
+    time_lims <- c(min(tu),max(tu))
+    for (iden_col in c("verbose")){
+        if (iden_col %in% names(plot_options)){
+            ;
+        } else {
+            plot_options[iden_col] <- FALSE
+        }
+    }
+    #
+    control <- Def_Control(control)
+    verbose <- copy(plot_options$verbose)
+    verbosec <- copy(control$verbose)
+    maxiterc <- copy(control$maxiter)
+    dfend <- df[get(event)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
+        stop()
+    }
+    all_names <- unique(names)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all=as.matrix(df[,all_names, with = FALSE])
+    ce <- c(time1,time2,event)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    time1 <- ce[1]
+    time2 <- ce[2]
+    #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[1:length(names)]
+    }
+    #
+    control$maxiter <- -1
+    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    control$maxiter <- maxiterc
+    b <- e$beta_0
+    er <- e$Standard_Deviation
+    #
+    if (verbose){
+        print("starting ph_plot")
+    }
+    #
+    e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+    #
+    t <- c()
+    h <- c()
+    ch <- c()
+    surv <- c()
+    dt <- 1
+    if (verbose){
+        print("writing survival data")
+    }
+    dft=data.table("time"=tu,"base"=e$baseline,"basehaz"=e$standard_error)
+    for (i in tu){
+        t <- c(t,i)
+        temp <- sum(dft[time<i, base])
+        ch <- c(ch, temp)
+        if (length(h)==0){
+            h <- c(temp)
+        } else {
+            h <- c(h, ch[length(ch)]-ch[length(ch)-1])
+        }
+        surv <- c(surv, exp(-1*temp))
+    }
+    if (verbose){
+        print("Survival Plots")
+    }
+    age_unit <- plot_options$age_unit
+    #
+    dft <- data.table("t"=t,"h"=h,"ch"=ch,"surv"=surv)
+    setkeyv(dft,"t")
+    dft <- dft[(t>=time_lims[1])&(t<=time_lims[2]),]
+    #
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
+    ggplot2::ggsave(paste('weight_ch_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
+    #
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+    ggplot2::ggsave(paste('weight_surv_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
+    #
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
+    ggplot2::ggsave(paste('weight_H_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
+    return (dft)
+}
         
         
         

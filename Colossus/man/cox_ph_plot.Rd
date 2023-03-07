@@ -58,7 +58,7 @@ cox_ph_plot(
 \item{uniq_v}{total number of unique covariate values}
 }
 \value{
-Cox_PH_PLOT_SURV : ( baseline harzard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
+Cox_PH_PLOT_SURV : ( baseline hazard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
 }
 \description{
 Interface between R code and the Cox PH plotting

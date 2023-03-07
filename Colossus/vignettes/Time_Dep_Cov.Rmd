@@ -49,7 +49,7 @@ $$
 
 ## Step Function Interaction
 
-The second type of time dependent covariate is one which changes based on conditional statements. One example is a covariate to split data into bins by time. Colossus uses a string to identify where to change value. The user inputs a string of the form "#l?" for a time value "#", a condition "l", and a question mark as a delimitor. Colossus allows for four conditions:
+The second type of time dependent covariate is one which changes based on conditional statements. One example is a covariate to split data into bins by time. Colossus uses a string to identify where to change value. The user inputs a string of the form "#l?" for a time value "#", a condition "l", and a question mark as a delimiter. Colossus allows for four conditions:
 * l: less than or equal to
 * g: greater than or equal to
 * a: strictly above

@@ -64,7 +64,7 @@ Cox_PH_PLOT_SURV(
 \item{nthreads}{number of threads to use}
 }
 \value{
-List of results: baseline harzard, risk for each row
+List of results: baseline hazard, risk for each row
 }
 \description{
 Primary Cox PH baseline hazard function
