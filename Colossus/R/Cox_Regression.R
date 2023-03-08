@@ -1228,7 +1228,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event, names, Term_n, tform, k
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    e <- cox_ph_transition_CR(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,cens_weight,keep_constant,term_tot)
     a_n <- a_n0
     ;
     return (e)

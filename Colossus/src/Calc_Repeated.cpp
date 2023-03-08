@@ -1495,6 +1495,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
     //
     //Make_subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
     //
+//    Rcout << "COMPETING" << endl;
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<ntime;ijk++){
         double t0 = tu[ijk];

@@ -5997,7 +5997,7 @@ List LogLik_Cox_PH_CR( IntegerVector Term_n, StringVector tform, NumericVector a
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
     if (verbose){
-        Rcout << "START_NEW" << endl;
+        Rcout << "START_NEW COMPETING RISKS" << endl;
     }
     time_point<system_clock> start_point, end_point;
     start_point = system_clock::now();

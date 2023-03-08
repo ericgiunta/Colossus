@@ -22,7 +22,7 @@ library(data.table)
 
 ## General Usage
 
-For Cox Proportional Hazards regression, the model is generally assumed to be independent of event time. However for more complex models, Colossus has the capability to perform regression using covariates that change over time. These can be split into two general types of covariates, step functions changing with time and multiplicative interactions with time. Colossus generates the new dataset by splitting each row of the original dataset into smaller intervals. This assumes that over each interval the values of every covariate are approximately constant. For Cox Proportional Hazards rows that do not contain a event time are not used for regression, so Colossus has an option to only use small intervals around each event time. With this option the time dependent covariate is evaluated only at event times. For data-sets with a small number of discrete event times this can save memory.
+For Cox Proportional Hazards regression, the model is generally assumed to be independent of event time. However for more complex models, Colossus has the capability to perform regression using covariates that change over time. These can be split into two general types of covariates, step functions changing with time and multiplicative interactions with time. Colossus generates the new dataset by splitting each row of the original dataset into smaller intervals. This assumes that over each interval the values of every covariate are approximately constant. For Cox Proportional Hazards, rows that do not contain a event time are not used for regression, so Colossus has an option to only use small intervals around each event time. With this option the time dependent covariate is evaluated only at event times. For data-sets with a small number of discrete event times this can save memory.
 
 ## Multiplicative Interaction
 
@@ -46,6 +46,7 @@ $$
 $$
 </p>
 
+This is most helpful in a situation where the user has continuous data over a series of intervals and believes that the values can be interpolated within each interval.
 
 ## Step Function Interaction
 
@@ -89,4 +90,9 @@ $$
 \end{aligned}
 $$
 </p>
+
+This is most helpful in situations where the user has reason to believe that the effect of a covariate on events is not uniform over time despite the covariate being constant over each interval. This allows the user to generate a list of factors to interact with any covariate of interest.
+
+
+
 
