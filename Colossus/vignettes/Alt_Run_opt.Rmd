@@ -25,7 +25,7 @@ Both Cox PH and Poisson regressions have additional functions that can account f
 
 | Option | Description | Cox PH | Poisson |
 | :---------: | :----------: | :----------: | :-------: |
-| Stratification | In Cox PH, the stratification is applied in the risks groups to compare only like rows. In Poisson regression the stratification is an additional term in the model to account for the effects of stratifed covariates | x | x |
+| Stratification | In Cox PH, the stratification is applied in the risks groups to compare only like rows. In Poisson regression the stratification is an additional term in the model to account for the effects of stratified covariates | x | x |
 | Simplified Model | For a multiplicative Log-Linear model, there are simplifications that can be made to the code. These give a faster version. | x | x |
 | Non-Derivative Calculation | If a single iteration is needed without derivatives, there is time and memory that can be saved | x | x |
 | Competing Risks | If there is a competing event rows are weighted by an estimate of censoring rate to approximate a dataset without the effect of a competing event | x |  |
@@ -38,7 +38,7 @@ The following sections review the math behind the basic functions and how each o
 
 ### Cox Proportional Hazards
 
-In Cox Proporitonal Hazards, the Log-Likelihood is calculated by taking the ratio of the hazard ratio at each event to the sum of the hazard ratios of every other row at risk. This defines the risk group for every event time to be the intervals containing the event time. Intervals are assumed to be open on the left and closed on the right, and events are assumed to take place at the right end point. This gives the following common equation for the Log-Likelihood:
+In Cox Proportional Hazards, the Log-Likelihood is calculated by taking the ratio of the hazard ratio at each event to the sum of the hazard ratios of every other row at risk. This defines the risk group for every event time to be the intervals containing the event time. Intervals are assumed to be open on the left and closed on the right, and events are assumed to take place at the right end point. This gives the following common equation for the Log-Likelihood:
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -111,7 +111,7 @@ e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform, a_n, mode
 
 ## Competing Risks
 
-In Cox PH there is an assumption that every individual is recorded until they have an event or they are naturally censored, and the same censoring rates are assumed to apply to every individual. These are violated when there is a competing event occuring. In sensativity analysis there are two extremes that can be tested. Either every person with a competing event is treated as having the event of interest instead, or they are assumed to never experience the event of interest. However there are methods to find a more realistic alternative. Colossus applies the Fine-Gray model for competing risks, which instead weights the contribution of competing event intervals in future intervals by the probability they wouldn't have been censored.
+In Cox PH there is an assumption that every individual is recorded until they have an event or they are naturally censored, and the same censoring rates are assumed to apply to every individual. These are violated when there is a competing event occurring. In sensitivity analysis there are two extremes that can be tested. Either every person with a competing event is treated as having the event of interest instead, or they are assumed to never experience the event of interest. However there are methods to find a more realistic alternative. Colossus applies the Fine-Gray model for competing risks, which instead weights the contribution of competing event intervals in future intervals by the probability they wouldn't have been censored.
 
 As previously established, the risk groups are formed to measure the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time:
 
@@ -154,7 +154,10 @@ event <- "censor" #event type switched to censoring
 
 plot_options <- list("name"="run_2","verbose"=FALSE,"studyID"="studyID","age_unit"="years") #modified plotting function used to get censoring weights
 dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options) #generates a survival curve
-cens_weight <- dft$surv #the surviving proportions used as censoring weight
+t_ref <- dft$t
+surv_ref <- dft$surv
+t_c <- df$t1
+cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y #the surviving proportions used as censoring weight
 event <- "lung" #event switched back
 
 e <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight)

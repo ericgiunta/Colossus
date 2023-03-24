@@ -124,7 +124,7 @@ fir <- 0
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 ```
 
-names denotes the column names used, Term_n denotes the term numbers, tform denotes the subterm formula, modelform denotes the term formula, fir denotes the "first" term indexed from zero which defaults to 0, and a_n denotes the intial guesses for the parameter values. All of which are assumed to be in the same orders.
+names denotes the column names used, Term_n denotes the term numbers, tform denotes the subterm formula, modelform denotes the term formula, fir denotes the "first" term indexed from zero which defaults to 0, and a_n denotes the initial guesses for the parameter values. All of which are assumed to be in the same orders.
 
 ## Survival Time and Event Data
 
@@ -139,7 +139,7 @@ On the user side, the names of columns containing the time and events need to be
 | 213           | 18    | 57         | 1 |
 | ...           | ...    | ...         | ... |
 
-For a Cox Proportional Hazard we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example we have interval data, however that may not always be the case. Colossus is designed to allow for the user to input "%trunc%" inplace of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the avaliable data range and creates a dummy column to reference as the interval endpoint. So in code these variables would look like this:
+For a Cox Proportional Hazard we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example we have interval data, however that may not always be the case. Colossus is designed to allow for the user to input "%trunc%" inplace of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. So in code these variables would look like this:
 
 ```{r}
 df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),

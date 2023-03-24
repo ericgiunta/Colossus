@@ -6,7 +6,6 @@
 ## enable compilation with C++11 (or even C++14) where available
 CXX_STD = CXX14
 
-PKG_LIBS = $(shell ${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()")
 
 PKG_CXXFLAGS=-fopenmp
 PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp

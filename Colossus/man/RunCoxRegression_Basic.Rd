@@ -9,7 +9,7 @@ RunCoxRegression_Basic(
   df,
   time1,
   time2,
-  event,
+  event0,
   names,
   keep_constant,
   a_n,
@@ -24,7 +24,7 @@ RunCoxRegression_Basic(
 
 \item{time2}{column used for time period end}
 
-\item{event}{column used for event status}
+\item{event0}{column used for event status}
 
 \item{names}{columns names for elements of the model, used to identify data columns}
 

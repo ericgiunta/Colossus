@@ -8,7 +8,7 @@
 RunPoissonRegression_Single(
   df,
   pyr,
-  event,
+  event0,
   names,
   Term_n,
   tform,
@@ -24,7 +24,7 @@ RunPoissonRegression_Single(
 
 \item{pyr}{column used for person-years per row}
 
-\item{event}{column used for event status}
+\item{event0}{column used for event status}
 
 \item{names}{columns names for elements of the model, used to identify data columns}
 

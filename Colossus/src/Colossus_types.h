@@ -23,3 +23,6 @@ using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
 using Rcpp::as;
+
+typedef Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, ColMajor > ColXd;
+typedef Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, RowMajor > RowXd;

@@ -636,7 +636,7 @@ Poisson_LogLik_Single <- function(nthreads, totalnum, PyrC, R, Ll, debugging) {
 #' @param     der_iden    subterm number for derivative tests
 #' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
 #' @param     dose_abs_max    Maximum allowed threshold parameter change
-#' @param     lr    learning rate fo newton step toward 0 derivative
+#' @param     lr    learning rate for newton step toward 0 derivative
 #' @param     abs_max    Maximum allowed parameter change
 #' @param     Ll    Log-Likelihood
 #' @param     Lld    Log-Likelihood first derivative
@@ -661,7 +661,7 @@ Calc_Change <- function(double_step, nthreads, totalnum, fir, der_iden, dbeta_ca
 #' @param     totalnum    total number of parameter
 #' @param     der_iden    subterm number for derivative tests
 #' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
-#' @param     lr    learning rate fo newton step toward 0 derivative
+#' @param     lr    learning rate for newton step toward 0 derivative
 #' @param     abs_max    Maximum allowed parameter change
 #' @param     Ll    Log-Likelihood
 #' @param     Lld    Log-Likelihood first derivative

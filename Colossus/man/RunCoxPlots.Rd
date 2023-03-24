@@ -9,7 +9,7 @@ RunCoxPlots(
   df,
   time1,
   time2,
-  event,
+  event0,
   names,
   Term_n,
   tform,
@@ -28,7 +28,7 @@ RunCoxPlots(
 
 \item{time2}{column used for time period end}
 
-\item{event}{column used for event status}
+\item{event0}{column used for event status}
 
 \item{names}{columns names for elements of the model, used to identify data columns}
 

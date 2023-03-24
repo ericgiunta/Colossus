@@ -9,7 +9,7 @@ gen_time_dep(
   df,
   time0,
   time1,
-  event,
+  event0,
   iscox,
   dt,
   new_names,
@@ -26,7 +26,7 @@ gen_time_dep(
 
 \item{time1}{ending time column}
 
-\item{event}{event column}
+\item{event0}{event column}
 
 \item{iscox}{boolean if rows not at event times should be kept}
 

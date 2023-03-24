@@ -5,7 +5,7 @@
 \title{Opens a file for reading
 \code{Open_File} uses user provided file name, time columns, and event column to load and sort.}
 \usage{
-Open_File(fname, time1 = "age_start", time2 = "age_exit", event = "cases")
+Open_File(fname, time1 = "age_start", time2 = "age_exit", event0 = "cases")
 }
 \arguments{
 \item{fname}{a string file name}
@@ -14,7 +14,7 @@ Open_File(fname, time1 = "age_start", time2 = "age_exit", event = "cases")
 
 \item{time2}{a column name defining the end of time periods, sorted first}
 
-\item{event}{a column name defining the events, sorted second}
+\item{event0}{a column name defining the events, sorted second}
 }
 \value{
 returns a sorted dataframe

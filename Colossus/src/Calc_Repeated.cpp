@@ -1,6 +1,7 @@
 #include <RcppEigen.h>
 #include <omp.h>
 #include "Calc_Repeated.h"
+#include "Colossus_types.h"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -141,7 +142,22 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
-        if (as< string>(tform[ij])=="loglin_slope"){
+        if (as< string>(tform[ij])=="loglin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            T0.col(ij) = T0.col(ij).array().exp();;
+            nonDose_LOGLIN.col(tn) = nonDose_LOGLIN.col(tn).array() * T0.col(ij).array();
+
+        } else if (as< string>(tform[ij])=="lin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
+            lin_count[tn]=lin_count[tn]+1;
+
+        } else if (as< string>(tform[ij])=="plin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            T0.col(ij) = 1 + T0.col(ij).array();
+            nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
+
+        } else if (as< string>(tform[ij])=="loglin_slope"){
             ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
             ArrayXd temp1 = beta_0[ij] * temp;
             //
@@ -231,21 +247,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             ;
         } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
             ;
-        } else if (as< string>(tform[ij])=="lin") {
-            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
-            lin_count[tn]=lin_count[tn]+1;
-
-        } else if (as< string>(tform[ij])=="loglin") {
-            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            T0.col(ij) = T0.col(ij).array().exp();;
-            nonDose_LOGLIN.col(tn) = nonDose_LOGLIN.col(tn).array() * T0.col(ij).array();
-
-        } else if (as< string>(tform[ij])=="plin") {
-            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            T0.col(ij) = 1 + T0.col(ij).array();
-            nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
-
         } else {
             throw invalid_argument( "incorrect subterm type" );
         }
@@ -269,7 +270,14 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
-        if (as< string>(tform[ij])=="loglin_slope"){
+        if (as< string>(tform[ij])=="loglin") {
+            T0.col(ij) = nonDose_LOGLIN.col(tn);
+            Td0.col(ij) = df0.col(df0_c).array() * T0.col(ij).array();
+            Tdd0.col((ij)*(ij+1)/2+ij) = df0.col(df0_c).array() * Td0.col(ij).array();
+        } else if (as< string>(tform[ij])=="plin") {
+            T0.col(ij) = nonDose_PLIN.col(tn);
+            Td0.col(ij) = df0.col(df0_c);
+        } else if (as< string>(tform[ij])=="loglin_slope"){
             ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
             ArrayXd temp1 = beta_0[ij] * temp;
             //
@@ -299,24 +307,22 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
                 ;
             }
         } else if (as< string>(tform[ij])=="lin_slope"){
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            ArrayXd temp  = (df0.col(df0_c).array() - beta_0[ij+1]);
             ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
             ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
-            temp = (temp.array() < 0).select(0, temp);
+            temp  = (temp.array()  < 0).select(0, temp);
             temp0 = (temp0.array() < 0).select(0, temp0);
             temp1 = (temp1.array() < 0).select(0, temp1);
             //
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
             Td0.col(ij) = temp.array();
-            Td0.col(ij+1) = beta_0[ij] * (temp1.array()-temp0.array()) / 2/dint;
+            Td0.col(ij+1) = beta_0[ij] * (temp1.array()-temp0.array())/2/dint;
             //
-            Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
+            Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array())/2/dint;
             Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
 
-        } else if (as< string>(tform[ij])=="lin_int") {
-            ;
         } else if (as< string>(tform[ij])=="quad_slope"){
             ArrayXd temp = df0.col(df0_c).array().square();
             //
@@ -339,8 +345,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
             Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
 
-        } else if (as< string>(tform[ij])=="step_int") {
-            ;
         } else if (as< string>(tform[ij])=="lin_quad_slope") {
             //
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
@@ -407,8 +411,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (temp21.array()-2*temp11.array()+temp01.array()) / pow(dint,2);
             Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (temp22.array()-2*temp11.array()+temp00.array()) / (pow(dint,2)+pow(dslp,2));
             //
-        } else if (as< string>(tform[ij])=="lin_quad_int") {
-            ;
         } else if (as< string>(tform[ij])=="lin_exp_slope") {
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
             double c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
@@ -530,23 +532,11 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             Tdd0.col((ij+2)*(ij+3)/2+ij+0) = (temp212.array()-2*temp111.array()+temp010.array()) / (pow(dint,2)+pow(dslp,2));
             Tdd0.col((ij+2)*(ij+3)/2+ij+1) = (temp122.array()-2*temp111.array()+temp100.array()) / (pow(dslp,2)+pow(dslp,2));
             //
-        } else if (as< string>(tform[ij])=="lin_exp_int") {
-            ;
-        } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
-            ;
         } else if (as< string>(tform[ij])=="lin") {
             T0.col(ij) = nonDose_LIN.col(tn);
             Td0.col(ij) = df0.col(df0_c);
-
-        } else if (as< string>(tform[ij])=="loglin") {
-            T0.col(ij) = nonDose_LOGLIN.col(tn);
-            Td0.col(ij) = df0.col(df0_c).array() * T0.col(ij).array();
-            Tdd0.col((ij)*(ij+1)/2+ij) = df0.col(df0_c).array() * Td0.col(ij).array();
-        } else if (as< string>(tform[ij])=="plin") {
-            T0.col(ij) = nonDose_PLIN.col(tn);
-            Td0.col(ij) = df0.col(df0_c);
         } else {
-            throw invalid_argument( "incorrect subterm type" );
+            ;
         }
     }
     //
@@ -616,7 +606,22 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
-        if (as< string>(tform[ij])=="loglin_slope"){
+        if (as< string>(tform[ij])=="loglin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            T0.col(ij) = T0.col(ij).array().exp();;
+            nonDose_LOGLIN.col(tn) = nonDose_LOGLIN.col(tn).array() * T0.col(ij).array();
+
+        } else if (as< string>(tform[ij])=="lin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
+            lin_count[tn]=lin_count[tn]+1;
+
+        } else if (as< string>(tform[ij])=="plin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            T0.col(ij) = 1 + T0.col(ij).array();
+            nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
+
+        } else if (as< string>(tform[ij])=="loglin_slope"){
             ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
             ArrayXd temp1 = beta_0[ij] * temp;
             //
@@ -706,21 +711,6 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
             ;
         } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
             ;
-        } else if (as< string>(tform[ij])=="lin") {
-            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
-            lin_count[tn]=lin_count[tn]+1;
-
-        } else if (as< string>(tform[ij])=="loglin") {
-            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            T0.col(ij) = T0.col(ij).array().exp();;
-            nonDose_LOGLIN.col(tn) = nonDose_LOGLIN.col(tn).array() * T0.col(ij).array();
-
-        } else if (as< string>(tform[ij])=="plin") {
-            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            T0.col(ij) = 1 + T0.col(ij).array();
-            nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
-
         } else {
             throw invalid_argument( "incorrect subterm type" );
         }
@@ -744,7 +734,14 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
-        if (as< string>(tform[ij])=="loglin_slope"){
+        if (as< string>(tform[ij])=="loglin") {
+            T0.col(ij) = nonDose_LOGLIN.col(tn);
+        } else if (as< string>(tform[ij])=="lin") {
+            T0.col(ij) = nonDose_LIN.col(tn);
+
+        } else if (as< string>(tform[ij])=="plin") {
+            T0.col(ij) = nonDose_PLIN.col(tn);
+        } else if (as< string>(tform[ij])=="loglin_slope"){
             //
             //
             T0.col(ij) = Dose.col(tn);
@@ -780,8 +777,6 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
             //
-        } else if (as< string>(tform[ij])=="lin_quad_int") {
-            ;
         } else if (as< string>(tform[ij])=="lin_exp_slope") {
             //
             //
@@ -790,17 +785,6 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
             T0.col(ij+2) = Dose.col(tn);
             //
             //
-        } else if (as< string>(tform[ij])=="lin_exp_int") {
-            ;
-        } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
-            ;
-        } else if (as< string>(tform[ij])=="lin") {
-            T0.col(ij) = nonDose_LIN.col(tn);
-
-        } else if (as< string>(tform[ij])=="loglin") {
-            T0.col(ij) = nonDose_LOGLIN.col(tn);
-        } else if (as< string>(tform[ij])=="plin") {
-            T0.col(ij) = nonDose_PLIN.col(tn);
         } else {
             ;
         }
@@ -930,11 +914,15 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     Dose_Iden.insert("lin_exp_int");
     Dose_Iden.insert("lin_exp_exp_slope");
     //
+    MatrixXd Tterm_ratio = MatrixXd::Constant(Td0.rows(),Td0.cols(), 1.0);
+    //
     if (((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()>1)){ //same process used for all of the additive type models
         Te = TTerm.array().rowwise().sum().array();
         // computes initial risk and derivatives
         if (modelform=="A"){
             R << Te.array();
+            //
+            //
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                 int ij = 0;
@@ -946,43 +934,43 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                 int tij = Term_n[ij];
                 int tjk = Term_n[jk];
                 if (ij==jk){
-                    if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()){
+                    if (tform[ij]=="loglin") {
+                        Rd.col(ij) =   TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
+                        Rdd.col(ijk) = TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Tdd0.col(ijk).array();
+                    } else if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()){
                         Rd.col(ij) =   TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() *   Td0.col(ij).array();
                         Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() *   Tdd0.col(ijk).array();
                     } else if (tform[ij]=="lin") {
                         Rd.col(ij) =   TTerm.col(tij).array() * nonDose_LIN.col(tij).array().pow(-1).array() *   Td0.col(ij).array();
                     } else if (tform[ij]=="plin") {
                         Rd.col(ij) =   TTerm.col(tij).array() * nonDose_PLIN.col(tij).array().pow(-1).array() *   Td0.col(ij).array();
-                    } else if (tform[ij]=="loglin") {
-                        Rd.col(ij) =   TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
-                        Rdd.col(ijk) = TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Tdd0.col(ijk).array();
                     }
                 } else if (tij==tjk){
                     if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()){
-                        if (Dose_Iden.find(as< string>(tform[jk])) != Dose_Iden.end()){
+                        if (tform[jk]=="loglin") {
+                            Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(ij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(jk).array();
+                        } else if (Dose_Iden.find(as< string>(tform[jk])) != Dose_Iden.end()){
                             Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Tdd0.col(ijk).array();
                         } else if (tform[jk]=="lin") {
                             Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(ij).array() * nonDose_LIN.col(tij).array().pow(-1).array()    * Td0.col(jk).array();
                         } else if (tform[jk]=="plin") {
                             Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(ij).array() * nonDose_PLIN.col(tij).array().pow(-1).array()   * Td0.col(jk).array();
-                        } else if (tform[jk]=="loglin") {
-                            Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(ij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(jk).array();
                         }
                     } else if (Dose_Iden.find(as< string>(tform[jk])) != Dose_Iden.end()){
-                        if (tform[ij]=="lin") {
+                        if (tform[ij]=="loglin") {
+                            Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(jk).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
+                        } else if (tform[ij]=="lin") {
                             Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(jk).array() * nonDose_LIN.col(tij).array().pow(-1).array()    * Td0.col(ij).array();
                         } else if (tform[ij]=="plin") {
                             Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(jk).array() * nonDose_PLIN.col(tij).array().pow(-1).array()   * Td0.col(ij).array();
-                        } else if (tform[ij]=="loglin") {
-                            Rdd.col(ijk) = TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array() * Td0.col(jk).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
                         }
                     } else if (tform[ij]=="loglin") {
-                        if( tform[jk]=="lin") {
+                        if (tform[jk]=="loglin") {
+                            Rdd.col(ijk) = TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Tdd0.col(ijk).array();
+                        } else if( tform[jk]=="lin") {
                             Rdd.col(ijk) = TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array() * nonDose_LIN.col(tij).array().pow(-1).array() * Td0.col(jk).array();
                         } else if (tform[jk]=="plin") {
                             Rdd.col(ijk) = TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array() * nonDose_PLIN.col(tij).array().pow(-1).array() * Td0.col(jk).array();
-                        } else if (tform[jk]=="loglin") {
-                            Rdd.col(ijk) = TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() * Tdd0.col(ijk).array();
                         }
                     } else if (tform[jk]=="loglin") {
                         if( tform[ij]=="lin") {
@@ -1205,19 +1193,23 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         R << Te.array();
         //
         Rd = Td0.array();
-        
+        //
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         for (int ijk=0;ijk<totalnum;ijk++){
             int tij = Term_n[ijk];
-            if (Dose_Iden.find(as< string>(tform[ijk])) != Dose_Iden.end()){
-                Rd.col(ijk) = R.col(0).array() * TTerm_p.col(tij).array().pow(-1).array() * Td0.array().col(ijk).array() * TTerm.col(tij).array() * Dose.col(tij).array().pow(-1).array();
-            } else if (tform[ijk]=="lin") {
-                Rd.col(ijk) = R.col(0).array() * TTerm_p.col(tij).array().pow(-1).array() * Td0.array().col(ijk).array() * TTerm.col(tij).array() * nonDose_LIN.col(tij).array().pow(-1).array();
-            } else if (tform[ijk]=="plin") {
-                Rd.col(ijk) = R.col(0).array() * TTerm_p.col(tij).array().pow(-1).array() * Td0.array().col(ijk).array() * TTerm.col(tij).array() * nonDose_PLIN.col(tij).array().pow(-1).array();
-            } else if (tform[ijk]=="loglin") {
-                Rd.col(ijk) = R.col(0).array() * TTerm_p.col(tij).array().pow(-1).array() * Td0.array().col(ijk).array() * TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() ;
+            if (tij != fir){
+                Tterm_ratio.col(ijk) = TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(-1).array();
             }
+            if (tform[ijk]=="loglin") {
+                Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() ;
+            } else if (Dose_Iden.find(as< string>(tform[ijk])) != Dose_Iden.end()){
+                Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * Dose.col(tij).array().pow(-1).array();
+            } else if (tform[ijk]=="lin") {
+                Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_LIN.col(tij).array().pow(-1).array();
+            } else if (tform[ijk]=="plin") {
+                Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_PLIN.col(tij).array().pow(-1).array();
+            }
+            Rd.col(ijk) = R.col(0).array() * Td0.array().col(ijk).array() * Tterm_ratio.col(ijk).array();
         }
         R = (R.array().isFinite()).select(R,0);
         Rd = (Rd.array().isFinite()).select(Rd,0);
@@ -1231,37 +1223,10 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             }
             int tij = Term_n[ij];
             int tjk = Term_n[jk];
-            if (ij==jk){
-                if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()){
-                    Rdd.col(ijk) = R.col(0).array() * TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(-1).array() * Tdd0.array().col(ijk).array() * Dose.col(tij).array().pow(-1).array();
-                } else if (tform[ij]=="lin") {
-                    Rdd.col(ijk) = R.col(0).array() * TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(-1).array() * Tdd0.array().col(ijk).array() * nonDose_LIN.col(tij).array().pow(-1).array();
-                } else if (tform[ij]=="plin") {
-                    Rdd.col(ijk) = R.col(0).array() * TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(-1).array() * Tdd0.array().col(ijk).array() * nonDose_PLIN.col(tij).array().pow(-1).array();
-                } else if (tform[ij]=="loglin") {
-                    Rdd.col(ijk) = R.col(0).array() * TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(-1).array() * Tdd0.array().col(ijk).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() ;
-                }
+            if (tij==tjk){
+                Rdd.col(ijk) = R.col(0).array() * Tterm_ratio.col(ij).array() * Tdd0.array().col(ijk).array();
             } else {
-                Rdd.col(ijk) = R.col(0).array() * TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(-1).array() * TTerm.col(tjk).array() * TTerm_p.col(tjk).array().pow(-1).array();
-                if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()){
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(ij).array() * Dose.col(tij).array().pow(-1).array();
-                } else if (tform[ij]=="lin") {
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(ij).array() * nonDose_LIN.col(tij).array().pow(-1).array();
-                } else if (tform[ij]=="plin") {
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(ij).array() * nonDose_PLIN.col(tij).array().pow(-1).array();
-                } else if (tform[ij]=="loglin") {
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(ij).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() ;
-                }
-                //
-                if (Dose_Iden.find(as< string>(tform[jk])) != Dose_Iden.end()){
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(jk).array() * Dose.col(tjk).array().pow(-1).array();
-                } else if (tform[jk]=="lin") {
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(jk).array() * nonDose_LIN.col(tjk).array().pow(-1).array();
-                } else if (tform[jk]=="plin") {
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(jk).array() * nonDose_PLIN.col(tjk).array().pow(-1).array();
-                } else if (tform[jk]=="loglin") {
-                    Rdd.col(ijk) = Rdd.col(ijk).array() * Td0.array().col(jk).array() * nonDose_LOGLIN.col(tjk).array().pow(-1).array() ;
-                }
+                Rdd.col(ijk) = R.col(0).array() * Tterm_ratio.col(ij).array() * Tterm_ratio.col(jk).array() * Td0.array().col(ij).array() * Td0.array().col(jk).array();
                 //
             }
         }
@@ -1406,8 +1371,8 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
         Rdd.col(ijk) = Rd.col(jk).array() * df0.col(df0_c).array();
     }
     //
-    R = (R.array().isFinite()).select(R,0);
-    Rd = (Rd.array().isFinite()).select(Rd,0);
+//    R = (R.array().isFinite()).select(R,0);
+//    Rd = (Rd.array().isFinite()).select(Rd,0);
     Rdd = (Rdd.array().isFinite()).select(Rdd,0);
     //
     for (int ij=0;ij<totalnum;ij++){//Calculates ratios
@@ -1740,6 +1705,63 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
     //
     //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int j=0;j<ntime;j++){
+        double Rs1 = 0;
+        //
+        vector<int> InGroup;
+        string Groupstr = RiskGroup[j];
+        stringstream ss(Groupstr);
+        //
+        //
+        for (int i; ss >> i;) {
+            InGroup.push_back(i);    
+            if (ss.peek() == ',')
+                ss.ignore();
+        }
+        //Now has the grouping pairs
+        int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+            Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
+        } //precalculates the sums of risk groups
+        MatrixXd Ld = MatrixXd::Zero(dj,1);
+        Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
+        // only assigns values once
+        Rls1(j,0) = Rs1;
+        Lls1(j,0) = Ld.col(0).sum();
+    }
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    for (int ij=0;ij<totalnum;ij++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            double Rs2 = 0;
+            //
+            vector<int> InGroup;
+            string Groupstr = RiskGroup[j];
+            stringstream ss(Groupstr);
+            //
+            //
+            if (KeepConstant[ij]==0){
+                //
+                for (int i; ss >> i;) {
+                    InGroup.push_back(i);    
+                    if (ss.peek() == ',')
+                        ss.ignore();
+                }
+                //Now has the grouping pairs
+                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+                    Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
+                } //precalculates the sums of risk groups
+                MatrixXd Ld = MatrixXd::Zero(dj,1);
+                Ld << Rd.block(RiskFail(j,0),ij,dj,1);//sum of risks in group
+                // only assigns values once
+                Rls2(j,ij) = Rs2;
+                Lls2(j,ij) = Ld.col(0).sum();
+            }
+        }
+    }
+    //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
@@ -1749,9 +1771,6 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
                 ij++;
                 jk-=ij;
             }
-            double Rs1 = 0;
-            double Rs2 = 0;
-            double Rs2t = 0;
             double Rs3 = 0;
             //
             vector<int> InGroup;
@@ -1769,41 +1788,13 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
                 //Now has the grouping pairs
                 int dj = RiskFail(j,1)-RiskFail(j,0)+1;
                 for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-                    Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
-                    Rs2 += Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).sum();
-                    Rs2t += Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).sum();
                     Rs3 += Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).sum();
                 } //precalculates the sums of risk groups
-                MatrixXd Ld = MatrixXd::Zero(dj,4);
-                Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
-                // only assigns values once
-                if (ij==jk){
-                    if (ij==0){
-                        Rls1(j,0) = Rs1;
-                        Lls1(j,0) = Ld.col(0).sum();
-                    }
-                    Rls2(j,ij) = Rs2;
-                    Lls2(j,ij) = Ld.col(1).sum();
-                }
-                Rls3(j,ijk) = Rs3;
-                Lls3(j,ijk) = Ld.col(3).sum();
-            } else if (ij+jk==0){
-                //
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);    
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
-                //Now has the grouping pairs
-                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-                    Rs1 += R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).sum();
-                } //precalculates the sums of risk groups
                 MatrixXd Ld = MatrixXd::Zero(dj,1);
-                Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
+                Ld << Rdd.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
                 // only assigns values once
-                Rls1(j,0) = Rs1;
-                Lls1(j,0) = Ld.col(0).sum();
+                Rls3(j,ijk) = Rs3;
+                Lls3(j,ijk) = Ld.col(0).sum();
             }
         }
     }
@@ -1836,7 +1827,41 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
     //
     //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(1)
+    for (int j=0;j<ntime;j++){
+        double Rs1 = 0;
+        //
+        vector<int> InGroup;
+        string Groupstr = RiskGroup[j];
+        stringstream ss(Groupstr);
+        //
+        for (int i; ss >> i;) {
+            InGroup.push_back(i);    
+            if (ss.peek() == ',')
+                ss.ignore();
+        }
+        //Now has the grouping pairs
+        int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+		double cens_0 = cens_weight[RiskFail(j,0)];
+		VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
+        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+            if (weighting.size() != InGroup[i+1]-InGroup[i]+1){
+				weighting.resize(InGroup[i+1]-InGroup[i]+1);
+			}
+			weighting << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
+			weighting = weighting / cens_0;
+			weighting = (weighting.array()<1).select(weighting,1);
+			//
+            Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+        } //precalculates the sums of risk groups
+        MatrixXd Ld = MatrixXd::Zero(dj,1);
+        Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
+        // only assigns values once
+        Rls1(j,0) = Rs1;
+        Lls1(j,0) = Ld.col(0).sum();
+    }
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             int ij = 0;
@@ -1845,9 +1870,52 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
                 ij++;
                 jk-=ij;
             }
-            double Rs1 = 0;
             double Rs2 = 0;
-            double Rs2t = 0;
+            //
+            vector<int> InGroup;
+            string Groupstr = RiskGroup[j];
+            stringstream ss(Groupstr);
+            //
+            //
+            if (KeepConstant[ij]+KeepConstant[jk]==0){
+                //
+                for (int i; ss >> i;) {
+                    InGroup.push_back(i);    
+                    if (ss.peek() == ',')
+                        ss.ignore();
+                }
+                //Now has the grouping pairs
+                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
+				double cens_0 = cens_weight[RiskFail(j,0)];
+				VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
+                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+					if (weighting.size() != InGroup[i+1]-InGroup[i]+1){
+						weighting.resize(InGroup[i+1]-InGroup[i]+1);
+					}
+					weighting << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
+					weighting = weighting / cens_0;
+					weighting = (weighting.array()<1).select(weighting,1);
+					//
+                    Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+                } //precalculates the sums of risk groups
+                MatrixXd Ld = MatrixXd::Zero(dj,1);
+                Ld << Rd.block(RiskFail(j,0),ij,dj,1);//sum of risks in group
+                // only assigns values once
+                Rls2(j,ij) = Rs2;
+                Lls2(j,ij) = Ld.col(0).sum();
+            }
+        }
+    }
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
             double Rs3 = 0;
             //
             vector<int> InGroup;
@@ -1867,57 +1935,20 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 				double cens_0 = cens_weight[RiskFail(j,0)];
 				VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
                 for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-					if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
+					if (weighting.size() != InGroup[i+1]-InGroup[i]+1){
 						weighting.resize(InGroup[i+1]-InGroup[i]+1);
 					}
-					weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+					weighting << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
 					weighting = weighting / cens_0;
 					weighting = (weighting.array()<1).select(weighting,1);
 					//
-                    Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
-                    Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
-                    Rs2t += (Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
                     Rs3 += (Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
                 } //precalculates the sums of risk groups
-                MatrixXd Ld = MatrixXd::Zero(dj,4);
-                Ld << R.block(RiskFail(j,0),0,dj,1), Rd.block(RiskFail(j,0),ij,dj,1), Rd.block(RiskFail(j,0),jk,dj,1) ,Rdd.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
-                // only assigns values once
-                if (ij==jk){
-                    if (ij==0){
-                        Rls1(j,0) = Rs1;
-                        Lls1(j,0) = Ld.col(0).sum();
-                    }
-                    Rls2(j,ij) = Rs2;
-                    Lls2(j,ij) = Ld.col(1).sum();
-                }
-                Rls3(j,ijk) = Rs3;
-                Lls3(j,ijk) = Ld.col(3).sum();
-            } else if (ij+jk==0){
-                //
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);    
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
-                //Now has the grouping pairs
-                int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-				double cens_0 = cens_weight[RiskFail(j,0)];
-				VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
-                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-                    if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
-						weighting.resize(InGroup[i+1]-InGroup[i]+1);
-					}
-					weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
-					weighting = weighting / cens_0;
-					weighting = (weighting.array()<1).select(weighting,1);
-					//
-                    Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
-                } //precalculates the sums of risk groups
                 MatrixXd Ld = MatrixXd::Zero(dj,1);
-                Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
+                Ld << Rdd.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
                 // only assigns values once
-                Rls1(j,0) = Rs1;
-                Lls1(j,0) = Ld.col(0).sum();
+                Rls3(j,ijk) = Rs3;
+                Lls3(j,ijk) = Ld.col(0).sum();
             }
         }
     }
@@ -2048,6 +2079,37 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
     //
     //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
+    for (int j=0;j<ntime;j++){
+        for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+            double Rs1 = 0;
+            double Rs2 = 0;
+            double Rs3 = 0;
+            //
+            vector<int> InGroup;
+            //Now has the grouping pairs
+            if (RiskFail(j,2*s_ij + 1)>-1){
+                string Groupstr = as<std::string>(RiskGroup(j,s_ij));
+                stringstream ss(Groupstr);
+                for (int i; ss >> i;) {
+                    InGroup.push_back(i);    
+                    if (ss.peek() == ',')
+                        ss.ignore();
+                }
+                int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+					//
+                    Rs1 += R.block(  InGroup[i]-1, 0,  InGroup[i+1]-InGroup[i]+1,1).sum();
+                } //precalculates the sums of risk groups
+                MatrixXd Ld = MatrixXd::Zero(dj,1);
+                Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//sum of risks in group
+                // only assigns values once
+                Rls1(j,s_ij) = Rs1;
+                Lls1(j,s_ij) = Ld.col(0).sum();
+            }
+        }
+    }
+    //
     #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
@@ -2058,9 +2120,45 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
                     ij++;
                     jk-=ij;
                 }
-                double Rs1 = 0;
                 double Rs2 = 0;
-                double Rs2t = 0;
+                //
+                vector<int> InGroup;
+                //Now has the grouping pairs
+                if (RiskFail(j,2*s_ij + 1)>-1){
+                    string Groupstr = as<std::string>(RiskGroup(j,s_ij));
+                    stringstream ss(Groupstr);
+                    //
+                    if (KeepConstant[ij]+KeepConstant[jk]==0){
+                        for (int i; ss >> i;) {
+                            InGroup.push_back(i);    
+                            if (ss.peek() == ',')
+                                ss.ignore();
+                        }
+                        int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+                        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+                            Rs2 += Rd.block( InGroup[i]-1, ij, InGroup[i+1]-InGroup[i]+1,1).sum();
+                        } //precalculates the sums of risk groups
+                        MatrixXd Ld = MatrixXd::Zero(dj,1);
+                        Ld << Rd.block(RiskFail(j,2*s_ij),ij,dj,1);//sum of risks in group
+                        // only assigns values once
+                        Rls2(j,ij*STRATA_vals.size() + s_ij) = Rs2;
+                        Lls2(j,ij*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    }
+                }
+            }
+        }
+    }
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+                int ij = 0;
+                int jk = ijk;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
                 double Rs3 = 0;
                 //
                 vector<int> InGroup;
@@ -2077,40 +2175,13 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
                         }
                         int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
                         for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-                            Rs1 += R.block(  InGroup[i]-1, 0,  InGroup[i+1]-InGroup[i]+1,1).sum();
-                            Rs2 += Rd.block( InGroup[i]-1, ij, InGroup[i+1]-InGroup[i]+1,1).sum();
-                            Rs2t += Rd.block(InGroup[i]-1, jk, InGroup[i+1]-InGroup[i]+1,1).sum();
                             Rs3 += Rdd.block(InGroup[i]-1, ijk,InGroup[i+1]-InGroup[i]+1,1).sum();
                         } //precalculates the sums of risk groups
-                        MatrixXd Ld = MatrixXd::Zero(dj,4);
-                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), Rd.block(RiskFail(j,2*s_ij),ij,dj,1), Rd.block(RiskFail(j,2*s_ij),jk,dj,1) ,Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
-                        // only assigns values once
-                        if (ij==jk){
-                            if (ij==0){
-                                Rls1(j,s_ij) = Rs1;
-                                Lls1(j,s_ij) = Ld.col(0).sum();
-                            }
-                            Rls2(j,ij*STRATA_vals.size() + s_ij) = Rs2;
-                            Lls2(j,ij*STRATA_vals.size() + s_ij) = Ld.col(1).sum();
-                        }
-                        Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
-                        Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(3).sum();
-                    }  else if (ij+jk==0){
-                        for (int i; ss >> i;) {
-                            InGroup.push_back(i);    
-                            if (ss.peek() == ',')
-                                ss.ignore();
-                        }
-                        int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-                        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-							//
-                            Rs1 += R.block(  InGroup[i]-1, 0,  InGroup[i+1]-InGroup[i]+1,1).sum();
-                        } //precalculates the sums of risk groups
                         MatrixXd Ld = MatrixXd::Zero(dj,1);
-                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//sum of risks in group
+                        Ld << Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
                         // only assigns values once
-                        Rls1(j,s_ij) = Rs1;
-                        Lls1(j,s_ij) = Ld.col(0).sum();
+                        Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
+                        Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
                     }
                 }
             }
@@ -2217,6 +2288,44 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
     //
     //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
     //
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
+    for (int j=0;j<ntime;j++){
+        for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+            double Rs1 = 0;
+            //
+            vector<int> InGroup;
+            //Now has the grouping pairs
+            if (RiskFail(j,2*s_ij + 1)>-1){
+                string Groupstr = as<std::string>(RiskGroup(j,s_ij));
+                stringstream ss(Groupstr);
+            //
+                for (int i; ss >> i;) {
+                    InGroup.push_back(i);    
+                    if (ss.peek() == ',')
+                        ss.ignore();
+                }
+                int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+				double cens_0 = cens_weight[RiskFail(j,0)];
+				VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
+                for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+					if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
+						weighting.resize(InGroup[i+1]-InGroup[i]+1);
+					}
+					weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+					weighting = weighting / cens_0;
+					weighting = (weighting.array()<1).select(weighting,1);
+					//
+                    Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+                } //precalculates the sums of risk groups
+                MatrixXd Ld = MatrixXd::Zero(dj,1);
+                Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//sum of risks in group
+                // only assigns values once
+                Rls1(j,s_ij) = Rs1;
+                Lls1(j,s_ij) = Ld.col(0).sum();
+            }
+        }
+    }
+    //
     #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
@@ -2227,9 +2336,54 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
                     ij++;
                     jk-=ij;
                 }
-                double Rs1 = 0;
                 double Rs2 = 0;
-                double Rs2t = 0;
+                //
+                vector<int> InGroup;
+                //Now has the grouping pairs
+                if (RiskFail(j,2*s_ij + 1)>-1){
+                    string Groupstr = as<std::string>(RiskGroup(j,s_ij));
+                    stringstream ss(Groupstr);
+                    //
+                    if (KeepConstant[ij]+KeepConstant[jk]==0){
+                        for (int i; ss >> i;) {
+                            InGroup.push_back(i);    
+                            if (ss.peek() == ',')
+                                ss.ignore();
+                        }
+                        int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+						double cens_0 = cens_weight[RiskFail(j,0)];
+						VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
+                        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
+							if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
+								weighting.resize(InGroup[i+1]-InGroup[i]+1);
+							}
+							weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+							weighting = weighting / cens_0;
+							weighting = (weighting.array()<1).select(weighting,1);
+							//
+							Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+                        } //precalculates the sums of risk groups
+                        MatrixXd Ld = MatrixXd::Zero(dj,1);
+                        Ld << Rd.block(RiskFail(j,2*s_ij),ij,dj,1);//sum of risks in group
+                        // only assigns values once
+                        Rls2(j,ij*STRATA_vals.size() + s_ij) = Rs2;
+                        Lls2(j,ij*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    }
+                }
+            }
+        }
+    }
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
+        for (int j=0;j<ntime;j++){
+            for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+                int ij = 0;
+                int jk = ijk;
+                while (jk>ij){
+                    ij++;
+                    jk-=ij;
+                }
                 double Rs3 = 0;
                 //
                 vector<int> InGroup;
@@ -2255,48 +2409,13 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
 							weighting = weighting / cens_0;
 							weighting = (weighting.array()<1).select(weighting,1);
 							//
-                            Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
-							Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
-							Rs2t += (Rd.block(InGroup[i]-1,jk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
 							Rs3 += (Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
                         } //precalculates the sums of risk groups
-                        MatrixXd Ld = MatrixXd::Zero(dj,4);
-                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), Rd.block(RiskFail(j,2*s_ij),ij,dj,1), Rd.block(RiskFail(j,2*s_ij),jk,dj,1) ,Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
-                        // only assigns values once
-                        if (ij==jk){
-                            if (ij==0){
-                                Rls1(j,s_ij) = Rs1;
-                                Lls1(j,s_ij) = Ld.col(0).sum();
-                            }
-                            Rls2(j,ij*STRATA_vals.size() + s_ij) = Rs2;
-                            Lls2(j,ij*STRATA_vals.size() + s_ij) = Ld.col(1).sum();
-                        }
-                        Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
-                        Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(3).sum();
-                    }  else if (ij+jk==0){
-                        for (int i; ss >> i;) {
-                            InGroup.push_back(i);    
-                            if (ss.peek() == ',')
-                                ss.ignore();
-                        }
-                        int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-						double cens_0 = cens_weight[RiskFail(j,0)];
-						VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
-                        for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-							if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
-								weighting.resize(InGroup[i+1]-InGroup[i]+1);
-							}
-							weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
-							weighting = weighting / cens_0;
-							weighting = (weighting.array()<1).select(weighting,1);
-							//
-                            Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
-                        } //precalculates the sums of risk groups
                         MatrixXd Ld = MatrixXd::Zero(dj,1);
-                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//sum of risks in group
+                        Ld << Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
                         // only assigns values once
-                        Rls1(j,s_ij) = Rs1;
-                        Lls1(j,s_ij) = Ld.col(0).sum();
+                        Rls3(j,ijk*STRATA_vals.size() + s_ij) = Rs3;
+                        Lls3(j,ijk*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
                     }
                 }
             }
@@ -2461,21 +2580,34 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
                 Ldm.col(2) = Ldm.col(2).array() + Rs2t;
                 Ldm.col(3) = Ldm.col(3).array() + Rs3;
                 // Calculates the left-hand side terms
+                //
+                double Ld1;
+                double Ld2;
+                double Ld3;
+                //
                 MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
                 MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
-                temp1 = Ld.col(0).array().log();
-                double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                if (ij==jk){
+                    temp1 = Ld.col(0).array().log();
+                    Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                }
                 temp1 = Ld.col(1).array();
                 temp2 = Ld.col(2).array();
-                double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                if (ij==jk){
+                    Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                }
                 temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
-                double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
+                Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
                 // calculates the right-hand side terms
-                temp1 = Ldm.col(0).array().log();
-                Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                if (ij==jk){
+                    temp1 = Ldm.col(0).array().log();
+                    Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                }
                 temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
                 temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
-                Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                if (ij==jk){
+                    Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                }
                 temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                 Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
                 //
@@ -2557,8 +2689,8 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
                 double Rs3 = Rls3(j,ijk);
                 //
                 int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-                MatrixXd Ld = MatrixXd::Zero(dj,3);
-                Ld << R.block(RiskFail(j,0),0,dj,1), RdR.block(RiskFail(j,0),ij,dj,1), RdR.block(RiskFail(j,0),jk,dj,1);//rows with events
+                MatrixXd Ld = MatrixXd::Zero(dj,2);
+                Ld << R.block(RiskFail(j,0),0,dj,1), RdR.block(RiskFail(j,0),ij,dj,1);//rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj,4);
                 Vector4d Ldcs;
@@ -2573,19 +2705,28 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
                 Ldm.col(2) = Ldm.col(2).array() + Rs2t;
                 Ldm.col(3) = Ldm.col(3).array() + Rs3;
                 // Calculates the left-hand side terms
+                //
+                double Ld1;
+                double Ld2;
+                //
                 MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
                 MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
-                temp1 = Ld.col(0).array().log();
-                double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                temp1 = Ld.col(1).array();
-                temp2 = Ld.col(2).array();
-                double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                if (ij==jk){
+                    temp1 = Ld.col(0).array().log();
+                    Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                    temp1 = Ld.col(1).array();
+                    Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                }
                 // calculates the right-hand side terms
-                temp1 = Ldm.col(0).array().log();
-                Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                if (ij==jk){
+                    temp1 = Ldm.col(0).array().log();
+                    Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                }
                 temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
                 temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
-                Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                if (ij==jk){
+                    Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                }
                 temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                 Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
                 //
@@ -2597,23 +2738,14 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
             }
         }
     }
-//    Rcout << "df444 ";//prints the log-likelihoods
-//    for (int ij=0;ij<totalnum;ij++){
-//        Rcout << Ll[ij] << " ";
-//    }
-//    Rcout << " " << endl;
     double LogLik = 0;
     for (int i=0;i<totalnum;i++){
-//        Rcout << Ll[i] << " " << LogLik << endl;
         if (Ll[i]!=0){
             LogLik=Ll[i];
             break;
         }
-//        Rcout << Ll[i] << " " << LogLik << endl;
     }
-//    Rcout << LogLik << endl;
     fill(Ll.begin(), Ll.end(), LogLik);
-//     Rcout << "df445 ";//prints the log-likelihoods
     #pragma omp parallel for num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
@@ -2680,21 +2812,13 @@ void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail,
         Ll[0] += Ld1 - Rs1;
 		
 	}
-//    Rcout << "df444 ";//prints the log-likelihoods
-//    for (int ij=0;ij<totalnum;ij++){
-//        Rcout << Ll[ij] << " ";
-//    }
-//    Rcout << " " << endl;
     double LogLik = 0;
     for (int i=0;i<totalnum;i++){
-//        Rcout << Ll[i] << " " << LogLik << endl;
         if (Ll[i]!=0){
             LogLik=Ll[i];
             break;
         }
-//        Rcout << Ll[i] << " " << LogLik << endl;
     }
-//    Rcout << LogLik << endl;
     fill(Ll.begin(), Ll.end(), LogLik);
     return;
 }
@@ -2821,21 +2945,34 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
                         Ldm.col(2) = Ldm.col(2).array() + Rs2t;
                         Ldm.col(3) = Ldm.col(3).array() + Rs3;
                         // Calculates the left-hand side terms
+                        //
+                        double Ld1;
+                        double Ld2;
+                        double Ld3;
+                        //
                         MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
                         MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
-                        temp1 = Ld.col(0).array().log();
-                        double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        if (ij==jk){
+                            temp1 = Ld.col(0).array().log();
+                            Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        }
                         temp1 = Ld.col(1).array();
                         temp2 = Ld.col(2).array();
-                        double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        if (ij==jk){
+                            Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        }
                         temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
-                        double Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        Ld3 = (temp1.array().isFinite()).select(temp1,0).sum();
                         // calculates the right-hand side terms
-                        temp1 = Ldm.col(0).array().log();
-                        Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        if (ij==jk){
+                            temp1 = Ldm.col(0).array().log();
+                            Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        }
                         temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
                         temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
-                        Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        if (ij==jk){
+                            Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        }
                         temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                         Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
                         //
@@ -2922,8 +3059,8 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
                     //
                     int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
                     if (RiskFail(j,2*s_ij + 1)>-1){
-                        MatrixXd Ld = MatrixXd::Zero(dj,3);
-                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), RdR.block(RiskFail(j,2*s_ij),ij,dj,1), RdR.block(RiskFail(j,2*s_ij),jk,dj,1);//rows with events
+                        MatrixXd Ld = MatrixXd::Zero(dj,2);
+                        Ld << R.block(RiskFail(j,2*s_ij),0,dj,1), RdR.block(RiskFail(j,2*s_ij),ij,dj,1);//rows with events
                         //
                         MatrixXd Ldm = MatrixXd::Zero(dj,4);
                         Vector4d Ldcs;
@@ -2938,19 +3075,28 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
                         Ldm.col(2) = Ldm.col(2).array() + Rs2t;
                         Ldm.col(3) = Ldm.col(3).array() + Rs3;
                         // Calculates the left-hand side terms
+                        //
+                        double Ld1;
+                        double Ld2;
+                        //
                         MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
                         MatrixXd temp2 = MatrixXd::Zero(Ld.rows(),1);
-                        temp1 = Ld.col(0).array().log();
-                        double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
-                        temp1 = Ld.col(1).array();
-                        temp2 = Ld.col(2).array();
-                        double Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        if (ij==jk){
+                            temp1 = Ld.col(0).array().log();
+                            Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                            temp1 = Ld.col(1).array();
+                            Ld2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        }
                         // calculates the right-hand side terms
-                        temp1 = Ldm.col(0).array().log();
-                        Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        if (ij==jk){
+                            temp1 = Ldm.col(0).array().log();
+                            Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                        }
                         temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(-1).array());
                         temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(-1).array());
-                        Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        if (ij==jk){
+                            Rs2 = (temp1.array().isFinite()).select(temp1,0).sum();
+                        }
                         temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(-1).array()) - temp1.array() * temp2.array();
                         Rs3 = (temp1.array().isFinite()).select(temp1,0).sum();
                         //
@@ -3072,7 +3218,7 @@ void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const Matri
 //' @param     der_iden    subterm number for derivative tests
 //' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
 //' @param     dose_abs_max    Maximum allowed threshold parameter change
-//' @param     lr    learning rate fo newton step toward 0 derivative
+//' @param     lr    learning rate for newton step toward 0 derivative
 //' @param     abs_max    Maximum allowed parameter change
 //' @param     Ll    Log-Likelihood
 //' @param     Lld    Log-Likelihood first derivative
@@ -3216,7 +3362,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
 //' @param     totalnum    total number of parameter
 //' @param     der_iden    subterm number for derivative tests
 //' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
-//' @param     lr    learning rate fo newton step toward 0 derivative
+//' @param     lr    learning rate for newton step toward 0 derivative
 //' @param     abs_max    Maximum allowed parameter change
 //' @param     Ll    Log-Likelihood
 //' @param     Lld    Log-Likelihood first derivative

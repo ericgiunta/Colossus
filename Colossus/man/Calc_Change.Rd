@@ -42,7 +42,7 @@ Calc_Change(
 
 \item{dose_abs_max}{Maximum allowed threshold parameter change}
 
-\item{lr}{learning rate fo newton step toward 0 derivative}
+\item{lr}{learning rate for newton step toward 0 derivative}
 
 \item{abs_max}{Maximum allowed parameter change}
 

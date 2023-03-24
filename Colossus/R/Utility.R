@@ -211,15 +211,15 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 #' @param fname a string file name
 #' @param time1 a column name defining the start of time periods, sorted third
 #' @param time2 a column name defining the end of time periods, sorted first
-#' @param event a column name defining the events, sorted second
+#' @param event0 a column name defining the events, sorted second
 #'
 #' @return returns a sorted dataframe
 #' @export
 #'
-Open_File <- function(fname,time1="age_start", time2="age_exit", event="cases"){
+Open_File <- function(fname,time1="age_start", time2="age_exit", event0="cases"){
     colTypes=c("integer","double","double","double","integer","character","integer","integer","character","integer","integer", "integer","integer","character","character","character","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer")
     df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=TRUE,fill=TRUE)
-    setkeyv(df, c(time2, event,time1))
+    setkeyv(df, c(time2, event0,time1))
     return (df)
 }
 
@@ -449,7 +449,7 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #' @param df dataframe of data to use as reference
 #' @param time0 starting time column
 #' @param time1 ending time column
-#' @param event event column
+#' @param event0 event column
 #' @param iscox boolean if rows not at event times should be kept
 #' @param dt spacing in time for new rows
 #' @param new_names vector of new column names for the time dependent columns
@@ -461,9 +461,9 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #' @return returns the updated dataframe
 #' @export
 #'
-gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols, func_form,fname, tform){
+gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_cols, func_form,fname, tform){
     dfn <- names(df)
-    ce <- c(time0,time1,event)
+    ce <- c(time0,time1,event0)
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
@@ -482,11 +482,11 @@ gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols
     #
     #
     dfn_time <- c(time0, time1)
-    dfn_event <- c(event)
+    dfn_event <- c(event0)
     dfn_same <- dfn_same[!(dfn_same %in% dfn_time)]
     dfn_same <- dfn_same[!(dfn_same %in% dfn_event)]
     ##
-    dfend <- df[get(event)==1, ]
+    dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time1, with = FALSE]), use.names=FALSE))
     if (iscox){
         #
@@ -506,8 +506,8 @@ gen_time_dep <- function(df, time0, time1, event, iscox, dt, new_names, dep_cols
         fname <- paste(fname,".csv",sep="_")
     }
     Write_Time_Dep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox)
-    df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time0,time1,new_names,dfn_same,event))
-    setkeyv(df_new, c(time1, event))
+    df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time0,time1,new_names,dfn_same,event0))
+    setkeyv(df_new, c(time1, event0))
     return (df_new)
 }
 

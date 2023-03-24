@@ -9,7 +9,7 @@ RunCoxRegression_Guesses(
   df,
   time1 = "age_start",
   time2 = "age_exit",
-  event = "cases",
+  event0 = "cases",
   names = c("dose"),
   Term_n = rep(0, length(names)),
   tform = rep("loglin", length(names)),
@@ -34,7 +34,7 @@ RunCoxRegression_Guesses(
 
 \item{time2}{column used for time period end}
 
-\item{event}{column used for event status}
+\item{event0}{column used for event status}
 
 \item{names}{columns names for elements of the model, used to identify data columns}
 

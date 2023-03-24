@@ -3,7 +3,7 @@
 #'
 #' @param df data used for regression
 #' @param pyr column used for person-years per row
-#' @param event column used for event status
+#' @param event0 column used for event status
 #' @param names columns names for elements of the model, used to identify data columns
 #' @param Term_n term numbers for each element of the model
 #' @param tform subterm type for each element of the model
@@ -17,7 +17,7 @@
 #' @return prints the final results and return null
 #' @export
 #'
-RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             ;
@@ -30,7 +30,7 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
     dfc <- match(names,all_names)
-    if (sum(df[,event, with = FALSE])==0){
+    if (sum(df[,event0, with = FALSE])==0){
         if (control$verbose){
             print("no events")
         }
@@ -38,7 +38,7 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
     }
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
-    ce <- c(pyr,event)
+    ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     #
@@ -78,7 +78,7 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
 #'
 #' @param df data used for regression
 #' @param pyr column used for person-years per row
-#' @param event column used for event status
+#' @param event0 column used for event status
 #' @param names columns names for elements of the model, used to identify data columns
 #' @param Term_n term numbers for each element of the model
 #' @param tform subterm type for each element of the model
@@ -91,7 +91,7 @@ RunPoissonRegression <- function(df, pyr, event, names, Term_n, tform, keep_cons
 #' @return prints the final results and return null
 #' @export
 #'
-RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control,keep_constant=rep(0,length(names))){
+RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a_n, modelform, fir, control,keep_constant=rep(0,length(names))){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             ;
@@ -104,7 +104,7 @@ RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
     dfc <- match(names,all_names)
-    if (sum(df[,event, with = FALSE])==0){
+    if (sum(df[,event0, with = FALSE])==0){
         if (control$verbose){
             print("no events")
         }
@@ -112,7 +112,7 @@ RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_
     }
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
-    ce <- c(pyr,event)
+    ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     #
@@ -147,7 +147,7 @@ RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_
 #'
 #' @param df data used for regression
 #' @param pyr column used for person-years per row
-#' @param event column used for event status
+#' @param event0 column used for event status
 #' @param names columns names for elements of the model, used to identify data columns
 #' @param Term_n term numbers for each element of the model
 #' @param tform subterm type for each element of the model
@@ -162,7 +162,7 @@ RunPoissonRegression_Single <- function(df, pyr, event, names, Term_n, tform, a_
 #' @return returns a list of the final results
 #' @export
 #'
-RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols){
+RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             ;
@@ -185,7 +185,7 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
     dfc <- match(names,all_names)
-    if (sum(df[,event, with = FALSE])==0){
+    if (sum(df[,event0, with = FALSE])==0){
         if (control$verbose){
             print("no events")
         }
@@ -193,7 +193,7 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
     }
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
-    ce <- c(pyr,event)
+    ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     #
@@ -233,7 +233,7 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
 #'
 #' @param df data used for regression
 #' @param pyr column used for person-years per row
-#' @param event column used for event status
+#' @param event0 column used for event status
 #' @param names columns names for elements of the model, used to identify data columns
 #' @param Term_n term numbers for each element of the model
 #' @param tform subterm type for each element of the model
@@ -250,7 +250,7 @@ RunPoissonRegression_STRATA <- function(df, pyr, event, names, Term_n, tform, ke
 #' @export
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
+RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
     if ("verbose" %in% names(guesses_control)){
         ;
     } else {
@@ -278,7 +278,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         df <- Replace_Missing(df,all_names,0.0,control$verbose)
         #
         dfc <- match(names,all_names)
-        if (sum(df[,event, with = FALSE])==0){
+        if (sum(df[,event0, with = FALSE])==0){
             if (guesses_control$verbose){
                 print("no events")
             }
@@ -286,7 +286,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         }
         term_tot <- max(Term_n)+1
         x_all=as.matrix(df[,all_names, with = FALSE])
-        ce <- c(pyr,event)
+        ce <- c(pyr,event0)
         #
         control <- Def_Control(control)
         #
@@ -428,7 +428,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         df <- Replace_Missing(df,all_names,0.0,control$verbose)
         #
         dfc <- match(names,all_names)
-        if (sum(df[,event, with = FALSE])==0){
+        if (sum(df[,event0, with = FALSE])==0){
             if (guesses_control$verbose){
                 print("no events")
             }
@@ -436,7 +436,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
         }
         term_tot <- max(Term_n)+1
         x_all=as.matrix(df[,all_names, with = FALSE])
-        ce <- c(pyr,event)
+        ce <- c(pyr,event0)
         #
         control <- Def_Control(control)
         #
@@ -559,7 +559,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
 #'
 #' @param df data used for regression
 #' @param pyr column used for person-years per row
-#' @param event column used for event status
+#' @param event0 column used for event status
 #' @param names columns names for elements of the model, used to identify data columns
 #' @param Term_n term numbers for each element of the model
 #' @param tform subterm type for each element of the model
@@ -576,7 +576,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event, names, Term_n, tform, k
 #' @export
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Tier_Guesses <- function(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
+RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
     if ("verbose" %in% names(guesses_control)){
         ;
     } else {
@@ -641,7 +641,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event, names, Term_n, tfo
     guesses_control$guess_constant <- guess_constant
     guess_second <- guesses_control$guesses
     guesses_control$guesses <- guesses_control$guesses_start
-    e <- RunPoissonRegression_Guesses(df, pyr, event, name_initial, term_n_initial, tform_initial, constant_initial, a_n_initial, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+    e <- RunPoissonRegression_Guesses(df, pyr, event0, name_initial, term_n_initial, tform_initial, constant_initial, a_n_initial, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
     if (guesses_control$verbose){
         print("INITIAL TERM COMPLETE")
         print(e)
@@ -661,7 +661,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event, names, Term_n, tfo
     }
     guesses_control$guess_constant <- guess_constant
     guesses_control$guesses <- guess_second
-    e <- RunPoissonRegression_Guesses(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+    e <- RunPoissonRegression_Guesses(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
     #
     return(e)
 }
@@ -671,7 +671,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event, names, Term_n, tfo
 #'
 #' @param df data used for regression
 #' @param pyr column used for person-years per row
-#' @param event column used for event status
+#' @param event0 column used for event status
 #' @param names columns names for elements of the model, used to identify data columns
 #' @param Term_n term numbers for each element of the model
 #' @param tform subterm type for each element of the model
@@ -688,7 +688,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event, names, Term_n, tfo
 #' @export
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Strata_First <- function(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
+RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             ;
@@ -749,7 +749,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event, names, Term_n, tfo
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
     dfc <- match(names,all_names)
-    if (sum(df[,event, with = FALSE])==0){
+    if (sum(df[,event0, with = FALSE])==0){
         if (control$verbose){
             print("no events")
         }
@@ -757,7 +757,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event, names, Term_n, tfo
     }
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
-    ce <- c(pyr,event)
+    ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     #
@@ -768,7 +768,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event, names, Term_n, tfo
     #
     guess_second <- guesses_control$guesses
     guesses_control$guesses <- guesses_control$guesses_start
-    e <- RunPoissonRegression_Guesses(df, pyr, event, names_strata, Term_n_strata, tform_strata, keep_constant_strata, a_n_strata, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+    e <- RunPoissonRegression_Guesses(df, pyr, event0, names_strata, Term_n_strata, tform_strata, keep_constant_strata, a_n_strata, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
     if (guesses_control$verbose){
         print("INITIAL TERM COMPLETE")
         print(e)
@@ -792,7 +792,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event, names, Term_n, tfo
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
     dfc <- match(names,all_names)
-    if (sum(df[,event, with = FALSE])==0){
+    if (sum(df[,event0, with = FALSE])==0){
         if (guesses_control$verbose){
             print("no events")
         }
@@ -800,7 +800,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event, names, Term_n, tfo
     }
     term_tot <- max(Term_n)+1
     x_all=as.matrix(df[,all_names, with = FALSE])
-    ce <- c(pyr,event)
+    ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     if (length(a_n)<length(names)){

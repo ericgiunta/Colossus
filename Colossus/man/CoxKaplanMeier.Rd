@@ -11,7 +11,7 @@ CoxKaplanMeier(
   studyID,
   names,
   df,
-  event,
+  event0,
   time1,
   time2,
   tu,
@@ -39,7 +39,7 @@ CoxKaplanMeier(
 
 \item{df}{data used for regression}
 
-\item{event}{column used for event status}
+\item{event0}{column used for event status}
 
 \item{time1}{column used for time period starts}
 

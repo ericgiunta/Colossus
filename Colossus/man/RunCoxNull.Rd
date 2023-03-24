@@ -9,7 +9,7 @@ RunCoxNull(
   df,
   time1 = "age_start",
   time2 = "age_exit",
-  event = "cases",
+  event0 = "cases",
   control = list(lr = 0.75, maxiter = 20, halfmax = 5, epsilon = 1e-09, dbeta_max = 0.5,
     deriv_epsilon = 1e-09, abs_max = 1, change_all = TRUE, dose_abs_max = 100, verbose =
     FALSE, ties = "breslow", double_step = 1)
@@ -22,7 +22,7 @@ RunCoxNull(
 
 \item{time2}{column used for time period end}
 
-\item{event}{column used for event status}
+\item{event0}{column used for event status}
 
 \item{control}{list of parameters controlling the convergence}
 }

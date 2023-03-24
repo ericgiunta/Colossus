@@ -9,6 +9,7 @@ using Rcpp::as;
 
 template <typename T> int sign(T val);
 
+
 double vec_norm(const vector<double>& x,int totalnum);
 
 void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
