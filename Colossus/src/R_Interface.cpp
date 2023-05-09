@@ -740,3 +740,40 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
         file.close();
     }
 }
+
+//' Generates factored columns in parallel
+//' \code{Gen_Fac_Par} Called directly from R, returns a matrix with factored columns
+//' @param df0 Matrix with columns to factor, assumed to be numeric
+//' @param vals list of values for each column, single continuous list
+//' @param cols list of column identifiers, single continuous list
+//' @param nthreads number of threads to use
+//'
+//' @return saves a dataframe to be used with time-dependent covariate analysis
+// [[Rcpp::export]]
+NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, const NumericVector cols, const int nthreads){
+    const Map<MatrixXd> df(as<Map<MatrixXd> >(df0));
+    MatrixXd Mat_Fac = MatrixXd::Zero(df.rows(), vals.size());
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(1)
+    for (int ijk=0;ijk<vals.size();ijk++){
+        double col_c = cols[ijk];
+        double val_c = vals[ijk];
+        VectorXi select_ind_all = ((df.col(col_c).array() == val_c)).cast<int>(); //indices at risk
+        //
+        //
+        int th = 1;
+        visit_lambda(select_ind_all,
+            [&Mat_Fac, ijk, th](double v, int i, int j) {
+                if (v==th)
+                    Mat_Fac(i,ijk)=1;
+            });
+        //
+    }
+    //
+    return (wrap(Mat_Fac));
+}
+
+
+
+
+

@@ -242,6 +242,12 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
         }
         Rcout << " " << endl;
         //
+        Rcout << "final failing terms ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << tform[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -519,6 +525,8 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = Term_n[ijk];
                     if (TTerm.col(tij).minCoeff()<=0){
+                        dbeta[ijk] = dbeta[ijk] / 2.0;
+                    } else if (isinf(TTerm.col(tij).maxCoeff())){
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
                 }
@@ -1048,6 +1056,9 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
+        //
+        Rcout << " " << endl;
+        temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -1825,6 +1836,13 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
+        //
+        Rcout << "final failing terms ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << tform[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -2058,6 +2076,8 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = Term_n[ijk];
                     if (TTerm.col(tij).minCoeff()<=0){
+                        dbeta[ijk] = dbeta[ijk] / 2.0;
+                    } else if (isinf(TTerm.col(tij).maxCoeff())){
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
                 }
@@ -3277,7 +3297,13 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
-        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
+        //
+        Rcout << "final failing terms ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << tform[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        temp_list = List::create(_["LogLik"]=R_NaN,_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -3407,6 +3433,8 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = Term_n[ijk];
                     if (TTerm.col(tij).minCoeff()<=0){
+                        dbeta[ijk] = dbeta[ijk] / 2.0;
+                    } else if (isinf(TTerm.col(tij).maxCoeff())){
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
                 }
@@ -4057,7 +4085,26 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
-        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
+        //
+        Rcout << "final failing terms ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << tform[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        //
+//        Eigen::Index minRow, minCol;
+//        float min = R.minCoeff(&minRow, &minCol);
+//        Rcout << "Row number: " << minRow << endl;
+//        Rcout << "df Value :" << df0.row(minRow) << endl;
+//        Rcout << "Term Value :" << T0.row(minRow) << endl;
+//        Rcout << "Dose Value :" << Dose.row(minRow) << endl;
+//        Rcout << "NonDose Value :" << nonDose.row(minRow) << endl;
+//        Rcout << "Linear Value :" << nonDose_LIN.row(minRow) << endl;
+//        Rcout << "PLinear Value :" << nonDose_PLIN.row(minRow) << endl;
+//        Rcout << "LogLinear Value :" << nonDose_LOGLIN.row(minRow) << endl;
+//        Rcout << R.row(minRow) << endl;
+        //
+        temp_list = List::create(_["LogLik"]=R_NaN,_["First_Der"]=wrap(Lld),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -4198,6 +4245,8 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = Term_n[ijk];
                     if (TTerm.col(tij).minCoeff()<=0){
+                        dbeta[ijk] = dbeta[ijk] / 2.0;
+                    } else if (isinf(TTerm.col(tij).maxCoeff())){
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
                 }
@@ -5635,6 +5684,13 @@ List LogLik_Cox_PH_Single( IntegerVector Term_n, StringVector tform, NumericVect
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
+        //
+        Rcout << "final failing terms ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << tform[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -5949,7 +6005,13 @@ List LogLik_Poisson_Single( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
             Rcout << beta_0[ijk] << " ";
         }
         Rcout << " " << endl;
-        temp_list = List::create(_["LogLik"]=wrap(Ll[0]),_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
+        //
+        Rcout << "final failing terms ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << tform[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        temp_list = List::create(_["LogLik"]=R_NaN,_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -6159,6 +6221,12 @@ List LogLik_Cox_PH_CR( IntegerVector Term_n, StringVector tform, NumericVector a
         }
         Rcout << " " << endl;
         //
+        Rcout << "final failing terms ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << tform[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED");
         return temp_list;
     }
     //
@@ -6436,6 +6504,8 @@ List LogLik_Cox_PH_CR( IntegerVector Term_n, StringVector tform, NumericVector a
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = Term_n[ijk];
                     if (TTerm.col(tij).minCoeff()<=0){
+                        dbeta[ijk] = dbeta[ijk] / 2.0;
+                    } else if (isinf(TTerm.col(tij).maxCoeff())){
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
                 }

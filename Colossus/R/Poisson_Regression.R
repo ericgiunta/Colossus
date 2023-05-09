@@ -363,20 +363,21 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
             for (i in 1:length(a_n)){
                 a_n0[i] = a_n[i]
             }
-            df_res0 <- data.table()
             e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
-            radius <- 0
-            for (i in 1:length(e$beta_0)){
-                df_res0[,paste(i):=e$beta_0[i]]
-                radius = radius + (e$beta_0[i]-a_n0[i])^2
-            }
-            df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-            df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
-            df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-            df_res0[,paste(length(e$beta_0)+4):=e$Converged]
             if (is.na(e$Deviation)){
+#                stop()
                 ;
             } else {
+                df_res0 <- data.table()
+                radius <- 0
+                for (i in 1:length(e$beta_0)){
+                    df_res0[,paste(i):=e$beta_0[i]]
+                    radius = radius + (e$beta_0[i]-a_n0[i])^2
+                }
+                df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
+                df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
+                df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
+                df_res0[,paste(length(e$beta_0)+4):=e$Converged]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             }
             
@@ -398,6 +399,9 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         ;
         return (e)
     } else {
+        if (guesses_control$verbose){
+            print("Starting STRATA VERSION")
+        }
         if ("CONST" %in% names){
             if ("CONST" %in% names(df)){
                 ;
@@ -481,6 +485,13 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
             a_n0[i] = a_n[i]
         }
         e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
+        if (is.na(e$Deviation)){
+#            print("374237423742374237423742374237423742374237423742374237423742")
+#            print(e)
+#            print("374237423742374237423742374237423742374237423742374237423742")
+#            stop()
+            ;
+        }
 #        print(e$beta_0)
         radius <- 0
         for (i in 1:length(e$beta_0)){
@@ -518,20 +529,24 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
             for (i in 1:length(a_n)){
                 a_n0[i] = a_n[i]
             }
-            df_res0 <- data.table()
             e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
-            radius <- 0
-            for (i in 1:length(e$beta_0)){
-                df_res0[,paste(i):=e$beta_0[i]]
-                radius = radius + (e$beta_0[i]-a_n0[i])^2
-            }
-            df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-            df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
-            df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-            df_res0[,paste(length(e$beta_0)+4):=e$Converged]
             if (is.na(e$Deviation)){
+#                print("374237423742374237423742374237423742374237423742374237423742")
+#                print(e)
+#                print("374237423742374237423742374237423742374237423742374237423742")
+#                stop()
                 ;
             } else {
+                df_res0 <- data.table()
+                radius <- 0
+                for (i in 1:length(e$beta_0)){
+                    df_res0[,paste(i):=e$beta_0[i]]
+                    radius = radius + (e$beta_0[i]-a_n0[i])^2
+                }
+                df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
+                df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
+                df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
+                df_res0[,paste(length(e$beta_0)+4):=e$Converged]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             }
             
@@ -861,20 +876,22 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
         for (i in 1:length(a_n)){
             a_n0[i] = a_n[i]
         }
-        df_res0 <- data.table()
         e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
-        radius <- 0
-        for (i in 1:length(e$beta_0)){
-            df_res0[,paste(i):=e$beta_0[i]]
-            radius = radius + (e$beta_0[i]-a_n0[i])^2
-        }
-        df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-        df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
-        df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-        df_res0[,paste(length(e$beta_0)+4):=e$Converged]
         if (is.na(e$Deviation)){
+#            print(e)
+#            stop()
             ;
         } else {
+            df_res0 <- data.table()
+            radius <- 0
+            for (i in 1:length(e$beta_0)){
+                df_res0[,paste(i):=e$beta_0[i]]
+                radius = radius + (e$beta_0[i]-a_n0[i])^2
+            }
+            df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
+            df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
+            df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
+            df_res0[,paste(length(e$beta_0)+4):=e$Converged]
             df_res <- rbindlist(list(df_res, df_res0)) 
         }
         

@@ -1469,8 +1469,22 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// Gen_Fac_Par
+NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, const NumericVector cols, const int nthreads);
+RcppExport SEXP _Colossus_Gen_Fac_Par(SEXP df0SEXP, SEXP valsSEXP, SEXP colsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type vals(valsSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type cols(colsSEXP);
+    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(Gen_Fac_Par(df0, vals, cols, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 
-RcppExport SEXP run_testthat_tests(SEXP);
+RcppExport SEXP run_testthat_tests(void *);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_vec_norm", (DL_FUNC) &_Colossus_vec_norm, 2},
@@ -1535,6 +1549,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_cox_ph_null", (DL_FUNC) &_Colossus_cox_ph_null, 3},
     {"_Colossus_cox_ph_risk_sub", (DL_FUNC) &_Colossus_cox_ph_risk_sub, 9},
     {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 9},
+    {"_Colossus_Gen_Fac_Par", (DL_FUNC) &_Colossus_Gen_Fac_Par, 4},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 1},
     {NULL, NULL, 0}
 };

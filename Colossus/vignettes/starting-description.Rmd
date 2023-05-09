@@ -139,7 +139,7 @@ On the user side, the names of columns containing the time and events need to be
 | 213           | 18    | 57         | 1 |
 | ...           | ...    | ...         | ... |
 
-For a Cox Proportional Hazard we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example we have interval data, however that may not always be the case. Colossus is designed to allow for the user to input "%trunc%" inplace of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. So in code these variables would look like this:
+For a Cox Proportional Hazard we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example we have interval data, however that may not always be the case. Colossus is designed to allow for the user to input "%trunc%" in-place of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. So in code these variables would look like this:
 
 ```{r}
 df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
@@ -198,7 +198,7 @@ The convergence parameters currently supported in general are as follows:
 | epsilon       | Minimum parameter change above convergence. If change is below this, the regression exits |
 | dbeta_max     | learning rate applied to limit on steps taken. Applied to solution to zero Log-Likelihood, for double_step=0|
 | deriv_epsilon | Minimum Log-Likelihood first derivative above convergence. If the largest first derivative is below this, the regression exits |
-| abs_max       | Largest starting step size. Code reduces it everytime halfmax is hit without finding an improvement. When abs_max is below epsilon, the code exits  |
+| abs_max       | Largest starting step size. Code reduces it every time halfmax is hit without finding an improvement. When abs_max is below epsilon, the code exits  |
 | dose_abs_max  | Largest starting step size for threshold parameters. Assumes the threshold parameters may be orders of magnitude different than other parameters   |
 | ties          | Allows for efron or breslow tie methods |
 | double_step   | Changes what step calculation method is used. double_step=0 changes each parameter by the ratio of first to second derivative independently. double_step=1 solves the system of equations for all first and second derivatives  |

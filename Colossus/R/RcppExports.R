@@ -1384,3 +1384,15 @@ Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filenam
     invisible(.Call(`_Colossus_Write_Time_Dep`, df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform, tu, iscox))
 }
 
+#' Generates factored columns in parallel
+#' \code{Gen_Fac_Par} Called directly from R, returns a matrix with factored columns
+#' @param df0 Matrix with columns to factor, assumed to be numeric
+#' @param vals list of values for each column, single continuous list
+#' @param cols list of column identifiers, single continuous list
+#' @param nthreads number of threads to use
+#'
+#' @return saves a dataframe to be used with time-dependent covariate analysis
+Gen_Fac_Par <- function(df0, vals, cols, nthreads) {
+    .Call(`_Colossus_Gen_Fac_Par`, df0, vals, cols, nthreads)
+}
+

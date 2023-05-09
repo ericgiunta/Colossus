@@ -1477,7 +1477,6 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
                     indices_end.push_back(i+1);
             });
 		//
-		double cens_0 = cens_weight(indices_end[0]-1);
 		//
 		visit_lambda(select_ind_all,
             [&indices_all, th](double v, int i, int j) {
@@ -1635,7 +1634,6 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 						indices_end.push_back(i+1);
 				});
 			//
-			double cens_0 = cens_weight(indices_end[0]-1);
 			//
 			visit_lambda(select_ind_all,
 				[&indices_all, th](double v, int i, int j) {
@@ -3290,7 +3288,15 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         for (int ijk=0;ijk<totalnum;ijk++){
             if (change_all){
                 if (KeepConstant[ijk]==0){
-                    dbeta[ijk] = Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                    if (isnan(Lldd_solve(ijk))){
+                        if (Lldd[ijk*totalnum+ijk] != 0 ){
+                            dbeta[ijk] = -lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                        } else {
+                            dbeta[ijk] = 0;
+                        }
+                    } else {
+                        dbeta[ijk] = lr * Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                    }
                     //
                     if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                         if (abs(dbeta[ijk])>dose_abs_max){

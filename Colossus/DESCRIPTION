@@ -27,6 +27,8 @@ Suggests:
     rmarkdown,
     xml2,
     pandoc,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    spelling
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Language: en-US

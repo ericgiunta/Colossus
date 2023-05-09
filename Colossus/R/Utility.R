@@ -237,15 +237,15 @@ Open_File <- function(fname,time1="age_start", time2="age_exit", event0="cases")
 factorize <-function(df,col_list,verbose=FALSE){
     cols <- c()
     col0 <- names(df)
+    tnum <- c()
     for (i in 1:length(col_list)){
         col <- col_list[i]
         x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))
-        for (i in x){
-            newcol <- c(paste(col,i,sep="_"))
-            if (sum(df[,col, with = FALSE]==i)>0){
-                df[, newcol] <- 1*(df[,col, with = FALSE]==i)
-                cols <- c(cols, newcol)
-            }
+        for (j in x){
+            newcol <- c(paste(col,j,sep="_"))
+            df[, newcol] <- 1*(df[,col, with = FALSE]==j)
+            cols <- c(cols, newcol)
+            tnum <- c(tnum, i)
         }
     }
     #
@@ -258,6 +258,59 @@ factorize <-function(df,col_list,verbose=FALSE){
 #    print(df)
     list('df'=df, 'cols'=cols)
 }
+
+
+#' Splits a parameter into factors in parallel
+#' \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
+#' Not for interaction terms
+#'
+#' @param df a data.table containing the columns of interest
+#' @param col_list an array of column names that should have factor terms defined
+#' @param verbose verbosity argument, for error returns
+#' @param nthreads number of threads to use
+#'
+#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
+#' @export
+#'
+factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCores())){
+    cols <- c()
+    vals <- c()
+    names <- c()
+    col0 <- names(df)
+    for (i in 1:length(col_list)){
+        col <- col_list[i]
+        x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))
+        for (j in x){
+            newcol <- c(paste(col,j,sep="_"))
+            ##
+            names <- c(names,newcol)
+            vals <- c(vals, j)
+            cols <- c(cols, i-1)
+            ##
+        }
+    }
+#    print(names)
+    #
+    df0 <- Gen_Fac_Par(as.matrix(df[, ..col_list,with=FALSE]), vals, cols, nthreads)
+#    print(df0)
+    df0 <- as.data.table(df0)
+#    print("++++++++")
+    names(df0) <- names
+    #
+    col_keep <- Check_Dupe_Columns(df0,names,rep(0,length(cols)),verbose)
+    #
+    #
+    list('df'=cbind(df,df0), 'cols'=col_keep)
+}
+
+
+
+
+
+
+
+
+
 
 #' Defines Interactions
 #' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
@@ -365,7 +418,10 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE){
             f2 <- pair[2]
             t1 <- term[1]
             t2 <- term[2]
-            if (t1==t2){
+            #
+            a1 <- unlist(strsplit(f1,split="_"),use.names=FALSE)[1]
+            a2 <- unlist(strsplit(f2,split="_"),use.names=FALSE)[1]
+            if ((t1==t2)&(a1!=a2)){
                 df[,get(f1)]
                 df[,get(f2)]
                 if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {

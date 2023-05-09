@@ -22,6 +22,13 @@
 
 RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
     setkeyv(df, c(time2, event0))
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
@@ -105,6 +112,13 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="ca
 
 RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", event0="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1),keep_constant=rep(0,length(names))){
     setkeyv(df, c(time2, event0))
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
@@ -180,6 +194,13 @@ RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", eve
 
 RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constant, a_n, der_iden, control){
     setkeyv(df, c(time2, event0))
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
@@ -260,6 +281,13 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         }
     } else {
         guesses_control$guess_constant <- rep(0,length(a_n))
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
     }
     a_n_default <- rep(0,length(a_n))
     for (i in 1:length(a_n)){
@@ -354,15 +382,15 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
                 }
             }
 #            print(a_n)
-            df_res0 <- data.table()
             e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
-            for (i in 1:length(e$beta_0)){
-                df_res0[,paste(i):=e$beta_0[i]]
-            }
-            df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
             if (is.na(e$LogLik)){
                 ;
             } else {
+                df_res0 <- data.table()
+                for (i in 1:length(e$beta_0)){
+                    df_res0[,paste(i):=e$beta_0[i]]
+                }
+                df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             } 
             
@@ -463,15 +491,15 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
                     a_n[i] <- a_n_default[i]
                 }
             }
-            df_res0 <- data.table()
             e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
-            for (i in 1:length(e$beta_0)){
-                df_res0[,paste(i):=e$beta_0[i]]
-            }
-            df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
             if (is.na(e$LogLik)){
                 ;
             } else {
+                df_res0 <- data.table()
+                for (i in 1:length(e$beta_0)){
+                    df_res0[,paste(i):=e$beta_0[i]]
+                }
+                df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             } 
             
@@ -516,6 +544,13 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
 #'
 RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", event0="cases",  names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=c(0.01), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1), Strat_Col="cell"){
     setkeyv(df, c(time2, event0, Strat_Col))
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     dfend <- df[get(event0)==1, ]
     #
     ce <- c(time1,time2,event0,Strat_Col)
@@ -607,6 +642,13 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
 #'
 Cox_Relative_Risk <- function(df, time1="age_start", time2="age_exit", event0="cases",  names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
     setkeyv(df, c(time2, event0))
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     all_names <- unique(names)
     dfc <- match(names,all_names)
 
@@ -704,6 +746,13 @@ RunCoxNull <- function(df, time1="age_start", time2="age_exit", event0="cases",c
 RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){
     if (plot_options$verbose){
         print("Starting Plot Function")
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
     }
     setkeyv(df, c(time2, event0))
     base  <- NULL
@@ -995,6 +1044,13 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     } else {
         guesses_control$guesses_start <- guesses_control$guesses
     }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     t_initial <- guesses_control$term_initial
     #
     if (length(a_n)<length(names)){
@@ -1089,6 +1145,13 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 
 RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     setkeyv(df, c(time2, event0))
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
@@ -1174,6 +1237,13 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
 
 RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
     setkeyv(df, c(time2, event0))
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            ;
+        } else {
+            df$CONST <- 1
+        }
+    }
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
