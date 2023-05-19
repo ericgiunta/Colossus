@@ -15,7 +15,7 @@ cox_ph_null(Control, df_groups, tu)
 \item{tu}{event times}
 }
 \value{
-LogLike_Cox_PH_null output : Log-likelihood of optimum, AIC
+LogLik_Cox_PH_null output : Log-likelihood of optimum, AIC
 }
 \description{
 Interface between R code and the Cox PH null model function

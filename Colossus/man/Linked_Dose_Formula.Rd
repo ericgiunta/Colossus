@@ -21,3 +21,10 @@ returns list of full parameters
 Calculates Full Parameter list for Special Dose Formula
 \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas
 }
+\examples{
+library(data.table)
+tforms <- list("cov_0"="quad", "cov_1"="exp")
+paras <- list("cov_0"=c(1,3.45), "cov_1"=c(1.2, 4.5, 0.1))
+full_paras <- Linked_Dose_Formula(tforms, paras)
+
+}

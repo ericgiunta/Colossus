@@ -18,8 +18,8 @@ RunPoissonRegression_Guesses(
   fir,
   der_iden,
   control,
-  Strat_Cols,
-  guesses_control
+  guesses_control,
+  Strat_Cols
 )
 }
 \arguments{
@@ -47,9 +47,9 @@ RunPoissonRegression_Guesses(
 
 \item{control}{list of parameters controlling the convergence}
 
-\item{Strat_Cols}{column to stratify by}
-
 \item{guesses_control}{list of parameters to control how the guessing works}
+
+\item{Strat_Cols}{column to stratify by}
 }
 \value{
 returns a list of the final results
@@ -57,4 +57,42 @@ returns a list of the final results
 \description{
 Performs basic poisson regression, with multiple guesses
 \code{RunPoissonRegression_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
+}
+\examples{
+library(data.table)
+## basic example code reproduced from the starting-description vignette
+
+df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+           "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+             "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+          "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+                      "a"=c(0,   1,   1,   0,   1,   0,   1),
+                      "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+                      "c"=c(10,  11,  10,  11,  12,  9,   11),
+                      "d"=c(0,   0,   0,   1,   1,   1,   1),
+                      "e"=c(0,   0,   1,   0,   0,   0,   1))
+# For the interval case
+df$pyr <- df$Ending_Age - df$Starting_Age
+pyr <- 'pyr'
+event <- "Cancer_Status"
+names <- c('a','b','c','d')
+a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+Term_n <- c(0,1,1,2)
+tform <- c("loglin","lin","lin","plin")
+modelform <- "M"
+fir <- 0
+
+keep_constant <- c(0,0,0,0)
+der_iden <- 0
+
+control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,'dbeta_max' = 0.5,
+             'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+             'verbose'=FALSE,'double_step'=1)
+guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1,
+                "loglin_max"=1,"lin_method"="uniform", "loglin_method"="uniform",strata=TRUE)
+Strat_Cols=c('e')
+
+e <- RunPoissonRegression_Guesses(df, pyr, event, names, Term_n, tform, keep_constant, a_n,
+     modelform, fir, der_iden, control, guesses_control, Strat_Cols)
+
 }

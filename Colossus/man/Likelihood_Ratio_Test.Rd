@@ -19,3 +19,12 @@ returns the score statistic
 Defines the likelihood ratio test
 \code{Likelihood_Ratio_Test} uses two models and calculates the ratio
 }
+\examples{
+library(data.table)
+#In an actual example, one would run two seperate RunCoxRegression regressions,
+#    assigning the results to e0 and e1
+e0 <- list("name"="First Model","LogLik"=-120)
+e1 <- list("name"="New Model","LogLik"=-100)
+score <- Likelihood_Ratio_Test(e1, e0)
+
+}

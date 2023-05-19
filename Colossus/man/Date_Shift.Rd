@@ -25,3 +25,15 @@ returns the updated dataframe
 Automates creating a date difference column
 \code{Date_Shift} generates a new dataframe with a column containing time difference in a given unit
 }
+\examples{
+library(data.table)
+m0 <- c(1,1,2,2)
+m1 <- c(2,2,3,3)
+d0 <- c(1,2,3,4)
+d1 <- c(6,7,8,9)
+y0 <- c(1990,1991,1997,1998)
+y1 <- c(2001,2003,2005,2006)
+df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+df <- Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since")
+
+}

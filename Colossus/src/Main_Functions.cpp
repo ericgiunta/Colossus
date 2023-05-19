@@ -119,9 +119,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     Rcout.precision(7); //forces higher precision numbers printed to terminal
     // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     //
-    //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
@@ -416,7 +414,6 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     vector<double> beta_a(totalnum,0.0);
     vector<double> beta_best(totalnum,0.0);
     vector<double> beta_p(totalnum,0.0);
-    //int //risk_check_iter=0;
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;// stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
@@ -424,7 +421,6 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     double Ll_best = 0.0; //a comparison log-likelihood
     double halves = 0; //number of half-steps taken
     int ind0 = fir; //used for validations
-    //int //i = ind0;
     int iteration=0; //iteration number
     //
     bool convgd = FALSE;
@@ -869,7 +865,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     List para_list = List::create(_["Term_n"]=Term_n,_["tforms"]=tform); //stores the term information
     List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst); //stores the total number of iterations used
     //
-    int kept_covs = totalnum - sum(KeepConstant);
+    int kept_covs = totalnum - sum(KeepConstant); //does not base the standard deviation off of constant parameters
     NumericVector Lldd_vec(kept_covs * kept_covs);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
@@ -989,7 +985,6 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
@@ -1232,7 +1227,6 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     double Ll_best = 0.0; //a comparison log-likelihood
     double halves = 0; //number of half-steps taken
     int ind0 = 0; //used for validations
-    //int //i = ind0;
     int iteration=0; //iteration number
     //
     int iter_stop =0; //tracks if the iterations should be stopped for convergence
@@ -1596,7 +1590,7 @@ List LogLik_Cox_PH_basic( NumericVector a_n,NumericMatrix x_all,IntegerVector df
     //
     List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst);//stores the total number of iterations used
     //
-    int kept_covs = totalnum - sum(KeepConstant);
+    int kept_covs = totalnum - sum(KeepConstant); //does not base the standard deviation off of constant parameters
     NumericVector Lldd_vec(kept_covs * kept_covs);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
@@ -1720,7 +1714,6 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
@@ -2453,7 +2446,6 @@ List Cox_PH_PLOT_SURV(IntegerVector Term_n, StringVector tform, NumericVector a_
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     if (verbose){
         end_point = system_clock::now();
@@ -2878,7 +2870,6 @@ List Schoenfeld_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector 
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     //
     if (verbose){
@@ -3087,7 +3078,6 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence    //
     if (verbose){
@@ -3875,7 +3865,6 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence    //
     if (verbose){
@@ -4689,7 +4678,6 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
     Rcout.precision(10); //forces higher precision numbers printed to terminal
     // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated    //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence    //
     //
@@ -5856,7 +5844,6 @@ List LogLik_Poisson_Single( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence    //
     if (verbose){
@@ -6101,7 +6088,6 @@ List LogLik_Cox_PH_CR( IntegerVector Term_n, StringVector tform, NumericVector a
     //
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    // totem: number of rows needed
     //
     //
     double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
@@ -6416,7 +6402,7 @@ List LogLik_Cox_PH_CR( IntegerVector Term_n, StringVector tform, NumericVector a
         beta_a = beta_c;//
         beta_best = beta_c;//
         //
-        // Calcualtes the initial change in parameter
+        // Calculates the initial change in parameter
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation

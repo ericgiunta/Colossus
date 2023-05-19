@@ -1,3 +1,46 @@
+#' Corrects the order of terms/formula/etc
+#' \code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues
+#'
+#' @param Term_n term numbers
+#' @param tform subterm formulas
+#' @param keep_constant binary values to denote which parameters to change
+#' @param a_n initial parameter guesses
+#' @param names column names
+#' @param verbose verbosity for printing
+#'
+#' @return returns the corrected lists
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' Term_n <- c(0,1,1,0,0)
+#' tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
+#' keep_constant <- c(0,0,0,1,0)
+#' a_n <- c(1,2,3,4,5)
+#' names <- c("a","a","a","a","a")
+#' val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+#' Term_n <- val$Term_n
+#' tform <- val$tform
+#' keep_constant <- val$keep_constant
+#' a_n <- val$a_n
+#' der_iden <- val$der_iden
+#' names <- val$names
+#'
+Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,verbose=FALSE){
+    df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names)
+    tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope",
+         "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
+    tform_iden <- match(tform,tform_order)
+    df$tform_order <- tform_iden
+    if (verbose){
+        print(df)
+    }
+    keycol <-c("Term_n","keep_constant","names","tform_order")
+    setorderv(df, keycol)
+    list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant, "a_n"=df$a_n, "der_iden"=df$der_iden, "names"=df$names)
+}
+
 #' Automatically assigns missing values in listed columns
 #' \code{Replace_Missing} checks each column and fills in NA values
 #'
@@ -8,7 +51,15 @@
 #'
 #' @return returns a filled datatable
 #' @export
-#'
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  NA,  47,  36,  NA,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
+#' df <- Replace_Missing(df, c("Starting_Age","Ending_Age"), 70)
 Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
     if (is.na(MSV)){
         if (verbose){
@@ -19,7 +70,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
     for (j in name_list){
         #
         if (j %in% names(df)){
-            ;
+            #fine
         } else {
             if (verbose){
                 print(paste(j," missing from column names",sep=""))
@@ -45,14 +96,18 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #'
 #' @return returns a filled list
 #' @export
+#' @examples
+#' library(data.table)
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+#' control <- Def_Control(control)
 #'
 Def_Control <- function(control){
-    control_def=list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0, 'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()), "cens_thres"=0)
+    control_def=list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,
+        'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+        'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()), "cens_thres"=0)
     for (nm in names(control_def)){
         if (nm %in% names(control)){
             if (nm=="Ncores"){
-#                print(control$Ncores)
-#                print(control_def$Ncores)
                 if (control$Ncores>control_def$Ncores){
                     if (control$verbose){
                         print(paste("Cores Requested:",control["Ncores"],", Cores Avaliable:",control_def["Ncores"],sep=" "))
@@ -61,7 +116,7 @@ Def_Control <- function(control){
                 }
             }
         } else {
-            control[nm] = control_def[nm]
+            control[nm] <- control_def[nm]
         }
     }
     return (control)
@@ -77,6 +132,11 @@ Def_Control <- function(control){
 #'
 #' @return returns list of full parameters
 #' @export
+#' @examples
+#' library(data.table)
+#' tforms <- list("cov_0"="quad", "cov_1"="exp")
+#' paras <- list("cov_0"=c(1,3.45), "cov_1"=c(1.2, 4.5, 0.1))
+#' full_paras <- Linked_Dose_Formula(tforms, paras)
 #'
 Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
     full_paras <- list()
@@ -92,7 +152,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
                 stop()
             }
             if (is.numeric(a0)){
-                ;
+                #fine
             } else {
                 if (verbose){
                     print("a0 arguement was not a number")
@@ -100,7 +160,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
                 stop()
             }
             if (is.numeric(y)){
-                ;
+                #fine
             } else {
                 if (verbose){
                     print("threshold arguement was not a number")
@@ -122,7 +182,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
                 stop()
             }
             if (is.numeric(a0)){
-                ;
+                #fine
             } else {
                 if (verbose){
                     print("a0 arguement was not a number")
@@ -130,7 +190,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
                 stop()
             }
             if (is.numeric(y)){
-                ;
+                #fine
             } else {
                 if (verbose){
                     print("threshold arguement was not a number")
@@ -138,7 +198,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
                 stop()
             }
             if (is.numeric(b1)){
-                ;
+                #fine
             } else {
                 if (verbose){
                     print("exponential arguement was not a number")
@@ -163,6 +223,12 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
 #'
 #' @return returns parameter used by Colossus
 #' @export
+#' @examples
+#' library(data.table)
+#' y <- 7.6
+#' a0 <- 1.2
+#' a1_goal <- 15
+#' full_paras <- Linked_Lin_Exp_Para(y,a0,a1_goal)
 #'
 Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
     b1 <- 10
@@ -174,7 +240,7 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
         stop()
     }
     if (a1_goal > y*a0){
-        ;
+        #fine
     } else {
         if (verbose){
             print("goal is too low")
@@ -183,44 +249,21 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
     }
     iter_i <- 0
     while (iter_i<100){
-        iter_i = iter_i + 1
+        iter_i <- iter_i + 1
         c1=log(a0/b1)+b1*y
         a1=a0*y+exp(c1-b1*y)
         a_dif <- a1-a1_goal
-#        if (abs(a_dif)<1e-3){
-#            stop()
-#        }
         if (abs(a_dif)<1e-3){
             break   
         }
         da1=-1/b1*exp(c1-b1*y)
-        db1=(a1_goal-a1)/da1#-b1*a1_goal*np.exp(b1*y-c1)+b1*a0*y*np.exp(b1*y-c1)+b1
+        db1=(a1_goal-a1)/da1
         if (-1*db1 > b1){
             db1=-0.9*b1
         }
-        b1 = b1 + lr*db1
+        b1 <- b1 + lr*db1
     }
     return (b1)
-}
-
-
-
-#' Opens a file for reading
-#' \code{Open_File} uses user provided file name, time columns, and event column to load and sort.
-#'
-#' @param fname a string file name
-#' @param time1 a column name defining the start of time periods, sorted third
-#' @param time2 a column name defining the end of time periods, sorted first
-#' @param event0 a column name defining the events, sorted second
-#'
-#' @return returns a sorted dataframe
-#' @export
-#'
-Open_File <- function(fname,time1="age_start", time2="age_exit", event0="cases"){
-    colTypes=c("integer","double","double","double","integer","character","integer","integer","character","integer","integer", "integer","integer","character","character","character","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=TRUE,fill=TRUE)
-    setkeyv(df, c(time2, event0,time1))
-    return (df)
 }
 
 #' Splits a parameter into factors
@@ -233,12 +276,22 @@ Open_File <- function(fname,time1="age_start", time2="age_exit", event0="cases")
 #'
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
+#' @examples
+#' library(data.table)
+#' a <- c(0,1,2,3,4,5,6)
+#' b <- c(1,2,3,4,5,6,7)
+#' c <- c(0,1,2,1,0,1,0)
+#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' col_list <- c("c")
+#' val <- factorize(df,col_list)
+#' df <- val$df
+#' new_col <- val$cols
 #'
 factorize <-function(df,col_list,verbose=FALSE){
     cols <- c()
     col0 <- names(df)
     tnum <- c()
-    for (i in 1:length(col_list)){
+    for (i in seq_len(length(col_list))){
         col <- col_list[i]
         x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))
         for (j in x){
@@ -251,11 +304,10 @@ factorize <-function(df,col_list,verbose=FALSE){
     #
     cols <- setdiff(names(df), col0)
     #
-    cols <- Check_Dupe_Columns(df,cols,rep(0,length(cols)),verbose)
+    cols <- Check_Dupe_Columns(df,cols,rep(0,length(cols)),verbose,TRUE)
     if (verbose){
         print(paste("Number of factors:",length(cols),sep=""))
     }
-#    print(df)
     list('df'=df, 'cols'=cols)
 }
 
@@ -271,13 +323,23 @@ factorize <-function(df,col_list,verbose=FALSE){
 #'
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
+#' @examples
+#' library(data.table)
+#' a <- c(0,1,2,3,4,5,6)
+#' b <- c(1,2,3,4,5,6,7)
+#' c <- c(0,1,2,1,0,1,0)
+#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' col_list <- c("c")
+#' val <- factorize_par(df,col_list)
+#' df <- val$df
+#' new_col <- val$cols
 #'
 factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCores())){
     cols <- c()
     vals <- c()
     names <- c()
     col0 <- names(df)
-    for (i in 1:length(col_list)){
+    for (i in seq_len(length(col_list))){
         col <- col_list[i]
         x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))
         for (j in x){
@@ -289,27 +351,16 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
             ##
         }
     }
-#    print(names)
     #
-    df0 <- Gen_Fac_Par(as.matrix(df[, ..col_list,with=FALSE]), vals, cols, nthreads)
-#    print(df0)
+    df0 <- Gen_Fac_Par(as.matrix(df[, col_list,with=FALSE]), vals, cols, nthreads)
     df0 <- as.data.table(df0)
-#    print("++++++++")
     names(df0) <- names
     #
-    col_keep <- Check_Dupe_Columns(df0,names,rep(0,length(cols)),verbose)
+    col_keep <- Check_Dupe_Columns(df0,names,rep(0,length(cols)),verbose,TRUE)
     #
     #
     list('df'=cbind(df,df0), 'cols'=col_keep)
 }
-
-
-
-
-
-
-
-
 
 
 #' Defines Interactions
@@ -322,10 +373,21 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 #'
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
-#'
+#' @examples
+#' library(data.table)
+#' a <- c(0,1,2,3,4,5,6)
+#' b <- c(1,2,3,4,5,6,7)
+#' c <- c(0,1,2,1,0,1,0)
+#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' interactions <- c("a?+?b","a?*?c")
+#' new_names <- c("ab","ac")
+#' vals <- interact_them(df, interactions, new_names)
+#' df <- vals$df
+#' new_col <- vals$cols
+#' 
 interact_them <- function(df,interactions,new_names,verbose=FALSE){
     cols <- c()
-    for (i in 1:length(interactions)){
+    for (i in seq_len(length(interactions))){
         interac <- interactions[i]
         formula <- unlist(strsplit(interac,"[?]"),use.names=FALSE)
         if (length(formula)!=3){
@@ -340,9 +402,9 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
         }
         col1 <- formula[1]
         col2 <- formula[3]
-        if (paste(formula[1],"?",formula[2],"?",formula[3],sep="") %in% interactions[i+1:length(interactions)]){
+        if (paste(formula[1],"?",formula[2],"?",formula[3],sep="") %in% interactions[i+seq_len(length(interactions))]){
             "its duped"
-        } else if (paste(formula[3],"?",formula[2],"?",formula[1],sep="") %in% interactions[i+1:length(interactions)]){
+        } else if (paste(formula[3],"?",formula[2],"?",formula[1],sep="") %in% interactions[i+seq_len(length(interactions))]){
             "the reverse is duped"
         } else {
             if (formula[2]=="+"){
@@ -370,6 +432,13 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
 #'
 #' @return returns the score statistic
 #' @export
+#' @examples
+#' library(data.table)
+#' #In an actual example, one would run two seperate RunCoxRegression regressions,
+#' #    assigning the results to e0 and e1
+#' e0 <- list("name"="First Model","LogLik"=-120)
+#' e1 <- list("name"="New Model","LogLik"=-100)
+#' score <- Likelihood_Ratio_Test(e1, e0)
 #'
 Likelihood_Ratio_Test <- function(alternative_model, null_model){
     if (("LogLik" %in% names(alternative_model))&&("LogLik" %in% names(null_model))){
@@ -380,19 +449,6 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 }
 
 
-#' Calculates a chi-squared value, used in a non-functioning bounds formula
-#' \code{get_conf_int} uses an interval parameter to return the score statistic
-#'
-#' @param alpha decimal 1 - (confidence interval)
-#'
-#' @return returns the score statistic
-#' @export
-#'
-get_conf_int <-function(alpha=0.95){
-    q1 <- qchisq(1-alpha, df=1)
-    return (q1)
-}
-
 
 #' checks for duplicated column names
 #' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
@@ -401,17 +457,27 @@ get_conf_int <-function(alpha=0.95){
 #' @param cols columns to check
 #' @param term_n term numbers
 #' @param verbose verbosity
+#' @param factor_check a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns
 #'
 #' @return returns the usable columns
 #' @export
+#' @examples
+#' library(data.table)
+#' a <- c(0,1,2,3,4,5,6)
+#' b <- c(1,2,3,4,5,6,7)
+#' c <- c(0,1,2,1,0,1,0)
+#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' cols <- c("a","b","c")
+#' term_n <- c(0,0,1)
+#' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 #'
-Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE){
+Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE){
     ##
     if (length(cols)>1){
         features_pair <- combn(cols, 2, simplify = F) # list all column pairs
         terms_pair <- combn(term_n, 2, simplify = F) # list all term pairs
         toRemove <- c() # init a vector to store duplicates
-        for(pair_n in 1:length(features_pair)) { # put the pairs for testing into temp objects
+        for(pair_n in seq_len(length(features_pair))) { # put the pairs for testing into temp objects
             pair <- unlist(features_pair[pair_n])
             term <- unlist(terms_pair[pair_n])
             f1 <- pair[1]
@@ -419,9 +485,17 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE){
             t1 <- term[1]
             t2 <- term[2]
             #
-            a1 <- unlist(strsplit(f1,split="_"),use.names=FALSE)[1]
-            a2 <- unlist(strsplit(f2,split="_"),use.names=FALSE)[1]
-            if ((t1==t2)&(a1!=a2)){
+            checked_factor <- TRUE
+            if (factor_check){
+                a1 <- unlist(strsplit(f1,split="_"),use.names=FALSE)[1]
+                a2 <- unlist(strsplit(f2,split="_"),use.names=FALSE)[1]
+                if (a1!=a2){
+                    checked_factor <- TRUE
+                } else {
+                    checked_factor <- FALSE
+                }
+            }
+            if ((t1==t2)&(checked_factor)){
                 df[,get(f1)]
                 df[,get(f2)]
                 if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
@@ -473,6 +547,20 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE){
 #'
 #' @return returns the updated data and time period columns
 #' @export
+#' @examples
+#' library(data.table)
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' ce <- c("%trunc%","Ending_Age")
+#' val <- Check_Trunc(df, ce)
+#' df <- val$df
+#' ce <- val$ce
 #'
 Check_Trunc <- function(df,ce,verbose=FALSE){
     if (ce[1]=="%trunc%"){
@@ -516,6 +604,25 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #'
 #' @return returns the updated dataframe
 #' @export
+#' @examples
+#' library(data.table)
+#' #Adapted from the tests
+#' a <- c(20,20,5,10,15)
+#' b <- c(1,2,1,1,2)
+#' c <- c(0,0,1,1,1)
+#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' time1="%trunc%"
+#' time2="a"
+#' event="c"
+#' control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,
+#'            'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'            'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' grt_f <- function(df,time_col){
+#'     return ((df[,"b"] * df[,get(time_col)])[[1]])
+#' }
+#' func_form <- c("lin")
+#' df_new <- gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),
+#'        c(grt_f),paste("test","_new.csv",sep=""), func_form)
 #'
 gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_cols, func_form,fname, tform){
     dfn <- names(df)
@@ -527,12 +634,12 @@ gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_col
     time1 <- ce[2]
     dfn_same <- dfn[!(dfn %in% dep_cols)]
     dfn_dep <- c()
-    for (i in 1:length(new_names)){
+    for (i in seq_len(length(new_names))){
         name0 <- paste(new_names[i],0,sep="_")
         name1 <- paste(new_names[i],1,sep="_")
         func <- func_form[i]
-        df[, name0] = lapply(func, function(f) f(df, time0))
-        df[, name1] = lapply(func, function(f) f(df, time1))
+        df[, name0] <- lapply(func, function(f) f(df, time0))
+        df[, name1] <- lapply(func, function(f) f(df, time1))
         dfn_dep <- c(dfn_dep, name0, name1)
     }
     #
@@ -551,13 +658,13 @@ gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_col
         #
     }
     ##
-    x_time = as.matrix(df[,dfn_time, with = FALSE])
-    x_dep = as.matrix(df[,dfn_dep, with = FALSE])
-    x_same = as.matrix(df[,dfn_same, with = FALSE])
-    x_event = as.matrix(df[,dfn_event, with = FALSE])
+    x_time <- as.matrix(df[,dfn_time, with = FALSE])
+    x_dep <- as.matrix(df[,dfn_dep, with = FALSE])
+    x_same <- as.matrix(df[,dfn_same, with = FALSE])
+    x_event <- as.matrix(df[,dfn_event, with = FALSE])
     #
     if (grepl(".csv", fname, fixed = TRUE)){
-        ;
+        #fine
     } else {
         fname <- paste(fname,".csv",sep="_")
     }
@@ -578,16 +685,29 @@ gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_col
 #'
 #' @return returns the updated dataframe
 #' @export
+#' @examples
+#' library(data.table)
+#' m0 <- c(1,1,2,2)
+#' m1 <- c(2,2,3,3)
+#' d0 <- c(1,2,3,4)
+#' d1 <- c(6,7,8,9)
+#' y0 <- c(1990,1991,1997,1998)
+#' y1 <- c(2001,2003,2005,2006)
+#' df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+#' df <- Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since")
 #'
 Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
     def_cols <- names(df)
     #
-    df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
-    df$dt1 <- paste(df[[match(dcol1[1],names(df))]],df[[match(dcol1[2],names(df))]],df[[match(dcol1[3],names(df))]],sep="-")
+    df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],
+              df[[match(dcol0[3],names(df))]],sep="-")
+    df$dt1 <- paste(df[[match(dcol1[1],names(df))]],df[[match(dcol1[2],names(df))]],
+              df[[match(dcol1[3],names(df))]],sep="-")
     #
     # TO NOT ENCOUNTER DAYLIGHT SAVINGS ISSUES, THE UTC TIMEZONE IS USED
     # IF NOT USED THEN RESULTS MAY HAVE TIMES OFF BY 1/24 decimals
-    df[, col_name] = difftime(strptime(df$dt1, format = "%m-%d-%Y",tz = 'UTC'), strptime(df$dt0,  format = "%m-%d-%Y"), units = units,tz = 'UTC')
+    df[, col_name] <- difftime(strptime(df$dt1, format = "%m-%d-%Y",tz = 'UTC'), 
+                   strptime(df$dt0,  format = "%m-%d-%Y"), units = units,tz = 'UTC')
     def_cols <- c(def_cols, col_name)
     return (df[,def_cols,with=FALSE])
 }
@@ -603,6 +723,17 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
 #'
 #' @return returns the updated dataframe
 #' @export
+#' @examples
+#' library(data.table)
+#'m0 <- c(1,1,2,2)
+#'m1 <- c(2,2,3,3)
+#'d0 <- c(1,2,3,4)
+#'d1 <- c(6,7,8,9)
+#'y0 <- c(1990,1991,1997,1998)
+#'y1 <- c(2001,2003,2005,2006)
+#'df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+#'tref <- strptime( "3-22-1997", format = "%m-%d-%Y",tz = 'UTC')
+#'df <- Time_Since(df,c("m1","d1","y1"),tref,"date_since")
 #'
 Time_Since <- function(df, dcol0, tref, col_name, units="days"){
     def_cols <- names(df)
@@ -610,101 +741,8 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
     df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
     #
     #
-    df[, col_name] = lapply(df$dt0, function(x) (difftime(strptime(x,  format = "%m-%d-%Y",tz = 'UTC'), tref, units = units)))
+    df[, col_name] <- lapply(df$dt0, function(x) (difftime(strptime(x,  format = "%m-%d-%Y",tz = 'UTC'), tref, units = units)))
     def_cols <- c(def_cols, col_name)
     return (df[,def_cols,with=FALSE])
 }
-
-
-#' Checks for clusters of scores
-#' \code{Check_Cluster} generates the center of a cluster
-#'
-#' @param df dataframe of data to use as reference
-#' @param names list of columns names
-#' @param dev_column column with scores
-#'
-#' @return returns the updated dataframe
-#' @export
-#'
-Check_Cluster <- function(df,names,dev_column){
-    #
-    if (nrow(df)<2){
-        stop()
-    }
-    if (dev_column %in% names(df)){
-        ;
-    } else {
-        stop()
-    }
-    for (j in 1:length(names)){
-        if (names[j] %in% names(df)){
-            ;
-        } else {
-            stop()
-        }
-    }
-    #
-    setkeyv(df, c(dev_column))
-    all_names <- c(names,dev_column)
-    df <- df[,all_names, with = FALSE]
-    #
-    #
-    a_n <- rep(0,length(df[1])-1)
-    #
-    score_ref <- unlist(df[1,dev_column,with=FALSE],use.names=FALSE)
-    a_n_ref <- unlist(df[1,names,with=FALSE],use.names=FALSE)
-    a_n_match <- rep(0,length(a_n))
-    for (i in 2:nrow(df)){
-        #
-        #
-        score_temp <- unlist(df[i,dev_column,with=FALSE],use.names=FALSE)
-        a_n_temp <- unlist(df[i,names,with=FALSE],use.names=FALSE)
-        #
-        #
-        a_n_dif <- 0
-        if (abs(score_ref-score_temp)/score_ref > 0.1){
-            for (j in 1:length(a_n)){
-                if (a_n_match[j]>=(i-2)*0.9){
-                    a_n_match[j]=1
-                    a_n[j] = a_n_ref[j]
-                } else {
-                    a_n_match[j]=0
-                    a_n[j] = 0
-                }
-            }
-            return (list("a_n"=a_n,"guess_constant"=a_n_match))
-        }
-        for (j in 1:length(a_n)){
-            a_n_dif=abs(a_n_ref[j]-a_n_temp[j])
-            a_n_dif=a_n_dif/abs(a_n_ref[j])
-            if (abs(a_n_ref[j]-a_n_temp[j])/abs(a_n_ref[j]) < 0.1){
-                a_n_match[j] = a_n_match[j] + 1
-            }
-        }
-    }
-    for (j in 1:length(a_n)){
-        if (a_n_match[j]>=(length(a_n)-1)*0.9){
-            a_n_match[j]=1
-            a_n[j] = a_n_ref[j]
-        } else {
-            a_n_match[j]=0
-            a_n[j] = 0
-        }
-    }
-    return (list("a_n"=a_n,"guess_constant"=a_n_match))
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

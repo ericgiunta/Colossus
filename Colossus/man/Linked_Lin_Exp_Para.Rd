@@ -23,3 +23,11 @@ returns parameter used by Colossus
 Calculates The Additional Parameter For a linear-exponential formula with known maximum
 \code{Linked_Lin_Exp_Para} Calculates what the additional parameter would be for a desired maximum
 }
+\examples{
+library(data.table)
+y <- 7.6
+a0 <- 1.2
+a1_goal <- 15
+full_paras <- Linked_Lin_Exp_Para(y,a0,a1_goal)
+
+}

@@ -40,7 +40,7 @@ The risks calculated for Cox Proportional Hazards and Poisson regressions are ge
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda(\alpha,z, \beta, x) = (1+\alpha*z \times \exp{(\beta \times x})}) \\
+    \lambda(\alpha,z, \beta, x) = (1+\alpha*z \times \exp{(\beta \times x)})\\
     E(\alpha,z, \beta, x, t) =  \lambda(\alpha,z, \beta, x) * t
 \end{aligned}
 $$
@@ -58,5 +58,36 @@ g
 ```
 
 In this plot, the ranges of missing data show points which are infeasible. The goal of regression is reduce the Log-Likelihood close to 0, so the solution would be near the point $(-2,-2)$. If the regression started near the origin it may end up in either of the infeasible ranges. The user might catch this issue before-hand and start the regression carefully to avoid the infeasible ranges. Colossus can automate this process by sampling across a range of possible values and automatically remove infeasible points.
+
+## Provided Functions
+
+| Function  | Description |
+| :---------: | :----------: |
+| RunCoxRegression_Guesses  | Repeats Cox Proportional Hazards regression at random points, then runs the best for more iterations |
+| RunCoxRegression_Tier_Guesses | Repeats Cox Proportional Hazards regression for subset of terms, then repeats with full model |
+| RunPoissonRegression_Guesses | Repeats Poisson regression at random points, then runs the best for more iterations |
+| RunPoissonRegression_Tier_Guesses | Repeats Poisson regression for subset of terms, then repeats with full model |
+| RunPoissonRegression_Strata_First | Repeats Poisson regression for just the stratification terms, then repeats with full model |
+
+All of which use the same parameters the respective Cox Proportional Hazards and Poisson regression functions use, with the addition of a control term listing options for the guessing process.
+
+| Option | Description |
+| :---------: | :----------: |
+| Iterations | Iterations run for every random starting point |
+| guesses | Number of starting points to test |
+| guesses_start | Number of starting points tested for Tiered or Strata First regressions |
+| guess_constant | Binary values to denote if any parameter values shouldn't be randomized |
+| lin_min | Lower bound on linear parameter values |
+| lin_max | Upper bound on linear parameter values |
+| loglin_min | Lower bound on log-linear parameter values |
+| loglin_max | Upper bound on log-linear parameter values |
+| lin_method | How to generate linear randomized values, only supports "uniform" currently |
+| loglin_method | How to generate log-linear randomized values, only supports "uniform" currently |
+| strata | True/False if stratification is used |
+| term_initial | List of term numbers to run first if Tiered guessing is used |
+| verbose | True/False if a csv of random start results is saved to "last_guess.csv" |
+
+
+
 
 

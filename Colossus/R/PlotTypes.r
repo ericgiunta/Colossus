@@ -15,7 +15,6 @@
 #' @param studyID id to group by, NaN for no grouping
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-#' @export
 #'
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Plot_Name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
@@ -33,16 +32,18 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
     if (verbose){
         print("Cumulative Hazard Functions Estimated")
     }
-    for (cov_i in 1:length(dnames)){
+    for (cov_i in seq_len(length(dnames))){
         dname <- dnames[cov_i]
         if (verbose){
             print(paste("Martingale Plot: ",dname,sep=""))
         }
         if (studyID %in% names(df)){
-            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
+            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
+                "IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),
+                "time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
             #
             name_temp <- names(dfr)
-            for (i in 1:length(name_temp)){
+            for (i in seq_len(length(name_temp))){
                 if (grepl( "cov", name_temp[i], fixed = TRUE)){
                     setnames(dfr,name_temp[i],c("cov"))
                 } else if (grepl( "IDS", name_temp[i], fixed = TRUE)){
@@ -50,16 +51,17 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
                 }
             }
             #
-            dfr$res = dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
+            dfr$res <- dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
             #
             #
             Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
             times <- dfr[, lapply(.SD,max), by=IDS]
         } else {
-            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
+            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e,
+                "cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
             #
             name_temp <- names(dfr)
-            for (i in 1:length(name_temp)){
+            for (i in seq_len(length(name_temp))){
                 if (grepl( "cov", name_temp[i], fixed = TRUE)){
                     setnames(dfr,name_temp[i],c("cov"))
                 } else if (grepl( "IDS", name_temp[i], fixed = TRUE)){
@@ -67,7 +69,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
                 }
             }
             #
-            dfr$res = dfr$e - (dfr$ch_e) * dfr$Risks
+            dfr$res <- dfr$e - (dfr$ch_e) * dfr$Risks
             #
             Martingale_Error <- dfr
             times <- dfr
@@ -79,23 +81,26 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
         }
         dft <- data.table("cov_max"=times$cov,"time_max"=times$time,"res_sum"=Martingale_Error$res)
         ##
-        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$cov_max, y=.data$res_sum)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$cov_max, y=.data$res_sum)) +
+             ggplot2::geom_point(color="black") +
+             ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
         ggplot2::ggsave(paste('martin_plot_',dname,Plot_Name,'.jpg',sep="_"),device="jpeg",dpi="retina")
         ##
     }
     #
     if (studyID %in% names(df)){
-        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),"time"=time_e)
+        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
+                       "IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),"time"=time_e)
         #
         #
         name_temp <- names(dfr)
-        for (i in 1:length(name_temp)){
+        for (i in seq_len(length(name_temp))){
             if (grepl( "IDS", name_temp[i], fixed = TRUE)){
                 setnames(dfr,name_temp[i],c("IDS"))
             }
         }
         #
-        dfr$res = dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
+        dfr$res <- dfr$e - (dfr$ch_e-dfr$ch_s) * dfr$Risks
         #
         Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
         times <- dfr[, lapply(.SD,max), by=IDS]
@@ -103,20 +108,22 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
         dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e)
         #
         name_temp <- names(dfr)
-        for (i in 1:length(name_temp)){
+        for (i in seq_len(length(name_temp))){
             if (grepl( "IDS", name_temp[i], fixed = TRUE)){
                 setnames(dfr,name_temp[i],c("IDS"))
             }
         }
         #
-        dfr$res = dfr$e - (dfr$ch_e) * dfr$Risks
+        dfr$res <- dfr$e - (dfr$ch_e) * dfr$Risks
         #
         Martingale_Error <- dfr
         times <- dfr
     }
     dft <- data.table("time_max"=times$time,"res_sum"=Martingale_Error$res)
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("Max Age",sep=" "), y="Martingale Residuals")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) +
+        ggplot2::geom_point(color="black") +
+        ggplot2::labs(x=paste("Max Age",sep=" "), y="Martingale Residuals")
     ggplot2::ggsave(paste('martin_plot',Plot_Name,'.jpg',sep='_'),device="jpeg",dpi="retina")
     ##
     return ("passed")
@@ -135,7 +142,6 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 #' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-#' @export
 CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
     if (verbose){
         print("Survival Plots")
@@ -145,13 +151,16 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
     setkeyv(dft,"t")
     dft <- dft[(t>=time_lims[1])&(t<=time_lims[2]),]
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) + ggplot2::geom_point(color="black") +
+        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
     ggplot2::ggsave(paste('ggplot2_ch_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) + ggplot2::geom_point(color="black")  +
+        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
     ggplot2::ggsave(paste('ggplot2_surv_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) + ggplot2::geom_point(color="black")
+        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
     ggplot2::ggsave(paste('ggplot2_H_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     #
     return ("passed")
@@ -182,7 +191,6 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-#' @export
 CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit){
     if (verbose){
         print("KM Plots")
@@ -192,12 +200,11 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
     all_names <- unique(names)
     dfc <- match(names,all_names)
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
-#    stop()
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     df_study <- df[, lapply(.SD,max), by=studyID]
     #
-    for (fir_KM in 1:length(all_names)){
+    for (fir_KM in seq_len(length(all_names))){
         if (verbose){
             print(fir_KM)
         }
@@ -210,9 +217,9 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
         df_u_end <- df_u[get(event0)==1, ]
         df_l_end <- df_l[get(event0)==1, ]
         #
-        u_num = length(unlist(unique(df_u[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in upper set
-        l_num = length(unlist(unique(df_l[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in lower set
-        t_num = length(unlist(unique(df_study[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in total set
+        u_num <- length(unlist(unique(df_u[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in upper set
+        l_num <- length(unlist(unique(df_l[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in lower set
+        t_num <- length(unlist(unique(df_study[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in total set
         #
         t_u <- c(0) #time data
         t_l <- c(0)
@@ -221,39 +228,32 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
         n_l <- c(1)
         n_t <- c(1)
         iden <- c("above","below","combined") #list of which set
-#        n_l <- c(1)
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)) #all event times
         #
         if (verbose){
             print("Starting KM Plots")
         }
-#        stop()
         #
         tu_s <- c(0.0,tu)
-        for (i_t in 1:length(tu)){
+        for (i_t in seq_len(length(tu))){
             i <- tu[i_t]
             #
-#            print("----------")
-#            print(i)
             #
             df0 <- df_u_end[get(time2)<=i,] #set of all intervals prior to this point in upper set
             df0 <- df0[(get(time2)>tu_s[i_t]),]
             df1 <- df_u[(get(time2)>tu_s[i_t]),]
-            u_ev = sum(df0[, get(event0)]) #number of intervals with event in upper set prior to the time point
-            u_num = nrow(df1)
-#            print("0")
+            u_ev <- sum(df0[, get(event0)]) #number of intervals with event in upper set prior to the time point
+            u_num <- nrow(df1)
             df0 <- df_l_end[get(time2)<=i,] #set of all intervals prior to this point in lower set
             df0 <- df0[(get(time2)>tu_s[i_t]),]
             df1 <- df_l[(get(time2)>tu_s[i_t]),]
-            l_ev = sum(df0[, get(event0)]) #number of intervals with event in lower set prior to the time point
-            l_num = nrow(df1)
-#            print("1")
+            l_ev <- sum(df0[, get(event0)]) #number of intervals with event in lower set prior to the time point
+            l_num <- nrow(df1)
             df0 <- dfend[get(time2)<=i,] #set of all intervals prior to this point in lower setv
             df0 <- df0[(get(time2)>tu_s[i_t]),]
             df1 <- df_study[(get(time2)>tu_s[i_t]),]
-            t_ev = sum(df0[, get(event0)]) #number of intervals with event in lower set prior to the time point
-            t_num = nrow(df1)
-#            print("2")
+            t_ev <- sum(df0[, get(event0)]) #number of intervals with event in lower set prior to the time point
+            t_num <- nrow(df1)
             #
             if (u_ev>0){ #if there are events in the upper set
                 t_u <- c(t_u,i) #adds new time
@@ -270,24 +270,22 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
                 t_t <- c(t_t,i)
                 n_t <- c(n_t, n_t[length(n_t)]*temp)
             }
-#            print("3")
         }
-#        print(iden)
         n <- c(n_u,n_l,n_t)
         t <- c(t_u,t_l,t_t)
         iden <- c(rep("above",length(n_u)),rep("below",length(n_l)),rep("combined",length(n_t)))
         #
         dft <- data.table("t_u"=t,"n_u"=n,"iden"=iden)
         #
-        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u,color=.data$iden)) + ggplot2::geom_line() + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u,color=.data$iden)) + ggplot2::geom_line() +
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
         g <- g + ggplot2::scale_color_discrete(name = all_names[fir_KM])
         ggplot2::ggsave(paste("KM_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-#        stop()
         #
         df_u <- df[get(all_names[fir_KM])>=fmean,] #data above the mean
         df_l <- df[get(all_names[fir_KM])<=fmean,] #data below the mean
         #
-        x_all=as.matrix(df_l[,all_names, with = FALSE])
+        x_all <- as.matrix(df_l[,all_names, with = FALSE])
         dfend <- df_l[get(event0)==1, ]
         #
         #
@@ -297,10 +295,11 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
         #
         #
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e0 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df_l[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        e0 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
+            as.matrix(df_l[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
         tu0 <- tu
         ##
-        x_all=as.matrix(df_u[,all_names, with = FALSE])
+        x_all <- as.matrix(df_u[,all_names, with = FALSE])
         dfend <- df_u[get(event0)==1, ]
         #
         #
@@ -309,10 +308,11 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
         }
         #
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e1 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df_u[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        e1 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
+            as.matrix(df_u[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
         tu1 <- tu
         ##
-        x_all=as.matrix(df[,all_names, with = FALSE])
+        x_all <- as.matrix(df[,all_names, with = FALSE])
         dfend <- df[get(event0)==1, ]
         #
         #
@@ -321,7 +321,8 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
         }
         #
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e2 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        e2 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
         tu2 <- tu
         tmin <- min(c(min(tu0),min(tu1),min(tu2)))
         t <- c(tmin,tmin,tmin)
@@ -362,11 +363,11 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
         dft <- data.table("t"=Lt_u,"s"=Lls_u,"iden"=iden)
         #
 
-        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s,color=.data$iden)) + ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
+        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s,color=.data$iden)) +
+             ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
         g <- g + ggplot2::scale_color_discrete(name = all_names[fir_KM]) 
         ggplot2::ggsave(paste("log_log_surv_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
     }
-    ;
     return ("passed")
 }
 
@@ -393,9 +394,8 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 #' @param er standard deviation of optimum parameters used
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-#' @export
 CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er){
-    fir_KM=0
+    fir_KM <- 0
     dfend <- df[get(event0)==1, ]
     #
     ce <- c(time1,time2,event0)
@@ -403,80 +403,37 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
     if (verbose){
         print("start risk calculations")
     }
-    for (fir_KM in 1:length(names)){
+    for (fir_KM in seq_len(length(names))){
         lfir <- c(names[fir_KM])
         uniq <- unlist(unique(df[,lfir, with = FALSE]), use.names=FALSE)
         #
         der_iden <- fir_KM-1
-#        print(lfir)
-#        print(min(uniq))
-#        print(max(uniq))
-        if (TRUE){
-            #    cox_ph_plot(Term_n, tform, a_n, a_er,dfc,x_all, fir, der_iden, modelform, Control, df_groups,                        tu, KeepConstant,  term_tot, Plot_Type , uniq_v)
+        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type ,length(uniq))
+        x <- e$x
+        y <- e$y
+        #
+        dft <- data.table("x"=x,"y"=y)
+        if (length(uniq)>100){
             #
-#            print("in")
-            e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type ,length(uniq))
-#            print("out")
-            x <- e$x
-            y <- e$y
+            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_line(color="black") +
+                 ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
             #
-#            stop()
-#            print(length(x))
-#            print(length(y))
-            if (TRUE){
-                dft <- data.table("x"=x,"y"=y)
-#                print(c(x[1],x[length(x)]))
-                if (length(uniq)>100){
-                    #
-                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_line(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-                    #
-                } else {
-                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-                    #
-                }
-            } else {
-#                print(length(x))
-                a_n[fir_KM] <- b[fir_KM] - er[fir_KM]
-                #
-                e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , length(uniq))
-                xl <- e$x
-                yl <- e$y
-                #
-                a_n[fir_KM] <- b[fir_KM] + er[fir_KM]
-                #
-                e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , length(uniq))
-                xu <- e$x
-                yu <- e$y
-                #
-                dft <- data.table("xu"=xu,"yu"=yu,"xl"=xl,"yl"=yl,"x"=x,"y"=y)
-                if (length(uniq)>100){
-                    #
-                    print(length(x))
-                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_line(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xl, y=.data$yl), color="black")
-                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xu, y=.data$yu), color="black")
-                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-                    #
-                } else {
-                    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xl, y=.data$yl), color="black")
-                    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$xu, y=.data$yu), color="black")
-                    ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-                    #
-                }
-            }
+        } else {
+            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_point(color="black") +
+                 ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+            #
         }
         #
     }
-    ;
     return ("passed")
 }
 
@@ -505,7 +462,6 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
 #' @param age_unit age unit
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-#' @export
 CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims, age_unit){
     setkeyv(df, c(time2, event0, Strat_Col))
     dfend <- df[get(event0)==1, ]
@@ -516,11 +472,12 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
-    e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+    e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
     a_n <- e$beta_0
     Plot_Name <- Plot_Type[2]
     if (verbose){
@@ -528,7 +485,6 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         print(uniq)
         print(a_n)
     }
-#    jpeg(paste('surv_plot',Strat_Col,Plot_Name,'.jpg',sep="_"), units="in", width=5, height=5, res=1200)
     tt <- c()
     tsurv <- c()
     categ <- c()
@@ -538,10 +494,11 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         }
         df0 <- df[get(Strat_Col)==col_u,]
         dfend <- df0[get(event0)==1, ]
-        x_all=as.matrix(df0[,all_names, with = FALSE])
+        x_all <- as.matrix(df0[,all_names, with = FALSE])
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
         #
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df0[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
+            as.matrix(df0[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
         #
         t <- c()
         h <- c()
@@ -550,12 +507,11 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         dt <- 1
         if (verbose){
             print("writing survival data")
-#            print(time_lims)
         }
         dft=data.table("time"=tu,"base"=e$baseline)
         if (verbose){
             print(dft)
-            ;
+            #fine
         }
         for (i in tu){
             if ((i<=time_lims[2])&(i>=time_lims[1])){
@@ -580,86 +536,21 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     dft=data.table("t"=tt,"surv"=tsurv,"cat_group"=categ)
     sbreaks <- c()
     slabels <- c()
-    for (i in 1:length(uniq)){
+    for (i in seq_len(length(uniq))){
         sbreaks <- c(sbreaks, paste(uniq[i]))
         slabels <- c(slabels, paste("For ",Strat_Col,"=",uniq[i],sep=""))
     }
     if (verbose){
         print("plotting survival data")
-#            print(t)
     }
-    g <- ggplot2::ggplot() + ggplot2::geom_point(data=dft,ggplot2::aes(x=.data$t, y=.data$surv,group=.data$cat_group,color=.data$cat_group))#, direction="vh")
+    g <- ggplot2::ggplot() + ggplot2::geom_point(data=dft,
+         ggplot2::aes(x=.data$t, y=.data$surv,group=.data$cat_group,color=.data$cat_group))#, direction="vh")
     g <- g + ggplot2::scale_colour_discrete(breaks=sbreaks, labels=slabels)
     g <- g + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival") + ggplot2::ylim(0,1)
     if (verbose){
         print("saving survival data")
     }
     ggplot2::ggsave(paste('strat_surv_plot',Strat_Col,Plot_Name,'.jpg',sep="_"),device="jpeg",dpi="retina")
-    ;
-    return ("passed")
-}
-        
-        
-#' calculates a smoothing factor
-#' \code{K_Smooth} calculates 3/4 of (1-x)^2
-#'
-#' @param x point to smooth using
-#'
-#' @return returns the smoothing factor
-#' @export
-#'
-K_Smooth <- function(x){
-    return (0.75*(1-x^2))
-}
-
-#' calculates and plots survival plots of the smoothed estimated baseline hazard
-#' \code{CoxSmoothHazard} uses user provided data, band-width, and identifier to create plots
-#'
-#' @param dft dataframe of times and hazards
-#' @param Plot_Name plot identifier
-#' @param verbose boolean controlling additional printing
-#' @param bw band-width used for smoothing
-#' @param time_lims limits for x axis of plot
-#' @param age_unit age unit
-#'
-#' @return saves the plots in the current directory and returns a string that it passed
-#' @export
-CoxSmoothHazard <- function(dft,Plot_Name,verbose,bw,time_lims, age_unit){ 
-    if (verbose){
-        print("writing survival data")
-    }
-    tu=dft$time
-    base=dft$base
-    base_er=dft$basehaz
-    ti <- seq(time_lims[1], time_lims[2], length.out = 1000)
-    h <- rep(0.0,length(ti))
-    h_l <- rep(0.0,length(ti))
-    h_u <- rep(0.0,length(ti))
-    er_h <- rep(0.0,length(ti))
-    for (j in 1:length(ti)){
-        for (i in 1:length(tu)){
-            if (abs(ti[j]-tu[i])<=bw){
-                xtemp <- (ti[j]-tu[i])/bw
-                h[j]   <- h[j]   + (base[i]*K_Smooth(xtemp))
-                er_h[j] <- er_h[j] + (base_er[i] * K_Smooth(xtemp)^2)
-#                h_l[j] <- h_l[j] + (base[i]-sqrt(base_er[i]))*K_Smooth(xtemp)
-#                h_u[j] <- h_u[j] + (base[i]+sqrt(base_er[i]))*K_Smooth(xtemp)
-            }
-        }
-    }
-    for (j in 1:length(ti)){
-        h[j] = h[j] / bw
-        er_h[j] = sqrt(er_h[j]) / bw
-#        print(er_h[j])
-        h_u[j] = h[j] + er_h[j]
-        h_l[j] = h[j] - er_h[j]
-    }
-    dft <- data.table("ti"=ti,"h"=h,"h_l"=h_l,"h_u"=h_u)
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$ti, y=.data$h)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-#    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$ti, y=.data$h_u), color="black")
-#    g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$ti, y=.data$h_l), color="black")
-    ggplot2::ggsave(paste('H_smooth_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
-    ;
     return ("passed")
 }
         
@@ -685,7 +576,6 @@ CoxSmoothHazard <- function(dft,Plot_Name,verbose,bw,time_lims, age_unit){
 #' @param alpha significance level for two tail t test
 #'
 #' @return returns a list of the final results
-#' @export
 #'
 #' @importFrom rlang .data
 
@@ -706,7 +596,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -714,10 +604,12 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     ce <- t_check$ce
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+              ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
     } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+              length(names),sep=""))
         stop()
     }
     #
@@ -726,12 +618,13 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    res_list <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    res_list <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     res <- res_list$residual
     res_scaled <- res_list$scaled
     degree_f <- res_list$df
     #
-    for (cov in 1:length(a_n)){
+    for (cov in seq_len(length(a_n))){
         print(names[cov])
         y <- unlist(res[,cov],use.names=FALSE)
         y_scale <- unlist(res_scaled[,cov],use.names=FALSE)
@@ -739,10 +632,12 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
         dft <- data.table("time"=tu,"y"=y)
         dft$y_scale <- y_scale
         #
-        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual (",names[cov],")",sep=" "))
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) + ggplot2::geom_point(color="black") +
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual (",names[cov],")",sep=" "))
         ggplot2::ggsave(paste("schoenfeld_",cov,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
         #
-        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual Scaled (",names[cov],")",sep=" "))
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) + ggplot2::geom_point(color="black") +
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual Scaled (",names[cov],")",sep=" "))
         ggplot2::ggsave(paste("schoenfeld_scaled_",cov,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
         #
     }
@@ -769,6 +664,47 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' df$censor <- (df$Cancer_Status==0)
+#' event <- "censor"
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,
+#'    'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
+#'    'ties'='breslow','double_step'=1)
+#' plot_options <- list("name"="run_2","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
+#' dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform,
+#'                      keep_constant, a_n, modelform, fir, control, plot_options)
+#' t_ref <- dft$t
+#' surv_ref <- dft$surv
+#' t_c <- df$t1
+#' cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
+#' #removing files created
+#' file.remove('test_new.csv')
+#' file.remove('weight_surv_plot_run_2_.jpeg')
 #'
 GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){
     if (plot_options$verbose){
@@ -795,14 +731,14 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     }
     #
     if ("age_unit" %in% names(plot_options)){
-        ;
+        #fine
     } else {
         plot_options$age_unit <- "unitless"
     }
     time_lims <- c(min(tu),max(tu))
     for (iden_col in c("verbose")){
         if (iden_col %in% names(plot_options)){
-            ;
+            #fine
         } else {
             plot_options[iden_col] <- FALSE
         }
@@ -812,14 +748,6 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     verbose <- copy(plot_options$verbose)
     verbosec <- copy(control$verbose)
     maxiterc <- copy(control$maxiter)
-#    dfend <- df[get(event0)==1, ]
-#    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
-#    if (length(tu)==0){
-#        if (control$verbose){
-#            print("no events")
-#        }
-#        stop()
-#    }
     all_names <- unique(names)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
@@ -827,7 +755,7 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -860,7 +788,7 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     if (plot_options$verbose){
@@ -869,22 +797,9 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     #
     control$maxiter <- -1
     #
-#    print(head(df))
-#    print(Term_n)
-#    print(tform)
-#    print(a_n)
-#    print(dfc)
-#    print(x_all)
-#    print( fir)
-#    print(der_iden)
-#    print( modelform)
-#    print( control)
-#    print(as.matrix(df[,ce, with = FALSE]))
-#    print(tu)
-#    print(keep_constant)
-#    print(term_tot)
     #
-    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     control$maxiter <- maxiterc
     b <- e$beta_0
     er <- e$Standard_Deviation
@@ -893,7 +808,8 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
         print("starting ph_plot")
     }
     #
-    e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+    e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
     #
     t <- c()
     h <- c()
@@ -922,16 +838,12 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     #
     dft <- data.table("t"=t,"h"=h,"ch"=ch,"surv"=surv)
     setkeyv(dft,"t")
-#    dft <- dft[(t>=time_lims[1])&(t<=time_lims[2]),]
     #
-#    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
-#    ggplot2::ggsave(paste('weight_ch_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
-    #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) +
+        ggplot2::geom_point(color="black") +
+        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
     ggplot2::ggsave(paste('weight_surv_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     #
-#    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) + ggplot2::geom_point(color="black") + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
-#    ggplot2::ggsave(paste('weight_H_plot',Plot_Name,".jpeg",sep="_"),device="jpeg",dpi="retina")
     return (dft)
 }
         

@@ -43,3 +43,32 @@ returns a list of the final results
 Performs basic Cox Proportional Hazards regression with a basic model
 \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 }
+\examples{
+library(data.table)
+## basic example code reproduced from the starting-description vignette
+
+df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+           "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+             "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+          "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+                      "a"=c(0,   1,   1,   0,   1,   0,   1),
+                      "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+                      "c"=c(10,  11,  10,  11,  12,  9,   11),
+                      "d"=c(0,   0,   0,   1,   1,   1,   1))
+# For the interval case
+time1 <- "Starting_Age"
+time2 <- "Ending_Age"
+event <- "Cancer_Status"
+names <- c('a','b','c','d')
+a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+
+keep_constant <- c(0,0,0,0)
+der_iden <- 0
+
+control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+   'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
+   'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+
+e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant, a_n, der_iden, control)
+
+}

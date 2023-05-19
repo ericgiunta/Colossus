@@ -17,3 +17,9 @@ returns a filled list
 Automatically assigns missing control values
 \code{Def_Control} checks and assigns default values
 }
+\examples{
+library(data.table)
+control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+control <- Def_Control(control)
+
+}

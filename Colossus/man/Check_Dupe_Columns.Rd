@@ -5,7 +5,7 @@
 \title{checks for duplicated column names
 \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms}
 \usage{
-Check_Dupe_Columns(df, cols, term_n, verbose = FALSE)
+Check_Dupe_Columns(df, cols, term_n, verbose = FALSE, factor_check = FALSE)
 }
 \arguments{
 \item{df}{dataframe of data to use as reference}
@@ -15,6 +15,8 @@ Check_Dupe_Columns(df, cols, term_n, verbose = FALSE)
 \item{term_n}{term numbers}
 
 \item{verbose}{verbosity}
+
+\item{factor_check}{a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns}
 }
 \value{
 returns the usable columns
@@ -22,4 +24,15 @@ returns the usable columns
 \description{
 checks for duplicated column names
 \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
+}
+\examples{
+library(data.table)
+a <- c(0,1,2,3,4,5,6)
+b <- c(1,2,3,4,5,6,7)
+c <- c(0,1,2,1,0,1,0)
+df <- data.table("a"=a,"b"=b,"c"=c)
+cols <- c("a","b","c")
+term_n <- c(0,0,1)
+unique_cols <- Check_Dupe_Columns(df, cols, term_n)
+
 }

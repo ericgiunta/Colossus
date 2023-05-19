@@ -49,3 +49,24 @@ returns the updated dataframe
 Applies time dependence to parameters
 \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time
 }
+\examples{
+library(data.table)
+#Adapted from the tests
+a <- c(20,20,5,10,15)
+b <- c(1,2,1,1,2)
+c <- c(0,0,1,1,1)
+df <- data.table("a"=a,"b"=b,"c"=c)
+time1="\%trunc\%"
+time2="a"
+event="c"
+control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,
+           'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+           'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+grt_f <- function(df,time_col){
+    return ((df[,"b"] * df[,get(time_col)])[[1]])
+}
+func_form <- c("lin")
+df_new <- gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),
+       c(grt_f),paste("test","_new.csv",sep=""), func_form)
+
+}

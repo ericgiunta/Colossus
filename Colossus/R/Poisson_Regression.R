@@ -15,12 +15,44 @@
 #' @param control list of parameters controlling the convergence
 #'
 #' @return prints the final results and return null
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' df$pyr <- df$Ending_Age - df$Starting_Age
+#' pyr <- 'pyr'
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
+#' 
+#' e <- RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant,
+#'                           a_n, modelform, fir, der_iden, control)
 #' @export
 #'
 RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -37,13 +69,14 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
         stop()
     }
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+              ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -66,10 +99,11 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
-    e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
+    e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all,
+          fir,der_iden, modelform, control,keep_constant,term_tot)
     return (e)
 }
 
@@ -89,12 +123,42 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #'
 #' @return prints the final results and return null
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' df$pyr <- df$Ending_Age - df$Starting_Age
+#' pyr <- 'pyr'
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,'dbeta_max' = 0.5,
+#'             'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'             'verbose'=FALSE, 'double_step'=1)
+#' 
+#' e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control)
 #' @export
 #'
 RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a_n, modelform, fir, control,keep_constant=rep(0,length(names))){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -111,13 +175,14 @@ RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a
         stop()
     }
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+              ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -138,7 +203,8 @@ RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a
         stop()
     }
     #
-    e <- poisson_transition_single(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+    e <- poisson_transition_single(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,
+         x_all, fir, modelform, control,keep_constant,term_tot)
     return (e)
 }
 
@@ -161,11 +227,44 @@ RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' df$pyr <- df$Ending_Age - df$Starting_Age
+#' pyr <- 'pyr'
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,'dbeta_max' = 0.5,
+#'              'deriv_epsilon' = 1e-3,'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'              'verbose'=FALSE, 'double_step'=1)
+#' Strat_Col <- c("e")
+#' e <- RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant,
+#'      a_n, modelform, fir, der_iden, control, Strat_Col)
 #'
 RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -192,13 +291,14 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
         stop()
     }
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+              ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -221,10 +321,11 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
-    e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
+    e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+        modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
     return (e)
 }
 
@@ -248,27 +349,63 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   1,   0,   0,   0,   1))
+#' # For the interval case
+#' df$pyr <- df$Ending_Age - df$Starting_Age
+#' pyr <- 'pyr'
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,'dbeta_max' = 0.5,
+#'              'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'              'verbose'=FALSE,'double_step'=1)
+#' guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1,
+#'                 "loglin_max"=1,"lin_method"="uniform", "loglin_method"="uniform",strata=TRUE)
+#' Strat_Cols=c('e')
+#' 
+#' e <- RunPoissonRegression_Guesses(df, pyr, event, names, Term_n, tform, keep_constant, a_n,
+#'      modelform, fir, der_iden, control, guesses_control, Strat_Cols)
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
+RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols){
     if ("verbose" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$verbose <- FALSE
     }
     if ("guess_constant" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$guess_constant <- rep(0,length(a_n))
     }
     a_n_default <- rep(0,length(a_n))
-    for (i in 1:length(a_n)){
-        a_n_default[i] = a_n[i]
+    for (i in seq_len(length(a_n))){
+        a_n_default[i] <- a_n[i]
     }
-    if (guesses_control$stata==FALSE){
+    if (guesses_control$strata==FALSE){
         if ("CONST" %in% names){
             if ("CONST" %in% names(df)){
-                ;
+                #fine
             } else {
                 df$CONST <- 1
             }
@@ -285,13 +422,14 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
             stop()
         }
         term_tot <- max(Term_n)+1
-        x_all=as.matrix(df[,all_names, with = FALSE])
+        x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(pyr,event0)
         #
         control <- Def_Control(control)
         #
         if (length(a_n)<length(names)){
-            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+                  ", Remaining filled with 0.01",sep=""))
             a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
         } else if (length(a_n)>length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -314,42 +452,43 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         if (length(keep_constant)<length(names)){
             keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
         } else if (length(keep_constant)>length(names)){
-            keep_constant <- keep_constant[1:length(names)]
+            keep_constant <- keep_constant[seq_len(length(names))]
         }
         #
         iteration0 <- control$maxiter
         control$maxiter <- guesses_control$Iterations
         #
         a_n0 <- rep(0,length(a_n))
-        for (i in 1:length(a_n)){
-            a_n0[i] = a_n[i]
+        for (i in seq_len(length(a_n))){
+            a_n0[i] <- a_n[i]
         }
         df_res <- data.table()
-        e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
-#        print(e$beta_0)
+        e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all,
+            fir,der_iden, modelform, control,keep_constant,term_tot)
         radius <- 0
-        for (i in 1:length(e$beta_0)){
+        for (i in seq_len(length(e$beta_0))){
             df_res[,paste(i):=e$beta_0[i]]
-            radius = radius + (e$beta_0[i]-a_n0[i])^2
-#            print(df_res)
+            radius <- radius + (e$beta_0[i]-a_n0[i])^2
         }
         df_res[,paste(length(e$beta_0)+1):=e$Deviation]
         df_res[,paste(length(e$beta_0)+2):=sqrt(radius)]
         df_res[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
         df_res[,paste(length(e$beta_0)+4):=e$Converged]
         for (it in 1:guesses_control$guesses){
-            for (i in 1:length(tform)){
+            for (i in seq_len(length(tform))){
                 if (guesses_control$guess_constant[i]==0){
                     if (grepl("log",tform[i],fixed=FALSE)){
                         if (guesses_control$loglin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$loglin_min,max=guesses_control$loglin_max) + a_n_default[i]
+                            a_n[i] <- runif(1,min=guesses_control$loglin_min,
+                                      max=guesses_control$loglin_max) + a_n_default[i]
                         } else {
                             print("bad")
                             stop()
                         }
                     } else {
                         if (guesses_control$lin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                            a_n[i] <- runif(1,min=guesses_control$lin_min,
+                                      max=guesses_control$lin_max) + a_n_default[i]
                         } else {
                             print("bad")
                             stop()
@@ -360,19 +499,20 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
                 }
             }
             a_n0 <- rep(0,length(a_n))
-            for (i in 1:length(a_n)){
-                a_n0[i] = a_n[i]
+            for (i in seq_len(length(a_n))){
+                a_n0[i] <- a_n[i]
             }
-            e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
+            e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),
+                Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+                modelform, control,keep_constant,term_tot)
             if (is.na(e$Deviation)){
-#                stop()
-                ;
+                #fine
             } else {
                 df_res0 <- data.table()
                 radius <- 0
-                for (i in 1:length(e$beta_0)){
+                for (i in seq_len(length(e$beta_0))){
                     df_res0[,paste(i):=e$beta_0[i]]
-                    radius = radius + (e$beta_0[i]-a_n0[i])^2
+                    radius <- radius + (e$beta_0[i]-a_n0[i])^2
                 }
                 df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
                 df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
@@ -389,14 +529,12 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
             fwrite(df_res,"last_guess.csv")
         }
         a_n_ind <- which.min(df_res[,get("Deviation")])
-#        print(a_n_ind)
-#        stop()
-        a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[1:length(a_n)]
+        a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[seq_len(length(a_n))]
         #
         control$maxiter <- iteration0
         control <- Def_Control(control)
-        e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot)
-        ;
+        e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,
+            der_iden, modelform, control,keep_constant,term_tot)
         return (e)
     } else {
         if (guesses_control$verbose){
@@ -404,7 +542,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         }
         if ("CONST" %in% names){
             if ("CONST" %in% names(df)){
-                ;
+                #fine
             } else {
                 df$CONST <- 1
             }
@@ -420,11 +558,12 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         a_n <- c(a_n, runif(length(val$cols),min=-0.01,0.01))
         #
         if (length(guesses_control$guess_constant)<length(a_n)){
-            guesses_control$guess_constant <- c(guesses_control$guess_constant, rep(0,length(a_n)-length(guesses_control$guess_constant)))
+            guesses_control$guess_constant <- c(guesses_control$guess_constant,
+                      rep(0,length(a_n)-length(guesses_control$guess_constant)))
         }
         a_n_default <- rep(0,length(a_n))
-        for (i in 1:length(a_n)){
-            a_n_default[i] = a_n[i]
+        for (i in seq_len(length(a_n))){
+            a_n_default[i] <- a_n[i]
         }
         #
         all_names <- unique(names)
@@ -439,13 +578,14 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
             stop()
         }
         term_tot <- max(Term_n)+1
-        x_all=as.matrix(df[,all_names, with = FALSE])
+        x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(pyr,event0)
         #
         control <- Def_Control(control)
         #
         if (length(a_n)<length(names)){
-            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+                  ", Remaining filled with 0.01",sep=""))
             a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
         } else if (length(a_n)>length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -468,7 +608,7 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         if (length(keep_constant)<length(names)){
             keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
         } else if (length(keep_constant)>length(names)){
-            keep_constant <- keep_constant[1:length(names)]
+            keep_constant <- keep_constant[seq_len(length(names))]
         }
         #
         #
@@ -481,41 +621,38 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         #
         df_res <- data.table()
         a_n0 <- rep(0,length(a_n))
-        for (i in 1:length(a_n)){
-            a_n0[i] = a_n[i]
+        for (i in seq_len(length(a_n))){
+            a_n0[i] <- a_n[i]
         }
-        e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
+        e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+             modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
         if (is.na(e$Deviation)){
-#            print("374237423742374237423742374237423742374237423742374237423742")
-#            print(e)
-#            print("374237423742374237423742374237423742374237423742374237423742")
-#            stop()
-            ;
+            #fine
         }
-#        print(e$beta_0)
         radius <- 0
-        for (i in 1:length(e$beta_0)){
+        for (i in seq_len(length(e$beta_0))){
             df_res[,paste(i):=e$beta_0[i]]
-            radius = radius + (e$beta_0[i]-a_n0[i])^2
-#            print(df_res)
+            radius <- radius + (e$beta_0[i]-a_n0[i])^2
         }
         df_res[,paste(length(e$beta_0)+1):=e$Deviation]
         df_res[,paste(length(e$beta_0)+2):=sqrt(radius)]
         df_res[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
         df_res[,paste(length(e$beta_0)+4):=e$Converged]
         for (it in 1:guesses_control$guesses){
-            for (i in 1:length(tform)){
+            for (i in seq_len(length(tform))){
                 if (guesses_control$guess_constant[i]==0){
                     if (grepl("log",tform[i],fixed=FALSE)){
                         if (guesses_control$loglin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$loglin_min,max=guesses_control$loglin_max) + a_n_default[i]
+                            a_n[i] <- runif(1,min=guesses_control$loglin_min,
+                                   max=guesses_control$loglin_max) + a_n_default[i]
                         } else {
                             print("bad")
                             stop()
                         }
                     } else {
                         if (guesses_control$lin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                            a_n[i] <- runif(1,min=guesses_control$lin_min,
+                                   max=guesses_control$lin_max) + a_n_default[i]
                         } else {
                             print("bad")
                             stop()
@@ -526,22 +663,20 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
                 }
             }
             a_n0 <- rep(0,length(a_n))
-            for (i in 1:length(a_n)){
-                a_n0[i] = a_n[i]
+            for (i in seq_len(length(a_n))){
+                a_n0[i] <- a_n[i]
             }
-            e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
+            e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),
+                 Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+                 modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
             if (is.na(e$Deviation)){
-#                print("374237423742374237423742374237423742374237423742374237423742")
-#                print(e)
-#                print("374237423742374237423742374237423742374237423742374237423742")
-#                stop()
-                ;
+                #fine
             } else {
                 df_res0 <- data.table()
                 radius <- 0
-                for (i in 1:length(e$beta_0)){
+                for (i in seq_len(length(e$beta_0))){
                     df_res0[,paste(i):=e$beta_0[i]]
-                    radius = radius + (e$beta_0[i]-a_n0[i])^2
+                    radius <- radius + (e$beta_0[i]-a_n0[i])^2
                 }
                 df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
                 df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
@@ -559,11 +694,10 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         }
         #
         a_n_ind <- which.min(df_res[,get("Deviation")])
-#        print(a_n_ind)
-#        stop()
         control$keep_strata <- keep_str
-        a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[1:length(a_n)]
-        e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
+        a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[seq_len(length(a_n))]
+        e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+             modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
         return (e)
     }
     return (NULL)
@@ -589,28 +723,67 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' df$pyr <- df$Ending_Age - df$Starting_Age
+#' pyr <- 'pyr'
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE,'double_step'=1)
+#' guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+#'   "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform",
+#'   "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
+#' Strat_Cols=c('e')
+#' 
+#' e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
+#'      Term_n, tform, keep_constant, a_n, modelform,
+#'      fir, der_iden, control, Strat_Cols, guesses_control)
 #'
 #' @importFrom rlang .data
 RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
     if ("verbose" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$verbose <- FALSE
     }
     if ("guess_constant" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$guess_constant <- rep(0,length(a_n))
     }
     if ("guesses_start" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$guesses_start <- guesses_control$guesses
     }
     t_initial <- guesses_control$term_initial
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+              ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -633,7 +806,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     name_initial <- c()
@@ -643,7 +816,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
     a_n_initial <- c()
     guess_constant <- c()
     #
-    for (i in 1:length(a_n)){
+    for (i in seq_len(length(a_n))){
         if (Term_n[i] %in% t_initial){
             name_initial <- c(name_initial, names[i])
             term_n_initial <- c(term_n_initial, Term_n[i])
@@ -656,7 +829,8 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
     guesses_control$guess_constant <- guess_constant
     guess_second <- guesses_control$guesses
     guesses_control$guesses <- guesses_control$guesses_start
-    e <- RunPoissonRegression_Guesses(df, pyr, event0, name_initial, term_n_initial, tform_initial, constant_initial, a_n_initial, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+    e <- RunPoissonRegression_Guesses(df, pyr, event0, name_initial, term_n_initial, tform_initial,
+         constant_initial, a_n_initial, modelform, fir, der_iden, control, guesses_control, Strat_Cols)
     if (guesses_control$verbose){
         print("INITIAL TERM COMPLETE")
         print(e)
@@ -665,10 +839,10 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
     a_n_initial <- unlist(e$beta_0,use.names=FALSE)
     guess_constant <- c()
     j <- 1
-    for (i in 1:length(a_n)){
+    for (i in seq_len(length(a_n))){
         if (Term_n[i] %in% t_initial){
             a_n[i] <- a_n_initial[j]
-            j = j+1
+            j <- j+1
             guess_constant <- c(guess_constant, 1)
         } else {
             guess_constant <- c(guess_constant, 0)
@@ -676,7 +850,9 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
     }
     guesses_control$guess_constant <- guess_constant
     guesses_control$guesses <- guess_second
-    e <- RunPoissonRegression_Guesses(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+    e <- RunPoissonRegression_Guesses(df, pyr, event0, names, Term_n, tform,
+         keep_constant, a_n, modelform, fir, der_iden,
+         control, guesses_control, Strat_Cols)
     #
     return(e)
 }
@@ -701,29 +877,71 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' df$pyr <- df$Ending_Age - df$Starting_Age
+#' pyr <- 'pyr'
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE,'double_step'=1)
+#' guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+#'    "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform","loglin_method"="uniform",strata=TRUE)
+#' Strat_Cols=c('e')
+#' 
+#' e <- RunPoissonRegression_Strata_First(df, pyr, event, names, Term_n, tform,
+#'      keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
 #'
 #' @importFrom rlang .data
 RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
     }
     if ("verbose" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$verbose <- FALSE
     }
+    if ("strata" %in% names(guesses_control)){
+        #fine
+    } else {
+        guesses_control$strata <- FALSE
+    }
     if ("guesses_start" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$guesses_start <- guesses_control$guesses
     }
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+              ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -746,7 +964,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     #
@@ -771,7 +989,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
         stop()
     }
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
@@ -779,11 +997,12 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     guess_constant <- rep(0,length(a_n_strata))
     #
     guesses_control$guess_constant <- guess_constant
-    guesses_control$stata=FALSE
+    guesses_control$strata=FALSE
     #
     guess_second <- guesses_control$guesses
     guesses_control$guesses <- guesses_control$guesses_start
-    e <- RunPoissonRegression_Guesses(df, pyr, event0, names_strata, Term_n_strata, tform_strata, keep_constant_strata, a_n_strata, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+    e <- RunPoissonRegression_Guesses(df, pyr, event0, names_strata, Term_n_strata, tform_strata, keep_constant_strata,
+         a_n_strata, modelform, fir, der_iden, control, guesses_control, Strat_Cols)
     if (guesses_control$verbose){
         print("INITIAL TERM COMPLETE")
         print(e)
@@ -798,8 +1017,8 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     guesses_control$guess_constant <- c(guesses_control$guess_constant,rep(0,length(names)-length(names_strata)))
     #
     a_n_default <- rep(0,length(a_n))
-    for (i in 1:length(a_n)){
-        a_n_default[i] = a_n[i]
+    for (i in seq_len(length(a_n))){
+        a_n_default[i] <- a_n[i]
     }
     #
     all_names <- unique(names)
@@ -814,12 +1033,13 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
         stop()
     }
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
     control <- Def_Control(control)
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+              ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -835,34 +1055,35 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     #
     df_res <- data.table()
     a_n0 <- rep(0,length(a_n))
-    for (i in 1:length(a_n)){
-        a_n0[i] = a_n[i]
+    for (i in seq_len(length(a_n))){
+        a_n0[i] <- a_n[i]
     }
-    e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
-#        print(e$beta_0)
+    e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+         modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
     radius <- 0
-    for (i in 1:length(e$beta_0)){
+    for (i in seq_len(length(e$beta_0))){
         df_res[,paste(i):=e$beta_0[i]]
-        radius = radius + (e$beta_0[i]-a_n0[i])^2
-#            print(df_res)
+        radius <- radius + (e$beta_0[i]-a_n0[i])^2
     }
     df_res[,paste(length(e$beta_0)+1):=e$Deviation]
     df_res[,paste(length(e$beta_0)+2):=sqrt(radius)]
     df_res[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
     df_res[,paste(length(e$beta_0)+4):=e$Converged]
     for (it in 1:guesses_control$guesses){
-        for (i in 1:length(tform)){
+        for (i in seq_len(length(tform))){
             if (guesses_control$guess_constant[i]==0){
                 if (grepl("log",tform[i],fixed=FALSE)){
                     if (guesses_control$loglin_method == "uniform"){
-                        a_n[i] <- runif(1,min=guesses_control$loglin_min,max=guesses_control$loglin_max) + a_n_default[i]
+                        a_n[i] <- runif(1,min=guesses_control$loglin_min,
+                               max=guesses_control$loglin_max) + a_n_default[i]
                     } else {
                         print("bad")
                         stop()
                     }
                 } else {
                     if (guesses_control$lin_method == "uniform"){
-                        a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                        a_n[i] <- runif(1,min=guesses_control$lin_min,
+                                 max=guesses_control$lin_max) + a_n_default[i]
                     } else {
                         print("bad")
                         stop()
@@ -873,20 +1094,19 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
             }
         }
         a_n0 <- rep(0,length(a_n))
-        for (i in 1:length(a_n)){
-            a_n0[i] = a_n[i]
+        for (i in seq_len(length(a_n))){
+            a_n0[i] <- a_n[i]
         }
-        e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
+        e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+             modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
         if (is.na(e$Deviation)){
-#            print(e)
-#            stop()
-            ;
+            #fine
         } else {
             df_res0 <- data.table()
             radius <- 0
-            for (i in 1:length(e$beta_0)){
+            for (i in seq_len(length(e$beta_0))){
                 df_res0[,paste(i):=e$beta_0[i]]
-                radius = radius + (e$beta_0[i]-a_n0[i])^2
+                radius <- radius + (e$beta_0[i]-a_n0[i])^2
             }
             df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
             df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
@@ -904,11 +1124,10 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     }
     #
     a_n_ind <- which.min(df_res[,get("Deviation")])
-#        print(a_n_ind)
-#        stop()
     control$keep_strata <- keep_str
-    a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[1:length(a_n)]
-    e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
+    a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[seq_len(length(a_n))]
+    e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden,
+         modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
     return (e)
 }
     

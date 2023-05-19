@@ -1,14 +1,15 @@
 Package: Colossus
 Type: Package
-Title: Cox PH and Poisson Regression with Non-Linear Models
+Title: Cox PH and Poisson Regression with Complex Non-Linear Models
 Version: 0.9
-Date: 2023-3-07
-Author: Eric Giunta
-Maintainer: Eric Giunta <egiunta@ksu.edu>
-Description: Performs survival analysis using more general non-linear models. Risk models can be the sum or product of terms. Each term is the product of exponential/linear functions of covariates. Additionally subterms can be defined as a sum of exponential, linear threshold, and step functions. Either a cox proportional hazards or poisson regression are supported. Can perform a full regression. Additionally baseline hazard can be estimated from the cox data, a null model can be defined for the cox model, schoenfeld residuals can be calculated, and reference risk values can be calculated.
-License: GPL (>= 2)
+Authors@R:
+    person("Eric", "Giunta", email="egiunta@ksu.edu", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1577-766X"))
+URL: https://github.com/ericgiunta/Colossus
+BugReports: https://github.com/ericgiunta/Colossus/issues
+Description: Performs survival analysis using more general non-linear models. Risk models can be the sum or product of terms. Each term is the product of exponential/linear functions of covariates. Additionally subterms can be defined as a sum of exponential, linear threshold, and step functions. Either a cox proportional hazards or poisson regression are supported.
+License: GPL (>= 3)
 Imports:
-    Rcpp (>= 1.0.9),
+    Rcpp,
     RcppEigen,
     data.table,
     parallel,

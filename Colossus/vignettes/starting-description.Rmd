@@ -57,7 +57,7 @@ $$
     S_{LL}=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
     S_{L}=\sum_i (x_i \cdot \beta_i)\\
     S_{PL}=1+ \sum (x_i \cdot \beta_i)\\
-    S_{NL}=\sum_i (\exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
+    S_{NL}=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
     F_{LT} = \begin{cases} \alpha_i \cdot (x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
     F_{STP} = \begin{cases} \alpha_i & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
     F_{LQ} = \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
@@ -222,7 +222,7 @@ Going back to our example, the code may look like the following:
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list('lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 ```
 
 In this example, no parameters are held constant, 100 iterations with 5 half-steps are used, a regression is performed with matrix step solutions, and breslow's method for tied event times is used. There are no errors for unused control parameters being used, they will simply be ignored. Every commonly required control parameter has a default value which is automatically used if not declared.

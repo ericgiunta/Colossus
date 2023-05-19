@@ -1345,7 +1345,7 @@ Stress_Test <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform
 #' @param df_groups time and event matrix
 #' @param tu event times
 #'
-#' @return LogLike_Cox_PH_null output : Log-likelihood of optimum, AIC
+#' @return LogLik_Cox_PH_null output : Log-likelihood of optimum, AIC
 cox_ph_null <- function(Control, df_groups, tu) {
     .Call(`_Colossus_cox_ph_null`, Control, df_groups, tu)
 }

@@ -474,7 +474,7 @@ void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,Int
 //' @param df_groups time and event matrix
 //' @param tu event times
 //'
-//' @return LogLike_Cox_PH_null output : Log-likelihood of optimum, AIC
+//' @return LogLik_Cox_PH_null output : Log-likelihood of optimum, AIC
 // [[Rcpp::export]]
 List cox_ph_null( List Control, NumericMatrix df_groups, NumericVector tu){
     //----------------------------------------------------------------------------------------------------------------//
@@ -754,7 +754,7 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
     const Map<MatrixXd> df(as<Map<MatrixXd> >(df0));
     MatrixXd Mat_Fac = MatrixXd::Zero(df.rows(), vals.size());
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(1)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<vals.size();ijk++){
         double col_c = cols[ijk];
         double val_c = vals[ijk];

@@ -127,8 +127,6 @@ void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove){
 // [[Rcpp::export]]
 void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
-    //Make_subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
-    //
     // Calculates the sub term values
     //
     vector<int> lin_count(nonDose.cols(),0);
@@ -160,7 +158,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
         } else if (as< string>(tform[ij])=="loglin_slope"){
             ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
             ArrayXd temp1 = beta_0[ij] * temp;
-            //
             //
             T0.col(ij) = temp1;
             T0.col(ij+1) = temp1;
@@ -254,8 +251,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     //
     // Calculates the terms and derivatives
     //
-    //
-    //
     for (int ijk=0; ijk<nonDose.cols();ijk++){ //combines non-dose terms into a single term
         if (dose_count[ijk]==0){
             Dose.col(ijk) = Dose.col(ijk).array() * 0.0 + 1;
@@ -280,7 +275,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
         } else if (as< string>(tform[ij])=="loglin_slope"){
             ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
             ArrayXd temp1 = beta_0[ij] * temp;
-            //
             //
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
@@ -591,8 +585,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
 // [[Rcpp::export]]
 void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
-    //Make_subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
-    //
     // Calculates the sub term values
     //
     vector<int> lin_count(nonDose.cols(),0);
@@ -718,8 +710,6 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     //
     // Calculates the terms and derivatives
     //
-    //
-    //
     for (int ijk=0; ijk<nonDose.cols();ijk++){ //combines non-dose terms into a single term
         if (dose_count[ijk]==0){
             Dose.col(ijk) = Dose.col(ijk).array() * 0.0 + 1;
@@ -806,11 +796,8 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
 // [[Rcpp::export]]
 void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd& T0, const VectorXd& beta_0,const MatrixXd& df0, const int& nthreads, bool debugging){
     //
-    //Make_subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
-    //
     // Calculates the sub term values
     //
-
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
@@ -837,11 +824,8 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 // [[Rcpp::export]]
 void Prep_Basic(const int& totalnum, const IntegerVector& dfc, VectorXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, const VectorXd& beta_0,const MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
-    //Make_subterms( totalnum, dose_num_tot, dose_term_tot, dose_breaks, beta_loglin_slopes_CPP, beta_loglin_tops_CPP, beta_lin_slopes_CPP, beta_lin_ints_CPP, beta_quads_CPP, beta_step_slopes_CPP, beta_step_ints_CPP, beta_lin, beta_loglin, beta_plin, df_lin, df_loglin, df_plin, df_dose, De, Dde, Ddde, T0, Td0, Tdd0, Dose,cumulative_dose_num,beta_0, df0,dint,nthreads, tform,include_bool, debugging);
-    //
     // Calculates the sub term values
     //
-
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
@@ -897,9 +881,6 @@ void Prep_Basic(const int& totalnum, const IntegerVector& dfc, VectorXd& T0, Mat
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
 void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
-    //
-    //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
-    //
     set<string> Dose_Iden; //List of dose subterms
     Dose_Iden.insert("loglin_top");
     Dose_Iden.insert("loglin_slope");
@@ -1231,7 +1212,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             }
         }
     } else if (modelform=="GM"){
-        //currently isn't implemented, it can be calculated but not optimized the same way
         throw invalid_argument( "GM isn't implemented" );
     } else {
         throw invalid_argument( "Model isn't implemented" );
@@ -1280,9 +1260,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
 void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
-    //
-    //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
-    //
     set<string> Dose_Iden; //List of dose subterms
     Dose_Iden.insert("loglin_top");
     Dose_Iden.insert("loglin_slope");
@@ -1347,10 +1324,6 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 // [[Rcpp::export]]
 void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant){
     //
-    //Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, RdR, RddR, nthreads, debugging);
-    //
-    //
-    //
     R.col(0) = T0.rowwise().prod();
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<totalnum;ijk++){
@@ -1371,8 +1344,6 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
         Rdd.col(ijk) = Rd.col(jk).array() * df0.col(df0_c).array();
     }
     //
-//    R = (R.array().isFinite()).select(R,0);
-//    Rd = (Rd.array().isFinite()).select(Rd,0);
     Rdd = (Rdd.array().isFinite()).select(Rdd,0);
     //
     for (int ij=0;ij<totalnum;ij++){//Calculates ratios
@@ -1395,9 +1366,6 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
 void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging ){
-    //
-    //Make_subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
-    //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<ntime;ijk++){
         double t0 = tu[ijk];
@@ -1457,10 +1425,6 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
 void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const VectorXd& cens_weight, const double cens_cutoff, const int& nthreads, bool debugging ){
-    //
-    //Make_subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
-    //
-//    Rcout << "COMPETING" << endl;
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<ntime;ijk++){
         double t0 = tu[ijk];
@@ -1521,9 +1485,6 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
 void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, IntegerVector& STRATA_vals){
-    //
-    //Make_subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
-    //
     //
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
@@ -1606,9 +1567,6 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
 void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const VectorXd& cens_weight, const double cens_cutoff){
-    //
-    //Make_subterms( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging)
-    //
     //
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
@@ -1700,9 +1658,6 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
@@ -1822,10 +1777,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(1)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(1)
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
         //
@@ -1859,7 +1811,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
         Lls1(j,0) = Ld.col(0).sum();
     }
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             int ij = 0;
@@ -1905,7 +1857,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
         }
     }
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             int ij = 0;
@@ -1968,9 +1920,6 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
@@ -2013,9 +1962,6 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
@@ -2074,10 +2020,7 @@ void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<strin
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int j=0;j<ntime;j++){
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 = 0;
@@ -2108,7 +2051,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
         }
     }
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2147,7 +2090,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
         }
     }
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2205,10 +2148,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ij=0;ij<totalnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2283,10 +2223,7 @@ void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMa
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int j=0;j<ntime;j++){
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 = 0;
@@ -2324,7 +2261,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
         }
     }
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2372,7 +2309,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
         }
     }
     //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2440,10 +2377,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
-    #pragma omp parallel for schedule(dynamic) num_threads(1) collapse(3)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ij=0;ij<totalnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2540,9 +2474,6 @@ void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const Strin
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
-    //
-    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
-    //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -2665,9 +2596,6 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
-    //
-    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
-    //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -2775,9 +2703,6 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, const IntegerVector& KeepConstant){
-    //
-    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
-    //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -2838,9 +2763,6 @@ void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail,
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method){
-    //
-    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
-    //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -2903,9 +2825,6 @@ void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
-    //
-    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
-    //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -3033,9 +2952,6 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
-    //
-    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
-    //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -3149,9 +3065,6 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, const IntegerVector& KeepConstant){
-    //
-    // Poisson_LogLik( nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging)
-    //
     MatrixXd temp(Rd.rows(),Rd.cols());
     VectorXd CoL=VectorXd::Zero(Rd.rows());
     
@@ -3195,9 +3108,6 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, vector<double>& Ll, bool debugging){
-    //
-    // Poisson_LogLik( nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, debugging)
-    //
     MatrixXd temp(R.rows(),totalnum);
     
     temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
@@ -3232,9 +3142,6 @@ void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const Matri
 //' @return Updates matrices in place: parameter change matrix
 // [[Rcpp::export]]
 void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum,const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging){
-    //
-    //Calc_Change( nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, KeepConstant, debugging);
-    //
     if (double_step==1){
         int kept_covs = totalnum - sum(KeepConstant);
         NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -3498,9 +3405,6 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads){
-    //
-    //Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging);
-    //
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
@@ -3544,9 +3448,6 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, string ties_method){
-    //
-    //Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging);
-    //
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -3579,13 +3480,5 @@ void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const v
     }
     return;
 }
-
-
-
-
-
-
-
-
 
 

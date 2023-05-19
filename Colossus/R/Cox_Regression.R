@@ -18,13 +18,46 @@
 #' @return returns a list of the final results
 #' @export
 #'
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' 
+#' e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform,
+#'                      keep_constant, a_n, modelform, fir, der_iden, control)
 #' @importFrom rlang .data
 
 RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
     setkeyv(df, c(time2, event0))
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -44,7 +77,7 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="ca
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -52,7 +85,8 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="ca
     ce <- t_check$ce
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+            ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -75,7 +109,7 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="ca
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     a_n0 <- copy(a_n)
@@ -83,9 +117,9 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="ca
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     a_n <- a_n0
-    ;
     return (e)
 }
 
@@ -99,22 +133,51 @@ RunCoxRegression <- function(df, time1="age_start", time2="age_exit", event0="ca
 #' @param names columns names for elements of the model, used to identify data columns
 #' @param Term_n term numbers for each element of the model
 #' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #' @param a_n starting parameters for regression
 #' @param modelform string specifying the model type
 #' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param control list of parameters controlling the convergence
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' 
+#' control=list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' 
+#' e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
+#'                              keep_constant, a_n, modelform, fir, control)
 #'
 #' @importFrom rlang .data
 
-RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", event0="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1),keep_constant=rep(0,length(names))){
+RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
     setkeyv(df, c(time2, event0))
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -134,7 +197,7 @@ RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", eve
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -142,7 +205,8 @@ RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", eve
     ce <- t_check$ce
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+            ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -168,9 +232,9 @@ RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", eve
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_transition_single(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    e <- cox_ph_transition_single(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     a_n <- a_n0
-    ;
     return (e)
 }
 
@@ -189,6 +253,33 @@ RunCoxRegression_Single <- function(df, time1="age_start", time2="age_exit", eve
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
+#'    'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' 
+#' e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant, a_n, der_iden, control)
 #'
 #' @importFrom rlang .data
 
@@ -196,7 +287,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
     setkeyv(df, c(time2, event0))
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -215,7 +306,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
     all_names <- unique(names)
     dfc <- match(names,all_names)
 
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -223,7 +314,8 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
     ce <- t_check$ce
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+            ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -232,7 +324,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     a_n0 <- copy(a_n)
@@ -240,9 +332,9 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_transition_basic(a_n,dfc,x_all, der_iden, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant)
+    e <- cox_ph_transition_basic(a_n,dfc,x_all, der_iden, control,
+         as.matrix(df[,ce, with = FALSE]),tu,keep_constant)
     a_n <- a_n0
-    ;
     return (e)
 }
 
@@ -267,24 +359,61 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #'
 #' @return returns a list of the final results
 #' @export
-#'
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   1,   0,   0,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+#'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=TRUE)
+#' Strat_Col='e'
+#' 
+#' e <- RunCoxRegression_Guesses(df, time1, time2, event, names, Term_n,
+#'                               tform, keep_constant, a_n, modelform, fir,
+#'                               der_iden, control,guesses_control,Strat_Col)
 #' @importFrom rlang .data
-RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", event0="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1), guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform","loglin_method"="uniform",stata=FALSE),Strat_Col='cell'){
+RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", event0="cases", names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1), guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform","loglin_method"="uniform",strata=FALSE),Strat_Col='cell'){
     if ("verbose" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$verbose <- FALSE
     }
     if ("guess_constant" %in% names(guesses_control)){
         if (length(guesses_control$guess_constant)<length(a_n)){
-            guesses_control$guess_constant <- c(guesses_control$guess_constant, rep(0,length(a_n)-length(guesses_control$guess_constant)))
+            guesses_control$guess_constant <- c(guesses_control$guess_constant, 
+                rep(0,length(a_n)-length(guesses_control$guess_constant)))
         }
     } else {
         guesses_control$guess_constant <- rep(0,length(a_n))
     }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -293,7 +422,7 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
     for (i in 1:length(a_n)){
         a_n_default[i] = a_n[i]
     }
-    if (guesses_control$stata==FALSE){
+    if (guesses_control$strata==FALSE){
         setkeyv(df, c(time2, event0))
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
@@ -313,7 +442,7 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         dfc <- match(names,all_names)
 
         term_tot <- max(Term_n)+1
-        x_all=as.matrix(df[,all_names, with = FALSE])
+        x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(time1,time2,event0)
         #
         t_check <- Check_Trunc(df,ce)
@@ -321,7 +450,8 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         ce <- t_check$ce
         #
         if (length(a_n)<length(names)){
-            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+                ", Remaining filled with 0.01",sep=""))
             a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
         } else if (length(a_n)>length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -344,7 +474,7 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         if (length(keep_constant)<length(names)){
             keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
         } else if (length(keep_constant)>length(names)){
-            keep_constant <- keep_constant[1:length(names)]
+            keep_constant <- keep_constant[seq_len(length(names))]
         }
         #
         iteration0 <- control$maxiter
@@ -352,13 +482,12 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         control <- Def_Control(control)
         #
         df_res <- data.table()
-        e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
-#        print(e$beta_0)
+        e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
         for (i in 1:length(e$beta_0)){
             df_res[,paste(i):=e$beta_0[i]]
-#            print(df_res)
         }
-        df_res[,paste(length(e$beta_0)+1):=e$LogLik]
+        df_res[,paste(length(e$beta_0)+1):=-2*e$LogLik]
         for (it in 1:guesses_control$guesses){
             for (i in 1:length(tform)){
                 if (guesses_control$guess_constant[i]==0){
@@ -381,39 +510,37 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
                     a_n[i] <- a_n_default[i]
                 }
             }
-#            print(a_n)
-            e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+            e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+                as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
             if (is.na(e$LogLik)){
-                ;
+                #fine
             } else {
                 df_res0 <- data.table()
                 for (i in 1:length(e$beta_0)){
                     df_res0[,paste(i):=e$beta_0[i]]
                 }
-                df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
+                df_res0[,paste(length(e$beta_0)+1):=-2*e$LogLik]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             } 
             
         }
         setnames(df_res,c(names,"Deviation"))
-        setkeyv(df_res, get("Deviation"))
+        setkeyv(df_res, "Deviation")
         if (guesses_control$verbose){
             print(df_res)
             fwrite(df_res,"last_guess.csv")
             
         }
-#        stop()
         a_n_ind <- which.min(df_res[,get("Deviation")])
-#        print(a_n_ind)
-#        stop()
         a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[1:length(a_n)]
         #
         control$maxiter <- iteration0
         a_n0 <- copy(a_n)
         control <- Def_Control(control)
-        e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+        e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
         a_n <- a_n0
-        ;
+        #fine
         return (e)
     } else {
         setkeyv(df, c(time2, event0, Strat_Col))
@@ -427,7 +554,7 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         dfc <- match(names,all_names)
 
         term_tot <- max(Term_n)+1
-        x_all=as.matrix(df[,all_names, with = FALSE])
+        x_all <- as.matrix(df[,all_names, with = FALSE])
         #
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
         if (length(tu)==0){
@@ -462,13 +589,12 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
         control$maxiter <- guesses_control$Iterations
         #
         df_res <- data.table()
-        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
-#        print(e$beta_0)
+        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
         for (i in 1:length(e$beta_0)){
             df_res[,paste(i):=e$beta_0[i]]
-#            print(df_res)
         }
-        df_res[,paste(length(e$beta_0)+1):=e$LogLik]
+        df_res[,paste(length(e$beta_0)+1):=-2*e$LogLik]
         for (it in 1:guesses_control$guesses){
             for (i in 1:length(tform)){
                 if (guesses_control$guess_constant[i]==0){
@@ -491,31 +617,31 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
                     a_n[i] <- a_n_default[i]
                 }
             }
-            e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+            e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+                as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
             if (is.na(e$LogLik)){
-                ;
+                #fine
             } else {
                 df_res0 <- data.table()
                 for (i in 1:length(e$beta_0)){
                     df_res0[,paste(i):=e$beta_0[i]]
                 }
-                df_res0[,paste(length(e$beta_0)+1):=e$LogLik]
+                df_res0[,paste(length(e$beta_0)+1):=-2*e$LogLik]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             } 
             
         }
         setnames(df_res,c(names,"Deviation"))
-        setkeyv(df_res, get("Deviation"))
+        setkeyv(df_res, "Deviation")
         if (guesses_control$verbose){
             print(df_res)
             fwrite(df_res,"last_guess.csv")
         }
         #
         a_n_ind <- which.min(df_res[,get("Deviation")])
-#        print(a_n_ind)
-#        stop()
         a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[1:length(a_n)]
-        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
         return (e)
     }
     return (NULL)
@@ -541,12 +667,47 @@ RunCoxRegression_Guesses <- function(df, time1="age_start", time2="age_exit", ev
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' Strat_Col='e'
+#' 
+#' e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n, tform, keep_constant,
+#'                              a_n, modelform, fir, der_iden, control,Strat_Col)
 #'
 RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", event0="cases",  names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=c(0.01), modelform="M", fir=0, der_iden=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1), Strat_Col="cell"){
     setkeyv(df, c(time2, event0, Strat_Col))
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -558,7 +719,7 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
@@ -583,7 +744,8 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
         }
     }
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+            length(names),", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -606,7 +768,7 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     t_check <- Check_Trunc(df,ce)
@@ -617,7 +779,8 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+    e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
     return (e)
 }
 
@@ -639,24 +802,59 @@ RunCoxRegression_STRATA <- function(df, time1="age_start", time2="age_exit", eve
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' fir <- 0
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' a_n <- c(1.1, 0.1, 0.2, 0.5) #used to test at a specific point
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' 
+#' e <- Cox_Relative_Risk(df, time1, time2, event, names, Term_n, tform,
+#'      keep_constant, a_n, modelform, fir, control)
 #'
-Cox_Relative_Risk <- function(df, time1="age_start", time2="age_exit", event0="cases",  names=c("dose"), Term_n=rep(0,length(names)), tform=rep("loglin",length(names)), keep_constant=rep(0,length(names)), a_n=rep(0.01,length(names)), modelform="M", fir=0, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
+Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
     setkeyv(df, c(time2, event0))
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
+    }
+    if (control$verbose){
+        print("Starting")
     }
     all_names <- unique(names)
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+            length(names),", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -679,7 +877,7 @@ Cox_Relative_Risk <- function(df, time1="age_start", time2="age_exit", event0="c
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     control <- Def_Control(control)
@@ -698,6 +896,22 @@ Cox_Relative_Risk <- function(df, time1="age_start", time2="age_exit", event0="c
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' 
+#' control=list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' 
+#' e <- RunCoxNull(df, time1, time2, event, control)
 #'
 RunCoxNull <- function(df, time1="age_start", time2="age_exit", event0="cases",control=list('lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)){
     setkeyv(df, c(time2, event0))
@@ -742,6 +956,41 @@ RunCoxNull <- function(df, time1="age_start", time2="age_exit", event0="cases",c
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(-0.1, 0.5, 1.1, -0.3)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' #setting maxiter below 0 forces the function to calculate the score and return
+#' plot_options=list("type"=c("SURV","run_0"), "studyID"="UserID",'verbose'=FALSE)
+#' 
+#' RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
+#'             a_n, modelform, fir, control, plot_options)
 #'
 RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){
     if (plot_options$verbose){
@@ -749,7 +998,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -773,7 +1022,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         print(paste(length(tu)," risk groups",sep=""))
     }
     if ("type" %in% names(plot_options)){
-        ;
+        #fine
     } else {
         if (plot_options$verbose){
             print("Plot type not given")
@@ -781,7 +1030,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         stop()
     }
     if ("age_unit" %in% names(plot_options)){
-        ;
+        #fine
     } else {
         plot_options$age_unit <- "unitless"
     }
@@ -789,7 +1038,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         if (plot_options$strat_haz){
             if ("Strat_Col" %in% names(plot_options)){
                 if (plot_options$Strat_Col %in% names(df)){
-                    ;
+                    #fine
                 } else {
                     if (plot_options$verbose){
                         print("Stratification Column not in the dataframe")
@@ -806,34 +1055,13 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     } else {
         plot_options$strat_haz <- FALSE
     }
-    if ("smooth_haz" %in% names(plot_options)){
-        if (plot_options$smooth_haz){
-            if ("bw" %in% names(plot_options)){
-                if (plot_options$bw > 0){
-                    ;
-                } else {
-                    if (plot_options$verbose){
-                        print("bandwidth needs to be above zero")
-                    }
-                    stop()
-                }
-            } else {
-                if (plot_options$verbose){
-                    print("bandwidth not given")
-                }
-                stop()
-            }
-        }
-    } else {
-        plot_options$smooth_haz <- FALSE
-    }
     if ("Martingale" %in% names(plot_options)){
         if (plot_options$Martingale){
             if ("cov_cols" %in% names(plot_options)){
                 for (cov_i in 1:length(plot_options$cov_cols)){
                     dose_col <- unlist(plot_options$cov_cols,use.names=FALSE)[cov_i]
                     if (dose_col%in% names(df)){
-                        ;
+                        #fine
                     } else {
                         if (plot_options$verbose){
                             print("Covariate column "+dose_col+" is not in the dataframe")
@@ -855,7 +1083,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         if (plot_options$KM){
             if ("studyID" %in%  names(plot_options)){
                 if (plot_options$studyID%in% names(df)){
-                    ;
+                    #fine
                 } else {
                     if (plot_options$verbose){
                         print("ID column is not in the dataframe")
@@ -872,14 +1100,14 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     }
     if (Plot_Type[1]=="SURV"){
         if ("time_lims" %in% names(plot_options)){
-            ;
+            #fine
         } else {
             plot_options$time_lims <- c(min(tu),max(tu))
         }
     }
-    for (iden_col in c("verbose","Martingale","surv_curv","strat_haz","smooth_haz","KM")){
+    for (iden_col in c("verbose","Martingale","surv_curv","strat_haz","KM")){
         if (iden_col %in% names(plot_options)){
-            ;
+            #fine
         } else {
             plot_options[iden_col] <- FALSE
         }
@@ -903,7 +1131,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -913,7 +1141,8 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     time2 <- ce[2]
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+            length(names),", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -936,13 +1165,12 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     control$maxiter <- -1
-#    control$verbose <- verbose
-    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
-#    control$verbose <- verbosec
+    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     control$maxiter <- maxiterc
     b <- e$beta_0
     er <- e$Standard_Deviation
@@ -952,7 +1180,8 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             print("starting ph_plot")
         }
         #
-        e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
         #
         t <- c()
         h <- c()
@@ -978,30 +1207,30 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         age_unit <- plot_options$age_unit
         if (plot_options$Martingale==TRUE){
             #
-            CoxMartingale(verbose, df, time1, time2, event0, e, t, ch, plot_options$cov_cols, Plot_Type[2], age_unit,plot_options$studyID)
+            CoxMartingale(verbose, df, time1, time2, event0, e, t, ch, plot_options$cov_cols,
+                          Plot_Type[2], age_unit,plot_options$studyID)
             #
         }
         if (plot_options$surv_curv==TRUE){
             CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,plot_options$time_lims, age_unit)
             if (plot_options$strat_haz==TRUE){
-                CoxStratifiedSurvival(verbose, df, event0, time1, time2, all_names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, plot_options$Strat_Col,plot_options$time_lims,age_unit)
-            }
-            if (plot_options$smooth_haz==TRUE){
-                CoxSmoothHazard(dft,Plot_Type[2],verbose,plot_options$bw,plot_options$time_lims,age_unit)
+                CoxStratifiedSurvival(verbose, df, event0, time1, time2, all_names,Term_n, tform, a_n, er,
+                     fir, der_iden, modelform, control,keep_constant, Plot_Type, plot_options$Strat_Col,plot_options$time_lims,age_unit)
             }
         }
         if (plot_options$KM==TRUE){
             #
-            CoxKaplanMeier(verbose, verbosec, plot_options$studyID,all_names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type,age_unit)
+            CoxKaplanMeier(verbose, verbosec, plot_options$studyID,all_names,df,event0,time1,time2,tu,Term_n,
+                 tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type,age_unit)
         }
     } else if (Plot_Type[1]=="RISK"){
-        CoxRisk(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er)
-        #      (verbose, df, event0, time1, time2, names,    Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er)
+        CoxRisk(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, fir,
+                der_iden, modelform, control,keep_constant, Plot_Type, b, er)
     } else if (Plot_Type[1]=="SCHOENFELD"){
         age_unit <- plot_options$age_unit
-        PlotCox_Schoenfeld_Residual(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,age_unit,Plot_Type[2])
+        PlotCox_Schoenfeld_Residual(df, time1, time2, event0, names, Term_n, tform, keep_constant,
+                                    a_n, modelform, fir, der_iden, control,age_unit,Plot_Type[2])
     }
-    ;
     return ("Passed")
 }
 
@@ -1027,26 +1256,71 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #' @return returns a list of the final results
 #' @export
 #'
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,
+#'    "lin_max"=1,"loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform",
+#'    "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
+#' Strat_Col='e'
+#' 
+#' e <- RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, Term_n, tform, keep_constant,
+#'                                    a_n, modelform, fir, der_iden, control,guesses_control,Strat_Col)
+#'
 #' @importFrom rlang .data
 RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col){
     if ("verbose" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$verbose <- FALSE
     }
     if ("guess_constant" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$guess_constant <- rep(0,length(a_n))
     }
     if ("guesses_start" %in% names(guesses_control)){
-        ;
+        #fine
     } else {
         guesses_control$guesses_start <- guesses_control$guesses
     }
+    if ("term_initial" %in% names(guesses_control)){
+        #fine
+    } else {
+        guesses_control$term_initial <- c(0,1)
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -1077,7 +1351,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     name_initial <- c()
@@ -1100,11 +1374,12 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     guesses_control$guess_constant <- guess_constant
     guess_second <- guesses_control$guesses
     guesses_control$guesses <- guesses_control$guesses_start
-    e <- RunCoxRegression_Guesses(df, time1, time2, event0, name_initial, term_n_initial, tform_initial, constant_initial, a_n_initial, modelform, fir, der_iden, control, guesses_control,Strat_Col)
+    e <- RunCoxRegression_Guesses(df, time1, time2, event0, name_initial, term_n_initial, tform_initial,
+         constant_initial, a_n_initial, modelform, fir, der_iden, control, guesses_control,Strat_Col)
     #
     a_n_initial <- e$beta_0
     guess_constant <- c()
-    j <- 0
+    j <- 1
     for (i in 1:length(a_n)){
         if (Term_n[i] %in% t_initial){
             a_n[i] <- a_n_initial[j]
@@ -1116,7 +1391,8 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     }
     guesses_control$guess_constant <- guess_constant
     guesses_control$guesses <- guess_second
-    e <- RunCoxRegression_Guesses(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col)
+    e <- RunCoxRegression_Guesses(df, time1, time2, event0, names, Term_n, tform, keep_constant,
+         a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col)
     #
     return(e)
 }
@@ -1141,13 +1417,46 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 #' @return returns a list of the final results
 #' @export
 #'
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' 
+#' e <- RunCox_Schoenfeld_Residual(df, time1, time2, event, names, Term_n, tform,
+#'                                 keep_constant, a_n, modelform, fir, der_iden, control)
 #' @importFrom rlang .data
 
 RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     setkeyv(df, c(time2, event0))
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -1167,7 +1476,7 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -1175,7 +1484,8 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
     ce <- t_check$ce
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+            ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -1198,7 +1508,7 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     a_n0 <- copy(a_n)
@@ -1206,8 +1516,8 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
-    ;
+    e <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     return (e)
 }
 
@@ -1233,13 +1543,50 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
 #' @return returns a list of the final results
 #' @export
 #'
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   2,   1,   2,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' #weights the probability that a row would continue to extend without censoring,
+#' #    for risk group calculation 
+#' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
+#' #censoring weight is generated by the survival library finegray function, or by hand.
+#' #The ratio of weight at event end point to weight at row endpoint is used.
+#' e <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform,
+#'      keep_constant, a_n, modelform, fir, der_iden, control, cens_weight)
+#'
 #' @importFrom rlang .data
 
 RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
     setkeyv(df, c(time2, event0))
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
-            ;
+            #fine
         } else {
             df$CONST <- 1
         }
@@ -1259,7 +1606,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
-    x_all=as.matrix(df[,all_names, with = FALSE])
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
     t_check <- Check_Trunc(df,ce)
@@ -1267,7 +1614,8 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
     ce <- t_check$ce
     #
     if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+            ", Remaining filled with 0.01",sep=""))
         a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
     } else if (length(a_n)>length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
@@ -1290,7 +1638,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[1:length(names)]
+        keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
     a_n0 <- copy(a_n)
@@ -1298,8 +1646,8 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_transition_CR(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,as.matrix(df[,ce, with = FALSE]),tu,cens_weight,keep_constant,term_tot)
+    e <- cox_ph_transition_CR(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,cens_weight,keep_constant,term_tot)
     a_n <- a_n0
-    ;
     return (e)
 }

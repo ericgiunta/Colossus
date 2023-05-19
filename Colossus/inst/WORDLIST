@@ -6,7 +6,6 @@ Kaplan
 LEXP
 LQ
 LogLik
-LogLike
 LogLinear
 Mieier
 NL
@@ -41,3 +40,7 @@ subterm
 subterms
 tform
 trunc
+RunCoxRegression
+RunPoissonRegression
+lin
+loglin
