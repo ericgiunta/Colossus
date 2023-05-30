@@ -760,10 +760,10 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
 #' 
 #' e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
 #'      Term_n, tform, keep_constant, a_n, modelform,
-#'      fir, der_iden, control, Strat_Cols, guesses_control)
+#'      fir, der_iden, control, guesses_control, Strat_Cols)
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
+RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols){
     if ("verbose" %in% names(guesses_control)){
         #fine
     } else {
@@ -912,10 +912,10 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
 #' Strat_Cols=c('e')
 #' 
 #' e <- RunPoissonRegression_Strata_First(df, pyr, event, names, Term_n, tform,
-#'      keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+#'      keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols)
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control){
+RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols){
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine

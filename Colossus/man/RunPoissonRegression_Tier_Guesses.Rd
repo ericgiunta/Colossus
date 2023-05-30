@@ -18,8 +18,8 @@ RunPoissonRegression_Tier_Guesses(
   fir,
   der_iden,
   control,
-  Strat_Cols,
-  guesses_control
+  guesses_control,
+  Strat_Cols
 )
 }
 \arguments{
@@ -47,9 +47,9 @@ RunPoissonRegression_Tier_Guesses(
 
 \item{control}{list of parameters controlling the convergence}
 
-\item{Strat_Cols}{column to stratify by}
-
 \item{guesses_control}{list of parameters to control how the guessing works}
+
+\item{Strat_Cols}{column to stratify by}
 }
 \value{
 returns a list of the final results
@@ -95,6 +95,6 @@ Strat_Cols=c('e')
 
 e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
      Term_n, tform, keep_constant, a_n, modelform,
-     fir, der_iden, control, Strat_Cols, guesses_control)
+     fir, der_iden, control, guesses_control, Strat_Cols)
 
 }

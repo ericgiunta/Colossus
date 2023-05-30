@@ -624,10 +624,11 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     res_scaled <- res_list$scaled
     degree_f <- res_list$df
     #
+    #
     for (cov in seq_len(length(a_n))){
-        print(names[cov])
         y <- unlist(res[,cov],use.names=FALSE)
         y_scale <- unlist(res_scaled[,cov],use.names=FALSE)
+        
         #
         dft <- data.table("time"=tu,"y"=y)
         dft$y_scale <- y_scale
@@ -703,7 +704,6 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #' t_c <- df$t1
 #' cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
 #' #removing files created
-#' file.remove('test_new.csv')
 #' file.remove('weight_surv_plot_run_2_.jpeg')
 #'
 GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){

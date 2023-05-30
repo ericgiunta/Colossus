@@ -1,7 +1,7 @@
 test_that("Coxph loglin_M Basic", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -21,7 +21,7 @@ test_that("Coxph loglin_M Basic", {
 test_that("Coxph censoring weight", {
     fname <- 'll_comp_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     df$censor <- (df$lung==0)
@@ -38,6 +38,8 @@ test_that("Coxph censoring weight", {
     plot_options <- list("name"="run_2","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
+    file.remove('weight_surv_plot_run_2_.jpeg')
+    #
     t_ref <- dft$t
     surv_ref <- dft$surv
     t_c <- df$t1
@@ -48,7 +50,6 @@ test_that("Coxph censoring weight", {
     a_n <- c(-0.1,-0.1)
     keep_constant <- c(0,0)
     e0 <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight)
-
 
     a_n <- c(-0.1,-0.1)
     keep_constant <- c(0,0)

@@ -156,24 +156,20 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
 
         } else if (as< string>(tform[ij])=="loglin_slope"){
-            ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
-            ArrayXd temp1 = beta_0[ij] * temp;
             //
-            T0.col(ij) = temp1;
-            T0.col(ij+1) = temp1;
+            T0.col(ij) = beta_0[ij] * (beta_0[ij+1] * df0.col(df0_c)).array().exp();
+            T0.col(ij+1) = T0.col(ij);
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
             
         } else if (as< string>(tform[ij])=="loglin_top"){
             if (ij==0){
-                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
-                T0.col(ij) = temp;
+                T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
                 Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
                 dose_count[tn]=dose_count[tn]+1;
 
             } else if (tform[ij-1]!="loglin_slope"){
-                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
-                T0.col(ij) = temp;
+                T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
                 Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
                 dose_count[tn]=dose_count[tn]+1;
                 //
@@ -182,12 +178,12 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
                 ;
             }
         } else if (as< string>(tform[ij])=="lin_slope"){
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
             //
-            temp = (temp.array() < 0).select(0, temp);
+            T0.col(ij) = (T0.col(ij).array() < 0).select(0, T0.col(ij));
             //
-            T0.col(ij) = beta_0[ij] * temp.array();
-            T0.col(ij+1) = beta_0[ij] * temp.array();
+            T0.col(ij) = beta_0[ij] * T0.col(ij);
+            T0.col(ij+1) = T0.col(ij);
             //
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
@@ -195,18 +191,17 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
         } else if (as< string>(tform[ij])=="lin_int") {
             ;
         } else if (as< string>(tform[ij])=="quad_slope"){
-            ArrayXd temp = df0.col(df0_c).array().square();
             //
-            T0.col(ij) = beta_0[ij] * temp.array();
+            T0.col(ij) = beta_0[ij] * df0.col(df0_c).array().square();
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="step_slope"){
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
             //
-            temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
+            T0.col(ij) = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(T0.rows(),1).array()+1.0);
             //
-            T0.col(ij) = beta_0[ij] * temp.array();
-            T0.col(ij+1) = beta_0[ij] * temp.array();
+            T0.col(ij) = beta_0[ij] * T0.col(ij);
+            T0.col(ij+1) = T0.col(ij);
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="step_int") {
@@ -215,10 +210,10 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
             double a1 = beta_0[ij] /2 / beta_0[ij+1];
             double b1 = beta_0[ij] /2 * beta_0[ij+1];
-            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
-            ArrayXd temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]);
+            T0.col(ij+1) = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
             //
-            temp = (temp.array() < 0).select(temp0, temp1);
+            temp = (temp.array() < 0).select(T0.col(ij), T0.col(ij+1));
             //
             T0.col(ij) = temp.array();
             T0.col(ij+1) = temp.array();
@@ -227,17 +222,16 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
         } else if (as< string>(tform[ij])=="lin_quad_int") {
             ;
         } else if (as< string>(tform[ij])=="lin_exp_slope") {
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
             double c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij+1] * beta_0[ij+2];
             double a1 = beta_0[ij] * beta_0[ij+1] + exp(c1 - beta_0[ij+2] * beta_0[ij+1]);
-            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
-            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            T0.col(ij+1) = (df0.col(df0_c).array() * beta_0[ij]);
+            T0.col(ij+2) = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            temp = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij) = (T0.col(ij).array() < 0).select(T0.col(ij+1), T0.col(ij+2));
             //
-            T0.col(ij) = temp.array();
-            T0.col(ij+1) = temp.array();
-            T0.col(ij+2) = temp.array();
+            T0.col(ij+1) = T0.col(ij);
+            T0.col(ij+2) = T0.col(ij);
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="lin_exp_int") {
@@ -273,97 +267,95 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             T0.col(ij) = nonDose_PLIN.col(tn);
             Td0.col(ij) = df0.col(df0_c);
         } else if (as< string>(tform[ij])=="loglin_slope"){
-            ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
-            ArrayXd temp1 = beta_0[ij] * temp;
+            T0.col(ij) = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
+            //
+            Td0.col(ij) = T0.col(ij).array();
+            Td0.col(ij+1) = beta_0[ij] * T0.col(ij).array() * df0.col(df0_c).array();
+            Tdd0.col((ij+1)*(ij+2)/2+ij) = T0.col(ij).array() * df0.col(df0_c).array();
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) =beta_0[ij] * T0.col(ij).array() * df0.col(df0_c).array().square().array();
             //
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
-            Td0.col(ij) = temp.array();
-            Td0.col(ij+1) = temp1.array() * df0.col(df0_c).array();
-            Tdd0.col((ij+1)*(ij+2)/2+ij) = temp.array() * df0.col(df0_c).array();
-            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = temp1.array() * df0.col(df0_c).array().square().array();
             
         } else if (as< string>(tform[ij])=="loglin_top"){
             if (ij==0){
-                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
+                T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
+                Td0.col(ij) = T0.col(ij).array() * df0.col(df0_c).array();
+                Tdd0.col(ij * (ij+1)/2 + ij) = T0.col(ij).array() * df0.col(df0_c).array().square().array();
+                //
                 T0.col(ij) = Dose.col(tn);
-                Td0.col(ij) = temp.array() * df0.col(df0_c).array();
-                Tdd0.col(ij * (ij+1)/2 + ij) = temp.array() * df0.col(df0_c).array().square().array();
 
             } else if (tform[ij-1]!="loglin_slope"){
-                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
-                T0.col(ij) = Dose.col(tn);
-                Td0.col(ij) = temp.array() * df0.col(df0_c).array();
-                Tdd0.col(ij * (ij+1)/2 + ij) = temp.array() * df0.col(df0_c).array().square().array();
+                T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
+                Td0.col(ij) = T0.col(ij).array() * df0.col(df0_c).array();
+                Tdd0.col(ij * (ij+1)/2 + ij) = T0.col(ij).array() * df0.col(df0_c).array().square().array();
                 //
-
+                T0.col(ij) = Dose.col(tn);
             } else {
                 ;
             }
         } else if (as< string>(tform[ij])=="lin_slope"){
-            ArrayXd temp  = (df0.col(df0_c).array() - beta_0[ij+1]);
-            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            Td0.col(ij)  = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij)   = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            T0.col(ij+1) = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
-            temp  = (temp.array()  < 0).select(0, temp);
-            temp0 = (temp0.array() < 0).select(0, temp0);
-            temp1 = (temp1.array() < 0).select(0, temp1);
+            Td0.col(ij)  = (Td0.col(ij).array()  < 0).select(0, Td0.col(ij));
+            T0.col(ij)   = (T0.col(ij).array()   < 0).select(0, T0.col(ij));
+            T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0, T0.col(ij+1));
             //
-            T0.col(ij) = Dose.col(tn);
+            Td0.col(ij+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
+            //
+            Tdd0.col((ij+1)*(ij+2)/2+ij)   = (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(ij).array()+T0.col(ij).array()) / pow(dint,2);
+            //
+            T0.col(ij)   = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
-            Td0.col(ij) = temp.array();
-            Td0.col(ij+1) = beta_0[ij] * (temp1.array()-temp0.array())/2/dint;
-            //
-            Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array())/2/dint;
-            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
 
         } else if (as< string>(tform[ij])=="quad_slope"){
-            ArrayXd temp = df0.col(df0_c).array().square();
+            Td0.col(ij) = df0.col(df0_c).array().square();
             //
             T0.col(ij) = Dose.col(tn);
-            Td0.col(ij) = temp.array();
         } else if (as< string>(tform[ij])=="step_slope"){
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            Td0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            T0.col(ij+1) = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
-            temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
-            temp0 = (temp0.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp0.cols()).array()+1.0);
-            temp1 = (temp1.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp1.cols()).array()+1.0);
+            Td0.col(ij) = (Td0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
+            T0.col(ij) = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
+            T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
+            //
+            Td0.col(ij+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
+            //
+            Tdd0.col((ij+1)*(ij+2)/2+ij) = (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(ij).array()+T0.col(ij).array()) / pow(dint,2);
             //
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
-            Td0.col(ij) = temp.array();
-            Td0.col(ij+1) = beta_0[ij] * (temp1.array()-temp0.array()) / 2/dint;
-            //
-            Tdd0.col((ij+1)*(ij+2)/2+ij) = (temp1.array()-temp0.array()) / 2/dint;
-            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = beta_0[ij] * (temp1.array()-2*temp.array()+temp0.array()) / pow(dint,2);
 
         } else if (as< string>(tform[ij])=="lin_quad_slope") {
-            //
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-            double a1 = beta_0[ij] /2 / (beta_0[ij+1]-dint);
-            double b1 = beta_0[ij] /2 * (beta_0[ij+1]-dint);
-            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
-            ArrayXd temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            double a1 = 0;
+            double b1 = 0;
             //
-            ArrayXd temp01 = (temp.array() < 0).select(temp0, temp1);
-            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
             a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij+1]-dint);
             b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij+1]-dint);
             temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
             temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
             //
-            ArrayXd temp00 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
             //
-            temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-            a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij+1]);
-            b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij+1]);
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            a1 = (beta_0[ij]+dslp) /2 / (beta_0[ij+1]+dint);
+            b1 = (beta_0[ij]+dslp) /2 * (beta_0[ij+1]+dint);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
             temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
             //
-            ArrayXd temp10 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
             //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]);
             a1 = (beta_0[ij]) /2 / (beta_0[ij+1]);
             b1 = (beta_0[ij]) /2 * (beta_0[ij+1]);
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
@@ -371,12 +363,40 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             //
             ArrayXd temp11 = (temp.array() < 0).select(temp0, temp1);
             //
+
+            Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (T0.col(ij+1).array()-2*temp11.array()+T0.col(ij).array()) / (pow(dint,2)+pow(dslp,2));
+
+
+            //
             a1 = (beta_0[ij]+dslp) /2 / (beta_0[ij+1]);
             b1 = (beta_0[ij]+dslp) /2 * (beta_0[ij+1]);
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
             temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
             //
-            ArrayXd temp12 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
+
+            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij+1]);
+            b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij+1]);
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
+
+
+
+            Td0.col(ij)   = (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dslp;
+            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (T0.col(ij+1).array()-2*temp11.array()+T0.col(ij).array()) / pow(dslp,2);
+
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            a1 = beta_0[ij] /2 / (beta_0[ij+1]-dint);
+            b1 = beta_0[ij] /2 * (beta_0[ij+1]-dint);
+            temp0 = (df0.col(df0_c).array() * beta_0[ij]);
+            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            //
+            T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
+
             //
             temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             //
@@ -385,76 +405,63 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
             temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
             //
-            ArrayXd temp21 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
             //
-            a1 = (beta_0[ij]+dslp) /2 / (beta_0[ij+1]+dint);
-            b1 = (beta_0[ij]+dslp) /2 * (beta_0[ij+1]+dint);
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
-            temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
-            //
-            ArrayXd temp22 = (temp.array() < 0).select(temp0, temp1);
-            //
+
+
+            Td0.col(ij+1) = (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (T0.col(ij+1).array()-2*temp11.array()+T0.col(ij).array()) / pow(dint,2);
             //
             T0.col(ij) = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
-            //
-            Td0.col(ij)   = (temp12.array()-temp10.array()) / 2/dslp;
-            Td0.col(ij+1) = (temp21.array()-temp01.array()) / 2/dint;
-            //
-            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (temp12.array()-2*temp11.array()+temp10.array()) / pow(dslp,2);
-            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (temp21.array()-2*temp11.array()+temp01.array()) / pow(dint,2);
-            Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (temp22.array()-2*temp11.array()+temp00.array()) / (pow(dint,2)+pow(dslp,2));
-            //
         } else if (as< string>(tform[ij])=="lin_exp_slope") {
+            // the exp_exp_slope term must be greater than zero
+            double eeslp = dslp;
+            if (eeslp >= beta_0[ij+2]){
+                eeslp = beta_0[ij+2]*0.9;
+            }
+            //
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
             double c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
             double a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]));
             ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
             ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            ArrayXd temp111 = (temp.array() < 0).select(temp0, temp1);
-            //
-            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
-            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]));
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
-            //
-            ArrayXd temp011 = (temp.array() < 0).select(temp0, temp1);
-            //
-            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]-dslp);
-            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dslp) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]));
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
-            //
-            ArrayXd temp010 = (temp.array() < 0).select(temp0, temp1);
-            //
-            c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]+dslp);
-            a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]+dslp) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]));
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
-            //
-            ArrayXd temp212 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
             //
             c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
             a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]));
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
             temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            ArrayXd temp211 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
             //
-            c1 = log((beta_0[ij])/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]-dslp);
-            a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]));
+            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2])) + (beta_0[ij+1]) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
+            //
+            Td0.col(ij)   = (T0.col(ij+1).array()-T0.col(ij+2).array()) / 2/dslp;
+            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (T0.col(ij+1).array()-2*T0.col(ij).array()+T0.col(ij+2).array()) / pow(dslp,2);
+            //
+            c1 = log((beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij+1]) * (beta_0[ij+2]-eeslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij+1]));
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            temp1 = (a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            ArrayXd temp110 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
             //
-            c1 = log((beta_0[ij])/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]) * (beta_0[ij+2]+dslp);
-            a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]));
+            c1 = log((beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij+1]) * (beta_0[ij+2]+eeslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij+1]));
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            temp1 = (a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            ArrayXd temp112 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
+            //
+            Td0.col(ij+2) = (T0.col(ij+2).array()-T0.col(ij+1).array()) / 2/eeslp;
+            Tdd0.col((ij+2)*(ij+3)/2+ij+2) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij+1).array()) / pow(eeslp,2);
             //
             temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
             c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij+1]-dint) * (beta_0[ij+2]);
@@ -462,28 +469,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
             temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            ArrayXd temp101 = (temp.array() < 0).select(temp0, temp1);
-            //
-            c1 = log((beta_0[ij])/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-dslp);
-            a1 = (beta_0[ij]) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]-dint));
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
-            //
-            ArrayXd temp100 = (temp.array() < 0).select(temp0, temp1);
-            //
-            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2])) + (beta_0[ij+1]-dint) * (beta_0[ij+2]);
-            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]-dint));
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
-            //
-            ArrayXd temp001 = (temp.array() < 0).select(temp0, temp1);
-            //
-            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2]-dslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-dslp);
-            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-dslp) * (beta_0[ij+1]-dint));
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]-dslp) * df0.col(df0_c).array()).array().exp().array()).array();
-            //
-            ArrayXd temp000 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
             //
             temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij+1]+dint) * (beta_0[ij+2]);
@@ -491,41 +477,65 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
             temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            ArrayXd temp121 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
             //
-            c1 = log((beta_0[ij])/(beta_0[ij+2]+dslp)) + (beta_0[ij+1]+dint) * (beta_0[ij+2]+dslp);
-            a1 = (beta_0[ij]) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]+dslp) * (beta_0[ij+1]+dint));
-            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-            temp1 = (a1 - (c1 - (beta_0[ij+2]+dslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            Td0.col(ij+1) = (T0.col(ij+2).array()-T0.col(ij+1).array()) / 2/dint;
+            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij+1).array()) / pow(dint,2);
             //
-            ArrayXd temp122 = (temp.array() < 0).select(temp0, temp1);
-            //
-            //
-            temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
             c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2])) + (beta_0[ij+1]+dint) * (beta_0[ij+2]);
             a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]+dint));
             temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
             temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            ArrayXd temp221 = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
             //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
             //
-            T0.col(ij) = Dose.col(tn);
+            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2])) + (beta_0[ij+1]-dint) * (beta_0[ij+2]);
+            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij+1]-dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
+            Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij+1).array()) / (pow(dint,2)+pow(dslp,2));
+            //
+            c1 = log((beta_0[ij]-dslp)/(beta_0[ij+2]-eeslp)) + (beta_0[ij+1]) * (beta_0[ij+2]-eeslp);
+            a1 = (beta_0[ij]-dslp) * (beta_0[ij+1]-dslp) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]-dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
+            //
+            c1 = log((beta_0[ij]+dslp)/(beta_0[ij+2]+eeslp)) + (beta_0[ij+1]) * (beta_0[ij+2]+eeslp);
+            a1 = (beta_0[ij]+dslp) * (beta_0[ij+1]+eeslp) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij+1]));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]+dslp));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
+            //
+            Tdd0.col((ij+2)*(ij+3)/2+ij+0) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij+1).array()) / (pow(dslp,2)+pow(eeslp,2));
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+            //
+            c1 = log((beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-eeslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij+1]-dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
+            //
+            temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+            c1 = log((beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij+1]+dint) * (beta_0[ij+2]+eeslp);
+            a1 = (beta_0[ij]) * (beta_0[ij+1]+dint) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij+1]+dint));
+            temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
+            temp1 = (a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
+            //
+            Tdd0.col((ij+2)*(ij+3)/2+ij+1) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij+1).array()) / (pow(dint,2)+pow(eeslp,2));
+            //
+            T0.col(ij)   = Dose.col(tn);
             T0.col(ij+1) = Dose.col(tn);
             T0.col(ij+2) = Dose.col(tn);
-            //
-            Td0.col(ij)   = (temp211.array()-temp011.array()) / 2/dslp;
-            Td0.col(ij+1) = (temp121.array()-temp101.array()) / 2/dint;
-            Td0.col(ij+2) = (temp112.array()-temp110.array()) / 2/dslp;
-            //
-            Tdd0.col((ij+0)*(ij+1)/2+ij+0) = (temp211.array()-2*temp111.array()+temp011.array()) / pow(dslp,2);
-            Tdd0.col((ij+1)*(ij+2)/2+ij+1) = (temp121.array()-2*temp111.array()+temp101.array()) / pow(dint,2);
-            Tdd0.col((ij+2)*(ij+3)/2+ij+2) = (temp112.array()-2*temp111.array()+temp110.array()) / pow(dslp,2);
-            //
-            Tdd0.col((ij+1)*(ij+2)/2+ij+0) = (temp221.array()-2*temp111.array()+temp001.array()) / (pow(dint,2)+pow(dslp,2));
-            Tdd0.col((ij+2)*(ij+3)/2+ij+0) = (temp212.array()-2*temp111.array()+temp010.array()) / (pow(dint,2)+pow(dslp,2));
-            Tdd0.col((ij+2)*(ij+3)/2+ij+1) = (temp122.array()-2*temp111.array()+temp100.array()) / (pow(dslp,2)+pow(dslp,2));
-            //
         } else if (as< string>(tform[ij])=="lin") {
             T0.col(ij) = nonDose_LIN.col(tn);
             Td0.col(ij) = df0.col(df0_c);
@@ -614,25 +624,21 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
             nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
 
         } else if (as< string>(tform[ij])=="loglin_slope"){
-            ArrayXd temp = (beta_0[ij+1] * df0.col(df0_c)).array().exp();
-            ArrayXd temp1 = beta_0[ij] * temp;
+            T0.col(ij) =beta_0[ij] * (beta_0[ij+1] * df0.col(df0_c)).array().exp();
             //
             //
-            T0.col(ij) = temp1;
-            T0.col(ij+1) = temp1;
+            T0.col(ij+1) = T0.col(ij);
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
             
         } else if (as< string>(tform[ij])=="loglin_top"){
             if (ij==0){
-                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
-                T0.col(ij) = temp;
+                T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
                 Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
                 dose_count[tn]=dose_count[tn]+1;
 
             } else if (tform[ij-1]!="loglin_slope"){
-                ArrayXd temp = (beta_0[ij] * df0.col(df0_c)).array().exp();
-                T0.col(ij) = temp;
+                T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
                 Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
                 dose_count[tn]=dose_count[tn]+1;
                 //
@@ -641,12 +647,12 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
                 ;
             }
         } else if (as< string>(tform[ij])=="lin_slope"){
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
             //
-            temp = (temp.array() < 0).select(0, temp);
+            T0.col(ij) = (T0.col(ij).array() < 0).select(0, T0.col(ij));
             //
-            T0.col(ij) = beta_0[ij] * temp.array();
-            T0.col(ij+1) = beta_0[ij] * temp.array();
+            T0.col(ij) = beta_0[ij] *T0.col(ij);
+            T0.col(ij+1) = T0.col(ij);
             //
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
@@ -654,18 +660,17 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
         } else if (as< string>(tform[ij])=="lin_int") {
             ;
         } else if (as< string>(tform[ij])=="quad_slope"){
-            ArrayXd temp = df0.col(df0_c).array().square();
             //
-            T0.col(ij) = beta_0[ij] * temp.array();
+            T0.col(ij) = beta_0[ij] * df0.col(df0_c).array().square();
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="step_slope"){
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
             //
-            temp = (temp.array() < 0).select(0.0, MatrixXd::Zero(temp.rows(),temp.cols()).array()+1.0);
+            T0.col(ij) = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(T0.rows(),1).array()+1.0);
             //
-            T0.col(ij) = beta_0[ij] * temp.array();
-            T0.col(ij+1) = beta_0[ij] * temp.array();
+            T0.col(ij) = beta_0[ij] * T0.col(ij);
+            T0.col(ij+1) = T0.col(ij);
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="step_int") {
@@ -674,10 +679,10 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
             ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
             double a1 = beta_0[ij] /2 / beta_0[ij+1];
             double b1 = beta_0[ij] /2 * beta_0[ij+1];
-            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
-            ArrayXd temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]);
+            T0.col(ij+1) = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
             //
-            temp = (temp.array() < 0).select(temp0, temp1);
+            temp = (temp.array() < 0).select(T0.col(ij), T0.col(ij+1));
             //
             T0.col(ij) = temp.array();
             T0.col(ij+1) = temp.array();
@@ -686,17 +691,16 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
         } else if (as< string>(tform[ij])=="lin_quad_int") {
             ;
         } else if (as< string>(tform[ij])=="lin_exp_slope") {
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
+            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
             double c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij+1] * beta_0[ij+2];
             double a1 = beta_0[ij] * beta_0[ij+1] + exp(c1 - beta_0[ij+2] * beta_0[ij+1]);
-            ArrayXd temp0 = (df0.col(df0_c).array() * beta_0[ij]);
-            ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            T0.col(ij+1) = (df0.col(df0_c).array() * beta_0[ij]);
+            T0.col(ij+2) = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             //
-            temp = (temp.array() < 0).select(temp0, temp1);
+            T0.col(ij) = (T0.col(ij).array() < 0).select(T0.col(ij+1), T0.col(ij+2));
             //
-            T0.col(ij) = temp.array();
-            T0.col(ij+1) = temp.array();
-            T0.col(ij+2) = temp.array();
+            T0.col(ij+1) = T0.col(ij);
+            T0.col(ij+2) = T0.col(ij);
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="lin_exp_int") {
@@ -722,7 +726,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     TTerm << Dose.array() * nonDose.array();
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ij=0;ij<(totalnum);ij++){
-        int df0_c = dfc[ij]-1;
+//        int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
         if (as< string>(tform[ij])=="loglin") {
             T0.col(ij) = nonDose_LOGLIN.col(tn);
@@ -1371,8 +1375,6 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
         double t0 = tu[ijk];
         VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
         vector<int> indices_all;
-        VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
-        vector<int> indices_end;
         //
         //
         int th = 1;
@@ -1381,12 +1383,6 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
                 if (v==th)
                     indices_all.push_back(i+1);
             });
-        visit_lambda(select_ind_end,
-            [&indices_end, th](double v, int i, int j) {
-                if (v==th)
-                    indices_end.push_back(i+1);
-            });
-        //
         vector<int> indices; //generates vector of (start,end) pairs for indices at risk
         for (auto it = begin (indices_all); it != end (indices_all); ++it) {
             if (indices.size()==0){
@@ -1399,13 +1395,24 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
                 indices[indices.size()-1] = *it;
             }
         }
-        RiskFail(ijk,0)=indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
-        RiskFail(ijk,1)=indices_end[indices_end.size()-1]-1;
         //
         ostringstream oss;
         copy(indices.begin(), indices.end(),
             std::ostream_iterator<int>(oss, ","));
         RiskGroup[ijk] = oss.str();//stores risk groups in string
+
+
+
+        select_ind_all = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
+        indices_all.clear();
+        visit_lambda(select_ind_all,
+            [&indices_all, th](double v, int i, int j) {
+                if (v==th)
+                    indices_all.push_back(i+1);
+            });
+        //
+        RiskFail(ijk,0)=indices_all[0]-1;//Due to the sorting method, there is a continuous block of event rows
+        RiskFail(ijk,1)=indices_all[indices_all.size()-1]-1;
     }
     return;
 }
@@ -1430,16 +1437,16 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
         double t0 = tu[ijk];
         VectorXi select_ind_all = ((((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0))||((df_m.col(2).array() == 2)&&(df_m.col(1).array()<=t0))).cast<int>(); //indices at risk
         vector<int> indices_all;
-        VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
-        vector<int> indices_end;
+//        VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
+//        vector<int> indices_end;
         //
         //
         int th = 1;
-        visit_lambda(select_ind_end,
-            [&indices_end, th](double v, int i, int j) {
-                if (v==th)
-                    indices_end.push_back(i+1);
-            });
+//        visit_lambda(select_ind_end,
+//            [&indices_end, th](double v, int i, int j) {
+//                if (v==th)
+//                    indices_end.push_back(i+1);
+//            });
 		//
 		//
 		visit_lambda(select_ind_all,
@@ -1460,13 +1467,26 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
                 indices[indices.size()-1] = *it;
             }
         }
-        RiskFail(ijk,0)=indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
-        RiskFail(ijk,1)=indices_end[indices_end.size()-1]-1;
-        //
         ostringstream oss;
         copy(indices.begin(), indices.end(),
             std::ostream_iterator<int>(oss, ","));
         RiskGroup[ijk] = oss.str();//stores risk groups in string
+        
+        
+        
+        select_ind_all = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
+        indices_all.clear();
+        
+        visit_lambda(select_ind_all,
+            [&indices_all, th](double v, int i, int j) {
+                if (v==th)
+					indices_all.push_back(i+1);
+            });
+        
+        RiskFail(ijk,0)=indices_all[0]-1;//Due to the sorting method, there is a continuous block of event rows
+        RiskFail(ijk,1)=indices_all[indices_all.size()-1]-1;
+        //
+        
     }
     return;
 }
@@ -1497,18 +1517,11 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
         for (int ijk=0;ijk<ntime;ijk++){
             double t0 = tu[ijk];
-            VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices at risk
-            vector<int> indices_all;
             VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices with events
             vector<int> indices_end;
             //
             //
             int th = 1;
-            visit_lambda(select_ind_all,
-                [&indices_all, th](double v, int i, int j) {
-                    if (v==th)
-                        indices_all.push_back(i+1);
-                });
             visit_lambda(select_ind_end,
                 [&indices_end, th](double v, int i, int j) {
                     if (v==th)
@@ -1517,7 +1530,17 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
             //
             vector<int> indices; //generates vector of (start,end) pairs for indices at risk
             if (indices_end.size()>0){
-                for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+                safe_fail[ijk][2*s_ij+0] = indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
+                safe_fail[ijk][2*s_ij+1] = indices_end[indices_end.size()-1]-1;
+                //
+                select_ind_end = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices at risk
+                indices_end.clear();
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v==th)
+                            indices_end.push_back(i+1);
+                    });
+                for (auto it = begin (indices_end); it != end (indices_end); ++it) {
                     if (indices.size()==0){
                         indices.push_back(*it);
                         indices.push_back(*it);
@@ -1528,8 +1551,6 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
                         indices[indices.size()-1] = *it;
                     }
                 }
-                safe_fail[ijk][2*s_ij+0] = indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
-                safe_fail[ijk][2*s_ij+1] = indices_end[indices_end.size()-1]-1;
                 //
                 ostringstream oss;
                 copy(indices.begin(), indices.end(),
@@ -1579,29 +1600,32 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
         for (int ijk=0;ijk<ntime;ijk++){
             double t0 = tu[ijk];
-			VectorXi select_ind_all = (((((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0))||((df_m.col(2).array() == 2)&&(df_m.col(1).array()<=t0)))&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices at risk
-            vector<int> indices_all;
             VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices with events
             vector<int> indices_end;
             //
             //
             int th = 1;
-			visit_lambda(select_ind_end,
-				[&indices_end, th](double v, int i, int j) {
-					if (v==th)
-						indices_end.push_back(i+1);
-				});
-			//
-			//
-			visit_lambda(select_ind_all,
-				[&indices_all, th](double v, int i, int j) {
-					if (v==th)
-							indices_all.push_back(i+1);
-				});
-			//
+            visit_lambda(select_ind_end,
+	            [&indices_end, th](double v, int i, int j) {
+		            if (v==th)
+			            indices_end.push_back(i+1);
+	            });
+            //
+            //
             vector<int> indices; //generates vector of (start,end) pairs for indices at risk
             if (indices_end.size()>0){
-                for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+                safe_fail[ijk][2*s_ij+0] = indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
+                safe_fail[ijk][2*s_ij+1] = indices_end[indices_end.size()-1]-1;
+                //
+                select_ind_end = (((((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0))||((df_m.col(2).array() == 2)&&(df_m.col(1).array()<=t0)))&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices at risk
+                indices_end.clear();
+                visit_lambda(select_ind_end,
+	                [&indices_end, th](double v, int i, int j) {
+		                if (v==th)
+				                indices_end.push_back(i+1);
+	                });
+                //
+                for (auto it = begin (indices_end); it != end (indices_end); ++it) {
                     if (indices.size()==0){
                         indices.push_back(*it);
                         indices.push_back(*it);
@@ -1612,8 +1636,6 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
                         indices[indices.size()-1] = *it;
                     }
                 }
-                safe_fail[ijk][2*s_ij+0] = indices_end[0]-1;//Due to the sorting method, there is a continuous block of event rows
-                safe_fail[ijk][2*s_ij+1] = indices_end[indices_end.size()-1]-1;
                 //
                 ostringstream oss;
                 copy(indices.begin(), indices.end(),
@@ -1661,6 +1683,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
+        //
         //
         vector<int> InGroup;
         string Groupstr = RiskGroup[j];
@@ -2024,8 +2047,8 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
     for (int j=0;j<ntime;j++){
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 = 0;
-            double Rs2 = 0;
-            double Rs3 = 0;
+//            double Rs2 = 0;
+//            double Rs3 = 0;
             //
             vector<int> InGroup;
             //Now has the grouping pairs
@@ -2839,10 +2862,10 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
                     jk-=ij;
                 }
                 if (KeepConstant[ij]+KeepConstant[jk]==0){
-                    double Rs1 = Rls1(j,s_ij);
+                    double Rs1 =  Rls1(j,s_ij);
                     double Rs2 =  Rls2(j,ij*STRATA_vals.size() + s_ij);
                     double Rs2t = Rls2(j,jk*STRATA_vals.size() + s_ij);
-                    double Rs3 = Rls3(j,ijk*STRATA_vals.size() + s_ij);
+                    double Rs3 =  Rls3(j,ijk*STRATA_vals.size() + s_ij);
                     //
                     int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
                     if (RiskFail(j,2*s_ij + 1)>-1){
@@ -3116,6 +3139,42 @@ void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const Matri
     return;
 }
 
+//' Utility function to keep intercept parameters within the range of possible values
+//' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
+//' @param     nthreads    number of threads
+//' @param     totalnum    total number of parameter
+//' @param     beta_0    parameter list
+//' @param     dbeta    parameter change vector
+//' @param     dfc    covariate column numbers
+//' @param     df0    covariate matrix
+//' @param     KeepConstant    vector of parameters to keep constant
+//' @param     debugging    debugging boolean
+//' @param     tform    subterm type
+//' 
+//' @return Updates vector in place: parameter vector
+// [[Rcpp::export]]
+void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const  MatrixXd& df0, const IntegerVector& KeepConstant, bool debugging,const StringVector&  tform){
+    set<string> Dose_Iden; //List of dose subterms
+    Dose_Iden.insert( "lin_int");
+    Dose_Iden.insert("step_int");
+    Dose_Iden.insert("lin_quad_int");
+    Dose_Iden.insert("lin_exp_int");
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ij=0;ij<totalnum;ij++){
+        if ((Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end())&&(KeepConstant[ij]==0)){
+            int df0_c = dfc[ij]-1;
+            double pmin = (df0.col(df0_c)).array().minCoeff();
+            double pmax = (df0.col(df0_c)).array().maxCoeff();
+            double db_temp = beta_0[ij] + dbeta[ij];
+            if (db_temp<pmin){
+                dbeta[ij] = pmin-beta_0[ij];
+            } else if (db_temp>pmax){
+                dbeta[ij] = pmax-beta_0[ij];
+            }
+        }
+    }
+    return;
+}
 
 //' Utility function to calculate the change to make each iteration
 //' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
@@ -3223,8 +3282,10 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                 } else {
                     if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
                         dbeta[ijk] = dint;
-                    } else {
+                    } else if ((tform[ijk]=="loglin")||(tform[ijk]=="lin")||(tform[ijk]=="plin")){
                         dbeta[ijk] = 0.001;
+                    } else {
+                        dbeta[ijk] = dslp;
                     }
                 }
             }
@@ -3258,8 +3319,10 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                 } else {
                     if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){
                         dbeta[ijk] = dint;
-                    } else {
+                    } else if ((tform[ijk]=="loglin")||(tform[ijk]=="lin")||(tform[ijk]=="plin")){
                         dbeta[ijk] = 0.001;
+                    } else {
+                        dbeta[ijk] = dslp;
                     }
                 }
             }
@@ -3469,8 +3532,7 @@ void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const v
         }
         Ldm.col(0) = Ldm.col(0).array() + Rs1;
         // Calculates the left-hand side terms
-        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
-        temp1 = Ld.col(0).array().log();
+        MatrixXd temp1 = Ld.col(0).array().log();
         double Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
         // calculates the right-hand side terms
         temp1 = Ldm.col(0).array().log();

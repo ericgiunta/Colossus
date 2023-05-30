@@ -18,8 +18,8 @@ RunPoissonRegression_Strata_First(
   fir,
   der_iden,
   control,
-  Strat_Cols,
-  guesses_control
+  guesses_control,
+  Strat_Cols
 )
 }
 \arguments{
@@ -47,9 +47,9 @@ RunPoissonRegression_Strata_First(
 
 \item{control}{list of parameters controlling the convergence}
 
-\item{Strat_Cols}{column to stratify by}
-
 \item{guesses_control}{list of parameters to control how the guessing works}
+
+\item{Strat_Cols}{column to stratify by}
 }
 \value{
 returns a list of the final results
@@ -93,6 +93,6 @@ guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 Strat_Cols=c('e')
 
 e <- RunPoissonRegression_Strata_First(df, pyr, event, names, Term_n, tform,
-     keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols, guesses_control)
+     keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols)
 
 }

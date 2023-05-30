@@ -669,6 +669,24 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// Intercept_Bound
+void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const MatrixXd& df0, const IntegerVector& KeepConstant, bool debugging, const StringVector& tform);
+RcppExport SEXP _Colossus_Intercept_Bound(SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP beta_0SEXP, SEXP dbetaSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP, SEXP tformSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
+    return R_NilValue;
+END_RCPP
+}
 // Calc_Change
 void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& fir, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging);
 RcppExport SEXP _Colossus_Calc_Change(SEXP double_stepSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP change_allSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
@@ -1515,6 +1533,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_LogLik_STRATA_BASIC", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA_BASIC, 22},
     {"_Colossus_Poisson_LogLik", (DL_FUNC) &_Colossus_Poisson_LogLik, 13},
     {"_Colossus_Poisson_LogLik_Single", (DL_FUNC) &_Colossus_Poisson_LogLik_Single, 6},
+    {"_Colossus_Intercept_Bound", (DL_FUNC) &_Colossus_Intercept_Bound, 9},
     {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 19},
     {"_Colossus_Calc_Change_Basic", (DL_FUNC) &_Colossus_Calc_Change_Basic, 14},
     {"_Colossus_Calculate_Null_Sides", (DL_FUNC) &_Colossus_Calculate_Null_Sides, 7},

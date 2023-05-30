@@ -1,7 +1,7 @@
 test_that("Coxph loglin_M Strata", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -20,7 +20,7 @@ test_that("Coxph loglin_M Strata", {
 test_that("Coxph loglin_M Single", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -39,7 +39,7 @@ test_that("Coxph loglin_M Single", {
 test_that("Coxph loglin_M Null", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -59,7 +59,7 @@ test_that("Coxph loglin_M Null", {
 test_that("Coxph loglin_M CENSOR", {
     fname <- 'll_cens_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -78,7 +78,7 @@ test_that("Coxph loglin_M CENSOR", {
 test_that("Coxph loglin_M CENSOR Adjusted", {
     fname <- 'll_cens_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -94,13 +94,14 @@ test_that("Coxph loglin_M CENSOR Adjusted", {
     plot_options <- list("name"="run_0","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
+    file.remove('weight_surv_plot_run_0_.jpeg')
     #
     expect_equal(sum(dft$ch),336410,tolerance=1e-2)
 })
 test_that("Coxph loglin_M CENSOR Default", {
     fname <- 'll_cens_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -116,6 +117,7 @@ test_that("Coxph loglin_M CENSOR Default", {
     plot_options <- list("name"="run_1","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
+    file.remove('weight_surv_plot_run_1_.jpeg')
     #
     expect_equal(sum(dft$ch),699,tolerance=1e-2)
 })

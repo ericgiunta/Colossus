@@ -1,7 +1,7 @@
 test_that("Pois loglin_M Single", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     df$pyr <- df$t1-df$t0
 	pyr <- "pyr"
@@ -21,7 +21,7 @@ test_that("Pois loglin_M Single", {
 test_that("Pois loglin_M Strata", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     df$pyr <- df$t1-df$t0
 	pyr <- "pyr"

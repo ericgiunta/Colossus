@@ -627,6 +627,23 @@ Poisson_LogLik_Single <- function(nthreads, totalnum, PyrC, R, Ll, debugging) {
     invisible(.Call(`_Colossus_Poisson_LogLik_Single`, nthreads, totalnum, PyrC, R, Ll, debugging))
 }
 
+#' Utility function to keep intercept parameters within the range of possible values
+#' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
+#' @param     nthreads    number of threads
+#' @param     totalnum    total number of parameter
+#' @param     beta_0    parameter list
+#' @param     dbeta    parameter change vector
+#' @param     dfc    covariate column numbers
+#' @param     df0    covariate matrix
+#' @param     KeepConstant    vector of parameters to keep constant
+#' @param     debugging    debugging boolean
+#' @param     tform    subterm type
+#' 
+#' @return Updates vector in place: parameter vector
+Intercept_Bound <- function(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform) {
+    invisible(.Call(`_Colossus_Intercept_Bound`, nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform))
+}
+
 #' Utility function to calculate the change to make each iteration
 #' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 #' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices

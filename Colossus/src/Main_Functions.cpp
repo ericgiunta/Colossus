@@ -435,6 +435,7 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
         //
         // Calcualtes the initial change in parameter
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }
@@ -611,7 +612,45 @@ List LogLik_Cox_PH( IntegerVector Term_n, StringVector tform, NumericVector a_n,
                 }
                 //
                 Calc_LogLik( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,RdR,RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method,KeepConstant);
-                
+                if (verbose){
+                    end_point = system_clock::now();
+                    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                    Rcout <<"df100 "<<(ending-start)<<" "<<halves<<" "<<iteration<<" "<<ind0<<", Half"<<endl;
+                    gibtime = system_clock::to_time_t(system_clock::now());
+                    Rcout << ctime(&gibtime) << endl;
+                    Rcout << "df101 ";
+                    for (int ij=0;ij<totalnum;ij++){
+                        Rcout << Ll[ij] << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "df102 ";
+                    for (int ij=0;ij<totalnum;ij++){
+                        Rcout << Lld[ij] << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "df103 ";
+                    for (int ij=0;ij<totalnum;ij++){
+                        Rcout << Lldd[ij*totalnum+ij] << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "df104 ";
+                    for (int ij=0;ij<totalnum;ij++){
+                        Rcout << beta_c[ij] << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "df105 ";
+                    for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero derivative
+                        Rcout << Lld[ij]/Lldd[ij*totalnum+ij] << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "df106 ";
+                    for (int ij=0;ij<totalnum;ij++){//prints the newton step value for zero log-likelihood
+                        Rcout << Ll[ij]/Lld[ij] << " ";
+                    }
+                    Rcout << " " << endl;
+                    Rcout << "df107 " << double_step << " " << abs_max << " " << dose_abs_max << " " << Ll_comp[0] << " " << Ll_comp[1] << endl;//prints several convergence terms
+                }
+                //
                 if (change_all){ //If every covariate is to be changed
                     if (Ll[ind0] <= Ll_best){//takes a half-step if needed
                         #pragma omp parallel for num_threads(nthreads)
@@ -1983,6 +2022,7 @@ List LogLik_Cox_PH_STRATA( IntegerVector Term_n, StringVector tform, NumericVect
         beta_a = beta_c;//
         beta_best = beta_c;//
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }
@@ -3335,6 +3375,7 @@ List LogLik_Poisson( MatrixXd PyrC, IntegerVector Term_n, StringVector tform, Nu
         //
         // Calcualtes the initial change in parameter
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }
@@ -4135,6 +4176,7 @@ List LogLik_Poisson_STRATA( MatrixXd PyrC, IntegerVector Term_n, StringVector tf
         //
         // Calcualtes the initial change in parameter
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
             for (int ijk=0;ijk<totalnum;ijk++){
@@ -4997,6 +5039,7 @@ void Stress_Run( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
         } else {
             Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, FALSE);
         }
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }
@@ -6404,6 +6447,7 @@ List LogLik_Cox_PH_CR( IntegerVector Term_n, StringVector tform, NumericVector a
         //
         // Calculates the initial change in parameter
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
         if (verbose){
             Rcout << "Starting Halves"<<endl;//prints the final changes for validation
         }

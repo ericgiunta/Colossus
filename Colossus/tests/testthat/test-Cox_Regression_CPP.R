@@ -1,7 +1,7 @@
 test_that("Coxph loglin_M", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -20,7 +20,7 @@ test_that("Coxph loglin_M", {
 test_that("Coxph loglin_plin_M", {
     fname <- 'l_pl_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -39,7 +39,7 @@ test_that("Coxph loglin_plin_M", {
 test_that("Coxph loglin_plin_A", {
     fname <- 'l_pl_A_0.csv'
     colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -59,7 +59,7 @@ test_that("Coxph loglin_plin_A", {
 test_that("Coxph dose list", {
     fname <- 'dose.csv'
     colTypes=c("double","double","double","integer")
-    df <- fread(fname,nThread=detectCores()-1,data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
@@ -74,7 +74,7 @@ test_that("Coxph dose list", {
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-    expect_equal(e$beta_0,c(-0.13303574,-0.01480628,4.67824800,-0.06664980,0.50000000,9.17528135,0.40147672,4.21068489,0.69951172,2.88508336,1.00000000),tolerance=1e-2)
+    expect_equal(e$beta_0,c(-0.1177427, -0.05446934, 2.315673, -0.08210008, 0.7519572, 2.15156, 0.3519632, 2.48872, 0.4490276, 1.425919, 1.072918),tolerance=1e-2)
 })
 
 

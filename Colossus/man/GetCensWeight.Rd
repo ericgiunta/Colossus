@@ -94,7 +94,6 @@ surv_ref <- dft$surv
 t_c <- df$t1
 cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
 #removing files created
-file.remove('test_new.csv')
 file.remove('weight_surv_plot_run_2_.jpeg')
 
 }

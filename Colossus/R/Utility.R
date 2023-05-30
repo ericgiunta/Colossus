@@ -28,6 +28,35 @@
 #' names <- val$names
 #'
 Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,verbose=FALSE){
+    #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+            ", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    #
     df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names)
     tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope",
          "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
@@ -623,6 +652,7 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #' func_form <- c("lin")
 #' df_new <- gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),
 #'        c(grt_f),paste("test","_new.csv",sep=""), func_form)
+#' file.remove('test_new.csv')
 #'
 gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_cols, func_form,fname, tform){
     dfn <- names(df)
