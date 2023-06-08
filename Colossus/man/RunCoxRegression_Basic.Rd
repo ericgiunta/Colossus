@@ -2,7 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Basic}
 \alias{RunCoxRegression_Basic}
-\title{Performs basic Cox Proportional Hazards regression with a basic model
+\title{Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model
 \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions}
 \usage{
 RunCoxRegression_Basic(
@@ -40,7 +40,7 @@ RunCoxRegression_Basic(
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards regression with a basic model
+Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model
 \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 }
 \examples{

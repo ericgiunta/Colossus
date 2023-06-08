@@ -167,7 +167,7 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 }
 
 #' calculates and plots Kaplan-Mieier survival plots
-#' \code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the survival for subjects above/below the mean column value for each column
+#' \code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))
 #'
 #' @param verbose boolean identifying if extra plotting information should be written to the console
 #' @param verbosec boolean identifying if extra regression information should be written to the console           
@@ -204,170 +204,80 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
     #
     df_study <- df[, lapply(.SD,max), by=studyID]
     #
-    for (fir_KM in seq_len(length(all_names))){
-        if (verbose){
-            print(fir_KM)
-        }
-        dfend <- df_study[get(event0)==1, ]
-        fir_c <- mean(dfend[,get(all_names[fir_KM])])
-        fmean <- mean(fir_c) #average value to split by
-        df_u <- df_study[get(all_names[fir_KM])>=fmean,] #data above the mean
-        df_l <- df_study[get(all_names[fir_KM])<=fmean,] #data below the mean
-        #
-        df_u_end <- df_u[get(event0)==1, ]
-        df_l_end <- df_l[get(event0)==1, ]
-        #
-        u_num <- length(unlist(unique(df_u[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in upper set
-        l_num <- length(unlist(unique(df_l[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in lower set
-        t_num <- length(unlist(unique(df_study[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in total set
-        #
-        t_u <- c(0) #time data
-        t_l <- c(0)
-        t_t <- c(0)
-        n_u <- c(1) #surviving decimal
-        n_l <- c(1)
-        n_t <- c(1)
-        iden <- c("above","below","combined") #list of which set
-        tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)) #all event times
-        #
-        if (verbose){
-            print("Starting KM Plots")
-        }
-        #
-        tu_s <- c(0.0,tu)
-        for (i_t in seq_len(length(tu))){
-            i <- tu[i_t]
-            #
-            #
-            df0 <- df_u_end[get(time2)<=i,] #set of all intervals prior to this point in upper set
-            df0 <- df0[(get(time2)>tu_s[i_t]),]
-            df1 <- df_u[(get(time2)>tu_s[i_t]),]
-            u_ev <- sum(df0[, get(event0)]) #number of intervals with event in upper set prior to the time point
-            u_num <- nrow(df1)
-            df0 <- df_l_end[get(time2)<=i,] #set of all intervals prior to this point in lower set
-            df0 <- df0[(get(time2)>tu_s[i_t]),]
-            df1 <- df_l[(get(time2)>tu_s[i_t]),]
-            l_ev <- sum(df0[, get(event0)]) #number of intervals with event in lower set prior to the time point
-            l_num <- nrow(df1)
-            df0 <- dfend[get(time2)<=i,] #set of all intervals prior to this point in lower setv
-            df0 <- df0[(get(time2)>tu_s[i_t]),]
-            df1 <- df_study[(get(time2)>tu_s[i_t]),]
-            t_ev <- sum(df0[, get(event0)]) #number of intervals with event in lower set prior to the time point
-            t_num <- nrow(df1)
-            #
-            if (u_ev>0){ #if there are events in the upper set
-                t_u <- c(t_u,i) #adds new time
-                temp <- (u_num - u_ev)/u_num #compares number of events to maximum total
-                n_u <- c(n_u, n_u[length(n_u)]*temp) #adds to list of survival decimals
-            }
-            if (l_ev>0){
-                temp <- (l_num - l_ev)/l_num
-                t_l <- c(t_l,i)
-                n_l <- c(n_l, n_l[length(n_l)]*temp)
-            }
-            if (t_ev>0){
-                temp <- (t_num - t_ev)/t_num
-                t_t <- c(t_t,i)
-                n_t <- c(n_t, n_t[length(n_t)]*temp)
-            }
-        }
-        n <- c(n_u,n_l,n_t)
-        t <- c(t_u,t_l,t_t)
-        iden <- c(rep("above",length(n_u)),rep("below",length(n_l)),rep("combined",length(n_t)))
-        #
-        dft <- data.table("t_u"=t,"n_u"=n,"iden"=iden)
-        #
-        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_u, y=.data$n_u,color=.data$iden)) + ggplot2::geom_line() +
-            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-        g <- g + ggplot2::scale_color_discrete(name = all_names[fir_KM])
-        ggplot2::ggsave(paste("KM_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
-        #
-        df_u <- df[get(all_names[fir_KM])>=fmean,] #data above the mean
-        df_l <- df[get(all_names[fir_KM])<=fmean,] #data below the mean
-        #
-        x_all <- as.matrix(df_l[,all_names, with = FALSE])
-        dfend <- df_l[get(event0)==1, ]
-        #
-        #
-        if (verbose){
-            print("Lower Survival Plots")
-        }
-        #
-        #
-        tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e0 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
-            as.matrix(df_l[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
-        tu0 <- tu
-        ##
-        x_all <- as.matrix(df_u[,all_names, with = FALSE])
-        dfend <- df_u[get(event0)==1, ]
-        #
-        #
-        if (verbose){
-            print("Upper Survival")
-        }
-        #
-        tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e1 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
-            as.matrix(df_u[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
-        tu1 <- tu
-        ##
-        x_all <- as.matrix(df[,all_names, with = FALSE])
-        dfend <- df[get(event0)==1, ]
-        #
-        #
-        if (verbose){
-            print("Total Survival")
-        }
-        #
-        tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        e2 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
-            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
-        tu2 <- tu
-        tmin <- min(c(min(tu0),min(tu1),min(tu2)))
-        t <- c(tmin,tmin,tmin)
-        surv <- c(1,1,1)
-        iden <- c('below','above','combined')
-        dt <- 1
-        if (verbose){
-            print("writing survival")
-        }
-        dft0=data.table("time"=tu0,"base"=e0$baseline)
-        dft1=data.table("time"=tu1,"base"=e1$baseline)
-        dft2=data.table("time"=tu2,"base"=e2$baseline)
-        dfend <- df[get(event0)==1, ]
-        tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
-        for (i in tu[1]:tu[length(tu)]){
-            t <- c(t,i)
-            t <- c(t,i)
-            t <- c(t,i)
-            temp0 <- sum(dft0[time<i, base])
-            temp1 <- sum(dft1[time<i, base])
-            temp2 <- sum(dft2[time<i, base])
-            surv <- c(surv, exp(-1*temp0))
-            surv <- c(surv, exp(-1*temp1))
-            surv <- c(surv, exp(-1*temp2))
-            iden <- c(iden,"below","above","combined")
-        }
-        #
-        Ls <- log(surv)
-        Lls_u <- log(-Ls)
-        Lt_u <- log(t)
-        ##
-        #
-        if (verbose){
-            print("Split log-log Survival Plots")
-        }
-        #
-        #
-        dft <- data.table("t"=Lt_u,"s"=Lls_u,"iden"=iden)
-        #
-
-        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s,color=.data$iden)) +
-             ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
-        g <- g + ggplot2::scale_color_discrete(name = all_names[fir_KM]) 
-        ggplot2::ggsave(paste("log_log_surv_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+    dfend <- df_study[get(event0)==1, ]
+    t_num <- length(unlist(unique(df_study[,studyID, with = FALSE]),use.names=FALSE)) #number of unique individuals in total set
+    #
+    t_t <- c(0)
+    n_t <- c(1)
+    iden <- c("above","below","combined") #list of which set
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)) #all event times
+    #
+    if (verbose){
+        print("Starting KM Plots")
     }
+    #
+    tu_s <- c(0.0,tu)
+    for (i_t in seq_len(length(tu))){
+        i <- tu[i_t]
+        #
+        df0 <- dfend[get(time2)<=i,] #set of all intervals prior to this point in lower setv
+        df0 <- df0[(get(time2)>tu_s[i_t]),]
+        df1 <- df_study[(get(time2)>tu_s[i_t]),]
+        t_ev <- sum(df0[, get(event0)]) #number of intervals with event in lower set prior to the time point
+        t_num <- nrow(df1)
+        #
+        if (t_ev>0){
+            temp <- (t_num - t_ev)/t_num
+            t_t <- c(t_t,i)
+            n_t <- c(n_t, n_t[length(n_t)]*temp)
+        }
+    }
+    #
+    dft <- data.table("t_t"=t_t,"n_t"=n_t)
+    #
+    g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_t, y=.data$n_t)) + ggplot2::geom_line() +
+        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+    ggplot2::ggsave(paste("KM_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+    #
+    #
+    if (verbose){
+        print("Total Survival")
+    }
+    #
+    tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
+    e2 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+    tu2 <- tu
+    t <- c(min(tu2))
+    surv <- c(1)
+    if (verbose){
+        print("writing survival")
+    }
+    dft2=data.table("time"=tu2,"base"=e2$baseline)
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    for (i in tu[1]:tu[length(tu)]){
+        t <- c(t,i)
+        temp2 <- sum(dft2[time<i, base])
+        surv <- c(surv, exp(-1*temp2))
+    }
+    #
+    Ls <- log(surv)
+    Lls_u <- log(-Ls)
+    Lt_u <- log(t)
+    ##
+    #
+    if (verbose){
+        print("Split log-log Survival Plots")
+    }
+    #
+    #
+    dft <- data.table("t"=Lt_u,"s"=Lls_u)
+    #
+
+    g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s)) +
+         ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
+    ggplot2::ggsave(paste("log_log_surv_plot_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
     return ("passed")
 }
 
@@ -504,7 +414,6 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         h <- c()
         ch <- c()
         surv <- c()
-        dt <- 1
         if (verbose){
             print("writing survival data")
         }
@@ -514,7 +423,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
             #fine
         }
         for (i in tu){
-            if ((i<=time_lims[2])&(i>=time_lims[1])){
+            if ((i<=time_lims[2])&&(i>=time_lims[1])){
                 t <- c(t,i)
                 temp <- sum(dft[time<i, base])
                 ch <- c(ch, temp)
@@ -575,7 +484,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
 #' @param Plot_Name plot identifier
 #' @param alpha significance level for two tail t test
 #'
-#' @return returns a list of the final results
+#' @return saves the plots in the current directory and returns a string that it passed
 #'
 #' @importFrom rlang .data
 
@@ -613,7 +522,6 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
         stop()
     }
     #
-    a_n0 <- copy(a_n)
     control <- Def_Control(control)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
@@ -622,7 +530,6 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
         as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     res <- res_list$residual
     res_scaled <- res_list$scaled
-    degree_f <- res_list$df
     #
     #
     for (cov in seq_len(length(a_n))){
@@ -646,7 +553,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 }
           
         
-#' Calculates and returns data for time by cumulative hazard
+#' Calculates and returns data for time by hazard and survival to estimate censoring rate
 #' \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
 #'
 #' @param df data used for regression
@@ -663,7 +570,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #' @param control list of parameters controlling the convergence
 #' @param plot_options list of parameters controlling the plot options
 #'
-#' @return saves the plots in the current directory and returns a string that it passed
+#' @return saves the plots in the current directory and returns a data.table of time and corresponding hazard, cumulative hazard, and survival
 #' @export
 #' @examples
 #' library(data.table)
@@ -735,7 +642,6 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     } else {
         plot_options$age_unit <- "unitless"
     }
-    time_lims <- c(min(tu),max(tu))
     for (iden_col in c("verbose")){
         if (iden_col %in% names(plot_options)){
             #fine
@@ -746,7 +652,6 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     #
     control <- Def_Control(control)
     verbose <- copy(plot_options$verbose)
-    verbosec <- copy(control$verbose)
     maxiterc <- copy(control$maxiter)
     all_names <- unique(names)
     #
@@ -801,7 +706,6 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
         as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     control$maxiter <- maxiterc
-    b <- e$beta_0
     er <- e$Standard_Deviation
     #
     if (verbose){
@@ -815,7 +719,6 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     h <- c()
     ch <- c()
     surv <- c()
-    dt <- 1
     if (verbose){
         print("writing survival data")
     }

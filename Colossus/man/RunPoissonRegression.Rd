@@ -46,7 +46,7 @@ RunPoissonRegression(
 \item{control}{list of parameters controlling the convergence}
 }
 \value{
-prints the final results and return null
+returns a list of the final results
 }
 \description{
 Performs basic poisson regression

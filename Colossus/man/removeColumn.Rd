@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{removeColumn}
 \alias{removeColumn}
-\title{Utility function to remove rows
+\title{Utility function to remove columns
 \code{removeColumn} Called within the code, removes and resizes the matrix}
 \usage{
 removeColumn(matrix, colToRemove)
@@ -16,6 +16,6 @@ removeColumn(matrix, colToRemove)
 eigen matrix with the column removed
 }
 \description{
-Utility function to remove rows
+Utility function to remove columns
 \code{removeColumn} Called within the code, removes and resizes the matrix
 }

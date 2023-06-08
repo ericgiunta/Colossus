@@ -10,7 +10,6 @@ importFrom("stats", "qt")
 importFrom("grDevices", "colorRampPalette", "dev.off", "jpeg")
 importFrom("graphics", "legend", "lines", "smoothScatter")
 importFrom("stats", "approxfun", "time")
-import(survival)
 exportPattern("^[[:alpha:]]+")
 importFrom(rlang,.data)
 

@@ -3,7 +3,7 @@
 \name{RunCoxPlots}
 \alias{RunCoxPlots}
 \title{Performs Cox Proportional Hazard model plots
-\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose plots and saves plots}
+\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and saves plots}
 \usage{
 RunCoxPlots(
   df,
@@ -53,7 +53,7 @@ saves the plots in the current directory and returns a string that it passed
 }
 \description{
 Performs Cox Proportional Hazard model plots
-\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose plots and saves plots
+\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and saves plots
 }
 \examples{
 library(data.table)

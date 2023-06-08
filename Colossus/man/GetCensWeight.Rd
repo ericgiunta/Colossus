@@ -2,7 +2,7 @@
 % Please edit documentation in R/PlotTypes.r
 \name{GetCensWeight}
 \alias{GetCensWeight}
-\title{Calculates and returns data for time by cumulative hazard
+\title{Calculates and returns data for time by hazard and survival to estimate censoring rate
 \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data}
 \usage{
 GetCensWeight(
@@ -49,10 +49,10 @@ GetCensWeight(
 \item{plot_options}{list of parameters controlling the plot options}
 }
 \value{
-saves the plots in the current directory and returns a string that it passed
+saves the plots in the current directory and returns a data.table of time and corresponding hazard, cumulative hazard, and survival
 }
 \description{
-Calculates and returns data for time by cumulative hazard
+Calculates and returns data for time by hazard and survival to estimate censoring rate
 \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
 }
 \examples{

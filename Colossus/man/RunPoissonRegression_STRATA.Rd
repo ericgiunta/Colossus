@@ -2,7 +2,7 @@
 % Please edit documentation in R/Poisson_Regression.R
 \name{RunPoissonRegression_STRATA}
 \alias{RunPoissonRegression_STRATA}
-\title{Performs basic poisson regression with strata effect
+\title{Performs multiplicative loglinear model poisson regression with strata effect
 \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions}
 \usage{
 RunPoissonRegression_STRATA(
@@ -52,7 +52,7 @@ RunPoissonRegression_STRATA(
 returns a list of the final results
 }
 \description{
-Performs basic poisson regression with strata effect
+Performs multiplicative loglinear model poisson regression with strata effect
 \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 }
 \examples{

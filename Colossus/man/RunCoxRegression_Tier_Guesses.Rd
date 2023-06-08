@@ -2,7 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Tier_Guesses}
 \alias{RunCoxRegression_Tier_Guesses}
-\title{Performs basic cox regression, with multiple guesses, starts with a single term
+\title{Performs basic cox regression, with multiple guesses, starts with solving for a single term
 \code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses}
 \usage{
 RunCoxRegression_Tier_Guesses(
@@ -58,7 +58,7 @@ RunCoxRegression_Tier_Guesses(
 returns a list of the final results
 }
 \description{
-Performs basic cox regression, with multiple guesses, starts with a single term
+Performs basic cox regression, with multiple guesses, starts with solving for a single term
 \code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
 }
 \examples{

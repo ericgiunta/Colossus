@@ -149,11 +149,8 @@ List cox_ph_transition_CR(IntegerVector Term_n, StringVector tform, NumericVecto
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
 List cox_ph_transition_single(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
-    bool change_all = Control["change_all"];
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
     string ties_method =Control["ties"];
     int nthreads = Control["Ncores"];
     //
@@ -543,7 +540,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
         Rcout << "Dependent columns not even" << endl;
         return;
     }
-    //double epsilon=1e-2 * dt;
     int tot_covs = ceil(2 + df_dep.cols()/2 + df_const.cols() + 1);
     int max_rows = 0;
     if (iscox){
@@ -557,7 +553,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
     } else {
         max_rows = ceil( ((df_Times.col(1).array() - df_Times.col(0).array()).array().abs().maxCoeff()) / dt);
     }
-    // Rcout << tu << " " << dt << endl;
     int True_Rows=0;
     VectorXd row_store = VectorXd::Zero(tot_covs);
     MatrixXd new_row_store = MatrixXd::Zero(max_rows, tot_covs);
@@ -567,11 +562,9 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
     //
     int serial_0 = 0;
     int serial_1 = 0;
-    // Rcout << "step 0" << endl;
     for (int i_row=0; i_row<df_Times.rows(); i_row++){
         new_row_store = MatrixXd::Zero(max_rows, tot_covs);
         if (iscox){
-            // Rcout << "step 1 " << i_row << endl;
             True_Rows=0;
             serial_0 = 0;
             serial_1 = 0;
@@ -584,8 +577,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 }
             }
             True_Rows = serial_1 - serial_0 + 1;
-//            Rcout << tu[serial_0] << " " << df_Times.coeff(i_row,0)  << " " << df_Times.coeff(i_row,1) << " " << tu[serial_1] << endl;
-            // Rcout << "step 2 " << i_row << endl;
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             for (int i_inner=serial_0;i_inner<serial_1+1;i_inner++){
                 VectorXd dep_temp = VectorXd::Zero(df_dep.cols()/2);
@@ -617,7 +608,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                                 token = func_id.substr(0, pos);
                                 //
                                 tok_char = token[token.length()-1];
-//                                Rcout << tok_char << " " << gather_val << " " << stod(token) << " " << t1 << endl;
                                 if (tok_char == 'g'){
                                     token.pop_back();
                                     temp_tok = stod(token);
@@ -651,7 +641,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                                 } else {
                                     ;
                                 }
-//                                Rcout << tok_char << " " << gather_val << " " << stod(token) << " " << t1 << endl;
                                 //
                                 func_id.erase(0, pos + delim.length());
                             }
@@ -664,7 +653,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 }
                 int event0 = 0;
                 if (i_inner==True_Rows-1){
-//                    t1 = df_Times.coeff(i_row,1);
                     event0 = df0_event[i_row];
                 }
                 new_row_store.row(i_inner) << t0, t1, dep_temp.transpose(), df_const.row(i_row), event0;
@@ -720,7 +708,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                         }
                     }
                 }
-                // Rcout << "step 3 " << i_row << endl;
                 int event0 = 0;
                 if (i_inner==True_Rows-1){
                     t1 = df_Times.coeff(i_row,1);
@@ -729,12 +716,10 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 new_row_store.row(i_inner) << t0 + (t1-t0)*1e-1, t1, dep_temp, df_const.row(i_row), event0;
             }
         }
-        // Rcout << "step 4: " << True_Rows << " " << tot_covs << endl;
         if (file.is_open()){
             file << new_row_store.block(0,0,True_Rows,tot_covs).format(CSVFormat);
             file << "\n";
         }
-        // Rcout << "step 5" << endl;
     }
     if (file.is_open()){
         file.close();
@@ -774,6 +759,74 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 }
 
 
+//' Interface between R code and the Cox PH multi-start regression
+//' \code{cox_ph_transition_guess} Called directly from R, Defines the control variables and calls the regression function
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_ns  matrix of starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param der_iden subterm number for derivative tests
+//' @param modelform model string
+//' @param Control control list
+//' @param df_groups time and event matrix
+//' @param tu event times
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List cox_ph_transition_guess(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["Ncores"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_Guess(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
 
+//' Interface between R code and the risk check
+//' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_n starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param modelform model string
+//' @param Control control list
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, IntegerVector KeepConstant, int term_tot){
+    bool change_all = Control["change_all"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    int nthreads = Control["Ncores"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    bool res = Check_Risk(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, KeepConstant, term_tot, nthreads);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
 
 

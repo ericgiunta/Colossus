@@ -5,15 +5,7 @@
 \title{Performs basic Cox Proportional Hazards regression with the null model
 \code{RunCoxRegression} uses user provided data and time/event columns to calculate the log-likelihood with constant hazard ratio}
 \usage{
-RunCoxNull(
-  df,
-  time1 = "age_start",
-  time2 = "age_exit",
-  event0 = "cases",
-  control = list(lr = 0.75, maxiter = 20, halfmax = 5, epsilon = 1e-09, dbeta_max = 0.5,
-    deriv_epsilon = 1e-09, abs_max = 1, change_all = TRUE, dose_abs_max = 100, verbose =
-    FALSE, ties = "breslow", double_step = 1)
-)
+RunCoxNull(df, time1, time2, event0, control)
 }
 \arguments{
 \item{df}{data used for regression}

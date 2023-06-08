@@ -2,8 +2,8 @@
 % Please edit documentation in R/Poisson_Regression.R
 \name{RunPoissonRegression_Single}
 \alias{RunPoissonRegression_Single}
-\title{Performs basic poisson calculation
-\code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the score}
+\title{Performs poisson regression for multiplicative loglinear model
+\code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results}
 \usage{
 RunPoissonRegression_Single(
   df,
@@ -43,11 +43,11 @@ RunPoissonRegression_Single(
 \item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
 }
 \value{
-prints the final results and return null
+returns a list of the final results
 }
 \description{
-Performs basic poisson calculation
-\code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the score
+Performs poisson regression for multiplicative loglinear model
+\code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
 }
 \examples{
 library(data.table)

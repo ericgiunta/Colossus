@@ -17,9 +17,7 @@ Cox_Relative_Risk(
   a_n,
   modelform,
   fir,
-  control = list(lr = 0.75, maxiter = 20, halfmax = 5, epsilon = 1e-09, dbeta_max = 0.5,
-    deriv_epsilon = 1e-09, abs_max = 1, change_all = TRUE, dose_abs_max = 100, verbose =
-    FALSE, ties = "breslow", double_step = 1)
+  control
 )
 }
 \arguments{

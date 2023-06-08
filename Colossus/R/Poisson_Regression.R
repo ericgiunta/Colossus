@@ -14,7 +14,7 @@
 #' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param control list of parameters controlling the convergence
 #'
-#' @return prints the final results and return null
+#' @return returns a list of the final results
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -57,6 +57,7 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
             df$CONST <- 1
         }
     }
+    control <- Def_Control(control)
     all_names <- unique(names)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
@@ -72,7 +73,6 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
-    control <- Def_Control(control)
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
@@ -107,8 +107,8 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
     return (e)
 }
 
-#' Performs basic poisson calculation
-#' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the score
+#' Performs poisson regression for multiplicative loglinear model
+#' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
 #'
 #' @param df data used for regression
 #' @param pyr column used for person-years per row
@@ -122,7 +122,7 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
 #' @param control list of parameters controlling the convergence
 #' @param keep_constant vector of 0/1 to identify parameters to force to be constant
 #'
-#' @return prints the final results and return null
+#' @return returns a list of the final results
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -163,6 +163,7 @@ RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a
             df$CONST <- 1
         }
     }
+    control <- Def_Control(control)
     all_names <- unique(names)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
@@ -178,7 +179,6 @@ RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
-    control <- Def_Control(control)
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
@@ -208,7 +208,7 @@ RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a
     return (e)
 }
 
-#' Performs basic poisson regression with strata effect
+#' Performs multiplicative loglinear model poisson regression with strata effect
 #' \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @param df data used for regression
@@ -269,6 +269,7 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
             df$CONST <- 1
         }
     }
+    control <- Def_Control(control)
     #
     val <- factorize(df, Strat_Cols)
     df <- val$df
@@ -294,7 +295,6 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
-    control <- Def_Control(control)
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
@@ -388,16 +388,8 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
 #'
 #' @importFrom rlang .data
 RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols){
-    if ("verbose" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$verbose <- FALSE
-    }
-    if ("guess_constant" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$guess_constant <- rep(0,length(a_n))
-    }
+    control <- Def_Control(control)
+    guesses_control <- Def_Control_Guess(guesses_control, a_n)
     a_n_default <- rep(0,length(a_n))
     for (i in seq_len(length(a_n))){
         a_n_default[i] <- a_n[i]
@@ -425,7 +417,6 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(pyr,event0)
         #
-        control <- Def_Control(control)
         #
         if (length(a_n)<length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
@@ -454,9 +445,14 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         } else if (length(keep_constant)>length(names)){
             keep_constant <- keep_constant[seq_len(length(names))]
         }
+        rmin <- guesses_control$rmin
+        rmax <- guesses_control$rmax
+        if (length(rmin)!=length(rmax)){
+            print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+        }
         #
         iteration0 <- control$maxiter
-        control$maxiter <- guesses_control$Iterations
+        control$maxiter <- guesses_control$maxiter
         #
         a_n0 <- rep(0,length(a_n))
         for (i in seq_len(length(a_n))){
@@ -465,37 +461,41 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         df_res <- data.table()
         e <- poisson_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all,
             fir,der_iden, modelform, control,keep_constant,term_tot)
-        radius <- 0
         for (i in seq_len(length(e$beta_0))){
             df_res[,paste(i):=e$beta_0[i]]
-            radius <- radius + (e$beta_0[i]-a_n0[i])^2
         }
         df_res[,paste(length(e$beta_0)+1):=e$Deviation]
-        df_res[,paste(length(e$beta_0)+2):=sqrt(radius)]
-        df_res[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-        df_res[,paste(length(e$beta_0)+4):=e$Converged]
+        df_res[,paste(length(e$beta_0)+2):=e$Control_List$Iteration]
+        df_res[,paste(length(e$beta_0)+3):=e$Converged]
         for (it in 1:guesses_control$guesses){
-            for (i in seq_len(length(tform))){
-                if (guesses_control$guess_constant[i]==0){
-                    if (grepl("log",tform[i],fixed=FALSE)){
-                        if (guesses_control$loglin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$loglin_min,
-                                      max=guesses_control$loglin_max) + a_n_default[i]
+            if (length(rmin)!=length(rmax)){
+                for (i in seq_along(tform)){
+                    if (guesses_control$guess_constant[i]==0){
+                        if (grepl("_int",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
+                        } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
+                        } else if (grepl("_slope",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                        } else if (grepl("loglin",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
+                        } else if (grepl("lin",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
                         } else {
-                            print("bad")
+                            print(paste("tform not implemented ", tform[i],sep=""))
                             stop()
                         }
                     } else {
-                        if (guesses_control$lin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$lin_min,
-                                      max=guesses_control$lin_max) + a_n_default[i]
-                        } else {
-                            print("bad")
-                            stop()
-                        }
+                        a_n[i] <- a_n_default[i]
                     }
-                } else {
-                    a_n[i] <- a_n_default[i]
+                }
+            } else {
+                for (i in seq_along(tform)){
+                    if (guesses_control$guess_constant[i]==0){
+                        a_n[i] <- runif(1,min=guesses_control$rmin,max=guesses_control$rmax) + a_n_default[i]
+                    } else {
+                        a_n[i] <- a_n_default[i]
+                    }
                 }
             }
             a_n0 <- rep(0,length(a_n))
@@ -509,20 +509,17 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
                 #fine
             } else {
                 df_res0 <- data.table()
-                radius <- 0
                 for (i in seq_len(length(e$beta_0))){
                     df_res0[,paste(i):=e$beta_0[i]]
-                    radius <- radius + (e$beta_0[i]-a_n0[i])^2
                 }
                 df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-                df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
-                df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-                df_res0[,paste(length(e$beta_0)+4):=e$Converged]
+                df_res0[,paste(length(e$beta_0)+2):=e$Control_List$Iteration]
+                df_res0[,paste(length(e$beta_0)+3):=e$Converged]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             }
             
         }
-        setnames(df_res,c(names,"Deviation","Radius","Iterations","Converged"))
+        setnames(df_res,c(names,"Deviation","Iterations","Converged"))
         setkeyv(df_res, "Deviation")
         if (guesses_control$verbose){
             print(df_res)
@@ -581,7 +578,6 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(pyr,event0)
         #
-        control <- Def_Control(control)
         #
         if (length(a_n)<length(names)){
             print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
@@ -610,12 +606,17 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         } else if (length(keep_constant)>length(names)){
             keep_constant <- keep_constant[seq_len(length(names))]
         }
+        rmin <- guesses_control$rmin
+        rmax <- guesses_control$rmax
+        if (length(rmin)!=length(rmax)){
+            print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+        }
         #
         #
         control <- Def_Control(control)
         #
         iteration0 <- control$maxiter
-        control$maxiter <- guesses_control$Iterations
+        control$maxiter <- guesses_control$maxiter
         keep_str <- control$keep_strata
         control$keep_strata <- TRUE
         #
@@ -629,37 +630,41 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
         if (is.na(e$Deviation)){
             #fine
         }
-        radius <- 0
         for (i in seq_len(length(e$beta_0))){
             df_res[,paste(i):=e$beta_0[i]]
-            radius <- radius + (e$beta_0[i]-a_n0[i])^2
         }
         df_res[,paste(length(e$beta_0)+1):=e$Deviation]
-        df_res[,paste(length(e$beta_0)+2):=sqrt(radius)]
-        df_res[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-        df_res[,paste(length(e$beta_0)+4):=e$Converged]
+        df_res[,paste(length(e$beta_0)+2):=e$Control_List$Iteration]
+        df_res[,paste(length(e$beta_0)+3):=e$Converged]
         for (it in 1:guesses_control$guesses){
-            for (i in seq_len(length(tform))){
-                if (guesses_control$guess_constant[i]==0){
-                    if (grepl("log",tform[i],fixed=FALSE)){
-                        if (guesses_control$loglin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$loglin_min,
-                                   max=guesses_control$loglin_max) + a_n_default[i]
+            if (length(rmin)!=length(rmax)){
+                for (i in seq_along(tform)){
+                    if (guesses_control$guess_constant[i]==0){
+                        if (grepl("_int",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
+                        } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
+                        } else if (grepl("_slope",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                        } else if (grepl("loglin",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
+                        } else if (grepl("lin",tform[i],fixed=FALSE)){
+                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
                         } else {
-                            print("bad")
+                            print(paste("tform not implemented ", tform[i],sep=""))
                             stop()
                         }
                     } else {
-                        if (guesses_control$lin_method == "uniform"){
-                            a_n[i] <- runif(1,min=guesses_control$lin_min,
-                                   max=guesses_control$lin_max) + a_n_default[i]
-                        } else {
-                            print("bad")
-                            stop()
-                        }
+                        a_n[i] <- a_n_default[i]
                     }
-                } else {
-                    a_n[i] <- a_n_default[i]
+                }
+            } else {
+                for (i in seq_along(tform)){
+                    if (guesses_control$guess_constant[i]==0){
+                        a_n[i] <- runif(1,min=guesses_control$rmin,max=guesses_control$rmax) + a_n_default[i]
+                    } else {
+                        a_n[i] <- a_n_default[i]
+                    }
                 }
             }
             a_n0 <- rep(0,length(a_n))
@@ -673,20 +678,17 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
                 #fine
             } else {
                 df_res0 <- data.table()
-                radius <- 0
                 for (i in seq_len(length(e$beta_0))){
                     df_res0[,paste(i):=e$beta_0[i]]
-                    radius <- radius + (e$beta_0[i]-a_n0[i])^2
                 }
                 df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-                df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
-                df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-                df_res0[,paste(length(e$beta_0)+4):=e$Converged]
+                df_res0[,paste(length(e$beta_0)+2):=e$Control_List$Iteration]
+                df_res0[,paste(length(e$beta_0)+3):=e$Converged]
                 df_res <- rbindlist(list(df_res, df_res0)) 
             }
             
         }
-        setnames(df_res,c(names,"Deviation","Radius","Iterations","Converged"))
+        setnames(df_res,c(names,"Deviation","Iterations","Converged"))
         setkeyv(df_res, "Deviation")
         if (guesses_control$verbose){
             print(df_res)
@@ -764,21 +766,8 @@ RunPoissonRegression_Guesses <- function(df, pyr, event0, names, Term_n, tform, 
 #'
 #' @importFrom rlang .data
 RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols){
-    if ("verbose" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$verbose <- FALSE
-    }
-    if ("guess_constant" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$guess_constant <- rep(0,length(a_n))
-    }
-    if ("guesses_start" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$guesses_start <- guesses_control$guesses
-    }
+    control <- Def_Control(control)
+    guesses_control <- Def_Control_Guess(guesses_control, a_n)
     t_initial <- guesses_control$term_initial
     #
     if (length(a_n)<length(names)){
@@ -807,6 +796,11 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
         keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    rmin <- guesses_control$rmin
+    rmax <- guesses_control$rmax
+    if (length(rmin)!=length(rmax)){
+        print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
     }
     #
     name_initial <- c()
@@ -923,21 +917,8 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
             df$CONST <- 1
         }
     }
-    if ("verbose" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$verbose <- FALSE
-    }
-    if ("strata" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$strata <- FALSE
-    }
-    if ("guesses_start" %in% names(guesses_control)){
-        #fine
-    } else {
-        guesses_control$guesses_start <- guesses_control$guesses
-    }
+    control <- Def_Control(control)
+    guesses_control <- Def_Control_Guess(guesses_control, a_n)
     #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
@@ -966,7 +947,15 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     } else if (length(keep_constant)>length(names)){
         keep_constant <- keep_constant[seq_len(length(names))]
     }
+    rmin <- guesses_control$rmin
+    rmax <- guesses_control$rmax
+    if (length(rmin)!=length(rmax)){
+        print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+    }
     #
+    if (control$verbose){
+        print("Starting Distributed Guessing")
+    }
     #
     val <- factorize(df, Strat_Cols,guesses_control$verbose)
     df <- val$df
@@ -992,7 +981,6 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr,event0)
     #
-    control <- Def_Control(control)
     #
     guess_constant <- rep(0,length(a_n_strata))
     #
@@ -1048,8 +1036,7 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     #
     control <- Def_Control(control)
     #
-    iteration0 <- control$maxiter
-    control$maxiter <- guesses_control$Iterations
+    control$maxiter <- guesses_control$maxiter
     keep_str <- control$keep_strata
     control$keep_strata <- TRUE
     #
@@ -1060,37 +1047,41 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
     }
     e <- poisson_strata_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,a_n,dfc,x_all, fir,der_iden,
          modelform, control,keep_constant,term_tot,rep(1,length(val$cols)))
-    radius <- 0
     for (i in seq_len(length(e$beta_0))){
         df_res[,paste(i):=e$beta_0[i]]
-        radius <- radius + (e$beta_0[i]-a_n0[i])^2
     }
     df_res[,paste(length(e$beta_0)+1):=e$Deviation]
-    df_res[,paste(length(e$beta_0)+2):=sqrt(radius)]
-    df_res[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-    df_res[,paste(length(e$beta_0)+4):=e$Converged]
+    df_res[,paste(length(e$beta_0)+2):=e$Control_List$Iteration]
+    df_res[,paste(length(e$beta_0)+3):=e$Converged]
     for (it in 1:guesses_control$guesses){
-        for (i in seq_len(length(tform))){
-            if (guesses_control$guess_constant[i]==0){
-                if (grepl("log",tform[i],fixed=FALSE)){
-                    if (guesses_control$loglin_method == "uniform"){
-                        a_n[i] <- runif(1,min=guesses_control$loglin_min,
-                               max=guesses_control$loglin_max) + a_n_default[i]
+        if (length(rmin)!=length(rmax)){
+            for (i in seq_along(tform)){
+                if (guesses_control$guess_constant[i]==0){
+                    if (grepl("_int",tform[i],fixed=FALSE)){
+                        a_n[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
+                    } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
+                        a_n[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
+                    } else if (grepl("_slope",tform[i],fixed=FALSE)){
+                        a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                    } else if (grepl("loglin",tform[i],fixed=FALSE)){
+                        a_n[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
+                    } else if (grepl("lin",tform[i],fixed=FALSE)){
+                        a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
                     } else {
-                        print("bad")
+                        print(paste("tform not implemented ", tform[i],sep=""))
                         stop()
                     }
                 } else {
-                    if (guesses_control$lin_method == "uniform"){
-                        a_n[i] <- runif(1,min=guesses_control$lin_min,
-                                 max=guesses_control$lin_max) + a_n_default[i]
-                    } else {
-                        print("bad")
-                        stop()
-                    }
+                    a_n[i] <- a_n_default[i]
                 }
-            } else {
-                a_n[i] <- a_n_default[i]
+            }
+        } else {
+            for (i in seq_along(tform)){
+                if (guesses_control$guess_constant[i]==0){
+                    a_n[i] <- runif(1,min=guesses_control$rmin,max=guesses_control$rmax) + a_n_default[i]
+                } else {
+                    a_n[i] <- a_n_default[i]
+                }
             }
         }
         a_n0 <- rep(0,length(a_n))
@@ -1103,20 +1094,17 @@ RunPoissonRegression_Strata_First <- function(df, pyr, event0, names, Term_n, tf
             #fine
         } else {
             df_res0 <- data.table()
-            radius <- 0
             for (i in seq_len(length(e$beta_0))){
                 df_res0[,paste(i):=e$beta_0[i]]
-                radius <- radius + (e$beta_0[i]-a_n0[i])^2
             }
             df_res0[,paste(length(e$beta_0)+1):=e$Deviation]
-            df_res0[,paste(length(e$beta_0)+2):=sqrt(radius)]
-            df_res0[,paste(length(e$beta_0)+3):=e$Control_List$Iteration]
-            df_res0[,paste(length(e$beta_0)+4):=e$Converged]
+            df_res0[,paste(length(e$beta_0)+2):=e$Control_List$Iteration]
+            df_res0[,paste(length(e$beta_0)+3):=e$Converged]
             df_res <- rbindlist(list(df_res, df_res0)) 
         }
         
     }
-    setnames(df_res,c(names,"Deviation","Radius","Iterations","Converged"))
+    setnames(df_res,c(names,"Deviation","Iterations","Converged"))
     setkeyv(df_res, "Deviation")
     if (guesses_control$verbose){
         print(df_res)

@@ -18,7 +18,6 @@ Imports:
     parallel,
     stats,
     utils,
-    survival,
     ggplot2,
     rlang
 LinkingTo: Rcpp, RcppEigen, testthat

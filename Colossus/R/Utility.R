@@ -151,6 +151,115 @@ Def_Control <- function(control){
     return (control)
 }
 
+#' Automatically assigns missing guessing control values
+#' \code{Def_Control_Guess} checks and assigns default values
+#'
+#' @param guesses_control list of control parameters
+#' @param a_n list of initial parameter values, used to determine number of parameters
+#'
+#' @return returns a filled list
+#' @export
+#' @examples
+#' library(data.table)
+#' guesses_control=list("maxiter"=10,"guesses"=10,
+#'     "loglin_min"=-1,"loglin_max"=1,"loglin_method"="uniform")
+#' a_n <- c(0.1,2,1.3)
+#' guesses_control <- Def_Control_Guess(guesses_control, a_n)
+#'
+Def_Control_Guess <- function(guesses_control, a_n){
+    if ("verbose" %in% names(guesses_control)){ #determines extra printing
+        #fine
+    } else {
+        guesses_control$verbose <- FALSE
+    }
+    if ("maxiter" %in% names(guesses_control)){ #determines the iterations for each guess
+        #fine
+    } else {
+        guesses_control$maxiter <- 5
+    }
+    if ("guesses" %in% names(guesses_control)){ #determines the number of guesses
+        #fine
+    } else {
+        guesses_control$guesses <- 10
+    }
+    # -------------------------------------------------------------------- #
+    if ("exp_min" %in% names(guesses_control)){ #minimum exponential parameter change
+        #fine
+    } else {
+        guesses_control$exp_min <- -1
+    }
+    if ("exp_max" %in% names(guesses_control)){ #maximum exponential parameter change
+        #fine
+    } else {
+        guesses_control$exp_max <- 1
+    }
+    # -------------------------------------------------------------------- #
+    if ("intercept_min" %in% names(guesses_control)){ #minimum intercept parameter change
+        #fine
+    } else {
+        guesses_control$intercept_min <- -1
+    }
+    if ("intercept_max" %in% names(guesses_control)){ #maximum intercept parameter change
+        #fine
+    } else {
+        guesses_control$intercept_max <- 1
+    }
+    # -------------------------------------------------------------------- #
+    if ("lin_min" %in% names(guesses_control)){ #minimum linear parameter change
+        #fine
+    } else {
+        guesses_control$lin_min <- 0.1
+    }
+    if ("lin_max" %in% names(guesses_control)){ #maximum linear parameter change
+        #fine
+    } else {
+        guesses_control$lin_max <- 1
+    }
+    # -------------------------------------------------------------------- #
+    if ("exp_slope_min" %in% names(guesses_control)){ #minimum exp_slope parameter change
+        #fine
+    } else {
+        guesses_control$exp_slope_min <- 0.001
+    }
+    if ("exp_slope_max" %in% names(guesses_control)){ #maximum exp_slope parameter change
+        #fine
+    } else {
+        guesses_control$exp_slope_max <- 2
+    }
+    # -------------------------------------------------------------------- #
+    if ("term_initial" %in% names(guesses_control)){ #list of term numbers for tiered guessing
+        #fine
+    } else {
+        guesses_control$term_initial <- c(0)
+    }
+    #
+    if ("guess_constant" %in% names(guesses_control)){ #binary values for if a parameter is distributed (0) or not (1)
+        if (length(guesses_control$guess_constant)<length(a_n)){
+            guesses_control$guess_constant <- c(guesses_control$guess_constant, 
+                rep(0,length(a_n)-length(guesses_control$guess_constant)))
+        }
+    } else {
+        guesses_control$guess_constant <- rep(0,length(a_n))
+    }
+    if ("guesses_start" %in% names(guesses_control)){ #number of guesses for first part of tiered guessing
+        #fine
+    } else {
+        guesses_control$guesses_start <- guesses_control$guesses
+    }
+    if ("strata" %in% names(guesses_control)){ #if stratification is used
+        #fine
+    } else {
+        guesses_control$strata <- FALSE
+    }
+    if (("rmin" %in% names(guesses_control))&&("rmax" %in% names(guesses_control))){ #if stratification is used
+        #fine
+    } else {
+        guesses_control$rmin <- c(-1)
+        guesses_control$rmax <- c(-1,-1)
+    }
+    return (guesses_control)
+}
+
 
 #' Calculates Full Parameter list for Special Dose Formula
 #' \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas
@@ -367,7 +476,6 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
     cols <- c()
     vals <- c()
     names <- c()
-    col0 <- names(df)
     for (i in seq_len(length(col_list))){
         col <- col_list[i]
         x <- sort(unlist(as.list(unique(df[,col, with = FALSE])),use.names=FALSE))

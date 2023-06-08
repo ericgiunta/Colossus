@@ -7,21 +7,19 @@
 \usage{
 RunCoxRegression_STRATA(
   df,
-  time1 = "age_start",
-  time2 = "age_exit",
-  event0 = "cases",
-  names = c("dose"),
-  Term_n = rep(0, length(names)),
-  tform = rep("loglin", length(names)),
-  keep_constant = rep(0, length(names)),
-  a_n = c(0.01),
-  modelform = "M",
-  fir = 0,
-  der_iden = 0,
-  control = list(lr = 0.75, maxiter = 20, halfmax = 5, epsilon = 1e-09, dbeta_max = 0.5,
-    deriv_epsilon = 1e-09, abs_max = 1, change_all = TRUE, dose_abs_max = 100, verbose =
-    FALSE, ties = "breslow", double_step = 1),
-  Strat_Col = "cell"
+  time1,
+  time2,
+  event0,
+  names,
+  Term_n,
+  tform,
+  keep_constant,
+  a_n,
+  modelform,
+  fir,
+  der_iden,
+  control,
+  Strat_Col
 )
 }
 \arguments{

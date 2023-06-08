@@ -58,7 +58,7 @@ PlotCox_Schoenfeld_Residual(
 \item{alpha}{significance level for two tail t test}
 }
 \value{
-returns a list of the final results
+saves the plots in the current directory and returns a string that it passed
 }
 \description{
 Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots

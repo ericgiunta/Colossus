@@ -3,7 +3,7 @@
 \name{CoxKaplanMeier}
 \alias{CoxKaplanMeier}
 \title{calculates and plots Kaplan-Mieier survival plots
-\code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the survival for subjects above/below the mean column value for each column}
+\code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))}
 \usage{
 CoxKaplanMeier(
   verbose,
@@ -74,5 +74,5 @@ saves the plots in the current directory and returns a string that it passed
 }
 \description{
 calculates and plots Kaplan-Mieier survival plots
-\code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the survival for subjects above/below the mean column value for each column
+\code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))
 }

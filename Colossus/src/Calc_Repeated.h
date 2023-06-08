@@ -9,6 +9,7 @@ using Rcpp::as;
 
 template <typename T> int sign(T val);
 
+void mem_usage(unsigned long& vm_usage);
 
 double vec_norm(const vector<double>& x,int totalnum);
 
