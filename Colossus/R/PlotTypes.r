@@ -617,6 +617,10 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     if (plot_options$verbose){
         print("Starting Plot Function")
     }
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     setkeyv(df, c(time2, event0))
     base  <- NULL
     der_iden <- 0

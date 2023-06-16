@@ -29,6 +29,11 @@
 #'
 Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,verbose=FALSE){
     #
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
+    #
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
             ", Remaining filled with 0.01",sep=""))

@@ -56,6 +56,10 @@
 RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     setkeyv(df, c(time2, event0))
     control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -174,6 +178,10 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control){
     setkeyv(df, c(time2, event0))
     control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -282,6 +290,10 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constant, a_n, der_iden, control){
     setkeyv(df, c(time2, event0))
     control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -394,6 +406,10 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col){
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -460,7 +476,9 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
         rmin <- guesses_control$rmin
         rmax <- guesses_control$rmax
         if (length(rmin)!=length(rmax)){
-            print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            if (control$verbose){
+                print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            }
         }
         #
         iteration0 <- control$maxiter
@@ -499,7 +517,7 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
             } else {
                 for (i in seq_along(tform)){
                     if (guesses_control$guess_constant[i]==0){
-                        a_n[i] <- runif(1,min=guesses_control$rmin,max=guesses_control$rmax) + a_n_default[i]
+                        a_n[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
                     } else {
                         a_n[i] <- a_n_default[i]
                     }
@@ -608,7 +626,9 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
         rmin <- guesses_control$rmin
         rmax <- guesses_control$rmax
         if (length(rmin)!=length(rmax)){
-            print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            if (control$verbose){
+                print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            }
         }
         #
         iteration0 <- control$maxiter
@@ -646,7 +666,7 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
             } else {
                 for (i in seq_along(tform)){
                     if (guesses_control$guess_constant[i]==0){
-                        a_n[i] <- runif(1,min=guesses_control$rmin,max=guesses_control$rmax) + a_n_default[i]
+                        a_n[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
                     } else {
                         a_n[i] <- a_n_default[i]
                     }
@@ -741,6 +761,10 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
 RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col){
     setkeyv(df, c(time2, event0, Strat_Col))
     control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -868,6 +892,10 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control){
     setkeyv(df, c(time2, event0))
     control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -1023,6 +1051,10 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #'
 RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){
     control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if (plot_options$verbose){
         print("Starting Plot Function")
     }
@@ -1327,6 +1359,10 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col){
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -1365,7 +1401,9 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     rmin <- guesses_control$rmin
     rmax <- guesses_control$rmax
     if (length(rmin)!=length(rmax)){
-        print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+        if (control$verbose){
+            print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+        }
     }
     #
     name_initial <- c()
@@ -1468,6 +1506,10 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 
 RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     setkeyv(df, c(time2, event0))
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -1596,6 +1638,10 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
 RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
     setkeyv(df, c(time2, event0))
     control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -1723,6 +1769,10 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col){
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
@@ -1792,7 +1842,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         rmin <- guesses_control$rmin
         rmax <- guesses_control$rmax
         if (length(rmin)!=length(rmax)){
-            print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            if (control$verbose){
+                print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            }
         }
         #
         keep <- risk_check_transition(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
@@ -1830,7 +1882,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
             } else {
                 for (i in seq_along(tform)){
                     if (guesses_control$guess_constant[i]==0){
-                        a_n[i] <- runif(1,min=guesses_control$rmin,max=guesses_control$rmax) + a_n_default[i]
+                        a_n[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
                     } else {
                         a_n[i] <- a_n_default[i]
                     }

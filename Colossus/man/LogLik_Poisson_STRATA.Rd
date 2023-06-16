@@ -29,7 +29,7 @@ LogLik_Poisson_STRATA(
   debugging,
   KeepConstant,
   term_tot,
-  STRATA_vals,
+  dfs,
   keep_strata,
   nthreads
 )
@@ -81,7 +81,7 @@ LogLik_Poisson_STRATA(
 
 \item{term_tot}{total number of terms}
 
-\item{STRATA_vals}{vector of strata identifier values}
+\item{dfs}{matrix of stratification variables}
 
 \item{keep_strata}{boolean to return the strata parameter values}
 

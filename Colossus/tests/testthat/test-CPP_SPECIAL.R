@@ -29,12 +29,12 @@ test_that("Coxph censoring weight", {
     names <- c("dose","fac")
     Term_n <- c(0,0)
     tform <- c("loglin","loglin")
-    keep_constant <- c(1,1)
+    keep_constant <- c(1,0)
     a_n <- c(0,0)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     plot_options <- list("name"="run_2","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
@@ -55,7 +55,7 @@ test_that("Coxph censoring weight", {
     keep_constant <- c(0,0)
     e1 <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     #
-    expect_equal(e0$LogLik - e1$LogLik,7.513795,tolerance=1e-2)
+    expect_equal(e0$LogLik - e1$LogLik,-2.909427,tolerance=1e-2)
 })
 
 

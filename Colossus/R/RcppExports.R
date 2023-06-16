@@ -140,6 +140,38 @@ Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, T
     invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant))
 }
 
+#' Utility function to calculate the risk and risk ratios with a weighting applied
+#' \code{Make_Risks_Weighted} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
+#' @param     modelform    Model string
+#' @param     tform    subterm types
+#' @param     Term_n    term numbers
+#' @param     totalnum    total number of terms
+#' @param     fir    first term number
+#' @param     s_weights vector of weights for every row
+#' @param     T0    Term by subterm matrix
+#' @param     Td0    Term by subterm derivative matrix
+#' @param     Tdd0    Term by subterm second derivative matrix
+#' @param     Te    Temporary term storage matrix
+#' @param     R    Risk matrix
+#' @param     Rd    Risk first derivative matrix
+#' @param     Rdd    Risk second derivative matrix
+#' @param     Dose    Dose term matrix
+#' @param     nonDose    nonDose term matrix
+#' @param     TTerm    Total term matrix
+#' @param     nonDose_LIN    Linear term matrix
+#' @param     nonDose_PLIN    Product linear term matrix
+#' @param     nonDose_LOGLIN    Loglinear term matrix
+#' @param     RdR    Risk to first derivative ratio matrix
+#' @param     RddR    Risk to second derivative ratio matrix
+#' @param     nthreads    number of threads to use
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: Risk, Risk ratios
+Make_Risks_Weighted <- function(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Risks_Weighted`, modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant))
+}
+
 #' Utility function to calculate the risk, but not derivatives
 #' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
 #' @param     modelform    Model string
@@ -957,13 +989,13 @@ LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     debugging    debugging boolean
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
-#' @param     STRATA_vals vector of strata identifier values
+#' @param     dfs matrix of stratification variables
 #' @param     keep_strata boolean to return the strata parameter values
 #' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata, nthreads) {
-    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, STRATA_vals, keep_strata, nthreads)
+LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, keep_strata, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, keep_strata, nthreads)
 }
 
 #' Primary Cox PH stress test function
@@ -1375,11 +1407,11 @@ poisson_transition_single <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, 
 #' @param Control control list
 #' @param KeepConstant vector of parameters to keep constant
 #' @param term_tot total number of terms
-#' @param STRATA_vals vector of strata identifier values
+#' @param df0 matrix of strata identifier values
 #'
 #' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-poisson_strata_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, STRATA_vals) {
-    .Call(`_Colossus_poisson_strata_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, STRATA_vals)
+poisson_strata_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0) {
+    .Call(`_Colossus_poisson_strata_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0)
 }
 
 #' Interface between R code and the Cox PH stress tester
@@ -1498,5 +1530,21 @@ cox_ph_transition_guess <- function(Term_n, tform, a_ns, dfc, x_all, fir, der_id
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 risk_check_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot) {
     .Call(`_Colossus_risk_check_transition`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot)
+}
+
+#' Generates weightings for stratified poisson regression
+#' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
+#' @param dfs Matrix with stratification columns, assumed to be binary and mutually exclusive
+#' @param PyrC matrix of person-years and event counts
+#' @param s_weights vector of weights to assign to
+#' @param nthreads number of threads to use
+#' @param     tform    subterm types
+#' @param     Term_n    term numbers
+#' @param     term_tot   number of terms
+#' @param     modelform   string model identifier
+#'
+#' @return assigns weight in place and returns nothing
+Gen_Strat_Weight <- function(modelform, dfs, PyrC, s_weights, nthreads, tform, Term_n, term_tot) {
+    invisible(.Call(`_Colossus_Gen_Strat_Weight`, modelform, dfs, PyrC, s_weights, nthreads, tform, Term_n, term_tot))
 }
 

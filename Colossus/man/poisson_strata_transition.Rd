@@ -18,7 +18,7 @@ poisson_strata_transition(
   Control,
   KeepConstant,
   term_tot,
-  STRATA_vals
+  df0
 )
 }
 \arguments{
@@ -46,7 +46,7 @@ poisson_strata_transition(
 
 \item{term_tot}{total number of terms}
 
-\item{STRATA_vals}{vector of strata identifier values}
+\item{df0}{matrix of strata identifier values}
 }
 \value{
 LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information

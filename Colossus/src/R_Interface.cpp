@@ -398,13 +398,14 @@ List poisson_transition_single(NumericMatrix dfe, IntegerVector Term_n, StringVe
 //' @param Control control list
 //' @param KeepConstant vector of parameters to keep constant
 //' @param term_tot total number of terms
-//' @param STRATA_vals vector of strata identifier values
+//' @param df0 matrix of strata identifier values
 //'
 //' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 // [[Rcpp::export]]
-List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, IntegerVector STRATA_vals){
+List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0){
     //----------------------------------------------------------------------------------------------------------------//
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
     //
     bool change_all = Control["change_all"];
     bool keep_strata = Control["keep_strata"];
@@ -422,7 +423,7 @@ List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVe
     // calculates the poisson regression
     int nthreads = Control["Ncores"];
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, STRATA_vals,keep_strata, nthreads);
+    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, dfs,keep_strata, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -828,5 +829,135 @@ bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVect
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
+
+
+//' Generates weightings for stratified poisson regression
+//' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
+//' @param dfs Matrix with stratification columns, assumed to be binary and mutually exclusive
+//' @param PyrC matrix of person-years and event counts
+//' @param s_weights vector of weights to assign to
+//' @param nthreads number of threads to use
+//' @param     tform    subterm types
+//' @param     Term_n    term numbers
+//' @param     term_tot   number of terms
+//' @param     modelform   string model identifier
+//'
+//' @return assigns weight in place and returns nothing
+// [[Rcpp::export]]
+void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& Term_n, const int& term_tot){
+    ArrayXd Pyrs   = dfs.transpose() * PyrC.col(0);
+    ArrayXd Events = dfs.transpose() * PyrC.col(1);
+    ArrayXd weight = Events.array() * Pyrs.array().pow(-1).array();
+    //
+    s_weights = dfs * weight.matrix();
+    //
+    //
+    vector<double> plin_count(term_tot,0);
+    vector<double> loglin_count(term_tot,0);
+    vector<double> dose_count(term_tot,0);
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+            initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:dose_count,plin_count,loglin_count)
+    for (int ij=0;ij<(Term_n.size());ij++){
+        int tn = Term_n[ij];
+        if (as< string>(tform[ij])=="loglin") {
+            loglin_count[tn]=loglin_count[tn]+1.0;
+        } else if (as< string>(tform[ij])=="lin") {
+            ;
+        } else if (as< string>(tform[ij])=="plin") {
+            plin_count[tn]=plin_count[tn]+1.0;
+        } else if (as< string>(tform[ij])=="loglin_slope"){
+            dose_count[tn]=dose_count[tn]+1.0; 
+        } else if (as< string>(tform[ij])=="loglin_top"){
+            if (ij==0){
+                dose_count[tn]=dose_count[tn]+1.0;
+            } else if (tform[ij-1]!="loglin_slope"){
+                dose_count[tn]=dose_count[tn]+1.0;
+                //
+            } else {
+                ;
+            }
+        } else if (as< string>(tform[ij])=="lin_slope"){
+            ;
+        } else if (as< string>(tform[ij])=="lin_int") {
+            ;
+        } else if (as< string>(tform[ij])=="quad_slope"){
+            ;
+        } else if (as< string>(tform[ij])=="step_slope"){
+            ;
+        } else if (as< string>(tform[ij])=="step_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_quad_slope") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_quad_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_slope") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_int") {
+            ;
+        } else if (as< string>(tform[ij])=="lin_exp_exp_slope") {
+            ;
+        } else {
+            throw invalid_argument( "incorrect subterm type" );
+        }
+    }
+    //
+    vector<double> term_val(term_tot,0);
+    for (int ijk=0; ijk<term_tot;ijk++){ //combines non-dose terms into a single term
+        if (dose_count[ijk]==0){
+            dose_count[ijk] = 1.0;
+        }
+        if (plin_count[ijk]==0){
+            plin_count[ijk] = 1.0;
+        }
+        if (loglin_count[ijk]==0){
+            loglin_count[ijk] = 1.0;;//replaces missing data with 1
+        }
+        term_val[ijk] = dose_count[ijk] * plin_count[ijk] * loglin_count[ijk];
+//        Rcout << dose_count[ijk] << ", " << plin_count[ijk] << ", " << loglin_count[ijk] << ", " << term_val[ijk] << endl;
+    }
+    double default_val=0;
+    if (modelform=="A"){
+        for (int i=0; i<term_tot; i++){
+            default_val += term_val[i];
+        }
+    }else if (modelform=="PA"){
+        for (int i=1; i<term_tot; i++){
+            default_val += term_val[i];
+        }
+        default_val *= term_val[0];
+    }else if (modelform=="PAE"){
+        for (int i=1; i<term_tot; i++){
+            default_val += term_val[i];
+        }
+        default_val = (1 + default_val) * term_val[0];
+    }else if (modelform=="M"){
+        default_val=1;
+        for (int i=1; i<term_tot; i++){
+            default_val *= (1+term_val[i]);
+        }
+        default_val *= term_val[0];
+    } else if (modelform=="GM"){
+        throw invalid_argument( "GM isn't implemented" );
+    } else {
+        throw invalid_argument( "Model isn't implemented" );
+    }
+//    Rcout << default_val << endl;
+    s_weights = s_weights / default_val;
+    return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
