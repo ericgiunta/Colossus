@@ -229,14 +229,14 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
         } else if (as< string>(tform[ij])=="step_int") {
             ;
         } else if (as< string>(tform[ij])=="lin_quad_slope") {
-            Td0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]);
+            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]);
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]);
             T0.col(ij+1) = (df0.col(df0_c).array().pow(2).array() * beta_0[ij] /2 / beta_0[ij+1] + beta_0[ij] /2 * beta_0[ij+1]);
             //
-            Td0.col(ij) = (Td0.col(ij).array() < 0).select(T0.col(ij), T0.col(ij+1));
+            temp = (temp.array() < 0).select(T0.col(ij), T0.col(ij+1));
             //
-            T0.col(ij) = Td0.col(ij).array();
-            T0.col(ij+1) = Td0.col(ij).array();
+            T0.col(ij) = temp.array();
+            T0.col(ij+1) = T0.col(ij).array();
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn]=dose_count[tn]+1;
         } else if (as< string>(tform[ij])=="lin_quad_int") {
@@ -327,42 +327,57 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
                     ;
                 }
             } else if (as< string>(tform[ij])=="lin_slope"){
-                Td0.col(jk)  = (df0.col(df0_c).array() - beta_0[ij+1]);
-                T0.col(ij)   = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-                T0.col(ij+1) = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
-                //
-                Td0.col(jk)  = (Td0.col(jk).array()  < 0).select(0, Td0.col(jk));
-                T0.col(ij)   = (T0.col(ij).array()   < 0).select(0, T0.col(ij));
-                T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0, T0.col(ij+1));
-                //
-                Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
-                //
-                Tdd0.col((jk+1)*(jk+2)/2+jk)   = (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
-                Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
-                //
-                T0.col(ij)   = Dose.col(tn);
-                T0.col(ij+1) = Dose.col(tn);
-
+                if (KeepConstant[ij+1]==0){
+                    Td0.col(jk)  = (df0.col(df0_c).array() - beta_0[ij+1]);
+                    T0.col(ij)   = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+                    T0.col(ij+1) = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+                    //
+                    Td0.col(jk)  = (Td0.col(jk).array()  < 0).select(0, Td0.col(jk));
+                    T0.col(ij)   = (T0.col(ij).array()   < 0).select(0, T0.col(ij));
+                    T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0, T0.col(ij+1));
+                    //
+                    Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
+                    //
+                    Tdd0.col((jk+1)*(jk+2)/2+jk)   = (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
+                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
+                    //
+                    T0.col(ij)   = Dose.col(tn);
+                    T0.col(ij+1) = Dose.col(tn);
+                } else { // Special case with a fixed intercept, but not a fixed slope
+                    Td0.col(jk)  = (df0.col(df0_c).array() - beta_0[ij+1]);
+                    Td0.col(jk)  = (Td0.col(jk).array()  < 0).select(0, Td0.col(jk));
+                    //
+                    T0.col(ij)   = Dose.col(tn);
+                    T0.col(ij+1) = Dose.col(tn);
+                }
             } else if (as< string>(tform[ij])=="quad_slope"){
                 Td0.col(jk) = df0.col(df0_c).array().square();
                 //
                 T0.col(ij) = Dose.col(tn);
             } else if (as< string>(tform[ij])=="step_slope"){
-                Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij+1]);
-                T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-                T0.col(ij+1) = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
-                //
-                Td0.col(jk)  = (Td0.col(jk).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
-                T0.col(ij)   = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
-                T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
-                //
-                Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
-                //
-                Tdd0.col((jk+1)*(jk+2)/2+jk) = (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
-                Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
-                //
-                T0.col(ij) = Dose.col(tn);
-                T0.col(ij+1) = Dose.col(tn);
+                if (KeepConstant[ij+1]==0){
+                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij+1]);
+                    T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
+                    T0.col(ij+1) = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
+                    //
+                    Td0.col(jk)  = (Td0.col(jk).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
+                    T0.col(ij)   = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
+                    T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
+                    //
+                    Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
+                    //
+                    Tdd0.col((jk+1)*(jk+2)/2+jk) = (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
+                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
+                    //
+                    T0.col(ij) = Dose.col(tn);
+                    T0.col(ij+1) = Dose.col(tn);
+                } else { // Special case with a fixed intercept, but not a fixed slope
+                    Td0.col(jk)  = (df0.col(df0_c).array() - beta_0[ij+1]);
+                    Td0.col(jk)  = (Td0.col(jk).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
+                    //
+                    T0.col(ij)   = Dose.col(tn);
+                    T0.col(ij+1) = Dose.col(tn);
+                }
 
             } else if (as< string>(tform[ij])=="lin_quad_slope") {
                 ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
@@ -1869,7 +1884,6 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
     }
     R = (R.array().isFinite()).select(R,0);
     Rd = (Rd.array().isFinite()).select(Rd,0);
-    int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
         int ij = 0;
@@ -2029,7 +2043,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
-void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, IntegerVector& STRATA_vals){
+void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals){
     //
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
@@ -2112,7 +2126,7 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
-void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const VectorXd& cens_weight, const double cens_cutoff){
+void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const VectorXd& cens_weight, const double cens_cutoff){
     //
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
@@ -2553,7 +2567,7 @@ void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<strin
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
+void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int j=0;j<ntime;j++){
@@ -2676,7 +2690,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
+void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
@@ -2735,7 +2749,7 @@ void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMa
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
+void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     for (int j=0;j<ntime;j++){
@@ -2886,7 +2900,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
+void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
@@ -3300,7 +3314,7 @@ void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
+void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
@@ -3426,7 +3440,7 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant){
+void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \

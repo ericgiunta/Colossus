@@ -790,15 +790,20 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
         print(paste(length(tu)," risk groups",sep=""))
     }
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+#    print(uniq)
     #
     for (i in seq_along(uniq)){
         df0 <- dfend[get(Strat_Col)==uniq[i],]
         tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
         if (length(tu0)==0){
-            print(paste("no events for strata group:",uniq[i],sep=" "))
-            stop()
+            if (control$verbose){
+                print(paste("no events for strata group:",uniq[i],sep=" "))
+            }
+            df <- df[get(Strat_Col)!=uniq[i],]
         }
     }
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+#    print(uniq)
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",
             length(names),", Remaining filled with 0.01",sep=""))
@@ -905,6 +910,7 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
     }
     if (control$verbose){
         print("Starting")
+        print(keep_constant)
     }
     all_names <- unique(names)
     dfc <- match(names,all_names)
@@ -1186,6 +1192,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     }
     all_names <- unique(names)
     #
+    #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
     dfc <- match(names,all_names)
@@ -1193,6 +1200,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
+    #
     #
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
@@ -1228,12 +1236,14 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         keep_constant <- keep_constant[seq_len(length(names))]
     }
     #
+    #
     control$maxiter <- -1
     e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
         as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
     control$maxiter <- maxiterc
     b <- e$beta_0
     er <- e$Standard_Deviation
+    #
     #
     if (Plot_Type[1]=="SURV"){
         if (verbose){
@@ -1767,8 +1777,11 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #'                               der_iden, control,guesses_control,Strat_Col)
 #' @importFrom rlang .data
 RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col){
+    if (typeof(a_n)!="list"){
+        a_n <- list(a_n)
+    }
     control <- Def_Control(control)
-    guesses_control <- Def_Control_Guess(guesses_control, a_n)
+    guesses_control <- Def_Control_Guess(guesses_control, a_n[[1]])
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()
@@ -1780,9 +1793,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
             df$CONST <- 1
         }
     }
-    a_n_default <- rep(0,length(a_n))
-    for (i in seq_along(a_n)){
-        a_n_default[i] <- a_n[i]
+    a_n_default <- rep(0,length(a_n[[1]]))
+    for (i in seq_along(a_n[[1]])){
+        a_n_default[i] <- a_n[[1]][i]
     }
     if (guesses_control$strata==FALSE){
         setkeyv(df, c(time2, event0))
@@ -1811,50 +1824,59 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         df <- t_check$df
         ce <- t_check$ce
         #
-        if (length(a_n)<length(names)){
-            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-                ", Remaining filled with 0.01",sep=""))
-            a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-        } else if (length(a_n)>length(names)){
-            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(Term_n)<length(names)){
-            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        } else if (length(Term_n)>length(names)){
-            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(tform)<length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-            stop()
-        } else if (length(tform)>length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(keep_constant)<length(names)){
-            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-        } else if (length(keep_constant)>length(names)){
-            keep_constant <- keep_constant[seq_len(length(names))]
-        }
-        #
-        rmin <- guesses_control$rmin
-        rmax <- guesses_control$rmax
-        if (length(rmin)!=length(rmax)){
-            if (control$verbose){
-                print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
-            }
-        }
-        #
-        keep <- risk_check_transition(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
         a_ns <- c(-1)
         maxiters <- c(-1)
-        if (keep){
-            a_ns <- c(a_n)
-            maxiters <- c(guesses_control$maxiter)
+        #
+        for (i in 1:length(a_n)){
+            a_n0 <- a_n[[i]]
+            if (length(a_n0)<length(names)){
+                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),
+                    ", Remaining filled with 0.01",sep=""))
+                a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
+            } else if (length(a_n0)>length(names)){
+                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),sep=""))
+                stop()
+            }
+            if (length(Term_n)<length(names)){
+                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+                stop()
+            } else if (length(Term_n)>length(names)){
+                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+                stop()
+            }
+            if (length(tform)<length(names)){
+                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+                stop()
+            } else if (length(tform)>length(names)){
+                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+                stop()
+            }
+            if (length(keep_constant)<length(names)){
+                keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+            } else if (length(keep_constant)>length(names)){
+                keep_constant <- keep_constant[seq_len(length(names))]
+            }
+            #
+            rmin <- guesses_control$rmin
+            rmax <- guesses_control$rmax
+            if (length(rmin)!=length(rmax)){
+                if (control$verbose){
+                    print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+                }
+            }
+            #
+            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+            if (keep){
+                if (maxiters[1]==-1){
+                    a_ns <- c(a_n0)
+                    maxiters <- c(guesses_control$maxiter)
+                } else {
+                    a_ns <- c(a_ns, a_n0)
+                    maxiters <- c(maxiters, guesses_control$maxiter)
+                }
+            }
         }
-        while (length(maxiters) <= guesses_control$guesses){
+        while (length(maxiters) - length(a_n) < guesses_control$guesses){
             if (guesses_control$verbose){
                 print(paste(length(maxiters)," valid guesses",sep=""))
             }
@@ -1862,54 +1884,197 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
                 for (i in seq_along(tform)){
                     if (guesses_control$guess_constant[i]==0){
                         if (grepl("_int",tform[i],fixed=FALSE)){
-                            a_n[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
+                            a_n0[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
                         } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
-                            a_n[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
+                            a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
                         } else if (grepl("_slope",tform[i],fixed=FALSE)){
-                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
                         } else if (grepl("loglin",tform[i],fixed=FALSE)){
-                            a_n[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
+                            a_n0[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
                         } else if (grepl("lin",tform[i],fixed=FALSE)){
-                            a_n[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
                         } else {
                             print(paste("tform not implemented ", tform[i],sep=""))
                             stop()
                         }
                     } else {
-                        a_n[i] <- a_n_default[i]
+                        a_n0[i] <- a_n_default[i]
                     }
                 }
             } else {
                 for (i in seq_along(tform)){
                     if (guesses_control$guess_constant[i]==0){
-                        a_n[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
+                        a_n0[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
                     } else {
-                        a_n[i] <- a_n_default[i]
+                        a_n0[i] <- a_n_default[i]
                     }
                 }
             }
-            keep <- risk_check_transition(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
             if (keep){
                 if (maxiters[1]==-1){
-                    a_ns <- c(a_n)
+                    a_ns <- c(a_n0)
                     maxiters <- c(guesses_control$maxiter)
                 } else {
-                    a_ns <- c(a_ns,a_n)
+                    a_ns <- c(a_ns,a_n0)
                     maxiters <- c(maxiters,guesses_control$maxiter)
                 }
             }
         }
         #
-        control$maxiters <- c(rep(guesses_control$maxiter, guesses_control$guesses),control$maxiter)
-        control$guesses <- guesses_control$guesses
+        control$maxiters <- c(maxiters,control$maxiter)
+        control$guesses <- length(maxiters)-1
         #
-        e <- cox_ph_transition_guess(Term_n,tform,matrix(a_ns,nrow=guesses_control$guesses+1,byrow=T),dfc,x_all, fir,der_iden, modelform, control,
+        e <- cox_ph_transition_guess(Term_n,tform,matrix(a_ns,nrow=length(control$maxiters)-1,byrow=T),dfc,x_all, fir,der_iden, modelform, control,
             as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
         #fine
         return (e)
     } else {
-        print("Strata not implemented yet")
-        stop()
+        setkeyv(df, c(time2, event0, Strat_Col))
+        dfend <- df[get(event0)==1, ]
+        tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+        if (length(tu)==0){
+            if (guesses_control$verbose){
+                print("no events")
+            }
+            stop()
+        }
+        if (guesses_control$verbose){
+            print(paste(length(tu)," risk groups",sep=""))
+        }
+        all_names <- unique(names)
+        #
+        df <- Replace_Missing(df,all_names,0.0,control$verbose)
+        #
+        dfc <- match(names,all_names)
+
+        term_tot <- max(Term_n)+1
+        x_all <- as.matrix(df[,all_names, with = FALSE])
+        ce <- c(time1,time2,event0,Strat_Col)
+        #
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        #
+        for (i in seq_along(uniq)){
+            df0 <- dfend[get(Strat_Col)==uniq[i],]
+            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+            if (length(tu0)==0){
+                if (control$verbose){
+                    print(paste("no events for strata group:",uniq[i],sep=" "))
+                }
+                df <- df[get(Strat_Col)!=uniq[i],]
+            }
+        }
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        #
+        t_check <- Check_Trunc(df,ce)
+        df <- t_check$df
+        ce <- t_check$ce
+        #
+        a_ns <- c(-1)
+        maxiters <- c(-1)
+        #
+        for (i in 1:length(a_n)){
+            a_n0 <- a_n[[i]]
+            if (length(a_n0)<length(names)){
+                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),
+                    ", Remaining filled with 0.01",sep=""))
+                a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
+            } else if (length(a_n0)>length(names)){
+                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),sep=""))
+                stop()
+            }
+            if (length(Term_n)<length(names)){
+                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+                stop()
+            } else if (length(Term_n)>length(names)){
+                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+                stop()
+            }
+            if (length(tform)<length(names)){
+                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+                stop()
+            } else if (length(tform)>length(names)){
+                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+                stop()
+            }
+            if (length(keep_constant)<length(names)){
+                keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+            } else if (length(keep_constant)>length(names)){
+                keep_constant <- keep_constant[seq_len(length(names))]
+            }
+            #
+            rmin <- guesses_control$rmin
+            rmax <- guesses_control$rmax
+            if (length(rmin)!=length(rmax)){
+                if (control$verbose){
+                    print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+                }
+            }
+            #
+            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+            if (keep){
+                if (maxiters[1]==-1){
+                    a_ns <- c(a_n0)
+                    maxiters <- c(guesses_control$maxiter)
+                } else {
+                    a_ns <- c(a_ns, a_n0)
+                    maxiters <- c(maxiters, guesses_control$maxiter)
+                }
+            }
+        }
+        while (length(maxiters) - length(a_n) < guesses_control$guesses){
+            if (guesses_control$verbose){
+                print(paste(length(maxiters)," valid guesses",sep=""))
+            }
+            if (length(rmin)!=length(rmax)){
+                for (i in seq_along(tform)){
+                    if (guesses_control$guess_constant[i]==0){
+                        if (grepl("_int",tform[i],fixed=FALSE)){
+                            a_n0[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
+                        } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
+                            a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
+                        } else if (grepl("_slope",tform[i],fixed=FALSE)){
+                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                        } else if (grepl("loglin",tform[i],fixed=FALSE)){
+                            a_n0[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
+                        } else if (grepl("lin",tform[i],fixed=FALSE)){
+                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                        } else {
+                            print(paste("tform not implemented ", tform[i],sep=""))
+                            stop()
+                        }
+                    } else {
+                        a_n0[i] <- a_n_default[i]
+                    }
+                }
+            } else {
+                for (i in seq_along(tform)){
+                    if (guesses_control$guess_constant[i]==0){
+                        a_n0[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
+                    } else {
+                        a_n0[i] <- a_n_default[i]
+                    }
+                }
+            }
+            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+            if (keep){
+                if (maxiters[1]==-1){
+                    a_ns <- c(a_n0)
+                    maxiters <- c(guesses_control$maxiter)
+                } else {
+                    a_ns <- c(a_ns,a_n0)
+                    maxiters <- c(maxiters,guesses_control$maxiter)
+                }
+            }
+        }
+        #
+        control$maxiters <- c(maxiters,control$maxiter)
+        control$guesses <- length(maxiters)-1
+        #
+        e <- cox_ph_transition_guess_strata(Term_n,tform,matrix(a_ns,nrow=length(control$maxiters)-1,byrow=T),dfc,x_all, fir,der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+        #fine
+        return (e)
     }
     return (NULL)
 }

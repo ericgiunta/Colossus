@@ -216,7 +216,7 @@ List cox_ph_transition_basic( NumericVector a_n,IntegerVector dfc,NumericMatrix 
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, IntegerVector STRATA_vals){
+List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals){
     bool change_all = Control["change_all"];
     int double_step = Control["double_step"];
     bool verbose = Control["verbose"];
@@ -798,6 +798,49 @@ List cox_ph_transition_guess(IntegerVector Term_n, StringVector tform, NumericMa
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH_Guess(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the Cox PH multi-start regression, with strata effects
+//' \code{cox_ph_transition_guess_strata} Called directly from R, Defines the control variables and calls the regression function, with strata effects
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_ns  matrix of starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param der_iden subterm number for derivative tests
+//' @param modelform model string
+//' @param Control control list
+//' @param df_groups time and event matrix
+//' @param tu event times
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//' @param STRATA_vals vector of strata identifier values
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List cox_ph_transition_guess_strata(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals){
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["Ncores"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_Guess_Strata(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

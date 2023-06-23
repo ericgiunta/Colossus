@@ -77,7 +77,28 @@ test_that("Coxph dose list", {
     expect_equal(e$beta_0,c(-0.15924, 0.07039, 7.0456, -0.04014, 0.000, 2.3388, 0.49612, 6.23778, 0.24357, 4.3866, 1.2799),tolerance=1e-2)
 })
 
-
+test_that("Coxph fixed intercept", {
+    fname <- 'dose.csv'
+    colTypes=c("double","double","double","integer")
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    time1 <- "t0"
+    time2 <- "t1"
+    event <- "lung"
+    names <- c("dose","dose","dose")
+    Term_n <- c(0,0,0)
+    tform <- c("loglin","lin_slope","lin_int")
+    keep_constant <- c(0,0,1)
+    a_n <-   c(-0.1          ,0.1       ,1)
+    modelform <- "M"
+    fir <- 0
+    der_iden <- 0
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    expect_no_error(RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+    tform <- c("loglin","step_slope","step_int")
+    keep_constant <- c(0,0,1)
+    a_n <-   c(-0.1          ,0.1       ,1)
+    expect_no_error(RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+})
 
 
 

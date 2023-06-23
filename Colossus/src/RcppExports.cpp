@@ -274,7 +274,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // Make_Groups_STRATA
-void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix& RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, IntegerVector& STRATA_vals);
+void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix& RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals);
 RcppExport SEXP _Colossus_Make_Groups_STRATA(SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP tuSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -285,13 +285,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector& >::type tu(tuSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Make_Groups_STRATA(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals);
     return R_NilValue;
 END_RCPP
 }
 // Make_Groups_STRATA_CR
-void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix& RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const VectorXd& cens_weight, const double cens_cutoff);
+void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix& RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const VectorXd& cens_weight, const double cens_cutoff);
 RcppExport SEXP _Colossus_Make_Groups_STRATA_CR(SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP tuSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP, SEXP cens_weightSEXP, SEXP cens_cutoffSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -302,7 +302,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector& >::type tu(tuSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
     Rcpp::traits::input_parameter< const double >::type cens_cutoff(cens_cutoffSEXP);
     Make_Groups_STRATA_CR(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals, cens_weight, cens_cutoff);
@@ -398,7 +398,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // Calculate_Sides_STRATA
-void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant);
+void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Calculate_Sides_STRATA(SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -417,14 +417,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< MatrixXd& >::type Lls3(Lls3SEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calculate_Sides_STRATA(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, STRATA_vals, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
 // Calculate_Sides_STRATA_Single
-void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant);
+void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Calculate_Sides_STRATA_Single(SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP Rls1SEXP, SEXP Lls1SEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -437,14 +437,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< MatrixXd& >::type Lls1(Lls1SEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calculate_Sides_STRATA_Single(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging, STRATA_vals, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
 // Calculate_Sides_STRATA_CR
-void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant);
+void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Calculate_Sides_STRATA_CR(SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP cens_weightSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -464,14 +464,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calculate_Sides_STRATA_CR(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, debugging, STRATA_vals, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
 // Calculate_Sides_STRATA_Single_CR
-void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, bool debugging, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant);
+void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Calculate_Sides_STRATA_Single_CR(SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP Rls1SEXP, SEXP Lls1SEXP, SEXP cens_weightSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -485,7 +485,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calculate_Sides_STRATA_Single_CR(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, debugging, STRATA_vals, KeepConstant);
     return R_NilValue;
@@ -594,7 +594,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // Calc_LogLik_STRATA
-void Calc_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant);
+void Calc_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Calc_LogLik_STRATA(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP debuggingSEXP, SEXP ties_methodSEXP, SEXP STRATA_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -619,14 +619,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<double>& >::type Lldd(LlddSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
     Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calc_LogLik_STRATA(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
 // Calc_LogLik_STRATA_BASIC
-void Calc_LogLik_STRATA_BASIC(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, IntegerVector& STRATA_vals, const IntegerVector& KeepConstant);
+void Calc_LogLik_STRATA_BASIC(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Calc_LogLik_STRATA_BASIC(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP debuggingSEXP, SEXP ties_methodSEXP, SEXP STRATA_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -650,7 +650,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<double>& >::type Lldd(LlddSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
     Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calc_LogLik_STRATA_BASIC(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
     return R_NilValue;
@@ -864,7 +864,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // LogLik_Cox_PH_STRATA
-List LogLik_Cox_PH_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, IntegerVector& STRATA_vals, int nthreads);
+List LogLik_Cox_PH_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, int maxiter, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, NumericVector& STRATA_vals, int nthreads);
 RcppExport SEXP _Colossus_LogLik_Cox_PH_STRATA(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP change_allSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP STRATA_valsSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -894,7 +894,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
     Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_STRATA(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads));
     return rcpp_result_gen;
@@ -1249,6 +1249,44 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// LogLik_Cox_PH_Guess_Strata
+List LogLik_Cox_PH_Guess_Strata(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns, NumericMatrix x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, NumericVector& STRATA_vals, int nthreads);
+RcppExport SEXP _Colossus_LogLik_Cox_PH_Guess_Strata(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP change_allSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP STRATA_valsSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type a_ns(a_nsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< int >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type maxiters(maxitersSEXP);
+    Rcpp::traits::input_parameter< int >::type guesses(guessesSEXP);
+    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< double >::type dbeta_cap(dbeta_capSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
+    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type change_all(change_allSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Guess_Strata(Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Check_Risk
 bool Check_Risk(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads);
 RcppExport SEXP _Colossus_Check_Risk(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP) {
@@ -1359,7 +1397,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // cox_ph_STRATA
-List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, IntegerVector STRATA_vals);
+List cox_ph_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals);
 RcppExport SEXP _Colossus_cox_ph_STRATA(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -1377,7 +1415,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type STRATA_vals(STRATA_valsSEXP);
     rcpp_result_gen = Rcpp::wrap(cox_ph_STRATA(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals));
     return rcpp_result_gen;
 END_RCPP
@@ -1607,6 +1645,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cox_ph_transition_guess_strata
+List cox_ph_transition_guess_strata(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals);
+RcppExport SEXP _Colossus_cox_ph_transition_guess_strata(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type a_ns(a_nsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< int >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type STRATA_vals(STRATA_valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cox_ph_transition_guess_strata(Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals));
+    return rcpp_result_gen;
+END_RCPP
+}
 // risk_check_transition
 bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot);
 RcppExport SEXP _Colossus_risk_check_transition(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP) {
@@ -1697,6 +1759,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_LogLik_Poisson_Single", (DL_FUNC) &_Colossus_LogLik_Poisson_Single, 13},
     {"_Colossus_LogLik_Cox_PH_CR", (DL_FUNC) &_Colossus_LogLik_Cox_PH_CR, 28},
     {"_Colossus_LogLik_Cox_PH_Guess", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Guess, 27},
+    {"_Colossus_LogLik_Cox_PH_Guess_Strata", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Guess_Strata, 28},
     {"_Colossus_Check_Risk", (DL_FUNC) &_Colossus_Check_Risk, 12},
     {"_Colossus_cox_ph_transition", (DL_FUNC) &_Colossus_cox_ph_transition, 13},
     {"_Colossus_cox_ph_transition_CR", (DL_FUNC) &_Colossus_cox_ph_transition_CR, 14},
@@ -1714,6 +1777,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 9},
     {"_Colossus_Gen_Fac_Par", (DL_FUNC) &_Colossus_Gen_Fac_Par, 4},
     {"_Colossus_cox_ph_transition_guess", (DL_FUNC) &_Colossus_cox_ph_transition_guess, 13},
+    {"_Colossus_cox_ph_transition_guess_strata", (DL_FUNC) &_Colossus_cox_ph_transition_guess_strata, 14},
     {"_Colossus_risk_check_transition", (DL_FUNC) &_Colossus_risk_check_transition, 10},
     {"_Colossus_Gen_Strat_Weight", (DL_FUNC) &_Colossus_Gen_Strat_Weight, 8},
     {NULL, NULL, 0}

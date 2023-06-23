@@ -503,7 +503,6 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     }
     all_names <- unique(names)
     dfc <- match(names,all_names)
-
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
@@ -533,21 +532,23 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     #
     #
     for (cov in seq_len(length(a_n))){
-        y <- unlist(res[,cov],use.names=FALSE)
-        y_scale <- unlist(res_scaled[,cov],use.names=FALSE)
-        
-        #
-        dft <- data.table("time"=tu,"y"=y)
-        dft$y_scale <- y_scale
-        #
-        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) + ggplot2::geom_point(color="black") +
-            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual (",names[cov],")",sep=" "))
-        ggplot2::ggsave(paste("schoenfeld_",cov,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
-        #
-        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) + ggplot2::geom_point(color="black") +
-            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual Scaled (",names[cov],")",sep=" "))
-        ggplot2::ggsave(paste("schoenfeld_scaled_",cov,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
-        #
+        if (keep_constant[cov]==0){
+            cov_res <- cov - sum(head(keep_constant,cov))
+            y <- unlist(res[,cov_res],use.names=FALSE)
+            y_scale <- unlist(res_scaled[,cov_res],use.names=FALSE)
+            #
+            dft <- data.table("time"=tu,"y"=y)
+            dft$y_scale <- y_scale
+            #
+            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) + ggplot2::geom_point(color="black") +
+                ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual (",names[cov], tform[cov],")",sep=" "))
+            ggplot2::ggsave(paste("schoenfeld_",cov_res,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
+            #
+            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) + ggplot2::geom_point(color="black") +
+                ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual Scaled (",names[cov], tform[cov],")",sep=" "))
+            ggplot2::ggsave(paste("schoenfeld_scaled_",cov_res,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
+            #
+        }
     }
     return ("Passed")
 }
