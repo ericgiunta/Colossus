@@ -556,6 +556,23 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
         #fine
         return (e)
     } else {
+        dfend <- df[get(event0)==1, ]
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        #
+        for (i in seq_along(uniq)){
+            df0 <- dfend[get(Strat_Col)==uniq[i],]
+            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+            if (length(tu0)==0){
+                if (control$verbose){
+                    print(paste("no events for strata group:",uniq[i],sep=" "))
+                }
+                df <- df[get(Strat_Col)!=uniq[i],]
+            }
+        }
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        if (control$verbose){
+            print(paste(length(uniq)," strata used",sep=" "))
+        }
         setkeyv(df, c(time2, event0, Strat_Col))
         dfend <- df[get(event0)==1, ]
         #
@@ -576,18 +593,6 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
         }
         if (guesses_control$verbose){
             print(paste(length(tu)," risk groups",sep=""))
-        }
-        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
-        #
-        for (i in seq_along(uniq)){
-            df0 <- dfend[get(Strat_Col)==uniq[i],]
-            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
-            if (length(tu0)==0){
-                if (control$verbose){
-                    print(paste("no events for strata group:",uniq[i],sep=" "))
-                }
-                stop()
-            }
         }
         #
         t_check <- Check_Trunc(df,ce)
@@ -759,7 +764,6 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
 #'                              a_n, modelform, fir, der_iden, control,Strat_Col)
 #'
 RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col){
-    setkeyv(df, c(time2, event0, Strat_Col))
     control <- Def_Control(control)
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
@@ -773,24 +777,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
         }
     }
     dfend <- df[get(event0)==1, ]
-    #
-    ce <- c(time1,time2,event0,Strat_Col)
-    all_names <- unique(names)
-    dfc <- match(names,all_names)
-
-    term_tot <- max(Term_n)+1
-    x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
-    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
-    if (length(tu)==0){
-        print("no events")
-        stop()
-    }
-    if (control$verbose){
-        print(paste(length(tu)," risk groups",sep=""))
-    }
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
-#    print(uniq)
     #
     for (i in seq_along(uniq)){
         df0 <- dfend[get(Strat_Col)==uniq[i],]
@@ -803,6 +790,27 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
         }
     }
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    if (control$verbose){
+        print(paste(length(uniq)," strata used",sep=" "))
+    }
+    setkeyv(df, c(time2, event0, Strat_Col))
+    #
+    ce <- c(time1,time2,event0,Strat_Col)
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        print("no events")
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
 #    print(uniq)
     if (length(a_n)<length(names)){
         print(paste("Parameters used: ",length(a_n),", Covariates used: ",
@@ -1824,8 +1832,8 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         df <- t_check$df
         ce <- t_check$ce
         #
-        a_ns <- c(-1)
-        maxiters <- c(-1)
+        a_ns <- c(NaN)
+        maxiters <- c(NaN)
         #
         for (i in 1:length(a_n)){
             a_n0 <- a_n[[i]]
@@ -1867,7 +1875,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
             #
             keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
             if (keep){
-                if (maxiters[1]==-1){
+                if (is.nan(maxiters[1])){
                     a_ns <- c(a_n0)
                     maxiters <- c(guesses_control$maxiter)
                 } else {
@@ -1912,7 +1920,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
             }
             keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
             if (keep){
-                if (maxiters[1]==-1){
+                if (is.nan(maxiters[1])){
                     a_ns <- c(a_n0)
                     maxiters <- c(guesses_control$maxiter)
                 } else {
@@ -1930,6 +1938,25 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         #fine
         return (e)
     } else {
+        #
+        dfend <- df[get(event0)==1, ]
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        #
+        for (i in seq_along(uniq)){
+            df0 <- dfend[get(Strat_Col)==uniq[i],]
+            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+            if (length(tu0)==0){
+                if (control$verbose){
+                    print(paste("no events for strata group:",uniq[i],sep=" "))
+                }
+                df <- df[get(Strat_Col)!=uniq[i],]
+            }
+        }
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        if (control$verbose){
+            print(paste(length(uniq)," strata used",sep=" "))
+        }
+        #
         setkeyv(df, c(time2, event0, Strat_Col))
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
@@ -1952,26 +1979,13 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(time1,time2,event0,Strat_Col)
         #
-        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
-        #
-        for (i in seq_along(uniq)){
-            df0 <- dfend[get(Strat_Col)==uniq[i],]
-            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
-            if (length(tu0)==0){
-                if (control$verbose){
-                    print(paste("no events for strata group:",uniq[i],sep=" "))
-                }
-                df <- df[get(Strat_Col)!=uniq[i],]
-            }
-        }
-        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
         #
         t_check <- Check_Trunc(df,ce)
         df <- t_check$df
         ce <- t_check$ce
         #
-        a_ns <- c(-1)
-        maxiters <- c(-1)
+        a_ns <- c(NaN)
+        maxiters <- c(NaN)
         #
         for (i in 1:length(a_n)){
             a_n0 <- a_n[[i]]
@@ -2013,7 +2027,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
             #
             keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
             if (keep){
-                if (maxiters[1]==-1){
+                if (is.nan(maxiters[1])){
                     a_ns <- c(a_n0)
                     maxiters <- c(guesses_control$maxiter)
                 } else {
@@ -2058,7 +2072,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
             }
             keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
             if (keep){
-                if (maxiters[1]==-1){
+                if (is.nan(maxiters[1])){
                     a_ns <- c(a_n0)
                     maxiters <- c(guesses_control$maxiter)
                 } else {

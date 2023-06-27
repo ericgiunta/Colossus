@@ -34,7 +34,7 @@ test_that("Coxph loglin_plin_M", {
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-    expect_equal(e$beta_0,c(0.1747772,1.4977413),tolerance=1e-2)
+    expect_equal(e$beta_0,c(0.1747772,0.75),tolerance=1e-2)
 })
 test_that("Coxph loglin_plin_A", {
     fname <- 'l_pl_A_0.csv'
@@ -53,7 +53,7 @@ test_that("Coxph loglin_plin_A", {
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-    expect_equal(e$beta_0,c(0.1317297, 1.4938258),tolerance=1e-2)
+    expect_equal(e$beta_0,c(0.11, 1.01),tolerance=1e-2)
 })
 
 test_that("Coxph dose list", {

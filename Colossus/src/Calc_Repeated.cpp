@@ -174,7 +174,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
 
         } else if (as< string>(tform[ij])=="plin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            T0.col(ij) = 1 + T0.col(ij).array();
+//            T0.col(ij) = 1 + T0.col(ij).array();
             nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
 
         } else if (as< string>(tform[ij])=="loglin_slope"){
@@ -768,7 +768,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
 
         } else if (as< string>(tform[ij])=="plin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-            T0.col(ij) = 1 + T0.col(ij).array();
+//            T0.col(ij) = 1 + T0.col(ij).array();
             nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
 
         } else if (as< string>(tform[ij])=="loglin_slope"){

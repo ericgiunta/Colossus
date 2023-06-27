@@ -1187,7 +1187,7 @@ LogLik_Cox_PH_Guess <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden, 
     .Call(`_Colossus_LogLik_Cox_PH_Guess`, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
 }
 
-#' Primary Cox PH regression with multiple starting points amd strata effect
+#' Primary Cox PH regression with multiple starting points and strata effect
 #' \code{LogLik_Cox_PH_Guess_Strata} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives, with strata effect
 #'
 #' @param     Term_n    Term numbers

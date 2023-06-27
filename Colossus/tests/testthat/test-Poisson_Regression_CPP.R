@@ -36,7 +36,7 @@ test_that("Pois loglin_plin_M", {
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <-RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-    expect_equal(e$beta_0,c(-0.728492, -1.534683),tolerance=1e-2)
+    expect_equal(e$beta_0,c(-0.32, -0.6),tolerance=1e-2)
 })
 test_that("Pois loglin_plin_A", {
     fname <- 'l_pl_A_0.csv'
@@ -56,5 +56,5 @@ test_that("Pois loglin_plin_A", {
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <-RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-    expect_equal(e$beta_0,c(-1.057426,-2.000000),tolerance=1e-2)
+    expect_equal(e$beta_0,c(-0.99,-1.0),tolerance=1e-2)
 })

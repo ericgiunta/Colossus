@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{LogLik_Cox_PH_Guess_Strata}
 \alias{LogLik_Cox_PH_Guess_Strata}
-\title{Primary Cox PH regression with multiple starting points amd strata effect
+\title{Primary Cox PH regression with multiple starting points and strata effect
 \code{LogLik_Cox_PH_Guess_Strata} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives, with strata effect}
 \usage{
 LogLik_Cox_PH_Guess_Strata(
@@ -97,6 +97,6 @@ LogLik_Cox_PH_Guess_Strata(
 List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 }
 \description{
-Primary Cox PH regression with multiple starting points amd strata effect
+Primary Cox PH regression with multiple starting points and strata effect
 \code{LogLik_Cox_PH_Guess_Strata} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives, with strata effect
 }
