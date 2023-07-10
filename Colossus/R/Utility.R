@@ -70,8 +70,72 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,verbo
     if (verbose){
         print(df)
     }
-    keycol <-c("Term_n","keep_constant","names","tform_order")
+    keycol <-c("Term_n","names","tform_order")
     setorderv(df, keycol)
+    a <- df$tform
+    for (i in 1:length(a)){
+        if (i<length(a)){
+            if ((a[i]=="loglin_slope")){
+                if (a[i+1]!="loglin_top"){
+                    print("loglin_top missing")
+                    stop()
+                }
+            } else if  ((a[i]=="lin_slope")){
+                if (a[i+1]!="lin_int"){
+                    print("lin_int missing")
+                    stop()
+                }
+            } else if ((a[i]=="step_slope")){
+                if (a[i+1]!="step_int"){
+                    print("step_int missing")
+                    stop()
+                }
+            } else if ((a[i]=="lin_quad_slope")){
+                if (a[i+1]!="lin_quad_int"){
+                    print("lin_quad_int missing")
+                    stop()
+                }
+            } else if ((a[i]=="lin_exp_slope")){
+                if (a[i+1]!="lin_exp_int"){
+                    print("lin_exp_int missing")
+                    stop()
+                }
+            } else if ((a[i]=="lin_exp_int")){
+                if (a[i+1]!="lin_exp_exp_slope"){
+                    print("lin_exp_exp_slope missing")
+                    stop()
+                }
+            }
+        } 
+        if (i>1){
+            if  ((a[i]=="lin_int")){
+                if (a[i-1]!="lin_slope"){
+                    print("lin_slope missing")
+                    stop()
+                }
+            } else if ((a[i]=="step_int")){
+                if (a[i-1]!="step_slope"){
+                    print("step_slope missing")
+                    stop()
+                }
+            } else if ((a[i]=="lin_quad_int")){
+                if (a[i-1]!="lin_quad_slope"){
+                    print("lin_quad_slope missing")
+                    stop()
+                }
+            } else if ((a[i]=="lin_exp_int")){
+                if (a[i-1]!="lin_exp_slope"){
+                    print("lin_exp_slope missing")
+                    stop()
+                }
+            } else if ((a[i]=="lin_exp_exp_slope")){
+                if (a[i-1]!="lin_exp_int"){
+                    print("lin_exp_int missing")
+                    stop()
+                }
+            }
+        }
+    }
     list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant, "a_n"=df$a_n, "der_iden"=df$der_iden, "names"=df$names)
 }
 

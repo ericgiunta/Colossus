@@ -172,6 +172,32 @@ Make_Risks_Weighted <- function(modelform, tform, Term_n, totalnum, fir, s_weigh
     invisible(.Call(`_Colossus_Make_Risks_Weighted`, modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant))
 }
 
+#' Utility function to calculate the risk with a weighting applied and no derivatives calculated
+#' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
+#' @param     modelform    Model string
+#' @param     tform    subterm types
+#' @param     Term_n    term numbers
+#' @param     totalnum    total number of terms
+#' @param     fir    first term number
+#' @param     s_weights vector of weights for every row
+#' @param     T0    Term by subterm matrix
+#' @param     Te    Temporary term storage matrix
+#' @param     R    Risk matrix
+#' @param     Dose    Dose term matrix
+#' @param     nonDose    nonDose term matrix
+#' @param     TTerm    Total term matrix
+#' @param     nonDose_LIN    Linear term matrix
+#' @param     nonDose_PLIN    Product linear term matrix
+#' @param     nonDose_LOGLIN    Loglinear term matrix
+#' @param     nthreads    number of threads to use
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: Risk, Risk ratios
+Make_Risks_Weighted_Single <- function(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Risks_Weighted_Single`, modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant))
+}
+
 #' Utility function to calculate the risk, but not derivatives
 #' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
 #' @param     modelform    Model string
@@ -585,6 +611,27 @@ Calc_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R
     invisible(.Call(`_Colossus_Calc_LogLik_STRATA`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant))
 }
 
+#' Utility function to calculate just Cox Log-Likelihood with STRATA
+#' \code{Calc_LogLik_STRATA_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata
+#' @param     nthreads    number of threads
+#' @param     RiskFail    Matrix of event rows for each event time
+#' @param     RiskGroup    vectors of strings with rows at risk for each event time
+#' @param     totalnum    total number of parameters
+#' @param     ntime    number of event times
+#' @param     R    Risk matrix
+#' @param     Rls1    First Risk sum storage
+#' @param     Lls1    Second Risk sum storage
+#' @param     Ll    Log-likelihood vector
+#' @param     debugging    debugging boolean
+#' @param     ties_method    Ties method
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     KeepConstant    vector identifying constant parameters
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+Calc_LogLik_STRATA_SINGLE <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_STRATA_SINGLE`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant))
+}
+
 #' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
 #' \code{Calc_LogLik_STRATA_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
 #' @param     nthreads    number of threads
@@ -813,6 +860,36 @@ LogLik_Cox_PH_basic <- function(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax,
     .Call(`_Colossus_LogLik_Cox_PH_basic`, a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method, nthreads)
 }
 
+#' Primary Cox PH regression with STRATA effect and multiplicative log-linear model
+#' \code{LogLik_Cox_PH_STRATA_BASIC} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     lr    learning rate for newton step toward 0 derivative
+#' @param     maxiter    maximum number of iterations
+#' @param     halfmax    maximum number of half steps
+#' @param     epsilon    minimum acceptable maximum parameter change
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     dose_abs_max    Maximum allowed threshold parameter change
+#' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     change_all    boolean if every parameter is being updated
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     ties_method    ties method
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Cox_PH_STRATA_BASIC <- function(a_n, x_all, dfc, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method, STRATA_vals, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_STRATA_BASIC`, a_n, x_all, dfc, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, ties_method, STRATA_vals, nthreads)
+}
+
 #' Primary Cox PH regression with STRATA effect
 #' \code{LogLik_Cox_PH_STRATA} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
@@ -990,12 +1067,11 @@ LogLik_Poisson <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, 
 #' @param     KeepConstant    vector identifying constant parameters
 #' @param     term_tot    total number of terms
 #' @param     dfs matrix of stratification variables
-#' @param     keep_strata boolean to return the strata parameter values
 #' @param     nthreads number of threads to use
 #'
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, keep_strata, nthreads) {
-    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, keep_strata, nthreads)
+LogLik_Poisson_STRATA <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_STRATA`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, nthreads)
 }
 
 #' Primary Cox PH stress test function
@@ -1092,6 +1168,31 @@ LogLik_Cox_PH_Single <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform,
     .Call(`_Colossus_LogLik_Cox_PH_Single`, Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
 }
 
+#' Primary Cox PH regression with STRATA effect and calculating only the Log-Likelihood
+#' \code{LogLik_Cox_PH_STRATA_SINGLE} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     modelform    model string
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     ties_method    ties method
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Cox_PH_STRATA_SINGLE <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_STRATA_SINGLE`, Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads)
+}
+
 #' Primary poisson calculation function
 #' \code{LogLik_Poisson_Single} Performs the calls to calculation functions, Structures the poisson calculation
 #'
@@ -1112,6 +1213,29 @@ LogLik_Cox_PH_Single <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform,
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 LogLik_Poisson_Single <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads) {
     .Call(`_Colossus_LogLik_Poisson_Single`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads)
+}
+
+#' Primary poisson regression function with strata effect and no derivatives calculated
+#' \code{LogLik_Poisson_STRATA_SINGLE} Performs the calls to calculation functions, Structures the poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives, all with strata effects
+#'
+#' @param     PyrC    person-year matrix
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     modelform    model string
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     dfs matrix of stratification variables
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
+LogLik_Poisson_STRATA_SINGLE <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, dfs, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_STRATA_SINGLE`, PyrC, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, dfs, nthreads)
 }
 
 #' Primary Cox PH regression with competing risks, event=2
@@ -1149,6 +1273,97 @@ LogLik_Poisson_Single <- function(PyrC, Term_n, tform, a_n, x_all, dfc, fir, mod
 #' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 LogLik_Cox_PH_CR <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads) {
     .Call(`_Colossus_LogLik_Cox_PH_CR`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
+}
+
+#' Primary Cox PH regression with STRATA effect, calculating only the Log-Likelihood, and competing risks event=2
+#' \code{LogLik_Cox_PH_STRATA_SINGLE_CR} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     modelform    model string
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     cens_weight censoring weight list
+#' @param     cens_thres threshold to add competing event to risk group
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     ties_method    ties method
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Cox_PH_STRATA_SINGLE_CR <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, cens_weight, cens_thres, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_STRATA_SINGLE_CR`, Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, cens_weight, cens_thres, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads)
+}
+
+#' Primary Cox PH regression with STRATA effect and competing risks, event=2
+#' \code{LogLik_Cox_PH_STRATA_CR} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     der_iden    subterm number for derivative tests
+#' @param     modelform    model string
+#' @param     lr    learning rate for newton step toward 0 derivative
+#' @param     maxiter    maximum number of iterations
+#' @param     halfmax    maximum number of half steps
+#' @param     epsilon    minimum acceptable maximum parameter change
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     dose_abs_max    Maximum allowed threshold parameter change
+#' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     cens_weight censoring weight list
+#' @param     cens_thres threshold to add competing event to risk group
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     change_all    boolean if every parameter is being updated
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     ties_method    ties method
+#' @param     STRATA_vals vector of strata identifier values
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Cox_PH_STRATA_CR <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_STRATA_CR`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads)
+}
+
+#' Primary Cox PH regression with competing risks and no derivative calculation, event=2
+#' \code{LogLik_Cox_PH_CR_SINGLE} Performs the calls to calculation functions, Structures the Cox PH regression with competing events weighted by censoring rates, With verbose option prints out time stamps and intermediate sums of terms
+#'
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_n    starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     modelform    model string
+#' @param     df_groups    matrix with time and event information
+#' @param     tu    event times
+#' @param     cens_weight censoring weight list
+#' @param     cens_thres threshold to add competing event to risk group
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     ties_method    ties method
+#' @param     nthreads number of threads to use
+#'
+#' @return List of results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Cox_PH_CR_SINGLE <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, cens_weight, cens_thres, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads) {
+    .Call(`_Colossus_LogLik_Cox_PH_CR_SINGLE`, Term_n, tform, a_n, x_all, dfc, fir, modelform, df_groups, tu, cens_weight, cens_thres, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads)
 }
 
 #' Primary Cox PH regression with multiple starting points
@@ -1224,6 +1439,75 @@ LogLik_Cox_PH_Guess_Strata <- function(Term_n, tform, a_ns, x_all, dfc, fir, der
     .Call(`_Colossus_LogLik_Cox_PH_Guess_Strata`, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads)
 }
 
+#' Primary poisson regression with multiple starting points
+#' \code{LogLik_Poisson_Guess} Performs the calls to calculation functions, Structures the poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     PyrC    person-year matrix
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_ns    matrix starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     der_iden    subterm number for derivative tests
+#' @param     modelform    model string
+#' @param     lr    learning rate for newton step toward 0 derivative
+#' @param     maxiters    list of maximum number of iterations
+#' @param     guesses    number of initial guesses
+#' @param     halfmax    maximum number of half steps
+#' @param     epsilon    minimum acceptable maximum parameter change
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     dose_abs_max    Maximum allowed threshold parameter change
+#' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     change_all    boolean if every parameter is being updated
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     nthreads number of threads to use
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Poisson_Guess <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_Guess`, PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads)
+}
+
+#' Primary poisson regression with multiple starting points with stratification
+#' \code{LogLik_Poisson_Strata_Guess} Performs the calls to calculation functions, Structures the poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @param     PyrC    person-year matrix
+#' @param     Term_n    Term numbers
+#' @param     tform    subterm types
+#' @param     a_ns    matrix starting values
+#' @param     x_all    covariate matrix
+#' @param     dfc    covariate column numbers
+#' @param     fir    first term number
+#' @param     der_iden    subterm number for derivative tests
+#' @param     modelform    model string
+#' @param     lr    learning rate for newton step toward 0 derivative
+#' @param     maxiters    list of maximum number of iterations
+#' @param     guesses    number of initial guesses
+#' @param     halfmax    maximum number of half steps
+#' @param     epsilon    minimum acceptable maximum parameter change
+#' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
+#' @param     abs_max    Maximum allowed parameter change
+#' @param     dose_abs_max    Maximum allowed threshold parameter change
+#' @param     deriv_epsilon    threshold for near-zero derivative
+#' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
+#' @param     change_all    boolean if every parameter is being updated
+#' @param     verbose    verbosity boolean
+#' @param     debugging    debugging boolean
+#' @param     KeepConstant    vector identifying constant parameters
+#' @param     term_tot    total number of terms
+#' @param     dfs matrix of stratification variables
+#' @param     nthreads number of threads to use
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+LogLik_Poisson_Strata_Guess <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, nthreads) {
+    .Call(`_Colossus_LogLik_Poisson_Strata_Guess`, PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, dfs, nthreads)
+}
+
 #' checks if the model is viable
 #' \code{Check_Risk} Calculates risks and checks for negative values
 #'
@@ -1288,6 +1572,44 @@ cox_ph_transition_CR <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, 
     .Call(`_Colossus_cox_ph_transition_CR`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot)
 }
 
+#' Interface between R code and the Cox PH regression with STRATA and multiplicative log-linear models
+#' \code{cox_ph_transition_STRATA_Basic} Called directly from R, Defines the control variables and calls the regression function
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param der_iden subterm number for derivative tests
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param KeepConstant vector of parameters to keep constant
+#' @param STRATA_vals vector of strata identifier values
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+cox_ph_transition_STRATA_Basic <- function(a_n, dfc, x_all, der_iden, Control, df_groups, tu, KeepConstant, STRATA_vals) {
+    .Call(`_Colossus_cox_ph_transition_STRATA_Basic`, a_n, dfc, x_all, der_iden, Control, df_groups, tu, KeepConstant, STRATA_vals)
+}
+
+#' Interface between R code and the Cox PH calculation with competing risks, event=2
+#' \code{cox_ph_transition_CR_Single} Called directly from R, Defines the control variables and calls the regression function
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param modelform model string
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param cens_vec censoring weight list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+cox_ph_transition_CR_Single <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot) {
+    .Call(`_Colossus_cox_ph_transition_CR_Single`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot)
+}
+
 #' Interface between R code and the Cox PH calculation
 #' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
 #' @param Term_n Term numbers
@@ -1308,6 +1630,27 @@ cox_ph_transition_single <- function(Term_n, tform, a_n, dfc, x_all, fir, modelf
     .Call(`_Colossus_cox_ph_transition_single`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot)
 }
 
+#' Interface between R code and the Cox PH regression with STRATA and no derivative calculation
+#' \code{cox_ph_transition_STRATA_SINGLE} Called directly from R, Defines the control variables and calls the regression function
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param modelform model string
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#' @param STRATA_vals vector of strata identifier values
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, parameter list, AIC, model information
+cox_ph_transition_STRATA_SINGLE <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals) {
+    .Call(`_Colossus_cox_ph_transition_STRATA_SINGLE`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals)
+}
+
 #' Interface between R code and the Cox PH regression for basic model
 #' \code{cox_ph_transition_basic} Called directly from R, Defines the control variables and calls the regression function
 #' @param a_n starting values
@@ -1324,8 +1667,53 @@ cox_ph_transition_basic <- function(a_n, dfc, x_all, der_iden, Control, df_group
     .Call(`_Colossus_cox_ph_transition_basic`, a_n, dfc, x_all, der_iden, Control, df_groups, tu, KeepConstant)
 }
 
+#' Interface between R code and the Cox PH stratified calculation with competing risks, event=2
+#' \code{cox_ph_transition_STRATA_CR_Single} Called directly from R, Defines the control variables and calls the regression function
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param modelform model string
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param cens_vec censoring weight list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#' @param STRATA_vals vector of strata identifier values
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+cox_ph_transition_STRATA_CR_Single <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot, STRATA_vals) {
+    .Call(`_Colossus_cox_ph_transition_STRATA_CR_Single`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot, STRATA_vals)
+}
+
+#' Interface between R code and the Cox PH stratified regression with competing risks, event=2
+#' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param der_iden subterm number for derivative tests
+#' @param modelform model string
+#' @param Control control list
+#' @param df_groups time and event matrix
+#' @param tu event times
+#' @param cens_vec censoring weight list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#' @param STRATA_vals vector of strata identifier values
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+cox_ph_transition_STRATA_CR <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot, STRATA_vals) {
+    .Call(`_Colossus_cox_ph_transition_STRATA_CR`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, cens_vec, KeepConstant, term_tot, STRATA_vals)
+}
+
 #' Interface between R code and the Cox PH regression with STRATA
-#' \code{cox_ph_STRATA} Called directly from R, Defines the control variables and calls the regression function
+#' \code{cox_ph_transition_STRATA} Called directly from R, Defines the control variables and calls the regression function
 #' @param Term_n Term numbers
 #' @param tform subterm types
 #' @param a_n starting values
@@ -1342,8 +1730,8 @@ cox_ph_transition_basic <- function(a_n, dfc, x_all, der_iden, Control, df_group
 #' @param STRATA_vals vector of strata identifier values
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-cox_ph_STRATA <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals) {
-    .Call(`_Colossus_cox_ph_STRATA`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals)
+cox_ph_transition_STRATA <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals) {
+    .Call(`_Colossus_cox_ph_transition_STRATA`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals)
 }
 
 #' Interface between R code and the Cox PH plotting
@@ -1449,6 +1837,26 @@ poisson_transition_single <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, 
 #' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
 poisson_strata_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0) {
     .Call(`_Colossus_poisson_strata_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0)
+}
+
+#' Interface between R code and the poisson regression with strata effect and no derivatives
+#' \code{poisson_strata_transition_single} Called directly from R, Defines the control variables and calls the regression function with strata effect
+#' @param dfe Matrix with person-year/event count information
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_n starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param modelform model string
+#' @param Control control list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#' @param df0 matrix of strata identifier values
+#'
+#' @return LogLik_Poisson output : Log-likelihood of optimum, AIC, deviance, model information
+poisson_strata_transition_single <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0) {
+    .Call(`_Colossus_poisson_strata_transition_single`, dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0)
 }
 
 #' Interface between R code and the Cox PH stress tester
@@ -1571,6 +1979,47 @@ cox_ph_transition_guess <- function(Term_n, tform, a_ns, dfc, x_all, fir, der_id
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 cox_ph_transition_guess_strata <- function(Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals) {
     .Call(`_Colossus_cox_ph_transition_guess_strata`, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals)
+}
+
+#' Interface between R code and the poisson multi-start regression
+#' \code{poisson_transition_guess} Called directly from R, Defines the control variables and calls the regression function
+#' @param dfe Matrix with person-year/event count information
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_ns  matrix of starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param der_iden subterm number for derivative tests
+#' @param modelform model string
+#' @param Control control list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+poisson_transition_guess <- function(dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot) {
+    .Call(`_Colossus_poisson_transition_guess`, dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot)
+}
+
+#' Interface between R code and the poisson multi-start regression with strata
+#' \code{poisson_transition_guess} Called directly from R, Defines the control variables and calls the regression function with stratification
+#' @param dfe Matrix with person-year/event count information
+#' @param Term_n Term numbers
+#' @param tform subterm types
+#' @param a_ns  matrix of starting values
+#' @param dfc covariate column numbers
+#' @param x_all covariate matrix
+#' @param fir first term number
+#' @param der_iden subterm number for derivative tests
+#' @param modelform model string
+#' @param Control control list
+#' @param KeepConstant vector of parameters to keep constant
+#' @param term_tot total number of terms
+#' @param df0 matrix of strata identifier values
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+poisson_transition_strata_guess <- function(dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0) {
+    .Call(`_Colossus_poisson_transition_strata_guess`, dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0)
 }
 
 #' Interface between R code and the risk check

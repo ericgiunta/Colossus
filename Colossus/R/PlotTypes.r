@@ -386,7 +386,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     #
     tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
-    e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+    e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
         as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
     a_n <- e$beta_0
     Plot_Name <- Plot_Type[2]

@@ -322,9 +322,16 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
                     Td0.col(jk) = T0.col(ij).array() * df0.col(df0_c).array();
                     Tdd0.col(jk * (jk+1)/2 + jk) = T0.col(ij).array() * df0.col(df0_c).array().square().array();
                     //
+                    //
                     T0.col(ij) = Dose.col(tn);
-                } else {
-                    ;
+                } else if ((tform[ij-1]=="loglin_slope")&&(KeepConstant[ij-1]==1)){
+                    T0.col(ij) = beta_0[ij-1] * (beta_0[ij] * df0.col(df0_c)).array().exp();
+                    Td0.col(jk) = T0.col(ij).array() * df0.col(df0_c).array();
+                    Tdd0.col(jk * (jk+1)/2 + jk) = T0.col(ij).array() * df0.col(df0_c).array().square().array();
+                    //
+                    //
+                    T0.col(ij) = Dose.col(tn);
+                    T0.col(ij-1) = Dose.col(tn);
                 }
             } else if (as< string>(tform[ij])=="lin_slope"){
                 if (KeepConstant[ij+1]==0){
@@ -992,7 +999,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     Dose_Iden.insert("loglin_top");
     Dose_Iden.insert("loglin_slope");
     Dose_Iden.insert("lin_slope");
-    Dose_Iden.insert( "lin_int");
+    Dose_Iden.insert("lin_int");
     Dose_Iden.insert("quad_slope");
     Dose_Iden.insert("step_slope");
     Dose_Iden.insert("step_int");
@@ -1305,13 +1312,13 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                 if (tij != fir){
                     Tterm_ratio.col(ijk) = TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(-1).array();
                 }
-                if (tform[ijk]=="loglin") {
+                if (tform[ij]=="loglin") {
                     Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_LOGLIN.col(tij).array().pow(-1).array() ;
-                } else if (Dose_Iden.find(as< string>(tform[ijk])) != Dose_Iden.end()){
+                } else if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()){
                     Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * Dose.col(tij).array().pow(-1).array();
-                } else if (tform[ijk]=="lin") {
+                } else if (tform[ij]=="lin") {
                     Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_LIN.col(tij).array().pow(-1).array();
-                } else if (tform[ijk]=="plin") {
+                } else if (tform[ij]=="plin") {
                     Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_PLIN.col(tij).array().pow(-1).array();
                 }
                 Rd.col(ijk) = R.col(0).array() * Td0.array().col(ijk).array() * Tterm_ratio.col(ijk).array();
@@ -1783,6 +1790,82 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
         Rdd.col(ijk) = Rdd.col(ijk).array() * s_weights.array();
         RddR.col(ijk)=R.col(0).array().pow(-1).array() * Rdd.col(ijk).array();
     }
+    return;
+}
+
+
+//' Utility function to calculate the risk with a weighting applied and no derivatives calculated
+//' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
+//' @param     modelform    Model string
+//' @param     tform    subterm types
+//' @param     Term_n    term numbers
+//' @param     totalnum    total number of terms
+//' @param     fir    first term number
+//' @param     s_weights vector of weights for every row
+//' @param     T0    Term by subterm matrix
+//' @param     Te    Temporary term storage matrix
+//' @param     R    Risk matrix
+//' @param     Dose    Dose term matrix
+//' @param     nonDose    nonDose term matrix
+//' @param     TTerm    Total term matrix
+//' @param     nonDose_LIN    Linear term matrix
+//' @param     nonDose_PLIN    Product linear term matrix
+//' @param     nonDose_LOGLIN    Loglinear term matrix
+//' @param     nthreads    number of threads to use
+//' @param     debugging    debugging boolean
+//' @param     KeepConstant    vector identifying constant parameters
+//'
+//' @return Updates matrices in place: Risk, Risk ratios
+// [[Rcpp::export]]
+void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
+    set<string> Dose_Iden; //List of dose subterms
+    Dose_Iden.insert("loglin_top");
+    Dose_Iden.insert("loglin_slope");
+    Dose_Iden.insert("lin_slope");
+    Dose_Iden.insert( "lin_int");
+    Dose_Iden.insert("quad_slope");
+    Dose_Iden.insert("step_slope");
+    Dose_Iden.insert("step_int");
+    Dose_Iden.insert("lin_quad_slope");
+    Dose_Iden.insert("lin_quad_int");
+    Dose_Iden.insert("lin_exp_slope");
+    Dose_Iden.insert("lin_exp_int");
+    Dose_Iden.insert("lin_exp_exp_slope");
+    //
+    //
+    int reqrdnum = totalnum - sum(KeepConstant);
+    //
+    if (((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()>1)){ //same process used for all of the additive type models
+        Te = TTerm.array().rowwise().sum().array();
+        // computes initial risk and derivatives
+        if (modelform=="A"){
+            R << Te.array();
+        } else if ((modelform=="PAE")||(modelform=="PA")){
+            Te = Te.array() - TTerm.col(fir).array();
+            if (modelform=="PAE"){
+                Te = Te.array() + 1;
+            }
+            R << TTerm.col(fir).array() * Te.array();
+        }
+    }else if ((modelform=="M")||(((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()==1))){
+        //
+        MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(),TTerm.cols());
+        TTerm_p << TTerm.array() + 1.0;
+        TTerm_p.col(fir) = TTerm.col(fir).array();
+        Te = TTerm_p.array().rowwise().prod().array();
+        R << Te.array();
+        //
+        R = (R.array().isFinite()).select(R,0);
+    } else if (modelform=="GM"){
+        throw invalid_argument( "GM isn't implemented" );
+    } else {
+        throw invalid_argument( "Model isn't implemented" );
+    }
+    //
+    R = R.array() * s_weights.array();
+    //
+    R =   (R.array().isFinite()).select(R,0);
+    //
     return;
 }
 
@@ -2357,11 +2440,11 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
             if (weighting.size() != InGroup[i+1]-InGroup[i]+1){
 				weighting.resize(InGroup[i+1]-InGroup[i]+1);
 			}
-			weighting << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
+			weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
 			weighting = weighting / cens_0;
 			weighting = (weighting.array()<1).select(weighting,1);
 			//
-            Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+            Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
         } //precalculates the sums of risk groups
         MatrixXd Ld = MatrixXd::Zero(dj,1);
         Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
@@ -2394,11 +2477,11 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 				if (weighting.size() != InGroup[i+1]-InGroup[i]+1){
 					weighting.resize(InGroup[i+1]-InGroup[i]+1);
 				}
-				weighting << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
+				weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
 				weighting = weighting / cens_0;
 				weighting = (weighting.array()<1).select(weighting,1);
 				//
-                Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+                Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
             } //precalculates the sums of risk groups
             MatrixXd Ld = MatrixXd::Zero(dj,1);
             Ld << Rd.block(RiskFail(j,0),ij,dj,1);//sum of risks in group
@@ -2437,11 +2520,11 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 				if (weighting.size() != InGroup[i+1]-InGroup[i]+1){
 					weighting.resize(InGroup[i+1]-InGroup[i]+1);
 				}
-				weighting << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
+				weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.segment(InGroup[i]-1,InGroup[i+1]-InGroup[i]+1);
 				weighting = weighting / cens_0;
 				weighting = (weighting.array()<1).select(weighting,1);
 				//
-                Rs3 += (Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+                Rs3 += (Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
             } //precalculates the sums of risk groups
             MatrixXd Ld = MatrixXd::Zero(dj,1);
             Ld << Rdd.block(RiskFail(j,0),ijk,dj,1);//sum of risks in group
@@ -2531,11 +2614,13 @@ void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<strin
 			if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
 				weighting.resize(InGroup[i+1]-InGroup[i]+1);
 			}
-			weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+			//
+			//
+			weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
 			weighting = weighting / cens_0;
 			weighting = (weighting.array()<1).select(weighting,1);
 			//
-			Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+			Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
 		} //precalculates the sums of risk groups
         MatrixXd Ld = MatrixXd::Zero(dj,1);
         Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
@@ -2756,6 +2841,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 = 0;
             //
+            //
             vector<int> InGroup;
             //Now has the grouping pairs
             if (RiskFail(j,2*s_ij + 1)>-1){
@@ -2768,17 +2854,17 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
                         ss.ignore();
                 }
                 int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-				double cens_0 = cens_weight[RiskFail(j,0)];
+				double cens_0 = cens_weight[RiskFail(j,2*s_ij)];
 				VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
                 for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
 					if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
 						weighting.resize(InGroup[i+1]-InGroup[i]+1);
 					}
-					weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+					weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
 					weighting = weighting / cens_0;
 					weighting = (weighting.array()<1).select(weighting,1);
 					//
-                    Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+                    Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
                 } //precalculates the sums of risk groups
                 MatrixXd Ld = MatrixXd::Zero(dj,1);
                 Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//sum of risks in group
@@ -2813,17 +2899,17 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
                             ss.ignore();
                     }
                     int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-					double cens_0 = cens_weight[RiskFail(j,0)];
+					double cens_0 = cens_weight[RiskFail(j,2*s_ij)];
 					VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
                     for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
 						if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
 							weighting.resize(InGroup[i+1]-InGroup[i]+1);
 						}
-						weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+						weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
 						weighting = weighting / cens_0;
 						weighting = (weighting.array()<1).select(weighting,1);
 						//
-						Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+						Rs2 += (Rd.block(InGroup[i]-1,ij,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
                     } //precalculates the sums of risk groups
                     MatrixXd Ld = MatrixXd::Zero(dj,1);
                     Ld << Rd.block(RiskFail(j,2*s_ij),ij,dj,1);//sum of risks in group
@@ -2859,17 +2945,17 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
                             ss.ignore();
                     }
                     int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-					double cens_0 = cens_weight[RiskFail(j,0)];
+					double cens_0 = cens_weight[RiskFail(j,2*s_ij)];
 					VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
                     for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
 						if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
 							weighting.resize(InGroup[i+1]-InGroup[i]+1);
 						}
-						weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+						weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
 						weighting = weighting / cens_0;
 						weighting = (weighting.array()<1).select(weighting,1);
 						//
-						Rs3 += (Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+						Rs3 += (Rdd.block(InGroup[i]-1,ijk,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
                     } //precalculates the sums of risk groups
                     MatrixXd Ld = MatrixXd::Zero(dj,1);
                     Ld << Rdd.block(RiskFail(j,2*s_ij),ijk,dj,1);//sum of risks in group
@@ -2920,17 +3006,17 @@ void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const Strin
                             ss.ignore();
                     }
                     int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
-					double cens_0 = cens_weight[RiskFail(j,0)];
+					double cens_0 = cens_weight[RiskFail(j,2*s_ij)];
 					VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
                     for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
                         if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
 							weighting.resize(InGroup[i+1]-InGroup[i]+1);
 						}
-						weighting << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
+						weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
 						weighting = weighting / cens_0;
 						weighting = (weighting.array()<1).select(weighting,1);
 						//
-                        Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.array()).sum();
+                        Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
                     } //precalculates the sums of risk groups
                     MatrixXd Ld = MatrixXd::Zero(dj,1);
                     Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//sum of risks in group
@@ -3413,6 +3499,66 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
     return;
 }
 
+//' Utility function to calculate just Cox Log-Likelihood with STRATA
+//' \code{Calc_LogLik_STRATA_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata
+//' @param     nthreads    number of threads
+//' @param     RiskFail    Matrix of event rows for each event time
+//' @param     RiskGroup    vectors of strings with rows at risk for each event time
+//' @param     totalnum    total number of parameters
+//' @param     ntime    number of event times
+//' @param     R    Risk matrix
+//' @param     Rls1    First Risk sum storage
+//' @param     Lls1    Second Risk sum storage
+//' @param     Ll    Log-likelihood vector
+//' @param     debugging    debugging boolean
+//' @param     ties_method    Ties method
+//' @param     STRATA_vals vector of strata identifier values
+//' @param     KeepConstant    vector identifying constant parameters
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+// [[Rcpp::export]]
+void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
+    for (int j=0;j<ntime;j++){
+        for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+            double Rs1 =  Rls1(j,s_ij);
+            //
+            int dj = RiskFail(j,2*s_ij + 1)-RiskFail(j,2*s_ij + 0)+1;
+            if (RiskFail(j,2*s_ij + 1)>-1){
+                MatrixXd Ld = MatrixXd::Zero(dj,1);
+                Ld << R.block(RiskFail(j,2*s_ij),0,dj,1);//rows with events
+                //
+                MatrixXd Ldm = MatrixXd::Zero(dj,1);
+                double Ldcs;
+                if (ties_method=="efron"){
+                    Ldcs = Lls1(j,s_ij);
+                    for (int i = 0; i < dj; i++){ //adds in the efron approximation terms
+                        Ldm(i,0) = (-double(i) / double(dj)) *Ldcs;
+                    }
+                }
+                Ldm.col(0) = Ldm.col(0).array() + Rs1;
+                // Calculates the left-hand side terms
+                //
+                double Ld1;
+                //
+                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(),1);
+                temp1 = Ld.col(0).array().log();
+                Ld1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                //
+                temp1 = Ldm.col(0).array().log();
+                Rs1 =  (temp1.array().isFinite()).select(temp1,0).sum();
+                Ll[0] += Ld1 - Rs1;
+            }
+        }
+    }
+    fill(Ll.begin(), Ll.end(), Ll[0]);
+    return;
+}
+
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
 //' \code{Calc_LogLik_STRATA_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
 //' @param     nthreads    number of threads
@@ -3669,28 +3815,17 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         NumericVector Lldd_vec(kept_covs * kept_covs);
         NumericVector Lld_vec(kept_covs);
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
             int ij = 0;
             int jk = ijk;
-            int pij_ind=-100;
-            int pjk_ind=-100;
             while (jk>ij){
                 ij++;
                 jk-=ij;
             }
-            if (KeepConstant[jk]==0){
-                pjk_ind = jk - sum(head(KeepConstant,jk));
+            if (ij==jk){
+                Lld_vec[ij]=Lld[ij];
             }
-            if (KeepConstant[ij]==0){
-                pij_ind = ij - sum(head(KeepConstant,ij));
-                if (ij==jk){
-                    Lld_vec[pij_ind]=Lld[pij_ind];
-                }
-                if (KeepConstant[jk]==0){
-                    pjk_ind = jk - sum(head(KeepConstant,jk));
-                    Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[pij_ind * kept_covs + pjk_ind];
-                }
-            }
+            Lldd_vec[jk * kept_covs + ij]=Lldd[jk * kept_covs + ij];
         }
         for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
             int ij = 0;
@@ -3701,6 +3836,18 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
             }
             Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk * kept_covs + ij];
         }
+        //
+//        Rcout << "df201 ";//prints the second derivatives
+//        for (int ij=0;ij<kept_covs*kept_covs;ij++){
+//            Rcout << Lldd_vec[ij] << " ";
+//        }
+//        Rcout << " " << endl;
+//        Rcout << "df202 ";//prints the second derivatives
+//        for (int ij=0;ij<kept_covs;ij++){
+//            Rcout << Lld_vec[ij] << " ";
+//        }
+//        Rcout << " " << endl;
+        //
         Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
         const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
@@ -3754,6 +3901,11 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                 }
             }
         }
+//        Rcout << "df203 ";//prints the second derivatives
+//        for (int ij=0;ij<totalnum;ij++){
+//            Rcout << dbeta[ij] << " ";
+//        }
+//        Rcout << " " << endl;
     } else {
         int kept_covs = totalnum - sum(KeepConstant);
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -3823,28 +3975,17 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
         NumericVector Lldd_vec(kept_covs * kept_covs);
         NumericVector Lld_vec(kept_covs);
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
+        for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
             int ij = 0;
             int jk = ijk;
-            int pij_ind=-100;
-            int pjk_ind=-100;
             while (jk>ij){
                 ij++;
                 jk-=ij;
             }
-            if (KeepConstant[jk]==0){
-                pjk_ind = jk - sum(head(KeepConstant,jk));
+            if (ij==jk){
+                Lld_vec[ij]=Lld[ij];
             }
-            if (KeepConstant[ij]==0){
-                pij_ind = ij - sum(head(KeepConstant,ij));
-                if (ij==jk){
-                    Lld_vec[pij_ind]=Lld[pij_ind];
-                }
-                if (KeepConstant[jk]==0){
-                    pjk_ind = jk - sum(head(KeepConstant,jk));
-                    Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[pij_ind * kept_covs + pjk_ind];
-                }
-            }
+            Lldd_vec[ijk]=Lldd[ijk];
         }
         for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
             int ij = 0;

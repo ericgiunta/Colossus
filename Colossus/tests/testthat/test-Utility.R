@@ -534,10 +534,6 @@ test_that("tform order, tform order", {
     names <- val$names
     expect_equal(a_n, c(1,3,5,4,2))
 })
-
-#######################################
-## Formula order
-#######################################
 test_that("tform order, tform and Term_n order", {
     Term_n <- c(0,1,2,0,0)
     tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
@@ -553,10 +549,6 @@ test_that("tform order, tform and Term_n order", {
     names <- val$names
     expect_equal(a_n, c(1,5,4,2,3))
 })
-
-#######################################
-## Formula order
-#######################################
 test_that("tform order, combined", {
     Term_n <- c(0,1,1,0,0)
     tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
@@ -572,5 +564,141 @@ test_that("tform order, combined", {
     names <- val$names
     expect_equal(a_n, c(1,5,4,3,2))
 })
+test_that("formula order, too few parameters", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4)
+    names <- c("a","a","a","a","a")
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, too many parameters", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5,6)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, too few term numbers", {
+    Term_n <- c(0,1,1,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, too many term numbers", {
+    Term_n <- c(0,1,1,0,0,1)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, too few term types", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, too many term types", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
 
+test_that("formula order, missing lin_int", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_slope", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing step_int", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "step_slope", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing loglin_top", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "loglin_slope", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing lin_quad_slope", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_quad_slope", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing lin_exp_int", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_exp_slope","lin_exp_exp_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing lin_exp_exp_slope", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_exp_slope","lin_exp_int")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
 
+test_that("formula order, missing step_slope", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "step_int", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing lin_slope", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing lin_quad_slope", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_quad_int", "lin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing lin_exp_slope", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_exp_int","lin_exp_exp_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})
+test_that("formula order, missing lin_exp_exp_int", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_exp_slope","lin_exp_exp_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- c(1,2,3,4,5)
+    names <- c("a","a","a","a","a")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+})

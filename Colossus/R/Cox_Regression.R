@@ -55,6 +55,14 @@
 
 RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     setkeyv(df, c(time2, event0))
+    #
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    names <- val$names
+    #
     control <- Def_Control(control)
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
@@ -87,28 +95,6 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
     df <- t_check$df
     ce <- t_check$ce
     #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-            ", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
     if (length(keep_constant)<length(names)){
         keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
     } else if (length(keep_constant)>length(names)){
@@ -177,6 +163,14 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 
 RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control){
     setkeyv(df, c(time2, event0))
+    #
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    names <- val$names
+    #
     control <- Def_Control(control)
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
@@ -208,29 +202,6 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
-    #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-            ", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
     #
     a_n0 <- copy(a_n)
     #
@@ -289,6 +260,12 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 
 RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constant, a_n, der_iden, control){
     setkeyv(df, c(time2, event0))
+    #
+    val <- Correct_Formula_Order(rep(0,length(names)), rep("loglin",length(names)), keep_constant, a_n, names)
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    names <- val$names
+    #
     control <- Def_Control(control)
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
@@ -319,20 +296,6 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
-    #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-            ", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
     #
     a_n0 <- copy(a_n)
     #
@@ -640,7 +603,7 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
         control$maxiter <- guesses_control$maxiter
         #
         df_res <- data.table()
-        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
             as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
         for (i in seq_along(e$beta_0)){
             df_res[,paste(i):=e$beta_0[i]]
@@ -677,7 +640,7 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
                     }
                 }
             }
-            e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+            e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
                 as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
             if (is.na(e$LogLik)){
                 #fine
@@ -700,7 +663,7 @@ RunCoxRegression_Guesses <- function(df, time1, time2, event0, names, Term_n, tf
         #
         a_n_ind <- which.min(df_res[,get("Deviation")])
         a_n <- unlist(df_res[a_n_ind],use.names=FALSE)[seq_along(a_n)]
-        e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
             as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
         return (e)
     }
@@ -847,7 +810,272 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    e <- cox_ph_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+    e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+    return (e)
+}
+
+#' Performs basic Cox Proportional Hazards regression with strata effect and multiplicative log-linear model
+#' \code{RunCoxRegression_STRATA_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event0 column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
+#' @param control list of parameters controlling the convergence
+#' @param Strat_Col column to stratify by
+#'
+#' @return returns a list of the final results
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' Strat_Col='e'
+#' 
+#' e <- RunCoxRegression_STRATA_Basic(df, time1, time2, event, names, keep_constant,
+#'                              a_n, der_iden, control,Strat_Col)
+#'
+RunCoxRegression_STRATA_Basic <- function(df, time1, time2, event0,  names, keep_constant, a_n, der_iden, control, Strat_Col){
+    control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    dfend <- df[get(event0)==1, ]
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    #
+    for (i in seq_along(uniq)){
+        df0 <- dfend[get(Strat_Col)==uniq[i],]
+        tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+        if (length(tu0)==0){
+            if (control$verbose){
+                print(paste("no events for strata group:",uniq[i],sep=" "))
+            }
+            df <- df[get(Strat_Col)!=uniq[i],]
+        }
+    }
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    if (control$verbose){
+        print(paste(length(uniq)," strata used",sep=" "))
+    }
+    setkeyv(df, c(time2, event0, Strat_Col))
+    #
+    ce <- c(time1,time2,event0,Strat_Col)
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        print("no events")
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+#    print(uniq)
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+            length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    e <- cox_ph_transition_STRATA_Basic(a_n,dfc,x_all,der_iden, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant, uniq)
+    return (e)
+}
+
+#' Performs basic Cox Proportional Hazards regression with strata effect and no derivatives
+#' \code{RunCoxRegression_STRATA_Single} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event0 column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param Term_n term numbers for each element of the model
+#' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param modelform string specifying the model type
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param control list of parameters controlling the convergence
+#' @param Strat_Col column to stratify by
+#'
+#' @return returns a list of the final results
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' Strat_Col='e'
+#' 
+#' e <- RunCoxRegression_STRATA_Single(df, time1, time2, event, names, Term_n, tform, keep_constant,
+#'                              a_n, modelform, fir, control,Strat_Col)
+#'
+RunCoxRegression_STRATA_Single <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control, Strat_Col){
+    control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    dfend <- df[get(event0)==1, ]
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    #
+    for (i in seq_along(uniq)){
+        df0 <- dfend[get(Strat_Col)==uniq[i],]
+        tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+        if (length(tu0)==0){
+            if (control$verbose){
+                print(paste("no events for strata group:",uniq[i],sep=" "))
+            }
+            df <- df[get(Strat_Col)!=uniq[i],]
+        }
+    }
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    if (control$verbose){
+        print(paste(length(uniq)," strata used",sep=" "))
+    }
+    setkeyv(df, c(time2, event0, Strat_Col))
+    #
+    ce <- c(time1,time2,event0,Strat_Col)
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        print("no events")
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+#    print(uniq)
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+            length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    e <- cox_ph_transition_STRATA_SINGLE(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,
         as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
     return (e)
 }
@@ -1592,6 +1820,427 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
     return (e)
 }
 
+#' Performs basic Cox Proportional Hazards calculation with competing risks
+#' \code{RunCoxRegression_Single_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event0 column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param Term_n term numbers for each element of the model
+#' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param modelform string specifying the model type
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param control list of parameters controlling the convergence
+#' @param cens_weight list of weights for censoring rate
+#'
+#' @return returns a list of the final results
+#' @export
+#'
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   2,   1,   2,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' #weights the probability that a row would continue to extend without censoring,
+#' #    for risk group calculation 
+#' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
+#' #censoring weight is generated by the survival library finegray function, or by hand.
+#' #The ratio of weight at event end point to weight at row endpoint is used.
+#' e <- RunCoxRegression_Single_CR(df, time1, time2, event, names, Term_n, tform,
+#'      keep_constant, a_n, modelform, fir, control, cens_weight)
+#'
+#' @importFrom rlang .data
+
+RunCoxRegression_Single_CR <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control,cens_weight){
+    setkeyv(df, c(time2, event0))
+    control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+    if (length(tu)==0){
+        print("no events")
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    ce <- c(time1,time2,event0)
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+            ", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    #
+    a_n0 <- copy(a_n)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    e <- cox_ph_transition_CR_Single(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,cens_weight,keep_constant,term_tot)
+    a_n <- a_n0
+    return (e)
+}
+
+#' Performs basic Cox Proportional Hazards regression with strata effect and competing risks, event=2
+#' \code{RunCoxRegression_STRATA_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event0 column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param Term_n term numbers for each element of the model
+#' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param modelform string specifying the model type
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
+#' @param control list of parameters controlling the convergence
+#' @param Strat_Col column to stratify by
+#' @param cens_weight list of weights for censoring rate
+#'
+#' @return returns a list of the final results
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' Strat_Col='e'
+#' 
+#' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
+#' e <- RunCoxRegression_STRATA_CR(df, time1, time2, event, names, Term_n, tform, keep_constant,
+#'                              a_n, modelform, fir, der_iden, control,Strat_Col, cens_weight)
+#'
+RunCoxRegression_STRATA_CR <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col, cens_weight){
+    control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    dfend <- df[get(event0)==1, ]
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    #
+    for (i in seq_along(uniq)){
+        df0 <- dfend[get(Strat_Col)==uniq[i],]
+        tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+        if (length(tu0)==0){
+            if (control$verbose){
+                print(paste("no events for strata group:",uniq[i],sep=" "))
+            }
+            df <- df[get(Strat_Col)!=uniq[i],]
+        }
+    }
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    if (control$verbose){
+        print(paste(length(uniq)," strata used",sep=" "))
+    }
+    setkeyv(df, c(time2, event0, Strat_Col))
+    #
+    ce <- c(time1,time2,event0,Strat_Col)
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        print("no events")
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+#    print(uniq)
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+            length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    e <- cox_ph_transition_STRATA_CR(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu, cens_weight,keep_constant,term_tot, uniq)
+    return (e)
+}
+
+#' Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2
+#' \code{RunCoxRegression_STRATA_CR_Single} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#'
+#' @param df data used for regression
+#' @param time1 column used for time period starts
+#' @param time2 column used for time period end
+#' @param event0 column used for event status
+#' @param names columns names for elements of the model, used to identify data columns
+#' @param Term_n term numbers for each element of the model
+#' @param tform subterm type for each element of the model
+#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @param a_n starting parameters for regression
+#' @param modelform string specifying the model type
+#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
+#' @param control list of parameters controlling the convergence
+#' @param Strat_Col column to stratify by
+#' @param cens_weight list of weights for censoring rate
+#'
+#' @return returns a list of the final results
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' 
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' Strat_Col='e'
+#' 
+#' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
+#' e <- RunCoxRegression_STRATA_CR_Single(df, time1, time2, event, names, Term_n, tform, keep_constant,
+#'                              a_n, modelform, fir, control,Strat_Col, cens_weight)
+#'
+RunCoxRegression_STRATA_CR_Single <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control, Strat_Col, cens_weight){
+    control <- Def_Control(control)
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    dfend <- df[get(event0)==1, ]
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    #
+    for (i in seq_along(uniq)){
+        df0 <- dfend[get(Strat_Col)==uniq[i],]
+        tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+        if (length(tu0)==0){
+            if (control$verbose){
+                print(paste("no events for strata group:",uniq[i],sep=" "))
+            }
+            df <- df[get(Strat_Col)!=uniq[i],]
+        }
+    }
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    if (control$verbose){
+        print(paste(length(uniq)," strata used",sep=" "))
+    }
+    setkeyv(df, c(time2, event0, Strat_Col))
+    #
+    ce <- c(time1,time2,event0,Strat_Col)
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
+    if (length(tu)==0){
+        print("no events")
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+#    print(uniq)
+    if (length(a_n)<length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
+            length(names),", Remaining filled with 0.01",sep=""))
+        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+    } else if (length(a_n)>length(names)){
+        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(Term_n)<length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    e <- cox_ph_transition_STRATA_CR_Single(Term_n,tform,a_n,dfc,x_all, fir, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu, cens_weight,keep_constant,term_tot, uniq)
+    return (e)
+}
 
 #' Performs basic Cox Proportional Hazards regression with competing risks
 #' \code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
@@ -1652,7 +2301,6 @@ RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, 
 #'      keep_constant, a_n, modelform, fir, der_iden, control, cens_weight)
 #'
 #' @importFrom rlang .data
-
 RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
     setkeyv(df, c(time2, event0))
     control <- Def_Control(control)
