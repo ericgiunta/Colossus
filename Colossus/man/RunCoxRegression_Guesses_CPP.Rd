@@ -20,7 +20,9 @@ RunCoxRegression_Guesses_CPP(
   der_iden,
   control,
   guesses_control,
-  Strat_Col
+  Strat_Col,
+  model_control = list(),
+  cens_weight = c(0)
 )
 }
 \arguments{
@@ -53,6 +55,10 @@ RunCoxRegression_Guesses_CPP(
 \item{guesses_control}{list of parameters to control how the guessing works}
 
 \item{Strat_Col}{column to stratify by if needed}
+
+\item{model_control}{controls which alternative model options are used}
+
+\item{cens_weight}{list of weights for censoring rate}
 }
 \value{
 returns a list of the final results

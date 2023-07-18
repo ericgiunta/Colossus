@@ -44,6 +44,118 @@ void visit_lambda(const Mat& m, const Func& f)
     m.visit(visitor);
 }
 
+//' Interface between R code and the Cox PH omnibus regression function
+//' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_ns  matrix of starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param der_iden subterm number for derivative tests
+//' @param modelform model string
+//' @param Control control list
+//' @param df_groups time and event matrix
+//' @param tu event times
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//' @param STRATA_vals vector of strata identifier values
+//' @param cens_vec censoring weight list
+//' @param model_control controls which alternative model options are used
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control){
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["Ncores"];
+    //
+	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
+	double cens_thres = Control["cens_thres"];
+	//
+	bool strata_bool = model_control["strata"];
+	bool basic_bool  = model_control["basic"];
+	bool null_bool   = model_control["null"];
+	bool CR_bool     = model_control["CR"];
+	bool single_bool = model_control["single"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_Omnibus(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the pois omnibus regression function
+//' \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @param dfe Matrix with person-year/event count information
+//' @param Term_n Term numbers
+//' @param tform subterm types
+//' @param a_ns  matrix of starting values
+//' @param dfc covariate column numbers
+//' @param x_all covariate matrix
+//' @param fir first term number
+//' @param der_iden subterm number for derivative tests
+//' @param modelform model string
+//' @param Control control list
+//' @param KeepConstant vector of parameters to keep constant
+//' @param term_tot total number of terms
+//' @param df0 matrix of strata identifier values
+//' @param model_control controls which alternative model options are used
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+// [[Rcpp::export]]
+List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control){
+    //
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
+    //
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    int nthreads = Control["Ncores"];
+    //
+	//
+	bool strata_bool = model_control["strata"];
+	bool single_bool = model_control["single"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Pois_Omnibus(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool);
+    //LogLik_Pois_Omnibus(MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, bool strata_bool, bool single_bool);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+
+
+
+
+
+
+
 
 //' Interface between R code and the Cox PH regression
 //' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
@@ -82,343 +194,6 @@ List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH regression
-//' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param cens_vec censoring weight list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_CR(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, NumericVector cens_vec, IntegerVector KeepConstant, int term_tot){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-	double cens_thres = Control["cens_thres"];
-    //
-	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
-	//
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_CR(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH regression with STRATA and multiplicative log-linear models
-//' \code{cox_ph_transition_STRATA_Basic} Called directly from R, Defines the control variables and calls the regression function
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param der_iden subterm number for derivative tests
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param STRATA_vals vector of strata identifier values
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_STRATA_Basic( NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int der_iden, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, NumericVector STRATA_vals){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    //
-    int nthreads = Control["Ncores"];
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_STRATA_BASIC( a_n, x_all, dfc, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, ties_method, STRATA_vals, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH calculation with competing risks, event=2
-//' \code{cox_ph_transition_CR_Single} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param cens_vec censoring weight list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_CR_Single(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, NumericVector cens_vec, IntegerVector KeepConstant, int term_tot){
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-	double cens_thres = Control["cens_thres"];
-    //
-	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
-	//
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_CR_SINGLE(Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu, cens_weight, cens_thres,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH calculation
-//' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_single(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-    //
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Single(Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH regression with STRATA and no derivative calculation
-//' \code{cox_ph_transition_STRATA_SINGLE} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param STRATA_vals vector of strata identifier values
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, parameter list, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_STRATA_SINGLE(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals){
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    string ties_method =Control["ties"];
-    //
-    int nthreads = Control["Ncores"];
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_STRATA_SINGLE(Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
-    //                                     Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method,  STRATA_vals, nthreads
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH regression for basic model
-//' \code{cox_ph_transition_basic} Called directly from R, Defines the control variables and calls the regression function
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param der_iden subterm number for derivative tests
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_basic( NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int der_iden, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    //
-    int nthreads = Control["Ncores"];
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_basic(a_n, x_all, dfc, der_iden, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH stratified calculation with competing risks, event=2
-//' \code{cox_ph_transition_STRATA_CR_Single} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param cens_vec censoring weight list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param STRATA_vals vector of strata identifier values
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_STRATA_CR_Single(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, NumericVector cens_vec, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals){
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-	double cens_thres = Control["cens_thres"];
-    //
-	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
-	//
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_STRATA_SINGLE_CR(Term_n, tform, a_n, x_all, dfc,fir,modelform, df_groups, tu, cens_weight, cens_thres,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH stratified regression with competing risks, event=2
-//' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param cens_vec censoring weight list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param STRATA_vals vector of strata identifier values
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_STRATA_CR(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, NumericVector cens_vec, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-	double cens_thres = Control["cens_thres"];
-    //
-	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
-	//
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_STRATA_CR(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, cens_weight, cens_thres, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH regression with STRATA
-//' \code{cox_ph_transition_STRATA} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param STRATA_vals vector of strata identifier values
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_STRATA(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    //
-    int nthreads = Control["Ncores"];
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_STRATA(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -538,111 +313,6 @@ List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tf
     return res;
 }
 
-//' Interface between R code and the poisson calculation
-//' \code{poisson_transition_single} Called directly from R, Defines the control variables and calls the calculation function
-//' @param dfe Matrix with person-year/event count information
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-// [[Rcpp::export]]
-List poisson_transition_single(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, IntegerVector KeepConstant, int term_tot){
-    //----------------------------------------------------------------------------------------------------------------//
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    //
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    // calculates the poisson regression
-    int nthreads = Control["Ncores"];
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_Single(PyrC,Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, KeepConstant, term_tot, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the poisson regression with strata effect
-//' \code{poisson_strata_transition} Called directly from R, Defines the control variables and calls the regression function with strata effect
-//' @param dfe Matrix with person-year/event count information
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param df0 matrix of strata identifier values
-//'
-//' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-// [[Rcpp::export]]
-List poisson_strata_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0){
-    //----------------------------------------------------------------------------------------------------------------//
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
-    //
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    // calculates the poisson regression
-    int nthreads = Control["Ncores"];
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_STRATA(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, dfs, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the poisson regression with strata effect and no derivatives
-//' \code{poisson_strata_transition_single} Called directly from R, Defines the control variables and calls the regression function with strata effect
-//' @param dfe Matrix with person-year/event count information
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param df0 matrix of strata identifier values
-//'
-//' @return LogLik_Poisson output : Log-likelihood of optimum, AIC, deviance, model information
-// [[Rcpp::export]]
-List poisson_strata_transition_single(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0){
-    //----------------------------------------------------------------------------------------------------------------//
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
-    //
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    // calculates the poisson regression
-    int nthreads = Control["Ncores"];
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_STRATA_SINGLE(PyrC,Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, KeepConstant, term_tot, dfs, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
 //' Interface between R code and the Cox PH stress tester
 //' \code{Stress_Test} Called directly from R, Defines the verbosity and tie method variables, Calls the calculation function
 //' @param Term_n Term numbers
@@ -679,30 +349,6 @@ void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,Int
     int nthreads = Control["Ncores"];
     Stress_Run(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot,test_point, ties_method , nthreads);
     return;
-}
-
-//' Interface between R code and the Cox PH null model function
-//' \code{Stress_Test} Called directly from R, Defines the control variables and calls the calculation function
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//'
-//' @return LogLik_Cox_PH_null output : Log-likelihood of optimum, AIC
-// [[Rcpp::export]]
-List cox_ph_null( List Control, NumericMatrix df_groups, NumericVector tu){
-    //----------------------------------------------------------------------------------------------------------------//
-    //
-    // Calculates null model
-    //
-    // Converts from Rcpp types to efficient Eigen types
-    bool verbose = Control["verbose"];
-    string ties_method =Control["ties"];
-    //
-    int nthreads = Control["Ncores"];
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_null( df_groups, tu, verbose, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
 }
 
 //' Interface between R code and the reference risk calculation
@@ -974,180 +620,6 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
     return (wrap(Mat_Fac));
 }
 
-
-//' Interface between R code and the Cox PH multi-start regression
-//' \code{cox_ph_transition_guess} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_ns  matrix of starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_guess(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    NumericVector maxiters = Control["maxiters"];
-    int guesses = Control["guesses"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-    //
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Guess(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH multi-start regression, with strata effects
-//' \code{cox_ph_transition_guess_strata} Called directly from R, Defines the control variables and calls the regression function, with strata effects
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_ns  matrix of starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param STRATA_vals vector of strata identifier values
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List cox_ph_transition_guess_strata(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    NumericVector maxiters = Control["maxiters"];
-    int guesses = Control["guesses"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-    //
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Guess_Strata(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, STRATA_vals, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the poisson multi-start regression
-//' \code{poisson_transition_guess} Called directly from R, Defines the control variables and calls the regression function
-//' @param dfe Matrix with person-year/event count information
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_ns  matrix of starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List poisson_transition_guess(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot){
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    NumericVector maxiters = Control["maxiters"];
-    int guesses = Control["guesses"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    int nthreads = Control["Ncores"];
-    //
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_Guess(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads);
-    //         LogLik_Poisson_Guess(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step ,change_all,verbose, debugging, KeepConstant, term_tot, nthreads)
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the poisson multi-start regression with strata
-//' \code{poisson_transition_guess} Called directly from R, Defines the control variables and calls the regression function with stratification
-//' @param dfe Matrix with person-year/event count information
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_ns  matrix of starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param df0 matrix of strata identifier values
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-// [[Rcpp::export]]
-List poisson_transition_strata_guess(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector df0){
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    NumericVector maxiters = Control["maxiters"];
-    int guesses = Control["guesses"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    int nthreads = Control["Ncores"];
-    //
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson_Strata_Guess(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, dfs, nthreads);
-    //         LogLik_Poisson_Strata_Guess(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step ,change_all,verbose, debugging, KeepConstant, term_tot, dfs, nthreads)
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-
-
 //' Interface between R code and the risk check
 //' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
 //' @param Term_n Term numbers
@@ -1292,17 +764,4 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     s_weights = s_weights / default_val;
     return;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 

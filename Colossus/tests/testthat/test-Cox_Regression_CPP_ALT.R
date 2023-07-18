@@ -34,7 +34,7 @@ test_that("Coxph loglin_M Single", {
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control)
-    expect_equal(e$AIC,2109,tolerance=1e-2)
+    expect_equal(e$AIC,1056.299,tolerance=1e-2)
 })
 test_that("Coxph loglin_M Null", {
     fname <- 'll_0.csv'

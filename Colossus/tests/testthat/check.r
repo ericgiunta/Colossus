@@ -2,6 +2,7 @@ library(data.table)
 library(Colossus)
 library(parallel)
 
+#
 fname <- 'll_0.csv'
 colTypes=c("double","double","double","integer","integer")
 df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)

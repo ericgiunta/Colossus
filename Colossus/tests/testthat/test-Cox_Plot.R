@@ -20,8 +20,8 @@ test_that("Coxph plot time column missing", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot no events", {
@@ -41,8 +41,8 @@ test_that("Coxph plot no events", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot no type", {
@@ -62,8 +62,8 @@ test_that("Coxph plot no type", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot strata col not in data", {
@@ -83,8 +83,8 @@ test_that("Coxph plot strata col not in data", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE,"Strat_Col"="e", "studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE,"Strat_Col"="e", "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot strata col not given", {
@@ -104,8 +104,8 @@ test_that("Coxph plot strata col not given", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE, "studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=TRUE, "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot martingale dose col not in data", {
@@ -125,8 +125,8 @@ test_that("Coxph plot martingale dose col not in data", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE, "dose_col"="e","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE, "dose_col"="e","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot martingale dose col not given", {
@@ -146,8 +146,8 @@ test_that("Coxph plot martingale dose col not given", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot Survival ID col not in data", {
@@ -167,8 +167,8 @@ test_that("Coxph plot Survival ID col not in data", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="f",'verbose'=FALSE,"KM"=TRUE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="f",'verbose'=TRUE,"KM"=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot Survival ID col not given", {
@@ -188,8 +188,8 @@ test_that("Coxph plot Survival ID col not given", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE,'verbose'=FALSE,"KM"=TRUE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE,'verbose'=TRUE,"KM"=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 
@@ -210,8 +210,8 @@ test_that("Coxph plot no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"), "surv_curv"=TRUE,"studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"), "surv_curv"=TRUE,"studyID"="a",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     file.remove('ggplot2_ch_plot_run_.jpeg')
     file.remove('ggplot2_H_plot_run_.jpeg')
@@ -235,8 +235,8 @@ test_that("Coxph plot stratafied no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"), "surv_curv"=TRUE,"strat_haz"=TRUE,"Strat_Col"="e","studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SURV","run"), "surv_curv"=TRUE,"strat_haz"=TRUE,"Strat_Col"="e","studyID"="a",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     file.remove('ggplot2_ch_plot_run_.jpeg')
     file.remove('ggplot2_H_plot_run_.jpeg')
@@ -261,8 +261,8 @@ test_that("Coxph risk no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("RISK","run"),"studyID"="a",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("RISK","run"),"studyID"="a",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     file.remove('risk_plot_1_run.jpg')
 })
@@ -282,8 +282,8 @@ test_that("Coxph schoenfeld no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SCHOENFELD","run"),"studyID"="t0",'verbose'=FALSE)
+    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options=list("type"=c("SCHOENFELD","run"),"studyID"="t0",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     file.remove('schoenfeld_1_run.jpg')
     file.remove('schoenfeld_2_run.jpg')

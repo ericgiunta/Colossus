@@ -38,7 +38,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
             print(paste("Martingale Plot: ",dname,sep=""))
         }
         if (studyID %in% names(df)){
-            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
+            dfr <- data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
                 "IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),
                 "time"=time_e,"cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
             #
@@ -57,7 +57,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
             Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
             times <- dfr[, lapply(.SD,max), by=IDS]
         } else {
-            dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e,
+            dfr <- data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e,
                 "cov"=unlist(df[, dname, with = FALSE],use.names=FALSE))
             #
             name_temp <- names(dfr)
@@ -89,7 +89,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
     }
     #
     if (studyID %in% names(df)){
-        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
+        dfr <- data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
                        "IDS"=unlist(df[,studyID,with=FALSE],use.names=FALSE),"time"=time_e)
         #
         #
@@ -105,7 +105,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
         Martingale_Error <- dfr[, lapply(.SD,sum), by=IDS]
         times <- dfr[, lapply(.SD,max), by=IDS]
     } else {
-        dfr=data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e)
+        dfr <- data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,"time"=time_e)
         #
         name_temp <- names(dfr)
         for (i in seq_len(length(name_temp))){
@@ -253,7 +253,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
     if (verbose){
         print("writing survival")
     }
-    dft2=data.table("time"=tu2,"base"=e2$baseline)
+    dft2<- data.table("time"=tu2,"base"=e2$baseline)
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     for (i in tu[1]:tu[length(tu)]){
@@ -386,8 +386,14 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     #
     tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
-    e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
-        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
+    #
+    control$maxiters <- c(-1, -1)
+    control$guesses <- 1
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
+                                  a_n, modelform, fir, der_iden, control,Strat_Col=Strat_Col,
+                                  model_control=list("strata"=TRUE))
+#    e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+#        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
     a_n <- e$beta_0
     Plot_Name <- Plot_Type[2]
     if (verbose){
@@ -417,7 +423,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         if (verbose){
             print("writing survival data")
         }
-        dft=data.table("time"=tu,"base"=e$baseline)
+        dft<- data.table("time"=tu,"base"=e$baseline)
         if (verbose){
             print(dft)
             #fine
@@ -442,7 +448,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     if (verbose){
         print("combining data")
     }
-    dft=data.table("t"=tt,"surv"=tsurv,"cat_group"=categ)
+    dft<- data.table("t"=tt,"surv"=tsurv,"cat_group"=categ)
     sbreaks <- c()
     slabels <- c()
     for (i in seq_len(length(uniq))){
@@ -727,7 +733,7 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     if (verbose){
         print("writing survival data")
     }
-    dft=data.table("time"=tu,"base"=e$baseline,"basehaz"=e$standard_error)
+    dft<- data.table("time"=tu,"base"=e$baseline,"basehaz"=e$standard_error)
     for (i in tu){
         t <- c(t,i)
         temp <- sum(dft[time<i, base])

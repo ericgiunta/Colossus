@@ -73,7 +73,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,verbo
     keycol <-c("Term_n","names","tform_order")
     setorderv(df, keycol)
     a <- df$tform
-    for (i in 1:length(a)){
+    for (i in seq_len(length(a))){
         if (i<length(a)){
             if ((a[i]=="loglin_slope")){
                 if (a[i+1]!="loglin_top"){
@@ -200,7 +200,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' control <- Def_Control(control)
 #'
 Def_Control <- function(control){
-    control_def=list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-9,
+    control_def=list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'maxiters' = c(1,20), 'guesses'=1,'halfmax' = 5,'epsilon' = 1e-9,
         'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
         'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()), "cens_thres"=0)
     for (nm in names(control_def)){
@@ -215,6 +215,30 @@ Def_Control <- function(control){
             }
         } else {
             control[nm] <- control_def[nm]
+        }
+    }
+    return (control)
+}
+
+#' Automatically assigns missing model control values
+#' \code{Def_model_control} checks and assigns default values
+#'
+#' @param control list of control parameters
+#'
+#' @return returns a filled list
+#' @export
+#' @examples
+#' library(data.table)
+#' control=list("single"=TRUE)
+#' control <- Def_model_control(control)
+#'
+Def_model_control <- function(control){
+    control_def_names <- c('single','basic','null','CR','strata')
+    for (nm in control_def_names){
+        if (nm %in% names(control)){
+            #fine
+        } else {
+            control[nm] <- FALSE
         }
     }
     return (control)
@@ -457,16 +481,16 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
     iter_i <- 0
     while (iter_i<100){
         iter_i <- iter_i + 1
-        c1=log(a0/b1)+b1*y
-        a1=a0*y+exp(c1-b1*y)
+        c1 <- log(a0/b1)+b1*y
+        a1 <- a0*y+exp(c1-b1*y)
         a_dif <- a1-a1_goal
         if (abs(a_dif)<1e-3){
             break   
         }
-        da1=-1/b1*exp(c1-b1*y)
-        db1=(a1_goal-a1)/da1
+        da1 <- -1/b1*exp(c1-b1*y)
+        db1 <- (a1_goal-a1)/da1
         if (-1*db1 > b1){
-            db1=-0.9*b1
+            db1 <- -0.9*b1
         }
         b1 <- b1 + lr*db1
     }
@@ -680,8 +704,8 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE){
     ##
     if (length(cols)>1){
-        features_pair <- combn(cols, 2, simplify = F) # list all column pairs
-        terms_pair <- combn(term_n, 2, simplify = F) # list all term pairs
+        features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
+        terms_pair <- combn(term_n, 2, simplify = FALSE) # list all term pairs
         toRemove <- c() # init a vector to store duplicates
         for(pair_n in seq_len(length(features_pair))) { # put the pairs for testing into temp objects
             pair <- unlist(features_pair[pair_n])
@@ -781,14 +805,14 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
         if (!("right_trunc" %in% names(df))){
             df[,':='(right_trunc=tmin)]
         }
-        ce[1]="right_trunc"
+        ce[1] <- "right_trunc"
     } else if (ce[2]=="%trunc%") {
         tname <- ce[1]
         tmax <- max(df[,get(tname)])+1
         if (!("left_trunc" %in% names(df))){
             df[,':='(left_trunc=tmax)]
         }
-        ce[2]="left_trunc"
+        ce[2] <- "left_trunc"
     }
     return (list('df'=df,'ce'=ce))
 }

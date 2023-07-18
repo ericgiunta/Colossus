@@ -3,7 +3,8 @@
 \name{RunCoxRegression}
 \alias{RunCoxRegression}
 \title{Performs basic Cox Proportional Hazards regression
-\code{RunCoxRegression} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions}
+\code{RunCoxRegression} uses user provided data, time/event columns,
+vectors specifying the model, and options to control the convergence and starting positions}
 \usage{
 RunCoxRegression(
   df,
@@ -53,7 +54,8 @@ returns a list of the final results
 }
 \description{
 Performs basic Cox Proportional Hazards regression
-\code{RunCoxRegression} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+\code{RunCoxRegression} uses user provided data, time/event columns,
+vectors specifying the model, and options to control the convergence and starting positions
 }
 \examples{
 library(data.table)
