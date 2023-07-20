@@ -31,23 +31,23 @@ cox_ph_Omnibus_transition(
 
 \item{a_ns}{matrix of starting values}
 
-\item{dfc}{covariate column numbers}
+\item{dfc}{vector matching subterm number to matrix column}
 
 \item{x_all}{covariate matrix}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
 \item{der_iden}{subterm number for derivative tests}
 
-\item{modelform}{model string}
+\item{modelform}{string model identifier}
 
 \item{Control}{control list}
 
-\item{df_groups}{time and event matrix}
+\item{df_groups}{matrix with time and event information}
 
-\item{tu}{event times}
+\item{tu}{Event time vector}
 
-\item{KeepConstant}{vector of parameters to keep constant}
+\item{KeepConstant}{binary vector to identify constant parameters}
 
 \item{term_tot}{total number of terms}
 

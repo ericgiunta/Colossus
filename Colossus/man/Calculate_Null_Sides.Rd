@@ -8,19 +8,19 @@
 Calculate_Null_Sides(RiskFail, RiskGroup, ntime, R, Rls1, Lls1, nthreads)
 }
 \arguments{
-\item{RiskFail}{Matrix of event rows for each event time}
+\item{RiskFail}{matrix of indexes for event rows in each risk group}
 
-\item{RiskGroup}{vectors of strings with rows at risk for each event time}
+\item{RiskGroup}{list of string indices for every risk group}
 
-\item{ntime}{number of event times}
+\item{ntime}{number of risk groups}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
 \item{Rls1}{First Risk sum storage}
 
 \item{Lls1}{Second Risk sum storage}
 
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 }
 \value{
 Updates matrices in place: risk storage matrices

@@ -21,17 +21,17 @@ Calc_LogLik_Basic_Single(
 )
 }
 \arguments{
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
-\item{RiskFail}{Matrix of event rows for each event time}
+\item{RiskFail}{matrix of indexes for event rows in each risk group}
 
-\item{RiskGroup}{vectors of strings with rows at risk for each event time}
+\item{RiskGroup}{list of string indices for every risk group}
 
 \item{totalnum}{total number of parameters}
 
-\item{ntime}{number of event times}
+\item{ntime}{number of risk groups}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
 \item{Rls1}{First Risk sum storage}
 
@@ -39,11 +39,11 @@ Calc_LogLik_Basic_Single(
 
 \item{Ll}{Log-likelihood vector}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
 \item{ties_method}{Ties method}
 
-\item{KeepConstant}{vector identifying constant parameters}
+\item{KeepConstant}{binary vector to identify constant parameters}
 }
 \value{
 Updates matrices in place: Log-likelihood vectors/matrix

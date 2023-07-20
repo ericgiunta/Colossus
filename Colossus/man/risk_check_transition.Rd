@@ -25,17 +25,17 @@ risk_check_transition(
 
 \item{a_n}{starting values}
 
-\item{dfc}{covariate column numbers}
+\item{dfc}{vector matching subterm number to matrix column}
 
 \item{x_all}{covariate matrix}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
-\item{modelform}{model string}
+\item{modelform}{string model identifier}
 
 \item{Control}{control list}
 
-\item{KeepConstant}{vector of parameters to keep constant}
+\item{KeepConstant}{binary vector to identify constant parameters}
 
 \item{term_tot}{total number of terms}
 }

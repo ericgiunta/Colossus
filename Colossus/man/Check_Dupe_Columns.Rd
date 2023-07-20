@@ -8,13 +8,13 @@
 Check_Dupe_Columns(df, cols, term_n, verbose = FALSE, factor_check = FALSE)
 }
 \arguments{
-\item{df}{dataframe of data to use as reference}
+\item{df}{a data.table containing the columns of interest}
 
 \item{cols}{columns to check}
 
 \item{term_n}{term numbers}
 
-\item{verbose}{verbosity}
+\item{verbose}{boolean to control if additional information is printed to the console}
 
 \item{factor_check}{a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns}
 }

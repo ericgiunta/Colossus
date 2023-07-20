@@ -26,17 +26,17 @@ Calculate_Sides_STRATA(
 )
 }
 \arguments{
-\item{RiskFail}{Matrix of event rows for each event time}
+\item{RiskFail}{matrix of indexes for event rows in each risk group}
 
-\item{RiskGroup}{vectors of strings with rows at risk for each event time}
+\item{RiskGroup}{list of string indices for every risk group}
 
 \item{totalnum}{total number of parameters}
 
-\item{ntime}{number of event times}
+\item{ntime}{number of risk groups}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
-\item{Rd}{Risk derivative matrix}
+\item{Rd}{Risk first derivative matrix}
 
 \item{Rdd}{Risk second derivative matrix}
 
@@ -52,13 +52,13 @@ Calculate_Sides_STRATA(
 
 \item{Lls3}{Second Risk sum second derivative storage}
 
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
 \item{STRATA_vals}{vector of strata identifier values}
 
-\item{KeepConstant}{vector identifying constant parameters}
+\item{KeepConstant}{binary vector to identify constant parameters}
 }
 \value{
 Updates matrices in place: risk storage matrices

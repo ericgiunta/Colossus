@@ -18,7 +18,7 @@ RunCoxRegression_Basic(
 )
 }
 \arguments{
-\item{df}{data used for regression}
+\item{df}{a data.table containing the columns of interest}
 
 \item{time1}{column used for time period starts}
 
@@ -26,11 +26,11 @@ RunCoxRegression_Basic(
 
 \item{event0}{column used for event status}
 
-\item{names}{columns names for elements of the model, used to identify data columns}
+\item{names}{columns for elements of the model, used to identify data columns}
 
-\item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
+\item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{starting parameters for regression}
+\item{a_n}{list of initial parameter values, used to determine number of parameters}
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
 

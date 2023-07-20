@@ -8,13 +8,13 @@
 Replace_Missing(df, name_list, MSV, verbose = FALSE)
 }
 \arguments{
-\item{df}{datatable being replaced in}
+\item{df}{a data.table containing the columns of interest}
 
 \item{name_list}{vector of string column names to check}
 
 \item{MSV}{value to replace na with, same used for every column used}
 
-\item{verbose}{verbosity for printing which columns needed fills}
+\item{verbose}{boolean to control if additional information is printed to the console}
 }
 \value{
 returns a filled datatable

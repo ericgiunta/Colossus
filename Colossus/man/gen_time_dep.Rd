@@ -7,8 +7,8 @@
 \usage{
 gen_time_dep(
   df,
-  time0,
   time1,
+  time2,
   event0,
   iscox,
   dt,
@@ -20,19 +20,19 @@ gen_time_dep(
 )
 }
 \arguments{
-\item{df}{dataframe of data to use as reference}
+\item{df}{a data.table containing the columns of interest}
 
-\item{time0}{starting time column}
+\item{time1}{column used for time period starts}
 
-\item{time1}{ending time column}
+\item{time2}{column used for time period end}
 
-\item{event0}{event column}
+\item{event0}{column used for event status}
 
 \item{iscox}{boolean if rows not at event times should be kept}
 
 \item{dt}{spacing in time for new rows}
 
-\item{new_names}{vector of new column names for the time dependent columns}
+\item{new_names}{list of new names to use instead of default, default used if entry is ''}
 
 \item{dep_cols}{columns that are not needed in the new dataframe}
 

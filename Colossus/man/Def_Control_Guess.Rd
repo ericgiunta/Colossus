@@ -8,7 +8,7 @@
 Def_Control_Guess(guesses_control, a_n)
 }
 \arguments{
-\item{guesses_control}{list of control parameters}
+\item{guesses_control}{list of parameters to control how the guessing works}
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 }

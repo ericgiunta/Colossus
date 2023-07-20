@@ -18,15 +18,15 @@ Calc_Null_LogLik(
 )
 }
 \arguments{
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
-\item{RiskFail}{Matrix of event rows for each event time}
+\item{RiskFail}{matrix of indexes for event rows in each risk group}
 
-\item{RiskGroup}{vectors of strings with rows at risk for each event time}
+\item{RiskGroup}{list of string indices for every risk group}
 
-\item{ntime}{number of event times}
+\item{ntime}{number of risk groups}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
 \item{Rls1}{First Risk sum storage}
 

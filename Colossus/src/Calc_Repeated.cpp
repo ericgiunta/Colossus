@@ -47,7 +47,7 @@ void visit_lambda(const Mat& m, const Func& f)
 
 //' Utility function to find the memory usage
 //' \code{mem_usage} Called within the code, takes the address to assign value to
-//' @param     vm_usage    double to store peak usage at
+//' @inheritParams CPP_template
 //'
 //' @return assigned peak memory value
 // [[Rcpp::export]]
@@ -67,8 +67,7 @@ void mem_usage(unsigned long& vm_usage){
 
 //' Utility function to take the norm of a vector
 //' \code{vec_norm} Called within the code, takes a vector and length and finds the norm
-//' @param     x    std::vector to take norm of, assumed doubles
-//' @param     totalnum    vector length
+//' @inheritParams CPP_template
 //'
 //' @return double of the norm
 // [[Rcpp::export]]
@@ -83,66 +82,44 @@ double vec_norm(const vector<double>& x,int totalnum){
 
 //' Utility function to remove rows
 //' \code{removeRow} Called within the code, removes and resizes the matrix
-//' @param     matrix    Eigen matrix to change
-//' @param     rowToRemove    row index to remove
+//' @inheritParams CPP_template
 //'
 //' @return eigen matrix with the row removed
 // [[Rcpp::export]]
-void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove){
+void removeRow(Eigen::MatrixXd& matrix_modify, unsigned int rowToRemove){
     //
     //Used to resize with removed rows
-    unsigned int numRows = matrix.rows()-1;
-    unsigned int numCols = matrix.cols();
+    unsigned int numRows = matrix_modify.rows()-1;
+    unsigned int numCols = matrix_modify.cols();
 
     if( rowToRemove < numRows )
-        matrix.block(rowToRemove,0,numRows-rowToRemove,numCols) = matrix.block(rowToRemove+1,0,numRows-rowToRemove,numCols);
+        matrix_modify.block(rowToRemove,0,numRows-rowToRemove,numCols) = matrix_modify.block(rowToRemove+1,0,numRows-rowToRemove,numCols);
 
-    matrix.conservativeResize(numRows,numCols);
+    matrix_modify.conservativeResize(numRows,numCols);
 }
 
 //' Utility function to remove columns
 //' \code{removeColumn} Called within the code, removes and resizes the matrix
-//' @param     matrix    Eigen matrix to change
-//' @param     colToRemove    column index to remove
+//' @inheritParams CPP_template
 //'
 //' @return eigen matrix with the column removed
 // [[Rcpp::export]]
-void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove){
+void removeColumn(Eigen::MatrixXd& matrix_modify, unsigned int colToRemove){
     //
     //Used to resize with removed columns
-    unsigned int numRows = matrix.rows();
-    unsigned int numCols = matrix.cols()-1;
+    unsigned int numRows = matrix_modify.rows();
+    unsigned int numCols = matrix_modify.cols()-1;
 
     if( colToRemove < numCols )
-        matrix.block(0,colToRemove,numRows,numCols-colToRemove) = matrix.block(0,colToRemove+1,numRows,numCols-colToRemove);
+        matrix_modify.block(0,colToRemove,numRows,numCols-colToRemove) = matrix_modify.block(0,colToRemove+1,numRows,numCols-colToRemove);
 
-    matrix.conservativeResize(numRows,numCols);
+    matrix_modify.conservativeResize(numRows,numCols);
 }
 
 
 //' Utility function to calculate the term and subterm values
 //' \code{Make_subterms} Called to update term matrices, Uses lists of term numbers and types to apply formulas
-//' @param     totalnum    Total number of terms
-//' @param     Term_n    Term numbers
-//' @param     tform    subterm types
-//' @param     dfc    covariate column numbers
-//' @param     fir    first term number
-//' @param     T0    Term by subterm matrix
-//' @param     Td0    Term by subterm derivative matrix
-//' @param     Tdd0    Term by subterm second derivative matrix
-//' @param     Dose    Dose term matrix
-//' @param     nonDose    nonDose term matrix
-//' @param     TTerm    Total term matrix
-//' @param     nonDose_LIN    Linear term matrix
-//' @param     nonDose_PLIN    Product linear term matrix
-//' @param     nonDose_LOGLIN    Loglinear term matrix
-//' @param     beta_0    parameter list
-//' @param     df0    covariate matrix
-//' @param     dint    value used for threshold derivative finite step
-//' @param     dslp    value used for slope derivative finite step
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 // [[Rcpp::export]]
@@ -728,23 +705,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
 
 //' Utility function to calculate the term and subterm values, but not derivatives
 //' \code{Make_subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
-//' @param     totalnum    Total number of terms
-//' @param     Term_n    Term numbers
-//' @param     tform    subterm types
-//' @param     dfc    covariate column numbers
-//' @param     fir    first term number
-//' @param     T0    Term by subterm matrix
-//' @param     Dose    Dose term matrix
-//' @param     nonDose    nonDose term matrix
-//' @param     TTerm    Total term matrix
-//' @param     nonDose_LIN    Linear term matrix
-//' @param     nonDose_PLIN    Product linear term matrix
-//' @param     nonDose_LOGLIN    Loglinear term matrix
-//' @param     beta_0    parameter list
-//' @param     df0    covariate matrix
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 // [[Rcpp::export]]
@@ -943,13 +904,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
 
 //' Utility function to calculate the term and subterm values with the basic model
 //' \code{Make_subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
-//' @param     totalnum    Total number of terms
-//' @param     dfc    covariate column numbers
-//' @param     T0    subterm values
-//' @param     beta_0    parameter list
-//' @param     df0    covariate matrix
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 // [[Rcpp::export]]
@@ -968,29 +923,7 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 
 //' Utility function to calculate the risk and risk ratios
 //' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
-//' @param     modelform    Model string
-//' @param     tform    subterm types
-//' @param     Term_n    term numbers
-//' @param     totalnum    total number of terms
-//' @param     fir    first term number
-//' @param     T0    Term by subterm matrix
-//' @param     Td0    Term by subterm derivative matrix
-//' @param     Tdd0    Term by subterm second derivative matrix
-//' @param     Te    Temporary term storage matrix
-//' @param     R    Risk matrix
-//' @param     Rd    Risk first derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     Dose    Dose term matrix
-//' @param     nonDose    nonDose term matrix
-//' @param     TTerm    Total term matrix
-//' @param     nonDose_LIN    Linear term matrix
-//' @param     nonDose_PLIN    Product linear term matrix
-//' @param     nonDose_LOGLIN    Loglinear term matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     RddR    Risk to second derivative ratio matrix
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
@@ -1379,30 +1312,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 
 //' Utility function to calculate the risk and risk ratios with a weighting applied
 //' \code{Make_Risks_Weighted} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
-//' @param     modelform    Model string
-//' @param     tform    subterm types
-//' @param     Term_n    term numbers
-//' @param     totalnum    total number of terms
-//' @param     fir    first term number
-//' @param     s_weights vector of weights for every row
-//' @param     T0    Term by subterm matrix
-//' @param     Td0    Term by subterm derivative matrix
-//' @param     Tdd0    Term by subterm second derivative matrix
-//' @param     Te    Temporary term storage matrix
-//' @param     R    Risk matrix
-//' @param     Rd    Risk first derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     Dose    Dose term matrix
-//' @param     nonDose    nonDose term matrix
-//' @param     TTerm    Total term matrix
-//' @param     nonDose_LIN    Linear term matrix
-//' @param     nonDose_PLIN    Product linear term matrix
-//' @param     nonDose_LOGLIN    Loglinear term matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     RddR    Risk to second derivative ratio matrix
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
@@ -1796,24 +1706,7 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
 
 //' Utility function to calculate the risk with a weighting applied and no derivatives calculated
 //' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
-//' @param     modelform    Model string
-//' @param     tform    subterm types
-//' @param     Term_n    term numbers
-//' @param     totalnum    total number of terms
-//' @param     fir    first term number
-//' @param     s_weights vector of weights for every row
-//' @param     T0    Term by subterm matrix
-//' @param     Te    Temporary term storage matrix
-//' @param     R    Risk matrix
-//' @param     Dose    Dose term matrix
-//' @param     nonDose    nonDose term matrix
-//' @param     TTerm    Total term matrix
-//' @param     nonDose_LIN    Linear term matrix
-//' @param     nonDose_PLIN    Product linear term matrix
-//' @param     nonDose_LOGLIN    Loglinear term matrix
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
@@ -1833,7 +1726,7 @@ void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, con
     Dose_Iden.insert("lin_exp_exp_slope");
     //
     //
-    int reqrdnum = totalnum - sum(KeepConstant);
+//    int reqrdnum = totalnum - sum(KeepConstant);
     //
     if (((modelform=="A")||(modelform=="PA")||(modelform=="PAE"))&&(TTerm.cols()>1)){ //same process used for all of the additive type models
         Te = TTerm.array().rowwise().sum().array();
@@ -1871,23 +1764,7 @@ void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, con
 
 //' Utility function to calculate the risk, but not derivatives
 //' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
-//' @param     modelform    Model string
-//' @param     tform    subterm types
-//' @param     Term_n    term numbers
-//' @param     totalnum    total number of terms
-//' @param     fir    first term number
-//' @param     T0    Term by subterm matrix
-//' @param     Te    Temporary term storage matrix
-//' @param     R    Risk matrix
-//' @param     Dose    Dose term matrix
-//' @param     nonDose    nonDose term matrix
-//' @param     TTerm    Total term matrix
-//' @param     nonDose_LIN    Linear term matrix
-//' @param     nonDose_PLIN    Product linear term matrix
-//' @param     nonDose_LOGLIN    Loglinear term matrix
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
@@ -1940,17 +1817,7 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 
 //' Utility function to calculate the risk and risk ratios for the basic model
 //' \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
-//' @param     totalnum    total number of terms
-//' @param     T0    Term by subterm matrix
-//' @param     R    Risk matrix
-//' @param     Rd    Risk first derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     nthreads    number of threads to use
-//' @param     debugging    debugging boolean
-//' @param     df0    covariate matrix
-//' @param     dfc    covariate column numbers
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 // [[Rcpp::export]]
@@ -1997,13 +1864,7 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 
 //' Utility function to define risk groups
 //' \code{Make_Groups} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
-//' @param     ntime    number of event times
-//' @param     df_m    event/time matrix
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     tu    Event time vector
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
@@ -2054,15 +1915,7 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 
 //' Utility function to define risk groups with competing risks
 //' \code{Make_Groups_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event=2 past the event time    
-//' @param     ntime    number of event times
-//' @param     df_m    event/time matrix
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     tu    Event time vector
-//' @param     cens_weight vector with censoring weights
-//' @param     cens_cutoff double threshold for adding competing risk to risk group, not implemented
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
@@ -2115,14 +1968,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 
 //' Utility function to define risk groups with STRATA
 //' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
-//' @param     ntime    number of event times
-//' @param     df_m    event/time matrix
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     tu    Event time vector
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     STRATA_vals vector of strata identifier values
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
@@ -2196,16 +2042,7 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 
 //' Utility function to define risk groups with STRATA and competing risks
 //' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group , adds competing risks  
-//' @param     ntime    number of event times
-//' @param     df_m    event/time matrix
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     tu    Event time vector
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     cens_weight vector with censoring weights
-//' @param     cens_cutoff double threshold for adding competing risk to risk group, not implemented
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
@@ -2280,22 +2117,7 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
 //' \code{Calculate_Sides} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -2397,23 +2219,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
 //' \code{Calculate_Sides_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     cens_weight vector of censoring weights
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -2538,22 +2344,11 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
 //' \code{Calculate_Sides_CR_SINGLE} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     cens_weight vector of censoring weights
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
 void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
-    int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(1)
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
@@ -2592,15 +2387,7 @@ void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<strin
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
 //' \code{Calculate_Sides_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -2633,16 +2420,7 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives, applies competing risks
 //' \code{Calculate_Sides_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group with competing risks
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     cens_weight vector of censoring weights
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -2686,23 +2464,7 @@ void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<strin
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
 //' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -2815,17 +2577,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative
 //' \code{Calculate_Sides_STRATA_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -2867,24 +2619,7 @@ void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMa
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and competing risks
 //' \code{Calculate_Sides_STRATA_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     cens_weight vector of censoring weights
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -3025,18 +2760,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative and with competing risks
 //' \code{Calculate_Sides_STRATA_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives but with competing risks
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     cens_weight vector of censoring weights
-//' @param     nthreads    number of threads
-//' @param     debugging    debugging boolean
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -3086,28 +2810,7 @@ void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const Strin
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives
 //' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     RddR    Risk to second derivative ratio matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     Ll    Log-likelihood vector
-//' @param     Lld    Log-likelihood first derivative vector
-//' @param     Lldd    Log-likelihood second derivative matrix
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3208,27 +2911,7 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives, basic model
 //' \code{Calc_LogLik_Basic} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     Ll    Log-likelihood vector
-//' @param     Lld    Log-likelihood first derivative vector
-//' @param     Lldd    Log-likelihood second derivative matrix
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3323,18 +3006,7 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
 
 //' Utility function to calculate Cox Log-Likelihood, basic model
 //' \code{Calc_LogLik_Basic_Single} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Ll    Log-likelihood vector
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3378,17 +3050,7 @@ void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail,
 
 //' Utility function to calculate Cox Log-Likelihood
 //' \code{Calc_LogLik_Single} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Ll    Log-likelihood vector
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3428,29 +3090,7 @@ void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
 //' \code{Calc_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     RddR    Risk to second derivative ratio matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     Ll    Log-likelihood vector
-//' @param     Lld    Log-likelihood first derivative vector
-//' @param     Lldd    Log-likelihood second derivative matrix
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3555,24 +3195,12 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
 
 //' Utility function to calculate just Cox Log-Likelihood with STRATA
 //' \code{Calc_LogLik_STRATA_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Ll    Log-likelihood vector
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
-    int reqrdnum = totalnum - sum(KeepConstant);
+//    int reqrdnum = totalnum - sum(KeepConstant);
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
@@ -3615,28 +3243,7 @@ void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
 //' \code{Calc_LogLik_STRATA_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Rls2    First Risk sum derivative storage
-//' @param     Rls3    First Risk sum second derivative storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Lls2    Second Risk sum derivative storage
-//' @param     Lls3    Second Risk sum second derivative storage
-//' @param     Ll    Log-likelihood vector
-//' @param     Lld    Log-likelihood first derivative vector
-//' @param     Lldd    Log-likelihood second derivative matrix
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3735,19 +3342,7 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model, no derivatives
 //' \code{Calc_LogLik_STRATA_BASIC_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     totalnum    total number of parameters
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Ll    Log-likelihood vector
-//' @param     debugging    debugging boolean
-//' @param     ties_method    Ties method
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3806,19 +3401,7 @@ void Calc_LogLik_STRATA_BASIC_SINGLE(const int& nthreads,const IntegerMatrix& Ri
 
 //' Utility function to calculate poisson log-likelihood and derivatives
 //' \code{Poisson_LogLik} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
-//' @param     nthreads    number of threads
-//' @param     totalnum    total number of parameters
-//' @param     PyrC    person-year matrix
-//' @param     R    Risk matrix
-//' @param     Rd    Risk derivative matrix
-//' @param     Rdd    Risk second derivative matrix
-//' @param     RdR    Risk to first derivative ratio matrix
-//' @param     RddR    Risk to second derivative ratio matrix
-//' @param     Ll    Log-likelihood vector
-//' @param     Lld    Log-likelihood first derivative vector
-//' @param     Lldd    Log-likelihood second derivative matrix
-//' @param     debugging    debugging boolean
-//' @param     KeepConstant    vector identifying constant parameters
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3855,12 +3438,7 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 
 //' Utility function to calculate poisson log-likelihood
 //' \code{Poisson_LogLik_Single} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
-//' @param     nthreads    number of threads
-//' @param     totalnum    total number of parameters
-//' @param     PyrC    person-year matrix
-//' @param     R    Risk matrix
-//' @param     Ll    Log-likelihood vector
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -3874,15 +3452,7 @@ void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const Matri
 
 //' Utility function to keep intercept parameters within the range of possible values
 //' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
-//' @param     nthreads    number of threads
-//' @param     totalnum    total number of parameter
-//' @param     beta_0    parameter list
-//' @param     dbeta    parameter change vector
-//' @param     dfc    covariate column numbers
-//' @param     df0    covariate matrix
-//' @param     KeepConstant    vector of parameters to keep constant
-//' @param     debugging    debugging boolean
-//' @param     tform    subterm type
+//' @inheritParams CPP_template
 //' 
 //' @return Updates vector in place: parameter vector
 // [[Rcpp::export]]
@@ -3911,25 +3481,7 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 
 //' Utility function to calculate the change to make each iteration
 //' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
-//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
-//' @param     nthreads    number of threads
-//' @param     totalnum    total number of parameter
-//' @param     fir    first term number
-//' @param     der_iden    subterm number for derivative tests
-//' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
-//' @param     dose_abs_max    Maximum allowed threshold parameter change
-//' @param     lr    learning rate for newton step toward 0 derivative
-//' @param     abs_max    Maximum allowed parameter change
-//' @param     Ll    Log-Likelihood
-//' @param     Lld    Log-Likelihood first derivative
-//' @param     Lldd    Log-Likelihood second derivative
-//' @param     dbeta    parameter change vector
-//' @param     change_all    boolean to change every parameter
-//' @param     tform    subterm type
-//' @param     dint    value used for threshold derivative calculation
-//' @param     dslp    value used for slope derivative finite step
-//' @param     KeepConstant    vector of parameters to keep constant
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: parameter change matrix
 // [[Rcpp::export]]
@@ -4075,20 +3627,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
 
 //' Utility function to calculate the change to make each iteration, with basic model
 //' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
-//' @param     double_step controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
-//' @param     nthreads    number of threads
-//' @param     totalnum    total number of parameter
-//' @param     der_iden    subterm number for derivative tests
-//' @param     dbeta_cap    learning rate for newton step toward 0 log-likelihood
-//' @param     lr    learning rate for newton step toward 0 derivative
-//' @param     abs_max    Maximum allowed parameter change
-//' @param     Ll    Log-Likelihood
-//' @param     Lld    Log-Likelihood first derivative
-//' @param     Lldd    Log-Likelihood second derivative
-//' @param     dbeta    parameter change vector
-//' @param     change_all    boolean to change every parameter
-//' @param     KeepConstant    vector of parameters to keep constant
-//' @param     debugging    debugging boolean
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: parameter change matrix
 // [[Rcpp::export]]
@@ -4202,13 +3741,7 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 
 //' Utility function to perform null model equivalent of Calculate_Sides
 //' \code{Calculate_Null_Sides} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     nthreads    number of threads
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -4243,15 +3776,7 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  
 
 //' Utility function to perform null model equivalent of Calc_LogLik
 //' \code{Calc_Null_LogLik} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Ll    Log-likelihood vector
-//' @param     ties_method    Ties method
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]
@@ -4290,14 +3815,7 @@ void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const v
 
 //' Utility function to perform null model equivalent of Calculate_Sides with strata
 //' \code{Calculate_Null_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     nthreads    number of threads
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
@@ -4337,16 +3855,7 @@ void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatr
 
 //' Utility function to perform null model equivalent of Calc_LogLik
 //' \code{Calc_Null_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
-//' @param     nthreads    number of threads
-//' @param     RiskFail    Matrix of event rows for each event time
-//' @param     RiskGroup    vectors of strings with rows at risk for each event time
-//' @param     ntime    number of event times
-//' @param     R    Risk matrix
-//' @param     Rls1    First Risk sum storage
-//' @param     Lls1    Second Risk sum storage
-//' @param     Ll    Log-likelihood vector
-//' @param     STRATA_vals vector of strata identifier values
-//' @param     ties_method    Ties method
+//' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 // [[Rcpp::export]]

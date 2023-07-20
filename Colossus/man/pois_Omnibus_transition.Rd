@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{pois_Omnibus_transition}
 \alias{pois_Omnibus_transition}
-\title{Interface between R code and the pois omnibus regression function
+\title{Interface between R code and the poisson omnibus regression function
 \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function}
 \usage{
 pois_Omnibus_transition(
@@ -31,23 +31,23 @@ pois_Omnibus_transition(
 
 \item{a_ns}{matrix of starting values}
 
-\item{dfc}{covariate column numbers}
+\item{dfc}{vector matching subterm number to matrix column}
 
 \item{x_all}{covariate matrix}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
 \item{der_iden}{subterm number for derivative tests}
 
-\item{modelform}{model string}
+\item{modelform}{string model identifier}
 
 \item{Control}{control list}
 
-\item{KeepConstant}{vector of parameters to keep constant}
+\item{KeepConstant}{binary vector to identify constant parameters}
 
 \item{term_tot}{total number of terms}
 
-\item{df0}{matrix of strata identifier values}
+\item{df0}{matrix of covariate values}
 
 \item{model_control}{controls which alternative model options are used}
 }
@@ -55,6 +55,6 @@ pois_Omnibus_transition(
 LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 }
 \description{
-Interface between R code and the pois omnibus regression function
+Interface between R code and the poisson omnibus regression function
 \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 }

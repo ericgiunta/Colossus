@@ -8,7 +8,7 @@
 RunCoxNull(df, time1, time2, event0, control)
 }
 \arguments{
-\item{df}{data used for regression}
+\item{df}{a data.table containing the columns of interest}
 
 \item{time1}{column used for time period starts}
 

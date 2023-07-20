@@ -8,7 +8,7 @@
 Def_model_control(control)
 }
 \arguments{
-\item{control}{list of control parameters}
+\item{control}{list of parameters controlling the convergence}
 }
 \value{
 returns a filled list

@@ -1,12 +1,122 @@
+#' Performs checks to gather a list of guesses and iterations
+#' \code{Gather_Guesses_CPP} called from within R, uses a list of options and the model definition to generate a list of parameters and iterations that do not produce errors
+#'
+#' @inheritParams R_template
+#' @param a_n_default center of parameter distribution guessing scope
+#' @param dfc vector matching subterm number to matrix column
+#' @param x_all covariate matrix
+#'
+#' @return returns a list of the final results
+#' @importFrom rlang .data
+Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control){
+    if (typeof(a_n)!="list"){
+        a_n <- list(a_n)
+    }
+    term_tot <- max(Term_n)+1
+    a_ns <- c(NaN)
+    maxiters <- c(NaN)
+    #
+    for (i in seq_len(length(a_n))){
+        a_n0 <- a_n[[i]]
+        if (length(a_n0)<length(names)){
+            print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),
+                ", Remaining filled with 0.01",sep=""))
+            a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
+        } else if (length(a_n0)>length(names)){
+            print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(Term_n)<length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(Term_n)>length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(tform)<length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(tform)>length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(keep_constant)<length(names)){
+            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+        } else if (length(keep_constant)>length(names)){
+            keep_constant <- keep_constant[seq_len(length(names))]
+        }
+        #
+        rmin <- guesses_control$rmin
+        rmax <- guesses_control$rmax
+        if (length(rmin)!=length(rmax)){
+            if (control$verbose){
+                print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            }
+        }
+        #
+        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+        if (keep){
+            if (is.nan(maxiters[1])){
+                a_ns <- c(a_n0)
+                maxiters <- c(guesses_control$maxiter)
+            } else {
+                a_ns <- c(a_ns, a_n0)
+                maxiters <- c(maxiters, guesses_control$maxiter)
+            }
+        }
+    }
+    while (length(maxiters) - length(a_n) < guesses_control$guesses){
+        if (guesses_control$verbose){
+            print(paste(length(maxiters)," valid guesses",sep=""))
+        }
+        if (length(rmin)!=length(rmax)){
+            for (i in seq_along(tform)){
+                if (guesses_control$guess_constant[i]==0){
+                    if (grepl("_int",tform[i],fixed=FALSE)){
+                        a_n0[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
+                    } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
+                        a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
+                    } else if (grepl("_slope",tform[i],fixed=FALSE)){
+                        a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                    } else if (grepl("loglin",tform[i],fixed=FALSE)){
+                        a_n0[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
+                    } else if (grepl("lin",tform[i],fixed=FALSE)){
+                        a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                    } else {
+                        print(paste("tform not implemented ", tform[i],sep=""))
+                        stop()
+                    }
+                } else {
+                    a_n0[i] <- a_n_default[i]
+                }
+            }
+        } else {
+            for (i in seq_along(tform)){
+                if (guesses_control$guess_constant[i]==0){
+                    a_n0[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
+                } else {
+                    a_n0[i] <- a_n_default[i]
+                }
+            }
+        }
+        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+        if (keep){
+            if (is.nan(maxiters[1])){
+                a_ns <- c(a_n0)
+                maxiters <- c(guesses_control$maxiter)
+            } else {
+                a_ns <- c(a_ns,a_n0)
+                maxiters <- c(maxiters,guesses_control$maxiter)
+            }
+        }
+    }
+    list("a_ns"=a_ns, "maxiters"=maxiters)
+}
+
 #' Corrects the order of terms/formula/etc
 #' \code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues
 #'
-#' @param Term_n term numbers
-#' @param tform subterm formulas
-#' @param keep_constant binary values to denote which parameters to change
-#' @param a_n initial parameter guesses
-#' @param names column names
-#' @param verbose verbosity for printing
+#' @inheritParams R_template
 #'
 #' @return returns the corrected lists
 #' @export
@@ -27,51 +137,115 @@
 #' der_iden <- val$der_iden
 #' names <- val$names
 #'
-Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,verbose=FALSE){
+Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0,verbose=FALSE){
     #
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()
     }
-    #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-            ", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
+    if (((typeof(a_n)=="list")&&(length(a_n)==1))||(typeof(a_n)!="list")){
+        #
+        if (typeof(a_n)=="list"){
+            a_n <- a_n[[1]]
+        }
+        if (length(a_n)<length(names)){
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+                ", Remaining filled with 0.01",sep=""))
+            a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
+        } else if (length(a_n)>length(names)){
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(Term_n)<length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(Term_n)>length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(tform)<length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(tform)>length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(keep_constant)<length(names)){
+            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+        } else if (length(keep_constant)>length(names)){
+            keep_constant <- keep_constant[seq_len(length(names))]
+        }
+        #
+        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)))
+        df$iden_const[[der_iden+1]] <- 1
+        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope",
+             "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
+        tform_iden <- match(tform,tform_order)
+        df$tform_order <- tform_iden
+        if (verbose){
+            print(df)
+        }
+        keycol <-c("Term_n","names","tform_order")
+        setorderv(df, keycol)
+        a_n <- df$a_n
+    } else {
+        a_0 <- a_n[[1]]
+        for (a_i in a_n){
+            if (length(a_i)!=length(a_0)){
+                print(paste("Parameters used in first option: ",length(a_0),", Parameters used in different option: ",length(a_i),
+                ", please fix",sep=""))
+                stop()
+            }
+        }
+        #
+        if (length(a_0)<length(names)){
+            print(paste("Parameters used: ",length(a_0),", Covariates used: ",length(names),
+                ", Remaining filled with 0.01",sep=""))
+            for (i in seq_len(length(a_n))){
+                a_n[[i]] <- c(a_n[[i]], rep(0.01,length(names)-length(a_n[[i]])))
+            }
+        } else if (length(a_0)>length(names)){
+            print(paste("Parameters used: ",length(a_0),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(Term_n)<length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(Term_n)>length(names)){
+            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(tform)<length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        } else if (length(tform)>length(names)){
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            stop()
+        }
+        if (length(keep_constant)<length(names)){
+            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+        } else if (length(keep_constant)>length(names)){
+            keep_constant <- keep_constant[seq_len(length(names))]
+        }
+        #
+        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "names"=names,"iden_const"=rep(0,length(names)))
+        df$iden_const[[der_iden+1]] <- 1
+        for (i in seq_len(length(a_n))){
+            df[[paste("a_",i,sep="")]] <- a_n[[i]]
+        }
+        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope",
+             "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
+        tform_iden <- match(tform,tform_order)
+        df$tform_order <- tform_iden
+        if (verbose){
+            print(df)
+        }
+        keycol <-c("Term_n","names","tform_order")
+        setorderv(df, keycol)
+        for (i in seq_len(length(a_n))){
+            a_n[[i]] <- df[[paste("a_",i,sep="")]]
+        }
     }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
-    #
-    df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names)
-    tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope",
-         "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
-    tform_iden <- match(tform,tform_order)
-    df$tform_order <- tform_iden
-    if (verbose){
-        print(df)
-    }
-    keycol <-c("Term_n","names","tform_order")
-    setorderv(df, keycol)
     a <- df$tform
     for (i in seq_len(length(a))){
         if (i<length(a)){
@@ -136,16 +310,15 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,verbo
             }
         }
     }
-    list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant, "a_n"=df$a_n, "der_iden"=df$der_iden, "names"=df$names)
+    a_temp <- df$iden_const
+    der_iden <- which(a_temp==1)
+    list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant, "a_n"=a_n, "der_iden"=der_iden, "names"=df$names)
 }
 
 #' Automatically assigns missing values in listed columns
 #' \code{Replace_Missing} checks each column and fills in NA values
 #'
-#' @param df datatable being replaced in
-#' @param name_list vector of string column names to check
-#' @param MSV value to replace na with, same used for every column used
-#' @param verbose verbosity for printing which columns needed fills
+#' @inheritParams R_template
 #'
 #' @return returns a filled datatable
 #' @export
@@ -190,7 +363,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' Automatically assigns missing control values
 #' \code{Def_Control} checks and assigns default values
 #'
-#' @param control list of control parameters
+#' @inheritParams R_template
 #'
 #' @return returns a filled list
 #' @export
@@ -200,7 +373,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' control <- Def_Control(control)
 #'
 Def_Control <- function(control){
-    control_def=list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'maxiters' = c(1,20), 'guesses'=1,'halfmax' = 5,'epsilon' = 1e-9,
+    control_def <- list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'maxiters' = c(1,20), 'guesses'=1,'halfmax' = 5,'epsilon' = 1e-9,
         'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
         'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()), "cens_thres"=0)
     for (nm in names(control_def)){
@@ -223,7 +396,7 @@ Def_Control <- function(control){
 #' Automatically assigns missing model control values
 #' \code{Def_model_control} checks and assigns default values
 #'
-#' @param control list of control parameters
+#' @inheritParams R_template
 #'
 #' @return returns a filled list
 #' @export
@@ -233,7 +406,7 @@ Def_Control <- function(control){
 #' control <- Def_model_control(control)
 #'
 Def_model_control <- function(control){
-    control_def_names <- c('single','basic','null','CR','strata')
+    control_def_names <- c('single','basic','null','CR','strata','Surv','Schoenfeld','Risk','Risk_Subset')
     for (nm in control_def_names){
         if (nm %in% names(control)){
             #fine
@@ -241,14 +414,18 @@ Def_model_control <- function(control){
             control[nm] <- FALSE
         }
     }
+    if ("Unique_Values" %in% names(control)){
+        #fine
+    } else {
+        control["Unique_Values"] <- 2
+    }
     return (control)
 }
 
 #' Automatically assigns missing guessing control values
 #' \code{Def_Control_Guess} checks and assigns default values
 #'
-#' @param guesses_control list of control parameters
-#' @param a_n list of initial parameter values, used to determine number of parameters
+#' @inheritParams R_template
 #'
 #' @return returns a filled list
 #' @export
@@ -357,9 +534,7 @@ Def_Control_Guess <- function(guesses_control, a_n){
 #' Calculates Full Parameter list for Special Dose Formula
 #' \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas
 #'
-#' @param tforms list of formula types
-#' @param paras list of formula parameters
-#' @param verbose verbosity argument, for error returns
+#' @inheritParams R_template
 #'
 #' @return returns list of full parameters
 #' @export
@@ -447,10 +622,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
 #' Calculates The Additional Parameter For a linear-exponential formula with known maximum
 #' \code{Linked_Lin_Exp_Para} Calculates what the additional parameter would be for a desired maximum
 #'
-#' @param y point formula switch
-#' @param a0 linear slope
-#' @param a1_goal exponential maximum desired
-#' @param verbose verbosity argument, for error returns
+#' @inheritParams R_template
 #'
 #' @return returns parameter used by Colossus
 #' @export
@@ -501,9 +673,7 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 #' \code{factorize} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 #' Not for interaction terms
 #'
-#' @param df a data.table containing the columns of interest
-#' @param col_list an array of column names that should have factor terms defined
-#' @param verbose verbosity argument, for error returns
+#' @inheritParams R_template
 #'
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
@@ -547,10 +717,7 @@ factorize <-function(df,col_list,verbose=FALSE){
 #' \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 #' Not for interaction terms
 #'
-#' @param df a data.table containing the columns of interest
-#' @param col_list an array of column names that should have factor terms defined
-#' @param verbose verbosity argument, for error returns
-#' @param nthreads number of threads to use
+#' @inheritParams R_template
 #'
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
@@ -596,10 +763,7 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 #' Defines Interactions
 #' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 #'
-#' @param df a datatable containing the columns of interest
-#' @param interactions array of strings, each one is of form term1?*?term2" for term1 interaction of type * with term2, "?" dlimits
-#' @param new_names list of interaction names to use instead of default, default used if entry is ''
-#' @param verbose verbosity
+#' @inheritParams R_template
 #'
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
@@ -657,8 +821,7 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
 #' Defines the likelihood ratio test
 #' \code{Likelihood_Ratio_Test} uses two models and calculates the ratio
 #'
-#' @param alternative_model the new model of interest
-#' @param null_model a model to compare against
+#' @inheritParams R_template
 #'
 #' @return returns the score statistic
 #' @export
@@ -683,11 +846,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 #' checks for duplicated column names
 #' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
 #'
-#' @param df dataframe of data to use as reference
-#' @param cols columns to check
-#' @param term_n term numbers
-#' @param verbose verbosity
-#' @param factor_check a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns
+#' @inheritParams R_template
 #'
 #' @return returns the usable columns
 #' @export
@@ -771,9 +930,7 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
 #' Applies time duration truncation limits
 #' \code{Check_Trunc} creates columns to use for truncation
 #'
-#' @param df dataframe of data to use as reference
-#' @param ce columns to check for truncation
-#' @param verbose verbosity argument, for error returns
+#' @inheritParams R_template
 #'
 #' @return returns the updated data and time period columns
 #' @export
@@ -820,17 +977,7 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #' Applies time dependence to parameters
 #' \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time
 #'
-#' @param df dataframe of data to use as reference
-#' @param time0 starting time column
-#' @param time1 ending time column
-#' @param event0 event column
-#' @param iscox boolean if rows not at event times should be kept
-#' @param dt spacing in time for new rows
-#' @param new_names vector of new column names for the time dependent columns
-#' @param dep_cols columns that are not needed in the new dataframe
-#' @param func_form vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
-#' @param fname filename used for new dataframe
-#' @param tform list of string function identifiers, used for linear/step
+#' @inheritParams R_template
 #'
 #' @return returns the updated dataframe
 #' @export
@@ -855,37 +1002,37 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #'        c(grt_f),paste("test","_new.csv",sep=""), func_form)
 #' file.remove('test_new.csv')
 #'
-gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_cols, func_form,fname, tform){
+gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_cols, func_form,fname, tform){
     dfn <- names(df)
-    ce <- c(time0,time1,event0)
+    ce <- c(time1,time2,event0)
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
-    time0 <- ce[1]
-    time1 <- ce[2]
+    time1 <- ce[1]
+    time2 <- ce[2]
     dfn_same <- dfn[!(dfn %in% dep_cols)]
     dfn_dep <- c()
     for (i in seq_len(length(new_names))){
         name0 <- paste(new_names[i],0,sep="_")
         name1 <- paste(new_names[i],1,sep="_")
         func <- func_form[i]
-        df[, name0] <- lapply(func, function(f) f(df, time0))
-        df[, name1] <- lapply(func, function(f) f(df, time1))
+        df[, name0] <- lapply(func, function(f) f(df, time1))
+        df[, name1] <- lapply(func, function(f) f(df, time2))
         dfn_dep <- c(dfn_dep, name0, name1)
     }
     #
     #
-    dfn_time <- c(time0, time1)
+    dfn_time <- c(time1, time2)
     dfn_event <- c(event0)
     dfn_same <- dfn_same[!(dfn_same %in% dfn_time)]
     dfn_same <- dfn_same[!(dfn_same %in% dfn_event)]
     ##
     dfend <- df[get(event0)==1, ]
-    tu <- sort(unlist(unique(dfend[,time1, with = FALSE]), use.names=FALSE))
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (iscox){
         #
-        df <- df[get(time1)>=min(tu),]
-        df <- df[get(time0)<=max(tu),]
+        df <- df[get(time2)>=min(tu),]
+        df <- df[get(time1)<=max(tu),]
         #
     }
     ##
@@ -900,19 +1047,17 @@ gen_time_dep <- function(df, time0, time1, event0, iscox, dt, new_names, dep_col
         fname <- paste(fname,".csv",sep="_")
     }
     Write_Time_Dep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox)
-    df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time0,time1,new_names,dfn_same,event0))
-    setkeyv(df_new, c(time1, event0))
+    df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time1,time2,new_names,dfn_same,event0))
+    setkeyv(df_new, c(time2, event0))
     return (df_new)
 }
 
 #' Automates creating a date difference column
 #' \code{Date_Shift} generates a new dataframe with a column containing time difference in a given unit
 #'
-#' @param df dataframe of data to use as reference
+#' @inheritParams R_template
 #' @param dcol0 list of starting month, day, and year
 #' @param dcol1 list of ending month, day, and year
-#' @param col_name new column name
-#' @param units time unit to use
 #'
 #' @return returns the updated dataframe
 #' @export
@@ -946,11 +1091,8 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
 #' Automates creating a date since a reference column
 #' \code{Time_Since} generates a new dataframe with a column containing time since a reference in a given unit
 #'
-#' @param df dataframe of data to use as reference
+#' @inheritParams R_template
 #' @param dcol0 list of ending month, day, and year
-#' @param tref reference time in date format
-#' @param col_name new column name
-#' @param units time unit to use
 #'
 #' @return returns the updated dataframe
 #' @export

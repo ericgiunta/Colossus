@@ -18,7 +18,7 @@ factorize_par(
 
 \item{col_list}{an array of column names that should have factor terms defined}
 
-\item{verbose}{verbosity argument, for error returns}
+\item{verbose}{boolean to control if additional information is printed to the console}
 
 \item{nthreads}{number of threads to use}
 }

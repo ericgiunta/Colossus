@@ -8,17 +8,17 @@
 Poisson_LogLik_Single(nthreads, totalnum, PyrC, R, Ll, debugging)
 }
 \arguments{
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
 \item{totalnum}{total number of parameters}
 
-\item{PyrC}{person-year matrix}
+\item{PyrC}{matrix of person-years and event counts}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
 \item{Ll}{Log-likelihood vector}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 }
 \value{
 Updates matrices in place: Log-likelihood vectors/matrix

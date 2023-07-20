@@ -32,33 +32,33 @@ Make_Risks(
 )
 }
 \arguments{
-\item{modelform}{Model string}
+\item{modelform}{string model identifier}
 
 \item{tform}{subterm types}
 
-\item{Term_n}{term numbers}
+\item{Term_n}{Term numbers}
 
-\item{totalnum}{total number of terms}
+\item{totalnum}{total number of parameters}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
-\item{T0}{Term by subterm matrix}
+\item{T0}{Term value for each subterm}
 
 \item{Td0}{Term by subterm derivative matrix}
 
 \item{Tdd0}{Term by subterm second derivative matrix}
 
-\item{Te}{Temporary term storage matrix}
+\item{Te}{temporary term storage matrix}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
 \item{Rd}{Risk first derivative matrix}
 
 \item{Rdd}{Risk second derivative matrix}
 
-\item{Dose}{Dose term matrix}
+\item{Dose}{term matrix}
 
-\item{nonDose}{nonDose term matrix}
+\item{nonDose}{term matrix}
 
 \item{TTerm}{Total term matrix}
 
@@ -72,11 +72,11 @@ Make_Risks(
 
 \item{RddR}{Risk to second derivative ratio matrix}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads available}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
-\item{KeepConstant}{vector identifying constant parameters}
+\item{KeepConstant}{binary vector to identify constant parameters}
 }
 \value{
 Updates matrices in place: Risk, Risk ratios

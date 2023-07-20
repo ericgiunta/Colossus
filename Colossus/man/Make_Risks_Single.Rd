@@ -26,25 +26,25 @@ Make_Risks_Single(
 )
 }
 \arguments{
-\item{modelform}{Model string}
+\item{modelform}{string model identifier}
 
 \item{tform}{subterm types}
 
-\item{Term_n}{term numbers}
+\item{Term_n}{Term numbers}
 
-\item{totalnum}{total number of terms}
+\item{totalnum}{total number of parameters}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
-\item{T0}{Term by subterm matrix}
+\item{T0}{Term value for each subterm}
 
-\item{Te}{Temporary term storage matrix}
+\item{Te}{temporary term storage matrix}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
-\item{Dose}{Dose term matrix}
+\item{Dose}{term matrix}
 
-\item{nonDose}{nonDose term matrix}
+\item{nonDose}{term matrix}
 
 \item{TTerm}{Total term matrix}
 
@@ -54,11 +54,11 @@ Make_Risks_Single(
 
 \item{nonDose_LOGLIN}{Loglinear term matrix}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads available}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
-\item{KeepConstant}{vector identifying constant parameters}
+\item{KeepConstant}{binary vector to identify constant parameters}
 }
 \value{
 Updates matrices in place: Risk, Risk ratios

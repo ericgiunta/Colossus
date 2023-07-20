@@ -19,23 +19,23 @@ Make_Groups_STRATA_CR(
 )
 }
 \arguments{
-\item{ntime}{number of event times}
+\item{ntime}{number of risk groups}
 
 \item{df_m}{event/time matrix}
 
-\item{RiskFail}{Matrix of event rows for each event time}
+\item{RiskFail}{matrix of indexes for event rows in each risk group}
 
-\item{RiskGroup}{vectors of strings with rows at risk for each event time}
+\item{RiskGroup}{list of string indices for every risk group}
 
 \item{tu}{Event time vector}
 
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
 \item{STRATA_vals}{vector of strata identifier values}
 
-\item{cens_weight}{vector with censoring weights}
+\item{cens_weight}{vector of censoring weights}
 
 \item{cens_cutoff}{double threshold for adding competing risk to risk group, not implemented}
 }

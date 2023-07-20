@@ -18,23 +18,23 @@ Intercept_Bound(
 )
 }
 \arguments{
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
-\item{totalnum}{total number of parameter}
+\item{totalnum}{total number of parameters}
 
-\item{beta_0}{parameter list}
+\item{beta_0}{parameter estimates}
 
 \item{dbeta}{parameter change vector}
 
-\item{dfc}{covariate column numbers}
+\item{dfc}{vector matching subterm number to matrix column}
 
-\item{df0}{covariate matrix}
+\item{df0}{matrix of covariate values}
 
-\item{KeepConstant}{vector of parameters to keep constant}
+\item{KeepConstant}{binary vector to identify constant parameters}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
-\item{tform}{subterm type}
+\item{tform}{subterm types}
 }
 \value{
 Updates vector in place: parameter vector

@@ -8,13 +8,13 @@
 Gen_Fac_Par(df0, vals, cols, nthreads)
 }
 \arguments{
-\item{df0}{Matrix with columns to factor, assumed to be numeric}
+\item{df0}{matrix of covariate values}
 
 \item{vals}{list of values for each column, single continuous list}
 
 \item{cols}{list of column identifiers, single continuous list}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads available}
 }
 \value{
 saves a dataframe to be used with time-dependent covariate analysis

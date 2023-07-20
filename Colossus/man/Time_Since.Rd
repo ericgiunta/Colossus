@@ -8,7 +8,7 @@
 Time_Since(df, dcol0, tref, col_name, units = "days")
 }
 \arguments{
-\item{df}{dataframe of data to use as reference}
+\item{df}{a data.table containing the columns of interest}
 
 \item{dcol0}{list of ending month, day, and year}
 

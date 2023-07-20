@@ -37,29 +37,29 @@ LogLik_Pois_Omnibus(
 )
 }
 \arguments{
-\item{PyrC}{person-year matrix}
+\item{PyrC}{matrix of person-years and event counts}
 
 \item{Term_n}{Term numbers}
 
 \item{tform}{subterm types}
 
-\item{a_ns}{matrix starting values}
+\item{a_ns}{matrix of starting values}
 
 \item{x_all}{covariate matrix}
 
-\item{dfc}{covariate column numbers}
+\item{dfc}{vector matching subterm number to matrix column}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
 \item{der_iden}{subterm number for derivative tests}
 
-\item{modelform}{model string}
+\item{modelform}{string model identifier}
 
 \item{lr}{learning rate for newton step toward 0 derivative}
 
 \item{maxiters}{list of maximum number of iterations}
 
-\item{guesses}{number of initial guesses}
+\item{guesses}{number of initial}
 
 \item{halfmax}{maximum number of half steps}
 
@@ -77,17 +77,17 @@ LogLik_Pois_Omnibus(
 
 \item{change_all}{boolean if every parameter is being updated}
 
-\item{verbose}{verbosity boolean}
+\item{verbose}{boolean for additional printing}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
-\item{KeepConstant}{vector identifying constant parameters}
+\item{KeepConstant}{binary vector to identify constant parameters}
 
 \item{term_tot}{total number of terms}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads available}
 
-\item{dfs}{matrix of stratification variables}
+\item{dfs}{Matrix with stratification columns, assumed to be binary and mutually exclusive}
 
 \item{strata_bool}{boolean for stratification}
 

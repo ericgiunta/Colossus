@@ -1,18 +1,7 @@
 #' calculates and plots martingale residuals with a named dose column
 #' \code{CoxMartingale} uses user provided data, columns, and identifier to create plots
 #'
-#' @param verbose boolean controlling additional printing
-#' @param df data with covariates and times
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param e output from a baseline calculation
-#' @param t event times
-#' @param ch cumulative hazards
-#' @param dnames list of covariate columns to plot by
-#' @param Plot_Name plot identifier
-#' @param age_unit age unit
-#' @param studyID id to group by, NaN for no grouping
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #'
@@ -84,7 +73,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$cov_max, y=.data$res_sum)) +
              ggplot2::geom_point(color="black") +
              ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
-        ggplot2::ggsave(paste('martin_plot_',dname,Plot_Name,'.jpg',sep="_"),device="jpeg",dpi="retina")
+        ggplot2::ggsave(paste('martin_plot_',dname,Plot_Name,'.jpeg',sep="_"),device="jpeg",dpi="retina")
         ##
     }
     #
@@ -124,7 +113,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
     g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) +
         ggplot2::geom_point(color="black") +
         ggplot2::labs(x=paste("Max Age",sep=" "), y="Martingale Residuals")
-    ggplot2::ggsave(paste('martin_plot',Plot_Name,'.jpg',sep='_'),device="jpeg",dpi="retina")
+    ggplot2::ggsave(paste('martin_plot',Plot_Name,'.jpeg',sep='_'),device="jpeg",dpi="retina")
     ##
     return ("passed")
 }
@@ -132,14 +121,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 #' calculates and plots survival plots of the estimated baseline
 #' \code{CoxSurvival} uses user provided data, columns, and identifier to create plots
 #'
-#' @param t event times
-#' @param h hazards of baseline
-#' @param ch cumulative hazards of baseline
-#' @param surv survival fraction of baseline
-#' @param Plot_Name plot identifier
-#' @param verbose boolean controlling additional printing
-#' @param time_lims limits for x axis of plot
-#' @param age_unit age unit
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
@@ -169,32 +151,14 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #' calculates and plots Kaplan-Mieier survival plots
 #' \code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))
 #'
-#' @param verbose boolean identifying if extra plotting information should be written to the console
-#' @param verbosec boolean identifying if extra regression information should be written to the console           
-#' @param studyID column identifying each individual                 
-#' @param names columns names for elements of the model used to identify data columns      
-#' @param df data used for regression              
-#' @param event0 column used for event status             
-#' @param time1 column used for time period starts            
-#' @param time2 column used for time period end            
-#' @param tu unique event times                 
-#' @param Term_n term numbers for each element of the model          
-#' @param tform subterm type for each element of the model          
-#' @param a_n starting parameters for regression      
-#' @param er standard deviation for the parameters        
-#' @param fir term number for the initial term used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at only used for testing runs with a single varying parameter
-#' @param modelform string specifying the model type             
-#' @param control list of parameters controlling the convergence            
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant       
-#' @param Plot_Type list of parameters controlling the plot options  
-#' @param age_unit age unit
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit){
+CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit, model_control=list()){
     if (verbose){
         print("KM Plots")
     }
+    model_control <- Def_model_control(model_control)
     base  <- NULL
     ce <- c(time1,time2,event0)
     all_names <- unique(names)
@@ -209,7 +173,6 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
     #
     t_t <- c(0)
     n_t <- c(1)
-    iden <- c("above","below","combined") #list of which set
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)) #all event times
     #
     if (verbose){
@@ -237,7 +200,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
     #
     g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_t, y=.data$n_t)) + ggplot2::geom_line() +
         ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-    ggplot2::ggsave(paste("KM_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+    ggplot2::ggsave(paste("KM_",Plot_Type[2],".jpeg",sep=""),device="jpeg",dpi="retina")
     #
     #
     if (verbose){
@@ -245,8 +208,8 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
     }
     #
     tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-    e2 <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
-        as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+    model_control$Surv <- TRUE
+    e2 <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]),tu, keep_constant, term_tot, c(0), c(0), model_control)
     tu2 <- tu
     t <- c(min(tu2))
     surv <- c(1)
@@ -277,7 +240,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 
     g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s)) +
          ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
-    ggplot2::ggsave(paste("log_log_surv_plot_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+    ggplot2::ggsave(paste("log_log_surv_plot_",Plot_Type[2],".jpeg",sep=""),device="jpeg",dpi="retina")
     return ("passed")
 }
 
@@ -285,27 +248,12 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 #' calculates and plots relative risk
 #' \code{CoxRisk} uses user provided data, columns, and identifier to create plots of risk by covariate value for each column
 #'
-#' @param verbose boolean to control if additional information is printed to the console
-#' @param df data used for regression              
-#' @param event0 column used for event status             
-#' @param time1 column used for time period starts            
-#' @param time2 column used for time period end                  
-#' @param names columns names for elements of the model used to identify data columns               
-#' @param Term_n term numbers for each element of the model          
-#' @param tform subterm type for each element of the model          
-#' @param a_n starting parameters for regression              
-#' @param fir term number for the initial term used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at only used for testing runs with a single varying parameter
-#' @param modelform string specifying the model type             
-#' @param control list of parameters controlling the convergence            
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant       
-#' @param Plot_Type list of parameters controlling the plot options
-#' @param b optimum parameter values used
-#' @param er standard deviation of optimum parameters used
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er){
+CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er, model_control=list()){
     fir_KM <- 0
+    model_control <- Def_model_control(model_control)
     dfend <- df[get(event0)==1, ]
     #
     ce <- c(time1,time2,event0)
@@ -324,8 +272,14 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
         uniq <- unlist(unique(df[,lfir, with = FALSE]), use.names=FALSE)
         #
         der_iden <- fir_KM-1
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
-            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type ,length(uniq))
+        model_control$Risk <- TRUE
+        model_control$Unique_Values <- length(uniq)
+        e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]),tu, keep_constant, term_tot, c(0), c(0), model_control)
+        if ("Failure" %in% names(e)){
+            print("Failed: ")
+            print(e)
+            stop()
+        }
         x <- e$x
         y <- e$y
         #
@@ -334,12 +288,12 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
             #
             g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_line(color="black") +
                  ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpeg",sep=""),device="jpeg",dpi="retina")
             #
         } else {
             g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + ggplot2::geom_point(color="black") +
                  ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpg",sep=""),device="jpeg",dpi="retina")
+            ggplot2::ggsave(paste("risk_plot_",fir_KM,"_",Plot_Type[2],".jpeg",sep=""),device="jpeg",dpi="retina")
             #
         }
         #
@@ -351,30 +305,31 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
 #' calculates and plots survival curves for each unique value of the stratification column
 #' \code{CoxStratifiedSurvival} uses user provided data, columns, and identifier to calculate the survival fraction for each strata
 #'
-#' @param verbose boolean to control if additional information is printed to the console
-#' @param df data used for regression              
-#' @param event0 column used for event status             
-#' @param time1 column used for time period starts            
-#' @param time2 column used for time period end                  
-#' @param names columns names for elements of the model used to identify data columns               
-#' @param Term_n term numbers for each element of the model          
-#' @param tform subterm type for each element of the model          
-#' @param a_n starting parameters for regression       
-#' @param er standard deviation for the parameters               
-#' @param fir term number for the initial term used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at only used for testing runs with a single varying parameter
-#' @param modelform string specifying the model type             
-#' @param control list of parameters controlling the convergence            
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant       
-#' @param Plot_Type list of parameters controlling the plot options
-#' @param Strat_Col column to stratify by
-#' @param time_lims limits for x axis of plot
-#' @param age_unit age unit
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims, age_unit){
-    setkeyv(df, c(time2, event0, Strat_Col))
+CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims, age_unit, model_control=list()){
     dfend <- df[get(event0)==1, ]
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    #
+    for (i in seq_along(uniq)){
+        df0 <- dfend[get(Strat_Col)==uniq[i],]
+        tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+        if (length(tu0)==0){
+            if (control$verbose){
+                print(paste("no events for strata group:",uniq[i],sep=" "))
+            }
+            df <- df[get(Strat_Col)!=uniq[i],]
+        }
+    }
+    uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+    if (control$verbose){
+        print(paste(length(uniq)," strata used",sep=" "))
+    }
+    #
+    setkeyv(df, c(time2, event0, Strat_Col))
+    ce <- c(time1,time2,event0,Strat_Col)
+    model_control <- Def_model_control(model_control)
     base  <- NULL
     #
     ce <- c(time1,time2,event0,Strat_Col)
@@ -392,8 +347,6 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
                                   a_n, modelform, fir, der_iden, control,Strat_Col=Strat_Col,
                                   model_control=list("strata"=TRUE))
-#    e <- cox_ph_transition_STRATA(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
-#        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq)
     a_n <- e$beta_0
     Plot_Name <- Plot_Type[2]
     if (verbose){
@@ -413,8 +366,9 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         x_all <- as.matrix(df0[,all_names, with = FALSE])
         tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
         #
-        e <- cox_ph_plot(Term_n, tform, a_n, er, dfc, x_all, fir, der_iden, modelform, control,
-            as.matrix(df0[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        model_control$Surv <- TRUE
+        model_control$strata <- FALSE
+        e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df0[,ce, with = FALSE]),tu, keep_constant, term_tot, c(0), c(0), model_control)
         #
         t <- c()
         h <- c()
@@ -465,7 +419,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     if (verbose){
         print("saving survival data")
     }
-    ggplot2::ggsave(paste('strat_surv_plot',Strat_Col,Plot_Name,'.jpg',sep="_"),device="jpeg",dpi="retina")
+    ggplot2::ggsave(paste('strat_surv_plot',Strat_Col,Plot_Name,'.jpeg',sep="_"),device="jpeg",dpi="retina")
     return ("passed")
 }
         
@@ -473,29 +427,15 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
 #' Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots
 #' \code{RunCox_Schoenfeld_Residual} uses user provided data, time/event columns, vectors specifying the model, and options to calculate the residuals
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param age_unit age unit
-#' @param Plot_Name plot identifier
-#' @param alpha significance level for two tail t test
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #'
 #' @importFrom rlang .data
 
-PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,age_unit,Plot_Name,alpha=0.05){        
+PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,age_unit,Plot_Name, model_control=list()){        
     setkeyv(df, c(time2, event0))
+    model_control <- Def_model_control(model_control)
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
@@ -517,22 +457,20 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     df <- t_check$df
     ce <- t_check$ce
     #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-              ", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(a_n)-length(names)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
-              length(names),sep=""))
-        stop()
-    }
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
     #
     control <- Def_Control(control)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
-    res_list <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
-        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    model_control$Schoenfeld <- TRUE
+    res_list <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]),tu, keep_constant, term_tot, c(0), c(0), model_control)
     res <- res_list$residual
     res_scaled <- res_list$scaled
     #
@@ -548,11 +486,11 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
             #
             g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) + ggplot2::geom_point(color="black") +
                 ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual (",names[cov], tform[cov],")",sep=" "))
-            ggplot2::ggsave(paste("schoenfeld_",cov_res,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
+            ggplot2::ggsave(paste("schoenfeld_",cov_res,"_",Plot_Name,".jpeg",sep=""),device="jpeg",dpi="retina")
             #
             g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) + ggplot2::geom_point(color="black") +
                 ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y=paste("Schoenfeld Residual Scaled (",names[cov], tform[cov],")",sep=" "))
-            ggplot2::ggsave(paste("schoenfeld_scaled_",cov_res,"_",Plot_Name,".jpg",sep=""),device="jpeg",dpi="retina")
+            ggplot2::ggsave(paste("schoenfeld_scaled_",cov_res,"_",Plot_Name,".jpeg",sep=""),device="jpeg",dpi="retina")
             #
         }
     }
@@ -563,19 +501,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #' Calculates and returns data for time by hazard and survival to estimate censoring rate
 #' \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
-#' @param plot_options list of parameters controlling the plot options
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a data.table of time and corresponding hazard, cumulative hazard, and survival
 #' @export
@@ -620,7 +546,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #' #removing files created
 #' file.remove('weight_surv_plot_run_2_.jpeg')
 #'
-GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){
+GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list(),Strat_Col="e"){
     if (plot_options$verbose){
         print("Starting Plot Function")
     }
@@ -628,11 +554,10 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
         print("Atleast one parameter must be free")
         stop()
     }
+    model_control <- Def_model_control(model_control)
     setkeyv(df, c(time2, event0))
     base  <- NULL
-    der_iden <- 0
     Plot_Name <- plot_options$name
-    Plot_Type <- "SURV"
     if (plot_options$verbose){
         print("Getting Plot Info")
     }
@@ -680,32 +605,6 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     time1 <- ce[1]
     time2 <- ce[2]
     #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
     #
     if (plot_options$verbose){
         print("Starting regression check")
@@ -714,17 +613,17 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     control$maxiter <- -1
     #
     #
-    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
-        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
+                                  a_n, modelform, fir, 0, control,Strat_Col=Strat_Col,
+                                  model_control=model_control)
     control$maxiter <- maxiterc
-    er <- e$Standard_Deviation
     #
     if (verbose){
         print("starting ph_plot")
     }
     #
-    e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control,
-        as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+    model_control$Surv <- TRUE
+    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, 0, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, c(0), c(0), model_control)
     #
     t <- c()
     h <- c()

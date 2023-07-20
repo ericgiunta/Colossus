@@ -10,7 +10,7 @@ vec_norm(x, totalnum)
 \arguments{
 \item{x}{std::vector to take norm of, assumed doubles}
 
-\item{totalnum}{vector length}
+\item{totalnum}{total number of parameters}
 }
 \value{
 double of the norm

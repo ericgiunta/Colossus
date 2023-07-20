@@ -2,6 +2,7 @@
 #include <omp.h>
 #include "R_Interface.h"
 #include "Main_Functions.h"
+#include "Plot_Extensions.h"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -46,22 +47,7 @@ void visit_lambda(const Mat& m, const Func& f)
 
 //' Interface between R code and the Cox PH omnibus regression function
 //' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_ns  matrix of starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param STRATA_vals vector of strata identifier values
-//' @param cens_vec censoring weight list
-//' @param model_control controls which alternative model options are used
+//' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
@@ -98,22 +84,9 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
     return res;
 }
 
-//' Interface between R code and the pois omnibus regression function
+//' Interface between R code and the poisson omnibus regression function
 //' \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @param dfe Matrix with person-year/event count information
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_ns  matrix of starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param df0 matrix of strata identifier values
-//' @param model_control controls which alternative model options are used
+//' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
@@ -149,250 +122,52 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
     return res;
 }
 
-
-
-
-
-
-
-
-
-//' Interface between R code and the Cox PH regression
-//' \code{cox_ph_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
+//' Interface between R code and the plotting omnibus function
+//' \code{Plot_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
+//' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List cox_ph_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
+List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control){
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
     double abs_max = Control["abs_max"];
     double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     int nthreads = Control["Ncores"];
+    //
+	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
+	double cens_thres = Control["cens_thres"];
+	//
+	bool strata_bool = model_control["strata"];
+	bool basic_bool  = model_control["basic"];
+	bool CR_bool     = model_control["CR"];
+	//
+	bool Surv_bool       = model_control["Surv"];
+	bool Schoenfeld_bool = model_control["Schoenfeld"];
+	bool Risk_bool       = model_control["Risk"];
+	bool Risk_Sub_bool   = model_control["Risk_Subset"];
+	int uniq_v           = model_control["Unique_Values"];
     //
     // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH plotting
-//' \code{cox_ph_plot} Called directly from R, Defines the control variables and calls the correct plotting function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n optimal values
-//' @param a_er optimal value standard error
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param Plot_Type string specifying which plot type
-//' @param uniq_v total number of unique covariate values
-//'
-//' @return Cox_PH_PLOT_SURV : ( baseline hazard, risk for each row) or Cox_PH_PLOT_RISK output : (covariate values, risks for each row)
-// [[Rcpp::export]]
-List cox_ph_plot(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericVector a_er,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, vector<string> Plot_Type ,int uniq_v){
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    string ties_method =Control["ties"];
     List res;
-    int nthreads = Control["Ncores"];
-    // there are two types of plots that can be generated, survival curve and risk by covariate value
-    //----------------------------------------------------------------------------------------------------------------//
-    if (Plot_Type[0]=="SURV"){
-        res = Cox_PH_PLOT_SURV(Term_n, tform, a_n, a_er, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, nthreads);
-    }else if (Plot_Type[0]=="RISK"){
-        res = Cox_PH_PLOT_RISK(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, uniq_v, nthreads);
-    } else {
-        throw invalid_argument("Invalid plot type");
+    if (uniq_v < 2){
+        res = List::create(_["Failed"]="Unique_Values too low, expects atleast 2 values");
+        return res;
     }
-    return res;
-}
-
-//' Interface between R code and the schoenfeld residual calculation
-//' \code{cox_ph_schoenfeld_transition} Called directly from R, Defines the control variables and calls the calculation function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return Schoenfeld_Cox_PH output: scaled schoenfeld residuals
-// [[Rcpp::export]]
-List cox_ph_schoenfeld_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot){
-    //
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    string ties_method =Control["ties"];
-    //
-    int nthreads = Control["Ncores"];
-    // performs schoenfeld residual calculation
-    List res = Schoenfeld_Cox_PH(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, abs_max,dose_abs_max, df_groups, tu,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads);
+    //----------------------------------------------------------------------------------------------------------------//
+    res = Plot_Omnibus( Term_n, tform, a_n,x_all,dfc, fir,  der_iden, modelform, abs_max,dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
-
-//' Interface between R code and the poisson regression
-//' \code{poisson_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @param dfe Matrix with person-year/event count information
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//'
-//' @return LogLik_Poisson output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, deviance, model information
-// [[Rcpp::export]]
-List poisson_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot){
-    //----------------------------------------------------------------------------------------------------------------//
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    //
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    // calculates the poisson regression
-    int nthreads = Control["Ncores"];
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Poisson(PyrC,Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH stress tester
-//' \code{Stress_Test} Called directly from R, Defines the verbosity and tie method variables, Calls the calculation function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param der_iden subterm number for derivative tests
-//' @param modelform model string
-//' @param Control control list
-//' @param df_groups time and event matrix
-//' @param tu event times
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
-//' @param test_point string vector of functions to test further
-//'
-//' @return NULL
-// [[Rcpp::export]]
-void Stress_Test(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, StringVector test_point){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = FALSE;
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-    Stress_Run(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot,test_point, ties_method , nthreads);
-    return;
-}
-
-//' Interface between R code and the reference risk calculation
-//' \code{cox_ph_risk_sub} Called directly from R, Defines the control variables and calls the calculation function
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param term_tot total number of terms
-//'
-//' @return RISK_SUBSET output: Risk at the reference
-// [[Rcpp::export]]
-NumericVector cox_ph_risk_sub(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, int term_tot){
-    //
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    NumericVector res;
-    int nthreads = Control["Ncores"];
-    //----------------------------------------------------------------------------------------------------------------//
-    // calculates risk for a reference vector
-    res = RISK_SUBSET(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, term_tot, nthreads);
-    return res;
-}
-
 
 //' Generates csv file with time-dependent columns
 //' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
-//' @param df0_Times Matrix with (starting time, ending time)
-//' @param df0_dep matrix with pairs of (covariate at start, covariate at end) for each time-dependent covariate
-//' @param df0_const matrix with values that are held constant
-//' @param df0_event matrix with event status, zero up to the last entry for each original row
-//' @param dt spacing in time
-//' @param filename file to save the data to
-//' @param tform vector with types of time dependent variables
-//' @param tu list of event times
-//' @param iscox boolean of cox formatting is used
+//' @inheritParams CPP_template
 //'
 //' @return saves a dataframe to be used with time-dependent covariate analysis
 // [[Rcpp::export]]
-void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform, NumericVector tu, bool iscox){
+void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox){
     const Map<MatrixXd> df_Times(as<Map<MatrixXd> >(df0_Times));
     const Map<MatrixXd> df_dep(as<Map<MatrixXd> >(df0_dep));
     const Map<MatrixXd> df_const(as<Map<MatrixXd> >(df0_const));
@@ -457,7 +232,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 char tok_char = 'a';
                 // step string is either g, l, a ,b for >=, <=, >, <
                 for (int i=0; i<dep_temp.size();i++){
-                    func_id = as<std::string>(tform[i]);
+                    func_id = as<std::string>(tform_tdep[i]);
                     if (func_id=="lin"){
                         dep_temp[i] = ratio * df_dep.coeff(i_row,2*i+1) + (1 - ratio) * df_dep.coeff(i_row,2*i);
                     } else {
@@ -535,7 +310,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 int gather_val=0;
                 char tok_char = 'a';
                 for (int i=0; i<dep_temp.size();i++){
-                    func_id = as<std::string>(tform[i]);
+                    func_id = as<std::string>(tform_tdep[i]);
                     if (func_id=="lin"){
                         dep_temp[i] = ratio * df_dep.coeff(i_row,2*i+1) + (1 - ratio) * df_dep.coeff(i_row,2*i);
                     } else {
@@ -590,10 +365,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
 
 //' Generates factored columns in parallel
 //' \code{Gen_Fac_Par} Called directly from R, returns a matrix with factored columns
-//' @param df0 Matrix with columns to factor, assumed to be numeric
-//' @param vals list of values for each column, single continuous list
-//' @param cols list of column identifiers, single continuous list
-//' @param nthreads number of threads to use
+//' @inheritParams CPP_template
 //'
 //' @return saves a dataframe to be used with time-dependent covariate analysis
 // [[Rcpp::export]]
@@ -622,16 +394,7 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 
 //' Interface between R code and the risk check
 //' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
-//' @param Term_n Term numbers
-//' @param tform subterm types
-//' @param a_n starting values
-//' @param dfc covariate column numbers
-//' @param x_all covariate matrix
-//' @param fir first term number
-//' @param modelform model string
-//' @param Control control list
-//' @param KeepConstant vector of parameters to keep constant
-//' @param term_tot total number of terms
+//' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
@@ -650,14 +413,7 @@ bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVect
 
 //' Generates weightings for stratified poisson regression
 //' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
-//' @param dfs Matrix with stratification columns, assumed to be binary and mutually exclusive
-//' @param PyrC matrix of person-years and event counts
-//' @param s_weights vector of weights to assign to
-//' @param nthreads number of threads to use
-//' @param     tform    subterm types
-//' @param     Term_n    term numbers
-//' @param     term_tot   number of terms
-//' @param     modelform   string model identifier
+//' @inheritParams CPP_template
 //'
 //' @return assigns weight in place and returns nothing
 // [[Rcpp::export]]
@@ -732,7 +488,6 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
             loglin_count[ijk] = 1.0;;//replaces missing data with 1
         }
         term_val[ijk] = dose_count[ijk] * plin_count[ijk] * loglin_count[ijk];
-//        Rcout << dose_count[ijk] << ", " << plin_count[ijk] << ", " << loglin_count[ijk] << ", " << term_val[ijk] << endl;
     }
     double default_val=0;
     if (modelform=="A"){
@@ -760,7 +515,6 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     } else {
         throw invalid_argument( "Model isn't implemented" );
     }
-//    Rcout << default_val << endl;
     s_weights = s_weights / default_val;
     return;
 }

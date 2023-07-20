@@ -18,7 +18,7 @@ CoxSurvival(t, h, ch, surv, Plot_Name, verbose, time_lims, age_unit)
 
 \item{Plot_Name}{plot identifier}
 
-\item{verbose}{boolean controlling additional printing}
+\item{verbose}{boolean to control if additional information is printed to the console}
 
 \item{time_lims}{limits for x axis of plot}
 

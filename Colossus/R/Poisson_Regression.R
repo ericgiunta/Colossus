@@ -3,20 +3,7 @@
 #'  vectors specifying the model, and options to control the convergence and starting positions.
 #'  Has additional options to starting with several initial guesses
 #'
-#' @param df data used for regression
-#' @param pyr column used for person-years per row
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Col column to stratify by if needed
-#' @param model_control controls which alternative model options are used
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -56,6 +43,13 @@
 #'                                   a_n, modelform, fir, der_iden, control,Strat_Col)
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr="pyr", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list()){
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
@@ -118,18 +112,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr="pyr", event0="event", names=c(
 #' Performs basic poisson regression
 #' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param pyr column used for person-years per row
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @examples
@@ -179,17 +162,7 @@ RunPoissonRegression <- function(df, pyr, event0, names, Term_n, tform, keep_con
 #' Performs poisson regression with no derivative calculations
 #' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
 #'
-#' @param df data used for regression
-#' @param pyr column used for person-years per row
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @examples
@@ -236,19 +209,7 @@ RunPoissonRegression_Single <- function(df, pyr, event0, names, Term_n, tform, a
 #' Performs poisson regression with strata effect
 #' \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param pyr column used for person-years per row
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Cols column to stratify by
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -298,18 +259,7 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
 #' Performs poisson regression with strata effect and no derivative calculation
 #' \code{RunPoissonRegression_STRATA_Single} uses user provided data, time/event columns, and vectors specifying the model
 #'
-#' @param df data used for regression
-#' @param pyr column used for person-years per row
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Cols column to stratify by
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -358,20 +308,7 @@ RunPoissonRegression_STRATA_Single <- function(df, pyr, event0, names, Term_n, t
 #' Performs basic poisson regression, with multiple guesses, starts with a single term
 #' \code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
 #'
-#' @param df data used for regression
-#' @param pyr column used for person-years per row
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Cols column to stratify by
-#' @param guesses_control list of parameters to control how the guessing works
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -424,33 +361,6 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
         stop()
     }
     #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-              ", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
     rmin <- guesses_control$rmin
     rmax <- guesses_control$rmax
     if (length(rmin)!=length(rmax)){
@@ -510,21 +420,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
 #' Performs basic Poisson regression, Allows for multiple starting guesses on c++ side
 #' \code{RunPoissonRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'
-#' @param df data used for regression
-#' @param pyr column used for person-years per row
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param guesses_control list of parameters to control how the guessing works
-#' @param Strat_Col column to stratify by if needed
-#' @param model_control controls which alternative model options are used
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -610,106 +506,11 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr, event0, names, Term_n, tfo
 
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
-    ce <- c(pyr,event0)
     #
     #
-    a_ns <- c(NaN)
-    maxiters <- c(NaN)
-    #
-    for (i in seq_len(length(a_n))){
-        a_n0 <- a_n[[i]]
-        if (length(a_n0)<length(names)){
-            print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),
-                ", Remaining filled with 0.01",sep=""))
-            a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
-        } else if (length(a_n0)>length(names)){
-            print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(Term_n)<length(names)){
-            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        } else if (length(Term_n)>length(names)){
-            print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(tform)<length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-            stop()
-        } else if (length(tform)>length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(keep_constant)<length(names)){
-            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-        } else if (length(keep_constant)>length(names)){
-            keep_constant <- keep_constant[seq_len(length(names))]
-        }
-        #
-        rmin <- guesses_control$rmin
-        rmax <- guesses_control$rmax
-        if (length(rmin)!=length(rmax)){
-            if (control$verbose){
-                print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
-            }
-        }
-        #
-        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
-        if (keep){
-            if (is.nan(maxiters[1])){
-                a_ns <- c(a_n0)
-                maxiters <- c(guesses_control$maxiter)
-            } else {
-                a_ns <- c(a_ns, a_n0)
-                maxiters <- c(maxiters, guesses_control$maxiter)
-            }
-        }
-    }
-    while (length(maxiters) - length(a_n) < guesses_control$guesses){
-        if (guesses_control$verbose){
-            print(paste(length(maxiters)," valid guesses",sep=""))
-        }
-        if (length(rmin)!=length(rmax)){
-            for (i in seq_along(tform)){
-                if (guesses_control$guess_constant[i]==0){
-                    if (grepl("_int",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
-                    } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
-                    } else if (grepl("_slope",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
-                    } else if (grepl("loglin",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
-                    } else if (grepl("lin",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
-                    } else {
-                        print(paste("tform not implemented ", tform[i],sep=""))
-                        stop()
-                    }
-                } else {
-                    a_n0[i] <- a_n_default[i]
-                }
-            }
-        } else {
-            for (i in seq_along(tform)){
-                if (guesses_control$guess_constant[i]==0){
-                    a_n0[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
-                } else {
-                    a_n0[i] <- a_n_default[i]
-                }
-            }
-        }
-        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
-        if (keep){
-            if (is.nan(maxiters[1])){
-                a_ns <- c(a_n0)
-                maxiters <- c(guesses_control$maxiter)
-            } else {
-                a_ns <- c(a_ns,a_n0)
-                maxiters <- c(maxiters,guesses_control$maxiter)
-            }
-        }
-    }
+    dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
+    a_ns <- dat_val$a_ns
+    maxiters <- dat_val$maxiters
     #
     control$maxiters <- c(maxiters,control$maxiter)
     control$guesses <- length(maxiters)-1

@@ -29,21 +29,21 @@ Check_Risk(
 
 \item{x_all}{covariate matrix}
 
-\item{dfc}{covariate column numbers}
+\item{dfc}{vector matching subterm number to matrix column}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
-\item{modelform}{model string}
+\item{modelform}{string model identifier}
 
-\item{verbose}{verbosity boolean}
+\item{verbose}{boolean for additional printing}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
-\item{KeepConstant}{vector identifying constant parameters}
+\item{KeepConstant}{binary vector to identify constant parameters}
 
 \item{term_tot}{total number of terms}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads available}
 }
 \value{
 True for viable point, False for negative error

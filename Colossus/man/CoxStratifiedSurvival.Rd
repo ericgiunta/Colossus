@@ -24,13 +24,14 @@ CoxStratifiedSurvival(
   Plot_Type,
   Strat_Col,
   time_lims,
-  age_unit
+  age_unit,
+  model_control = list()
 )
 }
 \arguments{
 \item{verbose}{boolean to control if additional information is printed to the console}
 
-\item{df}{data used for regression}
+\item{df}{a data.table containing the columns of interest}
 
 \item{event0}{column used for event status}
 
@@ -38,33 +39,35 @@ CoxStratifiedSurvival(
 
 \item{time2}{column used for time period end}
 
-\item{names}{columns names for elements of the model used to identify data columns}
+\item{names}{columns for elements of the model, used to identify data columns}
 
 \item{Term_n}{term numbers for each element of the model}
 
-\item{tform}{subterm type for each element of the model}
+\item{tform}{list of string function identifiers, used for linear/step}
 
-\item{a_n}{starting parameters for regression}
+\item{a_n}{list of initial parameter values, used to determine number of parameters}
 
 \item{er}{standard deviation for the parameters}
 
-\item{fir}{term number for the initial term used for models of the form T0*f(Ti) in which the order matters}
+\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{der_iden}{number for the subterm to test derivative at only used for testing runs with a single varying parameter}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
 
 \item{modelform}{string specifying the model type}
 
 \item{control}{list of parameters controlling the convergence}
 
-\item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
+\item{keep_constant}{binary values to denote which parameters to change}
 
 \item{Plot_Type}{list of parameters controlling the plot options}
 
-\item{Strat_Col}{column to stratify by}
+\item{Strat_Col}{column to stratify by if needed}
 
 \item{time_lims}{limits for x axis of plot}
 
 \item{age_unit}{age unit}
+
+\item{model_control}{controls which alternative model options are used}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed

@@ -12,7 +12,7 @@ Linked_Dose_Formula(tforms, paras, verbose = FALSE)
 
 \item{paras}{list of formula parameters}
 
-\item{verbose}{verbosity argument, for error returns}
+\item{verbose}{boolean to control if additional information is printed to the console}
 }
 \value{
 returns list of full parameters

@@ -31,19 +31,19 @@ Calc_LogLik(
 )
 }
 \arguments{
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
-\item{RiskFail}{Matrix of event rows for each event time}
+\item{RiskFail}{matrix of indexes for event rows in each risk group}
 
-\item{RiskGroup}{vectors of strings with rows at risk for each event time}
+\item{RiskGroup}{list of string indices for every risk group}
 
 \item{totalnum}{total number of parameters}
 
-\item{ntime}{number of event times}
+\item{ntime}{number of risk groups}
 
-\item{R}{Risk matrix}
+\item{R}{risk vector}
 
-\item{Rd}{Risk derivative matrix}
+\item{Rd}{Risk first derivative matrix}
 
 \item{Rdd}{Risk second derivative matrix}
 
@@ -65,15 +65,15 @@ Calc_LogLik(
 
 \item{Ll}{Log-likelihood vector}
 
-\item{Lld}{Log-likelihood first derivative vector}
+\item{Lld}{Log-likelihood first derivative matrix}
 
 \item{Lldd}{Log-likelihood second derivative matrix}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 
 \item{ties_method}{Ties method}
 
-\item{KeepConstant}{vector identifying constant parameters}
+\item{KeepConstant}{binary vector to identify constant parameters}
 }
 \value{
 Updates matrices in place: Log-likelihood vectors/matrix

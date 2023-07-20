@@ -8,19 +8,19 @@
 Make_subterms_Basic(totalnum, dfc, T0, beta_0, df0, nthreads, debugging)
 }
 \arguments{
-\item{totalnum}{Total number of terms}
+\item{totalnum}{total number of parameters}
 
-\item{dfc}{covariate column numbers}
+\item{dfc}{vector matching subterm number to matrix column}
 
-\item{T0}{subterm values}
+\item{T0}{Term value for each subterm}
 
-\item{beta_0}{parameter list}
+\item{beta_0}{parameter estimates}
 
-\item{df0}{covariate matrix}
+\item{df0}{matrix of covariate values}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads available}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 }
 \value{
 Updates matrices in place: subterm matrices, Term matrices

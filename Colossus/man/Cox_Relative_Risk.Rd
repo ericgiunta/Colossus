@@ -17,11 +17,12 @@ Cox_Relative_Risk(
   a_n,
   modelform,
   fir,
-  control
+  control,
+  model_control = list()
 )
 }
 \arguments{
-\item{df}{data used to calculate PH}
+\item{df}{a data.table containing the columns of interest}
 
 \item{time1}{column used for time period starts}
 
@@ -29,21 +30,23 @@ Cox_Relative_Risk(
 
 \item{event0}{column used for event status}
 
-\item{names}{columns names for elements of the model, used to identify data columns}
+\item{names}{columns for elements of the model, used to identify data columns}
 
 \item{Term_n}{term numbers for each element of the model}
 
-\item{tform}{subterm type for each element of the model}
+\item{tform}{list of string function identifiers, used for linear/step}
 
-\item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
+\item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{starting parameters for regression}
+\item{a_n}{list of initial parameter values, used to determine number of parameters}
 
 \item{modelform}{string specifying the model type}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters for verbosity and tie method}
+\item{control}{list of parameters controlling the convergence}
+
+\item{model_control}{controls which alternative model options are used}
 }
 \value{
 returns a list of the final results

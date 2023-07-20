@@ -5,10 +5,10 @@
 \title{Utility function to remove columns
 \code{removeColumn} Called within the code, removes and resizes the matrix}
 \usage{
-removeColumn(matrix, colToRemove)
+removeColumn(matrix_modify, colToRemove)
 }
 \arguments{
-\item{matrix}{Eigen matrix to change}
+\item{matrix_modify}{matrix to remove rows or columns from}
 
 \item{colToRemove}{column index to remove}
 }

@@ -5,22 +5,7 @@
 #'       initial guesses, using stratification, multiplicative loglinear 1-term,
 #'       competing risks, and calculation without derivatives
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Col column to stratify by if needed
-#' @param cens_weight list of weights for censoring rate
-#' @param model_control controls which alternative model options are used
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -62,6 +47,13 @@
 #'                               "CR"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list()){
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
@@ -149,19 +141,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #' \code{RunCoxRegression} uses user provided data, time/event columns,
 #' vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -215,18 +195,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #' Performs basic Cox Proportional Hazards calculation with no derivative
 #' \code{RunCoxRegression_Single} uses user provided data, time/event columns, vectors specifying the model, and options and returns the log-likelihood
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -275,15 +244,7 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 #' Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model
 #' \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -331,20 +292,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #' Performs basic Cox Proportional Hazards regression with strata effect
 #' \code{RunCoxRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Col column to stratify by
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -396,16 +344,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 #' Performs basic Cox Proportional Hazards regression with strata effect and multiplicative log-linear model
 #' \code{RunCoxRegression_STRATA_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Col column to stratify by
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -455,19 +394,7 @@ RunCoxRegression_STRATA_Basic <- function(df, time1, time2, event0,  names, keep
 #' Performs basic Cox Proportional Hazards regression with strata effect and no derivatives
 #' \code{RunCoxRegression_STRATA_Single} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Col column to stratify by
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -520,18 +447,7 @@ RunCoxRegression_STRATA_Single <- function(df, time1, time2, event0,  names, Ter
 #' Calculates proportional hazard for a reference vector
 #' \code{RunCoxRegression} uses user provided data, time/event columns, vectors specifying the model, and options to calculate risk for a reference
 #'
-#' @param df data used to calculate PH
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters for verbosity and tie method
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -567,9 +483,9 @@ RunCoxRegression_STRATA_Single <- function(df, time1, time2, event0,  names, Ter
 #' e <- Cox_Relative_Risk(df, time1, time2, event, names, Term_n, tform,
 #'      keep_constant, a_n, modelform, fir, control)
 #'
-Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control){
-    setkeyv(df, c(time2, event0))
+Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control, model_control=list()){
     control <- Def_Control(control)
+    model_control <- Def_model_control(model_control)
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()
@@ -583,7 +499,6 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
     }
     if (control$verbose){
         print("Starting")
-        print(keep_constant)
     }
     all_names <- unique(names)
     dfc <- match(names,all_names)
@@ -591,46 +506,25 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
-            length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
     #
-    e <- cox_ph_risk_sub(Term_n, tform, a_n, dfc, x_all,  fir, modelform, control, term_tot)
+    #
+    model_control$Risk_Subset <- TRUE
+#    e <- cox_ph_risk_sub(Term_n, tform, a_n, dfc, x_all,  fir, modelform, control, term_tot)
+    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, 0, modelform, control, matrix(c(0)), c(1), keep_constant, term_tot, c(0), c(0), model_control)
     return (e)
 }
 
 #' Performs basic Cox Proportional Hazards regression with the null model
 #' \code{RunCoxRegression} uses user provided data and time/event columns to calculate the log-likelihood with constant hazard ratio
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param control list of parameters controlling the convergence
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -665,19 +559,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' Performs Cox Proportional Hazard model plots
 #' \code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and saves plots
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
-#' @param plot_options list of parameters controlling the plot options
+#' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @export
@@ -717,7 +599,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
 #'             a_n, modelform, fir, control, plot_options)
 #'
-RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options){
+RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list()){
     control <- Def_Control(control)
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
@@ -826,6 +708,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             }
         }
     }
+    model_control <- Def_model_control(model_control)
     if (Plot_Type[1]=="SURV"){
         if ("time_lims" %in% names(plot_options)){
             #fine
@@ -870,39 +753,12 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     time1 <- ce[1]
     time2 <- ce[2]
     #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",
-            length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
     #
     #
     control$maxiters <- c(-1, -1)
     control$guesses <- 1
     e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform,
-                                  keep_constant, a_n, modelform, fir, der_iden, control, model_control=list())
+                                  keep_constant, a_n, modelform, fir, der_iden, control, model_control)
 #    control$maxiter <- -1
 #    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
 #        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
@@ -916,8 +772,10 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             print("starting ph_plot")
         }
         #
-        e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control,
-            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        model_control$Surv <- TRUE
+        e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]),tu, keep_constant, term_tot, c(0), c(0), model_control)
+#        e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control,
+#            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
         #
         t <- c()
         h <- c()
@@ -949,6 +807,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         if (plot_options$surv_curv==TRUE){
             CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,plot_options$time_lims, age_unit)
             if (plot_options$strat_haz==TRUE){
+                model_control$strata <- FALSE
                 CoxStratifiedSurvival(verbose, df, event0, time1, time2, all_names,Term_n, tform, a_n, er,
                      fir, der_iden, modelform, control,keep_constant, Plot_Type, plot_options$Strat_Col,
                      plot_options$time_lims,age_unit)
@@ -973,23 +832,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #' Performs basic cox regression, with multiple guesses, starts with solving for a single term
 #' \code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param guesses_control list of parameters to control how the guessing works
-#' @param Strat_Col column to stratify by if needed
-#' @param model_control controls which alternative model options are used
-#' @param cens_weight list of weights for censoring rate
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -1051,32 +894,6 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     }
     t_initial <- guesses_control$term_initial
     #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
     rmin <- guesses_control$rmin
     rmax <- guesses_control$rmax
     if (length(rmin)!=length(rmax)){
@@ -1128,147 +945,10 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     return(e)
 }
 
-#' Calculates Schoenfeld residuals for a Cox Proportional Hazards regression
-#' \code{RunCox_Schoenfeld_Residual} uses user provided data, time/event columns, vectors specifying the model, and options to calculate the residuals
-#'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#'
-#' @return returns a list of the final results
-#' @export
-#'
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
-#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
-#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
-#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
-#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
-#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
-#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
-#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
-#' tform <- c("loglin","lin","lin","plin")
-#' modelform <- "M"
-#' fir <- 0
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' 
-#' keep_constant <- c(0,0,0,0)
-#' der_iden <- 0
-#' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
-#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
-#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' 
-#' e <- RunCox_Schoenfeld_Residual(df, time1, time2, event, names, Term_n, tform,
-#'                                 keep_constant, a_n, modelform, fir, der_iden, control)
-#' @importFrom rlang .data
-
-RunCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
-    setkeyv(df, c(time2, event0))
-    if (min(keep_constant)>0){
-        print("Atleast one parameter must be free")
-        stop()
-    }
-    if ("CONST" %in% names){
-        if ("CONST" %in% names(df)){
-            #fine
-        } else {
-            df$CONST <- 1
-        }
-    }
-    dfend <- df[get(event0)==1, ]
-    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
-    if (length(tu)==0){
-        print("no events")
-        stop()
-    }
-    if (control$verbose){
-        print(paste(length(tu)," risk groups",sep=""))
-    }
-    all_names <- unique(names)
-    dfc <- match(names,all_names)
-
-    term_tot <- max(Term_n)+1
-    x_all <- as.matrix(df[,all_names, with = FALSE])
-    ce <- c(time1,time2,event0)
-    #
-    t_check <- Check_Trunc(df,ce)
-    df <- t_check$df
-    ce <- t_check$ce
-    #
-    if (length(a_n)<length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
-            ", Remaining filled with 0.01",sep=""))
-        a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
-    } else if (length(a_n)>length(names)){
-        print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(Term_n)<length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(Term_n)>length(names)){
-        print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(tform)<length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    } else if (length(tform)>length(names)){
-        print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-        stop()
-    }
-    if (length(keep_constant)<length(names)){
-        keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-    } else if (length(keep_constant)>length(names)){
-        keep_constant <- keep_constant[seq_len(length(names))]
-    }
-    #
-    control <- Def_Control(control)
-    #
-    df <- Replace_Missing(df,all_names,0.0,control$verbose)
-    #
-    e <- cox_ph_schoenfeld_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
-        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
-    return (e)
-}
-
 #' Performs basic Cox Proportional Hazards calculation with competing risks
 #' \code{RunCoxRegression_Single_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
-#' @param cens_weight list of weights for censoring rate
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -1325,21 +1005,7 @@ RunCoxRegression_Single_CR <- function(df, time1, time2, event0, names, Term_n, 
 #' Performs basic Cox Proportional Hazards regression with strata effect and competing risks, event=2
 #' \code{RunCoxRegression_STRATA_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Col column to stratify by
-#' @param cens_weight list of weights for censoring rate
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -1394,20 +1060,7 @@ RunCoxRegression_STRATA_CR <- function(df, time1, time2, event0,  names, Term_n,
 #' Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2
 #' \code{RunCoxRegression_STRATA_CR_Single} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param control list of parameters controlling the convergence
-#' @param Strat_Col column to stratify by
-#' @param cens_weight list of weights for censoring rate
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -1461,20 +1114,7 @@ RunCoxRegression_STRATA_CR_Single <- function(df, time1, time2, event0,  names, 
 #' Performs basic Cox Proportional Hazards regression with competing risks
 #' \code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param cens_weight list of weights for censoring rate
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -1531,23 +1171,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #' Performs basic Cox Proportional Hazards regression, Allows for multiple starting guesses on c++ side
 #' \code{RunCoxRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'
-#' @param df data used for regression
-#' @param time1 column used for time period starts
-#' @param time2 column used for time period end
-#' @param event0 column used for event status
-#' @param names columns names for elements of the model, used to identify data columns
-#' @param Term_n term numbers for each element of the model
-#' @param tform subterm type for each element of the model
-#' @param keep_constant vector of 0/1 to identify parameters to force to be constant
-#' @param a_n starting parameters for regression
-#' @param modelform string specifying the model type
-#' @param fir term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
-#' @param der_iden number for the subterm to test derivative at, only used for testing runs with a single varying parameter
-#' @param control list of parameters controlling the convergence
-#' @param guesses_control list of parameters to control how the guessing works
-#' @param model_control controls which alternative model options are used
-#' @param cens_weight list of weights for censoring rate
-#' @param Strat_Col column to stratify by if needed
+#' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
@@ -1652,103 +1276,10 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         df <- t_check$df
         ce <- t_check$ce
         #
-        a_ns <- c(NaN)
-        maxiters <- c(NaN)
         #
-        for (i in seq_len(length(a_n))){
-            a_n0 <- a_n[[i]]
-            if (length(a_n0)<length(names)){
-                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),
-                    ", Remaining filled with 0.01",sep=""))
-                a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
-            } else if (length(a_n0)>length(names)){
-                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),sep=""))
-                stop()
-            }
-            if (length(Term_n)<length(names)){
-                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-                stop()
-            } else if (length(Term_n)>length(names)){
-                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-                stop()
-            }
-            if (length(tform)<length(names)){
-                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-                stop()
-            } else if (length(tform)>length(names)){
-                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-                stop()
-            }
-            if (length(keep_constant)<length(names)){
-                keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-            } else if (length(keep_constant)>length(names)){
-                keep_constant <- keep_constant[seq_len(length(names))]
-            }
-            #
-            rmin <- guesses_control$rmin
-            rmax <- guesses_control$rmax
-            if (length(rmin)!=length(rmax)){
-                if (control$verbose){
-                    print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
-                }
-            }
-            #
-            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
-            if (keep){
-                if (is.nan(maxiters[1])){
-                    a_ns <- c(a_n0)
-                    maxiters <- c(guesses_control$maxiter)
-                } else {
-                    a_ns <- c(a_ns, a_n0)
-                    maxiters <- c(maxiters, guesses_control$maxiter)
-                }
-            }
-        }
-        while (length(maxiters) - length(a_n) < guesses_control$guesses){
-            if (guesses_control$verbose){
-                print(paste(length(maxiters)," valid guesses",sep=""))
-            }
-            if (length(rmin)!=length(rmax)){
-                for (i in seq_along(tform)){
-                    if (guesses_control$guess_constant[i]==0){
-                        if (grepl("_int",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
-                        } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
-                        } else if (grepl("_slope",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
-                        } else if (grepl("loglin",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
-                        } else if (grepl("lin",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
-                        } else {
-                            print(paste("tform not implemented ", tform[i],sep=""))
-                            stop()
-                        }
-                    } else {
-                        a_n0[i] <- a_n_default[i]
-                    }
-                }
-            } else {
-                for (i in seq_along(tform)){
-                    if (guesses_control$guess_constant[i]==0){
-                        a_n0[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
-                    } else {
-                        a_n0[i] <- a_n_default[i]
-                    }
-                }
-            }
-            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
-            if (keep){
-                if (is.nan(maxiters[1])){
-                    a_ns <- c(a_n0)
-                    maxiters <- c(guesses_control$maxiter)
-                } else {
-                    a_ns <- c(a_ns,a_n0)
-                    maxiters <- c(maxiters,guesses_control$maxiter)
-                }
-            }
-        }
+        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
+        a_ns <- dat_val$a_ns
+        maxiters <- dat_val$maxiters
     } else {
         #
         dfend <- df[get(event0)==1, ]
@@ -1796,103 +1327,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         df <- t_check$df
         ce <- t_check$ce
         #
-        a_ns <- c(NaN)
-        maxiters <- c(NaN)
-        #
-        for (i in seq_len(length(a_n))){
-            a_n0 <- a_n[[i]]
-            if (length(a_n0)<length(names)){
-                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),
-                    ", Remaining filled with 0.01",sep=""))
-                a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
-            } else if (length(a_n0)>length(names)){
-                print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),sep=""))
-                stop()
-            }
-            if (length(Term_n)<length(names)){
-                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-                stop()
-            } else if (length(Term_n)>length(names)){
-                print(paste("Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-                stop()
-            }
-            if (length(tform)<length(names)){
-                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-                stop()
-            } else if (length(tform)>length(names)){
-                print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
-                stop()
-            }
-            if (length(keep_constant)<length(names)){
-                keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-            } else if (length(keep_constant)>length(names)){
-                keep_constant <- keep_constant[seq_len(length(names))]
-            }
-            #
-            rmin <- guesses_control$rmin
-            rmax <- guesses_control$rmax
-            if (length(rmin)!=length(rmax)){
-                if (control$verbose){
-                    print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
-                }
-            }
-            #
-            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
-            if (keep){
-                if (is.nan(maxiters[1])){
-                    a_ns <- c(a_n0)
-                    maxiters <- c(guesses_control$maxiter)
-                } else {
-                    a_ns <- c(a_ns, a_n0)
-                    maxiters <- c(maxiters, guesses_control$maxiter)
-                }
-            }
-        }
-        while (length(maxiters) - length(a_n) < guesses_control$guesses){
-            if (guesses_control$verbose){
-                print(paste(length(maxiters)," valid guesses",sep=""))
-            }
-            if (length(rmin)!=length(rmax)){
-                for (i in seq_along(tform)){
-                    if (guesses_control$guess_constant[i]==0){
-                        if (grepl("_int",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
-                        } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
-                        } else if (grepl("_slope",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
-                        } else if (grepl("loglin",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
-                        } else if (grepl("lin",tform[i],fixed=FALSE)){
-                            a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
-                        } else {
-                            print(paste("tform not implemented ", tform[i],sep=""))
-                            stop()
-                        }
-                    } else {
-                        a_n0[i] <- a_n_default[i]
-                    }
-                }
-            } else {
-                for (i in seq_along(tform)){
-                    if (guesses_control$guess_constant[i]==0){
-                        a_n0[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
-                    } else {
-                        a_n0[i] <- a_n_default[i]
-                    }
-                }
-            }
-            keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
-            if (keep){
-                if (is.nan(maxiters[1])){
-                    a_ns <- c(a_n0)
-                    maxiters <- c(guesses_control$maxiter)
-                } else {
-                    a_ns <- c(a_ns,a_n0)
-                    maxiters <- c(maxiters,guesses_control$maxiter)
-                }
-            }
-        }
+        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
+        a_ns <- dat_val$a_ns
+        maxiters <- dat_val$maxiters
     }
     #
     control$maxiters <- c(maxiters,control$maxiter)

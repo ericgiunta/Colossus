@@ -8,13 +8,13 @@
 interact_them(df, interactions, new_names, verbose = FALSE)
 }
 \arguments{
-\item{df}{a datatable containing the columns of interest}
+\item{df}{a data.table containing the columns of interest}
 
 \item{interactions}{array of strings, each one is of form term1?*?term2" for term1 interaction of type * with term2, "?" dlimits}
 
-\item{new_names}{list of interaction names to use instead of default, default used if entry is ''}
+\item{new_names}{list of new names to use instead of default, default used if entry is ''}
 
-\item{verbose}{verbosity}
+\item{verbose}{boolean to control if additional information is printed to the console}
 }
 \value{
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names

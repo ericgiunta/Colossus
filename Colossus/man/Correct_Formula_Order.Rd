@@ -11,21 +11,24 @@ Correct_Formula_Order(
   keep_constant,
   a_n,
   names,
+  der_iden = 0,
   verbose = FALSE
 )
 }
 \arguments{
-\item{Term_n}{term numbers}
+\item{Term_n}{term numbers for each element of the model}
 
-\item{tform}{subterm formulas}
+\item{tform}{list of string function identifiers, used for linear/step}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{initial parameter guesses}
+\item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{names}{column names}
+\item{names}{columns for elements of the model, used to identify data columns}
 
-\item{verbose}{verbosity for printing}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
+
+\item{verbose}{boolean to control if additional information is printed to the console}
 }
 \value{
 returns the corrected lists

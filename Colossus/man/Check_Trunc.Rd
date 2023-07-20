@@ -8,11 +8,11 @@
 Check_Trunc(df, ce, verbose = FALSE)
 }
 \arguments{
-\item{df}{dataframe of data to use as reference}
+\item{df}{a data.table containing the columns of interest}
 
 \item{ce}{columns to check for truncation}
 
-\item{verbose}{verbosity argument, for error returns}
+\item{verbose}{boolean to control if additional information is printed to the console}
 }
 \value{
 returns the updated data and time period columns

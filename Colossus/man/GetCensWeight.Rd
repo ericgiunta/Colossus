@@ -18,11 +18,13 @@ GetCensWeight(
   modelform,
   fir,
   control,
-  plot_options
+  plot_options,
+  model_control = list(),
+  Strat_Col = "e"
 )
 }
 \arguments{
-\item{df}{data used for regression}
+\item{df}{a data.table containing the columns of interest}
 
 \item{time1}{column used for time period starts}
 
@@ -30,15 +32,15 @@ GetCensWeight(
 
 \item{event0}{column used for event status}
 
-\item{names}{columns names for elements of the model, used to identify data columns}
+\item{names}{columns for elements of the model, used to identify data columns}
 
 \item{Term_n}{term numbers for each element of the model}
 
-\item{tform}{subterm type for each element of the model}
+\item{tform}{list of string function identifiers, used for linear/step}
 
-\item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
+\item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{starting parameters for regression}
+\item{a_n}{list of initial parameter values, used to determine number of parameters}
 
 \item{modelform}{string specifying the model type}
 
@@ -47,6 +49,10 @@ GetCensWeight(
 \item{control}{list of parameters controlling the convergence}
 
 \item{plot_options}{list of parameters controlling the plot options}
+
+\item{model_control}{controls which alternative model options are used}
+
+\item{Strat_Col}{column to stratify by if needed}
 }
 \value{
 saves the plots in the current directory and returns a data.table of time and corresponding hazard, cumulative hazard, and survival

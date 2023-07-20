@@ -23,15 +23,15 @@ Gen_Strat_Weight(
 
 \item{PyrC}{matrix of person-years and event counts}
 
-\item{s_weights}{vector of weights to assign to}
+\item{s_weights}{vector of weights for every row}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads available}
 
 \item{tform}{subterm types}
 
-\item{Term_n}{term numbers}
+\item{Term_n}{Term numbers}
 
-\item{term_tot}{number of terms}
+\item{term_tot}{total number of terms}
 }
 \value{
 assigns weight in place and returns nothing

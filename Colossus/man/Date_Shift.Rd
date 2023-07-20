@@ -8,7 +8,7 @@
 Date_Shift(df, dcol0, dcol1, col_name, units = "days")
 }
 \arguments{
-\item{df}{dataframe of data to use as reference}
+\item{df}{a data.table containing the columns of interest}
 
 \item{dcol0}{list of starting month, day, and year}
 

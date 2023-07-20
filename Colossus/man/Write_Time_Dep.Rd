@@ -12,7 +12,7 @@ Write_Time_Dep(
   df0_event,
   dt,
   filename,
-  tform,
+  tform_tdep,
   tu,
   iscox
 )
@@ -30,9 +30,9 @@ Write_Time_Dep(
 
 \item{filename}{file to save the data to}
 
-\item{tform}{vector with types of time dependent variables}
+\item{tform_tdep}{vector with types of time dependent variables}
 
-\item{tu}{list of event times}
+\item{tu}{Event time vector}
 
 \item{iscox}{boolean of cox formatting is used}
 }

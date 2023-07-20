@@ -30,11 +30,11 @@ Calc_Change(
 \arguments{
 \item{double_step}{controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices}
 
-\item{nthreads}{number of threads}
+\item{nthreads}{number of threads available}
 
-\item{totalnum}{total number of parameter}
+\item{totalnum}{total number of parameters}
 
-\item{fir}{first term number}
+\item{fir}{st term number}
 
 \item{der_iden}{subterm number for derivative tests}
 
@@ -46,25 +46,25 @@ Calc_Change(
 
 \item{abs_max}{Maximum allowed parameter change}
 
-\item{Ll}{Log-Likelihood}
+\item{Ll}{Log-likelihood vector}
 
-\item{Lld}{Log-Likelihood first derivative}
+\item{Lld}{Log-likelihood first derivative matrix}
 
-\item{Lldd}{Log-Likelihood second derivative}
+\item{Lldd}{Log-likelihood second derivative matrix}
 
 \item{dbeta}{parameter change vector}
 
-\item{change_all}{boolean to change every parameter}
+\item{change_all}{boolean if every parameter is being updated}
 
-\item{tform}{subterm type}
+\item{tform}{subterm types}
 
-\item{dint}{value used for threshold derivative calculation}
+\item{dint}{value used for threshold derivative finite step}
 
 \item{dslp}{value used for slope derivative finite step}
 
-\item{KeepConstant}{vector of parameters to keep constant}
+\item{KeepConstant}{binary vector to identify constant parameters}
 
-\item{debugging}{debugging boolean}
+\item{debugging}{additional boolean for verbosity in testing}
 }
 \value{
 Updates matrices in place: parameter change matrix

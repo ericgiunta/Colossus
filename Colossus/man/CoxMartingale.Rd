@@ -21,9 +21,9 @@ CoxMartingale(
 )
 }
 \arguments{
-\item{verbose}{boolean controlling additional printing}
+\item{verbose}{boolean to control if additional information is printed to the console}
 
-\item{df}{data with covariates and times}
+\item{df}{a data.table containing the columns of interest}
 
 \item{time1}{column used for time period starts}
 
@@ -35,7 +35,7 @@ CoxMartingale(
 
 \item{t}{event times}
 
-\item{ch}{cumulative hazards}
+\item{ch}{cumulative hazards of baseline}
 
 \item{dnames}{list of covariate columns to plot by}
 

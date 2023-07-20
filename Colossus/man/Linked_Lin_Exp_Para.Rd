@@ -14,7 +14,7 @@ Linked_Lin_Exp_Para(y, a0, a1_goal, verbose = FALSE)
 
 \item{a1_goal}{exponential maximum desired}
 
-\item{verbose}{verbosity argument, for error returns}
+\item{verbose}{boolean to control if additional information is printed to the console}
 }
 \value{
 returns parameter used by Colossus

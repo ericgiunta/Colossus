@@ -29,7 +29,7 @@ RunCoxRegression_Omnibus(
 )
 }
 \arguments{
-\item{df}{data used for regression}
+\item{df}{a data.table containing the columns of interest}
 
 \item{time1}{column used for time period starts}
 
@@ -37,15 +37,15 @@ RunCoxRegression_Omnibus(
 
 \item{event0}{column used for event status}
 
-\item{names}{columns names for elements of the model, used to identify data columns}
+\item{names}{columns for elements of the model, used to identify data columns}
 
 \item{Term_n}{term numbers for each element of the model}
 
-\item{tform}{subterm type for each element of the model}
+\item{tform}{list of string function identifiers, used for linear/step}
 
-\item{keep_constant}{vector of 0/1 to identify parameters to force to be constant}
+\item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{starting parameters for regression}
+\item{a_n}{list of initial parameter values, used to determine number of parameters}
 
 \item{modelform}{string specifying the model type}
 
@@ -106,5 +106,6 @@ control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),'halfmax' = 5,'epsilon
 
 e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n, tform, keep_constant,
                               a_n, modelform, fir, der_iden, control,
-                              model_control=list("single"=FALSE, "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
+                              model_control=list("single"=FALSE, "basic"=FALSE,
+                              "CR"=FALSE, 'null'=FALSE))
 }
