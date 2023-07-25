@@ -11,8 +11,6 @@ name: R
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -25,12 +23,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
+      - name: enable homebrew to allow OpenMP
+        run: brew install llvm libomp
       - name: move to package and check
         run: |
           cd Colossus
           ls
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::check()"
   win_check:
     runs-on: windows-latest
@@ -45,6 +46,7 @@ jobs:
           ls
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::check()"
   ubuntu_check:
     runs-on: ubuntu-latest
@@ -59,4 +61,5 @@ jobs:
           ls
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::check()"
