@@ -78,7 +78,7 @@ a_n <- c(0.1, 0.1, 0.1, 0.1)
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
 

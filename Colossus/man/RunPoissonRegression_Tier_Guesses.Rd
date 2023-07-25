@@ -85,10 +85,10 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
    'dose_abs_max'=100.0,'verbose'=FALSE,'double_step'=1)
-guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+guesses_control <- list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
   "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform",
   "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
 Strat_Cols=c('e')

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_STRATA_CR_Single}
 \alias{RunCoxRegression_STRATA_CR_Single}
-\title{Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2
+\title{Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2 and no derivative calculation
 \code{RunCoxRegression_STRATA_CR_Single} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions}
 \usage{
 RunCoxRegression_STRATA_CR_Single(
@@ -55,7 +55,7 @@ RunCoxRegression_STRATA_CR_Single(
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2
+Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2 and no derivative calculation
 \code{RunCoxRegression_STRATA_CR_Single} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 }
 \examples{
@@ -84,11 +84,11 @@ fir <- 0
 
 keep_constant <- c(0,0,0,0)
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-Strat_Col='e'
+Strat_Col <- 'e'
 
 cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
 e <- RunCoxRegression_STRATA_CR_Single(df, time1, time2, event, names, Term_n, tform, keep_constant,

@@ -3,7 +3,7 @@
 \name{RunCoxPlots}
 \alias{RunCoxPlots}
 \title{Performs Cox Proportional Hazard model plots
-\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and saves plots}
+\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and save plots}
 \usage{
 RunCoxPlots(
   df,
@@ -56,7 +56,7 @@ saves the plots in the current directory and returns a string that it passed
 }
 \description{
 Performs Cox Proportional Hazard model plots
-\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and saves plots
+\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and save plots
 }
 \examples{
 library(data.table)
@@ -84,7 +84,7 @@ a_n <- c(-0.1, 0.5, 1.1, -0.3)
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
    'verbose'=FALSE, 'ties'='breslow','double_step'=1)

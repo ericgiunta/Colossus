@@ -88,11 +88,11 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-Strat_Col='e'
+Strat_Col <- 'e'
 
 cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
 e <- RunCoxRegression_STRATA_CR(df, time1, time2, event, names, Term_n, tform, keep_constant,

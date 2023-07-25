@@ -497,7 +497,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector Term_n, StringVector tform, NumericMat
             beta_a = beta_c;//
             beta_best = beta_c;//
             //
-            // Calcualtes the initial change in parameter
+            // calculates the initial change in parameter
             if (basic_bool){
                 Calc_Change_Basic( double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
             } else {
@@ -718,7 +718,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector Term_n, StringVector tform, NumericMat
         beta_a = beta_c;//
         beta_best = beta_c;//
         //
-        // Calcualtes the initial change in parameter
+        // calculates the initial change in parameter
         if (basic_bool){
             Calc_Change_Basic( double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
         } else {
@@ -1196,7 +1196,7 @@ List LogLik_Pois_Omnibus(MatrixXd PyrC, IntegerVector Term_n, StringVector tform
             beta_a = beta_c;//
             beta_best = beta_c;//
             //
-            // Calcualtes the initial change in parameter
+            // calculates the initial change in parameter
             Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
             if (verbose){
@@ -1583,7 +1583,7 @@ List LogLik_Pois_Omnibus(MatrixXd PyrC, IntegerVector Term_n, StringVector tform
         beta_a = beta_c;//
         beta_best = beta_c;//
         //
-        // Calcualtes the initial change in parameter
+        // calculates the initial change in parameter
         Calc_Change( double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint,dslp, KeepConstant, debugging);
         Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
         if (verbose){

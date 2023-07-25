@@ -12,50 +12,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// mem_usage
-void mem_usage(unsigned long& vm_usage);
-RcppExport SEXP _Colossus_mem_usage(SEXP vm_usageSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< unsigned long& >::type vm_usage(vm_usageSEXP);
-    mem_usage(vm_usage);
-    return R_NilValue;
-END_RCPP
-}
-// vec_norm
-double vec_norm(const vector<double>& x, int totalnum);
-RcppExport SEXP _Colossus_vec_norm(SEXP xSEXP, SEXP totalnumSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const vector<double>& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type totalnum(totalnumSEXP);
-    rcpp_result_gen = Rcpp::wrap(vec_norm(x, totalnum));
-    return rcpp_result_gen;
-END_RCPP
-}
-// removeRow
-void removeRow(Eigen::MatrixXd& matrix_modify, unsigned int rowToRemove);
-RcppExport SEXP _Colossus_removeRow(SEXP matrix_modifySEXP, SEXP rowToRemoveSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd& >::type matrix_modify(matrix_modifySEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type rowToRemove(rowToRemoveSEXP);
-    removeRow(matrix_modify, rowToRemove);
-    return R_NilValue;
-END_RCPP
-}
-// removeColumn
-void removeColumn(Eigen::MatrixXd& matrix_modify, unsigned int colToRemove);
-RcppExport SEXP _Colossus_removeColumn(SEXP matrix_modifySEXP, SEXP colToRemoveSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd& >::type matrix_modify(matrix_modifySEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type colToRemove(colToRemoveSEXP);
-    removeColumn(matrix_modify, colToRemove);
-    return R_NilValue;
-END_RCPP
-}
 // Make_subterms
 void Make_subterms(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Make_subterms(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP) {
@@ -1470,10 +1426,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Colossus_mem_usage", (DL_FUNC) &_Colossus_mem_usage, 1},
-    {"_Colossus_vec_norm", (DL_FUNC) &_Colossus_vec_norm, 2},
-    {"_Colossus_removeRow", (DL_FUNC) &_Colossus_removeRow, 2},
-    {"_Colossus_removeColumn", (DL_FUNC) &_Colossus_removeColumn, 2},
     {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
     {"_Colossus_Make_subterms_Single", (DL_FUNC) &_Colossus_Make_subterms_Single, 17},
     {"_Colossus_Make_subterms_Basic", (DL_FUNC) &_Colossus_Make_subterms_Basic, 7},

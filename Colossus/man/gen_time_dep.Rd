@@ -56,9 +56,9 @@ a <- c(20,20,5,10,15)
 b <- c(1,2,1,1,2)
 c <- c(0,0,1,1,1)
 df <- data.table("a"=a,"b"=b,"c"=c)
-time1="\%trunc\%"
-time2="a"
-event="c"
+time1 <- "\%trunc\%"
+time2 <- "a"
+event <- "c"
 control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,
            'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
            'verbose'=FALSE, 'ties'='breslow','double_step'=1)

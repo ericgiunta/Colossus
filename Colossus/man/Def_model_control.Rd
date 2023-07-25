@@ -19,7 +19,7 @@ Automatically assigns missing model control values
 }
 \examples{
 library(data.table)
-control=list("single"=TRUE)
+control <- list("single"=TRUE)
 control <- Def_model_control(control)
 
 }

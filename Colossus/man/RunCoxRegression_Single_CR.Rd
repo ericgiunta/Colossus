@@ -2,7 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Single_CR}
 \alias{RunCoxRegression_Single_CR}
-\title{Performs basic Cox Proportional Hazards calculation with competing risks
+\title{Performs basic Cox Proportional Hazards calculation with competing risks and no derivative calculation
 \code{RunCoxRegression_Single_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks}
 \usage{
 RunCoxRegression_Single_CR(
@@ -52,7 +52,7 @@ RunCoxRegression_Single_CR(
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards calculation with competing risks
+Performs basic Cox Proportional Hazards calculation with competing risks and no derivative calculation
 \code{RunCoxRegression_Single_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
 }
 \examples{
@@ -80,7 +80,7 @@ a_n <- c(0.1, 0.1, 0.1, 0.1)
 
 keep_constant <- c(0,0,0,0)
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #weights the probability that a row would continue to extend without censoring,

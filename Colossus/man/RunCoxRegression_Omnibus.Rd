@@ -99,7 +99,7 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),'halfmax' = 5,'epsilon' = 1e-3,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),'halfmax' = 5,'epsilon' = 1e-3,
    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,
    "guesses"=2)

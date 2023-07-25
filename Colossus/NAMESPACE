@@ -1,17 +1,13 @@
 useDynLib(Colossus, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
-import(RcppEigen)
-import(data.table)
-import(parallel)
-importFrom("stats", "qchisq")
+importFrom("data.table","data.table","fread","setkeyv","copy","setorderv","setnames","as.data.table","set",":=",".SD")
+importFrom("parallel","detectCores")
 importFrom("stats", "runif")
 importFrom("utils", "combn")
 importFrom("utils", "head")
-importFrom("stats", "qt")
 importFrom("grDevices", "colorRampPalette", "dev.off", "jpeg")
 importFrom("graphics", "legend", "lines", "smoothScatter")
 importFrom("stats", "approxfun", "time")
-exportPattern("^[[:alpha:]]+")
 importFrom(rlang,.data)
 
 
@@ -61,6 +57,3 @@ export(Check_Trunc)
 export(gen_time_dep)
 export(Date_Shift)
 export(Time_Since)
-
-
-importFrom(rlang,.data)

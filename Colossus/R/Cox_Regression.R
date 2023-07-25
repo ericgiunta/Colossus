@@ -7,7 +7,7 @@
 #'
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns a list of the final results                                                     
 #' @export
 #' @examples
 #' library(data.table)
@@ -36,7 +36,7 @@
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,
 #'    "guesses"=2)
@@ -133,7 +133,9 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         a_ns <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
     }
     e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden, modelform, control,
-        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq, cens_weight, model_control)
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq, cens_weight,
+        model_control)
+    e$Parameter_Lists$names <- names
     return (e)
 }
 
@@ -172,7 +174,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
@@ -224,7 +226,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control=list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' control <- list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
 #' e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
 #'                              keep_constant, a_n, modelform, fir, control)
@@ -235,8 +237,9 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
-                                  a_n, modelform, fir, 0, control, model_control=list('single'=TRUE))
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform,
+                                  keep_constant, a_n, modelform, fir, 0, control,
+                                  model_control=list('single'=TRUE))
     #
     return (e)
 }
@@ -270,11 +273,12 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
 #'    'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
-#' e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant, a_n, der_iden, control)
+#' e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant, a_n,
+#'                             der_iden, control)
 #'
 #' @importFrom rlang .data
 
@@ -282,8 +286,9 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, rep(0,length(names)), rep('loglin',length(names)),
-                                  keep_constant, a_n, "M", 0, der_iden, control, model_control=list("basic"=TRUE))
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, rep(0,length(names)),
+                                  rep('loglin',length(names)), keep_constant, a_n,
+                                  "M", 0, der_iden, control, model_control=list("basic"=TRUE))
     #
     return (e)
 }
@@ -323,21 +328,24 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' Strat_Col='e'
+#' Strat_Col <- 'e'
 #' 
-#' e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n, tform, keep_constant,
-#'                              a_n, modelform, fir, der_iden, control,Strat_Col)
+#' e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n,
+#'                              tform, keep_constant, a_n, modelform,
+#'                              fir, der_iden, control,Strat_Col)
 #'
 RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n,
-                                  modelform, fir, der_iden, control,Strat_Col=Strat_Col, model_control=list("strata"=TRUE))
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform,
+                                  keep_constant, a_n, modelform, fir, der_iden,
+                                  control,Strat_Col=Strat_Col,
+                                  model_control=list("strata"=TRUE))
     return (e)
 }
 
@@ -371,11 +379,11 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' Strat_Col='e'
+#' Strat_Col <- 'e'
 #' 
 #' e <- RunCoxRegression_STRATA_Basic(df, time1, time2, event, names, keep_constant,
 #'                              a_n, der_iden, control,Strat_Col)
@@ -386,7 +394,8 @@ RunCoxRegression_STRATA_Basic <- function(df, time1, time2, event0,  names, keep
     control$guesses <- 1
     e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, rep(0,length(names)), 
                                   rep('loglin',length(names)), keep_constant, a_n, 'M', 0,
-                                  der_iden, control,Strat_Col=Strat_Col, model_control=list('strata'=TRUE, 'basic'=TRUE))
+                                  der_iden, control,Strat_Col=Strat_Col,
+                                  model_control=list('strata'=TRUE, 'basic'=TRUE))
     #
     return (e)
 }
@@ -424,14 +433,15 @@ RunCoxRegression_STRATA_Basic <- function(df, time1, time2, event0,  names, keep
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' Strat_Col='e'
+#' Strat_Col <- 'e'
 #' 
-#' e <- RunCoxRegression_STRATA_Single(df, time1, time2, event, names, Term_n, tform, keep_constant,
-#'                              a_n, modelform, fir, control,Strat_Col)
+#' e <- RunCoxRegression_STRATA_Single(df, time1, time2, event, names, Term_n,
+#'                              tform, keep_constant, a_n, modelform,
+#'                              fir, control,Strat_Col)
 #'
 RunCoxRegression_STRATA_Single <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control, Strat_Col){
     control <- Def_Control(control)
@@ -444,8 +454,8 @@ RunCoxRegression_STRATA_Single <- function(df, time1, time2, event0,  names, Ter
     return (e)
 }
 
-#' Calculates proportional hazard for a reference vector
-#' \code{RunCoxRegression} uses user provided data, time/event columns, vectors specifying the model, and options to calculate risk for a reference
+#' Calculates hazard ratios for a reference vector
+#' \code{RunCoxRegression} uses user provided data, time/event columns, vectors specifying the model, and options to calculate relative risk for every row in the provided data
 #'
 #' @inheritParams R_template
 #'
@@ -476,7 +486,7 @@ RunCoxRegression_STRATA_Single <- function(df, time1, time2, event0,  names, Ter
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
@@ -516,8 +526,9 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
     #
     #
     model_control$Risk_Subset <- TRUE
-#    e <- cox_ph_risk_sub(Term_n, tform, a_n, dfc, x_all,  fir, modelform, control, term_tot)
-    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, 0, modelform, control, matrix(c(0)), c(1), keep_constant, term_tot, c(0), c(0), model_control)
+    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir,
+                                 0, modelform, control, matrix(c(0)),
+                                 c(1), keep_constant, term_tot, c(0), c(0), model_control)
     return (e)
 }
 
@@ -541,7 +552,7 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
 #' time2 <- "Ending_Age"
 #' event <- "Cancer_Status"
 #' 
-#' control=list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' control <- list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
 #' e <- RunCoxNull(df, time1, time2, event, control)
 #'
@@ -549,7 +560,8 @@ RunCoxNull <- function(df, time1, time2, event0,control){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0,  control=control, model_control=list("null"=TRUE))
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0,  control=control,
+                                  model_control=list("null"=TRUE))
     #
     return (e)
 
@@ -557,7 +569,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 
 
 #' Performs Cox Proportional Hazard model plots
-#' \code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and saves plots
+#' \code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and save plots
 #'
 #' @inheritParams R_template
 #'
@@ -589,7 +601,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
@@ -758,10 +770,8 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     control$maxiters <- c(-1, -1)
     control$guesses <- 1
     e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform,
-                                  keep_constant, a_n, modelform, fir, der_iden, control, model_control)
-#    control$maxiter <- -1
-#    e <- cox_ph_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
-#        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot)
+                                  keep_constant, a_n, modelform, fir, der_iden,
+                                  control, model_control)
     control$maxiter <- maxiterc
     b <- e$beta_0
     er <- e$Standard_Deviation
@@ -773,9 +783,10 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         }
         #
         model_control$Surv <- TRUE
-        e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]),tu, keep_constant, term_tot, c(0), c(0), model_control)
-#        e <- cox_ph_plot(Term_n, tform, a_n,er, dfc, x_all, fir, der_iden, modelform, control,
-#            as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, Plot_Type , 0)
+        e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir,
+                                     der_iden, modelform, control,
+                                     as.matrix(df[,ce, with = FALSE]),tu,
+                                     keep_constant, term_tot, c(0), c(0), model_control)
         #
         t <- c()
         h <- c()
@@ -808,15 +819,16 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,plot_options$time_lims, age_unit)
             if (plot_options$strat_haz==TRUE){
                 model_control$strata <- FALSE
-                CoxStratifiedSurvival(verbose, df, event0, time1, time2, all_names,Term_n, tform, a_n, er,
-                     fir, der_iden, modelform, control,keep_constant, Plot_Type, plot_options$Strat_Col,
-                     plot_options$time_lims,age_unit)
+                CoxStratifiedSurvival(verbose, df, event0, time1, time2, all_names,Term_n,
+                     tform, a_n, er, fir, der_iden, modelform, control,keep_constant,
+                     Plot_Type, plot_options$Strat_Col, plot_options$time_lims,age_unit)
             }
         }
         if (plot_options$KM==TRUE){
             #
-            CoxKaplanMeier(verbose, verbosec, plot_options$studyID,all_names,df,event0,time1,time2,tu,Term_n,
-                 tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type,age_unit)
+            CoxKaplanMeier(verbose, verbosec, plot_options$studyID,all_names,df,event0,time1,
+                           time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform,
+                           control,keep_constant, Plot_Type,age_unit)
         }
     } else if (Plot_Type[1]=="RISK"){
         CoxRisk(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, fir,
@@ -865,17 +877,18 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,
 #'    "lin_max"=1,"loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform",
 #'    "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
-#' Strat_Col='e'
+#' Strat_Col <- 'e'
 #' 
 #' e <- RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, Term_n, tform, keep_constant,
-#'                                    a_n, modelform, fir, der_iden, control,guesses_control,Strat_Col)
+#'                                    a_n, modelform, fir, der_iden, control,guesses_control,
+#'                                    Strat_Col)
 #'
 #' @importFrom rlang .data
 RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col,model_control=list(),cens_weight=c(0)){
@@ -922,8 +935,10 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     guesses_control$guess_constant <- guess_constant
     guess_second <- guesses_control$guesses
     guesses_control$guesses <- guesses_control$guesses_start
-    e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event0, name_initial, term_n_initial, tform_initial,
-         constant_initial, a_n_initial, modelform, fir, der_iden, control, guesses_control,Strat_Col)
+    e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event0, name_initial,
+                                      term_n_initial, tform_initial, constant_initial,
+                                      a_n_initial, modelform, fir, der_iden, control,
+                                      guesses_control,Strat_Col)
     #
     a_n_initial <- e$beta_0
     guess_constant <- c()
@@ -945,7 +960,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     return(e)
 }
 
-#' Performs basic Cox Proportional Hazards calculation with competing risks
+#' Performs basic Cox Proportional Hazards calculation with competing risks and no derivative calculation
 #' \code{RunCoxRegression_Single_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
 #'
 #' @inheritParams R_template
@@ -978,7 +993,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #weights the probability that a row would continue to extend without censoring,
@@ -1036,11 +1051,11 @@ RunCoxRegression_Single_CR <- function(df, time1, time2, event0, names, Term_n, 
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' Strat_Col='e'
+#' Strat_Col <- 'e'
 #' 
 #' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
 #' e <- RunCoxRegression_STRATA_CR(df, time1, time2, event, names, Term_n, tform, keep_constant,
@@ -1052,12 +1067,13 @@ RunCoxRegression_STRATA_CR <- function(df, time1, time2, event0,  names, Term_n,
     control$guesses <- 1
     e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
                                   a_n, modelform, fir, der_iden, control,Strat_Col=Strat_Col,
-                                  cens_weight=cens_weight, model_control=list("strata"=TRUE,'CR'=TRUE))
+                                  cens_weight=cens_weight,
+                                  model_control=list("strata"=TRUE,'CR'=TRUE))
     #
     return (e)
 }
 
-#' Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2
+#' Performs basic Cox Proportional Hazards calculation with strata effect and competing risks, event=2 and no derivative calculation
 #' \code{RunCoxRegression_STRATA_CR_Single} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
@@ -1090,11 +1106,11 @@ RunCoxRegression_STRATA_CR <- function(df, time1, time2, event0,  names, Term_n,
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' Strat_Col='e'
+#' Strat_Col <- 'e'
 #' 
 #' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
 #' e <- RunCoxRegression_STRATA_CR_Single(df, time1, time2, event, names, Term_n, tform, keep_constant,
@@ -1105,7 +1121,8 @@ RunCoxRegression_STRATA_CR_Single <- function(df, time1, time2, event0,  names, 
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
     e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
-                                  a_n, modelform, fir, 0, control,Strat_Col=Strat_Col,cens_weight=cens_weight,
+                                  a_n, modelform, fir, 0, control,Strat_Col=Strat_Col,
+                                  cens_weight=cens_weight,
                                   model_control=list("strata"=TRUE,'single'=TRUE,'CR'=TRUE))
     #
     return (e)
@@ -1145,7 +1162,7 @@ RunCoxRegression_STRATA_CR_Single <- function(df, time1, time2, event0,  names, 
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #weights the probability that a row would continue to extend without censoring,
@@ -1202,12 +1219,12 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control=list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=FALSE)
-#' Strat_Col='e'
+#' Strat_Col <- 'e'
 #' 
 #' e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, Term_n,
 #'                               tform, keep_constant, a_n, modelform, fir,
@@ -1277,7 +1294,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         ce <- t_check$ce
         #
         #
-        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
+        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
+                                      a_n, x_all, a_n_default, modelform, fir, control,
+                                      guesses_control)
         a_ns <- dat_val$a_ns
         maxiters <- dat_val$maxiters
     } else {
@@ -1327,7 +1346,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         df <- t_check$df
         ce <- t_check$ce
         #
-        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
+        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
+                                      a_n, x_all, a_n_default, modelform, fir, control,
+                                      guesses_control)
         a_ns <- dat_val$a_ns
         maxiters <- dat_val$maxiters
     }

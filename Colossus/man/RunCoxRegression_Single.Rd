@@ -77,7 +77,7 @@ a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
 
 keep_constant <- c(0,0,0,0)
 
-control=list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+control <- list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
 e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
                              keep_constant, a_n, modelform, fir, control)

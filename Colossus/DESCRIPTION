@@ -1,19 +1,24 @@
 Package: Colossus
 Type: Package
-Title: Cox PH and Poisson Regression with Complex Non-Linear Models
-Version: 0.9
+Title: Risk Model Regression and Analysis with Complex Non-Linear Models
+Version: 0.9.1
 Authors@R:c(
     person("Eric", "Giunta", email="egiunta@ksu.edu", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1577-766X")),
-    person("Kansas State University", role=c("cph","fnd","uvp")),
-    person("NASA", role=c("cph","fnd"))
+    person("Amir", "Bahadori", role=c("ctb","ths")),
+    person("Dan", "Andresen", role=c("ctb")),
+    person("Linda", "Walsh", role=c("ctb")),
+    person("Benjamin", "French", role=c("ctb")),
+    person("Lawrence", "Dauer", role=c("ctb")),
+    person("John", "Boice Jr", role=c("ctb")),
+    person("Kansas State University", role=c("cph","fnd")),
+    person("NASA", role=c("fnd"))
     )
 URL: https://github.com/ericgiunta/Colossus
 BugReports: https://github.com/ericgiunta/Colossus/issues
-Description: Performs survival analysis using more general non-linear models. Risk models can be the sum or product of terms. Each term is the product of exponential/linear functions of covariates. Additionally subterms can be defined as a sum of exponential, linear threshold, and step functions. Either a cox proportional hazards or poisson regression are supported.
+Description: Performs survival analysis using general non-linear models. Risk models can be the sum or product of terms. Each term is the product of exponential/linear functions of covariates. Additionally sub-terms can be defined as a sum of exponential, linear threshold, and step functions. Cox Proportional hazards, Poisson, and Grey-Fine competing risks regression are supported.
 License: GPL (>= 3)
 Imports:
     Rcpp,
-    RcppEigen,
     data.table,
     parallel,
     stats,

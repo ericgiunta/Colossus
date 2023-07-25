@@ -94,16 +94,17 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,
    "lin_max"=1,"loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform",
    "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
-Strat_Col='e'
+Strat_Col <- 'e'
 
 e <- RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, Term_n, tform, keep_constant,
-                                   a_n, modelform, fir, der_iden, control,guesses_control,Strat_Col)
+                                   a_n, modelform, fir, der_iden, control,guesses_control,
+                                   Strat_Col)
 
 }

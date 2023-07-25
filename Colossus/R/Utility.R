@@ -23,7 +23,8 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
                 ", Remaining filled with 0.01",sep=""))
             a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
         } else if (length(a_n0)>length(names)){
-            print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),sep=""))
+            print(paste("Parameters used: ",length(a_n0),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         }
         if (length(Term_n)<length(names)){
@@ -34,10 +35,12 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
             stop()
         }
         if (length(tform)<length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         } else if (length(tform)>length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         }
         if (length(keep_constant)<length(names)){
@@ -54,7 +57,8 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
             }
         }
         #
-        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform,
+                                      control,keep_constant,term_tot)
         if (keep){
             if (is.nan(maxiters[1])){
                 a_ns <- c(a_n0)
@@ -73,15 +77,20 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
             for (i in seq_along(tform)){
                 if (guesses_control$guess_constant[i]==0){
                     if (grepl("_int",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$intercept_min,max=guesses_control$intercept_max) + a_n_default[i]
+                        a_n0[i] <- runif(1,min=guesses_control$intercept_min,
+                                           max=guesses_control$intercept_max) + a_n_default[i]
                     } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,max=guesses_control$exp_slope_max) + a_n_default[i]
+                        a_n0[i] <- runif(1,min=guesses_control$exp_slope_min,
+                                           max=guesses_control$exp_slope_max) + a_n_default[i]
                     } else if (grepl("_slope",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                        a_n0[i] <- runif(1,min=guesses_control$lin_min,
+                                           max=guesses_control$lin_max) + a_n_default[i]
                     } else if (grepl("loglin",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$exp_min,max=guesses_control$exp_max) + a_n_default[i]
+                        a_n0[i] <- runif(1,min=guesses_control$exp_min,
+                                           max=guesses_control$exp_max) + a_n_default[i]
                     } else if (grepl("lin",tform[i],fixed=FALSE)){
-                        a_n0[i] <- runif(1,min=guesses_control$lin_min,max=guesses_control$lin_max) + a_n_default[i]
+                        a_n0[i] <- runif(1,min=guesses_control$lin_min,
+                                           max=guesses_control$lin_max) + a_n_default[i]
                     } else {
                         print(paste("tform not implemented ", tform[i],sep=""))
                         stop()
@@ -93,13 +102,15 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
         } else {
             for (i in seq_along(tform)){
                 if (guesses_control$guess_constant[i]==0){
-                    a_n0[i] <- runif(1,min=guesses_control$rmin[i],max=guesses_control$rmax[i]) + a_n_default[i]
+                    a_n0[i] <- runif(1,min=guesses_control$rmin[i],
+                                       max=guesses_control$rmax[i]) + a_n_default[i]
                 } else {
                     a_n0[i] <- a_n_default[i]
                 }
             }
         }
-        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform, control,keep_constant,term_tot)
+        keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir,
+                                      modelform, control,keep_constant,term_tot)
         if (keep){
             if (is.nan(maxiters[1])){
                 a_ns <- c(a_n0)
@@ -153,7 +164,8 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
                 ", Remaining filled with 0.01",sep=""))
             a_n <- c(a_n, rep(0.01,length(names)-length(a_n)))
         } else if (length(a_n)>length(names)){
-            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),sep=""))
+            print(paste("Parameters used: ",length(a_n),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         }
         if (length(Term_n)<length(names)){
@@ -164,10 +176,12 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             stop()
         }
         if (length(tform)<length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         } else if (length(tform)>length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         }
         if (length(keep_constant)<length(names)){
@@ -176,10 +190,13 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             keep_constant <- keep_constant[seq_len(length(names))]
         }
         #
-        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)))
+        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
+                         "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)))
         df$iden_const[[der_iden+1]] <- 1
-        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope",
-             "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
+        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top",
+                         "lin_slope", "lin_int", "quad_slope", "step_slope",
+                         "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope",
+                         "lin_exp_int", "lin_exp_exp_slope")
         tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
         if (verbose){
@@ -192,8 +209,9 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         a_0 <- a_n[[1]]
         for (a_i in a_n){
             if (length(a_i)!=length(a_0)){
-                print(paste("Parameters used in first option: ",length(a_0),", Parameters used in different option: ",length(a_i),
-                ", please fix",sep=""))
+                print(paste("Parameters used in first option: ",length(a_0),
+                            ", Parameters used in different option: ",length(a_i),
+                            ", please fix",sep=""))
                 stop()
             }
         }
@@ -205,7 +223,8 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
                 a_n[[i]] <- c(a_n[[i]], rep(0.01,length(names)-length(a_n[[i]])))
             }
         } else if (length(a_0)>length(names)){
-            print(paste("Parameters used: ",length(a_0),", Covariates used: ",length(names),sep=""))
+            print(paste("Parameters used: ",length(a_0),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         }
         if (length(Term_n)<length(names)){
@@ -216,10 +235,12 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             stop()
         }
         if (length(tform)<length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         } else if (length(tform)>length(names)){
-            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),sep=""))
+            print(paste("Term types used: ",length(tform),", Covariates used: ",length(names),
+                        sep=""))
             stop()
         }
         if (length(keep_constant)<length(names)){
@@ -228,13 +249,16 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             keep_constant <- keep_constant[seq_len(length(names))]
         }
         #
-        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "names"=names,"iden_const"=rep(0,length(names)))
+        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
+                         "names"=names,"iden_const"=rep(0,length(names)))
         df$iden_const[[der_iden+1]] <- 1
         for (i in seq_len(length(a_n))){
             df[[paste("a_",i,sep="")]] <- a_n[[i]]
         }
-        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope",
-             "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
+        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top",
+                         "lin_slope", "lin_int", "quad_slope", "step_slope",
+                         "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope",
+                         "lin_exp_int", "lin_exp_exp_slope")
         tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
         if (verbose){
@@ -312,7 +336,8 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
     }
     a_temp <- df$iden_const
     der_iden <- which(a_temp==1)
-    list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant, "a_n"=a_n, "der_iden"=der_iden, "names"=df$names)
+    list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant,
+         "a_n"=a_n, "der_iden"=der_iden, "names"=df$names)
 }
 
 #' Automatically assigns missing values in listed columns
@@ -369,19 +394,22 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' @export
 #' @examples
 #' library(data.table)
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
 #' control <- Def_Control(control)
 #'
 Def_Control <- function(control){
-    control_def <- list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'maxiters' = c(1,20), 'guesses'=1,'halfmax' = 5,'epsilon' = 1e-9,
-        'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
-        'ties'='breslow','double_step'=1,"keep_strata"=FALSE,"Ncores"=as.numeric(detectCores()), "cens_thres"=0)
+    control_def <- list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'maxiters' = c(1,20),
+        'guesses'=1,'halfmax' = 5,'epsilon' = 1e-9, 'dbeta_max' = 0.5,
+        'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+        'ties'='breslow','double_step'=1,"keep_strata"=FALSE,
+        "Ncores"=as.numeric(detectCores()), "cens_thres"=0)
     for (nm in names(control_def)){
         if (nm %in% names(control)){
             if (nm=="Ncores"){
                 if (control$Ncores>control_def$Ncores){
                     if (control$verbose){
-                        print(paste("Cores Requested:",control["Ncores"],", Cores Avaliable:",control_def["Ncores"],sep=" "))
+                        print(paste("Cores Requested:",control["Ncores"],
+                              ", Cores Avaliable:",control_def["Ncores"],sep=" "))
                     }
                     stop()
                 }
@@ -402,7 +430,7 @@ Def_Control <- function(control){
 #' @export
 #' @examples
 #' library(data.table)
-#' control=list("single"=TRUE)
+#' control <- list("single"=TRUE)
 #' control <- Def_model_control(control)
 #'
 Def_model_control <- function(control){
@@ -431,7 +459,7 @@ Def_model_control <- function(control){
 #' @export
 #' @examples
 #' library(data.table)
-#' guesses_control=list("maxiter"=10,"guesses"=10,
+#' guesses_control <- list("maxiter"=10,"guesses"=10,
 #'     "loglin_min"=-1,"loglin_max"=1,"loglin_method"="uniform")
 #' a_n <- c(0.1,2,1.3)
 #' guesses_control <- Def_Control_Guess(guesses_control, a_n)
@@ -503,7 +531,8 @@ Def_Control_Guess <- function(guesses_control, a_n){
         guesses_control$term_initial <- c(0)
     }
     #
-    if ("guess_constant" %in% names(guesses_control)){ #binary values for if a parameter is distributed (0) or not (1)
+    if ("guess_constant" %in% names(guesses_control)){ 
+        #binary values for if a parameter is distributed (0) or not (1)
         if (length(guesses_control$guess_constant)<length(a_n)){
             guesses_control$guess_constant <- c(guesses_control$guess_constant, 
                 rep(0,length(a_n)-length(guesses_control$guess_constant)))
@@ -511,7 +540,8 @@ Def_Control_Guess <- function(guesses_control, a_n){
     } else {
         guesses_control$guess_constant <- rep(0,length(a_n))
     }
-    if ("guesses_start" %in% names(guesses_control)){ #number of guesses for first part of tiered guessing
+    if ("guesses_start" %in% names(guesses_control)){
+        #number of guesses for first part of tiered guessing
         #fine
     } else {
         guesses_control$guesses_start <- guesses_control$guesses
@@ -521,9 +551,11 @@ Def_Control_Guess <- function(guesses_control, a_n){
     } else {
         guesses_control$strata <- FALSE
     }
-    if (("rmin" %in% names(guesses_control))&&("rmax" %in% names(guesses_control))){ #if stratification is used
+    if (("rmin" %in% names(guesses_control))&&("rmax" %in% names(guesses_control))){
+        #if rmin/rmax used is used
         #fine
     } else {
+        # if they are unequal length, the default is used
         guesses_control$rmin <- c(-1)
         guesses_control$rmax <- c(-1,-1)
     }
@@ -786,7 +818,8 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
         formula <- unlist(strsplit(interac,"[?]"),use.names=FALSE)
         if (length(formula)!=3){
             if (verbose){
-                print(paste("Iteration:",interac,"has incorrect length of",length(formula),"but should be 3."))
+                print(paste("Iteration:",interac,"has incorrect length of",
+                      length(formula),"but should be 3."))
             }
             stop()
         }
@@ -866,7 +899,8 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
         features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
         terms_pair <- combn(term_n, 2, simplify = FALSE) # list all term pairs
         toRemove <- c() # init a vector to store duplicates
-        for(pair_n in seq_len(length(features_pair))) { # put the pairs for testing into temp objects
+        for(pair_n in seq_len(length(features_pair))) { 
+            # put the pairs for testing into temp objects
             pair <- unlist(features_pair[pair_n])
             term <- unlist(terms_pair[pair_n])
             f1 <- pair[1]
@@ -988,9 +1022,9 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #' b <- c(1,2,1,1,2)
 #' c <- c(0,0,1,1,1)
 #' df <- data.table("a"=a,"b"=b,"c"=c)
-#' time1="%trunc%"
-#' time2="a"
-#' event="c"
+#' time1 <- "%trunc%"
+#' time2 <- "a"
+#' event <- "c"
 #' control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,
 #'            'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'            'verbose'=FALSE, 'ties'='breslow','double_step'=1)
@@ -1047,7 +1081,8 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
         fname <- paste(fname,".csv",sep="_")
     }
     Write_Time_Dep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox)
-    df_new <- fread(fname,data.table=TRUE,header=FALSE,col.names=c(time1,time2,new_names,dfn_same,event0))
+    df_new <- fread(fname,data.table=TRUE,header=FALSE,
+                    col.names=c(time1,time2,new_names,dfn_same,event0))
     setkeyv(df_new, c(time2, event0))
     return (df_new)
 }
@@ -1111,10 +1146,12 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
 Time_Since <- function(df, dcol0, tref, col_name, units="days"){
     def_cols <- names(df)
     #
-    df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
+    df$dt0 <- paste(df[[match(dcol0[1],names(df))]],df[[match(dcol0[2],
+                    names(df))]],df[[match(dcol0[3],names(df))]],sep="-")
     #
     #
-    df[, col_name] <- lapply(df$dt0, function(x) (difftime(strptime(x,  format = "%m-%d-%Y",tz = 'UTC'), tref, units = units)))
+    df[, col_name] <- lapply(df$dt0, function(x) (difftime(strptime(x,
+                             format = "%m-%d-%Y",tz = 'UTC'), tref, units = units)))
     def_cols <- c(def_cols, col_name)
     return (df[,def_cols,with=FALSE])
 }
