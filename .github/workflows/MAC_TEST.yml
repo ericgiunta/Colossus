@@ -31,10 +31,11 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: move to package
-        run: cd Colossus
+        run: |
+          pwd
+          cd Colossus
+          pwd
       - name: check location
-        run: pwd
-      - name: check correct spot
-        run: cd src
-      - name: check src contents
-        run: ls
+        run: |
+          pwd
+          ls
