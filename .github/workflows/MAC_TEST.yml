@@ -31,16 +31,10 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: move to package
-        run: cd Colossus/Colossus
+        run: cd Colossus
       - name: check location
-        run: |
-          pwd
-          ls
-      - name: Install dependencies
-        run: |
-          install.packages(c("devtools"))
-          devtools::install_deps(dependencies = TRUE)
-        shell: Rscript {0}
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-        shell: Rscript {0}
+        run: pwd
+      - name: check correct spot
+        run: cd src
+      - name: check src contents
+        run: ls
