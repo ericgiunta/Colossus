@@ -32,6 +32,10 @@ jobs:
           r-version: ${{ matrix.r-version }}
       - name: move to package
         run: cd Colossus
+      - name: check location
+        run: |
+          pwd
+          ls
       - name: Install dependencies
         run: |
           install.packages(c("devtools"))
