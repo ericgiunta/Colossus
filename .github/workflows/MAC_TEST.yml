@@ -34,5 +34,5 @@ jobs:
         run: |
           cd Colossus
           ls
-          Rscript -e "install.packages("devtools")"
+          Rscript -e "install.packages(c("devtools"))"
           Rscript -e "print("it worked")
