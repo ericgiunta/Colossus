@@ -32,10 +32,8 @@ jobs:
           r-version: ${{ matrix.r-version }}
       - name: move to package
         run: |
-          pwd
+          ls
           cd Colossus
-          pwd
-      - name: check location
-        run: |
-          pwd
+          ls
+          cd Colossus
           ls
