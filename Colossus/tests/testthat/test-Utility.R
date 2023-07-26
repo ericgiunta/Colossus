@@ -1,7 +1,4 @@
-test_that("Default control intentional error", {
-    control_def=list()
-    expect_error(Def_Control(control_def))
-})
+
 test_that("Default control no error", {
     control_def=list()
     expect_no_error(Def_Control(control_def))
