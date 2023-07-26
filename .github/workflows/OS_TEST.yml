@@ -26,7 +26,7 @@ jobs:
           brew install llvm
           clang --version
           curl -O https://mac.r-project.org/openmp/openmp-14.0.6-darwin20-Release.tar.gz
-          sudo tar fvxz openmp-14.0.6-darwin20-Release.tar.gz -C
+          sudo tar fvxz openmp-14.0.6-darwin20-Release.tar.gz -C /
       - name: move to package and check
         run: |
           cd Colossus
