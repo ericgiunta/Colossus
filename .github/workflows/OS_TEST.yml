@@ -36,5 +36,42 @@ jobs:
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::load_all()"
-          Rscript -e "devtools::test()"
           Rscript -e "devtools::install()"
+          Rscript -e "devtools::test()"
+  win_check:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+      - name: move to package and check
+        run: |
+          cd Colossus
+          ls
+          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "devtools::install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "devtools::load_all()"
+          Rscript -e "devtools::install()"
+          Rscript -e "devtools::test()"
+  ubuntu_check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+      - name: install libraries
+        run: sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+      - name: move to package and check
+        run: |
+          cd Colossus
+          ls
+          bash configure_MAKEVAR.sh
+          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "devtools::install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "devtools::load_all()"
+          Rscript -e "devtools::install()"
+          Rscript -e "devtools::test()"
