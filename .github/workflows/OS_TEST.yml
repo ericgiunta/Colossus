@@ -37,6 +37,8 @@ jobs:
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::load_all()"
           Rscript -e "devtools::install()"
+          Rscript -e "devtools::build_vignettes()"
+          Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   win_check:
     runs-on: windows-latest
@@ -54,6 +56,8 @@ jobs:
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::load_all()"
           Rscript -e "devtools::install()"
+          Rscript -e "devtools::build_vignettes()"
+          Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   ubuntu_check:
     runs-on: ubuntu-latest
@@ -74,4 +78,6 @@ jobs:
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::load_all()"
           Rscript -e "devtools::install()"
+          Rscript -e "devtools::build_vignettes()"
+          Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
