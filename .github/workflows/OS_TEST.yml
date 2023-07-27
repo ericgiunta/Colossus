@@ -27,7 +27,7 @@ jobs:
           clang --version
           curl -O https://mac.r-project.org/openmp/openmp-14.0.6-darwin20-Release.tar.gz
           sudo tar fvxz openmp-14.0.6-darwin20-Release.tar.gz -C /
-      - name: move to package and check
+      - name: move to package and install
         run: |
           cd Colossus
           ls
@@ -35,9 +35,13 @@ jobs:
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::load_all()"
           Rscript -e "devtools::install()"
+      - name: move to package and build examples
+        run: |
+          brew install pandoc
           Rscript -e "devtools::build_vignettes()"
+      - name: move to package and run tests
+        run: |
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   win_check:
@@ -54,9 +58,13 @@ jobs:
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::load_all()"
           Rscript -e "devtools::install()"
+      - name: move to package and build examples
+        run: |
+          winget install --source winget --exact --id JohnMacFarlane.Pandoc
           Rscript -e "devtools::build_vignettes()"
+      - name: move to package and run tests
+        run: |
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   ubuntu_check:
@@ -76,8 +84,13 @@ jobs:
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::load_all()"
           Rscript -e "devtools::install()"
+      - name: move to package and build examples
+        run: |
+          sudo apt-get install pandoc
+          sudo apt-get install texlive
           Rscript -e "devtools::build_vignettes()"
+      - name: move to package and run tests
+        run: |
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
