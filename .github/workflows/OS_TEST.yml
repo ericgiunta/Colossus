@@ -31,6 +31,7 @@ jobs:
           Rscript -e "devtools::install()"
       - name: move to package and build examples
         run: |
+          Import-Module Appx
           $API_URL = "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
           $DOWNLOAD_URL = $(Invoke-RestMethod $API_URL).assets.browser_download_url |
             Where-Object {$_.EndsWith(".msixbundle")}
