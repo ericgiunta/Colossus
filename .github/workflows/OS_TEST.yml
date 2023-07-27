@@ -40,7 +40,7 @@ jobs:
         run: |
           cd Colossus
           brew install pandoc
-          Rscript -e "devtools::check(error_on=c("error"))"
+          Rscript -e "devtools::check()"
       - name: move to package and run tests
         run: |
           cd Colossus
@@ -66,8 +66,7 @@ jobs:
           choco install pandoc
           refreshenv
           cd Colossus
-          winget install --source winget --exact --id JohnMacFarlane.Pandoc
-          Rscript -e "devtools::check(error_on=c("error"))"
+          Rscript -e "devtools::check()"
       - name: move to package and run tests
         run: |
           cd Colossus
@@ -96,7 +95,7 @@ jobs:
           cd Colossus
           sudo apt-get install pandoc
           sudo apt-get install texlive
-          Rscript -e "devtools::check(error_on=c("error"))"
+          Rscript -e "devtools::check()"
       - name: move to package and run tests
         run: |
           cd Colossus
