@@ -440,6 +440,14 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     if (control$verbose){
         print(paste(length(tu)," risk groups",sep=""))
     }
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
+    #
     all_names <- unique(names)
     dfc <- match(names,all_names)
     term_tot <- max(Term_n)+1
@@ -449,14 +457,6 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
-    #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
-    Term_n <- val$Term_n
-    tform <- val$tform
-    keep_constant <- val$keep_constant
-    a_n <- val$a_n
-    der_iden <- val$der_iden
-    names <- val$names
     #
     control <- Def_Control(control)
     #

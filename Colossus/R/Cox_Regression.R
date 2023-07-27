@@ -510,11 +510,6 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
     if (control$verbose){
         print("Starting")
     }
-    all_names <- unique(names)
-    dfc <- match(names,all_names)
-
-    term_tot <- max(Term_n)+1
-    x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
     Term_n <- val$Term_n
@@ -524,6 +519,11 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
     der_iden <- val$der_iden
     names <- val$names
     #
+    all_names <- unique(names)
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     model_control$Risk_Subset <- TRUE
     e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir,
