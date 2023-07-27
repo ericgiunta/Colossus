@@ -38,10 +38,12 @@ jobs:
           Rscript -e "devtools::install()"
       - name: move to package and build examples
         run: |
+          cd Colossus
           brew install pandoc
           Rscript -e "devtools::build_vignettes()"
       - name: move to package and run tests
         run: |
+          cd Colossus
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   win_check:
@@ -61,10 +63,12 @@ jobs:
           Rscript -e "devtools::install()"
       - name: move to package and build examples
         run: |
+          cd Colossus
           winget install --source winget --exact --id JohnMacFarlane.Pandoc
           Rscript -e "devtools::build_vignettes()"
       - name: move to package and run tests
         run: |
+          cd Colossus
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   ubuntu_check:
@@ -87,10 +91,12 @@ jobs:
           Rscript -e "devtools::install()"
       - name: move to package and build examples
         run: |
+          cd Colossus
           sudo apt-get install pandoc
           sudo apt-get install texlive
           Rscript -e "devtools::build_vignettes()"
       - name: move to package and run tests
         run: |
+          cd Colossus
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
