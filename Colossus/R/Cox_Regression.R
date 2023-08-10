@@ -1354,8 +1354,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
     }
     #
     control$maxiters <- c(maxiters,control$maxiter)
-    control$guesses <- length(maxiters)-1
-#    #
+    control$guesses <- length(maxiters)
+    #
+    #
     #fine
     a_n_mat <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
     a_n <- lapply(seq_len(nrow(a_n_mat)), function(i) a_n_mat[i,])

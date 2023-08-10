@@ -905,6 +905,18 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
             term <- unlist(terms_pair[pair_n])
             f1 <- pair[1]
             f2 <- pair[2]
+            if (!(f1 %in% names(df))){
+                if (verbose){
+                    print(paste(f1," not in data.table",sep=""))
+                }
+                stop()
+            }
+            if (!(f2 %in% names(df))){
+                if (verbose){
+                    print(paste(f2," not in data.table",sep=""))
+                }
+                stop()
+            }
             t1 <- term[1]
             t2 <- term[2]
             #
@@ -946,6 +958,13 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
         }
         return(newcol)
     } else if (length(cols)==1){
+        f1 <- cols[1]
+        if (!(f1 %in% names(df))){
+            if (verbose){
+                print(paste(f1," not in data.table",sep=""))
+            }
+            stop()
+        }
         if (min(df[,cols, with = FALSE])==max(df[,cols, with = FALSE])){
             if (min(df[,cols, with = FALSE])==0){
                 return(c())

@@ -4,7 +4,7 @@ Title: Risk Model Regression and Analysis with Complex Non-Linear Models
 Version: 0.9.1
 Authors@R:c(
     person("Eric", "Giunta", email="egiunta@ksu.edu", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1577-766X")),
-    person("Amir", "Bahadori", role=c("ctb","ths")),
+    person("Amir", "Bahadori", role=c("ctb")),
     person("Dan", "Andresen", role=c("ctb")),
     person("Linda", "Walsh", role=c("ctb")),
     person("Benjamin", "French", role=c("ctb")),

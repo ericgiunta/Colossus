@@ -266,8 +266,8 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Term_n[ij] << " ";
         }
+        Rcout << " " << endl;
     }
-    Rcout << " " << endl;
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations

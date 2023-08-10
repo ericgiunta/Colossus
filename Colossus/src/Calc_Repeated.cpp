@@ -1215,6 +1215,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     } else if (modelform=="GM"){
         throw invalid_argument( "GM isn't implemented" );
     } else {
+        Rcout << modelform << ", " << TTerm.cols() << endl;
         throw invalid_argument( "Model isn't implemented" );
     }
     //
