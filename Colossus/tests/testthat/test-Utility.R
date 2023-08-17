@@ -1,4 +1,8 @@
 
+## ------------------------------------- ##
+## Default control
+## ------------------------------------- ##
+
 test_that("Default control no error", {
     control_def=list()
     expect_no_error(Def_Control(control_def))
@@ -12,6 +16,10 @@ test_that("Default control no error", {
     a_n <- c(1,2,3)
     expect_no_error(Def_Control_Guess(control_def,a_n))
 })
+
+## ------------------------------------- ##
+## Truncation
+## ------------------------------------- ##
 
 test_that("No truncation columns", {
     df <- data.table("time0"=c(0,1,2,3,4,5,6),"time1"=c(1,2,3,4,5,6,7),"dummy"=c(0,0,1,1,0,1,0))
@@ -42,6 +50,9 @@ test_that("Truncation both sides", {
     expect_error(Check_Trunc(df,c("%trunc%","%trunc%")))
 })
 
+## ------------------------------------- ##
+## Duplicate Columns
+## ------------------------------------- ##
 
 test_that("No dupe columns", {
     a <- c(0,1,2,3,4,5,6)
@@ -140,6 +151,10 @@ test_that("Duplicate with column not in df error", {
     expect_error(Check_Dupe_Columns(df,c("a","b","c","e"),c(0,0,0,0),FALSE))
 })
 
+## ------------------------------------- ##
+## LRT
+## ------------------------------------- ##
+
 test_that("Improve Ratio test", {
     a <- list("LogLik"=-400)
     b <- list("LogLik"=-350)
@@ -160,6 +175,10 @@ test_that("No Data Ratio test", {
     b <- list("LogLik"=-300)
     expect_error(Likelihood_Ratio_Test(a,b))
 })
+
+## ------------------------------------- ##
+## Interaction Terms
+## ------------------------------------- ##
 
 test_that("Iteract no dupes", {
     a <- c(0,1,2,3,4,5,6)
@@ -214,6 +233,85 @@ test_that("Iteract formula operation error", {
     interactions <- c("a?++?b","a?*?b")
     new_names <- c("","")
     expect_error(interact_them(df,interactions,new_names,FALSE))
+})
+
+#######################################
+## Modelform Fixes
+#######################################
+
+test_that("Check no error", {
+    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- Def_Control(control)
+    model_control <- list("single"=TRUE)
+    model_control <- Def_model_control(model_control)
+    Term_n <- c(0,1,1)
+    modelform <- 'a'
+    expect_no_error(Def_modelform_fix(control,model_control,modelform,Term_n))
+})
+
+test_that("Modelform Fixes Additives", {
+    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- Def_Control(control)
+    model_control <- list("single"=TRUE)
+    model_control <- Def_model_control(model_control)
+    Term_n <- c(0,1,1)
+    modelform <- 'a'
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'A')
+    modelform <- 'pa'
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'PA')
+    modelform <- 'pae'
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'PAE')
+})
+test_that("Modelform Fixes Additives", {
+    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- Def_Control(control)
+    model_control <- list("single"=TRUE)
+    model_control <- Def_model_control(model_control)
+    Term_n <- c(0,1,1)
+    modelform <- 'm'
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'M')
+    modelform <- 'me'
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'M')
+})
+test_that("Modelform Fixes gmix", {
+    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1,'verbose'=TRUE)
+    control <- Def_Control(control)
+    model_control <- list("single"=TRUE)
+    model_control <- Def_model_control(model_control)
+    Term_n <- c(0,1,1)
+    modelform <- 'gmix-r'
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'GMIX')
+    modelform <- 'gmix-e'
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'GMIX')
+    model_control$gmix_term <- c(1,1)
+    modelform <- 'gmix'
+    print(modelform)
+    print(model_control)
+    expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'GMIX')
+})
+
+test_that("gmix error", {
+    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- Def_Control(control)
+    model_control <- list("single"=TRUE)
+    model_control <- Def_model_control(model_control)
+    Term_n <- c(0,1,1)
+    modelform <- 'gmix'
+    expect_error(Def_modelform_fix(control,model_control,modelform,Term_n))
+})
+
+test_that("unused model formula error", {
+    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- Def_Control(control)
+    model_control <- list("single"=TRUE)
+    model_control <- Def_model_control(model_control)
+    Term_n <- c(0,1,1)
+    modelform <- 'failing_choice'
+    expect_error(Def_modelform_fix(control,model_control,modelform,Term_n))
+    modelform <- 'ma'
+    expect_error(Def_modelform_fix(control,model_control,modelform,Term_n))
+    modelform <- 'ea'
+    expect_error(Def_modelform_fix(control,model_control,modelform,Term_n))
 })
 
 #######################################

@@ -70,6 +70,8 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
     //
 	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
 	double cens_thres = Control["cens_thres"];
+	double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
 	//
 	bool strata_bool = model_control["strata"];
 	bool basic_bool  = model_control["basic"];
@@ -79,7 +81,7 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Omnibus(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool);
+    List res = LogLik_Cox_PH_Omnibus(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, gmix_theta, gmix_term);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -110,13 +112,15 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
     double deriv_epsilon =Control["deriv_epsilon"];
     int nthreads = Control["Ncores"];
     //
+    double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
 	//
 	bool strata_bool = model_control["strata"];
 	bool single_bool = model_control["single"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Pois_Omnibus(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool);
+    List res = LogLik_Pois_Omnibus(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term);
     //LogLik_Pois_Omnibus(MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, bool strata_bool, bool single_bool);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -138,6 +142,8 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
     //
 	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
 	double cens_thres = Control["cens_thres"];
+	double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
 	//
 	bool strata_bool = model_control["strata"];
 	bool basic_bool  = model_control["basic"];
@@ -156,7 +162,44 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
         return res;
     }
     //----------------------------------------------------------------------------------------------------------------//
-    res = Plot_Omnibus( Term_n, tform, a_n,x_all,dfc, fir,  der_iden, modelform, abs_max,dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool);
+    res = Plot_Omnibus( Term_n, tform, a_n,x_all,dfc, fir,  der_iden, modelform, abs_max,dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the Cox PH Wald omnibus regression function
+//' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the confidence interval regression function
+//' @inheritParams CPP_template
+//'
+//' @return Wald_Cox_PH_Omnibus output : list of interval endpoints
+// [[Rcpp::export]]
+List wald_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, double qchi){
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    double maxiter = Control["maxiter"];
+    double epsilon = Control["epsilon"];
+    double dbeta_cap = Control["dbeta_max"];
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["Ncores"];
+    //
+	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
+	double cens_thres = Control["cens_thres"];
+	double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
+	//
+	bool strata_bool = model_control["strata"];
+	bool basic_bool  = model_control["basic"];
+	bool CR_bool     = model_control["CR"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = Wald_Cox_PH_Omnibus(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, maxiter, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, CR_bool, qchi, gmix_theta, gmix_term);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -398,14 +441,16 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, IntegerVector KeepConstant, int term_tot){
+bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot){
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     int nthreads = Control["Ncores"];
+    double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    bool res = Check_Risk(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, KeepConstant, term_tot, nthreads);
+    bool res = Check_Risk(Term_n, tform, a_n, x_all, dfc,fir,modelform,verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

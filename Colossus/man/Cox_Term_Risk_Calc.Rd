@@ -38,7 +38,9 @@ Cox_Term_Risk_Calc(
   verbose,
   basic_bool,
   single_bool,
-  start
+  start,
+  gmix_theta,
+  gmix_term
 )
 }
 \arguments{
@@ -107,6 +109,10 @@ Cox_Term_Risk_Calc(
 \item{single_bool}{boolean for single calculation without derivatives}
 
 \item{start}{starting time for regression}
+
+\item{gmix_theta}{theta value for geometric-mixture model}
+
+\item{gmix_term}{list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)}
 }
 \value{
 Updates matrices in place: risk storage matrices

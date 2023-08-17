@@ -180,6 +180,9 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
         print("KM Plots")
     }
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     base  <- NULL
     ce <- c(time1,time2,event0)
     all_names <- unique(names)
@@ -238,6 +241,9 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er, model_control=list()){
     fir_KM <- 0
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     dfend <- df[get(event0)==1, ]
     #
     ce <- c(time1,time2,event0)
@@ -320,6 +326,9 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     setkeyv(df, c(time2, event0, Strat_Col))
     ce <- c(time1,time2,event0,Strat_Col)
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     base  <- NULL
     #
     ce <- c(time1,time2,event0,Strat_Col)
@@ -429,6 +438,9 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
 PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,age_unit,Plot_Name, model_control=list()){        
     setkeyv(df, c(time2, event0))
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
@@ -556,6 +568,9 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
         stop()
     }
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     setkeyv(df, c(time2, event0))
     base  <- NULL
     Plot_Name <- plot_options$name

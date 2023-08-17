@@ -59,6 +59,9 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     }
     control <- Def_Control(control)
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()
@@ -135,6 +138,135 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden, modelform, control,
         as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq, cens_weight,
         model_control)
+    e$Parameter_Lists$names <- names
+    return (e)
+}
+
+#' Performs Cox Proportional Hazards confidence interval regression using the wald omnibus function
+#' \code{RunCoxWaldRegression_Omnibus} uses user provided data, time/event columns,
+#'       vectors specifying the model, and options to control the convergence
+#'       and starting positions. Has additional options for 
+#'       using stratification, multiplicative loglinear 1-term,
+#'       competing risks
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final confidence intervals                                                     
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   1,   0,   0,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4)) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,
+#'    "guesses"=2)
+#' 
+#' @importFrom rlang .data
+RunCoxWaldRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list(), qalpha=0.05){
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
+    control <- Def_Control(control)
+    model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
+    if (min(keep_constant)>0){
+        print("Atleast one parameter must be free")
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    if (model_control$strata==FALSE){
+        setkeyv(df, c(time2, event0))
+        uniq <- c(0)
+        ce <- c(time1,time2,event0)
+    } else {
+        #
+        dfend <- df[get(event0)==1, ]
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        #
+        for (i in seq_along(uniq)){
+            df0 <- dfend[get(Strat_Col)==uniq[i],]
+            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+            if (length(tu0)==0){
+                if (control$verbose){
+                    print(paste("no events for strata group:",uniq[i],sep=" "))
+                }
+                df <- df[get(Strat_Col)!=uniq[i],]
+            }
+        }
+        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        if (control$verbose){
+            print(paste(length(uniq)," strata used",sep=" "))
+        }
+        #
+        setkeyv(df, c(time2, event0, Strat_Col))
+        ce <- c(time1,time2,event0,Strat_Col)
+    }
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+    if (length(tu)==0){
+        if (control$verbose){
+            print("no events")
+        }
+        stop()
+    }
+    if (control$verbose){
+        print(paste(length(tu)," risk groups",sep=""))
+    }
+    all_names <- unique(names)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    qchi <- qchisq(1-qalpha, length(keep_constant)-sum(keep_constant))
+    #
+    e <- wald_Omnibus_transition(Term_n,tform,a_n,dfc,x_all, fir,der_iden, modelform, control,
+        as.matrix(df[,ce, with = FALSE]),tu,keep_constant,term_tot, uniq, cens_weight,
+        model_control, qchi)
     e$Parameter_Lists$names <- names
     return (e)
 }
@@ -496,6 +628,9 @@ RunCoxRegression_STRATA_Single <- function(df, time1, time2, event0,  names, Ter
 Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control, model_control=list()){
     control <- Def_Control(control)
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()
@@ -721,6 +856,9 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         }
     }
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     if (Plot_Type[1]=="SURV"){
         if ("time_lims" %in% names(plot_options)){
             #fine
@@ -1251,6 +1389,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
     }
     guesses_control <- Def_Control_Guess(guesses_control, a_n[[1]])
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()
@@ -1296,7 +1437,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         #
         dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
                                       a_n, x_all, a_n_default, modelform, fir, control,
-                                      guesses_control)
+                                      guesses_control, model_control)
         a_ns <- dat_val$a_ns
         maxiters <- dat_val$maxiters
     } else {
@@ -1348,7 +1489,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         #
         dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
                                       a_n, x_all, a_n_default, modelform, fir, control,
-                                      guesses_control)
+                                      guesses_control, model_control)
         a_ns <- dat_val$a_ns
         maxiters <- dat_val$maxiters
     }

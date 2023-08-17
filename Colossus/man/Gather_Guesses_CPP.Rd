@@ -18,7 +18,8 @@ Gather_Guesses_CPP(
   modelform,
   fir,
   control,
-  guesses_control
+  guesses_control,
+  model_control = list()
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ Gather_Guesses_CPP(
 \item{control}{list of parameters controlling the convergence}
 
 \item{guesses_control}{list of parameters to control how the guessing works}
+
+\item{model_control}{controls which alternative model options are used}
 }
 \value{
 returns a list of the final results

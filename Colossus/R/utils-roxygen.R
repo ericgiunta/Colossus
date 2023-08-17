@@ -44,6 +44,7 @@
 #' @param paras  list of formula parameters
 #' @param plot_options  list of parameters controlling the plot options
 #' @param pyr  column used for person-years per row
+#' @param qalpha alpha for confidence intervals with wald method
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
 #' @param t  event times
@@ -134,12 +135,15 @@ NULL
 #' @param epsilon  minimum acceptable maximum parameter change
 #' @param filename  file to save the data to
 #' @param fir  st term number
+#' @param gmix_term list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)
+#' @param gmix_theta theta value for geometric-mixture model
 #' @param guesses  number of initial
 #' @param halfmax  maximum number of half steps
 #' @param iscox  boolean of cox formatting is used
 #' @param iter_stop  binary value used to tell the function not to continue iteration
 #' @param lr  learning rate for newton step toward 0 derivative
 #' @param matrix_modify matrix to remove rows or columns from 
+#' @param maxiter   integer of maximum number of iterations
 #' @param maxiters  list of maximum number of iterations
 #' @param model_control  controls which alternative model options are used
 #' @param modelform  string model identifier
@@ -150,6 +154,7 @@ NULL
 #' @param nthreads  number of threads available
 #' @param ntime  number of risk groups
 #' @param null_bool  boolean for null model
+#' @param qchi Chi-Squared quantile at 1-qalpha
 #' @param reqrdnum  total number of free parameters
 #' @param rowToRemove  row index to remove
 #' @param s_weights  vector of weights for every row

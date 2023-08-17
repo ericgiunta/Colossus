@@ -112,7 +112,7 @@ void Cox_Refresh_R_SIDES( const int& reqrdnum, const int& ntime, MatrixXd& Rls1,
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool basic_bool, bool single_bool, int start){
+void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool basic_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
     time_point<system_clock> end_point;
     end_point = system_clock::now();
     auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
@@ -154,7 +154,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		RdR = (RdR.array().isFinite()).select(RdR,0);
 		//
 		//
-		if (R.minCoeff()<0){
+		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
 			Rcout << "risk checked ";
@@ -234,12 +234,12 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		}
 		//
 		// Calculates the risk for each row
-        Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant);
+        Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
 		//
 		// Removes infinite values
 		//
 		//
-		if (R.minCoeff()<0){
+		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
 			Rcout << "risk checked ";
@@ -322,14 +322,14 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		}
 		//
 		// Calculates the risk for each row
-        Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant);
+        Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
 		//
 		// Removes infinite values
 		RdR = (RdR.array().isFinite()).select(RdR,0);
 		RddR = (RddR.array().isFinite()).select(RddR,0);
 		//
 		//
-		if (R.minCoeff()<0){
+		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
 			Rcout << "risk checked ";
@@ -556,7 +556,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
 //'
 //' @return Updates matrices in place: risk storage matrices
 // [[Rcpp::export]]
-void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool strata_bool, bool single_bool, int start){
+void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool strata_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
     time_point<system_clock> end_point;
     end_point = system_clock::now();
     auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
@@ -618,15 +618,15 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		//
 		// Calculates the risk for each row
 		if (strata_bool){
-            Make_Risks_Weighted_Single(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant);
+            Make_Risks_Weighted_Single(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
         } else {
-            Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant);
+            Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
         }
 		//
 		// Removes infinite values
 		//
 		//
-		if (R.minCoeff()<0){
+		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
 			Rcout << "risk checked ";
@@ -711,9 +711,9 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		//
 		// Calculates the risk for each row
 		if (strata_bool){
-            Make_Risks_Weighted(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant);
+            Make_Risks_Weighted(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
         } else {
-            Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant);
+            Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
         }
 		//
 		// Removes infinite values
@@ -721,7 +721,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		RddR = (RddR.array().isFinite()).select(RddR,0);
 		//
 		//
-		if (R.minCoeff()<0){
+		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
 			Rcout << "risk checked ";

@@ -23,7 +23,9 @@ Make_Risks_Weighted_Single(
   nonDose_LOGLIN,
   nthreads,
   debugging,
-  KeepConstant
+  KeepConstant,
+  gmix_theta,
+  gmix_term
 )
 }
 \arguments{
@@ -62,6 +64,10 @@ Make_Risks_Weighted_Single(
 \item{debugging}{additional boolean for verbosity in testing}
 
 \item{KeepConstant}{binary vector to identify constant parameters}
+
+\item{gmix_theta}{theta value for geometric-mixture model}
+
+\item{gmix_term}{list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)}
 }
 \value{
 Updates matrices in place: Risk, Risk ratios

@@ -219,6 +219,90 @@ test_that("risk check omnibus plain", {
     }
 })
 
+test_that("risk check omnibus gmix", {
+    fname <- 'll_comp_0.csv'
+    colTypes=c("double","double","double","integer","integer")
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    set.seed(3742)
+    df$rand <- floor(runif(nrow(df), min=0, max=5))
+
+    time1 <- "t0"
+    time2 <- "t1"
+    df$censor <- (df$lung==0)
+    #
+    event <- "lung"
+    #stop()
+    control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+
+    verbose <- FALSE
+
+    model_list <- c('GMIX-R','GMIX-E','GMIX')
+    names <- c("dose","fac","dose","fac","rand")
+    Term_n <- c(0,0,1,1,2)
+    tform <- c("loglin","loglin","plin","plin","loglin")
+    keep_constant <- c(0,0,0,0,0)
+    a_n <- c(-0.1,0.1,0.2,0.3,-0.5)
+    df_order <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names, "order"=1:length(names))
+
+    means <- c(0.6918334,0.6918334,0.6918334,2.9080098,3.8839872,2.7077608,0.6918334,1.2728663,1.8214142,2.9080098,0.6918334,1.4807626,1.8214142,3.8839872,0.6918334,1.4807626,1.2728663,2.7077608)
+    medians <- c(0.5871897,0.5871897,0.5871897,2.8144283,3.7521540,2.4285966,0.5871897,1.0226682,1.7472830,2.8144283,0.5871897,1.2200643,1.7472830,3.7521540,0.5871897,1.2200643,1.0226682,2.4285966)
+    sums <- c(691.8334,691.8334,691.8334,2908.0098,3883.9872,2707.7608,691.8334,1272.8663,1821.4142,2908.0098,691.8334,1480.7626,1821.4142,3883.9872,691.8334,1480.7626,1272.8663,2707.7608)
+
+
+    count <- 0
+    for (model_i in 1:3){
+        modelform <- model_list[model_i]
+        if (modelform=='GMIX'){
+            for (fir in c(0,1,2)){
+                for (term_i in 0:3){
+                    model_control=list('strata'=FALSE, 'basic'=FALSE, 'single'=FALSE, 'CR'=FALSE)
+                    if (fir==0){
+                        model_control$gmix_term <- c(0,term_i%%2, floor(term_i/2))
+                    } else if (fir==1){
+                        model_control$gmix_term <- c(term_i%%2,0, floor(term_i/2))
+                    }  else if (fir==2){
+                        model_control$gmix_term <- c(term_i%%2, floor(term_i/2),1)
+                    }
+                    #
+                    df_order$order <- sample(df_order$order)
+                    setorderv(df_order, c("order"))
+                    Term_n <- df_order$Term_n
+                    tform <- df_order$tform
+                    keep_constant <- df_order$keep_constant
+                    a_n <- df_order$a_n
+                    names <- df_order$names
+                    #
+                    control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+                    e <- Cox_Relative_Risk(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, control=control, model_control=model_control)$Risk
+                    count <- count + 1
+                    expect_equal(mean(e),means[count],tolerance=1e-2)
+                    expect_equal(median(e),medians[count],tolerance=1e-2)
+                    expect_equal(sum(e),sums[count],tolerance=1e-2)
+                }
+            }
+        } else {
+            for (fir in c(0,1,2)){
+                model_control=list('strata'=FALSE, 'basic'=FALSE, 'single'=FALSE, 'CR'=FALSE)
+                #
+                df_order$order <- sample(df_order$order)
+                setorderv(df_order, c("order"))
+                Term_n <- df_order$Term_n
+                tform <- df_order$tform
+                keep_constant <- df_order$keep_constant
+                a_n <- df_order$a_n
+                names <- df_order$names
+                #
+                control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+                e <- Cox_Relative_Risk(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, control=control, model_control=model_control)$Risk
+                count <- count + 1
+                expect_equal(mean(e),means[count],tolerance=1e-2)
+                expect_equal(median(e),medians[count],tolerance=1e-2)
+                expect_equal(sum(e),sums[count],tolerance=1e-2)
+            }
+        }
+    }
+})
+
 test_that("risk check omnibus dose", {
     fname <- 'll_comp_0.csv'
     colTypes=c("double","double","double","integer","integer")
@@ -284,3 +368,95 @@ test_that("risk check omnibus dose", {
         }
     }
 })
+
+test_that("check deviation calc", {
+    fname <- 'll_comp_0.csv'
+    colTypes=c("double","double","double","integer","integer")
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    set.seed(3742)
+    df$rand <- floor(runif(nrow(df), min=0, max=5))
+
+    time1 <- "t0"
+    time2 <- "t1"
+
+
+    #
+    #    cens_weight <- dft$surv
+    event <- "lung"
+    names <- c("dose","fac","rand")
+    Term_n <- c(0,0,1)
+    tform <- c("loglin","loglin","loglin")
+    keep_constant <- c(0,0,0)
+    a_n <- c(-0.1,0.1,0.2)
+    modelform <- "M"
+    fir <- 0
+    der_iden <- 0
+
+    cens_weight <- c(0)
+    #stop()
+
+    verbose <- FALSE
+
+    devs <- c()
+
+    modelform <- "M"
+    model_control=list('strata'=FALSE, 'basic'=FALSE, 'single'=FALSE, 'CR'=FALSE)
+    for (i in 1:3){
+        a_n <- c(0.6465390, 0.4260961, 0.1572781)
+        keep_constant <- c(0,0,0)
+        keep_constant[i] <- 1
+        #
+        control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+        e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,Strat_Col="fac", model_control=model_control)
+        devs <- c(devs, sum(e$Standard_Deviation))
+    }
+    a_n <- c(0.6465390, 0.4260961, 0.1572781)
+    keep_constant <- c(0,0,0)
+    #
+    control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,Strat_Col="fac", model_control=model_control)
+    devs <- c(devs, sum(e$Standard_Deviation))
+    expect_equal(devs,c(0.6091269, 0.5356671, 0.7385757, 0.9448081),tolerance=1e-4)
+})
+
+test_that("check wald no error", {
+    fname <- 'll_comp_0.csv'
+    colTypes=c("double","double","double","integer","integer")
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    set.seed(3742)
+    df$rand <- floor(runif(nrow(df), min=0, max=5))
+
+    time1 <- "t0"
+    time2 <- "t1"
+
+
+    #
+    #    cens_weight <- dft$surv
+    event <- "lung"
+    names <- c("dose","fac")
+    Term_n <- c(0,0)
+    tform <- c("loglin","loglin")
+    keep_constant <- c(0,0)
+    a_n <- c(-0.1,0.1)
+    modelform <- "M"
+    fir <- 0
+    der_iden <- 0
+
+    cens_weight <- c(0)
+    #stop()
+
+
+    modelform <- "M"
+    model_control=list('strata'=FALSE, 'basic'=FALSE, 'single'=FALSE, 'CR'=FALSE)
+    a_n <- c(0.6465390, 0.4260961)
+    keep_constant <- c(0,0)
+    #
+    control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    expect_no_error(RunCoxWaldRegression_Omnibus(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,Strat_Col="fac", model_control=model_control, qalpha=0.075))
+})
+
+
+
+
+
+

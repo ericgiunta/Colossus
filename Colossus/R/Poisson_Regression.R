@@ -56,6 +56,9 @@ RunPoissonRegression_Omnibus <- function(df, pyr="pyr", event0="event", names=c(
     }
     control <- Def_Control(control)
     model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()
@@ -491,6 +494,10 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr, event0, names, Term_n, tfo
         guesses_control$strata <- model_control$strata
     }
     guesses_control <- Def_Control_Guess(guesses_control, a_n[[1]])
+    model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     if (min(keep_constant)>0){
         print("Atleast one parameter must be free")
         stop()

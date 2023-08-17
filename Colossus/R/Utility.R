@@ -8,13 +8,17 @@
 #'
 #' @return returns a list of the final results
 #' @importFrom rlang .data
-Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control){
+Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control, model_control=list()){
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
     term_tot <- max(Term_n)+1
     a_ns <- c(NaN)
     maxiters <- c(NaN)
+    model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
     #
     for (i in seq_len(length(a_n))){
         a_n0 <- a_n[[i]]
@@ -58,7 +62,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
         }
         #
         keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir, modelform,
-                                      control,keep_constant,term_tot)
+                                      control,model_control,keep_constant,term_tot)
         if (keep){
             if (is.nan(maxiters[1])){
                 a_ns <- c(a_n0)
@@ -110,7 +114,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
             }
         }
         keep <- risk_check_transition(Term_n,tform,a_n0,dfc,x_all, fir,
-                                      modelform, control,keep_constant,term_tot)
+                                      modelform, control,model_control,keep_constant,term_tot)
         if (keep){
             if (is.nan(maxiters[1])){
                 a_ns <- c(a_n0)
@@ -421,6 +425,57 @@ Def_Control <- function(control){
     return (control)
 }
 
+#' Automatically assigns geometric-mixture values
+#' \code{Def_model_control} checks and assigns default values
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a filled list
+#' @export
+#' @examples
+#' library(data.table)
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+#' control <- Def_Control(control)
+#' model_control <- list("single"=TRUE)
+#' model_control <- Def_model_control(model_control)
+#' Term_n <- c(0,1,1)
+#' modelform <- 'a'
+#' val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+#' model_control <- val$model_control
+#' modelform <- val$modelform
+#'
+Def_modelform_fix <- function(control,model_control,modelform,Term_n){
+    term_tot <- max(Term_n)+1
+    modelform <- toupper(modelform)
+    acceptable <- c('A','PA','PAE','M','ME','GMIX','GMIX-R','GMIX-E')
+    if (modelform %in% acceptable){
+        if (modelform=='ME'){
+            modelform <- 'M'
+        } else if (modelform=="GMIX-R"){
+            model_control$gmix_term <- rep(0,term_tot)
+            modelform <- "GMIX"
+        } else if (modelform=="GMIX-E"){
+            model_control$gmix_term <- rep(1,term_tot)
+            modelform <- "GMIX"
+        }
+    } else {
+        if (control$verbose){
+            print(paste("Model formula ",modelform," not in acceptable list",sep=""))
+        }
+        stop()
+    }
+    if (modelform == "GMIX"){
+        gmix_term <- model_control$gmix_term
+        if (length(gmix_term) != term_tot){
+            if (control$verbose){
+                print(paste("Terms used:",term_tot,", Terms with gmix types avaliable:",length(gmix_term),sep=" "))
+            }
+            stop()
+        }
+    }
+    return(list('modelform'=modelform,'model_control'=model_control))
+}
+
 #' Automatically assigns missing model control values
 #' \code{Def_model_control} checks and assigns default values
 #'
@@ -446,6 +501,16 @@ Def_model_control <- function(control){
         #fine
     } else {
         control["Unique_Values"] <- 2
+    }
+    if ("gmix_theta" %in% names(control)){
+        #fine
+    } else {
+        control["gmix_theta"] <- 0.5
+    }
+    if ("gmix_term" %in% names(control)){
+        #fine
+    } else {
+        control["gmix_term"] <- c(0)
     }
     return (control)
 }

@@ -201,7 +201,7 @@ List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  M
 //'
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, int uniq_v, bool strata_bool, bool basic_bool, bool CR_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool){
+List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, int uniq_v, bool strata_bool, bool basic_bool, bool CR_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -258,6 +258,12 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     int ntime = tu.size();
     int totalnum;
     int reqrdnum;
+    bool single_bool;
+    if ((Risk_Sub_bool)||(Risk_bool)){
+        single_bool = TRUE;
+    } else {
+        single_bool = FALSE;
+    }
     // ------------------------------------------------------------------------- // initialize
 	totalnum = Term_n.size();
 	reqrdnum = totalnum - sum(KeepConstant);
@@ -317,7 +323,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
 	// ---------------------------------------------
 	//
     T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-	Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, FALSE);
+	Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
     // ------------------------------------------------------------------------- // initialize
     // ------------------------------------------------------------------------- // initialize
     MatrixXd Rls1;
@@ -330,8 +336,8 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
 	vector<double> Lld(reqrdnum,0.0); //Log-likelihood derivative values
 	vector<double> Lldd(pow(reqrdnum,2),0.0);//The second derivative matrix has room for every combination, but only the lower triangle is calculated initially
     // ------------------------------------------------------------------------- // initialize
-	Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, FALSE);
-    Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, FALSE, start);
+	Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
+    Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start,gmix_theta, gmix_term);
 	//
 	List res_list;
 	//

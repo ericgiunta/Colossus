@@ -33,8 +33,8 @@ Make_subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugg
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant) {
-    invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant))
+Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term))
 }
 
 #' Utility function to calculate the risk and risk ratios with a weighting applied
@@ -42,8 +42,8 @@ Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, T
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks_Weighted <- function(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant) {
-    invisible(.Call(`_Colossus_Make_Risks_Weighted`, modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant))
+Make_Risks_Weighted <- function(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Make_Risks_Weighted`, modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term))
 }
 
 #' Utility function to calculate the risk with a weighting applied and no derivatives calculated
@@ -51,8 +51,8 @@ Make_Risks_Weighted <- function(modelform, tform, Term_n, totalnum, fir, s_weigh
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks_Weighted_Single <- function(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant) {
-    invisible(.Call(`_Colossus_Make_Risks_Weighted_Single`, modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant))
+Make_Risks_Weighted_Single <- function(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Make_Risks_Weighted_Single`, modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term))
 }
 
 #' Utility function to calculate the risk, but not derivatives
@@ -60,8 +60,8 @@ Make_Risks_Weighted_Single <- function(modelform, tform, Term_n, totalnum, fir, 
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
-Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant) {
-    invisible(.Call(`_Colossus_Make_Risks_Single`, modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant))
+Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Make_Risks_Single`, modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term))
 }
 
 #' Utility function to calculate the risk and risk ratios for the basic model
@@ -349,8 +349,8 @@ Calc_Null_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, ntime, R, Rls
 #' @inheritParams CPP_template
 #'
 #' @return True for viable point, False for negative error
-Check_Risk <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads) {
-    .Call(`_Colossus_Check_Risk`, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads)
+Check_Risk <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term) {
+    .Call(`_Colossus_Check_Risk`, Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term)
 }
 
 #' Primary Cox PH regression with multiple starting points and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
@@ -359,8 +359,8 @@ Check_Risk <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, 
 #' @inheritParams CPP_template
 #'
 #' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool) {
-    .Call(`_Colossus_LogLik_Cox_PH_Omnibus`, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool)
+LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, gmix_theta, gmix_term) {
+    .Call(`_Colossus_LogLik_Cox_PH_Omnibus`, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, gmix_theta, gmix_term)
 }
 
 #' Primary poisson regression with multiple starting points and optional combinations of stratification and no derivative calculation.
@@ -369,8 +369,18 @@ LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden
 #' @inheritParams CPP_template
 #'
 #' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Pois_Omnibus <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool) {
-    .Call(`_Colossus_LogLik_Pois_Omnibus`, PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool)
+LogLik_Pois_Omnibus <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term) {
+    .Call(`_Colossus_LogLik_Pois_Omnibus`, PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term)
+}
+
+#' Primary Cox PH Wald bound regression with one starting point and optional combinations of stratification, competing risks, and multiplicative log-linear model.
+#' \code{Wald_Cox_PH_Omnibus} Performs the calls to calculation functions, Structures the Cox PH wald bound regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: confidence interval estimate
+Wald_Cox_PH_Omnibus <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, maxiter, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, CR_bool, qchi, gmix_theta, gmix_term) {
+    .Call(`_Colossus_Wald_Cox_PH_Omnibus`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, maxiter, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, CR_bool, qchi, gmix_theta, gmix_term)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
@@ -396,8 +406,8 @@ Cox_Refresh_R_SIDES <- function(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, L
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: risk storage matrices
-Cox_Term_Risk_Calc <- function(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start) {
-    invisible(.Call(`_Colossus_Cox_Term_Risk_Calc`, modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start))
+Cox_Term_Risk_Calc <- function(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Cox_Term_Risk_Calc`, modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term))
 }
 
 #' Utility function to perform calculation of Repeated Calculations and Log-Likelihood for Cox Omnibus
@@ -414,8 +424,8 @@ Cox_Side_LL_Calc <- function(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGr
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: risk storage matrices
-Pois_Term_Risk_Calc <- function(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start) {
-    invisible(.Call(`_Colossus_Pois_Term_Risk_Calc`, modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start))
+Pois_Term_Risk_Calc <- function(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Pois_Term_Risk_Calc`, modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term))
 }
 
 #' Utility function to perform calculation of Log-Likelihood and Deviation for Poisson Omnibus
@@ -455,8 +465,8 @@ Schoenfeld_Calc <- function(ntime, totalnum, beta_0, df0, R, Lldd_inv, RiskFail,
 #' @inheritParams CPP_template
 #'
 #' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-Plot_Omnibus <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool) {
-    .Call(`_Colossus_Plot_Omnibus`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool)
+Plot_Omnibus <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term) {
+    .Call(`_Colossus_Plot_Omnibus`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term)
 }
 
 #' Interface between R code and the Cox PH omnibus regression function
@@ -486,6 +496,15 @@ Plot_Omnibus_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_ide
     .Call(`_Colossus_Plot_Omnibus_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control)
 }
 
+#' Interface between R code and the Cox PH Wald omnibus regression function
+#' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the confidence interval regression function
+#' @inheritParams CPP_template
+#'
+#' @return Wald_Cox_PH_Omnibus output : list of interval endpoints
+wald_Omnibus_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, qchi) {
+    .Call(`_Colossus_wald_Omnibus_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, qchi)
+}
+
 #' Generates csv file with time-dependent columns
 #' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
 #' @inheritParams CPP_template
@@ -509,8 +528,8 @@ Gen_Fac_Par <- function(df0, vals, cols, nthreads) {
 #' @inheritParams CPP_template
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-risk_check_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot) {
-    .Call(`_Colossus_risk_check_transition`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot)
+risk_check_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, model_control, KeepConstant, term_tot) {
+    .Call(`_Colossus_risk_check_transition`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, model_control, KeepConstant, term_tot)
 }
 
 #' Generates weightings for stratified poisson regression

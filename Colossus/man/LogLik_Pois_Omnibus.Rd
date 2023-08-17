@@ -33,7 +33,9 @@ LogLik_Pois_Omnibus(
   nthreads,
   dfs,
   strata_bool,
-  single_bool
+  single_bool,
+  gmix_theta,
+  gmix_term
 )
 }
 \arguments{
@@ -92,6 +94,10 @@ LogLik_Pois_Omnibus(
 \item{strata_bool}{boolean for stratification}
 
 \item{single_bool}{boolean for single calculation without derivatives}
+
+\item{gmix_theta}{theta value for geometric-mixture model}
+
+\item{gmix_term}{list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)}
 }
 \value{
 List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information

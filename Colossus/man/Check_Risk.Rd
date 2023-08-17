@@ -17,7 +17,9 @@ Check_Risk(
   debugging,
   KeepConstant,
   term_tot,
-  nthreads
+  nthreads,
+  gmix_theta,
+  gmix_term
 )
 }
 \arguments{
@@ -44,6 +46,10 @@ Check_Risk(
 \item{term_tot}{total number of terms}
 
 \item{nthreads}{number of threads available}
+
+\item{gmix_theta}{theta value for geometric-mixture model}
+
+\item{gmix_term}{list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)}
 }
 \value{
 True for viable point, False for negative error

@@ -14,6 +14,7 @@ risk_check_transition(
   fir,
   modelform,
   Control,
+  model_control,
   KeepConstant,
   term_tot
 )
@@ -34,6 +35,8 @@ risk_check_transition(
 \item{modelform}{string model identifier}
 
 \item{Control}{control list}
+
+\item{model_control}{controls which alternative model options are used}
 
 \item{KeepConstant}{binary vector to identify constant parameters}
 
