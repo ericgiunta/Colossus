@@ -126,12 +126,12 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// ---------------------------------------------------------
 		//
 		if (verbose){
-			Rcout << "values checked ";
+			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "sums checked ";
+			Rcout << "C++ Note: sums checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << T0.col(ijk).sum() << " ";
 			}
@@ -139,13 +139,13 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		}
 		//
 		//
-		if (verbose){
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
-		}
+		//if (verbose){
+		//	end_point = system_clock::now();
+		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
+		//	gibtime = system_clock::to_time_t(system_clock::now());
+		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+		//}
 		//
 		// Calculates the risk for each row
 		Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging,df0,dfc,KeepConstant);
@@ -157,27 +157,27 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
-			Rcout << "risk checked ";
+			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "risk1 checked ";
+			Rcout << "C++ Note: risk1 checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Rd.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "risk2 checked ";
+			Rcout << "C++ Note: risk2 checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
 			//
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
+			//end_point = system_clock::now();
+			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
+			//gibtime = system_clock::to_time_t(system_clock::now());
+			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	} else if (single_bool){
 		// Calculates the subterm and term values
@@ -187,37 +187,37 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// ---------------------------------------------------------
 		//
 		if (verbose){
-			Rcout << "values checked ";
+			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "sums checked ";
+			Rcout << "C++ Note: sums checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << T0.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "dose checked ";
+			Rcout << "C++ Note: dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << Dose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "non-dose checked ";
+			Rcout << "C++ Note: non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LIN_non-dose checked ";
+			Rcout << "C++ Note: LIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "PLIN_non-dose checked ";
+			Rcout << "C++ Note: PLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LOGLIN_non-dose checked ";
+			Rcout << "C++ Note: LOGLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
 			}
@@ -225,13 +225,13 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		}
 		//
 		//
-		if (verbose){
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
-		}
+		//if (verbose){
+		//	end_point = system_clock::now();
+		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
+		//	gibtime = system_clock::to_time_t(system_clock::now());
+		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+		//}
 		//
 		// Calculates the risk for each row
         Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
@@ -242,17 +242,17 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
-			Rcout << "risk checked ";
+			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
 			}
 			Rcout << " " << endl;
 			//
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
+			//end_point = system_clock::now();
+			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
+			//gibtime = system_clock::to_time_t(system_clock::now());
+			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	} else {
 		//
@@ -265,47 +265,47 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		if (verbose){
-			Rcout << "values checked ";
+			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "sums checked ";
+			Rcout << "C++ Note: sums checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << T0.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "derivs checked ";
+			Rcout << "C++ Note: derivs checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Td0.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "second derivs checked ";
+			Rcout << "C++ Note: second derivs checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "dose checked ";
+			Rcout << "C++ Note: dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << Dose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "non-dose checked ";
+			Rcout << "C++ Note: non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LIN_non-dose checked ";
+			Rcout << "C++ Note: LIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "PLIN_non-dose checked ";
+			Rcout << "C++ Note: PLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LOGLIN_non-dose checked ";
+			Rcout << "C++ Note: LOGLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
 			}
@@ -313,13 +313,13 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		}
 		//
 		//
-		if (verbose){
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
-		}
+		//if (verbose){
+		//	end_point = system_clock::now();
+		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
+		//	gibtime = system_clock::to_time_t(system_clock::now());
+		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+		//}
 		//
 		// Calculates the risk for each row
         Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
@@ -332,27 +332,27 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
-			Rcout << "risk checked ";
+			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "risk1 checked ";
+			Rcout << "C++ Note: risk1 checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Rd.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "risk2 checked ";
+			Rcout << "C++ Note: risk2 checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
 			//
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
+			//end_point = system_clock::now();
+			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
+			//gibtime = system_clock::to_time_t(system_clock::now());
+			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	}
 	return;
@@ -395,23 +395,23 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
         Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging,KeepConstant);
     }
     //
-    if (verbose){
-        end_point = system_clock::now();
-        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_Sides"<<endl;
-        gibtime = system_clock::to_time_t(system_clock::now());
-        Rcout << ctime(&gibtime) << endl;
-    }
+    //if (verbose){
+    //    end_point = system_clock::now();
+    //    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+    //    Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_Sides" <<endl;
+    //    gibtime = system_clock::to_time_t(system_clock::now());
+    //    Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+    //}
     //
     if (strata_bool){
         if (verbose){
-            Rcout << "riskr checked ";
+            Rcout << "C++ Note: riskr checked ";
             for (int ijk=0;ijk<STRATA_vals.size();ijk++){
                 Rcout << Rls1.col(ijk).sum() << " ";
             }
             Rcout << " " << endl;
             //
-            Rcout << "riskl checked ";
+            Rcout << "C++ Note: riskl checked ";
             for (int ijk=0;ijk<STRATA_vals.size();ijk++){
                 Rcout << Lls1.col(ijk).sum() << " ";
             }
@@ -419,36 +419,36 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
         }
     } else {
         if (verbose){
-            Rcout << "riskr checked ";
+            Rcout << "C++ Note: riskr checked ";
             for (int ijk=0;ijk<1;ijk++){
                 Rcout << Rls1.col(0).sum() << " ";
             }
             Rcout << " " << endl;
             if (!single_bool){
-                Rcout << "risk1r checked ";
+                Rcout << "C++ Note: risk1r checked ";
                 for (int ijk=0;ijk<reqrdnum;ijk++){
                     Rcout << Rls2.col(ijk).sum() << " ";
                 }
                 Rcout << " " << endl;
-                Rcout << "risk2r checked ";
+                Rcout << "C++ Note: risk2r checked ";
                 for (int ijk=0;ijk<reqrdnum;ijk++){
                     Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
                 }
                 Rcout << " " << endl;
             }
             //
-            Rcout << "riskl checked ";
+            Rcout << "C++ Note: riskl checked ";
             for (int ijk=0;ijk<1;ijk++){
                 Rcout << Lls1.col(0).sum() << " ";
             }
             Rcout << " " << endl;
             if (!single_bool){
-                Rcout << "risk1l checked ";
+                Rcout << "C++ Note: risk1l checked ";
                 for (int ijk=0;ijk<reqrdnum;ijk++){
                     Rcout << Lls2.col(ijk).sum() << " ";
                 }
                 Rcout << " " << endl;
-                Rcout << "risk2l checked ";
+                Rcout << "C++ Note: risk2l checked ";
                 for (int ijk=0;ijk<reqrdnum;ijk++){
                     Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
                 }
@@ -493,17 +493,17 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     if (single_bool){
         iter_stop=1;
         if (verbose){
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
-            gibtime = system_clock::to_time_t(system_clock::now());
-            Rcout << ctime(&gibtime) << endl;
-            Rcout << "df101 ";//prints the log-likelihoods
+            //end_point = system_clock::now();
+            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
+            //gibtime = system_clock::to_time_t(system_clock::now());
+            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df104 ";//prints parameter values
+            Rcout << "C++ Note: df104 ";//prints parameter values
             for (int ij=0;ij<totalnum;ij++){
                 Rcout << beta_0[ij] << " ";
             }
@@ -511,37 +511,37 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
         }
     } else {
         if (verbose){
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
-            gibtime = system_clock::to_time_t(system_clock::now());
-            Rcout << ctime(&gibtime) << endl;
-            Rcout << "df101 ";//prints the log-likelihoods
+            //end_point = system_clock::now();
+            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
+            //gibtime = system_clock::to_time_t(system_clock::now());
+            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df102 ";//prints the first derivatives
+            Rcout << "C++ Note: df102 ";//prints the first derivatives
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Lld[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df103 ";//prints the second derivatives
+            Rcout << "C++ Note: df103 ";//prints the second derivatives
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Lldd[ij*reqrdnum+ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df104 ";//prints parameter values
+            Rcout << "C++ Note: df104 ";//prints parameter values
             for (int ij=0;ij<totalnum;ij++){
                 Rcout << beta_0[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df105 ";
+            Rcout << "C++ Note: df105 ";
             for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
                 Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df106 ";
+            Rcout << "C++ Note: df106 ";
             for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
                 Rcout << Ll[ij]/Lld[ij] << " ";
             }
@@ -570,37 +570,37 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		// ---------------------------------------------------------
 		//
 		if (verbose){
-			Rcout << "values checked ";
+			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "sums checked ";
+			Rcout << "C++ Note: sums checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << T0.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "dose checked ";
+			Rcout << "C++ Note: dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << Dose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "non-dose checked ";
+			Rcout << "C++ Note: non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LIN_non-dose checked ";
+			Rcout << "C++ Note: LIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "PLIN_non-dose checked ";
+			Rcout << "C++ Note: PLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LOGLIN_non-dose checked ";
+			Rcout << "C++ Note: LOGLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
 			}
@@ -608,13 +608,13 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		}
 		//
 		//
-		if (verbose){
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
-		}
+		//if (verbose){
+		//	end_point = system_clock::now();
+		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
+		//	gibtime = system_clock::to_time_t(system_clock::now());
+		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+		//}
 		//
 		// Calculates the risk for each row
 		if (strata_bool){
@@ -629,17 +629,17 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
-			Rcout << "risk checked ";
+			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
 			}
 			Rcout << " " << endl;
 			//
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
+			//end_point = system_clock::now();
+			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
+			//gibtime = system_clock::to_time_t(system_clock::now());
+			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	} else {
 		//
@@ -652,47 +652,47 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		//
 		//
 		if (verbose){
-			Rcout << "values checked ";
+			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "sums checked ";
+			Rcout << "C++ Note: sums checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << T0.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "derivs checked ";
+			Rcout << "C++ Note: derivs checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Td0.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "second derivs checked ";
+			Rcout << "C++ Note: second derivs checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "dose checked ";
+			Rcout << "C++ Note: dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << Dose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "non-dose checked ";
+			Rcout << "C++ Note: non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LIN_non-dose checked ";
+			Rcout << "C++ Note: LIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "PLIN_non-dose checked ";
+			Rcout << "C++ Note: PLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "LOGLIN_non-dose checked ";
+			Rcout << "C++ Note: LOGLIN_non-dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
 			}
@@ -700,13 +700,13 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		}
 		//
 		//
-		if (verbose){
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df99,"<<(ending-start)<<",Prep_Terms"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
-		}
+		//if (verbose){
+		//	end_point = system_clock::now();
+		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
+		//	gibtime = system_clock::to_time_t(system_clock::now());
+		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+		//}
 		//
 		//
 		// Calculates the risk for each row
@@ -724,27 +724,27 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		if (R.minCoeff()<=0){
 		    ;
 		} else if (verbose){
-			Rcout << "risk checked ";
+			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "risk1 checked ";
+			Rcout << "C++ Note: risk1 checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Rd.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
-			Rcout << "risk2 checked ";
+			Rcout << "C++ Note: risk2 checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
 			//
-			end_point = system_clock::now();
-			ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_R"<<endl;
-			gibtime = system_clock::to_time_t(system_clock::now());
-			Rcout << ctime(&gibtime) << endl;
+			//end_point = system_clock::now();
+			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
+			//gibtime = system_clock::to_time_t(system_clock::now());
+			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	}
 	return;
@@ -792,57 +792,57 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
     if (single_bool){
         iter_stop=1;
         if (verbose){
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
-            gibtime = system_clock::to_time_t(system_clock::now());
-            Rcout << ctime(&gibtime) << endl;
-            Rcout << "df101 ";//prints the log-likelihoods
+            //end_point = system_clock::now();
+            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
+            //gibtime = system_clock::to_time_t(system_clock::now());
+            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df104 ";//prints parameter values
+            Rcout << "C++ Note: df104 ";//prints parameter values
             for (int ij=0;ij<totalnum;ij++){
                 Rcout << beta_0[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "Checking Deviance " << dev << endl;
+            Rcout << "C++ Note: Checking Deviance " << dev << endl;
         }
     } else {
         if (verbose){
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<0<<",Calc"<<endl;//prints the time
-            gibtime = system_clock::to_time_t(system_clock::now());
-            Rcout << ctime(&gibtime) << endl;
-            Rcout << "df101 ";//prints the log-likelihoods
+            //end_point = system_clock::now();
+            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
+            //gibtime = system_clock::to_time_t(system_clock::now());
+            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df102 ";//prints the first derivatives
+            Rcout << "C++ Note: df102 ";//prints the first derivatives
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Lld[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df103 ";//prints the second derivatives
+            Rcout << "C++ Note: df103 ";//prints the second derivatives
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Lldd[ij*reqrdnum+ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df104 ";//prints parameter values
+            Rcout << "C++ Note: df104 ";//prints parameter values
             for (int ij=0;ij<totalnum;ij++){
                 Rcout << beta_0[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "Checking Deviance " << dev << endl;
-            Rcout << "df105 ";
+            Rcout << "C++ Note: Checking Deviance " << dev << endl;
+            Rcout << "C++ Note: df105 ";
             for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
                 Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "df106 ";
+            Rcout << "C++ Note: df106 ";
             for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
                 Rcout << Ll[ij]/Lld[ij] << " ";
             }

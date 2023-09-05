@@ -55,17 +55,22 @@ RunPoissonRegression_Omnibus <- function(df, pyr="pyr", event0="event", names=c(
         a_n <- list(a_n)
     }
     control <- Def_Control(control)
+    if (control$verbose){
+        if (any(val$Permutation != 1:length(tform))){
+            print("Warning: model covariate order changed")
+        }
+    }
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,Term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        print("Atleast one parameter must be free")
+        print("Error: Atleast one parameter must be free")
         stop()
     }
     if (sum(df[,event0, with = FALSE])==0){
         if (control$verbose){
-            print("no events")
+            print("Error: no events")
         }
         stop()
     }
@@ -368,7 +373,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     t_initial <- guesses_control$term_initial
     if (min(keep_constant)>0){
-        print("Atleast one parameter must be free")
+        print("Error: Atleast one parameter must be free")
         stop()
     }
     #
@@ -376,7 +381,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
     rmax <- guesses_control$rmax
     if (length(rmin)!=length(rmax)){
         if (control$verbose){
-            print("rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+            print("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
         }
     }
     #
@@ -405,7 +410,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr, event0, names, Term_n, tf
                                           modelform, fir, der_iden, control, guesses_control,
                                           Strat_Cols)
     if (guesses_control$verbose){
-        print("INITIAL TERM COMPLETE")
+        print("Note: INITIAL TERM COMPLETE")
         print(e)
     }
     #
@@ -483,7 +488,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr, event0, names, Term_n, tfo
         if ("strata" %in% names(model_control)){
             if (guesses_control$strata != model_control$strata){
                 if (guesses_control$verbose){
-                    print("guesses_control and model_control have different strata options")
+                    print("Error: guesses_control and model_control have different strata options")
                 }
                 stop()
             }
@@ -499,7 +504,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr, event0, names, Term_n, tfo
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        print("Atleast one parameter must be free")
+        print("Error: Atleast one parameter must be free")
         stop()
     }
     if ("CONST" %in% names){

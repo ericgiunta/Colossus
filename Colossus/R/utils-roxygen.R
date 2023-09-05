@@ -44,7 +44,6 @@
 #' @param paras  list of formula parameters
 #' @param plot_options  list of parameters controlling the plot options
 #' @param pyr  column used for person-years per row
-#' @param qalpha alpha for confidence intervals with wald method
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
 #' @param t  event times
@@ -154,7 +153,6 @@ NULL
 #' @param nthreads  number of threads available
 #' @param ntime  number of risk groups
 #' @param null_bool  boolean for null model
-#' @param qchi Chi-Squared quantile at 1-qalpha
 #' @param reqrdnum  total number of free parameters
 #' @param rowToRemove  row index to remove
 #' @param s_weights  vector of weights for every row

@@ -167,43 +167,6 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
     return res;
 }
 
-//' Interface between R code and the Cox PH Wald omnibus regression function
-//' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the confidence interval regression function
-//' @inheritParams CPP_template
-//'
-//' @return Wald_Cox_PH_Omnibus output : list of interval endpoints
-// [[Rcpp::export]]
-List wald_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, double qchi){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    double maxiter = Control["maxiter"];
-    double epsilon = Control["epsilon"];
-    double dbeta_cap = Control["dbeta_max"];
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-    //
-	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
-	double cens_thres = Control["cens_thres"];
-	double gmix_theta = model_control["gmix_theta"];
-	IntegerVector gmix_term = model_control["gmix_term"];
-	//
-	bool strata_bool = model_control["strata"];
-	bool basic_bool  = model_control["basic"];
-	bool CR_bool     = model_control["CR"];
-    //
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = Wald_Cox_PH_Omnibus(Term_n, tform, a_n, x_all, dfc,fir, der_iden,modelform, maxiter, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, CR_bool, qchi, gmix_theta, gmix_term);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
 //' Generates csv file with time-dependent columns
 //' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
 //' @inheritParams CPP_template
@@ -217,7 +180,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
     Rcout.precision(10); //forces higher precision numbers printed to terminal
     int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     if (df_dep.cols() % 2 !=0 ){
-        Rcout << "Dependent columns not even" << endl;
+        Rcout << "C++ Error: Odd number of linear dependent columns, starting and end values should be given" << endl;
         return;
     }
     int tot_covs = ceil(2 + df_dep.cols()/2 + df_const.cols() + 1);
@@ -326,8 +289,8 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                             }
                             dep_temp[i] = gather_val;
                         } else {
-                            Rcout << func_id << " _:_ " << token << endl;
-                            throw invalid_argument( "time dependent identifier is bad" );
+                            Rcout << "C++ Error: " << func_id << " _:_ " << token << endl;
+                            throw invalid_argument( "time dependent identifier isn't implemented" );
                         }
                     }
                 }

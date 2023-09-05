@@ -367,7 +367,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 <tr class="even">
 <td align="center">Competing Risks</td>
-<td align="center">If there is a competing event rows are weighted by an estimate of censoring rate to approximate a dataset without the effect of a competing event</td>
+<td align="center">If there is a competing event, rows are weighted by an estimate of censoring rate to approximate a dataset without the effect of a competing event</td>
 <td align="center">x</td>
 <td align="center"></td>
 </tr>
@@ -396,7 +396,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>In which r denotes hazard ratios, the denominator is the sum of hazard ratios of intervals containing the event time, and each term is raised to the power of 1 if the interval has an event and 0 otherwise. Different tie methods modify the denominator based on how the order of events is assumed, but the general form still stands. The goal is to compare each event interval to intervals within a similar time span. Stratification adds in an additional condition. If the user stratifies over a covariate “F” then each risk group is split into subgroups with the same value of “F”. So the goal becomes to compare event intervals to intervals with similar strata AND time. This is done to remove the influence of the stratification variables from the calculations.</p>
 <p>In code this is done by adding in an additional parameter for the stratification column and using a different function to call the regression.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">Strat_Col &lt;-<span class="st"> &quot;e&quot;</span></a>
-<a class="sourceLine" id="cb2-2" title="2">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_STRATA</span>(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col)</a></code></pre></div>
+<a class="sourceLine" id="cb2-2" title="2">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_STRATA</span>(df, time1, time2, event, names, Term_n, tform, keep_constant,</a>
+<a class="sourceLine" id="cb2-3" title="3">                             a_n, modelform, fir, der_iden, control,Strat_Col)</a></code></pre></div>
 </div>
 <div id="poisson-regression" class="section level3">
 <h3>Poisson Regression</h3>
@@ -416,25 +417,29 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 \end{aligned}
 \]</span>
 </p>
-<p>Only results associated with the non-stratified parameter are returned by default, however intermediate results with the verbose option will include every parameter.</p>
+<p>Only results associated with the non-stratified parameters are returned by default. An average event rate is calculated for every strata level, which weights the calculated risks.</p>
 <p>In code this is done by adding in a list of stratification columns and using a different function to call the regression. Colossus combines the list of stratification columns into a single interaction, so it does not matter if the user provides a list or combines them themselves.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">Strat_Col &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;e&quot;</span>)</a>
-<a class="sourceLine" id="cb3-2" title="2">e &lt;-<span class="kw">RunPoissonRegression_STRATA</span>(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col)</a></code></pre></div>
+<a class="sourceLine" id="cb3-2" title="2">e &lt;-<span class="kw">RunPoissonRegression_STRATA</span>(df, pyr, event, names, Term_n, tform, keep_constant,</a>
+<a class="sourceLine" id="cb3-3" title="3">                                a_n, modelform, fir, der_iden, control,Strat_Col)</a></code></pre></div>
 </div>
 </div>
 <div id="simplified-model" class="section level2">
 <h2>Simplified Model</h2>
 <p>The inclusion of linear subterms, additive models, and multiple terms means that default Colossus calculates and stores every derivative assuming that every value is needed. If the equation is log-linear with one term, then there are many simplifications that can be made. This option is designed to make those simplifications. In particular having only one subterm type means that the hazard ratios and their derivatives can be calculated directly, and the only subterm type being an exponential means that the logarithm of the hazard ratio in the Log-Likelihood calculation is simplified. In tests, using the simplified function was able to save approximately 40% time versus the full code being used.</p>
 <p>Assuming the same general parameters in the other vignettes, the code is as follows:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_Basic</span>(df, time1, time2, event, names, keep_constant, a_n, der_iden, control)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_Basic</span>(df, time1, time2, event, names,</a>
+<a class="sourceLine" id="cb4-2" title="2">                            keep_constant, a_n, der_iden, control)</a></code></pre></div>
 </div>
 <div id="non-derivative-calculation" class="section level2">
 <h2>Non-Derivative Calculation</h2>
 <p>Colossus uses Newton’s method to perform the regression, which can become computationally complex as the number of terms and formula increases. So Colossus contains functions to calculate only the scores for a parameter set, and skip the intensive derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence of score on parameter values. Colossus in the current state does not use these functions, but they are left for the user’s convenience.</p>
 <p>The code is similar to previous examples:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_Single</span>(df, time1, time2, event, names, Term_n, tform, a_n, modelform, fir, control)</a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3">e &lt;-<span class="st"> </span><span class="kw">RunPoissonRegression_Single</span>(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_Single</span>(df, time1, time2, event, names, Term_n, tform,</a>
+<a class="sourceLine" id="cb5-2" title="2">                             a_n, modelform, fir, control)</a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4">e &lt;-<span class="st"> </span><span class="kw">RunPoissonRegression_Single</span>(df, pyr, event, names, Term_n, tform,</a>
+<a class="sourceLine" id="cb5-5" title="5">                                 a_n, modelform, fir, control)</a></code></pre></div>
 </div>
 <div id="competing-risks" class="section level2">
 <h2>Competing Risks</h2>
@@ -447,7 +452,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 \end{aligned}
 \]</span>
 </p>
-<p>The competing risks model adjusts this to be the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time OR they already experienced a different event:</p>
+<p>The competing risks model adjusts this to be the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time OR they survived up to a previous time and experienced an event:</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
@@ -468,15 +473,19 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">df<span class="op">$</span>censor &lt;-<span class="st"> </span>(df<span class="op">$</span>lung<span class="op">==</span><span class="dv">0</span>) <span class="co">#censoring column made</span></a>
 <a class="sourceLine" id="cb6-2" title="2">event &lt;-<span class="st"> &quot;censor&quot;</span> <span class="co">#event type switched to censoring</span></a>
 <a class="sourceLine" id="cb6-3" title="3"></a>
-<a class="sourceLine" id="cb6-4" title="4">plot_options &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;name&quot;</span>=<span class="st">&quot;run_2&quot;</span>,<span class="st">&quot;verbose&quot;</span>=<span class="ot">FALSE</span>,<span class="st">&quot;studyID&quot;</span>=<span class="st">&quot;studyID&quot;</span>,<span class="st">&quot;age_unit&quot;</span>=<span class="st">&quot;years&quot;</span>) <span class="co">#modified plotting function used to get censoring weights</span></a>
-<a class="sourceLine" id="cb6-5" title="5">dft &lt;-<span class="st"> </span><span class="kw">GetCensWeight</span>(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options) <span class="co">#generates a survival curve</span></a>
-<a class="sourceLine" id="cb6-6" title="6">t_ref &lt;-<span class="st"> </span>dft<span class="op">$</span>t</a>
-<a class="sourceLine" id="cb6-7" title="7">surv_ref &lt;-<span class="st"> </span>dft<span class="op">$</span>surv</a>
-<a class="sourceLine" id="cb6-8" title="8">t_c &lt;-<span class="st"> </span>df<span class="op">$</span>t1</a>
-<a class="sourceLine" id="cb6-9" title="9">cens_weight &lt;-<span class="st"> </span><span class="kw">approx</span>(t_ref, surv_ref, t_c,<span class="dt">rule=</span><span class="dv">2</span>)<span class="op">$</span>y <span class="co">#the surviving proportions used as censoring weight</span></a>
-<a class="sourceLine" id="cb6-10" title="10">event &lt;-<span class="st"> &quot;lung&quot;</span> <span class="co">#event switched back</span></a>
-<a class="sourceLine" id="cb6-11" title="11"></a>
-<a class="sourceLine" id="cb6-12" title="12">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_CR</span>(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight)</a></code></pre></div>
+<a class="sourceLine" id="cb6-4" title="4">plot_options &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;name&quot;</span>=<span class="st">&quot;run_2&quot;</span>,<span class="st">&quot;verbose&quot;</span>=<span class="ot">FALSE</span>,<span class="st">&quot;studyID&quot;</span>=<span class="st">&quot;studyID&quot;</span>,<span class="st">&quot;age_unit&quot;</span>=<span class="st">&quot;years&quot;</span>)</a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="co">#modified plotting function used to get censoring weights</span></a>
+<a class="sourceLine" id="cb6-6" title="6">dft &lt;-<span class="st"> </span><span class="kw">GetCensWeight</span>(df, time1, time2, event, names, Term_n, tform, keep_constant,</a>
+<a class="sourceLine" id="cb6-7" title="7">                     a_n, modelform, fir, control, plot_options) <span class="co">#generates a survival curve</span></a>
+<a class="sourceLine" id="cb6-8" title="8">t_ref &lt;-<span class="st"> </span>dft<span class="op">$</span>t</a>
+<a class="sourceLine" id="cb6-9" title="9">surv_ref &lt;-<span class="st"> </span>dft<span class="op">$</span>surv</a>
+<a class="sourceLine" id="cb6-10" title="10">t_c &lt;-<span class="st"> </span>df<span class="op">$</span>t1</a>
+<a class="sourceLine" id="cb6-11" title="11">cens_weight &lt;-<span class="st"> </span><span class="kw">approx</span>(t_ref, surv_ref, t_c,<span class="dt">rule=</span><span class="dv">2</span>)<span class="op">$</span>y</a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="co">#the surviving proportions used as censoring weight</span></a>
+<a class="sourceLine" id="cb6-13" title="13">event &lt;-<span class="st"> &quot;lung&quot;</span> <span class="co">#event switched back</span></a>
+<a class="sourceLine" id="cb6-14" title="14"></a>
+<a class="sourceLine" id="cb6-15" title="15">e &lt;-<span class="st"> </span><span class="kw">RunCoxRegression_CR</span>(df, time1, time2, event, names, Term_n, tform, keep_constant,</a>
+<a class="sourceLine" id="cb6-16" title="16">                         a_n, modelform, fir, der_iden, control,cens_weight)</a></code></pre></div>
 </div>
 
 

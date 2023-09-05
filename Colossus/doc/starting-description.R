@@ -32,10 +32,12 @@ time2 <- "Ending_Age"
 event <- "Cancer_Status"
 
 # Supposing we had left truncated data the following would change
+time1 <- "Starting_Age"
 time2 <- "%trunc%"
 
 # and with right truncated data the following is used
 time1 <- "%trunc%"
+time2 <- "Ending_Age"
 
 #setting back to normal
 time1 <- "Starting_Age"
@@ -50,16 +52,20 @@ event <- "Cancer_Status"
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,
+             'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
+             'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
 ## -----------------------------------------------------------------------------
 # assuming the table of covariates is stored in a data.table "df"
 
-e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant,
+                      a_n, modelform, fir, der_iden, control)
 print(e)
 
 #or a poisson regression
 a_n <- c(0.1, 0.1, 0.1, 0.1) #a_n is updated when either regression is called
-e <- RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+e <- RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant, a_n,
+                          modelform, fir, der_iden, control)
 print(e)
 

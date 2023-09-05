@@ -294,8 +294,8 @@ Intercept_Bound <- function(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepCon
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix
-Calc_Change <- function(double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, fir, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging))
+Calc_Change <- function(double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging))
 }
 
 #' Utility function to calculate the change to make each iteration, with basic model
@@ -371,16 +371,6 @@ LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden
 #' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 LogLik_Pois_Omnibus <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term) {
     .Call(`_Colossus_LogLik_Pois_Omnibus`, PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term)
-}
-
-#' Primary Cox PH Wald bound regression with one starting point and optional combinations of stratification, competing risks, and multiplicative log-linear model.
-#' \code{Wald_Cox_PH_Omnibus} Performs the calls to calculation functions, Structures the Cox PH wald bound regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
-#'
-#' @inheritParams CPP_template
-#'
-#' @return List of final results: confidence interval estimate
-Wald_Cox_PH_Omnibus <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, maxiter, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, CR_bool, qchi, gmix_theta, gmix_term) {
-    .Call(`_Colossus_Wald_Cox_PH_Omnibus`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, maxiter, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, CR_bool, qchi, gmix_theta, gmix_term)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
@@ -494,15 +484,6 @@ pois_Omnibus_transition <- function(dfe, Term_n, tform, a_ns, dfc, x_all, fir, d
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 Plot_Omnibus_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control) {
     .Call(`_Colossus_Plot_Omnibus_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control)
-}
-
-#' Interface between R code and the Cox PH Wald omnibus regression function
-#' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the confidence interval regression function
-#' @inheritParams CPP_template
-#'
-#' @return Wald_Cox_PH_Omnibus output : list of interval endpoints
-wald_Omnibus_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, qchi) {
-    .Call(`_Colossus_wald_Omnibus_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, qchi)
 }
 
 #' Generates csv file with time-dependent columns

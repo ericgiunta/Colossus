@@ -116,9 +116,6 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, Nume
     // returns the baseline approximates and the risk information
     List res_list = List::create(_["baseline"]=w_base, _["standard_error"]=w_base_er, _["Risks"]=w_R);
     //
-    if (verbose){
-        Rcout << "returning" << endl;
-    }
     return res_list;
 }
 
@@ -133,7 +130,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, Nume
 List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  MatrixXd& df0, const MatrixXd& R, MatrixXd Lldd_inv, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup,IntegerVector dfc, bool verbose, bool debugging, IntegerVector KeepConstant, int nthreads){
     int reqrdnum = totalnum - sum(KeepConstant);
     if (verbose){
-        Rcout << "starting plot data " << endl;
+        Rcout << "C++ Note: starting plot data " << endl;
     }
     MatrixXd residuals = MatrixXd::Zero(ntime,reqrdnum);
     MatrixXd res_scale = MatrixXd::Zero(ntime,reqrdnum);
@@ -206,7 +203,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
     if (verbose){
-        Rcout << "START_PLOT" << endl;
+        Rcout << "C++ Note: START_PLOT" << endl;
     }
     time_point<system_clock> start_point, end_point;
     start_point = system_clock::now();
@@ -216,7 +213,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     //
     auto gibtime = system_clock::to_time_t(system_clock::now());
     if (verbose){
-        Rcout << ctime(&gibtime) << endl;
+        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
     }
     //
     // Time durations are measured from this point on in microseconds
@@ -237,7 +234,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
         } else {
             throw invalid_argument( "Incorrect parameter to plot by" );
         }
-        if (uniq_v > 10){
+        if (uniq_v > 100){ //selects anything above 100 points to be continuous
             vv.resize(100); //continuous covariates use 100 steps
         } else{
             vv.resize(uniq_v); //factor covariates use the number of factors
@@ -268,7 +265,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
 	totalnum = Term_n.size();
 	reqrdnum = totalnum - sum(KeepConstant);
 	if (verbose){
-        Rcout << "Term checked ";
+        Rcout << "C++ Note: Term checked ";
         for (int ij=0;ij<totalnum;ij++){
             Rcout << Term_n[ij] << " ";
         }
@@ -314,9 +311,9 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
 	if (verbose){
 		end_point = system_clock::now();
 		ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-		Rcout <<"df99,"<<(ending-start)<<",Starting"<<endl;
+		Rcout << "C++ Note: df99," << (ending-start) << ",Starting" <<endl;
 		gibtime = system_clock::to_time_t(system_clock::now());
-		Rcout << ctime(&gibtime) << endl;
+		Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 	}
 	// ---------------------------------------------
 	// To Start, needs to seperate the derivative terms
@@ -362,7 +359,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
         RiskFail = IntegerMatrix(ntime,2*STRATA_vals.size()); //vector giving the event rows
         //
         if (verbose){
-            Rcout << "Grouping Start" << endl;
+            Rcout << "C++ Note: Grouping Start" << endl;
         }
         // Creates matrices used to identify the event risk groups
         if (CR_bool){
@@ -375,7 +372,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
         RiskFail = IntegerMatrix(ntime,2); //vector giving the event rows
         //
         if (verbose){
-            Rcout << "Grouping Start" << endl;
+            Rcout << "C++ Note: Grouping Start" << endl;
         }
         // Creates matrices used to identify the event risk groups
         if (CR_bool){
@@ -387,45 +384,22 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     if (verbose){
         end_point = system_clock::now();
         ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-        Rcout <<"df100 "<<(ending-start)<<" "<<0<<" "<<0<<" "<<-1<<",Prep_List"<<endl;
+        Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_List" <<endl;
         gibtime = system_clock::to_time_t(system_clock::now());
-        Rcout << ctime(&gibtime) << endl;
+        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
     }
     if (verbose){
-        Rcout << "Made Risk Side Lists" << endl;
+        Rcout << "C++ Note: Made Risk Side Lists" << endl;
     }
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, FALSE);
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    if (verbose){
-        Rcout << "Memory Reserved" << endl;
-    }
     // Calculates the side sum terms used
     Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, FALSE, start, 0);
-    if (verbose){
-        Rcout << "Log-Likelihood Calculated" << endl;
-    }
     int kept_covs = totalnum - sum(KeepConstant); //does !base the standard deviation off of constant parameters
     NumericVector Lldd_vec(kept_covs * kept_covs);
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
-        int ij = 0;
-        int jk = ijk;
-        int pij_ind=-100;
-        int pjk_ind=-100;
-        while (jk>ij){
-            ij++;
-            jk-=ij;
-        }
-        if (KeepConstant[ij]==0){
-            pij_ind = ij - sum(head(KeepConstant,ij));
-            if (KeepConstant[jk]==0){
-                pjk_ind = jk - sum(head(KeepConstant,jk));
-                Lldd_vec[pij_ind * kept_covs + pjk_ind]=Lldd[ij*totalnum+jk];
-            }
-        }
-    }
     for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
         int ij = 0;
         int jk = ijk;
@@ -433,6 +407,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
             ij++;
             jk-=ij;
         }
+        Lldd_vec[ij * kept_covs + jk]=Lldd[ij * kept_covs + jk];
         Lldd_vec[jk * kept_covs + ij]=Lldd_vec[ij * kept_covs + jk];
     }
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
@@ -448,9 +423,6 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     }
     //
     NumericVector a_er(wrap(stdev));
-    if (verbose){
-        Rcout << "Deviation Calculated" << endl;
-    }
     //
     if (Surv_bool){
         res_list = PLOT_SURV(reqrdnum, R, Rd, a_er, df_groups, tu , verbose, debugging, nthreads);
@@ -465,40 +437,4 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     // returns a list of results
     return res_list;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

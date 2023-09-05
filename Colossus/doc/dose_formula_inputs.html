@@ -330,7 +330,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(data.table)</a></code></pre></div>
 <div id="dose-response-formula" class="section level2">
 <h2>Dose Response Formula</h2>
-<p>As previously discussed, Colossus features a term composed of the sum of multiple linear and non-linear term which can be used to define many dose response curves used in radiation epidemiology. These terms are referred to as dose response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formula are avalaible, reproduced from the starting description vignette.</p>
+<p>As previously discussed, Colossus features a term composed of the sum of multiple linear and non-linear term which can be used to define many dose response curves used in radiation epidemiology. These terms are referred to as dose response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formula are available, reproduced from the starting description vignette.</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
@@ -404,7 +404,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <tr class="odd">
 <td align="center">Quadratic</td>
 <td align="center">quad_slope</td>
-<td align="center">parameter mulitiplied by the squared value, <span class="math inline">\(\beta_i\)</span></td>
+<td align="center">parameter multiplied by the squared value, <span class="math inline">\(\beta_i\)</span></td>
 </tr>
 <tr class="even">
 <td align="center">Linear-Exponential</td>
@@ -433,7 +433,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>One issue with these dose response formulas is that the order is important. For instance, loglin_slope should be listed prior to loglin_top if both are used. The slope for the Linear Threshold and Step Functions should be given prior to the intercepts. Slopes are listed prior to intercept for the Linear-Quadratic and Linear-Exponential models and lin_exp_exp_slope is listed last. The “Correct_Formula_Order” function has been provided to handle the correct order. If the order is not correct then the models will not be calculated correctly and a double/free exception error may occur during the subterm calculation step. The function orders the values further by term number and constants.</p>
+<p>The linear-exponential and linear-quadratic curves must be either completely fixed or completely free. In contrast the exponential, linear threshold, and step function curves can be partially fixed. The exponential term can be provided with only the covariate in the exponent and assume the magnitude to be 1. The linear threshold and step functions can be provided a fixed threshold covariate, which can be used to define a linear-no-threshold model or a combination of linear and step functions with a known threshold.</p>
+<p>One issue with these dose response formulas is that the order is important. For instance, loglin_slope should be listed prior to loglin_top if both are used. The slope for the Linear Threshold and Step Functions should be given prior to the intercepts. Slopes are listed prior to intercept for the Linear-Quadratic and Linear-Exponential models and lin_exp_exp_slope is listed last. The “Correct_Formula_Order” function has been provided to handle the correct order. Colossus automatically calls this function prior to regression.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">Term_n &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb2-2" title="2">tform &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;loglin&quot;</span>,<span class="st">&#39;quad_slope&#39;</span>,<span class="st">&#39;lin&#39;</span>, <span class="st">&quot;lin_int&quot;</span>, <span class="st">&quot;lin_slope&quot;</span>)</a>
 <a class="sourceLine" id="cb2-3" title="3">keep_constant &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)</a>

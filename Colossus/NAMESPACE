@@ -12,7 +12,6 @@ importFrom(rlang,.data)
 
 
 export(RunCoxRegression_Omnibus)
-export(RunCoxWaldRegression_Omnibus)
 export(RunCoxRegression)
 export(RunCoxRegression_Single)
 export(RunCoxRegression_Basic)

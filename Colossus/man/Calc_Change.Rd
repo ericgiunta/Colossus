@@ -9,7 +9,6 @@ Calc_Change(
   double_step,
   nthreads,
   totalnum,
-  fir,
   der_iden,
   dbeta_cap,
   dose_abs_max,
@@ -33,8 +32,6 @@ Calc_Change(
 \item{nthreads}{number of threads available}
 
 \item{totalnum}{total number of parameters}
-
-\item{fir}{st term number}
 
 \item{der_iden}{subterm number for derivative tests}
 
