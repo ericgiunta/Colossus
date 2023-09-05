@@ -31,7 +31,6 @@ jobs:
         run: |
           cd Colossus
           ls
-          bash configure_MAKEVAR.sh
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
@@ -85,7 +84,6 @@ jobs:
         run: |
           cd Colossus
           ls
-          bash configure_MAKEVAR.sh
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
