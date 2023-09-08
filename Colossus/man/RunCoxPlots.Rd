@@ -3,7 +3,8 @@
 \name{RunCoxPlots}
 \alias{RunCoxPlots}
 \title{Performs Cox Proportional Hazard model plots
-\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and save plots}
+\code{RunCoxPlots} uses user provided data, time/event columns,
+vectors specifying the model, and options to choose and save plots}
 \usage{
 RunCoxPlots(
   df,
@@ -52,11 +53,12 @@ RunCoxPlots(
 \item{model_control}{controls which alternative model options are used}
 }
 \value{
-saves the plots in the current directory and returns a string that it passed
+saves the plots in the current directory and returns a string
 }
 \description{
 Performs Cox Proportional Hazard model plots
-\code{RunCoxPlots} uses user provided data, time/event columns, vectors specifying the model, and options to choose and save plots
+\code{RunCoxPlots} uses user provided data, time/event columns,
+vectors specifying the model, and options to choose and save plots
 }
 \examples{
 library(data.table)
@@ -88,8 +90,10 @@ control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#setting maxiter below 0 forces the function to calculate the score and return
-plot_options=list("type"=c("SURV","run_0"), "studyID"="UserID",'verbose'=FALSE)
+#setting maxiter below 0 forces the function to calculate the score
+# and return
+plot_options=list("type"=c("SURV","run_0"), "studyID"="UserID",
+                  'verbose'=FALSE)
 
 RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
             a_n, modelform, fir, control, plot_options)

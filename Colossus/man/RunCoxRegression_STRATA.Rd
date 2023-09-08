@@ -3,7 +3,9 @@
 \name{RunCoxRegression_STRATA}
 \alias{RunCoxRegression_STRATA}
 \title{Performs basic Cox Proportional Hazards regression with strata effect
-\code{RunCoxRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions}
+\code{RunCoxRegression_STRATA} uses user provided data,
+time/event columns, vectors specifying the model, and options to control
+the convergence and starting positions}
 \usage{
 RunCoxRegression_STRATA(
   df,
@@ -56,7 +58,9 @@ returns a list of the final results
 }
 \description{
 Performs basic Cox Proportional Hazards regression with strata effect
-\code{RunCoxRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+\code{RunCoxRegression_STRATA} uses user provided data,
+time/event columns, vectors specifying the model, and options to control
+the convergence and starting positions
 }
 \examples{
 library(data.table)

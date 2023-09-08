@@ -986,12 +986,12 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
             t2 <- term[2]
             #
             checked_factor <- TRUE
-            if (factor_check){
-                a1 <- unlist(strsplit(f1,split="_"),use.names=FALSE)[1]
-                a2 <- unlist(strsplit(f2,split="_"),use.names=FALSE)[1]
-                if (a1!=a2){
-                    checked_factor <- TRUE
-                } else {
+            if (factor_check){ #
+                if ((is.numeric(df[[f1]]))&(is.numeric(df[[f2]]))){
+                    if (sum(df[[f1]]*df[[f2]])==0){
+                        checked_factor <- FALSE
+                    }
+                } else if (is.numeric(df[[f1]]) != is.numeric(df[[f2]])){
                     checked_factor <- FALSE
                 }
             }

@@ -92,14 +92,13 @@ control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,
    'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6,
    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
    'ties'='breslow','double_step'=1)
-plot_options <- list("name"="run_06","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
+plot_options <- list("name"=paste(tempfile(),"run_06",sep=""),"verbose"=FALSE,
+                     "studyID"="studyID","age_unit"="years")
 dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform,
                      keep_constant, a_n, modelform, fir, control, plot_options)
 t_ref <- dft$t
 surv_ref <- dft$surv
 t_c <- df$t1
 cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
-#removing files created
-file.remove('weight_surv_plot_run_06.jpeg')
 
 }

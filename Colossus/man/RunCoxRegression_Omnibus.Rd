@@ -5,7 +5,7 @@
 \title{Performs Cox Proportional Hazards regression using the omnibus function
 \code{RunCoxRegression_Omnibus} uses user provided data, time/event columns,
 vectors specifying the model, and options to control the convergence
-and starting positions. Has additional options to starting with several
+and starting positions. Has additional options for starting with several
 initial guesses, using stratification, multiplicative loglinear 1-term,
 competing risks, and calculation without derivatives}
 \usage{
@@ -68,7 +68,7 @@ returns a list of the final results
 Performs Cox Proportional Hazards regression using the omnibus function
 \code{RunCoxRegression_Omnibus} uses user provided data, time/event columns,
 vectors specifying the model, and options to control the convergence
-and starting positions. Has additional options to starting with several
+and starting positions. Has additional options for starting with several
 initial guesses, using stratification, multiplicative loglinear 1-term,
 competing risks, and calculation without derivatives
 }
@@ -90,7 +90,8 @@ time1 <- "Starting_Age"
 time2 <- "Ending_Age"
 event <- "Cancer_Status"
 names <- c('a','b','c','d')
-a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4)) #used to test at a specific point
+a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4))
+#used to test at a specific point
 Term_n <- c(0,1,1,2)
 tform <- c("loglin","lin","lin","plin")
 modelform <- "M"
@@ -99,13 +100,14 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),'halfmax' = 5,'epsilon' = 1e-3,
-   'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
-   'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1,
-   "guesses"=2)
+control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
+   'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+   'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
+   'ties'='breslow','double_step'=1, "guesses"=2)
 
-e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n, tform, keep_constant,
+e <- RunCoxRegression_Omnibus(df, time1, time2, event,
+                              names, Term_n, tform, keep_constant,
                               a_n, modelform, fir, der_iden, control,
-                              model_control=list("single"=FALSE, "basic"=FALSE,
-                              "CR"=FALSE, 'null'=FALSE))
+                              model_control=list("single"=FALSE,
+                              "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
 }

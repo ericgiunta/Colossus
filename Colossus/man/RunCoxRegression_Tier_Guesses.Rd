@@ -2,8 +2,11 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Tier_Guesses}
 \alias{RunCoxRegression_Tier_Guesses}
-\title{Performs basic cox regression, with multiple guesses, starts with solving for a single term
-\code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses}
+\title{Performs basic cox regression, with multiple guesses, starts with
+solving for a single term
+\code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event
+columns, vectors specifying the model, and options to control the
+convergence and starting positions, with additional guesses}
 \usage{
 RunCoxRegression_Tier_Guesses(
   df,
@@ -64,8 +67,11 @@ RunCoxRegression_Tier_Guesses(
 returns a list of the final results
 }
 \description{
-Performs basic cox regression, with multiple guesses, starts with solving for a single term
-\code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
+Performs basic cox regression, with multiple guesses, starts with
+solving for a single term
+\code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event
+columns, vectors specifying the model, and options to control the
+convergence and starting positions, with additional guesses
 }
 \examples{
 library(data.table)
@@ -103,8 +109,10 @@ guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,
    "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
 Strat_Col <- 'e'
 
-e <- RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, Term_n, tform, keep_constant,
-                                   a_n, modelform, fir, der_iden, control,guesses_control,
+e <- RunCoxRegression_Tier_Guesses(df, time1, time2, event, names,
+                                   Term_n, tform, keep_constant,
+                                   a_n, modelform, fir, der_iden,
+                                   control,guesses_control,
                                    Strat_Col)
 
 }

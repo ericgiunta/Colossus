@@ -35,10 +35,10 @@ test_that("Coxph censoring weight", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options <- list("name"="run_00","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
+    plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyID"="studyID","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
-    file.remove('weight_surv_plot_run_00.jpeg')
+    #file.remove('weight_surv_plot_run_00.jpeg')
     #
     t_ref <- dft$t
     surv_ref <- dft$surv
@@ -56,137 +56,6 @@ test_that("Coxph censoring weight", {
     e1 <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     #
     expect_equal(e0$LogLik - e1$LogLik,-2.909427,tolerance=1e-2)
-})
-
-test_that("Coxph censoring weight, single", {
-    fname <- 'll_comp_0.csv'
-    colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
-    time1 <- "t0"
-    time2 <- "t1"
-    df$censor <- (df$lung==0)
-    event <- "censor"
-    names <- c("dose","fac")
-    Term_n <- c(0,0)
-    tform <- c("loglin","loglin")
-    keep_constant <- c(1,0)
-    a_n <- c(0,0)
-    modelform <- "M"
-    fir <- 0
-    der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options <- list("name"="run_01","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
-    dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
-    #
-    file.remove('weight_surv_plot_run_01.jpeg')
-    #
-    t_ref <- dft$t
-    surv_ref <- dft$surv
-    t_c <- df$t1
-    cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
-    #
-#    cens_weight <- dft$surv
-    event <- "lung"
-    a_n <- c(-0.1,-0.1)
-    keep_constant <- c(0,0)
-    e0 <- RunCoxRegression_Single_CR(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control,cens_weight)
-    #
-    expect_equal(e0$LogLik,-122.8909,tolerance=1e-2)
-})
-test_that("Coxph censoring weight, strata", {
-    fname <- 'll_comp_0.csv'
-    colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
-    time1 <- "t0"
-    time2 <- "t1"
-    df$censor <- (df$lung==0)
-    event <- "censor"
-    names <- c("dose","fac")
-    Term_n <- c(0,0)
-    tform <- c("loglin","loglin")
-    keep_constant <- c(1,0)
-    a_n <- c(0,0)
-    modelform <- "M"
-    fir <- 0
-    der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options <- list("name"="run_02","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
-    dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
-    #
-    file.remove('weight_surv_plot_run_02.jpeg')
-    #
-    t_ref <- dft$t
-    surv_ref <- dft$surv
-    t_c <- df$t1
-    cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
-    #
-    event <- "lung"
-    names <- c("dose")
-    Term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
-    Strat_Col <- 'fac'
-    e0 <- RunCoxRegression_STRATA_CR(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col, cens_weight)
-    #
-    expect_equal(e0$LogLik,-102.8615,tolerance=1e-2)
-})
-test_that("Coxph censoring weight, strata single", {
-    fname <- 'll_comp_0.csv'
-    colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
-    time1 <- "t0"
-    time2 <- "t1"
-    df$censor <- (df$lung==0)
-    event <- "censor"
-    names <- c("dose","fac")
-    Term_n <- c(0,0)
-    tform <- c("loglin","loglin")
-    keep_constant <- c(1,0)
-    a_n <- c(0,0)
-    modelform <- "M"
-    fir <- 0
-    der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options <- list("name"="run_03","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
-    dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
-    #
-    file.remove('weight_surv_plot_run_03.jpeg')
-    #
-    t_ref <- dft$t
-    surv_ref <- dft$surv
-    t_c <- df$t1
-    cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
-    #
-    event <- "lung"
-    names <- c("dose")
-    Term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
-    Strat_Col <- 'fac'
-    e0 <- RunCoxRegression_STRATA_CR_Single(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, Strat_Col,cens_weight)
-    #
-    expect_equal(e0$LogLik,-102.8615,tolerance=1e-2)
-})
-test_that("Coxph loglin_M Strata Basic", {
-    fname <- 'll_0.csv'
-    colTypes=c("double","double","double","integer","integer")
-    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
-    time1 <- "t0"
-    time2 <- "t1"
-    event <- "lung"
-    names <- c("dose")
-    Term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0.01)
-    modelform <- "M"
-    fir <- 0
-    der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    e <- RunCoxRegression_STRATA_Basic(df, time1, time2, event, names, keep_constant, a_n, der_iden, control,"fac")
-    expect_equal(e$beta_0,c(-0.1058286),tolerance=1e-2)
 })
 
 

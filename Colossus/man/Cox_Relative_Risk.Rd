@@ -3,7 +3,8 @@
 \name{Cox_Relative_Risk}
 \alias{Cox_Relative_Risk}
 \title{Calculates hazard ratios for a reference vector
-\code{RunCoxRegression} uses user provided data, time/event columns, vectors specifying the model, and options to calculate relative risk for every row in the provided data}
+\code{RunCoxRegression} uses user provided data,  vectors specifying the model,
+and options to calculate relative risk for every row in the provided data}
 \usage{
 Cox_Relative_Risk(
   df,
@@ -53,7 +54,8 @@ returns a list of the final results
 }
 \description{
 Calculates hazard ratios for a reference vector
-\code{RunCoxRegression} uses user provided data, time/event columns, vectors specifying the model, and options to calculate relative risk for every row in the provided data
+\code{RunCoxRegression} uses user provided data,  vectors specifying the model,
+and options to calculate relative risk for every row in the provided data
 }
 \examples{
 library(data.table)
@@ -80,7 +82,8 @@ a_n <- c(1.1, 0.1, 0.2, 0.5) #used to test at a specific point
 
 keep_constant <- c(0,0,0,0)
 
-control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+   'epsilon' = 1e-3,
    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 

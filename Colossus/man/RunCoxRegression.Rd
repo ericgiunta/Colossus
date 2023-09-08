@@ -2,9 +2,10 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression}
 \alias{RunCoxRegression}
-\title{Performs basic Cox Proportional Hazards regression
+\title{Performs basic Cox Proportional Hazards regression without special options
 \code{RunCoxRegression} uses user provided data, time/event columns,
-vectors specifying the model, and options to control the convergence and starting positions}
+vectors specifying the model, and options to control the convergence
+and starting position}
 \usage{
 RunCoxRegression(
   df,
@@ -53,9 +54,10 @@ RunCoxRegression(
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards regression
+Performs basic Cox Proportional Hazards regression without special options
 \code{RunCoxRegression} uses user provided data, time/event columns,
-vectors specifying the model, and options to control the convergence and starting positions
+vectors specifying the model, and options to control the convergence
+and starting position
 }
 \examples{
 library(data.table)

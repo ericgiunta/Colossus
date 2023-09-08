@@ -285,8 +285,6 @@ test_that("Modelform Fixes gmix", {
     expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'GMIX')
     model_control$gmix_term <- c(1,1)
     modelform <- 'gmix'
-    print(modelform)
-    print(model_control)
     expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'GMIX')
 })
 
@@ -447,8 +445,8 @@ test_that("Gen_time_dep no error", {
     func_form <- c("lin")
     
     #
-    expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
-    file.remove('test_new.csv')
+    expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form))
+    #file.remove('test_new.csv')
 })
 
 test_that("linked quad negative slope error", {

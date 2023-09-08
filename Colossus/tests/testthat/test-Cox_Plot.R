@@ -21,7 +21,7 @@ test_that("Coxph plot time column missing", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=TRUE)
+    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")),"Martingale"=FALSE,"surv_curv"=FALSE, "studyID"="a",'verbose'=TRUE)
     expect_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
 })
 test_that("Coxph plot no events", {
@@ -211,12 +211,12 @@ test_that("Coxph plot no error", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"), "surv_curv"=TRUE,"studyID"="a",'verbose'=TRUE)
+    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "surv_curv"=TRUE,"studyID"="a",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-    file.remove('ch_plot_run.jpeg')
-    file.remove('H_plot_run.jpeg')
-    file.remove('surv_plot_run.jpeg')
-    file.remove('log_log_surv_plot_run.jpeg')
+    #file.remove('ch_plot_run.jpeg')
+    #file.remove('H_plot_run.jpeg')
+    #file.remove('surv_plot_run.jpeg')
+    #file.remove('log_log_surv_plot_run.jpeg')
 })
 test_that("Coxph plot stratafied no error", {
     a <- c(0,1,2,3,4,5,6)
@@ -237,13 +237,13 @@ test_that("Coxph plot stratafied no error", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"), "surv_curv"=TRUE,"strat_haz"=TRUE,"Strat_Col"="e","studyID"="a",'verbose'=TRUE)
+    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "surv_curv"=TRUE,"strat_haz"=TRUE,"Strat_Col"="e","studyID"="a",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-    file.remove('ch_plot_run.jpeg')
-    file.remove('H_plot_run.jpeg')
-    file.remove('surv_plot_run.jpeg')
-    file.remove('strat_surv_plot_e_run.jpeg')
-    file.remove('log_log_surv_plot_run.jpeg')
+    #file.remove('ch_plot_run.jpeg')
+    #file.remove('H_plot_run.jpeg')
+    #file.remove('surv_plot_run.jpeg')
+    #file.remove('strat_surv_plot_e_run.jpeg')
+    #file.remove('log_log_surv_plot_run.jpeg')
 })
 
 test_that("Coxph risk no error", {
@@ -264,9 +264,9 @@ test_that("Coxph risk no error", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("RISK","run"),"studyID"="a",'verbose'=TRUE)
+    plot_options=list("type"=c("RISK",paste(tempfile(),"run",sep="")),"studyID"="a",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-    file.remove('risk_plot_1_run.jpeg')
+    #file.remove('risk_plot_1_run.jpeg')
 })
 
 test_that("Coxph schoenfeld no error", {
@@ -285,12 +285,12 @@ test_that("Coxph schoenfeld no error", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SCHOENFELD","run"),"studyID"="t0",'verbose'=TRUE)
+    plot_options=list("type"=c("SCHOENFELD",paste(tempfile(),"run",sep="")),"studyID"="t0",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-    file.remove('schoenfeld_1_run.jpeg')
-    file.remove('schoenfeld_2_run.jpeg')
-    file.remove('schoenfeld_scaled_1_run.jpeg')
-    file.remove('schoenfeld_scaled_2_run.jpeg')
+    #file.remove('schoenfeld_1_run.jpeg')
+    #file.remove('schoenfeld_2_run.jpeg')
+    #file.remove('schoenfeld_scaled_1_run.jpeg')
+    #file.remove('schoenfeld_scaled_2_run.jpeg')
 })
 test_that("Coxph Martingale no error", {
     a <- c(0,1,2,3,4,5,6)
@@ -311,10 +311,10 @@ test_that("Coxph Martingale no error", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"),"Martingale"=TRUE,"cov_cols"="d","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="e",'verbose'=TRUE)
+    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")),"Martingale"=TRUE,"cov_cols"="d","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyID"="e",'verbose'=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-    file.remove('martin_plot_d_run.jpeg')
-    file.remove('martin_plot_run.jpeg')
+    #file.remove('martin_plot_d_run.jpeg')
+    #file.remove('martin_plot_run.jpeg')
 })
 test_that("Coxph KM no error", {
     a <- c(0,1,2,3,4,5,6)
@@ -334,11 +334,11 @@ test_that("Coxph KM no error", {
     fir <- 0
     der_iden <- 0
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-    plot_options=list("type"=c("SURV","run"), "surv_curv"=TRUE,"studyID"="a",'verbose'=TRUE,"KM"=TRUE)
+    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "surv_curv"=TRUE,"studyID"="a",'verbose'=TRUE,"KM"=TRUE)
     expect_no_error(RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-    file.remove('ch_plot_run.jpeg')
-    file.remove('H_plot_run.jpeg')
-    file.remove('surv_plot_run.jpeg')
-    file.remove('log_log_surv_plot_run.jpeg')
-    file.remove('KM_run.jpeg')
+    #file.remove('ch_plot_run.jpeg')
+    #file.remove('H_plot_run.jpeg')
+    #file.remove('surv_plot_run.jpeg')
+    #file.remove('log_log_surv_plot_run.jpeg')
+    #file.remove('KM_run.jpeg')
 })

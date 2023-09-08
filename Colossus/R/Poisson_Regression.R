@@ -56,7 +56,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr="pyr", event0="event", names=c(
     }
     control <- Def_Control(control)
     if (control$verbose){
-        if (any(val$Permutation != 1:length(tform))){
+        if (any(val$Permutation != seq_along(tform))){
             print("Warning: model covariate order changed")
         }
     }
@@ -270,56 +270,6 @@ RunPoissonRegression_STRATA <- function(df, pyr, event0, names, Term_n, tform, k
     return (e)
 }
 
-#' Performs poisson regression with strata effect and no derivative calculation
-#' \code{RunPoissonRegression_STRATA_Single} uses user provided data, time/event columns, and vectors specifying the model
-#'
-#' @inheritParams R_template
-#'
-#' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
-#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
-#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
-#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
-#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
-#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
-#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
-#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
-#'                       "e"=c(0,   0,   0,   0,   1,   0,   1))
-#' # For the interval case
-#' df$pyr <- df$Ending_Age - df$Starting_Age
-#' pyr <- 'pyr'
-#' event <- "Cancer_Status"
-#' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
-#' tform <- c("loglin","lin","lin","plin")
-#' modelform <- "M"
-#' fir <- 0
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' 
-#' keep_constant <- c(0,0,0,0)
-#' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'              'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
-#'              'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
-#'              'verbose'=FALSE, 'double_step'=1)
-#' Strat_Col <- c("e")
-#' e <- RunPoissonRegression_STRATA_Single(df, pyr, event, names, Term_n, tform, keep_constant,
-#'      a_n, modelform, fir, control, Strat_Col)
-#'
-RunPoissonRegression_STRATA_Single <- function(df, pyr, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, Strat_Cols){
-    control <- Def_Control(control)
-    control$maxiters <- c(1,control$maxiter)
-    control$guesses <- 1
-    e <- RunPoissonRegression_Omnibus(df, pyr, event0, names, Term_n, tform, keep_constant, a_n,
-                                      modelform, fir, 0, control,Strat_Cols,
-                                      model_control=list("strata"=TRUE,'single'=TRUE))
-    return (e)
-}
 
 #' Performs basic poisson regression, with multiple guesses, starts with a single term
 #' \code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses

@@ -3,7 +3,8 @@
 \name{RunCoxNull}
 \alias{RunCoxNull}
 \title{Performs basic Cox Proportional Hazards regression with the null model
-\code{RunCoxRegression} uses user provided data and time/event columns to calculate the log-likelihood with constant hazard ratio}
+\code{RunCoxRegression} uses user provided data and time/event columns
+to calculate the log-likelihood with constant hazard ratio}
 \usage{
 RunCoxNull(df, time1, time2, event0, control)
 }
@@ -23,7 +24,8 @@ returns a list of the final results
 }
 \description{
 Performs basic Cox Proportional Hazards regression with the null model
-\code{RunCoxRegression} uses user provided data and time/event columns to calculate the log-likelihood with constant hazard ratio
+\code{RunCoxRegression} uses user provided data and time/event columns
+to calculate the log-likelihood with constant hazard ratio
 }
 \examples{
 library(data.table)

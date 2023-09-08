@@ -3,7 +3,7 @@
 \name{RunCoxRegression_CR}
 \alias{RunCoxRegression_CR}
 \title{Performs basic Cox Proportional Hazards regression with competing risks
-\code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks}
+\code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and censoring adjustment}
 \usage{
 RunCoxRegression_CR(
   df,
@@ -56,7 +56,7 @@ returns a list of the final results
 }
 \description{
 Performs basic Cox Proportional Hazards regression with competing risks
-\code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and competing risks
+\code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and censoring adjustment
 }
 \examples{
 library(data.table)
