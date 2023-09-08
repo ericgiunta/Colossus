@@ -11,8 +11,8 @@ Authors@R:c(
     person("Lawrence", "Dauer", role=c("ctb")),
     person("John", "Boice Jr", role=c("ctb")),
     person("Kansas State University", role=c("cph")),
-    person("NASA", role=c("fnd"),
-    person("NCRP", role=c("fnd"),
+    person("NASA", role=c("fnd")),
+    person("NCRP", role=c("fnd")),
     person("NRC", role=c("fnd"))
     )
 URL: https://github.com/ericgiunta/Colossus
