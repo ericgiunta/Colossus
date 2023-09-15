@@ -527,7 +527,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #setting maxiter below 0 forces the function to calculate the score
 #' # and return
-#' plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep=""))), "studyID"="UserID",
+#' plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "studyID"="UserID",
 #'                   'verbose'=FALSE)
 #' 
 #' RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
