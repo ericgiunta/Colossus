@@ -38,14 +38,12 @@ test_that("Coxph censoring weight", {
     plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyID"="studyID","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
-    #file.remove('weight_surv_plot_run_00.jpeg')
     #
     t_ref <- dft$t
     surv_ref <- dft$surv
     t_c <- df$t1
     cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
     #
-#    cens_weight <- dft$surv
     event <- "lung"
     a_n <- c(-0.1,-0.1)
     keep_constant <- c(0,0)

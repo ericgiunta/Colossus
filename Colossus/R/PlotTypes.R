@@ -441,7 +441,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     res_list <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden,
                                         modelform, control, as.matrix(df[,ce, with = FALSE]),
                                         tu, keep_constant, term_tot, c(0), c(0), model_control)
-    res <- res_list$residual
+    res        <- res_list$residual
     res_scaled <- res_list$scaled
     #
     #

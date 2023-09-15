@@ -27,11 +27,11 @@ jobs:
           clang --version
           curl -O https://mac.r-project.org/openmp/openmp-14.0.6-darwin20-Release.tar.gz
           sudo tar fvxz openmp-14.0.6-darwin20-Release.tar.gz -C /
+          bash configure_MAKEVAR.sh
       - name: move to package and install
         run: |
           cd Colossus
           ls
-          bash configure_MAKEVAR.sh
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
@@ -80,12 +80,13 @@ jobs:
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
       - name: install libraries
-        run: sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+        run: |
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+          bash configure_MAKEVAR.sh
       - name: move to package and check
         run: |
           cd Colossus
           ls
-          bash configure_MAKEVAR.sh
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
