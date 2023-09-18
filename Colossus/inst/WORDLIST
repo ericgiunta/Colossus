@@ -1,4 +1,6 @@
+ACI
 AMFIT
+Beocat
 breslow
 breslow's
 Calc
@@ -9,7 +11,10 @@ Der
 der
 deriv
 df
+Distrib
 dlimits
+egiunta
+edu
 efron
 Eigen
 eigen
@@ -19,6 +24,7 @@ halfmax
 iden
 Kaplan
 kaplan
+ksu
 LEXP
 lin
 LogLik
@@ -35,11 +41,13 @@ NaN
 Ncores
 NL
 nonDose
+NSSC
 PAE
 poisson
 qalpha
 rmin
 rmax
+RunCoxPlots
 RunCoxRegression
 RunPoissonRegression
 Schoenfeld
