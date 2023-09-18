@@ -82,7 +82,6 @@ jobs:
       - name: install libraries
         run: |
           sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
-          bash configure_MAKEVAR.sh
       - name: move to package and check
         run: |
           cd Colossus
