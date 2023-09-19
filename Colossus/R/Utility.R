@@ -407,6 +407,9 @@ Def_Control <- function(control){
         'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
         'ties'='breslow','double_step'=1,"keep_strata"=FALSE,
         "Ncores"=as.numeric(detectCores()), "cens_thres"=0)
+	if ((is_testing())||(is_checking())){
+		control_def$Ncores <- 2
+	}
     for (nm in names(control_def)){
         if (nm %in% names(control)){
             if (nm=="Ncores"){
