@@ -27,7 +27,6 @@ jobs:
           clang --version
           curl -O https://mac.r-project.org/openmp/openmp-14.0.6-darwin20-Release.tar.gz
           sudo tar fvxz openmp-14.0.6-darwin20-Release.tar.gz -C /
-          bash configure_MAKEVAR.sh
       - name: move to package and install
         run: |
           cd Colossus
@@ -82,7 +81,6 @@ jobs:
       - name: install libraries
         run: |
           sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
-          bash configure_MAKEVAR.sh
       - name: move to package and check
         run: |
           cd Colossus

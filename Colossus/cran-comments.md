@@ -1,9 +1,5 @@
-── R CMD check results ─ Colossus 0.9.2 ─MacOS─
- Duration: 4m 18.7s
-
-❯ checking compilation flags in Makevars ... WARNING
-Warning:   Variables overriding user/site settings:
-    CPPFLAGS: -o /dev/null -Xclang -fopenmp
+── R CMD check results ─ Colossus 0.9.3 ─MacOS─
+ Duration: 4m 29.9s
 
 ❯ checking for GNU extensions in Makefiles ... WARNING
 Warning:   Found the following file(s) containing GNU extensions:
@@ -12,27 +8,24 @@ Warning:   Found the following file(s) containing GNU extensions:
   $(wildcard), ifeq ... endif, .NOTPARALLEL See section ‘Writing portable
   packages’ in the ‘Writing R Extensions’ manual.
 
-0 errors ✔ | 2 warnings ✖ | 0 notes ✔
+0 errors ✔ | 1 warning ✖ | 0 notes ✔
 
-── R CMD check results ─ Colossus 0.9.2 ─Windows─
-Duration: 3m 17.6s
+── R CMD check results ─ Colossus 0.9.3 ─Windows─
+ Duration: 3m 40.8s
 
-❯ checking compilation flags in Makevars ... WARNING
-Warning:   Non-portable flags in variable 'PKG_CXXFLAGS':
-    -fopenmp
+❯ checking line endings in Makefiles ... WARNING
+Warning:   Found the following Makefile(s) with CR or CRLF line endings:
+    src/Makevars
+  Some Unix 'make' programs require LF line endings.
 
 0 errors ✔ | 1 warning ✖ | 0 notes ✔
 
- ── R CMD check results ─ Colossus 0.9.2 ─Linux─
-Duration: 3m 15.2s
-
-❯ checking compilation flags in Makevars ... WARNING
-Warning:   Non-portable flags in variable 'PKG_CXXFLAGS':
-    -fopenmp
+ ── R CMD check results ─ Colossus 0.9.3 ─Linux─
+ Duration: 3m 34.6s
 
 ❯ checking installed package size ... NOTE
     installed size is 62.0Mb
     sub-directories of 1Mb or more:
       libs  61.1Mb
 
-0 errors ✔ | 1 warning ✖ | 1 note ✖
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
