@@ -26,6 +26,7 @@ Imports:
     stats,
     utils,
     ggplot2,
+	testthat,
     rlang
 LinkingTo: Rcpp, RcppEigen, testthat
 SystemRequirements: make
@@ -37,7 +38,6 @@ Suggests:
     rmarkdown,
     xml2,
     pandoc,
-    testthat (>= 3.0.0),
     spelling
 Config/testthat/edition: 3
 VignetteBuilder: knitr

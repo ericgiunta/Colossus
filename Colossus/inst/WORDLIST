@@ -18,6 +18,7 @@ edu
 efron
 Eigen
 eigen
+EPS
 func
 GMIX
 halfmax
@@ -39,6 +40,7 @@ modelform
 na
 NaN
 Ncores
+NCRP
 NL
 nonDose
 NSSC
