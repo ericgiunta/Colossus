@@ -14,7 +14,8 @@ Write_Time_Dep(
   filename,
   tform_tdep,
   tu,
-  iscox
+  iscox,
+  nthreads
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ Write_Time_Dep(
 \item{tu}{Event time vector}
 
 \item{iscox}{boolean of cox formatting is used}
+
+\item{nthreads}{number of threads available}
 }
 \value{
 saves a dataframe to be used with time-dependent covariate analysis

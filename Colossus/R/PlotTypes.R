@@ -8,7 +8,7 @@
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Plot_Name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
     if (verbose){
-        print("Note: Plotting Martingale Residuals")
+        message("Note: Plotting Martingale Residuals")
     }
     #
     time_s <- df[,get(time1)]
@@ -21,7 +21,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
     for (cov_i in seq_len(length(dnames))){
         dname <- dnames[cov_i]
         if (verbose){
-            print(paste("Note: Martingale Plot: ",dname,sep=""))
+            message(paste("Note: Martingale Plot: ",dname,sep=""))
         }
         if (studyID %in% names(df)){
             dfr <- data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
@@ -121,7 +121,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
     if (verbose){
-        print("Note: Plotting Survival Curves")
+        message("Note: Plotting Survival Curves")
     }
     #
     dft <- data.table("t"=t,"h"=h,"ch"=ch,"surv"=surv)
@@ -167,7 +167,7 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit, model_control=list()){
     if (verbose){
-        print("Note: Plotting Kaplan-Meier Curve")
+        message("Note: Plotting Kaplan-Meier Curve")
     }
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,Term_n)
@@ -252,8 +252,8 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
                                      control, as.matrix(df[,ce, with = FALSE]),tu,
                                      keep_constant, term_tot, c(0), c(0), model_control)
         if ("Failure" %in% names(e)){
-            print("Error: ")
-            print(e)
+            message("Error: ")
+            message(e)
             stop()
         }
         x <- e$x
@@ -297,14 +297,14 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
         if (length(tu0)==0){
             if (control$verbose){
-                print(paste("Warning: no events for strata group:",uniq[i],sep=" "))
+                message(paste("Warning: no events for strata group:",uniq[i],sep=" "))
             }
             df <- df[get(Strat_Col)!=uniq[i],]
         }
     }
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
     if (control$verbose){
-        print(paste("Note:",length(uniq)," strata used",sep=" "))
+        message(paste("Note:",length(uniq)," strata used",sep=" "))
     }
     #
     setkeyv(df, c(time2, event0, Strat_Col))
@@ -337,7 +337,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     categ <- c()
     for (col_u in uniq){
         if (verbose){
-            print(paste("Note: Starting Stratification: ",col_u))
+            message(paste("Note: Starting Stratification: ",col_u))
         }
         df0 <- df[get(Strat_Col)==col_u,]
         dfend <- df0[get(event0)==1, ]
@@ -408,12 +408,12 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
         if (control$verbose){
-            print("Error: no events")
+            message("Error: no events")
         }
         stop()
     }
     if (control$verbose){
-        print(paste("Note: ",length(tu)," risk groups",sep=""))
+        message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
     Term_n <- val$Term_n
@@ -523,10 +523,10 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #'
 GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list(),Strat_Col="e"){
     if (plot_options$verbose){
-        print("Note: Starting Censoring weight Plot Function")
+        message("Note: Starting Censoring weight Plot Function")
     }
     if (min(keep_constant)>0){
-        print("Error: Atleast one parameter must be free")
+        message("Error: Atleast one parameter must be free")
         stop()
     }
     model_control <- Def_model_control(model_control)
@@ -540,12 +540,12 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
         if (plot_options$verbose){
-            print("Error: no events")
+            message("Error: no events")
         }
         stop()
     }
     if (plot_options$verbose){
-        print(paste("Note: ",length(tu)," risk groups",sep=""))
+        message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     #
     if ("age_unit" %in% names(plot_options)){

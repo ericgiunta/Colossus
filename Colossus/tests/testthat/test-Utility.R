@@ -348,7 +348,7 @@ test_that("Factorize parallel factor", {
     c <- c(1,1,1,1,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     col_list <- c("c")
-    expect_equal(factorize_par(df,col_list)$cols, c("c_1"))
+    expect_equal(factorize_par(df,col_list,TRUE,2)$cols, c("c_1"))
 })
 test_that("Factorize parallel discrete", {
     a <- c(0,1,2,3,4,5,6)
@@ -356,7 +356,7 @@ test_that("Factorize parallel discrete", {
     c <- c(0,0,0,0,0,0,0)
     df <- data.table("a"=a,"b"=b,"c"=c)
     col_list <- c("a")
-    expect_equal(factorize_par(df,col_list)$cols, c("a_0","a_1","a_2","a_3","a_4","a_5","a_6"))
+    expect_equal(factorize_par(df,col_list,TRUE,2)$cols, c("a_0","a_1","a_2","a_3","a_4","a_5","a_6"))
 })
 test_that("Factorize parallel missing", {
     a <- c(0,1,2,3,4,5,6)
@@ -364,7 +364,7 @@ test_that("Factorize parallel missing", {
     c <- c(0,0,0,0,0,0,0)
     df <- data.table("a"=a,"b"=b,"c"=c)
     col_list <- c("d")
-    expect_error(factorize_par(df,col_list))
+    expect_error(factorize_par(df,col_list,TRUE,2))
 })
 
 
@@ -389,7 +389,7 @@ test_that("Gen_time_dep time error", {
     func_form <- c("lin")
     
     #
-    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
+    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form,2))
 })
 test_that("Gen_time_dep event error", {
     a <- c(20,20,5,10,15)
@@ -407,7 +407,7 @@ test_that("Gen_time_dep event error", {
     func_form <- c("lin")
     
     #
-    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
+    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form,2))
 })
 test_that("Gen_time_dep function error", {
     a <- c(20,20,5,10,15)
@@ -426,7 +426,7 @@ test_that("Gen_time_dep function error", {
     func_form <- c("lin")
     
     #
-    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form))
+    expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form,2))
 })
 
 test_that("Gen_time_dep no error", {
@@ -445,7 +445,7 @@ test_that("Gen_time_dep no error", {
     func_form <- c("lin")
     
     #
-    expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form))
+    expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form,2))
     #file.remove('test_new.csv')
 })
 

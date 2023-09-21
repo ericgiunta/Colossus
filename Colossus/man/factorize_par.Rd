@@ -37,7 +37,7 @@ b <- c(1,2,3,4,5,6,7)
 c <- c(0,1,2,1,0,1,0)
 df <- data.table("a"=a,"b"=b,"c"=c)
 col_list <- c("c")
-val <- factorize_par(df,col_list)
+val <- factorize_par(df,col_list,FALSE,2)
 df <- val$df
 new_col <- val$cols
 

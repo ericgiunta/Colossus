@@ -16,7 +16,8 @@ gen_time_dep(
   dep_cols,
   func_form,
   fname,
-  tform
+  tform,
+  nthreads = as.numeric(detectCores())
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ gen_time_dep(
 \item{fname}{filename used for new dataframe}
 
 \item{tform}{list of string function identifiers, used for linear/step}
+
+\item{nthreads}{number of threads to use}
 }
 \value{
 returns the updated dataframe
@@ -67,7 +70,7 @@ grt_f <- function(df,time_col){
 }
 func_form <- c("lin")
 df_new <- gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),
-       c(grt_f),paste("test","_new.csv",sep=""), func_form)
+       c(grt_f),paste("test","_new.csv",sep=""), func_form,2)
 file.remove('test_new.csv')
 
 }

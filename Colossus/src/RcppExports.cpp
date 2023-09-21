@@ -1375,8 +1375,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Write_Time_Dep
-void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event, double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox);
-RcppExport SEXP _Colossus_Write_Time_Dep(SEXP df0_TimesSEXP, SEXP df0_depSEXP, SEXP df0_constSEXP, SEXP df0_eventSEXP, SEXP dtSEXP, SEXP filenameSEXP, SEXP tform_tdepSEXP, SEXP tuSEXP, SEXP iscoxSEXP) {
+void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event, double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox, int nthreads);
+RcppExport SEXP _Colossus_Write_Time_Dep(SEXP df0_TimesSEXP, SEXP df0_depSEXP, SEXP df0_constSEXP, SEXP df0_eventSEXP, SEXP dtSEXP, SEXP filenameSEXP, SEXP tform_tdepSEXP, SEXP tuSEXP, SEXP iscoxSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix >::type df0_Times(df0_TimesSEXP);
@@ -1388,7 +1388,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< StringVector >::type tform_tdep(tform_tdepSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
     Rcpp::traits::input_parameter< bool >::type iscox(iscoxSEXP);
-    Write_Time_Dep(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Write_Time_Dep(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox, nthreads);
     return R_NilValue;
 END_RCPP
 }
@@ -1499,7 +1500,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_cox_ph_Omnibus_transition", (DL_FUNC) &_Colossus_cox_ph_Omnibus_transition, 16},
     {"_Colossus_pois_Omnibus_transition", (DL_FUNC) &_Colossus_pois_Omnibus_transition, 14},
     {"_Colossus_Plot_Omnibus_transition", (DL_FUNC) &_Colossus_Plot_Omnibus_transition, 16},
-    {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 9},
+    {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 10},
     {"_Colossus_Gen_Fac_Par", (DL_FUNC) &_Colossus_Gen_Fac_Par, 4},
     {"_Colossus_risk_check_transition", (DL_FUNC) &_Colossus_risk_check_transition, 11},
     {"_Colossus_Gen_Strat_Weight", (DL_FUNC) &_Colossus_Gen_Strat_Weight, 8},

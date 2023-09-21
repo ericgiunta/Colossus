@@ -173,12 +173,12 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
 //'
 //' @return saves a dataframe to be used with time-dependent covariate analysis
 // [[Rcpp::export]]
-void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox){
+void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox, int nthreads){
     const Map<MatrixXd> df_Times(as<Map<MatrixXd> >(df0_Times));
     const Map<MatrixXd> df_dep(as<Map<MatrixXd> >(df0_dep));
     const Map<MatrixXd> df_const(as<Map<MatrixXd> >(df0_const));
     Rcout.precision(10); //forces higher precision numbers printed to terminal
-    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+//    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
     if (df_dep.cols() % 2 !=0 ){
         Rcout << "C++ Error: Odd number of linear dependent columns, starting and end values should be given" << endl;
         return;
@@ -430,8 +430,10 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     ArrayXd Events = dfs.transpose() * PyrC.col(1);
     ArrayXd weight = Events.array() * Pyrs.array().pow(-1).array();
     //
+    //
     s_weights = dfs * weight.matrix();
     //
+    Rcout << s_weights.minCoeff() << endl;
     //
     vector<double> plin_count(term_tot,0);
     vector<double> loglin_count(term_tot,0);

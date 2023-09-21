@@ -491,8 +491,8 @@ Plot_Omnibus_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_ide
 #' @inheritParams CPP_template
 #'
 #' @return saves a dataframe to be used with time-dependent covariate analysis
-Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox) {
-    invisible(.Call(`_Colossus_Write_Time_Dep`, df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox))
+Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox, nthreads) {
+    invisible(.Call(`_Colossus_Write_Time_Dep`, df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox, nthreads))
 }
 
 #' Generates factored columns in parallel

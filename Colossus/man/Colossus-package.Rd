@@ -63,7 +63,7 @@ Maintainer: Eric Giunta <egiunta@ksu.edu>
     Strat_Col <- 'e'
     e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
                                       a_n, modelform, fir, der_iden, control,Strat_Col)
-    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep=""))), "studyID"="UserID",
+    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "studyID"="UserID",
                       'verbose'=FALSE)
 
     RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
