@@ -7,7 +7,7 @@
 \usage{
 RunPoissonRegression_Single(
   df,
-  pyr,
+  pyr0,
   event0,
   names,
   Term_n,
@@ -22,7 +22,7 @@ RunPoissonRegression_Single(
 \arguments{
 \item{df}{a data.table containing the columns of interest}
 
-\item{pyr}{column used for person-years per row}
+\item{pyr0}{column used for person-years per row}
 
 \item{event0}{column used for event status}
 

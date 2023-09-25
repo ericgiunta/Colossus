@@ -4,3 +4,6 @@ Colossus/Meta/
 Colossus/src/*.o
 Colossus/src/*.so
 Colossus/*.r
+*.Rcheck
+Colossus/.Rproj.user/
+Colossus_*.tar.gz

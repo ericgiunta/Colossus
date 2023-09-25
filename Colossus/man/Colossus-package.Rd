@@ -21,52 +21,50 @@ Maintainer: Eric Giunta <egiunta@ksu.edu>
 }
 \keyword{ package }
 \examples{
-  \dontrun{
-    library(data.table)
-    ## basic example code reproduced from the starting-description vignette
+  library(data.table)
+  ## basic example code reproduced from the starting-description vignette
 
-    df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
-               "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
-                 "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
-              "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
-                          "a"=c(0,   1,   1,   0,   1,   0,   1),
-                          "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
-                          "c"=c(10,  11,  10,  11,  12,  9,   11),
-                          "d"=c(0,   0,   0,   1,   1,   1,   1),
-                          "e"=c(0,   0,   1,   0,   0,   0,   1))
-    # For the interval case
-    time1 <- "Starting_Age"
-    time2 <- "Ending_Age"
-    pyr <- "Ending_Age"
-    event <- "Cancer_Status"
-    names <- c('a','b','c','d')
-    a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4))
-    #used to test at a specific point
-    Term_n <- c(0,1,1,2)
-    tform <- c("loglin","lin","lin","plin")
-    modelform <- "M"
-    fir <- 0
+  df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+              "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+                "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+            "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+                        "a"=c(0,   1,   1,   0,   1,   0,   1),
+                        "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+                        "c"=c(10,  11,  10,  11,  12,  9,   11),
+                        "d"=c(0,   0,   0,   1,   1,   1,   1),
+                        "e"=c(0,   0,   1,   0,   0,   0,   1))
+  # For the interval case
+  time1 <- "Starting_Age"
+  time2 <- "Ending_Age"
+  pyr <- "Ending_Age"
+  event <- "Cancer_Status"
+  names <- c('a','b','c','d')
+  a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4))
+  #used to test at a specific point
+  Term_n <- c(0,1,1,2)
+  tform <- c("loglin","lin","lin","plin")
+  modelform <- "M"
+  fir <- 0
 
-    keep_constant <- c(0,0,0,0)
-    der_iden <- 0
+  keep_constant <- c(0,0,0,0)
+  der_iden <- 0
 
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
-       'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
-       'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
-       'ties'='breslow','double_step'=1, "guesses"=2)
+  control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
+      'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+      'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
+      'ties'='breslow','double_step'=1, "guesses"=2)
 
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event,
-                                  names, Term_n, tform, keep_constant,
-                                  a_n, modelform, fir, der_iden, control,
-                                  model_control=list("single"=FALSE,
-                                  "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
-    Strat_Col <- 'e'
-    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
-                                      a_n, modelform, fir, der_iden, control,Strat_Col)
-    plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "studyID"="UserID",
-                      'verbose'=FALSE)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event,
+                                names, Term_n, tform, keep_constant,
+                                a_n, modelform, fir, der_iden, control,
+                                model_control=list("single"=FALSE,
+                                "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
+  Strat_Col <- 'e'
+  e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
+                                    a_n, modelform, fir, der_iden, control,Strat_Col)
+  plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "studyID"="UserID",
+                    'verbose'=FALSE)
 
-    RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
-                a_n, modelform, fir, control, plot_options)
-  }
+  RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
+              a_n, modelform, fir, control, plot_options)
 }

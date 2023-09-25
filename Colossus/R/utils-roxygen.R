@@ -43,7 +43,7 @@
 #' @param null_model  a model to compare against
 #' @param paras  list of formula parameters
 #' @param plot_options  list of parameters controlling the plot options
-#' @param pyr  column used for person-years per row
+#' @param pyr0  column used for person-years per row
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
 #' @param t  event times

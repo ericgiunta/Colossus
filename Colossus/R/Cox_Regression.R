@@ -149,6 +149,10 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden,
          modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
          keep_constant,term_tot, uniq, cens_weight, model_control)
+	if (is.nan(e$LogLik)){
+		if (control$verbose){message("Invalid risk")}
+		stop()
+	}
     e$Parameter_Lists$names <- names
     return (e)
 }

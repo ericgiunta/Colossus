@@ -9,7 +9,7 @@ Has additional options to starting with several initial guesses}
 \usage{
 RunPoissonRegression_Omnibus(
   df,
-  pyr = "pyr",
+  pyr0 = "pyr",
   event0 = "event",
   names = c("CONST"),
   Term_n = c(0),
@@ -27,7 +27,7 @@ RunPoissonRegression_Omnibus(
 \arguments{
 \item{df}{a data.table containing the columns of interest}
 
-\item{pyr}{column used for person-years per row}
+\item{pyr0}{column used for person-years per row}
 
 \item{event0}{column used for event status}
 

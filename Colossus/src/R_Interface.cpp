@@ -433,8 +433,6 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     //
     s_weights = dfs * weight.matrix();
     //
-    Rcout << s_weights.minCoeff() << endl;
-    //
     vector<double> plin_count(term_tot,0);
     vector<double> loglin_count(term_tot,0);
     vector<double> dose_count(term_tot,0);
