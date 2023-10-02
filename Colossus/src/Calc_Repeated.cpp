@@ -1466,6 +1466,88 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
     return;
 }
 
+//void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging ){
+//	vector<double> time_dur(7,0.0);
+//    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+//        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+//        initializer(omp_priv = omp_orig)
+//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:time_dur)
+//    for (int ijk=0;ijk<ntime;ijk++){
+//        double t0 = tu[ijk];
+//		auto t_start = std::chrono::high_resolution_clock::now();
+//		// the work...
+//        VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
+//		auto t_end = std::chrono::high_resolution_clock::now();
+//		double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+//		time_dur[0] += elapsed_time_ms;
+//		t_start = std::chrono::high_resolution_clock::now();
+//        vector<int> indices_all;
+//        //
+//        int th = 1;
+//        visit_lambda(select_ind_all,
+//            [&indices_all, th](double v, int i, int j) {
+//                if (v==th)
+//                    indices_all.push_back(i+1);
+//            });
+//		t_end = std::chrono::high_resolution_clock::now();
+//		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+//		time_dur[1] += elapsed_time_ms;
+//		t_start = std::chrono::high_resolution_clock::now();
+//        vector<int> indices; //generates vector of (start,end) pairs for indices at risk
+//        for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+//            if (indices.size()==0){
+//                indices.push_back(*it);
+//                indices.push_back(*it);
+//            } else if (indices[indices.size()-1]+1<*it){
+//                indices.push_back(*it);
+//                indices.push_back(*it);
+//            } else {
+//                indices[indices.size()-1] = *it;
+//            }
+//        }
+//		t_end = std::chrono::high_resolution_clock::now();
+//		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+//		time_dur[2] += elapsed_time_ms;
+//		t_start = std::chrono::high_resolution_clock::now();
+//        //
+//        ostringstream oss;
+//        copy(indices.begin(), indices.end(),
+//            std::ostream_iterator<int>(oss, ","));
+//        RiskGroup[ijk] = oss.str();//stores risk groups in string
+//		t_end = std::chrono::high_resolution_clock::now();
+//		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+//		time_dur[3] += elapsed_time_ms;
+//		t_start = std::chrono::high_resolution_clock::now();
+//        //
+//        select_ind_all = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
+//		t_end = std::chrono::high_resolution_clock::now();
+//		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+//		time_dur[4] += elapsed_time_ms;
+//		t_start = std::chrono::high_resolution_clock::now();
+//        indices_all.clear();
+//        visit_lambda(select_ind_all,
+//            [&indices_all, th](double v, int i, int j) {
+//                if (v==th)
+//                    indices_all.push_back(i+1);
+//            });
+//        //
+//		t_end = std::chrono::high_resolution_clock::now();
+//		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+//		time_dur[5] += elapsed_time_ms;
+//		t_start = std::chrono::high_resolution_clock::now();
+//        RiskFail(ijk,0)=indices_all[0]-1;//Due to the sorting method, there is a continuous block of event rows
+//        RiskFail(ijk,1)=indices_all[indices_all.size()-1]-1;
+//		t_end = std::chrono::high_resolution_clock::now();
+//		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+//		time_dur[6] += elapsed_time_ms;
+//    }
+//	Rcout << "Group timing";
+//	for (int i=0;i<7;i++){
+//		Rcout << " " << time_dur[i]/ntime;
+//	}
+//	Rcout << " " << endl;
+//    return;
+//}
 //' Utility function to define risk groups
 //' \code{Make_Groups} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
 //' @inheritParams CPP_template
@@ -1473,20 +1555,10 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 // [[Rcpp::export]]
 void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging ){
-	vector<double> time_dur(7,0.0);
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-        initializer(omp_priv = omp_orig)
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:time_dur)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     for (int ijk=0;ijk<ntime;ijk++){
         double t0 = tu[ijk];
-		auto t_start = std::chrono::high_resolution_clock::now();
-		// the work...
         VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
-		auto t_end = std::chrono::high_resolution_clock::now();
-		double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-		time_dur[0] += elapsed_time_ms;
-		t_start = std::chrono::high_resolution_clock::now();
         vector<int> indices_all;
         //
         int th = 1;
@@ -1495,10 +1567,6 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
                 if (v==th)
                     indices_all.push_back(i+1);
             });
-		t_end = std::chrono::high_resolution_clock::now();
-		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-		time_dur[1] += elapsed_time_ms;
-		t_start = std::chrono::high_resolution_clock::now();
         vector<int> indices; //generates vector of (start,end) pairs for indices at risk
         for (auto it = begin (indices_all); it != end (indices_all); ++it) {
             if (indices.size()==0){
@@ -1511,25 +1579,13 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
                 indices[indices.size()-1] = *it;
             }
         }
-		t_end = std::chrono::high_resolution_clock::now();
-		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-		time_dur[2] += elapsed_time_ms;
-		t_start = std::chrono::high_resolution_clock::now();
         //
         ostringstream oss;
         copy(indices.begin(), indices.end(),
             std::ostream_iterator<int>(oss, ","));
         RiskGroup[ijk] = oss.str();//stores risk groups in string
-		t_end = std::chrono::high_resolution_clock::now();
-		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-		time_dur[3] += elapsed_time_ms;
-		t_start = std::chrono::high_resolution_clock::now();
         //
         select_ind_all = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)).cast<int>(); //indices with events
-		t_end = std::chrono::high_resolution_clock::now();
-		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-		time_dur[4] += elapsed_time_ms;
-		t_start = std::chrono::high_resolution_clock::now();
         indices_all.clear();
         visit_lambda(select_ind_all,
             [&indices_all, th](double v, int i, int j) {
@@ -1537,21 +1593,9 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
                     indices_all.push_back(i+1);
             });
         //
-		t_end = std::chrono::high_resolution_clock::now();
-		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-		time_dur[5] += elapsed_time_ms;
-		t_start = std::chrono::high_resolution_clock::now();
         RiskFail(ijk,0)=indices_all[0]-1;//Due to the sorting method, there is a continuous block of event rows
         RiskFail(ijk,1)=indices_all[indices_all.size()-1]-1;
-		t_end = std::chrono::high_resolution_clock::now();
-		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-		time_dur[6] += elapsed_time_ms;
     }
-	Rcout << "Group timing";
-	for (int i=0;i<7;i++){
-		Rcout << " " << time_dur[i]/ntime;
-	}
-	Rcout << " " << endl;
     return;
 }
 

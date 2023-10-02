@@ -2,28 +2,24 @@ library(data.table)
 library(parallel)
 library(Colossus)
 
-a <- c(0,1,2,3,4,5,6)
-b <- c(1.1,2.5,3.0,4.5,5.1,6.8,7.2)
-c <- c(0,1,0,0,0,1,0)
-d <- c(3,4,5,6,7,8,9)
-e <- c(0,1,0,1,0,0,1)
-for (i in 1:10){
-    a <- c(a,a)
-    b <- c(b,b)
-    c <- c(c,rep(0,length(c)))
-    d <- c(d,d)
-    e <- c(e,e)
-}
-df <- data.table("a"=a,"b"=b,"c"=c,"d"=d,"e"=e)
-pyr <- "b"
-event <- "c"
-names <- c("d")
-Term_n <- c(0)
-tform <- c("loglin")
-keep_constant <- c(0)
-a_n <- c(-0.1)
+fname <- 'MULTI_COV.csv'
+colTypes=c("double","double","integer","integer","integer")
+df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+pyr <- "t1"
+event <- "lung"
+names <- c("a","b")
+Term_n <- c(0,1)
+tform <- c("loglin","loglin")
+keep_constant <- c(0,0)
+a_n <- c(0.01,-15)
 modelform <- "M"
 fir <- 0
 der_iden <- 0
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("e"))
+control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+guesses_control=list("Iterations"=2,"guesses"=2,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1, "loglin_max"=1,"lin_method"="uniform", "loglin_method"="uniform",'strata'=FALSE,'term_initial' = c(0,1),'verbose'=TRUE)
+RunPoissonRegression_Guesses_CPP(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,Strat_Col)
+
+
+
+
+

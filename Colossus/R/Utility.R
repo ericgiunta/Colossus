@@ -73,7 +73,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
             }
         }
     }
-    while (length(maxiters) - length(a_n) < guesses_control$guesses){
+    while (length(maxiters) - length(a_n) < guesses_control$guesses-1){
         if (guesses_control$verbose){
             message(paste("Note: ",length(maxiters)," valid guesses",sep=""))
         }
@@ -402,8 +402,8 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' control <- Def_Control(control)
 #'
 Def_Control <- function(control){
-    control_def <- list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,'maxiters' = c(1,20),
-        'guesses'=1,'halfmax' = 5,'epsilon' = 1e-9, 'dbeta_max' = 0.5,
+    control_def <- list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,
+        'halfmax' = 5,'epsilon' = 1e-9, 'dbeta_max' = 0.5,
         'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
         'ties'='breslow','double_step'=1,"keep_strata"=FALSE,
         "Ncores"=as.numeric(detectCores()), "cens_thres"=0)

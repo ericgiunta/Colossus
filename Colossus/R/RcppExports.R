@@ -82,6 +82,15 @@ Make_Groups <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debuggin
     invisible(.Call(`_Colossus_Make_Groups`, ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging))
 }
 
+#' Utility function to define risk groups with competing risks
+#' \code{Make_Groups_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event=2 past the event time    
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
+Make_Groups_CR <- function(ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, cens_cutoff, nthreads, debugging) {
+    invisible(.Call(`_Colossus_Make_Groups_CR`, ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, cens_cutoff, nthreads, debugging))
+}
+
 #' Utility function to define risk groups with STRATA
 #' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
 #' @inheritParams CPP_template
@@ -89,6 +98,15 @@ Make_Groups <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debuggin
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 Make_Groups_STRATA <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals) {
     invisible(.Call(`_Colossus_Make_Groups_STRATA`, ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals))
+}
+
+#' Utility function to define risk groups with STRATA and competing risks
+#' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group , adds competing risks  
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
+Make_Groups_STRATA_CR <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals, cens_weight, cens_cutoff) {
+    invisible(.Call(`_Colossus_Make_Groups_STRATA_CR`, ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals, cens_weight, cens_cutoff))
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation

@@ -124,6 +124,29 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     for (i in a_n){
         a_ns <- c(a_ns, i)
     }
+    if ("maxiters" %in% names(control)){
+	    if ("guesses" %in% names(control)){
+	        #both are in
+	        if (control$guesses+1 == length(control$maxiters)){
+	            #all good, it matches
+	        } else {
+	            if (control$verbose){
+                    message(paste("Error: guesses:",control["guesses"],
+                          ", iterations per guess:",control["maxiters"],sep=" "))
+                }
+                stop()
+	        }
+	    } else {
+	        control$guesses = length(control$maxiters)-1
+	    }
+	} else {
+	    if ("guesses" %in% names(control)){
+            control$maxiters = rep(1,control$guesses+1)
+        } else {
+            control$guesses = 1
+            control$maxiters = c(1,control$maxiter)
+        }
+    }
     #
     #
     e <- pois_Omnibus_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,
@@ -512,7 +535,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, Term_n, tf
     maxiters <- dat_val$maxiters
     #
     control$maxiters <- c(maxiters,control$maxiter)
-    control$guesses <- length(maxiters)-1
+    control$guesses <- length(maxiters)
     #
     #
     a_n_mat <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)

@@ -141,6 +141,29 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         a_ns <- c(a_ns, i)
     }
     #
+    if ("maxiters" %in% names(control)){
+	    if ("guesses" %in% names(control)){
+	        #both are in
+	        if (control$guesses+1 == length(control$maxiters)){
+	            #all good, it matches
+	        } else {
+	            if (control$verbose){
+                    message(paste("Error: guesses:",control["guesses"],
+                          ", iterations per guess:",control["maxiters"],sep=" "))
+                }
+                stop()
+	        }
+	    } else {
+	        control$guesses = length(control$maxiters)-1
+	    }
+	} else {
+	    if ("guesses" %in% names(control)){
+            control$maxiters = rep(1,control$guesses+1)
+        } else {
+            control$guesses = 1
+            control$maxiters = c(1,control$maxiter)
+        }
+    }
     if (model_control$null){
         a_ns <- matrix(a_ns)
     } else {
@@ -1076,16 +1099,6 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(time1,time2,event0)
         #
-        t_check <- Check_Trunc(df,ce)
-        df <- t_check$df
-        ce <- t_check$ce
-        #
-        #
-        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
-                                      a_n, x_all, a_n_default, modelform, fir, control,
-                                      guesses_control, model_control)
-        a_ns <- dat_val$a_ns
-        maxiters <- dat_val$maxiters
     } else {
         #
         dfend <- df[get(event0)==1, ]
@@ -1128,17 +1141,16 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(time1,time2,event0,Strat_Col)
         #
-        #
-        t_check <- Check_Trunc(df,ce)
-        df <- t_check$df
-        ce <- t_check$ce
-        #
-        dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
-                                      a_n, x_all, a_n_default, modelform, fir, control,
-                                      guesses_control, model_control)
-        a_ns <- dat_val$a_ns
-        maxiters <- dat_val$maxiters
     }
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
+                                  a_n, x_all, a_n_default, modelform, fir, control,
+                                  guesses_control, model_control)
+    a_ns <- dat_val$a_ns
+    maxiters <- dat_val$maxiters
     #
     control$maxiters <- c(maxiters,control$maxiter)
     control$guesses <- length(maxiters)
