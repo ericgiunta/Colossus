@@ -246,24 +246,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// Make_Groups_CR
-void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>& RiskGroup, NumericVector& tu, const VectorXd& cens_weight, const double cens_cutoff, const int& nthreads, bool debugging);
-RcppExport SEXP _Colossus_Make_Groups_CR(SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP tuSEXP, SEXP cens_weightSEXP, SEXP cens_cutoffSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type df_m(df_mSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix& >::type RiskFail(RiskFailSEXP);
-    Rcpp::traits::input_parameter< vector<string>& >::type RiskGroup(RiskGroupSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type tu(tuSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
-    Rcpp::traits::input_parameter< const double >::type cens_cutoff(cens_cutoffSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Make_Groups_CR(ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, cens_cutoff, nthreads, debugging);
-    return R_NilValue;
-END_RCPP
-}
 // Make_Groups_STRATA
 void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix& RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals);
 RcppExport SEXP _Colossus_Make_Groups_STRATA(SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP tuSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP) {
@@ -278,25 +260,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Make_Groups_STRATA(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals);
-    return R_NilValue;
-END_RCPP
-}
-// Make_Groups_STRATA_CR
-void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix& RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const VectorXd& cens_weight, const double cens_cutoff);
-RcppExport SEXP _Colossus_Make_Groups_STRATA_CR(SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP tuSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP STRATA_valsSEXP, SEXP cens_weightSEXP, SEXP cens_cutoffSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type df_m(df_mSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix& >::type RiskFail(RiskFailSEXP);
-    Rcpp::traits::input_parameter< StringMatrix& >::type RiskGroup(RiskGroupSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type tu(tuSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
-    Rcpp::traits::input_parameter< const double >::type cens_cutoff(cens_cutoffSEXP);
-    Make_Groups_STRATA_CR(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging, STRATA_vals, cens_weight, cens_cutoff);
     return R_NilValue;
 END_RCPP
 }
@@ -1456,9 +1419,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Make_Risks_Single", (DL_FUNC) &_Colossus_Make_Risks_Single, 19},
     {"_Colossus_Make_Risks_Basic", (DL_FUNC) &_Colossus_Make_Risks_Basic, 11},
     {"_Colossus_Make_Groups", (DL_FUNC) &_Colossus_Make_Groups, 7},
-    {"_Colossus_Make_Groups_CR", (DL_FUNC) &_Colossus_Make_Groups_CR, 9},
     {"_Colossus_Make_Groups_STRATA", (DL_FUNC) &_Colossus_Make_Groups_STRATA, 8},
-    {"_Colossus_Make_Groups_STRATA_CR", (DL_FUNC) &_Colossus_Make_Groups_STRATA_CR, 10},
     {"_Colossus_Calculate_Sides", (DL_FUNC) &_Colossus_Calculate_Sides, 16},
     {"_Colossus_Calculate_Sides_CR", (DL_FUNC) &_Colossus_Calculate_Sides_CR, 17},
     {"_Colossus_Calculate_Sides_CR_SINGLE", (DL_FUNC) &_Colossus_Calculate_Sides_CR_SINGLE, 11},
