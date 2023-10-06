@@ -1,7 +1,7 @@
 Package: Colossus
 Type: Package
 Title: "Risk Model Regression and Analysis with Complex Non-Linear Models"
-Version: 0.9.3
+Version: 0.9.5
 Authors@R:c(
     person("Eric", "Giunta", email="egiunta@ksu.edu", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1577-766X")),
     person("Amir", "Bahadori", role=c("ctb")),
@@ -41,5 +41,6 @@ Suggests:
     spelling
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+X-schema.org-keywords: cox proportional hazards, survival analysis, dose response
 Language: en-US
 Biarch: TRUE

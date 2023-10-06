@@ -48,19 +48,21 @@
 #'                               model_control=list("single"=FALSE,
 #'                               "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list()){
+RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0,0)),Cons_Vec=c(0)){
+    control <- Def_Control(control)
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
-                                 names, der_iden)
+                                 names, der_iden, control$verbose, Cons_Mat, Cons_Vec)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
+    Cons_Mat <- val$Cons_Mat
+    Cons_Vec <- val$Cons_Vec
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
-    control <- Def_Control(control)
     if (control$verbose){
         if (any(val$Permutation != seq_along(tform))){
             message("Warning: model covariate order changed")
@@ -171,7 +173,8 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     }
     e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden,
          modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
-         keep_constant,term_tot, uniq, cens_weight, model_control)
+         keep_constant,term_tot, uniq, cens_weight, model_control,
+         Cons_Mat, Cons_Vec)
 	if (is.nan(e$LogLik)){
 		if (control$verbose){message("Invalid risk")}
 		stop()

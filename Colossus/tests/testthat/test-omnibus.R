@@ -242,7 +242,7 @@ test_that("risk check omnibus gmix", {
     tform <- c("loglin","loglin","plin","plin","loglin")
     keep_constant <- c(0,0,0,0,0)
     a_n <- c(-0.1,0.1,0.2,0.3,-0.5)
-    df_order <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names, "order"=1:length(names))
+    df_order <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names, "order"=1:5)
 
     means <- c(0.6918334,0.6918334,0.6918334,2.9080098,3.8839872,2.7077608,0.6918334,1.2728663,1.8214142,2.9080098,0.6918334,1.4807626,1.8214142,3.8839872,0.6918334,1.4807626,1.2728663,2.7077608)
     medians <- c(0.5871897,0.5871897,0.5871897,2.8144283,3.7521540,2.4285966,0.5871897,1.0226682,1.7472830,2.8144283,0.5871897,1.2200643,1.7472830,3.7521540,0.5871897,1.2200643,1.0226682,2.4285966)
@@ -419,4 +419,45 @@ test_that("check deviation calc", {
     expect_equal(devs,c(0.6091269, 0.5356671, 0.7385757, 0.9448081),tolerance=1e-4)
 })
 
+test_that("check Linear Constraints", {
+    fname <- 'l_pl_0.csv'
+    colTypes=c("double","double","double","integer","integer")
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    df$pyr <- df$t1 - df$t0
+    time1 <- "t0"
+    time2 <- "t1"
+    pyr <- 'pyr'
+    event <- "lung"
+    names <- c("dose","fac")
+    Term_n <- c(0,0)
+    tform <- c("loglin","plin")
+    keep_constant <- c(0,0)
+    model_control=list('strata'=F, 'basic'=F, 'single'=F, 'null'=F,'constraint'=T)
+    Constraint_Matrix <- matrix(c(1,-1),nrow=1)
+    Constraint_const  <- c(0.0)
+    for (i in 1:20){
+        a_n <- 2*runif(2)-1
+        del <- abs(a_n[1]-a_n[2])
+        a_n0 <- rep(sum(a_n)/2,2)
+        a_n <- a_n0 - c(-del/2,del/2)
+        modelform <- "M"
+        fir <- 0
+        der_iden <- 0
+        control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+        e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col="fac", model_control=model_control,Cons_Mat=Constraint_Matrix, Cons_Vec=Constraint_const)
+        expect_equal(e$beta_0,c(0.357333, 0.357333),tolerance=1e-2)
+    }
+    for (i in 1:20){
+        a_n <- 2*runif(2)-1
+        del <- abs(a_n[1]-a_n[2])
+        a_n0 <- rep(sum(a_n)/2,2)
+        a_n <- a_n0 + c(-del/2,del/2)
+        modelform <- "M"
+        fir <- 0
+        der_iden <- 0
+        control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+        e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col="fac",model_control=model_control,Cons_Mat=Constraint_Matrix, Cons_Vec=Constraint_const)
+        expect_equal(e$beta_0,c(-0.472812, -0.472812),tolerance=1e-2)
+    }
+})
 

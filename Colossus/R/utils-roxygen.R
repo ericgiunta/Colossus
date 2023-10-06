@@ -17,6 +17,8 @@
 #' @param col_name  new column name
 #' @param cols  columns to check
 #' @param control  list of parameters controlling the convergence
+#' @param Cons_Mat Matrix containing coefficients for system of linear constraints
+#' @param Cons_Vec Vector containing constants for system of linear constraints
 #' @param dep_cols  columns that are not needed in the new dataframe
 #' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter
 #' @param df  a data.table containing the columns of interest
@@ -111,6 +113,9 @@ NULL
 #' @param change_all  boolean if every parameter is being updated
 #' @param colToRemove  column index to remove
 #' @param cols  list of column identifiers, single continuous list
+#' @param constraint_bool  boolean for system of linear equality constraints used
+#' @param Cons_Mat Matrix containing coefficients for system of linear constraints
+#' @param Cons_Vec Vector containing constants for system of linear constraints
 #' @param dbeta  parameter change vector
 #' @param dbeta_cap  learning rate for newton step toward 0 log-likelihood
 #' @param debugging  additional boolean for verbosity in testing
@@ -140,6 +145,8 @@ NULL
 #' @param halfmax  maximum number of half steps
 #' @param iscox  boolean of cox formatting is used
 #' @param iter_stop  binary value used to tell the function not to continue iteration
+#' @param Lin_Res Vector containing constants for system of linear constraints
+#' @param Lin_Sys Matrix containing coefficients for system of linear constraints
 #' @param lr  learning rate for newton step toward 0 derivative
 #' @param matrix_modify matrix to remove rows or columns from 
 #' @param maxiter   integer of maximum number of iterations

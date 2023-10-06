@@ -51,7 +51,7 @@ void visit_lambda(const Mat& m, const Func& f)
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control){
+List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     bool change_all = Control["change_all"];
     int double_step = Control["double_step"];
     bool verbose = Control["verbose"];
@@ -73,15 +73,19 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
 	double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
 	//
+	const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+	const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+	//
 	bool strata_bool = model_control["strata"];
 	bool basic_bool  = model_control["basic"];
 	bool null_bool   = model_control["null"];
 	bool CR_bool     = model_control["CR"];
 	bool single_bool = model_control["single"];
+	bool constraint_bool = model_control["constraint"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Omnibus(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, gmix_theta, gmix_term);
+    List res = LogLik_Cox_PH_Omnibus(Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -92,7 +96,7 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 // [[Rcpp::export]]
-List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control){
+List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     //
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
@@ -115,13 +119,16 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
     double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
 	//
+	const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+	const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+	//
 	bool strata_bool = model_control["strata"];
 	bool single_bool = model_control["single"];
+	bool constraint_bool = model_control["constraint"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Pois_Omnibus(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term);
-    //LogLik_Pois_Omnibus(MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int double_step ,bool change_all, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, bool strata_bool, bool single_bool);
+    List res = LogLik_Pois_Omnibus(PyrC, Term_n, tform, a_ns, x_all, dfc,fir, der_iden,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, double_step, change_all,verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

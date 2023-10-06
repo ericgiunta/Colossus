@@ -289,6 +289,15 @@ Intercept_Bound <- function(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepCon
     invisible(.Call(`_Colossus_Intercept_Bound`, nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform))
 }
 
+#' Utility function to calculate the change to make each iteration, applying linear constraints
+#' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints    
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+Calc_Change_Cons <- function(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_Cons`, Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging))
+}
+
 #' Utility function to calculate the change to make each iteration
 #' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 #' @inheritParams CPP_template
@@ -359,8 +368,8 @@ Check_Risk <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, 
 #' @inheritParams CPP_template
 #'
 #' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, gmix_theta, gmix_term) {
-    .Call(`_Colossus_LogLik_Cox_PH_Omnibus`, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, gmix_theta, gmix_term)
+LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_Cox_PH_Omnibus`, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
 }
 
 #' Primary poisson regression with multiple starting points and optional combinations of stratification and no derivative calculation.
@@ -369,8 +378,8 @@ LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden
 #' @inheritParams CPP_template
 #'
 #' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-LogLik_Pois_Omnibus <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term) {
-    .Call(`_Colossus_LogLik_Pois_Omnibus`, PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, gmix_theta, gmix_term)
+LogLik_Pois_Omnibus <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_Pois_Omnibus`, PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, double_step, change_all, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
@@ -464,8 +473,8 @@ Plot_Omnibus <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelfor
 #' @inheritParams CPP_template
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-cox_ph_Omnibus_transition <- function(Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control) {
-    .Call(`_Colossus_cox_ph_Omnibus_transition`, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control)
+cox_ph_Omnibus_transition <- function(Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_cox_ph_Omnibus_transition`, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
 }
 
 #' Interface between R code and the poisson omnibus regression function
@@ -473,8 +482,8 @@ cox_ph_Omnibus_transition <- function(Term_n, tform, a_ns, dfc, x_all, fir, der_
 #' @inheritParams CPP_template
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-pois_Omnibus_transition <- function(dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control) {
-    .Call(`_Colossus_pois_Omnibus_transition`, dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control)
+pois_Omnibus_transition <- function(dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_pois_Omnibus_transition`, dfe, Term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
 }
 
 #' Interface between R code and the plotting omnibus function

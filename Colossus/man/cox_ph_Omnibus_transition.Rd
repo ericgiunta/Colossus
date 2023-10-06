@@ -21,7 +21,9 @@ cox_ph_Omnibus_transition(
   term_tot,
   STRATA_vals,
   cens_vec,
-  model_control
+  model_control,
+  Cons_Mat,
+  Cons_Vec
 )
 }
 \arguments{
@@ -56,6 +58,10 @@ cox_ph_Omnibus_transition(
 \item{cens_vec}{censoring weight list}
 
 \item{model_control}{controls which alternative model options are used}
+
+\item{Cons_Mat}{Matrix containing coefficients for system of linear constraints}
+
+\item{Cons_Vec}{Vector containing constants for system of linear constraints}
 }
 \value{
 LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information

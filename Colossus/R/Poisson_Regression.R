@@ -43,19 +43,22 @@
 #' e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
 #'                                   a_n, modelform, fir, der_iden, control,Strat_Col)
 #' @importFrom rlang .data
-RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list()){
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, der_iden)
+RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0,0)),Cons_Vec=c(0)){
+    control <- Def_Control(control)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
+                                 names, der_iden, control$verbose, Cons_Mat, Cons_Vec)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
+    Cons_Mat <- val$Cons_Mat
+    Cons_Vec <- val$Cons_Vec
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
 	df <- df[get(pyr0)>0,]
-    control <- Def_Control(control)
     if (control$verbose){
         if (any(val$Permutation != seq_along(tform))){
             message("Warning: model covariate order changed")
@@ -152,7 +155,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     e <- pois_Omnibus_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,
                                  matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE),
                                  dfc,x_all, fir,der_iden, modelform, control,keep_constant,
-                                 term_tot,as.matrix(df0[,val_cols, with=FALSE]),model_control)
+                                 term_tot,as.matrix(df0[,val_cols, with=FALSE]),model_control,
+                                 Cons_Mat, Cons_Vec)
     e$Parameter_Lists$names <- names
 	if (is.nan(e$LogLik)){
 		if (control$verbose){

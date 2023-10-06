@@ -21,7 +21,9 @@ RunPoissonRegression_Omnibus(
   der_iden = 0,
   control = list(),
   Strat_Col = "null",
-  model_control = list()
+  model_control = list(),
+  Cons_Mat = as.matrix(c(0, 0)),
+  Cons_Vec = c(0)
 )
 }
 \arguments{
@@ -52,6 +54,10 @@ RunPoissonRegression_Omnibus(
 \item{Strat_Col}{column to stratify by if needed}
 
 \item{model_control}{controls which alternative model options are used}
+
+\item{Cons_Mat}{Matrix containing coefficients for system of linear constraints}
+
+\item{Cons_Vec}{Vector containing constants for system of linear constraints}
 }
 \value{
 returns a list of the final results

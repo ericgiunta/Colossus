@@ -16,29 +16,26 @@ knitr::opts_chunk$set(
 # Colossus
 
 <!-- badges: start -->
+[![](https://codecov.io/gh/ericgiunta/Colossus/branch/master/graph/badge.svg)](https://codecov.io/gh/ericgiunta/Colossus)
+[![](https://img.shields.io/github/languages/code-size/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus)
+[![Dependencies](https://tinyverse.netlify.com/badge/Colossus)](https://cran.r-project.org/package=Colossus)
+[![](https://img.shields.io/github/last-commit/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus/commits/master)
+[![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 The goal of Colossus is to provide an open-source means of performing survival analysis on big data with complex risk formula. Colossus is designed to perform Cox Proportional Hazard regressions and Poisson regressions on datasets loaded as data.tables or data.frames. The risk models allowed are sums or products of linear, log-linear, or several other radiation dose response formula highlighted in the vignettes. Additional plotting capabilities are available.
 
-To properly generate Makevars for linux or MacOS, please run configure_MAKEVAR.sh or modify Colossus/src/Makevars accordingly:
-Linux:
------------------------
-PKG_CXXFLAGS=-fopenmp
-PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp
 
-MacOS:
------------------------
-CPPFLAGS += -Xclang -fopenmp
-LDFLAGS += -lomp
-
-
-Please consult the github for details on libraries required for your OS.
+Please consult the GitHub for details on libraries required for your OS.
 
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
+library(data.table)
+library(parallel)
 library(Colossus)
 ## basic example code reproduced from the starting-description vignette
 

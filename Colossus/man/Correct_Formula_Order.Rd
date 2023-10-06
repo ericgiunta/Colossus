@@ -12,7 +12,9 @@ Correct_Formula_Order(
   a_n,
   names,
   der_iden = 0,
-  verbose = FALSE
+  verbose = FALSE,
+  Cons_Mat = matrix(c(0)),
+  Cons_Vec = c(0)
 )
 }
 \arguments{
@@ -29,6 +31,10 @@ Correct_Formula_Order(
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
 
 \item{verbose}{boolean to control if additional information is printed to the console}
+
+\item{Cons_Mat}{Matrix containing coefficients for system of linear constraints}
+
+\item{Cons_Vec}{Vector containing constants for system of linear constraints}
 }
 \value{
 returns the corrected lists

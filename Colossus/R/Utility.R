@@ -152,7 +152,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #' der_iden <- val$der_iden
 #' names <- val$names
 #'
-Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0,verbose=FALSE){
+Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0,verbose=FALSE, Cons_Mat=matrix(c(0)),Cons_Vec=c(0)){
     #
     if (min(keep_constant)>0){
         message("Error: Atleast one parameter must be free")
@@ -194,8 +194,17 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             keep_constant <- keep_constant[seq_len(length(names))]
         }
         #
+        col_to_cons <- c()
+        for (i in keep_constant){
+            if (i==1){
+                col_to_cons <- c(col_to_cons, sum(col_to_cons)+1)
+            } else {
+                col_to_cons <- c(col_to_cons, 0)
+            }
+        }
+        #
         df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
-                         "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)),"current_order"=1:(length(tform)))
+                         "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)),"current_order"=1:length(tform),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
         tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top",
                          "lin_slope", "lin_int", "quad_slope", "step_slope",
@@ -203,9 +212,6 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
                          "lin_exp_int", "lin_exp_exp_slope")
         tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
-        if (verbose){
-            message(df)
-        }
         keycol <-c("Term_n","names","tform_order")
         setorderv(df, keycol)
         a_n <- df$a_n
@@ -253,8 +259,18 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             keep_constant <- keep_constant[seq_len(length(names))]
         }
         #
+        #
+        col_to_cons <- c()
+        for (i in keep_constant){
+            if (i==1){
+                col_to_cons <- c(col_to_cons, sum(col_to_cons)+1)
+            } else {
+                col_to_cons <- c(col_to_cons, 0)
+            }
+        }
+        #
         df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
-                         "names"=names,"iden_const"=rep(0,length(names)),"current_order"=1:(length(tform)))
+                         "names"=names,"iden_const"=rep(0,length(names)),"current_order"=1:(length(tform)),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
         for (i in seq_len(length(a_n))){
             df[[paste("a_",i,sep="")]] <- a_n[[i]]
@@ -265,9 +281,6 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
                          "lin_exp_int", "lin_exp_exp_slope")
         tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
-        if (verbose){
-            message(df)
-        }
         keycol <-c("Term_n","names","tform_order")
         setorderv(df, keycol)
         for (i in seq_len(length(a_n))){
@@ -338,10 +351,25 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             }
         }
     }
+    col_to_cons <- df$col_to_cons
+    cons_order <- c()
+    for (i in col_to_cons){
+        if (i>0){
+            cons_order <- c(cons_order,i)
+        }
+    }
+    if (ncol(Cons_Mat)==sum(keep_constant)){
+        colnames(Cons_Mat) <- 1:ncol(Cons_Mat)
+        Cons_Vec <- matrix(Cons_Vec, nrow=1)
+        colnames(Cons_Vec) <- 1:ncol(Cons_Vec)
+        Cons_Mat <- Cons_Mat[,cons_order]
+        Cons_Vec <- Cons_Vec[,cons_order]
+    }
     a_temp <- df$iden_const
     der_iden <- which(a_temp==1)
     list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant,
-         "a_n"=a_n, "der_iden"=der_iden, "names"=df$names,"Permutation"=df$current_order)
+         "a_n"=a_n, "der_iden"=der_iden, "names"=df$names,"Permutation"=df$current_order,
+         "Cons_Mat"=Cons_Mat,"Cons_Vec"=Cons_Vec)
 }
 
 #' Automatically assigns missing values in listed columns
@@ -492,7 +520,7 @@ Def_modelform_fix <- function(control,model_control,modelform,Term_n){
 #' control <- Def_model_control(control)
 #'
 Def_model_control <- function(control){
-    control_def_names <- c('single','basic','null','CR','strata','Surv','Schoenfeld','Risk','Risk_Subset')
+    control_def_names <- c('single','basic','null','CR','constraint','strata','Surv','Schoenfeld','Risk','Risk_Subset')
     for (nm in control_def_names){
         if (nm %in% names(control)){
             #fine

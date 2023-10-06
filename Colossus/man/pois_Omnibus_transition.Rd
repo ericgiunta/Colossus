@@ -19,7 +19,9 @@ pois_Omnibus_transition(
   KeepConstant,
   term_tot,
   df0,
-  model_control
+  model_control,
+  Cons_Mat,
+  Cons_Vec
 )
 }
 \arguments{
@@ -50,6 +52,10 @@ pois_Omnibus_transition(
 \item{df0}{matrix of covariate values}
 
 \item{model_control}{controls which alternative model options are used}
+
+\item{Cons_Mat}{Matrix containing coefficients for system of linear constraints}
+
+\item{Cons_Vec}{Vector containing constants for system of linear constraints}
 }
 \value{
 LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information

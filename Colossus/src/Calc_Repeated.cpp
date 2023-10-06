@@ -3165,6 +3165,108 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
     return;
 }
 
+//' Utility function to calculate the change to make each iteration, applying linear constraints
+//' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints    
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: parameter change matrix
+// [[Rcpp::export]]
+void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging){
+    //
+    int kept_covs = totalnum - sum(KeepConstant);
+//    MatrixXd Lin_Sys(1,kept_covs);
+//    Lin_Sys(0,0) = 1;
+//    Lin_Sys(0,1) = -1;
+//    VectorXd Lin_Res(1);
+//    Lin_Res(0) = 0.1;
+    //
+    VectorXd beta_1(kept_covs);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            beta_1(pij_ind) = beta_0(ij);
+        }
+    }
+    VectorXd Lin_Dif = Lin_Sys * beta_1 - Lin_Res;
+    //
+    int total_covs = kept_covs + Lin_Sys.rows();
+    //
+    NumericVector Lldd_vec(total_covs*total_covs);
+    NumericVector Lld_vec(total_covs);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<total_covs*(total_covs+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        if (ij < kept_covs){
+            Lldd_vec[jk * total_covs + ij]=Lldd[jk * kept_covs + ij];
+            if (ij==jk){
+                Lld_vec[ij]=Lld[ij];
+            } else {
+                Lldd_vec[ij * total_covs + jk]=Lldd_vec[jk * kept_covs + ij];
+            }
+        } else {
+            if (jk < kept_covs) {
+                Lldd_vec[jk * total_covs + ij]=Lin_Sys(ij-kept_covs,jk);
+            } else {
+                Lldd_vec[jk * total_covs + ij]=0.0;
+            }
+            if (ij==jk){
+                Lld_vec[ij]=Lin_Dif(ij-kept_covs);
+            } else {
+                Lldd_vec[ij * total_covs + jk]=Lldd_vec[jk * total_covs + ij];
+            }
+        }
+    }
+    //
+    //
+    Lldd_vec.attr("dim") = Dimension(total_covs, total_covs);
+    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+    //
+    //
+    VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+    VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            Lldd_solve(ij) = Lldd_solve0(pij_ind);
+        }
+    }
+    //
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<totalnum;ijk++){
+        if (KeepConstant[ijk]==0){
+            int pjk_ind = ijk - sum(head(KeepConstant,ijk));
+            if (isnan(Lldd_solve(ijk))){
+                if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0 ){
+                    dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+                } else {
+                    dbeta[ijk] = 0;
+                }
+            } else {
+                dbeta[ijk] = lr * Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+            }
+            //
+            if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                if (abs(dbeta[ijk])>dose_abs_max){
+                    dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                }
+            }else{
+                if (abs(dbeta[ijk])>abs_max){
+                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                }
+            }
+        } else {
+            dbeta[ijk]=0;
+        }
+    }
+    return;
+}
+
 //' Utility function to calculate the change to make each iteration
 //' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 //' @inheritParams CPP_template

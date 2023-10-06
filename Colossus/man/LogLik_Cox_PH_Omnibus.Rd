@@ -41,8 +41,11 @@ LogLik_Cox_PH_Omnibus(
   null_bool,
   CR_bool,
   single_bool,
+  constraint_bool,
   gmix_theta,
-  gmix_term
+  gmix_term,
+  Lin_Sys,
+  Lin_Res
 )
 }
 \arguments{
@@ -116,9 +119,15 @@ LogLik_Cox_PH_Omnibus(
 
 \item{single_bool}{boolean for single calculation without derivatives}
 
+\item{constraint_bool}{boolean for system of linear equality constraints used}
+
 \item{gmix_theta}{theta value for geometric-mixture model}
 
 \item{gmix_term}{list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)}
+
+\item{Lin_Sys}{Matrix containing coefficients for system of linear constraints}
+
+\item{Lin_Res}{Vector containing constants for system of linear constraints}
 }
 \value{
 List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information

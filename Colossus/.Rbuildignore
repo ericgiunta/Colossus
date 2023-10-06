@@ -5,3 +5,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^.sh
+^codemeta\.json$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

@@ -25,7 +25,9 @@ RunCoxRegression_Omnibus(
   control = list(),
   Strat_Col = "null",
   cens_weight = c(1),
-  model_control = list()
+  model_control = list(),
+  Cons_Mat = as.matrix(c(0, 0)),
+  Cons_Vec = c(0)
 )
 }
 \arguments{
@@ -60,6 +62,10 @@ RunCoxRegression_Omnibus(
 \item{cens_weight}{list of weights for censoring rate}
 
 \item{model_control}{controls which alternative model options are used}
+
+\item{Cons_Mat}{Matrix containing coefficients for system of linear constraints}
+
+\item{Cons_Vec}{Vector containing constants for system of linear constraints}
 }
 \value{
 returns a list of the final results
