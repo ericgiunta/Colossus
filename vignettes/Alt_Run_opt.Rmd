@@ -1,0 +1,192 @@
+---
+title: "Alternative_Regression_Options"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Alternative_Regression_Options}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Colossus)
+library(data.table)
+
+```
+## General Options
+
+Both Cox PH and Poisson regressions have additional functions that can account for specific situations. There general situations are as follows:
+
+| Option | Description | Cox PH | Poisson |
+| :---------: | :----------: | :----------: | :-------: |
+| Stratification | In Cox PH, the stratification is applied in the risks groups to compare only like rows. In Poisson regression the stratification is an additional term in the model to account for the effects of stratified covariates | x | x |
+| Simplified Model | For a multiplicative Log-Linear model, there are simplifications that can be made to the code. These give a faster version. | x | x |
+| Non-Derivative Calculation | If a single iteration is needed without derivatives, there is time and memory that can be saved | x | x |
+| Competing Risks | If there is a competing event, rows are weighted by an estimate of censoring rate to approximate a dataset without the effect of a competing event | x |  |
+| Distributed Initial Parameter Sets | The user provides distribution for each starting parameter, Colossus runs low iteration regressions at random points, and then a full run at the best guess | x | x |
+
+The following sections review the math behind the basic functions and how each option changes that.
+
+
+## Stratification
+
+### Cox Proportional Hazards
+
+In Cox Proportional Hazards, the Log-Likelihood is calculated by taking the ratio of the hazard ratio at each event to the sum of the hazard ratios of every other row at risk. This defines the risk group for every event time to be the intervals containing the event time. Intervals are assumed to be open on the left and closed on the right, and events are assumed to take place at the right end point. This gives the following common equation for the Log-Likelihood:
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    Ll = \prod_{i}^{n} \left( \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j} \right)^{\delta_i}
+\end{aligned}
+$$
+</p>
+
+In which r denotes hazard ratios, the denominator is the sum of hazard ratios of intervals containing the event time, and each term is raised to the power of 1 if the interval has an event and 0 otherwise. Different tie methods modify the denominator based on how the order of events is assumed, but the general form still stands. The goal is to compare each event interval to intervals within a similar time span. Stratification adds in an additional condition. If the user stratifies over a covariate "F" then each risk group is split into subgroups with the same value of "F". So the goal becomes to compare event intervals to intervals with similar strata AND time. This is done to remove the influence of the stratification variables from the calculations.
+
+In code this is done by adding in an additional parameter for the stratification column and using a different function to call the regression.
+
+```{r, eval=FALSE}
+Strat_Col <- "e"
+e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n, tform, keep_constant,
+                             a_n, modelform, fir, der_iden, control,Strat_Col)
+```
+
+### Poisson Regression
+
+Poisson regression doesn't have risk groups to account for, but the theory is the same. To remove the influence of stratification covariate a new term is added to account for their effects. In Colossus, this is a Log-Linear term. So the following may be the model used without stratification:
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    R = \sum_i (x_i \cdot \beta_i)
+\end{aligned}
+$$
+</p>
+
+Then the stratified model may look like this:
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    R = (\sum_i (x_i \cdot \beta_i)) \times (1 + \exp{(\sum_j (x_j \cdot \beta_j))})
+\end{aligned}
+$$
+</p>
+
+Only results associated with the non-stratified parameters are returned by default. An average event rate is calculated for every strata level, which weights the calculated risks.
+
+In code this is done by adding in a list of stratification columns and using a different function to call the regression. Colossus combines the list of stratification columns into a single interaction, so it does not matter if the user provides a list or combines them themselves.
+
+```{r, eval=FALSE}
+Strat_Col <- c("e")
+e <-RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant,
+                                a_n, modelform, fir, der_iden, control,Strat_Col)
+```
+
+## Simplified Model
+
+The inclusion of linear subterms, additive models, and multiple terms means that default Colossus calculates and stores every derivative assuming that every value is needed. If the equation is log-linear with one term, then there are many simplifications that can be made. This option is designed to make those simplifications. In particular having only one subterm type means that the hazard ratios and their derivatives can be calculated directly, and the only subterm type being an exponential means that the logarithm of the hazard ratio in the Log-Likelihood calculation is simplified. In tests, using the simplified function was able to save approximately 40% time versus the full code being used.
+
+Assuming the same general parameters in the other vignettes, the code is as follows:
+
+```{r, eval=FALSE}
+e <- RunCoxRegression_Basic(df, time1, time2, event, names,
+                            keep_constant, a_n, der_iden, control)
+```
+
+## Non-Derivative Calculation
+
+Colossus uses Newton's method to perform the regression, which can become computationally complex as the number of terms and formula increases. So Colossus contains functions to calculate only the scores for a parameter set, and skip the intensive derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence of score on parameter values. Colossus in the current state does not use these functions, but they are left for the user's convenience.
+
+The code is similar to previous examples:
+```{r, eval=FALSE}
+e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
+                             a_n, modelform, fir, control)
+
+e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform,
+                                 a_n, modelform, fir, control)
+```
+
+## Competing Risks
+
+In Cox PH there is an assumption that every individual is recorded until they have an event or they are naturally censored, and the same censoring rates are assumed to apply to every individual. These are violated when there is a competing event occurring. In sensitivity analysis there are two extremes that can be tested. Either every person with a competing event is treated as having the event of interest instead, or they are assumed to never experience the event of interest. However there are methods to find a more realistic alternative. Colossus applies the Fine-Gray model for competing risks, which instead weights the contribution of competing event intervals in future intervals by the probability they wouldn't have been censored.
+
+As previously established, the risk groups are formed to measure the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time:
+
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta t)\text{ and }(k=1), T \geq t)}{\Delta t}
+\end{aligned}
+$$
+</p>
+
+The competing risks model adjusts this to be the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time OR they survived up to a previous time and experienced an event:
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta t)\text{ and }(k=1), (T \geq t)\text{ or }((T < t)\text{ and }(k \neq 1)))}{\Delta t}
+\end{aligned}
+$$
+</p>
+
+This means that risks groups would contain both intervals actually at risk and intervals with competing events treated as if they were at risk. If we assume that no time-dependent covariates are being used, then all that remains is to weight the contribution of these competing events. The goal is to quantify the probability that an interval would have been uncensored at the new event time given that it was uncensored up to the competing event time. Colossus handles this by fitting a survival curve for censoring and using the ratio of surviving proportion to weight intervals.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+   W_i(j) = min \left(\frac{S(t_j)}{S(t_i)},1 \right)
+\end{aligned}
+$$
+</p>
+
+At any given event time, every competing event interval will have a right interval limit below the event time and every interval without events will have a right interval limit above the event time. So competing events will have a weighting below 1 and every other interval will have a weighting set to 1.
+
+In code, the call is similar to the standard function. The process for finding a weighting is included below. In this example we assume the event column, lung, to contain a 0 for no events, 1 for the primary event, and 2 for the competing event. A ID column is used to determine which individuals have events and which are censored.
+
+```{r, eval=FALSE}
+df$censor <- (df$lung==0) #censoring column made
+event <- "censor" #event type switched to censoring
+
+plot_options <- list("name"="run_2","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
+#modified plotting function used to get censoring weights
+dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant,
+                     a_n, modelform, fir, control, plot_options) #generates a survival curve
+t_ref <- dft$t
+surv_ref <- dft$surv
+t_c <- df$t1
+cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
+#the surviving proportions used as censoring weight
+event <- "lung" #event switched back
+
+e <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform, keep_constant,
+                         a_n, modelform, fir, der_iden, control,cens_weight)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
