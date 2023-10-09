@@ -7,6 +7,7 @@
 #'
 #' @return returns a list of the final results
 #' @export
+#'
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -331,6 +332,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #'
 #' @return returns a list of the final results
 #' @export
+#'
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -445,6 +447,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 #'
 #' @return returns a list of the final results
 #' @export
+#'
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette

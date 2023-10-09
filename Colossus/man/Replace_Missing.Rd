@@ -14,7 +14,7 @@ Replace_Missing(df, name_list, MSV, verbose = FALSE)
 
 \item{MSV}{value to replace na with, same used for every column used}
 
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 }
 \value{
 returns a filled datatable

@@ -13,7 +13,7 @@ factorize(df, col_list, verbose = FALSE)
 
 \item{col_list}{an array of column names that should have factor terms defined}
 
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 }
 \value{
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names

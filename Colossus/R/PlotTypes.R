@@ -7,6 +7,7 @@
 #'
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Plot_Name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
+    verbose <- as.logical(verbose)
     if (verbose){
         message("Note: Plotting Martingale Residuals")
     }
@@ -120,6 +121,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
+    verbose <- as.logical(verbose)
     if (verbose){
         message("Note: Plotting Survival Curves")
     }
@@ -166,6 +168,7 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit, model_control=list()){
+    verbose <- as.logical(verbose)
     if (verbose){
         message("Note: Plotting Kaplan-Meier Curve")
     }
@@ -226,6 +229,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er, model_control=list()){
+    verbose <- as.logical(verbose)
     fir_KM <- 0
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,Term_n)
@@ -289,6 +293,7 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims, age_unit, model_control=list()){
+    verbose <- as.logical(verbose)
     dfend <- df[get(event0)==1, ]
     uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
     #

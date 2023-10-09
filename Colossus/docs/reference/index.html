@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,160 +66,10 @@
 
       <dl><dt>
           
-          <code><a href="Calc_Change.html">Calc_Change()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the change to make each iteration
-<code>Calc_Change</code> Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_Change_Basic.html">Calc_Change_Basic()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the change to make each iteration, with basic model
-<code>Calc_Change_Basic</code> Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_Change_Cons.html">Calc_Change_Cons()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the change to make each iteration, applying linear constraints
-<code>Calc_Change_Cons</code> Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik.html">Calc_LogLik()</a></code> 
-        </dt>
-        <dd>Utility function to calculate Cox Log-Likelihood and derivatives
-<code>Calc_LogLik</code> Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik_Basic.html">Calc_LogLik_Basic()</a></code> 
-        </dt>
-        <dd>Utility function to calculate Cox Log-Likelihood and derivatives, basic model
-<code>Calc_LogLik_Basic</code> Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik_Basic_Single.html">Calc_LogLik_Basic_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate Cox Log-Likelihood, basic model
-<code>Calc_LogLik_Basic_Single</code> Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik_STRATA.html">Calc_LogLik_STRATA()</a></code> 
-        </dt>
-        <dd>Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
-<code>Calc_LogLik_STRATA</code> Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik_STRATA_BASIC.html">Calc_LogLik_STRATA_BASIC()</a></code> 
-        </dt>
-        <dd>Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
-<code>Calc_LogLik_STRATA_BASIC</code> Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik_STRATA_BASIC_SINGLE.html">Calc_LogLik_STRATA_BASIC_SINGLE()</a></code> 
-        </dt>
-        <dd>Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model, no derivatives
-<code>Calc_LogLik_STRATA_BASIC_SINGLE</code> Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik_STRATA_SINGLE.html">Calc_LogLik_STRATA_SINGLE()</a></code> 
-        </dt>
-        <dd>Utility function to calculate just Cox Log-Likelihood with STRATA
-<code>Calc_LogLik_STRATA_SINGLE</code> Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_LogLik_Single.html">Calc_LogLik_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate Cox Log-Likelihood
-<code>Calc_LogLik_Single</code> Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_Null_LogLik.html">Calc_Null_LogLik()</a></code> 
-        </dt>
-        <dd>Utility function to perform null model equivalent of Calc_LogLik
-<code>Calc_Null_LogLik</code> Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calc_Null_LogLik_STRATA.html">Calc_Null_LogLik_STRATA()</a></code> 
-        </dt>
-        <dd>Utility function to perform null model equivalent of Calc_LogLik
-<code>Calc_Null_LogLik_STRATA</code> Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Null_Sides.html">Calculate_Null_Sides()</a></code> 
-        </dt>
-        <dd>Utility function to perform null model equivalent of Calculate_Sides
-<code>Calculate_Null_Sides</code> Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Null_Sides_STRATA.html">Calculate_Null_Sides_STRATA()</a></code> 
-        </dt>
-        <dd>Utility function to perform null model equivalent of Calculate_Sides with strata
-<code>Calculate_Null_Sides_STRATA</code> Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides.html">Calculate_Sides()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation
-<code>Calculate_Sides</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_CR.html">Calculate_Sides_CR()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation
-<code>Calculate_Sides_CR</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_CR_SINGLE.html">Calculate_Sides_CR_SINGLE()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation
-<code>Calculate_Sides_CR_SINGLE</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_STRATA.html">Calculate_Sides_STRATA()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
-<code>Calculate_Sides_STRATA</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_STRATA_CR.html">Calculate_Sides_STRATA_CR()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and competing risks
-<code>Calculate_Sides_STRATA_CR</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_STRATA_Single.html">Calculate_Sides_STRATA_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative
-<code>Calculate_Sides_STRATA_Single</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_STRATA_Single_CR.html">Calculate_Sides_STRATA_Single_CR()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative and with competing risks
-<code>Calculate_Sides_STRATA_Single_CR</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives but with competing risks</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_Single.html">Calculate_Sides_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
-<code>Calculate_Sides_Single</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Calculate_Sides_Single_CR.html">Calculate_Sides_Single_CR()</a></code> 
-        </dt>
-        <dd>Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives, applies competing risks
-<code>Calculate_Sides_Single_CR</code> Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group with competing risks</dd>
-      </dl><dl><dt>
-          
           <code><a href="Check_Dupe_Columns.html">Check_Dupe_Columns()</a></code> 
         </dt>
         <dd>checks for duplicated column names
 <code>Check_Dupe_Columns</code> checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Check_Risk.html">Check_Risk()</a></code> 
-        </dt>
-        <dd>checks if the model is viable
-<code>Check_Risk</code> Calculates risks and checks for negative values</dd>
       </dl><dl><dt>
           
           <code><a href="Check_Trunc.html">Check_Trunc()</a></code> 
@@ -269,35 +119,11 @@
 <code>CoxSurvival</code> uses user provided data, columns, and identifier to create plots</dd>
       </dl><dl><dt>
           
-          <code><a href="Cox_Refresh_R_SIDES.html">Cox_Refresh_R_SIDES()</a></code> 
-        </dt>
-        <dd>Utility function to refresh side matrices for Cox Omnibus
-<code>Cox_Refresh_R_SIDES</code> Called to fresh repeated sum calculation matrices</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Cox_Refresh_R_TERM.html">Cox_Refresh_R_TERM()</a></code> 
-        </dt>
-        <dd>Utility function to refresh risk and subterm matrices for Cox Omnibus function
-<code>Cox_Refresh_R_TERM</code> Called to update matrices</dd>
-      </dl><dl><dt>
-          
           <code><a href="Cox_Relative_Risk.html">Cox_Relative_Risk()</a></code> 
         </dt>
         <dd>Calculates hazard ratios for a reference vector
 <code>RunCoxRegression</code> uses user provided data,  vectors specifying the model,
 and options to calculate relative risk for every row in the provided data</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Cox_Side_LL_Calc.html">Cox_Side_LL_Calc()</a></code> 
-        </dt>
-        <dd>Utility function to perform calculation of Repeated Calculations and Log-Likelihood for Cox Omnibus
-<code>Cox_Side_LL_Calc</code> Called to perform repeated term and risk calculations</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Cox_Term_Risk_Calc.html">Cox_Term_Risk_Calc()</a></code> 
-        </dt>
-        <dd>Utility function to perform calculation of terms and risks for Cox Omnibus
-<code>Cox_Term_Risk_Calc</code> Called to perform repeated term and risk calculations</dd>
       </dl><dl><dt>
           
           <code><a href="Date_Shift.html">Date_Shift()</a></code> 
@@ -336,28 +162,10 @@ and options to calculate relative risk for every row in the provided data</dd>
 <code>Gather_Guesses_CPP</code> called from within R, uses a list of options and the model definition to generate a list of parameters and iterations that do not produce errors</dd>
       </dl><dl><dt>
           
-          <code><a href="Gen_Fac_Par.html">Gen_Fac_Par()</a></code> 
-        </dt>
-        <dd>Generates factored columns in parallel
-<code>Gen_Fac_Par</code> Called directly from R, returns a matrix with factored columns</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Gen_Strat_Weight.html">Gen_Strat_Weight()</a></code> 
-        </dt>
-        <dd>Generates weightings for stratified poisson regression
-<code>Gen_Strat_Weight</code> Called from within c++, assigns vector of weights</dd>
-      </dl><dl><dt>
-          
           <code><a href="GetCensWeight.html">GetCensWeight()</a></code> 
         </dt>
         <dd>Calculates and returns data for time by hazard and survival to estimate censoring rate
 <code>GetCensWeight</code> uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Intercept_Bound.html">Intercept_Bound()</a></code> 
-        </dt>
-        <dd>Utility function to keep intercept parameters within the range of possible values
-<code>Intercept_Bound</code> Called to update the parameter list in the event that intercepts leave the bounds of possible values</dd>
       </dl><dl><dt>
           
           <code><a href="Likelihood_Ratio_Test.html">Likelihood_Ratio_Test()</a></code> 
@@ -378,136 +186,10 @@ and options to calculate relative risk for every row in the provided data</dd>
 <code>Linked_Lin_Exp_Para</code> Calculates what the additional parameter would be for a desired maximum</dd>
       </dl><dl><dt>
           
-          <code><a href="LogLik_Cox_PH_Omnibus.html">LogLik_Cox_PH_Omnibus()</a></code> 
-        </dt>
-        <dd>Primary Cox PH regression with multiple starting points and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
-<code>LogLik_Cox_PH_Omnibus</code> Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives</dd>
-      </dl><dl><dt>
-          
-          <code><a href="LogLik_Pois_Omnibus.html">LogLik_Pois_Omnibus()</a></code> 
-        </dt>
-        <dd>Primary poisson regression with multiple starting points and optional combinations of stratification and no derivative calculation.
-<code>LogLik_Pois_Omnibus</code> Performs the calls to calculation functions, Structures the poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Groups.html">Make_Groups()</a></code> 
-        </dt>
-        <dd>Utility function to define risk groups
-<code>Make_Groups</code> Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Groups_CR.html">Make_Groups_CR()</a></code> 
-        </dt>
-        <dd>Utility function to define risk groups with competing risks
-<code>Make_Groups_CR</code> Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event=2 past the event time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Groups_STRATA.html">Make_Groups_STRATA()</a></code> 
-        </dt>
-        <dd>Utility function to define risk groups with STRATA
-<code>Make_Groups_STRATA</code> Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Groups_STRATA_CR.html">Make_Groups_STRATA_CR()</a></code> 
-        </dt>
-        <dd>Utility function to define risk groups with STRATA and competing risks
-<code>Make_Groups_STRATA_CR</code> Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group , adds competing risks</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Risks.html">Make_Risks()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the risk and risk ratios
-<code>Make_Risks</code> Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Risks_Basic.html">Make_Risks_Basic()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the risk and risk ratios for the basic model
-<code>Make_Risks_Basic</code> Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Risks_Single.html">Make_Risks_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the risk, but not derivatives
-<code>Make_Risks_Single</code> Called to update risk matrices, Splits into cases based on model form</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Risks_Weighted.html">Make_Risks_Weighted()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the risk and risk ratios with a weighting applied
-<code>Make_Risks_Weighted</code> Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_Risks_Weighted_Single.html">Make_Risks_Weighted_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the risk with a weighting applied and no derivatives calculated
-<code>Make_Risks_Weighted_Single</code> Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_subterms.html">Make_subterms()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the term and subterm values
-<code>Make_subterms</code> Called to update term matrices, Uses lists of term numbers and types to apply formulas</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_subterms_Basic.html">Make_subterms_Basic()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the term and subterm values with the basic model
-<code>Make_subterms_Basic</code> Called to update term matrices, Uses lists of term numbers and types to apply formulas</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Make_subterms_Single.html">Make_subterms_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate the term and subterm values, but not derivatives
-<code>Make_subterms_Single</code> Called to update term matrices, Uses lists of term numbers and types to apply formulas</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PLOT_SURV.html">PLOT_SURV()</a></code> 
-        </dt>
-        <dd>Primary Cox PH baseline hazard function
-<code>PLOT_SURV</code> Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives</dd>
-      </dl><dl><dt>
-          
           <code><a href="PlotCox_Schoenfeld_Residual.html">PlotCox_Schoenfeld_Residual()</a></code> 
         </dt>
         <dd>Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots
 <code>RunCox_Schoenfeld_Residual</code> uses user provided data, time/event columns, vectors specifying the model, and options to calculate the residuals</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Plot_Omnibus.html">Plot_Omnibus()</a></code> 
-        </dt>
-        <dd>Primary plotting function.
-<code>Plot_Omnibus</code> Performs the calls to calculation functions</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Plot_Omnibus_transition.html">Plot_Omnibus_transition()</a></code> 
-        </dt>
-        <dd>Interface between R code and the plotting omnibus function
-<code>Plot_Omnibus_transition</code> Called directly from R, Defines the control variables and calls the plotting functions</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Pois_Dev_LL_Calc.html">Pois_Dev_LL_Calc()</a></code> 
-        </dt>
-        <dd>Utility function to perform calculation of Log-Likelihood and Deviation for Poisson Omnibus
-<code>Pois_Dev_LL_Calc</code> Called to perform repeated term and risk calculations</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Pois_Term_Risk_Calc.html">Pois_Term_Risk_Calc()</a></code> 
-        </dt>
-        <dd>Utility function to perform calculation of terms and risks for Poisson Omnibus
-<code>Pois_Term_Risk_Calc</code> Called to perform repeated term and risk calculations</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Poisson_LogLik.html">Poisson_LogLik()</a></code> 
-        </dt>
-        <dd>Utility function to calculate poisson log-likelihood and derivatives
-<code>Poisson_LogLik</code> Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Poisson_LogLik_Single.html">Poisson_LogLik_Single()</a></code> 
-        </dt>
-        <dd>Utility function to calculate poisson log-likelihood
-<code>Poisson_LogLik_Single</code> Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row</dd>
       </dl><dl><dt>
           
           <code><a href="Replace_Missing.html">Replace_Missing()</a></code> 
@@ -627,28 +309,10 @@ Has additional options to starting with several initial guesses</dd>
 <code>RunPoissonRegression_Tier_Guesses</code> uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses</dd>
       </dl><dl><dt>
           
-          <code><a href="Schoenfeld_Calc.html">Schoenfeld_Calc()</a></code> 
-        </dt>
-        <dd>Primary Cox PH schoenfeld residual function
-<code>Schoenfeld_Calc</code> Performs the calls to calculation functions, Uses calculated risks and risk groups to calculate the residuals, With verbose option prints out time stamps and intermediate sums of terms and derivatives</dd>
-      </dl><dl><dt>
-          
           <code><a href="Time_Since.html">Time_Since()</a></code> 
         </dt>
         <dd>Automates creating a date since a reference column
 <code>Time_Since</code> generates a new dataframe with a column containing time since a reference in a given unit</dd>
-      </dl><dl><dt>
-          
-          <code><a href="Write_Time_Dep.html">Write_Time_Dep()</a></code> 
-        </dt>
-        <dd>Generates csv file with time-dependent columns
-<code>Write_Time_Dep</code> Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid</dd>
-      </dl><dl><dt>
-          
-          <code><a href="cox_ph_Omnibus_transition.html">cox_ph_Omnibus_transition()</a></code> 
-        </dt>
-        <dd>Interface between R code and the Cox PH omnibus regression function
-<code>cox_ph_Omnibus_transition</code> Called directly from R, Defines the control variables and calls the regression function</dd>
       </dl><dl><dt>
           
           <code><a href="factorize.html">factorize()</a></code> 
@@ -675,18 +339,6 @@ Not for interaction terms</dd>
         </dt>
         <dd>Defines Interactions
 <code>interact_them</code> uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates</dd>
-      </dl><dl><dt>
-          
-          <code><a href="pois_Omnibus_transition.html">pois_Omnibus_transition()</a></code> 
-        </dt>
-        <dd>Interface between R code and the poisson omnibus regression function
-<code>pois_Omnibus_transition</code> Called directly from R, Defines the control variables and calls the regression function</dd>
-      </dl><dl><dt>
-          
-          <code><a href="risk_check_transition.html">risk_check_transition()</a></code> 
-        </dt>
-        <dd>Interface between R code and the risk check
-<code>cox_ph_transition_single</code> Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood</dd>
       </dl></div>
   </main></div>
 

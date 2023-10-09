@@ -14,7 +14,7 @@ Check_Dupe_Columns(df, cols, term_n, verbose = FALSE, factor_check = FALSE)
 
 \item{term_n}{term numbers}
 
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
 \item{factor_check}{a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns}
 }

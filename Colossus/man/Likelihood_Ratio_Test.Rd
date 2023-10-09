@@ -8,9 +8,9 @@
 Likelihood_Ratio_Test(alternative_model, null_model)
 }
 \arguments{
-\item{alternative_model}{the new model of interest}
+\item{alternative_model}{the new model of interest in list form}
 
-\item{null_model}{a model to compare against}
+\item{null_model}{a model to compare against, in list form}
 }
 \value{
 returns the score statistic

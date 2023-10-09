@@ -21,7 +21,7 @@ CoxMartingale(
 )
 }
 \arguments{
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
 \item{df}{a data.table containing the columns of interest}
 

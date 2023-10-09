@@ -9,6 +9,7 @@
 #'
 #' @return returns a list of the final results
 #' @export
+#'
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -525,6 +526,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #'
 #' @return saves the plots in the current directory and returns a string
 #' @export
+#'
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -817,7 +819,6 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #' @return returns a list of the final results
 #' @export
 #'
-#' @export
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -1002,6 +1003,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #'
 #' @return returns a list of the final results
 #' @export
+#'
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette

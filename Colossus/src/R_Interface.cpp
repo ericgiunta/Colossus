@@ -50,6 +50,8 @@ void visit_lambda(const Mat& m, const Func& f)
 //' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
 // [[Rcpp::export]]
 List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     bool change_all = Control["change_all"];
@@ -95,6 +97,8 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
 //' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
 // [[Rcpp::export]]
 List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     //
@@ -138,6 +142,8 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
 //' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
 // [[Rcpp::export]]
 List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control){
     bool verbose = Control["verbose"];
@@ -179,6 +185,8 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
 //' @inheritParams CPP_template
 //'
 //' @return saves a dataframe to be used with time-dependent covariate analysis
+//' @noRd
+//'
 // [[Rcpp::export]]
 void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event,double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox, int nthreads){
     const Map<MatrixXd> df_Times(as<Map<MatrixXd> >(df0_Times));
@@ -381,6 +389,8 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
 //' @inheritParams CPP_template
 //'
 //' @return saves a dataframe to be used with time-dependent covariate analysis
+//' @noRd
+//'
 // [[Rcpp::export]]
 NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, const NumericVector cols, const int nthreads){
     const Map<MatrixXd> df(as<Map<MatrixXd> >(df0));
@@ -410,6 +420,8 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 //' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
 // [[Rcpp::export]]
 bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot){
     bool verbose = Control["verbose"];
@@ -431,6 +443,8 @@ bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVect
 //' @inheritParams CPP_template
 //'
 //' @return assigns weight in place and returns nothing
+//' @noRd
+//'
 // [[Rcpp::export]]
 void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& Term_n, const int& term_tot){
     ArrayXd Pyrs   = dfs.transpose() * PyrC.col(0);

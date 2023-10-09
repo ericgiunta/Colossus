@@ -46,7 +46,7 @@ RunCoxRegression(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
 \item{control}{list of parameters controlling the convergence}
 }

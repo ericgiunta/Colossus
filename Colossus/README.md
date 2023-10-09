@@ -5,9 +5,7 @@
 
 <!-- badges: start -->
 
-[![](https://codecov.io/gh/ericgiunta/Colossus/branch/master/graph/badge.svg)](https://codecov.io/gh/ericgiunta/Colossus)
 [![](https://img.shields.io/github/languages/code-size/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus)
-[![Dependencies](https://tinyverse.netlify.com/badge/Colossus)](https://cran.r-project.org/package=Colossus)
 [![](https://img.shields.io/github/last-commit/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![Project Status: Active - The project has reached a stable, usable
@@ -24,6 +22,10 @@ other radiation dose response formula highlighted in the vignettes.
 Additional plotting capabilities are available.
 
 Please consult the GitHub for details on libraries required for your OS.
+
+Please note that this package is released with a [Contributor Code of
+Conduct](https://ropensci.org/code-of-conduct/). By contributing to this
+project, you agree to abide by its terms.
 
 ## Example
 

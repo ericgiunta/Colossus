@@ -30,9 +30,9 @@ CoxKaplanMeier(
 )
 }
 \arguments{
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
-\item{verbosec}{boolean identifying if extra regression information should be written to the console}
+\item{verbosec}{boolean identifying if extra regression information should be written to the console, also accepts 0/1 integer}
 
 \item{studyID}{id to group by, NaN for no grouping}
 
@@ -58,7 +58,7 @@ CoxKaplanMeier(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
 \item{modelform}{string specifying the model type}
 

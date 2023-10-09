@@ -7,6 +7,7 @@
 #' @param x_all covariate matrix
 #'
 #' @return returns a list of the final results
+#'
 #' @importFrom rlang .data
 Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control, model_control=list()){
     if (typeof(a_n)!="list"){
@@ -135,6 +136,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #'
 #' @return returns the corrected lists
 #' @export
+#'
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -144,7 +146,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #' keep_constant <- c(0,0,0,1,0)
 #' a_n <- c(1,2,3,4,5)
 #' names <- c("a","a","a","a","a")
-#' val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+#' val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, Cons_Mat=matrix(c(0)),Cons_Vec=c(0))
 #' Term_n <- val$Term_n
 #' tform <- val$tform
 #' keep_constant <- val$keep_constant
@@ -154,6 +156,19 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #'
 Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0,verbose=FALSE, Cons_Mat=matrix(c(0)),Cons_Vec=c(0)){
     #
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
+    if (der_iden>length(Term_n)){
+        message("Error: der_iden should be with 0:length(Term_n)")
+        stop()
+    }
+    if (length(Cons_Vec)>length(Term_n)){
+        message("Error: Linear Constraint constant vector is too long")
+        stop()
+    }
     if (min(keep_constant)>0){
         message("Error: Atleast one parameter must be free")
         stop()
@@ -389,6 +404,11 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
 #' df <- Replace_Missing(df, c("Starting_Age","Ending_Age"), 70)
 Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(MSV)){
         if (verbose){
             message("Error: The missing-value replacement is also NA")
@@ -673,6 +693,11 @@ Def_Control_Guess <- function(guesses_control, a_n){
 #' full_paras <- Linked_Dose_Formula(tforms, paras)
 #'
 Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     full_paras <- list()
     for (nm in names(tforms)){
         if (tforms[nm]=="quad"){
@@ -762,6 +787,11 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
 #' full_paras <- Linked_Lin_Exp_Para(y,a0,a1_goal)
 #'
 Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     b1 <- 10
     lr <- 1.0
     if (a0 < 0 ){
@@ -817,6 +847,11 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 #' new_col <- val$cols
 #'
 factorize <-function(df,col_list,verbose=FALSE){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     cols <- c()
     col0 <- names(df)
     tnum <- c()
@@ -861,6 +896,11 @@ factorize <-function(df,col_list,verbose=FALSE){
 #' new_col <- val$cols
 #'
 factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCores())){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     cols <- c()
     vals <- c()
     names <- c()
@@ -911,6 +951,11 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 #' new_col <- vals$cols
 #' 
 interact_them <- function(df,interactions,new_names,verbose=FALSE){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     cols <- c()
     for (i in seq_len(length(interactions))){
         interac <- interactions[i]
@@ -993,6 +1038,11 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 #' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 #'
 Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     ##
     if (length(cols)>1){
         features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
@@ -1102,6 +1152,11 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
 #' ce <- val$ce
 #'
 Check_Trunc <- function(df,ce,verbose=FALSE){
+    verbose <- as.logical(verbose)
+    if (is.na(verbose)){
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (ce[1]=="%trunc%"){
         if (ce[2]=="%trunc%"){
             if (verbose){

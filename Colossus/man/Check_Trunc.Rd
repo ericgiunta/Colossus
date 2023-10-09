@@ -12,7 +12,7 @@ Check_Trunc(df, ce, verbose = FALSE)
 
 \item{ce}{columns to check for truncation}
 
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 }
 \value{
 returns the updated data and time period columns

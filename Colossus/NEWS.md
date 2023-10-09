@@ -6,3 +6,10 @@
 
 * Preparing package for submission
 * Incomplete functions moved to experimental branch
+
+# Colossus 0.9.5
+
+* Preparing package for submission to ROpenSci
+* checks from pkgcheck
+* checks from autotest
+* srr standards

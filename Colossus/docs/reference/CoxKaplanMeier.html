@@ -14,7 +14,7 @@ CoxKaplanMeier uses user provided data, columns, and identifier to create plots,
     
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,11 +95,11 @@ CoxKaplanMeier uses user provided data, columns, and identifier to create plots,
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>verbose</dt>
-<dd><p>boolean to control if additional information is printed to the console</p></dd>
+<dd><p>boolean to control if additional information is printed to the console, also accepts 0/1 integer</p></dd>
 
 
 <dt>verbosec</dt>
-<dd><p>boolean identifying if extra regression information should be written to the console</p></dd>
+<dd><p>boolean identifying if extra regression information should be written to the console, also accepts 0/1 integer</p></dd>
 
 
 <dt>studyID</dt>
@@ -151,7 +151,7 @@ CoxKaplanMeier uses user provided data, columns, and identifier to create plots,
 
 
 <dt>der_iden</dt>
-<dd><p>number for the subterm to test derivative at, only used for testing runs with a single varying parameter</p></dd>
+<dd><p>number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters</p></dd>
 
 
 <dt>modelform</dt>

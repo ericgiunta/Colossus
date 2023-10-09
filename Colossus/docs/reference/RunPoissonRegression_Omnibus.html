@@ -22,7 +22,7 @@ Has additional options to starting with several initial guesses"><!-- mathjax --
     
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -142,7 +142,7 @@ Has additional options to starting with several initial guesses</p>
 
 
 <dt>der_iden</dt>
-<dd><p>number for the subterm to test derivative at, only used for testing runs with a single varying parameter</p></dd>
+<dd><p>number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters</p></dd>
 
 
 <dt>control</dt>
@@ -158,11 +158,11 @@ Has additional options to starting with several initial guesses</p>
 
 
 <dt>Cons_Mat</dt>
-<dd><p>Matrix containing coefficients for system of linear constraints</p></dd>
+<dd><p>Matrix containing coefficients for system of linear constraints, formatted as matrix</p></dd>
 
 
 <dt>Cons_Vec</dt>
-<dd><p>Vector containing constants for system of linear constraints</p></dd>
+<dd><p>Vector containing constants for system of linear constraints, formatted as vector</p></dd>
 
 </dl></div>
     <div class="section level2">

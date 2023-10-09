@@ -14,7 +14,7 @@ interact_them(df, interactions, new_names, verbose = FALSE)
 
 \item{new_names}{list of new names to use instead of default, default used if entry is ''}
 
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 }
 \value{
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names

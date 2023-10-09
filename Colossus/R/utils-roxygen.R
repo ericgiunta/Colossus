@@ -8,7 +8,7 @@
 #' @param a1_goal  exponential maximum desired
 #' @param a_n  list of initial parameter values, used to determine number of parameters
 #' @param age_unit  age unit
-#' @param alternative_model  the new model of interest
+#' @param alternative_model  the new model of interest in list form
 #' @param b  optimum parameter values used
 #' @param ce  columns to check for truncation
 #' @param cens_weight  list of weights for censoring rate
@@ -17,10 +17,10 @@
 #' @param col_name  new column name
 #' @param cols  columns to check
 #' @param control  list of parameters controlling the convergence
-#' @param Cons_Mat Matrix containing coefficients for system of linear constraints
-#' @param Cons_Vec Vector containing constants for system of linear constraints
+#' @param Cons_Mat Matrix containing coefficients for system of linear constraints, formatted as matrix
+#' @param Cons_Vec Vector containing constants for system of linear constraints, formatted as vector
 #' @param dep_cols  columns that are not needed in the new dataframe
-#' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter
+#' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters
 #' @param df  a data.table containing the columns of interest
 #' @param dnames  list of covariate columns to plot by
 #' @param dt  spacing in time for new rows
@@ -42,7 +42,7 @@
 #' @param names  columns for elements of the model, used to identify data columns
 #' @param new_names  list of new names to use instead of default, default used if entry is ''
 #' @param nthreads  number of threads to use
-#' @param null_model  a model to compare against
+#' @param null_model  a model to compare against, in list form
 #' @param paras  list of formula parameters
 #' @param plot_options  list of parameters controlling the plot options
 #' @param pyr0  column used for person-years per row
@@ -58,8 +58,8 @@
 #' @param tref  reference time in date format
 #' @param tu  unique event times
 #' @param units  time unit to use
-#' @param verbose  boolean to control if additional information is printed to the console
-#' @param verbosec  boolean identifying if extra regression information should be written to the console
+#' @param verbose  boolean to control if additional information is printed to the console, also accepts 0/1 integer
+#' @param verbosec  boolean identifying if extra regression information should be written to the console, also accepts 0/1 integer
 #' @param y  point formula switch
 #'
 #' @name R_template

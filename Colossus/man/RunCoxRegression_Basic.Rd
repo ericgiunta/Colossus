@@ -32,7 +32,7 @@ RunCoxRegression_Basic(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
 \item{control}{list of parameters controlling the convergence}
 }

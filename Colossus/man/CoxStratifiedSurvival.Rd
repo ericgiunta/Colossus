@@ -29,7 +29,7 @@ CoxStratifiedSurvival(
 )
 }
 \arguments{
-\item{verbose}{boolean to control if additional information is printed to the console}
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
 \item{df}{a data.table containing the columns of interest}
 
@@ -51,7 +51,7 @@ CoxStratifiedSurvival(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
 \item{modelform}{string specifying the model type}
 
