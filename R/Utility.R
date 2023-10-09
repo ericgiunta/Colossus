@@ -7,6 +7,7 @@
 #' @param x_all covariate matrix
 #'
 #' @return returns a list of the final results
+#' @srrstats {G2.0} checks input lengths
 #' @importFrom rlang .data
 Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control, model_control=list()){
     if (typeof(a_n)!="list"){
@@ -135,6 +136,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #'
 #' @return returns the corrected lists
 #' @export
+#' @srrstats {G2.0} checks input lengths
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette

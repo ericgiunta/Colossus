@@ -225,5 +225,6 @@
     "SystemRequirements": "make"
   },
   "keywords": ["coxproportionalhazards", "survivalanalysis", "doseresponse"],
-  "fileSize": "161539.775KB"
+  "fileSize": "161539.775KB",
+  "releaseNotes": "https://github.com/ericgiunta/Colossus/blob/master/NEWS.md"
 }
