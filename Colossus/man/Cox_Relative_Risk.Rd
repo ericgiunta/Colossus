@@ -41,13 +41,13 @@ Cox_Relative_Risk(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
-\item{model_control}{controls which alternative model options are used}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
 }
 \value{
 returns a list of the final results
@@ -91,3 +91,8 @@ e <- Cox_Relative_Risk(df, time1, time2, event, names, Term_n, tform,
      keep_constant, a_n, modelform, fir, control)
 
 }
+\seealso{
+Other {Plotting Wrapper Functions}: 
+\code{\link{RunCoxPlots}()}
+}
+\concept{{Plotting Wrapper Functions}}

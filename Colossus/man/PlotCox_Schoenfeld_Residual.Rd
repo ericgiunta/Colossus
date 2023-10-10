@@ -43,19 +43,19 @@ PlotCox_Schoenfeld_Residual(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
 \item{age_unit}{age unit}
 
-\item{Plot_Name}{plot identifier}
+\item{Plot_Name}{plot identifier, used in filename for saved plots}
 
-\item{model_control}{controls which alternative model options are used}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed
@@ -64,3 +64,13 @@ saves the plots in the current directory and returns a string that it passed
 Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots
 \code{RunCox_Schoenfeld_Residual} uses user provided data, time/event columns, vectors specifying the model, and options to calculate the residuals
 }
+\seealso{
+Other {Plotting Functions}: 
+\code{\link{CoxKaplanMeier}()},
+\code{\link{CoxMartingale}()},
+\code{\link{CoxRisk}()},
+\code{\link{CoxStratifiedSurvival}()},
+\code{\link{CoxSurvival}()},
+\code{\link{GetCensWeight}()}
+}
+\concept{{Plotting Functions}}

@@ -14,7 +14,7 @@ Time_Since(df, dcol0, tref, col_name, units = "days")
 
 \item{tref}{reference time in date format}
 
-\item{col_name}{new column name}
+\item{col_name}{vector of new column names}
 
 \item{units}{time unit to use}
 }
@@ -38,3 +38,20 @@ tref <- strptime( "3-22-1997", format = "\%m-\%d-\%Y",tz = 'UTC')
 df <- Time_Since(df,c("m1","d1","y1"),tref,"date_since")
 
 }
+\seealso{
+Other {Data Cleaning Functions}: 
+\code{\link{Check_Dupe_Columns}()},
+\code{\link{Check_Trunc}()},
+\code{\link{Correct_Formula_Order}()},
+\code{\link{Date_Shift}()},
+\code{\link{Def_Control_Guess}()},
+\code{\link{Def_Control}()},
+\code{\link{Def_model_control}()},
+\code{\link{Def_modelform_fix}()},
+\code{\link{Replace_Missing}()},
+\code{\link{factorize_par}()},
+\code{\link{factorize}()},
+\code{\link{gen_time_dep}()},
+\code{\link{interact_them}()}
+}
+\concept{{Data Cleaning Functions}}

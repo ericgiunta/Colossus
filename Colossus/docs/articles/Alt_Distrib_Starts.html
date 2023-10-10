@@ -43,9 +43,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed_Start_Framework</a>
     <a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative_Regression_Options</a>
-    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
     <a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose_Response_Formula_Terms</a>
     <a class="dropdown-item" href="../articles/starting-description.html">Colossus_Description</a>
+    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
   </div>
 </li>
 <li class="nav-item">
@@ -70,6 +70,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Distributed_Start_Framework</h1>
@@ -84,11 +87,19 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ericgiunta/Colossus" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: package 'ggplot2' was built under R version 4.3.1</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="general-theory">General Theory<a class="anchor" aria-label="anchor" href="#general-theory"></a>
 </h2>
-<p>In many instances, the final value returned by a regression may depend on the starting point of the regression. In most cases the user gets around this by running multiple regressions at different starting points and with different learning rates. Colossus includes several functions built in that automate this process for several situations the user may find themselves in. This vignette will cover descriptions of several situations to use these distributed start functions, and descriptions of the inputs for each function.</p>
+<p>In many instances, the final value returned by a regression may
+depend on the starting point of the regression. In most cases the user
+gets around this by running multiple regressions at different starting
+points and with different learning rates. Colossus includes several
+functions built in that automate this process for several situations the
+user may find themselves in. This vignette will cover descriptions of
+several situations to use these distributed start functions, and
+descriptions of the inputs for each function.</p>
 </div>
 <div class="section level2">
 <h2 id="common-convergence-issues">Common Convergence Issues<a class="anchor" aria-label="anchor" href="#common-convergence-issues"></a>
@@ -96,23 +107,59 @@
 <div class="section level3">
 <h3 id="large-multi-dimensional-space">Large Multi-Dimensional Space<a class="anchor" aria-label="anchor" href="#large-multi-dimensional-space"></a>
 </h3>
-<p>Generally speaking the optimization methods used in Colossus and similar software are based on using derivatives to improve the log-likelihood or some measure of deviance. These methods search for an optimum, but it is not guaranteed to be a global optimum. The final solution may be dependent on the initial regression conditions. For a model with a small number of covariates or a well understood relationship between covariate and event, the user may be able to start the regression near the global optimum. If the model is composed of hundreds of covariates, this becomes less likely.</p>
-<p>The solution an experienced user might come to is to try multiple starting points and see if they all converge to the same solution. Colossus tries to make this easier by automating the process. The user provides Colossus with an initial starting point to try and parameters controlling how many random points to try and how to generate them. Currently Colossus only supports uniformly generated points with user provided minimum and maximum values. The log-linear terms generally have a different range of acceptable values than the linear terms, so different minimum and maximum values can be given for log-linear terms than the other options.</p>
-<p>There is one special case of large multi-dimensional spaces that has been given a separate function. This would be general multi-term models. This case assumes that the model can be split into multiple independent terms that can be solved separately. Colossus automates splitting the model into a simplified form, searching for a solution, substituting the final solution for the simplified model into the full model, and then searching for a solution to the full model near the solution to the simplified model.</p>
+<p>Generally speaking the optimization methods used in Colossus and
+similar software are based on using derivatives to improve the
+log-likelihood or some measure of deviance. These methods search for an
+optimum, but it is not guaranteed to be a global optimum. The final
+solution may be dependent on the initial regression conditions. For a
+model with a small number of covariates or a well understood
+relationship between covariate and event, the user may be able to start
+the regression near the global optimum. If the model is composed of
+hundreds of covariates, this becomes less likely.</p>
+<p>The solution an experienced user might come to is to try multiple
+starting points and see if they all converge to the same solution.
+Colossus tries to make this easier by automating the process. The user
+provides Colossus with an initial starting point to try and parameters
+controlling how many random points to try and how to generate them.
+Currently Colossus only supports uniformly generated points with user
+provided minimum and maximum values. The log-linear terms generally have
+a different range of acceptable values than the linear terms, so
+different minimum and maximum values can be given for log-linear terms
+than the other options.</p>
+<p>There is one special case of large multi-dimensional spaces that has
+been given a separate function. This would be general multi-term models.
+This case assumes that the model can be split into multiple independent
+terms that can be solved separately. Colossus automates splitting the
+model into a simplified form, searching for a solution, substituting the
+final solution for the simplified model into the full model, and then
+searching for a solution to the full model near the solution to the
+simplified model.</p>
 </div>
 <div class="section level3">
 <h3 id="infeasible-parameter-spaces">Infeasible Parameter Spaces<a class="anchor" aria-label="anchor" href="#infeasible-parameter-spaces"></a>
 </h3>
-<p>The risks calculated for Cox Proportional Hazards and Poisson regressions are generally assumed to be strictly positive values. The use of log-likelihoods as a scoring metric wouldn’t be possible without this assumption. However it is possible that, during a regression, the risk may be calculated with a set of parameters that would give a negative probability of an event. To illustrate consider the following poisson model.</p>
+<p>The risks calculated for Cox Proportional Hazards and Poisson
+regressions are generally assumed to be strictly positive values. The
+use of log-likelihoods as a scoring metric wouldn’t be possible without
+this assumption. However it is possible that, during a regression, the
+risk may be calculated with a set of parameters that would give a
+negative probability of an event. To illustrate consider the following
+poisson model.</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    \lambda(\alpha,z, \beta, x) = (1+\alpha*z \times \exp{(\beta \times x)})\\
+    \lambda(\alpha,z, \beta, x) = (1+\alpha*z \times \exp{(\beta \times
+x)})\\
     E(\alpha,z, \beta, x, t) =  \lambda(\alpha,z, \beta, x) * t
 \end{aligned}
 \]</span>
 </p>
-<p>The number of events predicted for an interval is proportional to the risk and number of person-years. The exponential term is always strictly positive, but if <span class="math inline">\(\alpha\)</span> is negative the risk and number of events can also be negative. Suppose we have several ranges of parameters that give negative event rates such that we get the following plot of score by parameter values:</p>
+<p>The number of events predicted for an interval is proportional to the
+risk and number of person-years. The exponential term is always strictly
+positive, but if <span class="math inline">\(\alpha\)</span> is negative
+the risk and number of events can also be negative. Suppose we have
+several ranges of parameters that give negative event rates such that we
+get the following plot of score by parameter values:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.667</span>, <span class="op">-</span><span class="fl">1.333</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="op">-</span><span class="fl">0.667</span>, <span class="op">-</span><span class="fl">0.333</span>, <span class="fl">0.0</span>, <span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.667</span>, <span class="op">-</span><span class="fl">1.333</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="op">-</span><span class="fl">0.667</span>,</span>
 <span>       <span class="op">-</span><span class="fl">0.333</span>, <span class="fl">0.0</span>, <span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.667</span>, <span class="op">-</span><span class="fl">1.333</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="op">-</span><span class="fl">0.667</span>, <span class="op">-</span><span class="fl">0.333</span>, <span class="fl">0.0</span>, <span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.667</span>, <span class="op">-</span><span class="fl">1.333</span>,</span>
@@ -145,7 +192,14 @@
 -2*Log-Likelihood With Infeasible Points Removed
 </p>
 </div>
-<p>In this plot, the ranges of missing data show points which are infeasible. The goal of regression is reduce the Log-Likelihood close to 0, so the solution would be near the point <span class="math inline">\((-2,-2)\)</span>. If the regression started near the origin it may end up in either of the infeasible ranges. The user might catch this issue before-hand and start the regression carefully to avoid the infeasible ranges. Colossus can automate this process by sampling across a range of possible values and automatically remove infeasible points.</p>
+<p>In this plot, the ranges of missing data show points which are
+infeasible. The goal of regression is reduce the Log-Likelihood close to
+0, so the solution would be near the point <span class="math inline">\((-2,-2)\)</span>. If the regression started near
+the origin it may end up in either of the infeasible ranges. The user
+might catch this issue before-hand and start the regression carefully to
+avoid the infeasible ranges. Colossus can automate this process by
+sampling across a range of possible values and automatically remove
+infeasible points.</p>
 </div>
 </div>
 <div class="section level2">
@@ -163,23 +217,29 @@
 <tbody>
 <tr class="odd">
 <td align="center">RunCoxRegression_Guesses</td>
-<td align="center">Repeats Cox Proportional Hazards regression at random points, then runs the best for more iterations</td>
+<td align="center">Repeats Cox Proportional Hazards regression at random
+points, then runs the best for more iterations</td>
 </tr>
 <tr class="even">
 <td align="center">RunCoxRegression_Tier_Guesses</td>
-<td align="center">Repeats Cox Proportional Hazards regression for subset of terms, then repeats with full model</td>
+<td align="center">Repeats Cox Proportional Hazards regression for
+subset of terms, then repeats with full model</td>
 </tr>
 <tr class="odd">
 <td align="center">RunPoissonRegression_Guesses</td>
-<td align="center">Repeats Poisson regression at random points, then runs the best for more iterations</td>
+<td align="center">Repeats Poisson regression at random points, then
+runs the best for more iterations</td>
 </tr>
 <tr class="even">
 <td align="center">RunPoissonRegression_Tier_Guesses</td>
-<td align="center">Repeats Poisson regression for subset of terms, then repeats with full model</td>
+<td align="center">Repeats Poisson regression for subset of terms, then
+repeats with full model</td>
 </tr>
 </tbody>
 </table>
-<p>All of which use the same parameters the respective Cox Proportional Hazards and Poisson regression functions use, with the addition of a control term listing options for the guessing process.</p>
+<p>All of which use the same parameters the respective Cox Proportional
+Hazards and Poisson regression functions use, with the addition of a
+control term listing options for the guessing process.</p>
 <table class="table">
 <colgroup>
 <col width="47%">
@@ -200,11 +260,13 @@
 </tr>
 <tr class="odd">
 <td align="center">guesses_start</td>
-<td align="center">Number of starting points tested for Tiered or Strata First regressions</td>
+<td align="center">Number of starting points tested for Tiered or Strata
+First regressions</td>
 </tr>
 <tr class="even">
 <td align="center">guess_constant</td>
-<td align="center">Binary values to denote if any parameter values shouldn’t be randomized</td>
+<td align="center">Binary values to denote if any parameter values
+shouldn’t be randomized</td>
 </tr>
 <tr class="odd">
 <td align="center">exp_min</td>
@@ -232,11 +294,13 @@
 </tr>
 <tr class="odd">
 <td align="center">exp_slope_min</td>
-<td align="center">minimum linear-exponential, exponential slope parameter change</td>
+<td align="center">minimum linear-exponential, exponential slope
+parameter change</td>
 </tr>
 <tr class="even">
 <td align="center">exp_slope_max</td>
-<td align="center">maximum linear-exponential, exponential slope parameter change</td>
+<td align="center">maximum linear-exponential, exponential slope
+parameter change</td>
 </tr>
 <tr class="odd">
 <td align="center">strata</td>
@@ -244,7 +308,8 @@
 </tr>
 <tr class="even">
 <td align="center">term_initial</td>
-<td align="center">List of term numbers to run first if Tiered guessing is used</td>
+<td align="center">List of term numbers to run first if Tiered guessing
+is used</td>
 </tr>
 <tr class="odd">
 <td align="center">rmin</td>
@@ -256,11 +321,14 @@
 </tr>
 <tr class="odd">
 <td align="center">verbose</td>
-<td align="center">True/False if a csv of random start results is saved to “last_guess.csv”</td>
+<td align="center">True/False if a csv of random start results is saved
+to “last_guess.csv”</td>
 </tr>
 </tbody>
 </table>
-<p>If “rmin” and “rmax” are not used, then the remaining "_min" and "_max" values are used instead. the “guess_constant” values take priority over the “rmin” and “rmax” values.</p>
+<p>If “rmin” and “rmax” are not used, then the remaining “_min” and
+“_max” values are used instead. the “guess_constant” values take
+priority over the “rmin” and “rmax” values.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

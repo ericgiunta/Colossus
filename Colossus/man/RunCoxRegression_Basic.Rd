@@ -34,7 +34,7 @@ RunCoxRegression_Basic(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 }
 \value{
 returns a list of the final results
@@ -74,3 +74,15 @@ e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant,
                             a_n, der_iden, control)
 
 }
+\seealso{
+Other {Cox Wrapper Functions}: 
+\code{\link{RunCoxNull}()},
+\code{\link{RunCoxRegression_CR}()},
+\code{\link{RunCoxRegression_Guesses_CPP}()},
+\code{\link{RunCoxRegression_Omnibus}()},
+\code{\link{RunCoxRegression_STRATA}()},
+\code{\link{RunCoxRegression_Single}()},
+\code{\link{RunCoxRegression_Tier_Guesses}()},
+\code{\link{RunCoxRegression}()}
+}
+\concept{{Cox Wrapper Functions}}

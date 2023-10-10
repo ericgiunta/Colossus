@@ -39,7 +39,7 @@ CoxMartingale(
 
 \item{dnames}{list of covariate columns to plot by}
 
-\item{Plot_Name}{plot identifier}
+\item{Plot_Name}{plot identifier, used in filename for saved plots}
 
 \item{age_unit}{age unit}
 
@@ -52,3 +52,13 @@ saves the plots in the current directory and returns a string that it passed
 calculates and plots martingale residuals with a named dose column
 \code{CoxMartingale} uses user provided data, columns, and identifier to create plots
 }
+\seealso{
+Other {Plotting Functions}: 
+\code{\link{CoxKaplanMeier}()},
+\code{\link{CoxRisk}()},
+\code{\link{CoxStratifiedSurvival}()},
+\code{\link{CoxSurvival}()},
+\code{\link{GetCensWeight}()},
+\code{\link{PlotCox_Schoenfeld_Residual}()}
+}
+\concept{{Plotting Functions}}

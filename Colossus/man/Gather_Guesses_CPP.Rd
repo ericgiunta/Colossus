@@ -41,15 +41,15 @@ Gather_Guesses_CPP(
 
 \item{a_n_default}{center of parameter distribution guessing scope}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
-\item{guesses_control}{list of parameters to control how the guessing works}
+\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options}
 
-\item{model_control}{controls which alternative model options are used}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
 }
 \value{
 returns a list of the final results

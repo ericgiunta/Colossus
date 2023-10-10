@@ -19,7 +19,7 @@ RunPoissonRegression_Tier_Guesses(
   der_iden,
   control,
   guesses_control,
-  Strat_Cols
+  Strat_Col
 )
 }
 \arguments{
@@ -39,17 +39,17 @@ RunPoissonRegression_Tier_Guesses(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
-\item{guesses_control}{list of parameters to control how the guessing works}
+\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options}
 
-\item{Strat_Cols}{column to stratify by}
+\item{Strat_Col}{column to stratify by if needed}
 }
 \value{
 returns a list of the final results
@@ -91,10 +91,19 @@ control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1
 guesses_control <- list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
   "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform",
   "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
-Strat_Cols=c('e')
+Strat_Col=c('e')
 
 e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
      Term_n, tform, keep_constant, a_n, modelform,
-     fir, der_iden, control, guesses_control, Strat_Cols)
+     fir, der_iden, control, guesses_control, Strat_Col)
 
 }
+\seealso{
+Other {Poisson Wrapper Functions}: 
+\code{\link{RunPoissonRegression_Guesses_CPP}()},
+\code{\link{RunPoissonRegression_Omnibus}()},
+\code{\link{RunPoissonRegression_STRATA}()},
+\code{\link{RunPoissonRegression_Single}()},
+\code{\link{RunPoissonRegression}()}
+}
+\concept{{Poisson Wrapper Functions}}

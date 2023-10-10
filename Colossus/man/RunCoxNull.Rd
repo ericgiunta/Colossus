@@ -17,7 +17,7 @@ RunCoxNull(df, time1, time2, event0, control)
 
 \item{event0}{column used for event status}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 }
 \value{
 returns a list of the final results
@@ -45,3 +45,15 @@ control <- list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 e <- RunCoxNull(df, time1, time2, event, control)
 
 }
+\seealso{
+Other {Cox Wrapper Functions}: 
+\code{\link{RunCoxRegression_Basic}()},
+\code{\link{RunCoxRegression_CR}()},
+\code{\link{RunCoxRegression_Guesses_CPP}()},
+\code{\link{RunCoxRegression_Omnibus}()},
+\code{\link{RunCoxRegression_STRATA}()},
+\code{\link{RunCoxRegression_Single}()},
+\code{\link{RunCoxRegression_Tier_Guesses}()},
+\code{\link{RunCoxRegression}()}
+}
+\concept{{Cox Wrapper Functions}}

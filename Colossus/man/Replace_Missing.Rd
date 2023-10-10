@@ -33,3 +33,20 @@ df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
 df <- Replace_Missing(df, c("Starting_Age","Ending_Age"), 70)
 }
+\seealso{
+Other {Data Cleaning Functions}: 
+\code{\link{Check_Dupe_Columns}()},
+\code{\link{Check_Trunc}()},
+\code{\link{Correct_Formula_Order}()},
+\code{\link{Date_Shift}()},
+\code{\link{Def_Control_Guess}()},
+\code{\link{Def_Control}()},
+\code{\link{Def_model_control}()},
+\code{\link{Def_modelform_fix}()},
+\code{\link{Time_Since}()},
+\code{\link{factorize_par}()},
+\code{\link{factorize}()},
+\code{\link{gen_time_dep}()},
+\code{\link{interact_them}()}
+}
+\concept{{Data Cleaning Functions}}

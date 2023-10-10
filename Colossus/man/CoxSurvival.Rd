@@ -16,7 +16,7 @@ CoxSurvival(t, h, ch, surv, Plot_Name, verbose, time_lims, age_unit)
 
 \item{surv}{survival fraction of baseline}
 
-\item{Plot_Name}{plot identifier}
+\item{Plot_Name}{plot identifier, used in filename for saved plots}
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
@@ -31,3 +31,13 @@ saves the plots in the current directory and returns a string that it passed
 calculates and plots survival plots of the estimated baseline
 \code{CoxSurvival} uses user provided data, columns, and identifier to create plots
 }
+\seealso{
+Other {Plotting Functions}: 
+\code{\link{CoxKaplanMeier}()},
+\code{\link{CoxMartingale}()},
+\code{\link{CoxRisk}()},
+\code{\link{CoxStratifiedSurvival}()},
+\code{\link{GetCensWeight}()},
+\code{\link{PlotCox_Schoenfeld_Residual}()}
+}
+\concept{{Plotting Functions}}

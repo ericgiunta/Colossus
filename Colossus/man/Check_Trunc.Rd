@@ -10,7 +10,7 @@ Check_Trunc(df, ce, verbose = FALSE)
 \arguments{
 \item{df}{a data.table containing the columns of interest}
 
-\item{ce}{columns to check for truncation}
+\item{ce}{columns to check for truncation, (t0, t1, event)}
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 }
@@ -37,3 +37,20 @@ df <- val$df
 ce <- val$ce
 
 }
+\seealso{
+Other {Data Cleaning Functions}: 
+\code{\link{Check_Dupe_Columns}()},
+\code{\link{Correct_Formula_Order}()},
+\code{\link{Date_Shift}()},
+\code{\link{Def_Control_Guess}()},
+\code{\link{Def_Control}()},
+\code{\link{Def_model_control}()},
+\code{\link{Def_modelform_fix}()},
+\code{\link{Replace_Missing}()},
+\code{\link{Time_Since}()},
+\code{\link{factorize_par}()},
+\code{\link{factorize}()},
+\code{\link{gen_time_dep}()},
+\code{\link{interact_them}()}
+}
+\concept{{Data Cleaning Functions}}

@@ -1,11 +1,11 @@
-pandoc: '2.5'
+pandoc: 3.1.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   Alt_Distrib_Starts: Alt_Distrib_Starts.html
   Alt_Run_opt: Alt_Run_opt.html
-  Time_Dep_Cov: Time_Dep_Cov.html
   dose_formula_inputs: dose_formula_inputs.html
   starting-description: starting-description.html
-last_built: 2023-10-09T19:31Z
+  Time_Dep_Cov: Time_Dep_Cov.html
+last_built: 2023-10-10T19:15Z
 

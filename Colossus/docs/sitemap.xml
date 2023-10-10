@@ -4,16 +4,10 @@
     <loc>/404.html</loc>
   </url>
   <url>
-    <loc>/CONTRIBUTING.html</loc>
-  </url>
-  <url>
     <loc>/articles/Alt_Distrib_Starts.html</loc>
   </url>
   <url>
     <loc>/articles/Alt_Run_opt.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Time_Dep_Cov.html</loc>
   </url>
   <url>
     <loc>/articles/dose_formula_inputs.html</loc>
@@ -25,13 +19,52 @@
     <loc>/articles/starting-description.html</loc>
   </url>
   <url>
+    <loc>/articles/Time_Dep_Cov.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
+  </url>
+  <url>
+    <loc>/CONTRIBUTING.html</loc>
   </url>
   <url>
     <loc>/index.html</loc>
   </url>
   <url>
     <loc>/news/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Null_Sides.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Null_Sides_STRATA.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_CR.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_CR_SINGLE.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_Single.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_Single_CR.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_STRATA.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_STRATA_CR.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_STRATA_Single.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Calculate_Sides_STRATA_Single_CR.html</loc>
   </url>
   <url>
     <loc>/reference/Calc_Change.html</loc>
@@ -52,6 +85,9 @@
     <loc>/reference/Calc_LogLik_Basic_Single.html</loc>
   </url>
   <url>
+    <loc>/reference/Calc_LogLik_Single.html</loc>
+  </url>
+  <url>
     <loc>/reference/Calc_LogLik_STRATA.html</loc>
   </url>
   <url>
@@ -64,46 +100,10 @@
     <loc>/reference/Calc_LogLik_STRATA_SINGLE.html</loc>
   </url>
   <url>
-    <loc>/reference/Calc_LogLik_Single.html</loc>
-  </url>
-  <url>
     <loc>/reference/Calc_Null_LogLik.html</loc>
   </url>
   <url>
     <loc>/reference/Calc_Null_LogLik_STRATA.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Null_Sides.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Null_Sides_STRATA.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_CR.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_CR_SINGLE.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_STRATA.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_STRATA_CR.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_STRATA_Single.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_STRATA_Single_CR.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_Single.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Calculate_Sides_Single_CR.html</loc>
   </url>
   <url>
     <loc>/reference/Check_Dupe_Columns.html</loc>
@@ -136,6 +136,9 @@
     <loc>/reference/CoxSurvival.html</loc>
   </url>
   <url>
+    <loc>/reference/cox_ph_Omnibus_transition.html</loc>
+  </url>
+  <url>
     <loc>/reference/Cox_Refresh_R_SIDES.html</loc>
   </url>
   <url>
@@ -160,10 +163,16 @@
     <loc>/reference/Def_Control_Guess.html</loc>
   </url>
   <url>
+    <loc>/reference/Def_modelform_fix.html</loc>
+  </url>
+  <url>
     <loc>/reference/Def_model_control.html</loc>
   </url>
   <url>
-    <loc>/reference/Def_modelform_fix.html</loc>
+    <loc>/reference/factorize.html</loc>
+  </url>
+  <url>
+    <loc>/reference/factorize_par.html</loc>
   </url>
   <url>
     <loc>/reference/Gather_Guesses_CPP.html</loc>
@@ -175,7 +184,16 @@
     <loc>/reference/Gen_Strat_Weight.html</loc>
   </url>
   <url>
+    <loc>/reference/gen_time_dep.html</loc>
+  </url>
+  <url>
     <loc>/reference/GetCensWeight.html</loc>
+  </url>
+  <url>
+    <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/interact_them.html</loc>
   </url>
   <url>
     <loc>/reference/Intercept_Bound.html</loc>
@@ -232,9 +250,6 @@
     <loc>/reference/Make_subterms_Single.html</loc>
   </url>
   <url>
-    <loc>/reference/PLOT_SURV.html</loc>
-  </url>
-  <url>
     <loc>/reference/PlotCox_Schoenfeld_Residual.html</loc>
   </url>
   <url>
@@ -244,10 +259,7 @@
     <loc>/reference/Plot_Omnibus_transition.html</loc>
   </url>
   <url>
-    <loc>/reference/Pois_Dev_LL_Calc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/Pois_Term_Risk_Calc.html</loc>
+    <loc>/reference/PLOT_SURV.html</loc>
   </url>
   <url>
     <loc>/reference/Poisson_LogLik.html</loc>
@@ -256,7 +268,19 @@
     <loc>/reference/Poisson_LogLik_Single.html</loc>
   </url>
   <url>
+    <loc>/reference/Pois_Dev_LL_Calc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pois_Omnibus_transition.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Pois_Term_Risk_Calc.html</loc>
+  </url>
+  <url>
     <loc>/reference/Replace_Missing.html</loc>
+  </url>
+  <url>
+    <loc>/reference/risk_check_transition.html</loc>
   </url>
   <url>
     <loc>/reference/RunCoxNull.html</loc>
@@ -280,10 +304,10 @@
     <loc>/reference/RunCoxRegression_Omnibus.html</loc>
   </url>
   <url>
-    <loc>/reference/RunCoxRegression_STRATA.html</loc>
+    <loc>/reference/RunCoxRegression_Single.html</loc>
   </url>
   <url>
-    <loc>/reference/RunCoxRegression_Single.html</loc>
+    <loc>/reference/RunCoxRegression_STRATA.html</loc>
   </url>
   <url>
     <loc>/reference/RunCoxRegression_Tier_Guesses.html</loc>
@@ -298,10 +322,10 @@
     <loc>/reference/RunPoissonRegression_Omnibus.html</loc>
   </url>
   <url>
-    <loc>/reference/RunPoissonRegression_STRATA.html</loc>
+    <loc>/reference/RunPoissonRegression_Single.html</loc>
   </url>
   <url>
-    <loc>/reference/RunPoissonRegression_Single.html</loc>
+    <loc>/reference/RunPoissonRegression_STRATA.html</loc>
   </url>
   <url>
     <loc>/reference/RunPoissonRegression_Tier_Guesses.html</loc>
@@ -314,29 +338,5 @@
   </url>
   <url>
     <loc>/reference/Write_Time_Dep.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cox_ph_Omnibus_transition.html</loc>
-  </url>
-  <url>
-    <loc>/reference/factorize.html</loc>
-  </url>
-  <url>
-    <loc>/reference/factorize_par.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gen_time_dep.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/interact_them.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pois_Omnibus_transition.html</loc>
-  </url>
-  <url>
-    <loc>/reference/risk_check_transition.html</loc>
   </url>
 </urlset>

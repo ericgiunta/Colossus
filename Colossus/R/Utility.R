@@ -136,7 +136,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #'
 #' @return returns the corrected lists
 #' @export
-#'
+#' @family {Data Cleaning Functions}
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -391,7 +391,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
 #' \code{Replace_Missing} checks each column and fills in NA values
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a filled datatable
 #' @export
 #' @examples
@@ -441,7 +441,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' \code{Def_Control} checks and assigns default values
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a filled list
 #' @export
 #' @examples
@@ -480,7 +480,7 @@ Def_Control <- function(control){
 #' \code{Def_model_control} checks and assigns default values
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a filled list
 #' @export
 #' @examples
@@ -531,7 +531,7 @@ Def_modelform_fix <- function(control,model_control,modelform,Term_n){
 #' \code{Def_model_control} checks and assigns default values
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a filled list
 #' @export
 #' @examples
@@ -570,7 +570,7 @@ Def_model_control <- function(control){
 #' \code{Def_Control_Guess} checks and assigns default values
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a filled list
 #' @export
 #' @examples
@@ -832,7 +832,7 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 #' Not for interaction terms
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
 #' @examples
@@ -881,7 +881,7 @@ factorize <-function(df,col_list,verbose=FALSE){
 #' Not for interaction terms
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
 #' @examples
@@ -935,7 +935,7 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 #' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 #' @export
 #' @examples
@@ -1024,7 +1024,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 #' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns the usable columns
 #' @export
 #' @examples
@@ -1133,7 +1133,7 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
 #' \code{Check_Trunc} creates columns to use for truncation
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns the updated data and time period columns
 #' @export
 #' @examples
@@ -1185,7 +1185,7 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #' \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time
 #'
 #' @inheritParams R_template
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns the updated dataframe
 #' @export
 #' @examples
@@ -1269,7 +1269,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 #' @inheritParams R_template
 #' @param dcol0 list of starting month, day, and year
 #' @param dcol1 list of ending month, day, and year
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns the updated dataframe
 #' @export
 #' @examples
@@ -1304,7 +1304,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
 #'
 #' @inheritParams R_template
 #' @param dcol0 list of ending month, day, and year
-#'
+#' @family {Data Cleaning Functions}
 #' @return returns the updated dataframe
 #' @export
 #' @examples

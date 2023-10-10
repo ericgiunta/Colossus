@@ -53,13 +53,13 @@ CoxStratifiedSurvival(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{Plot_Type}{list of parameters controlling the plot options}
+\item{Plot_Type}{list of parameters controlling the plot options: surv, risk, schoenfeld}
 
 \item{Strat_Col}{column to stratify by if needed}
 
@@ -67,7 +67,7 @@ CoxStratifiedSurvival(
 
 \item{age_unit}{age unit}
 
-\item{model_control}{controls which alternative model options are used}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed
@@ -76,3 +76,13 @@ saves the plots in the current directory and returns a string that it passed
 calculates and plots survival curves for each unique value of the stratification column
 \code{CoxStratifiedSurvival} uses user provided data, columns, and identifier to calculate the survival fraction for each strata
 }
+\seealso{
+Other {Plotting Functions}: 
+\code{\link{CoxKaplanMeier}()},
+\code{\link{CoxMartingale}()},
+\code{\link{CoxRisk}()},
+\code{\link{CoxSurvival}()},
+\code{\link{GetCensWeight}()},
+\code{\link{PlotCox_Schoenfeld_Residual}()}
+}
+\concept{{Plotting Functions}}

@@ -7,7 +7,7 @@
 #'
 #' @return returns a list of the final results
 #' @export
-#'
+#' @family {Poisson Wrapper Functions}
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -177,7 +177,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
-#'
+#' @family {Poisson Wrapper Functions}
 #' @return returns a list of the final results
 #' @examples
 #' library(data.table)
@@ -227,7 +227,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
 #'
 #' @inheritParams R_template
-#'
+#' @family {Poisson Wrapper Functions}
 #' @return returns a list of the final results
 #' @examples
 #' library(data.table)
@@ -276,7 +276,7 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, 
 #' \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
-#'
+#' @family {Poisson Wrapper Functions}
 #' @return returns a list of the final results
 #' @export
 #' @examples
@@ -314,12 +314,12 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, 
 #' e <- RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant,
 #'      a_n, modelform, fir, der_iden, control, Strat_Col)
 #'
-RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Cols){
+RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col){
     control <- Def_Control(control)
     control$maxiters <- c(1,control$maxiter)
     control$guesses <- 1
     e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n,
-                                      modelform, fir, der_iden, control,Strat_Cols,
+                                      modelform, fir, der_iden, control,Strat_Col,
                                       model_control=list("strata"=TRUE))
     return (e)
 }
@@ -329,7 +329,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #' \code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
 #'
 #' @inheritParams R_template
-#'
+#' @family {Poisson Wrapper Functions}
 #' @return returns a list of the final results
 #' @export
 #'
@@ -366,14 +366,14 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #' guesses_control <- list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'   "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform",
 #'   "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
-#' Strat_Cols=c('e')
+#' Strat_Col=c('e')
 #' 
 #' e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
 #'      Term_n, tform, keep_constant, a_n, modelform,
-#'      fir, der_iden, control, guesses_control, Strat_Cols)
+#'      fir, der_iden, control, guesses_control, Strat_Col)
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Cols){
+RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Col){
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     t_initial <- guesses_control$term_initial
@@ -413,7 +413,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     e <- RunPoissonRegression_Guesses_CPP(df, pyr0, event0, name_initial, term_n_initial,
                                           tform_initial, constant_initial, a_n_initial,
                                           modelform, fir, der_iden, control, guesses_control,
-                                          Strat_Cols)
+                                          Strat_Col)
     if (guesses_control$verbose){
         message("Note: INITIAL TERM COMPLETE")
         message(e)
@@ -435,7 +435,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     guesses_control$guesses <- guess_second
     e <- RunPoissonRegression_Guesses_CPP(df, pyr0, event0, names, Term_n, tform,
          keep_constant, a_n, modelform, fir, der_iden,
-         control, guesses_control, Strat_Cols)
+         control, guesses_control, Strat_Col)
     #
     return(e)
 }
@@ -444,7 +444,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 #' \code{RunPoissonRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'
 #' @inheritParams R_template
-#'
+#' @family {Poisson Wrapper Functions}
 #' @return returns a list of the final results
 #' @export
 #'

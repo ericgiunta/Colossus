@@ -43,17 +43,17 @@ RunPoissonRegression_Omnibus(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
 \item{Strat_Col}{column to stratify by if needed}
 
-\item{model_control}{controls which alternative model options are used}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
 
 \item{Cons_Mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
 
@@ -104,3 +104,12 @@ Strat_Col <- 'e'
 e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
                                   a_n, modelform, fir, der_iden, control,Strat_Col)
 }
+\seealso{
+Other {Poisson Wrapper Functions}: 
+\code{\link{RunPoissonRegression_Guesses_CPP}()},
+\code{\link{RunPoissonRegression_STRATA}()},
+\code{\link{RunPoissonRegression_Single}()},
+\code{\link{RunPoissonRegression_Tier_Guesses}()},
+\code{\link{RunPoissonRegression}()}
+}
+\concept{{Poisson Wrapper Functions}}

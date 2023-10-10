@@ -14,7 +14,7 @@ Date_Shift(df, dcol0, dcol1, col_name, units = "days")
 
 \item{dcol1}{list of ending month, day, and year}
 
-\item{col_name}{new column name}
+\item{col_name}{vector of new column names}
 
 \item{units}{time unit to use}
 }
@@ -37,3 +37,20 @@ df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
 df <- Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since")
 
 }
+\seealso{
+Other {Data Cleaning Functions}: 
+\code{\link{Check_Dupe_Columns}()},
+\code{\link{Check_Trunc}()},
+\code{\link{Correct_Formula_Order}()},
+\code{\link{Def_Control_Guess}()},
+\code{\link{Def_Control}()},
+\code{\link{Def_model_control}()},
+\code{\link{Def_modelform_fix}()},
+\code{\link{Replace_Missing}()},
+\code{\link{Time_Since}()},
+\code{\link{factorize_par}()},
+\code{\link{factorize}()},
+\code{\link{gen_time_dep}()},
+\code{\link{interact_them}()}
+}
+\concept{{Data Cleaning Functions}}

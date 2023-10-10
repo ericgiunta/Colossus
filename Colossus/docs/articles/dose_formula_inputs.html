@@ -43,9 +43,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed_Start_Framework</a>
     <a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative_Regression_Options</a>
-    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
     <a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose_Response_Formula_Terms</a>
     <a class="dropdown-item" href="../articles/starting-description.html">Colossus_Description</a>
+    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
   </div>
 </li>
 <li class="nav-item">
@@ -70,6 +70,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Dose_Response_Formula_Terms</h1>
@@ -87,27 +90,43 @@
 <div class="section level2">
 <h2 id="dose-response-formula">Dose Response Formula<a class="anchor" aria-label="anchor" href="#dose-response-formula"></a>
 </h2>
-<p>As previously discussed, Colossus features a term composed of the sum of multiple linear and non-linear term which can be used to define many dose response curves used in radiation epidemiology. These terms are referred to as dose response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formula are available, reproduced from the starting description vignette.</p>
+<p>As previously discussed, Colossus features a term composed of the sum
+of multiple linear and non-linear term which can be used to define many
+dose response curves used in radiation epidemiology. These terms are
+referred to as dose response terms, but there is nothing prohibiting
+them from being used for non-dose covariates. The following formula are
+available, reproduced from the starting description vignette.</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    S_{NL}=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
-    F_{LT} = \begin{cases} \alpha_i \cdot (x-\beta_i) &amp; (x&gt;\beta_i) \\ 0 &amp;\text{else} \end{cases}\\
-    F_{STP} = \begin{cases} \alpha_i &amp; (x&gt;\beta_i) \\ 0 &amp;\text{else} \end{cases}\\
-    F_{LQ} = \begin{cases} \beta_i \cdot x &amp; (x&gt;\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &amp;\text{else} \end{cases}\\
-    F_{LEXP} = \begin{cases} \beta_i \cdot x &amp; (x&gt;\alpha_i) \\ \lambda_i - \exp{(\nu_i + \mu \cdot x)} &amp;\text{else} \end{cases}\\
+    S_{NL}=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i
+(\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ}
++ \sum_i F_{LEXP}\\
+    F_{LT} = \begin{cases} \alpha_i \cdot (x-\beta_i) &amp;
+(x&gt;\beta_i) \\ 0 &amp;\text{else} \end{cases}\\
+    F_{STP} = \begin{cases} \alpha_i &amp; (x&gt;\beta_i) \\ 0
+&amp;\text{else} \end{cases}\\
+    F_{LQ} = \begin{cases} \beta_i \cdot x &amp; (x&gt;\alpha_i) \\
+\lambda_i \cdot x^2 + \nu_i &amp;\text{else} \end{cases}\\
+    F_{LEXP} = \begin{cases} \beta_i \cdot x &amp; (x&gt;\alpha_i) \\
+\lambda_i - \exp{(\nu_i + \mu \cdot x)} &amp;\text{else} \end{cases}\\
     T_j=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 \]</span>
 </p>
-<p>For every subterm type there are between 1 and 3 parameters which fully define the curve. The Linear-Quadratic and Linear-Exponential curves are continuously-differentiable, so there are only 2-3 parameters which can be set.</p>
+<p>For every subterm type there are between 1 and 3 parameters which
+fully define the curve. The Linear-Quadratic and Linear-Exponential
+curves are continuously-differentiable, so there are only 2-3 parameters
+which can be set.</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
     \lambda_{LQ} = \beta_{LQ}/(2\alpha_{LQ})\\
     \nu_{LQ} = (\beta_{LQ}*\alpha_{LQ})/2\\
-    \nu_{LEXP} = \ln(\beta_{LEXP})-\ln(\mu_{LEXP})+\mu_{LEXP}*\alpha_{LEXP}\\
-    \lambda_{LEXP} = \beta_{LEXP}*\alpha_{LEXP}+exp(\nu_{LEXP}-\mu_{LEXP}*\alpha_{LEXP})
+    \nu_{LEXP} =
+\ln(\beta_{LEXP})-\ln(\mu_{LEXP})+\mu_{LEXP}*\alpha_{LEXP}\\
+    \lambda_{LEXP} =
+\beta_{LEXP}*\alpha_{LEXP}+exp(\nu_{LEXP}-\mu_{LEXP}*\alpha_{LEXP})
 \end{aligned}
 \]</span>
 </p>
@@ -136,7 +155,8 @@
 <tr class="even">
 <td align="center">Exponential</td>
 <td align="center">loglin_slope</td>
-<td align="center">parameter multiplied by the exponential assumed to be 1 if not given, <span class="math inline">\(\alpha_i\)</span>
+<td align="center">parameter multiplied by the exponential assumed to be
+1 if not given, <span class="math inline">\(\alpha_i\)</span>
 </td>
 </tr>
 <tr class="odd">
@@ -201,8 +221,22 @@
 </tr>
 </tbody>
 </table>
-<p>The linear-exponential and linear-quadratic curves must be either completely fixed or completely free. In contrast the exponential, linear threshold, and step function curves can be partially fixed. The exponential term can be provided with only the covariate in the exponent and assume the magnitude to be 1. The linear threshold and step functions can be provided a fixed threshold covariate, which can be used to define a linear-no-threshold model or a combination of linear and step functions with a known threshold.</p>
-<p>One issue with these dose response formulas is that the order is important. For instance, loglin_slope should be listed prior to loglin_top if both are used. The slope for the Linear Threshold and Step Functions should be given prior to the intercepts. Slopes are listed prior to intercept for the Linear-Quadratic and Linear-Exponential models and lin_exp_exp_slope is listed last. The “Correct_Formula_Order” function has been provided to handle the correct order. Colossus automatically calls this function prior to regression.</p>
+<p>The linear-exponential and linear-quadratic curves must be either
+completely fixed or completely free. In contrast the exponential, linear
+threshold, and step function curves can be partially fixed. The
+exponential term can be provided with only the covariate in the exponent
+and assume the magnitude to be 1. The linear threshold and step
+functions can be provided a fixed threshold covariate, which can be used
+to define a linear-no-threshold model or a combination of linear and
+step functions with a known threshold.</p>
+<p>One issue with these dose response formulas is that the order is
+important. For instance, loglin_slope should be listed prior to
+loglin_top if both are used. The slope for the Linear Threshold and Step
+Functions should be given prior to the intercepts. Slopes are listed
+prior to intercept for the Linear-Quadratic and Linear-Exponential
+models and lin_exp_exp_slope is listed last. The “Correct_Formula_Order”
+function has been provided to handle the correct order. Colossus
+automatically calls this function prior to regression.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>,<span class="st">'quad_slope'</span>,<span class="st">'lin'</span>, <span class="st">"lin_int"</span>, <span class="st">"lin_slope"</span><span class="op">)</span></span>

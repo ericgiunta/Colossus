@@ -20,7 +20,7 @@ factorize_par(
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
-\item{nthreads}{number of threads to use}
+\item{nthreads}{number of threads to use, do not use more threads than avaliable on your machine}
 }
 \value{
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names
@@ -42,3 +42,20 @@ df <- val$df
 new_col <- val$cols
 
 }
+\seealso{
+Other {Data Cleaning Functions}: 
+\code{\link{Check_Dupe_Columns}()},
+\code{\link{Check_Trunc}()},
+\code{\link{Correct_Formula_Order}()},
+\code{\link{Date_Shift}()},
+\code{\link{Def_Control_Guess}()},
+\code{\link{Def_Control}()},
+\code{\link{Def_model_control}()},
+\code{\link{Def_modelform_fix}()},
+\code{\link{Replace_Missing}()},
+\code{\link{Time_Since}()},
+\code{\link{factorize}()},
+\code{\link{gen_time_dep}()},
+\code{\link{interact_them}()}
+}
+\concept{{Data Cleaning Functions}}

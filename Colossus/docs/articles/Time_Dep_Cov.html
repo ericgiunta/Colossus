@@ -43,9 +43,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed_Start_Framework</a>
     <a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative_Regression_Options</a>
-    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
     <a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose_Response_Formula_Terms</a>
     <a class="dropdown-item" href="../articles/starting-description.html">Colossus_Description</a>
+    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
   </div>
 </li>
 <li class="nav-item">
@@ -70,6 +70,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Time_Dependent_Covariate_Use</h1>
@@ -87,12 +90,35 @@
 <div class="section level2">
 <h2 id="general-usage">General Usage<a class="anchor" aria-label="anchor" href="#general-usage"></a>
 </h2>
-<p>For Cox Proportional Hazards regression, the model is generally assumed to be independent of event time. However for more complex models, Colossus has the capability to perform regression using covariates that change over time. These can be split into two general types of covariates, step functions changing with time and multiplicative interactions with time. Colossus generates the new dataset by splitting each row of the original dataset into smaller intervals. This assumes that over each interval the values of every covariate are approximately constant. For Cox Proportional Hazards, rows that do not contain a event time are not used for regression, so Colossus has an option to only use small intervals around each event time. With this option the time dependent covariate is evaluated only at event times. For data-sets with a small number of discrete event times this can save memory.</p>
+<p>For Cox Proportional Hazards regression, the model is generally
+assumed to be independent of event time. However for more complex
+models, Colossus has the capability to perform regression using
+covariates that change over time. These can be split into two general
+types of covariates, step functions changing with time and
+multiplicative interactions with time. Colossus generates the new
+dataset by splitting each row of the original dataset into smaller
+intervals. This assumes that over each interval the values of every
+covariate are approximately constant. For Cox Proportional Hazards, rows
+that do not contain a event time are not used for regression, so
+Colossus has an option to only use small intervals around each event
+time. With this option the time dependent covariate is evaluated only at
+event times. For data-sets with a small number of discrete event times
+this can save memory.</p>
 </div>
 <div class="section level2">
 <h2 id="multiplicative-interaction">Multiplicative Interaction<a class="anchor" aria-label="anchor" href="#multiplicative-interaction"></a>
 </h2>
-<p>The simplest type of time dependent covariate is an interaction term between time and another covariate. Suppose we have a row in a dataset with a factor covariate “group” and some arbitrary endpoints to the time interval. Colossus starts by using a user provided function to calculate the value of the time dependent covariate at the endpoints. We assume that the value of “group” is constant over the interval and time is changing linearly. Colossus calculates the value of the time dependent covariate over intervals by linearly interpolating between the value at the endpoints. This process assumes that the interaction is linear or the interval is small enough for the interaction to be approximately linear.</p>
+<p>The simplest type of time dependent covariate is an interaction term
+between time and another covariate. Suppose we have a row in a dataset
+with a factor covariate “group” and some arbitrary endpoints to the time
+interval. Colossus starts by using a user provided function to calculate
+the value of the time dependent covariate at the endpoints. We assume
+that the value of “group” is constant over the interval and time is
+changing linearly. Colossus calculates the value of the time dependent
+covariate over intervals by linearly interpolating between the value at
+the endpoints. This process assumes that the interaction is linear or
+the interval is small enough for the interaction to be approximately
+linear.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dft</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="st">"x"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>,<span class="st">"y"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">5</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">dft</span>,<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">.data</span><span class="op">$</span><span class="va">x</span>, y<span class="op">=</span><span class="va">.data</span><span class="op">$</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -117,12 +143,19 @@ Linear Interpolated Function
 \end{aligned}
 \]</span>
 </p>
-<p>This is most helpful in a situation where the user has continuous data over a series of intervals and believes that the values can be interpolated within each interval.</p>
+<p>This is most helpful in a situation where the user has continuous
+data over a series of intervals and believes that the values can be
+interpolated within each interval.</p>
 </div>
 <div class="section level2">
 <h2 id="step-function-interaction">Step Function Interaction<a class="anchor" aria-label="anchor" href="#step-function-interaction"></a>
 </h2>
-<p>The second type of time dependent covariate is one which changes based on conditional statements. One example is a covariate to split data into bins by time. Colossus uses a string to identify where to change value. The user inputs a string of the form “#l?” for a time value “#”, a condition “l”, and a question mark as a delimiter. Colossus allows for four conditions:</p>
+<p>The second type of time dependent covariate is one which changes
+based on conditional statements. One example is a covariate to split
+data into bins by time. Colossus uses a string to identify where to
+change value. The user inputs a string of the form “#l?” for a time
+value “#”, a condition “l”, and a question mark as a delimiter. Colossus
+allows for four conditions:</p>
 <ul>
 <li>l: less than or equal to</li>
 <li>g: greater than or equal to</li>
@@ -146,7 +179,8 @@ Linear Interpolated Function
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    Y(x)=\begin{cases} 0 &amp;(x &lt; 0) \\ 1 &amp; (x \ge 0) \\ 2 &amp;(x \ge 6) \\ 3 &amp;(x \ge 12) \end{cases}\\
+    Y(x)=\begin{cases} 0 &amp;(x &lt; 0) \\ 1 &amp; (x \ge 0) \\ 2
+&amp;(x \ge 6) \\ 3 &amp;(x \ge 12) \end{cases}\\
 \end{aligned}
 \]</span>
 </p>
@@ -167,11 +201,16 @@ Linear Interpolated Function
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    Y(x)=\begin{cases} 1 &amp;(x &lt; 0) \\ 2 &amp; (x \ge 0) \\ 3 &amp;(x \ge 6) \\ 2 &amp;(x \ge 12) \end{cases}\\
+    Y(x)=\begin{cases} 1 &amp;(x &lt; 0) \\ 2 &amp; (x \ge 0) \\ 3
+&amp;(x \ge 6) \\ 2 &amp;(x \ge 12) \end{cases}\\
 \end{aligned}
 \]</span>
 </p>
-<p>This is most helpful in situations where the user has reason to believe that the effect of a covariate on events is not uniform over time despite the covariate being constant over each interval. This allows the user to generate a list of factors to interact with any covariate of interest.</p>
+<p>This is most helpful in situations where the user has reason to
+believe that the effect of a covariate on events is not uniform over
+time despite the covariate being constant over each interval. This
+allows the user to generate a list of factors to interact with any
+covariate of interest.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

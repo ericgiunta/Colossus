@@ -8,7 +8,7 @@
 Def_Control_Guess(guesses_control, a_n)
 }
 \arguments{
-\item{guesses_control}{list of parameters to control how the guessing works}
+\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options}
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 }
@@ -27,3 +27,20 @@ a_n <- c(0.1,2,1.3)
 guesses_control <- Def_Control_Guess(guesses_control, a_n)
 
 }
+\seealso{
+Other {Data Cleaning Functions}: 
+\code{\link{Check_Dupe_Columns}()},
+\code{\link{Check_Trunc}()},
+\code{\link{Correct_Formula_Order}()},
+\code{\link{Date_Shift}()},
+\code{\link{Def_Control}()},
+\code{\link{Def_model_control}()},
+\code{\link{Def_modelform_fix}()},
+\code{\link{Replace_Missing}()},
+\code{\link{Time_Since}()},
+\code{\link{factorize_par}()},
+\code{\link{factorize}()},
+\code{\link{gen_time_dep}()},
+\code{\link{interact_them}()}
+}
+\concept{{Data Cleaning Functions}}

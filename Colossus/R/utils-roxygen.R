@@ -1,8 +1,7 @@
 #' @param MSV  value to replace na with, same used for every column used
-#' @param Plot_Name  plot identifier
-#' @param Plot_Type  list of parameters controlling the plot options
+#' @param Plot_Name  plot identifier, used in filename for saved plots
+#' @param Plot_Type  list of parameters controlling the plot options: surv, risk, schoenfeld
 #' @param Strat_Col  column to stratify by if needed
-#' @param Strat_Cols  column to stratify by
 #' @param Term_n  term numbers for each element of the model
 #' @param a0  linear slope
 #' @param a1_goal  exponential maximum desired
@@ -10,13 +9,13 @@
 #' @param age_unit  age unit
 #' @param alternative_model  the new model of interest in list form
 #' @param b  optimum parameter values used
-#' @param ce  columns to check for truncation
+#' @param ce  columns to check for truncation, (t0, t1, event)
 #' @param cens_weight  list of weights for censoring rate
 #' @param ch  cumulative hazards of baseline
 #' @param col_list  an array of column names that should have factor terms defined
-#' @param col_name  new column name
+#' @param col_name  vector of new column names
 #' @param cols  columns to check
-#' @param control  list of parameters controlling the convergence
+#' @param control  list of parameters controlling the convergence, see Def_Control() for options
 #' @param Cons_Mat Matrix containing coefficients for system of linear constraints, formatted as matrix
 #' @param Cons_Vec Vector containing constants for system of linear constraints, formatted as vector
 #' @param dep_cols  columns that are not needed in the new dataframe
@@ -31,20 +30,20 @@
 #' @param fir  term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param fname  filename used for new dataframe
 #' @param func_form  vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
-#' @param guesses_control  list of parameters to control how the guessing works
+#' @param guesses_control  list of parameters to control how the guessing works, see Def_Control_Guess() for options
 #' @param h  hazards of baseline
-#' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * with term2, "?" dlimits
-#' @param iscox  boolean if rows not at event times should be kept
+#' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits
+#' @param iscox  boolean if rows not at event times should be kept, rows are removed if true
 #' @param keep_constant  binary values to denote which parameters to change
-#' @param model_control  controls which alternative model options are used
-#' @param modelform  string specifying the model type
+#' @param model_control  controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details
+#' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
 #' @param name_list  vector of string column names to check
 #' @param names  columns for elements of the model, used to identify data columns
 #' @param new_names  list of new names to use instead of default, default used if entry is ''
-#' @param nthreads  number of threads to use
+#' @param nthreads  number of threads to use, do not use more threads than avaliable on your machine
 #' @param null_model  a model to compare against, in list form
 #' @param paras  list of formula parameters
-#' @param plot_options  list of parameters controlling the plot options
+#' @param plot_options  list of parameters controlling the plot options, see RunCoxPlots() for different options
 #' @param pyr0  column used for person-years per row
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline

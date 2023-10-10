@@ -42,15 +42,15 @@ GetCensWeight(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
-\item{plot_options}{list of parameters controlling the plot options}
+\item{plot_options}{list of parameters controlling the plot options, see RunCoxPlots() for different options}
 
-\item{model_control}{controls which alternative model options are used}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
 
 \item{Strat_Col}{column to stratify by if needed}
 }
@@ -102,3 +102,13 @@ t_c <- df$t1
 cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
 
 }
+\seealso{
+Other {Plotting Functions}: 
+\code{\link{CoxKaplanMeier}()},
+\code{\link{CoxMartingale}()},
+\code{\link{CoxRisk}()},
+\code{\link{CoxStratifiedSurvival}()},
+\code{\link{CoxSurvival}()},
+\code{\link{PlotCox_Schoenfeld_Residual}()}
+}
+\concept{{Plotting Functions}}

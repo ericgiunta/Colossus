@@ -43,13 +43,13 @@ RunCoxRegression_STRATA(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 
 \item{Strat_Col}{column to stratify by if needed}
 }
@@ -100,3 +100,15 @@ e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n,
                              fir, der_iden, control,Strat_Col)
 
 }
+\seealso{
+Other {Cox Wrapper Functions}: 
+\code{\link{RunCoxNull}()},
+\code{\link{RunCoxRegression_Basic}()},
+\code{\link{RunCoxRegression_CR}()},
+\code{\link{RunCoxRegression_Guesses_CPP}()},
+\code{\link{RunCoxRegression_Omnibus}()},
+\code{\link{RunCoxRegression_Single}()},
+\code{\link{RunCoxRegression_Tier_Guesses}()},
+\code{\link{RunCoxRegression}()}
+}
+\concept{{Cox Wrapper Functions}}

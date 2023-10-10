@@ -10,7 +10,7 @@ interact_them(df, interactions, new_names, verbose = FALSE)
 \arguments{
 \item{df}{a data.table containing the columns of interest}
 
-\item{interactions}{array of strings, each one is of form term1?*?term2" for term1 interaction of type * with term2, "?" dlimits}
+\item{interactions}{array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits}
 
 \item{new_names}{list of new names to use instead of default, default used if entry is ''}
 
@@ -36,3 +36,20 @@ df <- vals$df
 new_col <- vals$cols
 
 }
+\seealso{
+Other {Data Cleaning Functions}: 
+\code{\link{Check_Dupe_Columns}()},
+\code{\link{Check_Trunc}()},
+\code{\link{Correct_Formula_Order}()},
+\code{\link{Date_Shift}()},
+\code{\link{Def_Control_Guess}()},
+\code{\link{Def_Control}()},
+\code{\link{Def_model_control}()},
+\code{\link{Def_modelform_fix}()},
+\code{\link{Replace_Missing}()},
+\code{\link{Time_Since}()},
+\code{\link{factorize_par}()},
+\code{\link{factorize}()},
+\code{\link{gen_time_dep}()}
+}
+\concept{{Data Cleaning Functions}}

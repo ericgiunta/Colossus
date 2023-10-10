@@ -39,11 +39,11 @@ RunCoxRegression_Single(
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 
-\item{modelform}{string specifying the model type}
+\item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
 }
 \value{
 returns a list of the final results
@@ -83,3 +83,15 @@ e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
                              keep_constant, a_n, modelform, fir, control)
 
 }
+\seealso{
+Other {Cox Wrapper Functions}: 
+\code{\link{RunCoxNull}()},
+\code{\link{RunCoxRegression_Basic}()},
+\code{\link{RunCoxRegression_CR}()},
+\code{\link{RunCoxRegression_Guesses_CPP}()},
+\code{\link{RunCoxRegression_Omnibus}()},
+\code{\link{RunCoxRegression_STRATA}()},
+\code{\link{RunCoxRegression_Tier_Guesses}()},
+\code{\link{RunCoxRegression}()}
+}
+\concept{{Cox Wrapper Functions}}
