@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Linked_Lin_Exp_Para}
 \alias{Linked_Lin_Exp_Para}
-\title{Calculates The Additional Parameter For a linear-exponential formula with known maximum
-\code{Linked_Lin_Exp_Para} Calculates what the additional parameter would be for a desired maximum}
+\title{Calculates The Additional Parameter For a linear-exponential formula with known maximum}
 \usage{
 Linked_Lin_Exp_Para(y, a0, a1_goal, verbose = FALSE)
 }
@@ -20,7 +19,6 @@ Linked_Lin_Exp_Para(y, a0, a1_goal, verbose = FALSE)
 returns parameter used by Colossus
 }
 \description{
-Calculates The Additional Parameter For a linear-exponential formula with known maximum
 \code{Linked_Lin_Exp_Para} Calculates what the additional parameter would be for a desired maximum
 }
 \examples{

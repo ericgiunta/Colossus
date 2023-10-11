@@ -86,19 +86,16 @@ test_that("Coxph strata_basic_single_CR", {
     plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyID"="studyID","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
-    #file.remove('weight_surv_plot_run_04.jpeg')
     #
     t_ref <- dft$t
     surv_ref <- dft$surv
     t_c <- df$t1
     cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
     #
-    #    cens_weight <- dft$surv
     event <- "lung"
     a_n <- c(-0.1,-0.1)
     keep_constant <- c(0,0)
 
-    #stop()
     control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
 
     verbose <- FALSE
@@ -181,7 +178,6 @@ test_that("risk check omnibus plain", {
     der_iden <- 0
 
     cens_weight <- c(0)
-    #stop()
     control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
     verbose <- FALSE
@@ -231,7 +227,6 @@ test_that("risk check omnibus gmix", {
     df$censor <- (df$lung==0)
     #
     event <- "lung"
-    #stop()
     control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
     verbose <- FALSE
@@ -325,7 +320,6 @@ test_that("risk check omnibus dose", {
     der_iden <- 0
 
     cens_weight <- c(0)
-    #stop()
     control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
     verbose <- FALSE
@@ -381,7 +375,6 @@ test_that("check deviation calc", {
 
 
     #
-    #    cens_weight <- dft$surv
     event <- "lung"
     names <- c("dose","fac","rand")
     Term_n <- c(0,0,1)
@@ -393,7 +386,6 @@ test_that("check deviation calc", {
     der_iden <- 0
 
     cens_weight <- c(0)
-    #stop()
 
     verbose <- FALSE
 

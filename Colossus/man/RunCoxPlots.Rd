@@ -2,9 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxPlots}
 \alias{RunCoxPlots}
-\title{Performs Cox Proportional Hazard model plots
-\code{RunCoxPlots} uses user provided data, time/event columns,
-vectors specifying the model, and options to choose and save plots}
+\title{Performs Cox Proportional Hazard model plots}
 \usage{
 RunCoxPlots(
   df,
@@ -46,17 +44,16 @@ RunCoxPlots(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{plot_options}{list of parameters controlling the plot options, see RunCoxPlots() for different options}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 saves the plots in the current directory and returns a string
 }
 \description{
-Performs Cox Proportional Hazard model plots
 \code{RunCoxPlots} uses user provided data, time/event columns,
 vectors specifying the model, and options to choose and save plots
 }

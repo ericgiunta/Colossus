@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Replace_Missing}
 \alias{Replace_Missing}
-\title{Automatically assigns missing values in listed columns
-\code{Replace_Missing} checks each column and fills in NA values}
+\title{Automatically assigns missing values in listed columns}
 \usage{
 Replace_Missing(df, name_list, MSV, verbose = FALSE)
 }
@@ -20,7 +19,6 @@ Replace_Missing(df, name_list, MSV, verbose = FALSE)
 returns a filled datatable
 }
 \description{
-Automatically assigns missing values in listed columns
 \code{Replace_Missing} checks each column and fills in NA values
 }
 \examples{

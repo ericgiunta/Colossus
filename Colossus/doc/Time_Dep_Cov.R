@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -9,7 +9,7 @@ library(Colossus)
 library(data.table)
 
 
-## ---- fig.cap='Linear Interpolated Function'----------------------------------
+## ----fig.cap='Linear Interpolated Function'-----------------------------------
 dft <- data.table("x"=c(1,2,3),"y"=c(2,5,10))
 g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + 
      ggplot2::geom_point(color="black") + 
@@ -22,7 +22,7 @@ g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$x, y=.data$y),
                             color="black",linetype = "dashed")
 g
 
-## ---- fig.cap='Linear Interpolated Function'----------------------------------
+## ----fig.cap='Linear Interpolated Function'-----------------------------------
 dft <- data.table("x"=c(-1,1,5,8,13),"y"=c(0,1,1,2,3))
 g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
      ggplot2::geom_point(color="black")
@@ -31,7 +31,7 @@ g <- g + ggplot2::geom_line(data=dft, ggplot2::aes(x=.data$x, y=.data$y), color=
          ggplot2::labs(x="age (days)", y="Covariate Value")
 g
 
-## ---- fig.cap='Linear Interpolated Function'----------------------------------
+## ----fig.cap='Linear Interpolated Function'-----------------------------------
 dft <- data.table("x"=c(-1,1,5,8,13),"y"=c(1,2,2,3,2))
 g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
      ggplot2::geom_point(color="black")

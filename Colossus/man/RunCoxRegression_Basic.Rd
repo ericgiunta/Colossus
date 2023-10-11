@@ -2,8 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Basic}
 \alias{RunCoxRegression_Basic}
-\title{Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model
-\code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions}
+\title{Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model}
 \usage{
 RunCoxRegression_Basic(
   df,
@@ -34,13 +33,12 @@ RunCoxRegression_Basic(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 }
 \value{
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model
 \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 }
 \examples{

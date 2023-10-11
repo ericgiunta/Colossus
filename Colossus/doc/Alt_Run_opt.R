@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -9,28 +9,28 @@ library(Colossus)
 library(data.table)
 
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  Strat_Col <- "e"
 #  e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n, tform, keep_constant,
 #                               a_n, modelform, fir, der_iden, control,Strat_Col)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  Strat_Col <- c("e")
 #  e <-RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant,
 #                                  a_n, modelform, fir, der_iden, control,Strat_Col)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  e <- RunCoxRegression_Basic(df, time1, time2, event, names,
 #                              keep_constant, a_n, der_iden, control)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
 #                               a_n, modelform, fir, control)
 #  
 #  e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform,
 #                                   a_n, modelform, fir, control)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  df$censor <- (df$lung==0) #censoring column made
 #  event <- "censor" #event type switched to censoring
 #  

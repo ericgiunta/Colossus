@@ -45,6 +45,7 @@ void visit_lambda(const Mat& m, const Func& f)
 }
 
 //' Utility function to calculate the term and subterm values
+//'
 //' \code{Make_subterms} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 //' @inheritParams CPP_template
 //'
@@ -633,6 +634,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
 }
 
 //' Utility function to calculate the term and subterm values, but not derivatives
+//'
 //' \code{Make_subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 //' @inheritParams CPP_template
 //'
@@ -834,6 +836,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
 }
 
 //' Utility function to calculate the term and subterm values with the basic model
+//'
 //' \code{Make_subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 //' @inheritParams CPP_template
 //'
@@ -855,6 +858,7 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 }
 
 //' Utility function to calculate the risk and risk ratios
+//'
 //' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
 //' @inheritParams CPP_template
 //'
@@ -1308,6 +1312,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 }
 
 //' Utility function to calculate the risk and risk ratios with a weighting applied
+//'
 //' \code{Make_Risks_Weighted} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
 //' @inheritParams CPP_template
 //'
@@ -1345,6 +1350,7 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
 
 
 //' Utility function to calculate the risk with a weighting applied and no derivatives calculated
+//'
 //' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
 //' @inheritParams CPP_template
 //'
@@ -1364,6 +1370,7 @@ void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, con
 }
 
 //' Utility function to calculate the risk, but not derivatives
+//'
 //' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
 //' @inheritParams CPP_template
 //'
@@ -1434,6 +1441,7 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 }
 
 //' Utility function to calculate the risk and risk ratios for the basic model
+//'
 //' \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
 //' @inheritParams CPP_template
 //'
@@ -1484,6 +1492,7 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 
 
 //' Utility function to define risk groups
+//'
 //' \code{Make_Groups} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
 //' @inheritParams CPP_template
 //'
@@ -1537,6 +1546,7 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 }
 
 //' Utility function to define risk groups with competing risks
+//'
 //' \code{Make_Groups_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event=2 past the event time    
 //' @inheritParams CPP_template
 //'
@@ -1592,6 +1602,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 }
 
 //' Utility function to define risk groups with STRATA
+//'
 //' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
 //' @inheritParams CPP_template
 //'
@@ -1668,6 +1679,7 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 }
 
 //' Utility function to define risk groups with STRATA and competing risks
+//'
 //' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group , adds competing risks  
 //' @inheritParams CPP_template
 //'
@@ -1745,6 +1757,7 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+//'
 //' \code{Calculate_Sides} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
 //'
@@ -1849,6 +1862,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+//'
 //' \code{Calculate_Sides_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
 //'
@@ -1970,6 +1984,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+//'
 //' \code{Calculate_Sides_CR_SINGLE} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
 //'
@@ -2015,6 +2030,7 @@ void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<strin
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
+//'
 //' \code{Calculate_Sides_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
 //'
@@ -2050,6 +2066,7 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives, applies competing risks
+//'
 //' \code{Calculate_Sides_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group with competing risks
 //' @inheritParams CPP_template
 //'
@@ -2096,6 +2113,7 @@ void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<strin
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
+//'
 //' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
 //'
@@ -2205,6 +2223,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative
+//'
 //' \code{Calculate_Sides_STRATA_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives
 //' @inheritParams CPP_template
 //'
@@ -2249,6 +2268,7 @@ void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMa
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and competing risks
+//'
 //' \code{Calculate_Sides_STRATA_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
 //' @inheritParams CPP_template
 //'
@@ -2386,6 +2406,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
 }
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative and with competing risks
+//'
 //' \code{Calculate_Sides_STRATA_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives but with competing risks
 //' @inheritParams CPP_template
 //'
@@ -2438,6 +2459,7 @@ void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const Strin
 }
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives
+//'
 //' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
@@ -2541,6 +2563,7 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
 }
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives, basic model
+//'
 //' \code{Calc_LogLik_Basic} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
@@ -2638,6 +2661,7 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
 }
 
 //' Utility function to calculate Cox Log-Likelihood, basic model
+//'
 //' \code{Calc_LogLik_Basic_Single} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
@@ -2684,6 +2708,7 @@ void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail,
 }
 
 //' Utility function to calculate Cox Log-Likelihood
+//'
 //' \code{Calc_LogLik_Single} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
@@ -2726,6 +2751,7 @@ void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const
 }
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
+//'
 //' \code{Calc_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
@@ -2833,6 +2859,7 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
 }
 
 //' Utility function to calculate just Cox Log-Likelihood with STRATA
+//'
 //' \code{Calc_LogLik_STRATA_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata
 //' @inheritParams CPP_template
 //'
@@ -2883,6 +2910,7 @@ void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail
 }
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
+//'
 //' \code{Calc_LogLik_STRATA_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
 //' @inheritParams CPP_template
 //'
@@ -2984,6 +3012,7 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
 }
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model, no derivatives
+//'
 //' \code{Calc_LogLik_STRATA_BASIC_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
 //' @inheritParams CPP_template
 //'
@@ -3045,6 +3074,7 @@ void Calc_LogLik_STRATA_BASIC_SINGLE(const int& nthreads,const IntegerMatrix& Ri
 }
 
 //' Utility function to calculate poisson log-likelihood and derivatives
+//'
 //' \code{Poisson_LogLik} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
 //' @inheritParams CPP_template
 //'
@@ -3084,6 +3114,7 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 }
 
 //' Utility function to calculate poisson log-likelihood
+//'
 //' \code{Poisson_LogLik_Single} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
 //' @inheritParams CPP_template
 //'
@@ -3100,6 +3131,7 @@ void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const Matri
 }
 
 //' Utility function to keep intercept parameters within the range of possible values
+//'
 //' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
 //' @inheritParams CPP_template
 //' 
@@ -3131,6 +3163,7 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 }
 
 //' Utility function to calculate the change to make each iteration, applying linear constraints
+//'
 //' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints    
 //' @inheritParams CPP_template
 //'
@@ -3230,6 +3263,7 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
 }
 
 //' Utility function to calculate the change to make each iteration
+//'
 //' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 //' @inheritParams CPP_template
 //'
@@ -3356,6 +3390,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
 }
 
 //' Utility function to calculate the change to make each iteration, with basic model
+//'
 //' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 //' @inheritParams CPP_template
 //'
@@ -3469,6 +3504,7 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 }
 
 //' Utility function to perform null model equivalent of Calculate_Sides
+//'
 //' \code{Calculate_Null_Sides} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
 //' @inheritParams CPP_template
 //'
@@ -3506,6 +3542,7 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  
 
 
 //' Utility function to perform null model equivalent of Calc_LogLik
+//'
 //' \code{Calc_Null_LogLik} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
@@ -3547,6 +3584,7 @@ void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const v
 }
 
 //' Utility function to perform null model equivalent of Calculate_Sides with strata
+//'
 //' \code{Calculate_Null_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
 //' @inheritParams CPP_template
 //'
@@ -3589,6 +3627,7 @@ void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatr
 
 
 //' Utility function to perform null model equivalent of Calc_LogLik
+//'
 //' \code{Calc_Null_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'

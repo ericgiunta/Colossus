@@ -1,4 +1,5 @@
 #' Performs Cox Proportional Hazards regression using the omnibus function
+#'
 #' \code{RunCoxRegression_Omnibus} uses user provided data, time/event columns,
 #'       vectors specifying the model, and options to control the convergence
 #'       and starting positions. Has additional options for starting with several
@@ -49,17 +50,17 @@
 #'                               model_control=list("single"=FALSE,
 #'                               "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0,0)),Cons_Vec=c(0)){
+RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
     control <- Def_Control(control)
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
-                                 names, der_iden, control$verbose, Cons_Mat, Cons_Vec)
+                                 names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    Cons_Mat <- val$Cons_Mat
+    Cons_Mat <- as.matrix(val$Cons_Mat)
     Cons_Vec <- val$Cons_Vec
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
@@ -172,6 +173,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     } else {
         a_ns <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
     }
+    #
     e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden,
          modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
          keep_constant,term_tot, uniq, cens_weight, model_control,
@@ -185,6 +187,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 }
 
 #' Performs basic Cox Proportional Hazards regression without special options
+#'
 #' \code{RunCoxRegression} uses user provided data, time/event columns,
 #' vectors specifying the model, and options to control the convergence
 #' and starting position
@@ -242,6 +245,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 }
 
 #' Performs basic Cox Proportional Hazards calculation with no derivative
+#'
 #' \code{RunCoxRegression_Single} uses user provided data, time/event columns, vectors specifying the model, and options and returns the log-likelihood
 #'
 #' @inheritParams R_template
@@ -292,6 +296,7 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 }
 
 #' Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model
+#'
 #' \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
@@ -343,6 +348,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 
 
 #' Performs basic Cox Proportional Hazards regression with strata effect
+#'
 #' \code{RunCoxRegression_STRATA} uses user provided data,
 #' time/event columns, vectors specifying the model, and options to control
 #' the convergence and starting positions
@@ -401,6 +407,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 
 
 #' Calculates hazard ratios for a reference vector
+#'
 #' \code{RunCoxRegression} uses user provided data,  vectors specifying the model,
 #' and options to calculate relative risk for every row in the provided data
 #'
@@ -482,6 +489,7 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
 }
 
 #' Performs basic Cox Proportional Hazards regression with the null model
+#'
 #' \code{RunCoxRegression} uses user provided data and time/event columns
 #' to calculate the log-likelihood with constant hazard ratio
 #'
@@ -519,6 +527,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 
 
 #' Performs Cox Proportional Hazard model plots
+#'
 #' \code{RunCoxPlots} uses user provided data, time/event columns,
 #' vectors specifying the model, and options to choose and save plots
 #'
@@ -810,6 +819,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 
 #' Performs basic cox regression, with multiple guesses, starts with
 #' solving for a single term
+#'
 #' \code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event
 #' columns, vectors specifying the model, and options to control the
 #' convergence and starting positions, with additional guesses
@@ -940,6 +950,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 
 
 #' Performs basic Cox Proportional Hazards regression with competing risks
+#'
 #' \code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and censoring adjustment
 #'
 #' @inheritParams R_template
@@ -997,6 +1008,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 }
 
 #' Performs basic Cox Proportional Hazards regression, Allows for multiple starting guesses on c++ side
+#'
 #' \code{RunCoxRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'
 #' @inheritParams R_template

@@ -2,13 +2,12 @@
 % Please edit documentation in R/Utility.R
 \name{Def_Control_Guess}
 \alias{Def_Control_Guess}
-\title{Automatically assigns missing guessing control values
-\code{Def_Control_Guess} checks and assigns default values}
+\title{Automatically assigns missing guessing control values}
 \usage{
 Def_Control_Guess(guesses_control, a_n)
 }
 \arguments{
-\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options}
+\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Alt_Distrib_Starts")}
 
 \item{a_n}{list of initial parameter values, used to determine number of parameters}
 }
@@ -16,7 +15,6 @@ Def_Control_Guess(guesses_control, a_n)
 returns a filled list
 }
 \description{
-Automatically assigns missing guessing control values
 \code{Def_Control_Guess} checks and assigns default values
 }
 \examples{

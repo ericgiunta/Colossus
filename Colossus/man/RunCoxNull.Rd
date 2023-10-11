@@ -2,9 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxNull}
 \alias{RunCoxNull}
-\title{Performs basic Cox Proportional Hazards regression with the null model
-\code{RunCoxRegression} uses user provided data and time/event columns
-to calculate the log-likelihood with constant hazard ratio}
+\title{Performs basic Cox Proportional Hazards regression with the null model}
 \usage{
 RunCoxNull(df, time1, time2, event0, control)
 }
@@ -17,13 +15,12 @@ RunCoxNull(df, time1, time2, event0, control)
 
 \item{event0}{column used for event status}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 }
 \value{
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards regression with the null model
 \code{RunCoxRegression} uses user provided data and time/event columns
 to calculate the log-likelihood with constant hazard ratio
 }

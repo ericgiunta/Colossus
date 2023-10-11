@@ -2,8 +2,7 @@
 % Please edit documentation in R/PlotTypes.R
 \name{CoxRisk}
 \alias{CoxRisk}
-\title{calculates and plots relative risk
-\code{CoxRisk} uses user provided data, columns, and identifier to create plots of risk by covariate value for each column}
+\title{calculates and plots relative risk}
 \usage{
 CoxRisk(
   verbose,
@@ -51,7 +50,7 @@ CoxRisk(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
@@ -61,13 +60,12 @@ CoxRisk(
 
 \item{er}{standard deviation for the parameters}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed
 }
 \description{
-calculates and plots relative risk
 \code{CoxRisk} uses user provided data, columns, and identifier to create plots of risk by covariate value for each column
 }
 \seealso{

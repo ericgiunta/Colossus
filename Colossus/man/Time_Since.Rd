@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Time_Since}
 \alias{Time_Since}
-\title{Automates creating a date since a reference column
-\code{Time_Since} generates a new dataframe with a column containing time since a reference in a given unit}
+\title{Automates creating a date since a reference column}
 \usage{
 Time_Since(df, dcol0, tref, col_name, units = "days")
 }
@@ -22,7 +21,6 @@ Time_Since(df, dcol0, tref, col_name, units = "days")
 returns the updated dataframe
 }
 \description{
-Automates creating a date since a reference column
 \code{Time_Since} generates a new dataframe with a column containing time since a reference in a given unit
 }
 \examples{

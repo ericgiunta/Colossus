@@ -2,8 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Single}
 \alias{RunCoxRegression_Single}
-\title{Performs basic Cox Proportional Hazards calculation with no derivative
-\code{RunCoxRegression_Single} uses user provided data, time/event columns, vectors specifying the model, and options and returns the log-likelihood}
+\title{Performs basic Cox Proportional Hazards calculation with no derivative}
 \usage{
 RunCoxRegression_Single(
   df,
@@ -43,13 +42,12 @@ RunCoxRegression_Single(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 }
 \value{
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards calculation with no derivative
 \code{RunCoxRegression_Single} uses user provided data, time/event columns, vectors specifying the model, and options and returns the log-likelihood
 }
 \examples{

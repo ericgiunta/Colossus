@@ -46,6 +46,7 @@ void visit_lambda(const Mat& m, const Func& f)
 
 
 //' Primary Cox PH baseline hazard function
+//'
 //' \code{PLOT_SURV} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 //'
 //' @inheritParams CPP_template
@@ -123,6 +124,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, Nume
 
 
 //' Primary Cox PH schoenfeld residual function
+//'
 //' \code{Schoenfeld_Calc} Performs the calls to calculation functions, Uses calculated risks and risk groups to calculate the residuals, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 //'
 //' @inheritParams CPP_template
@@ -196,6 +198,7 @@ List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  M
 
 
 //' Primary plotting function.
+//'
 //' \code{Plot_Omnibus} Performs the calls to calculation functions
 //'
 //' @inheritParams CPP_template

@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Gather_Guesses_CPP}
 \alias{Gather_Guesses_CPP}
-\title{Performs checks to gather a list of guesses and iterations
-\code{Gather_Guesses_CPP} called from within R, uses a list of options and the model definition to generate a list of parameters and iterations that do not produce errors}
+\title{Performs checks to gather a list of guesses and iterations}
 \usage{
 Gather_Guesses_CPP(
   df,
@@ -45,16 +44,15 @@ Gather_Guesses_CPP(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
-\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options}
+\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Alt_Distrib_Starts")}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 returns a list of the final results
 }
 \description{
-Performs checks to gather a list of guesses and iterations
 \code{Gather_Guesses_CPP} called from within R, uses a list of options and the model definition to generate a list of parameters and iterations that do not produce errors
 }

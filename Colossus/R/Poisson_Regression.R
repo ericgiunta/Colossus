@@ -1,4 +1,5 @@
 #' Performs basic Poisson regression using the omnibus function
+#'
 #' \code{RunPoissonRegression_Omnibus} uses user provided data, time/event columns,
 #'  vectors specifying the model, and options to control the convergence and starting positions.
 #'  Has additional options to starting with several initial guesses
@@ -44,17 +45,17 @@
 #' e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
 #'                                   a_n, modelform, fir, der_iden, control,Strat_Col)
 #' @importFrom rlang .data
-RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0,0)),Cons_Vec=c(0)){
+RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
     control <- Def_Control(control)
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
-                                 names, der_iden, control$verbose, Cons_Mat, Cons_Vec)
+                                 names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    Cons_Mat <- val$Cons_Mat
+    Cons_Mat <- as.matrix(val$Cons_Mat)
     Cons_Vec <- val$Cons_Vec
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
@@ -174,6 +175,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 
 
 #' Performs basic poisson regression
+#'
 #' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
@@ -224,6 +226,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 }
 
 #' Performs poisson regression with no derivative calculations
+#'
 #' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
 #'
 #' @inheritParams R_template
@@ -273,6 +276,7 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, 
 }
 
 #' Performs poisson regression with strata effect
+#'
 #' \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
@@ -326,6 +330,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 
 
 #' Performs basic poisson regression, with multiple guesses, starts with a single term
+#'
 #' \code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
 #'
 #' @inheritParams R_template
@@ -441,6 +446,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 }
 
 #' Performs basic Poisson regression, Allows for multiple starting guesses on c++ side
+#'
 #' \code{RunPoissonRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'
 #' @inheritParams R_template

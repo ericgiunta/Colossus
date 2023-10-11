@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Correct_Formula_Order}
 \alias{Correct_Formula_Order}
-\title{Corrects the order of terms/formula/etc
-\code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues}
+\title{Corrects the order of terms/formula/etc}
 \usage{
 Correct_Formula_Order(
   Term_n,
@@ -12,9 +11,9 @@ Correct_Formula_Order(
   a_n,
   names,
   der_iden = 0,
-  verbose = FALSE,
   Cons_Mat = matrix(c(0)),
-  Cons_Vec = c(0)
+  Cons_Vec = c(0),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -30,17 +29,16 @@ Correct_Formula_Order(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
-
 \item{Cons_Mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
 
 \item{Cons_Vec}{Vector containing constants for system of linear constraints, formatted as vector}
+
+\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 }
 \value{
 returns the corrected lists
 }
 \description{
-Corrects the order of terms/formula/etc
 \code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues
 }
 \examples{

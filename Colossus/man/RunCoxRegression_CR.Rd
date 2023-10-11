@@ -2,8 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_CR}
 \alias{RunCoxRegression_CR}
-\title{Performs basic Cox Proportional Hazards regression with competing risks
-\code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and censoring adjustment}
+\title{Performs basic Cox Proportional Hazards regression with competing risks}
 \usage{
 RunCoxRegression_CR(
   df,
@@ -47,7 +46,7 @@ RunCoxRegression_CR(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{cens_weight}{list of weights for censoring rate}
 }
@@ -55,7 +54,6 @@ RunCoxRegression_CR(
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards regression with competing risks
 \code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and censoring adjustment
 }
 \examples{

@@ -2,8 +2,7 @@
 % Please edit documentation in R/PlotTypes.R
 \name{PlotCox_Schoenfeld_Residual}
 \alias{PlotCox_Schoenfeld_Residual}
-\title{Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots
-\code{RunCox_Schoenfeld_Residual} uses user provided data, time/event columns, vectors specifying the model, and options to calculate the residuals}
+\title{Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots}
 \usage{
 PlotCox_Schoenfeld_Residual(
   df,
@@ -49,19 +48,18 @@ PlotCox_Schoenfeld_Residual(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{age_unit}{age unit}
 
 \item{Plot_Name}{plot identifier, used in filename for saved plots}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed
 }
 \description{
-Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots
 \code{RunCox_Schoenfeld_Residual} uses user provided data, time/event columns, vectors specifying the model, and options to calculate the residuals
 }
 \seealso{

@@ -2,6 +2,7 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' Utility function to calculate the term and subterm values
+#'
 #' \code{Make_subterms} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 #' @inheritParams CPP_template
 #'
@@ -13,6 +14,7 @@ Make_subterms <- function(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose
 }
 
 #' Utility function to calculate the term and subterm values, but not derivatives
+#'
 #' \code{Make_subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 #' @inheritParams CPP_template
 #'
@@ -24,6 +26,7 @@ Make_subterms_Single <- function(totalnum, Term_n, tform, dfc, fir, T0, Dose, no
 }
 
 #' Utility function to calculate the term and subterm values with the basic model
+#'
 #' \code{Make_subterms_Basic} Called to update term matrices, Uses lists of term numbers and types to apply formulas
 #' @inheritParams CPP_template
 #'
@@ -35,6 +38,7 @@ Make_subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugg
 }
 
 #' Utility function to calculate the risk and risk ratios
+#'
 #' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
 #' @inheritParams CPP_template
 #'
@@ -46,6 +50,7 @@ Make_Risks <- function(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, T
 }
 
 #' Utility function to calculate the risk and risk ratios with a weighting applied
+#'
 #' \code{Make_Risks_Weighted} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
 #' @inheritParams CPP_template
 #'
@@ -57,6 +62,7 @@ Make_Risks_Weighted <- function(modelform, tform, Term_n, totalnum, fir, s_weigh
 }
 
 #' Utility function to calculate the risk with a weighting applied and no derivatives calculated
+#'
 #' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
 #' @inheritParams CPP_template
 #'
@@ -68,6 +74,7 @@ Make_Risks_Weighted_Single <- function(modelform, tform, Term_n, totalnum, fir, 
 }
 
 #' Utility function to calculate the risk, but not derivatives
+#'
 #' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
 #' @inheritParams CPP_template
 #'
@@ -79,6 +86,7 @@ Make_Risks_Single <- function(modelform, tform, Term_n, totalnum, fir, T0, Te, R
 }
 
 #' Utility function to calculate the risk and risk ratios for the basic model
+#'
 #' \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
 #' @inheritParams CPP_template
 #'
@@ -90,6 +98,7 @@ Make_Risks_Basic <- function(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging,
 }
 
 #' Utility function to define risk groups
+#'
 #' \code{Make_Groups} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
 #' @inheritParams CPP_template
 #'
@@ -101,6 +110,7 @@ Make_Groups <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debuggin
 }
 
 #' Utility function to define risk groups with competing risks
+#'
 #' \code{Make_Groups_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event=2 past the event time    
 #' @inheritParams CPP_template
 #'
@@ -112,6 +122,7 @@ Make_Groups_CR <- function(ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, ce
 }
 
 #' Utility function to define risk groups with STRATA
+#'
 #' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
 #' @inheritParams CPP_template
 #'
@@ -123,6 +134,7 @@ Make_Groups_STRATA <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, d
 }
 
 #' Utility function to define risk groups with STRATA and competing risks
+#'
 #' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group , adds competing risks  
 #' @inheritParams CPP_template
 #'
@@ -134,6 +146,7 @@ Make_Groups_STRATA_CR <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+#'
 #' \code{Calculate_Sides} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @inheritParams CPP_template
 #'
@@ -145,6 +158,7 @@ Calculate_Sides <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rl
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+#'
 #' \code{Calculate_Sides_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @inheritParams CPP_template
 #'
@@ -156,6 +170,7 @@ Calculate_Sides_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd,
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+#'
 #' \code{Calculate_Sides_CR_SINGLE} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @inheritParams CPP_template
 #'
@@ -167,6 +182,7 @@ Calculate_Sides_CR_SINGLE <- function(RiskFail, RiskGroup, totalnum, ntime, R, R
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
+#'
 #' \code{Calculate_Sides_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @inheritParams CPP_template
 #'
@@ -178,6 +194,7 @@ Calculate_Sides_Single <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives, applies competing risks
+#'
 #' \code{Calculate_Sides_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group with competing risks
 #' @inheritParams CPP_template
 #'
@@ -189,6 +206,7 @@ Calculate_Sides_Single_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, R
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
+#'
 #' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @inheritParams CPP_template
 #'
@@ -200,6 +218,7 @@ Calculate_Sides_STRATA <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, 
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative
+#'
 #' \code{Calculate_Sides_STRATA_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives
 #' @inheritParams CPP_template
 #'
@@ -211,6 +230,7 @@ Calculate_Sides_STRATA_Single <- function(RiskFail, RiskGroup, totalnum, ntime, 
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and competing risks
+#'
 #' \code{Calculate_Sides_STRATA_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
 #' @inheritParams CPP_template
 #'
@@ -222,6 +242,7 @@ Calculate_Sides_STRATA_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, R
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative and with competing risks
+#'
 #' \code{Calculate_Sides_STRATA_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives but with competing risks
 #' @inheritParams CPP_template
 #'
@@ -233,6 +254,7 @@ Calculate_Sides_STRATA_Single_CR <- function(RiskFail, RiskGroup, totalnum, ntim
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives
+#'
 #' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
@@ -244,6 +266,7 @@ Calc_LogLik <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, R
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives, basic model
+#'
 #' \code{Calc_LogLik_Basic} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
@@ -255,6 +278,7 @@ Calc_LogLik_Basic <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R,
 }
 
 #' Utility function to calculate Cox Log-Likelihood, basic model
+#'
 #' \code{Calc_LogLik_Basic_Single} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
@@ -266,6 +290,7 @@ Calc_LogLik_Basic_Single <- function(nthreads, RiskFail, RiskGroup, totalnum, nt
 }
 
 #' Utility function to calculate Cox Log-Likelihood
+#'
 #' \code{Calc_LogLik_Single} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
@@ -277,6 +302,7 @@ Calc_LogLik_Single <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
+#'
 #' \code{Calc_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
@@ -288,6 +314,7 @@ Calc_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R
 }
 
 #' Utility function to calculate just Cox Log-Likelihood with STRATA
+#'
 #' \code{Calc_LogLik_STRATA_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata
 #' @inheritParams CPP_template
 #'
@@ -299,6 +326,7 @@ Calc_LogLik_STRATA_SINGLE <- function(nthreads, RiskFail, RiskGroup, totalnum, n
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
+#'
 #' \code{Calc_LogLik_STRATA_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
 #' @inheritParams CPP_template
 #'
@@ -310,6 +338,7 @@ Calc_LogLik_STRATA_BASIC <- function(nthreads, RiskFail, RiskGroup, totalnum, nt
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model, no derivatives
+#'
 #' \code{Calc_LogLik_STRATA_BASIC_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
 #' @inheritParams CPP_template
 #'
@@ -321,6 +350,7 @@ Calc_LogLik_STRATA_BASIC_SINGLE <- function(nthreads, RiskFail, RiskGroup, total
 }
 
 #' Utility function to calculate poisson log-likelihood and derivatives
+#'
 #' \code{Poisson_LogLik} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
 #' @inheritParams CPP_template
 #'
@@ -332,6 +362,7 @@ Poisson_LogLik <- function(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, 
 }
 
 #' Utility function to calculate poisson log-likelihood
+#'
 #' \code{Poisson_LogLik_Single} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row
 #' @inheritParams CPP_template
 #'
@@ -343,6 +374,7 @@ Poisson_LogLik_Single <- function(nthreads, totalnum, PyrC, R, Ll, debugging) {
 }
 
 #' Utility function to keep intercept parameters within the range of possible values
+#'
 #' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
 #' @inheritParams CPP_template
 #' 
@@ -354,6 +386,7 @@ Intercept_Bound <- function(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepCon
 }
 
 #' Utility function to calculate the change to make each iteration, applying linear constraints
+#'
 #' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints    
 #' @inheritParams CPP_template
 #'
@@ -365,6 +398,7 @@ Calc_Change_Cons <- function(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_i
 }
 
 #' Utility function to calculate the change to make each iteration
+#'
 #' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 #' @inheritParams CPP_template
 #'
@@ -376,6 +410,7 @@ Calc_Change <- function(double_step, nthreads, totalnum, der_iden, dbeta_cap, do
 }
 
 #' Utility function to calculate the change to make each iteration, with basic model
+#'
 #' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
 #' @inheritParams CPP_template
 #'
@@ -387,6 +422,7 @@ Calc_Change_Basic <- function(double_step, nthreads, totalnum, der_iden, dbeta_c
 }
 
 #' Utility function to perform null model equivalent of Calculate_Sides
+#'
 #' \code{Calculate_Null_Sides} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
 #' @inheritParams CPP_template
 #'
@@ -398,6 +434,7 @@ Calculate_Null_Sides <- function(RiskFail, RiskGroup, ntime, R, Rls1, Lls1, nthr
 }
 
 #' Utility function to perform null model equivalent of Calc_LogLik
+#'
 #' \code{Calc_Null_LogLik} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
@@ -409,6 +446,7 @@ Calc_Null_LogLik <- function(nthreads, RiskFail, RiskGroup, ntime, R, Rls1, Lls1
 }
 
 #' Utility function to perform null model equivalent of Calculate_Sides with strata
+#'
 #' \code{Calculate_Null_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
 #' @inheritParams CPP_template
 #'
@@ -420,6 +458,7 @@ Calculate_Null_Sides_STRATA <- function(RiskFail, RiskGroup, ntime, R, Rls1, Lls
 }
 
 #' Utility function to perform null model equivalent of Calc_LogLik
+#'
 #' \code{Calc_Null_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
@@ -431,6 +470,7 @@ Calc_Null_LogLik_STRATA <- function(nthreads, RiskFail, RiskGroup, ntime, R, Rls
 }
 
 #' checks if the model is viable
+#'
 #' \code{Check_Risk} Calculates risks and checks for negative values
 #'
 #' @inheritParams CPP_template
@@ -443,6 +483,7 @@ Check_Risk <- function(Term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, 
 }
 
 #' Primary Cox PH regression with multiple starting points and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
+#'
 #' \code{LogLik_Cox_PH_Omnibus} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
 #' @inheritParams CPP_template
@@ -455,6 +496,7 @@ LogLik_Cox_PH_Omnibus <- function(Term_n, tform, a_ns, x_all, dfc, fir, der_iden
 }
 
 #' Primary poisson regression with multiple starting points and optional combinations of stratification and no derivative calculation.
+#'
 #' \code{LogLik_Pois_Omnibus} Performs the calls to calculation functions, Structures the poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
 #' @inheritParams CPP_template
@@ -467,6 +509,7 @@ LogLik_Pois_Omnibus <- function(PyrC, Term_n, tform, a_ns, x_all, dfc, fir, der_
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
+#'
 #' \code{Cox_Refresh_R_TERM} Called to update matrices
 #' @inheritParams CPP_template
 #'
@@ -478,6 +521,7 @@ Cox_Refresh_R_TERM <- function(totalnum, reqrdnum, term_tot, dint, dslp, dose_ab
 }
 
 #' Utility function to refresh side matrices for Cox Omnibus
+#'
 #' \code{Cox_Refresh_R_SIDES} Called to fresh repeated sum calculation matrices
 #' @inheritParams CPP_template
 #'
@@ -489,6 +533,7 @@ Cox_Refresh_R_SIDES <- function(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, L
 }
 
 #' Utility function to perform calculation of terms and risks for Cox Omnibus
+#'
 #' \code{Cox_Term_Risk_Calc} Called to perform repeated term and risk calculations
 #' @inheritParams CPP_template
 #'
@@ -500,6 +545,7 @@ Cox_Term_Risk_Calc <- function(modelform, tform, Term_n, totalnum, fir, dfc, ter
 }
 
 #' Utility function to perform calculation of Repeated Calculations and Log-Likelihood for Cox Omnibus
+#'
 #' \code{Cox_Side_LL_Calc} Called to perform repeated term and risk calculations
 #' @inheritParams CPP_template
 #'
@@ -511,6 +557,7 @@ Cox_Side_LL_Calc <- function(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGr
 }
 
 #' Utility function to perform calculation of terms and risks for Poisson Omnibus
+#'
 #' \code{Pois_Term_Risk_Calc} Called to perform repeated term and risk calculations
 #' @inheritParams CPP_template
 #'
@@ -522,6 +569,7 @@ Pois_Term_Risk_Calc <- function(modelform, tform, Term_n, totalnum, fir, dfc, te
 }
 
 #' Utility function to perform calculation of Log-Likelihood and Deviation for Poisson Omnibus
+#'
 #' \code{Pois_Dev_LL_Calc} Called to perform repeated term and risk calculations
 #' @inheritParams CPP_template
 #' @param dev_temp temporary storage for deviation calculation
@@ -535,6 +583,7 @@ Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, R
 }
 
 #' Primary Cox PH baseline hazard function
+#'
 #' \code{PLOT_SURV} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
 #' @inheritParams CPP_template
@@ -547,6 +596,7 @@ PLOT_SURV <- function(reqrdnum, R, Rd, a_er, df_groups, tu, verbose, debugging, 
 }
 
 #' Primary Cox PH schoenfeld residual function
+#'
 #' \code{Schoenfeld_Calc} Performs the calls to calculation functions, Uses calculated risks and risk groups to calculate the residuals, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
 #' @inheritParams CPP_template
@@ -559,6 +609,7 @@ Schoenfeld_Calc <- function(ntime, totalnum, beta_0, df0, R, Lldd_inv, RiskFail,
 }
 
 #' Primary plotting function.
+#'
 #' \code{Plot_Omnibus} Performs the calls to calculation functions
 #'
 #' @inheritParams CPP_template
@@ -571,6 +622,7 @@ Plot_Omnibus <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelfor
 }
 
 #' Interface between R code and the Cox PH omnibus regression function
+#'
 #' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
@@ -582,6 +634,7 @@ cox_ph_Omnibus_transition <- function(Term_n, tform, a_ns, dfc, x_all, fir, der_
 }
 
 #' Interface between R code and the poisson omnibus regression function
+#'
 #' \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
@@ -593,6 +646,7 @@ pois_Omnibus_transition <- function(dfe, Term_n, tform, a_ns, dfc, x_all, fir, d
 }
 
 #' Interface between R code and the plotting omnibus function
+#'
 #' \code{Plot_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
 #' @inheritParams CPP_template
 #'
@@ -604,6 +658,7 @@ Plot_Omnibus_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_ide
 }
 
 #' Generates csv file with time-dependent columns
+#'
 #' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
 #' @inheritParams CPP_template
 #'
@@ -615,6 +670,7 @@ Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filenam
 }
 
 #' Generates factored columns in parallel
+#'
 #' \code{Gen_Fac_Par} Called directly from R, returns a matrix with factored columns
 #' @inheritParams CPP_template
 #'
@@ -626,6 +682,7 @@ Gen_Fac_Par <- function(df0, vals, cols, nthreads) {
 }
 
 #' Interface between R code and the risk check
+#'
 #' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
 #' @inheritParams CPP_template
 #'
@@ -637,6 +694,7 @@ risk_check_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform
 }
 
 #' Generates weightings for stratified poisson regression
+#'
 #' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
 #' @inheritParams CPP_template
 #'

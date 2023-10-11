@@ -1,4 +1,5 @@
 #' Performs checks to gather a list of guesses and iterations
+#'
 #' \code{Gather_Guesses_CPP} called from within R, uses a list of options and the model definition to generate a list of parameters and iterations that do not produce errors
 #'
 #' @inheritParams R_template
@@ -130,6 +131,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 }
 
 #' Corrects the order of terms/formula/etc
+#'
 #' \code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues
 #'
 #' @inheritParams R_template
@@ -154,20 +156,41 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #' der_iden <- val$der_iden
 #' names <- val$names
 #'
-Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0,verbose=FALSE, Cons_Mat=matrix(c(0)),Cons_Vec=c(0)){
+Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0, Cons_Mat=matrix(c(0)),Cons_Vec=c(0),verbose=FALSE){
     #
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
     }
-    if (der_iden>length(Term_n)){
-        message("Error: der_iden should be with 0:length(Term_n)")
+    if (der_iden %in% seq_len(length(tform))-1){
+        #pass
+    } else {
+        message("Error: der_iden should be within 0:(length(Term_n)-1)")
         stop()
     }
-    if (length(Cons_Vec)>length(Term_n)){
-        message("Error: Linear Constraint constant vector is too long")
-        stop()
+    if (is.matrix(Cons_Mat)){
+        #pass
+    } else {
+        Cons_Mat <- as.matrix(Cons_Mat)
+        if (verbose){
+            message("Warning: Constraint Matrix was not a matrix, converted")
+        }
+    }
+    if (ncol(Cons_Mat)>1){
+        if (ncol(Cons_Mat)>length(Term_n)){
+            message("Error: Too few linear constraint columns")
+            stop()
+        }
+        if (nrow(Cons_Mat)!=length(Cons_Vec)){
+            message("Error: Constraint rows and constant lengths do not match")
+            stop()
+        }
     }
     if (min(keep_constant)>0){
         message("Error: Atleast one parameter must be free")
@@ -211,8 +234,12 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         #
         col_to_cons <- c()
         for (i in keep_constant){
-            if (i==1){
-                col_to_cons <- c(col_to_cons, sum(col_to_cons)+1)
+            if (i==0){
+                if (length(col_to_cons)==0){
+                    col_to_cons <- c(1)
+                } else {
+                    col_to_cons <- c(col_to_cons, max(col_to_cons)+1)
+                }
             } else {
                 col_to_cons <- c(col_to_cons, 0)
             }
@@ -277,8 +304,12 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         #
         col_to_cons <- c()
         for (i in keep_constant){
-            if (i==1){
-                col_to_cons <- c(col_to_cons, sum(col_to_cons)+1)
+            if (i==0){
+                if (length(col_to_cons)==0){
+                    col_to_cons <- c(1)
+                } else {
+                    col_to_cons <- c(col_to_cons, max(col_to_cons)+1)
+                }
             } else {
                 col_to_cons <- c(col_to_cons, 0)
             }
@@ -366,19 +397,18 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             }
         }
     }
-    col_to_cons <- df$col_to_cons
+    col_to_cons <- df$constraint_order
     cons_order <- c()
     for (i in col_to_cons){
         if (i>0){
             cons_order <- c(cons_order,i)
         }
     }
-    if (ncol(Cons_Mat)==sum(keep_constant)){
-        colnames(Cons_Mat) <- 1:ncol(Cons_Mat)
-        Cons_Vec <- matrix(Cons_Vec, nrow=1)
-        colnames(Cons_Vec) <- 1:ncol(Cons_Vec)
-        Cons_Mat <- Cons_Mat[,cons_order]
-        Cons_Vec <- Cons_Vec[,cons_order]
+    if (ncol(Cons_Mat)>1){
+        if (ncol(Cons_Mat)==(length(keep_constant)-sum(keep_constant))){
+            colnames(Cons_Mat) <- 1:ncol(Cons_Mat)
+            Cons_Mat <- t(Cons_Mat[,cons_order])
+        }
     }
     a_temp <- df$iden_const
     der_iden <- which(a_temp==1)
@@ -388,6 +418,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
 }
 
 #' Automatically assigns missing values in listed columns
+#'
 #' \code{Replace_Missing} checks each column and fills in NA values
 #'
 #' @inheritParams R_template
@@ -404,7 +435,12 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
 #' df <- Replace_Missing(df, c("Starting_Age","Ending_Age"), 70)
 Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -438,6 +474,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 
 
 #' Automatically assigns missing control values
+#'
 #' \code{Def_Control} checks and assigns default values
 #'
 #' @inheritParams R_template
@@ -468,6 +505,13 @@ Def_Control <- function(control){
                     }
                     stop()
                 }
+            } else if (nm=="verbose"){
+                if (control$verbose %in% c(0,1,T,F)){
+                    control$verbose <- as.logical(control$verbose)
+                } else {
+                    message("Error: verbosity arguement not valid")
+                    stop()
+                }
             }
         } else {
             control[nm] <- control_def[nm]
@@ -477,6 +521,7 @@ Def_Control <- function(control){
 }
 
 #' Automatically assigns geometric-mixture values
+#'
 #' \code{Def_model_control} checks and assigns default values
 #'
 #' @inheritParams R_template
@@ -528,6 +573,7 @@ Def_modelform_fix <- function(control,model_control,modelform,Term_n){
 }
 
 #' Automatically assigns missing model control values
+#'
 #' \code{Def_model_control} checks and assigns default values
 #'
 #' @inheritParams R_template
@@ -567,6 +613,7 @@ Def_model_control <- function(control){
 }
 
 #' Automatically assigns missing guessing control values
+#'
 #' \code{Def_Control_Guess} checks and assigns default values
 #'
 #' @inheritParams R_template
@@ -582,7 +629,12 @@ Def_model_control <- function(control){
 #'
 Def_Control_Guess <- function(guesses_control, a_n){
     if ("verbose" %in% names(guesses_control)){ #determines extra printing
-        #fine
+        if (guesses_control$verbose %in% c(0,1,T,F)){
+            guesses_control$verbose <- as.logical(control$guesses_control)
+        } else {
+            message("Error: verbosity arguement not valid")
+            stop()
+        }
     } else {
         guesses_control$verbose <- FALSE
     }
@@ -680,6 +732,7 @@ Def_Control_Guess <- function(guesses_control, a_n){
 
 
 #' Calculates Full Parameter list for Special Dose Formula
+#'
 #' \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas
 #'
 #' @inheritParams R_template
@@ -693,7 +746,12 @@ Def_Control_Guess <- function(guesses_control, a_n){
 #' full_paras <- Linked_Dose_Formula(tforms, paras)
 #'
 Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -773,6 +831,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
 }
 
 #' Calculates The Additional Parameter For a linear-exponential formula with known maximum
+#'
 #' \code{Linked_Lin_Exp_Para} Calculates what the additional parameter would be for a desired maximum
 #'
 #' @inheritParams R_template
@@ -787,7 +846,12 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
 #' full_paras <- Linked_Lin_Exp_Para(y,a0,a1_goal)
 #'
 Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -828,6 +892,7 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 }
 
 #' Splits a parameter into factors
+#'
 #' \code{factorize} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 #' Not for interaction terms
 #'
@@ -847,7 +912,12 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 #' new_col <- val$cols
 #'
 factorize <-function(df,col_list,verbose=FALSE){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -877,6 +947,7 @@ factorize <-function(df,col_list,verbose=FALSE){
 
 
 #' Splits a parameter into factors in parallel
+#'
 #' \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 #' Not for interaction terms
 #'
@@ -896,7 +967,12 @@ factorize <-function(df,col_list,verbose=FALSE){
 #' new_col <- val$cols
 #'
 factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCores())){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -932,6 +1008,7 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 
 
 #' Defines Interactions
+#'
 #' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 #'
 #' @inheritParams R_template
@@ -951,7 +1028,12 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 #' new_col <- vals$cols
 #' 
 interact_them <- function(df,interactions,new_names,verbose=FALSE){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -996,6 +1078,7 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
 }
 
 #' Defines the likelihood ratio test
+#'
 #' \code{Likelihood_Ratio_Test} uses two models and calculates the ratio
 #'
 #' @inheritParams R_template
@@ -1021,6 +1104,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 
 
 #' checks for duplicated column names
+#'
 #' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
 #'
 #' @inheritParams R_template
@@ -1038,7 +1122,12 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 #' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 #'
 Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -1130,6 +1219,7 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
 }
 
 #' Applies time duration truncation limits
+#'
 #' \code{Check_Trunc} creates columns to use for truncation
 #'
 #' @inheritParams R_template
@@ -1152,7 +1242,12 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
 #' ce <- val$ce
 #'
 Check_Trunc <- function(df,ce,verbose=FALSE){
-    verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,T,F)){
+        verbose <- as.logical(verbose)
+    } else {
+        message("Error: verbosity arguement not valid")
+        stop()
+    }
     if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
@@ -1182,6 +1277,7 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 }
 
 #' Applies time dependence to parameters
+#'
 #' \code{gen_time_dep} generates a new dataframe with time dependent covariates by applying a grid in time
 #'
 #' @inheritParams R_template
@@ -1264,6 +1360,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 }
 
 #' Automates creating a date difference column
+#'
 #' \code{Date_Shift} generates a new dataframe with a column containing time difference in a given unit
 #'
 #' @inheritParams R_template
@@ -1300,6 +1397,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
 }
 
 #' Automates creating a date since a reference column
+#'
 #' \code{Time_Since} generates a new dataframe with a column containing time since a reference in a given unit
 #'
 #' @inheritParams R_template

@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Check_Trunc}
 \alias{Check_Trunc}
-\title{Applies time duration truncation limits
-\code{Check_Trunc} creates columns to use for truncation}
+\title{Applies time duration truncation limits}
 \usage{
 Check_Trunc(df, ce, verbose = FALSE)
 }
@@ -18,7 +17,6 @@ Check_Trunc(df, ce, verbose = FALSE)
 returns the updated data and time period columns
 }
 \description{
-Applies time duration truncation limits
 \code{Check_Trunc} creates columns to use for truncation
 }
 \examples{

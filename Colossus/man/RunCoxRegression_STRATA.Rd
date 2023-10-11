@@ -2,10 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_STRATA}
 \alias{RunCoxRegression_STRATA}
-\title{Performs basic Cox Proportional Hazards regression with strata effect
-\code{RunCoxRegression_STRATA} uses user provided data,
-time/event columns, vectors specifying the model, and options to control
-the convergence and starting positions}
+\title{Performs basic Cox Proportional Hazards regression with strata effect}
 \usage{
 RunCoxRegression_STRATA(
   df,
@@ -49,7 +46,7 @@ RunCoxRegression_STRATA(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{Strat_Col}{column to stratify by if needed}
 }
@@ -57,7 +54,6 @@ RunCoxRegression_STRATA(
 returns a list of the final results
 }
 \description{
-Performs basic Cox Proportional Hazards regression with strata effect
 \code{RunCoxRegression_STRATA} uses user provided data,
 time/event columns, vectors specifying the model, and options to control
 the convergence and starting positions

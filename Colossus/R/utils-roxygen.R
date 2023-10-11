@@ -15,7 +15,7 @@
 #' @param col_list  an array of column names that should have factor terms defined
 #' @param col_name  vector of new column names
 #' @param cols  columns to check
-#' @param control  list of parameters controlling the convergence, see Def_Control() for options
+#' @param control  list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")
 #' @param Cons_Mat Matrix containing coefficients for system of linear constraints, formatted as matrix
 #' @param Cons_Vec Vector containing constants for system of linear constraints, formatted as vector
 #' @param dep_cols  columns that are not needed in the new dataframe
@@ -30,12 +30,12 @@
 #' @param fir  term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param fname  filename used for new dataframe
 #' @param func_form  vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
-#' @param guesses_control  list of parameters to control how the guessing works, see Def_Control_Guess() for options
+#' @param guesses_control  list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Alt_Distrib_Starts")
 #' @param h  hazards of baseline
 #' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits
 #' @param iscox  boolean if rows not at event times should be kept, rows are removed if true
 #' @param keep_constant  binary values to denote which parameters to change
-#' @param model_control  controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details
+#' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
 #' @param name_list  vector of string column names to check
 #' @param names  columns for elements of the model, used to identify data columns

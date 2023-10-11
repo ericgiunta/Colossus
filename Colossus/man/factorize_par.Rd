@@ -2,9 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{factorize_par}
 \alias{factorize_par}
-\title{Splits a parameter into factors in parallel
-\code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
-Not for interaction terms}
+\title{Splits a parameter into factors in parallel}
 \usage{
 factorize_par(
   df,
@@ -26,7 +24,6 @@ factorize_par(
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 }
 \description{
-Splits a parameter into factors in parallel
 \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 Not for interaction terms
 }

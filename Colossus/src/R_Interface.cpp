@@ -46,6 +46,7 @@ void visit_lambda(const Mat& m, const Func& f)
 }
 
 //' Interface between R code and the Cox PH omnibus regression function
+//'
 //' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
@@ -93,6 +94,7 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
 }
 
 //' Interface between R code and the poisson omnibus regression function
+//'
 //' \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
@@ -138,6 +140,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
 }
 
 //' Interface between R code and the plotting omnibus function
+//'
 //' \code{Plot_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
 //' @inheritParams CPP_template
 //'
@@ -181,6 +184,7 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
 }
 
 //' Generates csv file with time-dependent columns
+//'
 //' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
 //' @inheritParams CPP_template
 //'
@@ -385,6 +389,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
 }
 
 //' Generates factored columns in parallel
+//'
 //' \code{Gen_Fac_Par} Called directly from R, returns a matrix with factored columns
 //' @inheritParams CPP_template
 //'
@@ -416,6 +421,7 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 }
 
 //' Interface between R code and the risk check
+//'
 //' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
 //' @inheritParams CPP_template
 //'
@@ -439,6 +445,7 @@ bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVect
 
 
 //' Generates weightings for stratified poisson regression
+//'
 //' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
 //' @inheritParams CPP_template
 //'

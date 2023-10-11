@@ -2,8 +2,7 @@
 % Please edit documentation in R/PlotTypes.R
 \name{GetCensWeight}
 \alias{GetCensWeight}
-\title{Calculates and returns data for time by hazard and survival to estimate censoring rate
-\code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data}
+\title{Calculates and returns data for time by hazard and survival to estimate censoring rate}
 \usage{
 GetCensWeight(
   df,
@@ -46,11 +45,11 @@ GetCensWeight(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{plot_options}{list of parameters controlling the plot options, see RunCoxPlots() for different options}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 
 \item{Strat_Col}{column to stratify by if needed}
 }
@@ -58,7 +57,6 @@ GetCensWeight(
 saves the plots in the current directory and returns a data.table of time and corresponding hazard, cumulative hazard, and survival
 }
 \description{
-Calculates and returns data for time by hazard and survival to estimate censoring rate
 \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
 }
 \examples{

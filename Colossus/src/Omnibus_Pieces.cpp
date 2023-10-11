@@ -28,6 +28,7 @@ using Rcpp::as;
 
 
 //' Utility function to refresh risk and subterm matrices for Cox Omnibus function
+//'
 //' \code{Cox_Refresh_R_TERM} Called to update matrices
 //' @inheritParams CPP_template
 //'
@@ -78,6 +79,7 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
 }
 
 //' Utility function to refresh side matrices for Cox Omnibus
+//'
 //' \code{Cox_Refresh_R_SIDES} Called to fresh repeated sum calculation matrices
 //' @inheritParams CPP_template
 //'
@@ -111,6 +113,7 @@ void Cox_Refresh_R_SIDES( const int& reqrdnum, const int& ntime, MatrixXd& Rls1,
 
 
 //' Utility function to perform calculation of terms and risks for Cox Omnibus
+//'
 //' \code{Cox_Term_Risk_Calc} Called to perform repeated term and risk calculations
 //' @inheritParams CPP_template
 //'
@@ -365,6 +368,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 }
 
 //' Utility function to perform calculation of Repeated Calculations and Log-Likelihood for Cox Omnibus
+//'
 //' \code{Cox_Side_LL_Calc} Called to perform repeated term and risk calculations
 //' @inheritParams CPP_template
 //'
@@ -559,6 +563,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
 }
 
 //' Utility function to perform calculation of terms and risks for Poisson Omnibus
+//'
 //' \code{Pois_Term_Risk_Calc} Called to perform repeated term and risk calculations
 //' @inheritParams CPP_template
 //'
@@ -762,6 +767,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 
 
 //' Utility function to perform calculation of Log-Likelihood and Deviation for Poisson Omnibus
+//'
 //' \code{Pois_Dev_LL_Calc} Called to perform repeated term and risk calculations
 //' @inheritParams CPP_template
 //' @param dev_temp temporary storage for deviation calculation

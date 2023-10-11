@@ -961,6 +961,43 @@ test_that("formula order, too many term types, list double", {
     names <- c("a","a","a","a","a")
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
 })
+#######################################
+## Formula order, Constraints and verbose check
+#######################################
+test_that("Checking constraint matrix", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- list(c(1,2,3,4,5))
+    names <- c("a","a","a","a","a")
+    Cons_Mat <- matrix(c(1,2,3,4,4,2,3,1,1,3,2,4),nrow=3,byrow=T)
+    Cons_Vec <- c(1,0,-1)
+
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec)
+    Cons_Mat <- val$Cons_Mat
+
+    expect_equal(Cons_Mat[1,],c(1, 4, 3,2))
+    expect_equal(Cons_Mat[,3,c(3,3,2))
+})
+test_that("Checking constraint matrix", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- list(c(1,2,3,4,5))
+    names <- c("a","a","a","a","a")
+    Cons_Mat <- matrix(c(1,2,3,4,4,2,3,1,1,3,2,4),nrow=3,byrow=T)
+    Cons_Vec <- c(1,0,-1)
+
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=-1))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=2))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose='1'))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose="TRUE"))
+    #
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=T))
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=F))
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=1))
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=0))
+})
 
 ## ------------------------------------- ##
 ## gather guesses

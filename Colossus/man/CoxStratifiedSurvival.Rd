@@ -2,8 +2,7 @@
 % Please edit documentation in R/PlotTypes.R
 \name{CoxStratifiedSurvival}
 \alias{CoxStratifiedSurvival}
-\title{calculates and plots survival curves for each unique value of the stratification column
-\code{CoxStratifiedSurvival} uses user provided data, columns, and identifier to calculate the survival fraction for each strata}
+\title{calculates and plots survival curves for each unique value of the stratification column}
 \usage{
 CoxStratifiedSurvival(
   verbose,
@@ -55,7 +54,7 @@ CoxStratifiedSurvival(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
@@ -67,13 +66,12 @@ CoxStratifiedSurvival(
 
 \item{age_unit}{age unit}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed
 }
 \description{
-calculates and plots survival curves for each unique value of the stratification column
 \code{CoxStratifiedSurvival} uses user provided data, columns, and identifier to calculate the survival fraction for each strata
 }
 \seealso{

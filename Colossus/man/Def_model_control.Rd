@@ -2,19 +2,17 @@
 % Please edit documentation in R/Utility.R
 \name{Def_model_control}
 \alias{Def_model_control}
-\title{Automatically assigns missing model control values
-\code{Def_model_control} checks and assigns default values}
+\title{Automatically assigns missing model control values}
 \usage{
 Def_model_control(control)
 }
 \arguments{
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 }
 \value{
 returns a filled list
 }
 \description{
-Automatically assigns missing model control values
 \code{Def_model_control} checks and assigns default values
 }
 \examples{

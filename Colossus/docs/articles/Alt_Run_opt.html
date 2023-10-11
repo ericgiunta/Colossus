@@ -43,9 +43,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed_Start_Framework</a>
     <a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative_Regression_Options</a>
+    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
     <a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose_Response_Formula_Terms</a>
     <a class="dropdown-item" href="../articles/starting-description.html">Colossus_Description</a>
-    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
   </div>
 </li>
 <li class="nav-item">
@@ -70,9 +70,6 @@
   </div>
 </nav><div class="container template-article">
 
-
-
-
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Alternative_Regression_Options</h1>
@@ -85,14 +82,12 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ericgiunta/Colossus" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ericgiunta/Colossus/tree/main/Colossus" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="general-options">General Options<a class="anchor" aria-label="anchor" href="#general-options"></a>
 </h2>
-<p>Both Cox PH and Poisson regressions have additional functions that
-can account for specific situations. There general situations are as
-follows:</p>
+<p>Both Cox PH and Poisson regressions have additional functions that can account for specific situations. There general situations are as follows:</p>
 <table class="table">
 <colgroup>
 <col width="25%">
@@ -109,48 +104,37 @@ follows:</p>
 <tbody>
 <tr class="odd">
 <td align="center">Stratification</td>
-<td align="center">In Cox PH, the stratification is applied in the risks
-groups to compare only like rows. In Poisson regression the
-stratification is an additional term in the model to account for the
-effects of stratified covariates</td>
+<td align="center">In Cox PH, the stratification is applied in the risks groups to compare only like rows. In Poisson regression the stratification is an additional term in the model to account for the effects of stratified covariates</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
 <td align="center">Simplified Model</td>
-<td align="center">For a multiplicative Log-Linear model, there are
-simplifications that can be made to the code. These give a faster
-version.</td>
+<td align="center">For a multiplicative Log-Linear model, there are simplifications that can be made to the code. These give a faster version.</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
 <tr class="odd">
 <td align="center">Non-Derivative Calculation</td>
-<td align="center">If a single iteration is needed without derivatives,
-there is time and memory that can be saved</td>
+<td align="center">If a single iteration is needed without derivatives, there is time and memory that can be saved</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
 <td align="center">Competing Risks</td>
-<td align="center">If there is a competing event, rows are weighted by
-an estimate of censoring rate to approximate a dataset without the
-effect of a competing event</td>
+<td align="center">If there is a competing event, rows are weighted by an estimate of censoring rate to approximate a dataset without the effect of a competing event</td>
 <td align="center">x</td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="center">Distributed Initial Parameter Sets</td>
-<td align="center">The user provides distribution for each starting
-parameter, Colossus runs low iteration regressions at random points, and
-then a full run at the best guess</td>
+<td align="center">The user provides distribution for each starting parameter, Colossus runs low iteration regressions at random points, and then a full run at the best guess</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
 </tbody>
 </table>
-<p>The following sections review the math behind the basic functions and
-how each option changes that.</p>
+<p>The following sections review the math behind the basic functions and how each option changes that.</p>
 </div>
 <div class="section level2">
 <h2 id="stratification">Stratification<a class="anchor" aria-label="anchor" href="#stratification"></a>
@@ -158,35 +142,16 @@ how each option changes that.</p>
 <div class="section level3">
 <h3 id="cox-proportional-hazards">Cox Proportional Hazards<a class="anchor" aria-label="anchor" href="#cox-proportional-hazards"></a>
 </h3>
-<p>In Cox Proportional Hazards, the Log-Likelihood is calculated by
-taking the ratio of the hazard ratio at each event to the sum of the
-hazard ratios of every other row at risk. This defines the risk group
-for every event time to be the intervals containing the event time.
-Intervals are assumed to be open on the left and closed on the right,
-and events are assumed to take place at the right end point. This gives
-the following common equation for the Log-Likelihood:</p>
+<p>In Cox Proportional Hazards, the Log-Likelihood is calculated by taking the ratio of the hazard ratio at each event to the sum of the hazard ratios of every other row at risk. This defines the risk group for every event time to be the intervals containing the event time. Intervals are assumed to be open on the left and closed on the right, and events are assumed to take place at the right end point. This gives the following common equation for the Log-Likelihood:</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    Ll = \prod_{i}^{n} \left( \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j}
-\right)^{\delta_i}
+    Ll = \prod_{i}^{n} \left( \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j} \right)^{\delta_i}
 \end{aligned}
 \]</span>
 </p>
-<p>In which r denotes hazard ratios, the denominator is the sum of
-hazard ratios of intervals containing the event time, and each term is
-raised to the power of 1 if the interval has an event and 0 otherwise.
-Different tie methods modify the denominator based on how the order of
-events is assumed, but the general form still stands. The goal is to
-compare each event interval to intervals within a similar time span.
-Stratification adds in an additional condition. If the user stratifies
-over a covariate “F” then each risk group is split into subgroups with
-the same value of “F”. So the goal becomes to compare event intervals to
-intervals with similar strata AND time. This is done to remove the
-influence of the stratification variables from the calculations.</p>
-<p>In code this is done by adding in an additional parameter for the
-stratification column and using a different function to call the
-regression.</p>
+<p>In which r denotes hazard ratios, the denominator is the sum of hazard ratios of intervals containing the event time, and each term is raised to the power of 1 if the interval has an event and 0 otherwise. Different tie methods modify the denominator based on how the order of events is assumed, but the general form still stands. The goal is to compare each event interval to intervals within a similar time span. Stratification adds in an additional condition. If the user stratifies over a covariate “F” then each risk group is split into subgroups with the same value of “F”. So the goal becomes to compare event intervals to intervals with similar strata AND time. This is done to remove the influence of the stratification variables from the calculations.</p>
+<p>In code this is done by adding in an additional parameter for the stratification column and using a different function to call the regression.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"e"</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_STRATA.html">RunCoxRegression_STRATA</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
@@ -195,11 +160,7 @@ regression.</p>
 <div class="section level3">
 <h3 id="poisson-regression">Poisson Regression<a class="anchor" aria-label="anchor" href="#poisson-regression"></a>
 </h3>
-<p>Poisson regression doesn’t have risk groups to account for, but the
-theory is the same. To remove the influence of stratification covariate
-a new term is added to account for their effects. In Colossus, this is a
-Log-Linear term. So the following may be the model used without
-stratification:</p>
+<p>Poisson regression doesn’t have risk groups to account for, but the theory is the same. To remove the influence of stratification covariate a new term is added to account for their effects. In Colossus, this is a Log-Linear term. So the following may be the model used without stratification:</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
@@ -211,18 +172,12 @@ stratification:</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    R = (\sum_i (x_i \cdot \beta_i)) \times (1 + \exp{(\sum_j (x_j \cdot
-\beta_j))})
+    R = (\sum_i (x_i \cdot \beta_i)) \times (1 + \exp{(\sum_j (x_j \cdot \beta_j))})
 \end{aligned}
 \]</span>
 </p>
-<p>Only results associated with the non-stratified parameters are
-returned by default. An average event rate is calculated for every
-strata level, which weights the calculated risks.</p>
-<p>In code this is done by adding in a list of stratification columns
-and using a different function to call the regression. Colossus combines
-the list of stratification columns into a single interaction, so it does
-not matter if the user provides a list or combines them themselves.</p>
+<p>Only results associated with the non-stratified parameters are returned by default. An average event rate is calculated for every strata level, which weights the calculated risks.</p>
+<p>In code this is done by adding in a list of stratification columns and using a different function to call the regression. Colossus combines the list of stratification columns into a single interaction, so it does not matter if the user provides a list or combines them themselves.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e"</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span><span class="fu"><a href="../reference/RunPoissonRegression_STRATA.html">RunPoissonRegression_STRATA</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
@@ -232,19 +187,8 @@ not matter if the user provides a list or combines them themselves.</p>
 <div class="section level2">
 <h2 id="simplified-model">Simplified Model<a class="anchor" aria-label="anchor" href="#simplified-model"></a>
 </h2>
-<p>The inclusion of linear subterms, additive models, and multiple terms
-means that default Colossus calculates and stores every derivative
-assuming that every value is needed. If the equation is log-linear with
-one term, then there are many simplifications that can be made. This
-option is designed to make those simplifications. In particular having
-only one subterm type means that the hazard ratios and their derivatives
-can be calculated directly, and the only subterm type being an
-exponential means that the logarithm of the hazard ratio in the
-Log-Likelihood calculation is simplified. In tests, using the simplified
-function was able to save approximately 40% time versus the full code
-being used.</p>
-<p>Assuming the same general parameters in the other vignettes, the code
-is as follows:</p>
+<p>The inclusion of linear subterms, additive models, and multiple terms means that default Colossus calculates and stores every derivative assuming that every value is needed. If the equation is log-linear with one term, then there are many simplifications that can be made. This option is designed to make those simplifications. In particular having only one subterm type means that the hazard ratios and their derivatives can be calculated directly, and the only subterm type being an exponential means that the logarithm of the hazard ratio in the Log-Likelihood calculation is simplified. In tests, using the simplified function was able to save approximately 40% time versus the full code being used.</p>
+<p>Assuming the same general parameters in the other vignettes, the code is as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Basic.html">RunCoxRegression_Basic</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>,</span>
 <span>                            <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">der_iden</span>, <span class="va">control</span><span class="op">)</span></span></code></pre></div>
@@ -252,14 +196,7 @@ is as follows:</p>
 <div class="section level2">
 <h2 id="non-derivative-calculation">Non-Derivative Calculation<a class="anchor" aria-label="anchor" href="#non-derivative-calculation"></a>
 </h2>
-<p>Colossus uses Newton’s method to perform the regression, which can
-become computationally complex as the number of terms and formula
-increases. So Colossus contains functions to calculate only the scores
-for a parameter set, and skip the intensive derivative calculations.
-These results could be used to perform a bisection method of regression
-or plot the dependence of score on parameter values. Colossus in the
-current state does not use these functions, but they are left for the
-user’s convenience.</p>
+<p>Colossus uses Newton’s method to perform the regression, which can become computationally complex as the number of terms and formula increases. So Colossus contains functions to calculate only the scores for a parameter set, and skip the intensive derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence of score on parameter values. Colossus in the current state does not use these functions, but they are left for the user’s convenience.</p>
 <p>The code is similar to previous examples:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Single.html">RunCoxRegression_Single</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>,</span>
@@ -271,51 +208,24 @@ user’s convenience.</p>
 <div class="section level2">
 <h2 id="competing-risks">Competing Risks<a class="anchor" aria-label="anchor" href="#competing-risks"></a>
 </h2>
-<p>In Cox PH there is an assumption that every individual is recorded
-until they have an event or they are naturally censored, and the same
-censoring rates are assumed to apply to every individual. These are
-violated when there is a competing event occurring. In sensitivity
-analysis there are two extremes that can be tested. Either every person
-with a competing event is treated as having the event of interest
-instead, or they are assumed to never experience the event of interest.
-However there are methods to find a more realistic alternative. Colossus
-applies the Fine-Gray model for competing risks, which instead weights
-the contribution of competing event intervals in future intervals by the
-probability they wouldn’t have been censored.</p>
-<p>As previously established, the risk groups are formed to measure the
-probability that an individual survived up to the time and experienced
-the event of interest, given that they did not experience an event up to
-that time:</p>
+<p>In Cox PH there is an assumption that every individual is recorded until they have an event or they are naturally censored, and the same censoring rates are assumed to apply to every individual. These are violated when there is a competing event occurring. In sensitivity analysis there are two extremes that can be tested. Either every person with a competing event is treated as having the event of interest instead, or they are assumed to never experience the event of interest. However there are methods to find a more realistic alternative. Colossus applies the Fine-Gray model for competing risks, which instead weights the contribution of competing event intervals in future intervals by the probability they wouldn’t have been censored.</p>
+<p>As previously established, the risk groups are formed to measure the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time:</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta
-t)\text{ and }(k=1), T \geq t)}{\Delta t}
+    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta t)\text{ and }(k=1), T \geq t)}{\Delta t}
 \end{aligned}
 \]</span>
 </p>
-<p>The competing risks model adjusts this to be the probability that an
-individual survived up to the time and experienced the event of
-interest, given that they did not experience an event up to that time OR
-they survived up to a previous time and experienced an event:</p>
+<p>The competing risks model adjusts this to be the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time OR they survived up to a previous time and experienced an event:</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
-    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta
-t)\text{ and }(k=1), (T \geq t)\text{ or }((T &lt; t)\text{ and }(k \neq
-1)))}{\Delta t}
+    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta t)\text{ and }(k=1), (T \geq t)\text{ or }((T &lt; t)\text{ and }(k \neq 1)))}{\Delta t}
 \end{aligned}
 \]</span>
 </p>
-<p>This means that risks groups would contain both intervals actually at
-risk and intervals with competing events treated as if they were at
-risk. If we assume that no time-dependent covariates are being used,
-then all that remains is to weight the contribution of these competing
-events. The goal is to quantify the probability that an interval would
-have been uncensored at the new event time given that it was uncensored
-up to the competing event time. Colossus handles this by fitting a
-survival curve for censoring and using the ratio of surviving proportion
-to weight intervals.</p>
+<p>This means that risks groups would contain both intervals actually at risk and intervals with competing events treated as if they were at risk. If we assume that no time-dependent covariates are being used, then all that remains is to weight the contribution of these competing events. The goal is to quantify the probability that an interval would have been uncensored at the new event time given that it was uncensored up to the competing event time. Colossus handles this by fitting a survival curve for censoring and using the ratio of surviving proportion to weight intervals.</p>
 <p class="text-center" style="background-color: aliceblue">
 <span class="math display">\[
 \begin{aligned}
@@ -323,16 +233,8 @@ to weight intervals.</p>
 \end{aligned}
 \]</span>
 </p>
-<p>At any given event time, every competing event interval will have a
-right interval limit below the event time and every interval without
-events will have a right interval limit above the event time. So
-competing events will have a weighting below 1 and every other interval
-will have a weighting set to 1.</p>
-<p>In code, the call is similar to the standard function. The process
-for finding a weighting is included below. In this example we assume the
-event column, lung, to contain a 0 for no events, 1 for the primary
-event, and 2 for the competing event. A ID column is used to determine
-which individuals have events and which are censored.</p>
+<p>At any given event time, every competing event interval will have a right interval limit below the event time and every interval without events will have a right interval limit above the event time. So competing events will have a weighting below 1 and every other interval will have a weighting set to 1.</p>
+<p>In code, the call is similar to the standard function. The process for finding a weighting is included below. In this example we assume the event column, lung, to contain a 0 for no events, 1 for the primary event, and 2 for the competing event. A ID column is used to determine which individuals have events and which are censored.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span><span class="op">$</span><span class="va">censor</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">lung</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span> <span class="co">#censoring column made</span></span>
 <span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"censor"</span> <span class="co">#event type switched to censoring</span></span>

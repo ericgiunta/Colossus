@@ -2,8 +2,7 @@
 % Please edit documentation in R/PlotTypes.R
 \name{CoxKaplanMeier}
 \alias{CoxKaplanMeier}
-\title{calculates and plots Kaplan-Meier survival plots
-\code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))}
+\title{calculates and plots Kaplan-Meier survival plots}
 \usage{
 CoxKaplanMeier(
   verbose,
@@ -62,7 +61,7 @@ CoxKaplanMeier(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
@@ -70,13 +69,12 @@ CoxKaplanMeier(
 
 \item{age_unit}{age unit}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 saves the plots in the current directory and returns a string that it passed
 }
 \description{
-calculates and plots Kaplan-Meier survival plots
 \code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))
 }
 \seealso{

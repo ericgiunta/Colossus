@@ -2,9 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{Cox_Relative_Risk}
 \alias{Cox_Relative_Risk}
-\title{Calculates hazard ratios for a reference vector
-\code{RunCoxRegression} uses user provided data,  vectors specifying the model,
-and options to calculate relative risk for every row in the provided data}
+\title{Calculates hazard ratios for a reference vector}
 \usage{
 Cox_Relative_Risk(
   df,
@@ -45,15 +43,14 @@ Cox_Relative_Risk(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 returns a list of the final results
 }
 \description{
-Calculates hazard ratios for a reference vector
 \code{RunCoxRegression} uses user provided data,  vectors specifying the model,
 and options to calculate relative risk for every row in the provided data
 }

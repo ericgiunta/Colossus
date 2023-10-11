@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Likelihood_Ratio_Test}
 \alias{Likelihood_Ratio_Test}
-\title{Defines the likelihood ratio test
-\code{Likelihood_Ratio_Test} uses two models and calculates the ratio}
+\title{Defines the likelihood ratio test}
 \usage{
 Likelihood_Ratio_Test(alternative_model, null_model)
 }
@@ -16,7 +15,6 @@ Likelihood_Ratio_Test(alternative_model, null_model)
 returns the score statistic
 }
 \description{
-Defines the likelihood ratio test
 \code{Likelihood_Ratio_Test} uses two models and calculates the ratio
 }
 \examples{

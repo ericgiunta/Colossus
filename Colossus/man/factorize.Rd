@@ -2,9 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{factorize}
 \alias{factorize}
-\title{Splits a parameter into factors
-\code{factorize} uses user provided list of columns to define new parameter for each unique value and update the data.table.
-Not for interaction terms}
+\title{Splits a parameter into factors}
 \usage{
 factorize(df, col_list, verbose = FALSE)
 }
@@ -19,7 +17,6 @@ factorize(df, col_list, verbose = FALSE)
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 }
 \description{
-Splits a parameter into factors
 \code{factorize} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 Not for interaction terms
 }

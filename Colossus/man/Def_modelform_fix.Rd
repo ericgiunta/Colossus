@@ -2,15 +2,14 @@
 % Please edit documentation in R/Utility.R
 \name{Def_modelform_fix}
 \alias{Def_modelform_fix}
-\title{Automatically assigns geometric-mixture values
-\code{Def_model_control} checks and assigns default values}
+\title{Automatically assigns geometric-mixture values}
 \usage{
 Def_modelform_fix(control, model_control, modelform, Term_n)
 }
 \arguments{
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
@@ -20,7 +19,6 @@ Def_modelform_fix(control, model_control, modelform, Term_n)
 returns a filled list
 }
 \description{
-Automatically assigns geometric-mixture values
 \code{Def_model_control} checks and assigns default values
 }
 \examples{

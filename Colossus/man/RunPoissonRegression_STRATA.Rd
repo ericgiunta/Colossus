@@ -2,8 +2,7 @@
 % Please edit documentation in R/Poisson_Regression.R
 \name{RunPoissonRegression_STRATA}
 \alias{RunPoissonRegression_STRATA}
-\title{Performs poisson regression with strata effect
-\code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions}
+\title{Performs poisson regression with strata effect}
 \usage{
 RunPoissonRegression_STRATA(
   df,
@@ -44,7 +43,7 @@ RunPoissonRegression_STRATA(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{Strat_Col}{column to stratify by if needed}
 }
@@ -52,7 +51,6 @@ RunPoissonRegression_STRATA(
 returns a list of the final results
 }
 \description{
-Performs poisson regression with strata effect
 \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 }
 \examples{

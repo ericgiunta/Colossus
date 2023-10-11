@@ -1,4 +1,5 @@
 #' calculates and plots martingale residuals with a named dose column
+#'
 #' \code{CoxMartingale} uses user provided data, columns, and identifier to create plots
 #'
 #' @inheritParams R_template
@@ -115,6 +116,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 }
 
 #' calculates and plots survival plots of the estimated baseline
+#'
 #' \code{CoxSurvival} uses user provided data, columns, and identifier to create plots
 #'
 #' @inheritParams R_template
@@ -162,6 +164,7 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 }
 
 #' calculates and plots Kaplan-Meier survival plots
+#'
 #' \code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))
 #'
 #' @inheritParams R_template
@@ -223,6 +226,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 
 
 #' calculates and plots relative risk
+#'
 #' \code{CoxRisk} uses user provided data, columns, and identifier to create plots of risk by covariate value for each column
 #'
 #' @inheritParams R_template
@@ -287,6 +291,7 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
 
 
 #' calculates and plots survival curves for each unique value of the stratification column
+#'
 #' \code{CoxStratifiedSurvival} uses user provided data, columns, and identifier to calculate the survival fraction for each strata
 #'
 #' @inheritParams R_template
@@ -395,6 +400,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
         
         
 #' Calculates Schoenfeld residuals for a Cox Proportional Hazards regression and plots
+#'
 #' \code{RunCox_Schoenfeld_Residual} uses user provided data, time/event columns, vectors specifying the model, and options to calculate the residuals
 #'
 #' @inheritParams R_template
@@ -480,6 +486,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
           
         
 #' Calculates and returns data for time by hazard and survival to estimate censoring rate
+#'
 #' \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
 #'
 #' @inheritParams R_template

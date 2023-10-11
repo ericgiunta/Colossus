@@ -2,12 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Omnibus}
 \alias{RunCoxRegression_Omnibus}
-\title{Performs Cox Proportional Hazards regression using the omnibus function
-\code{RunCoxRegression_Omnibus} uses user provided data, time/event columns,
-vectors specifying the model, and options to control the convergence
-and starting positions. Has additional options for starting with several
-initial guesses, using stratification, multiplicative loglinear 1-term,
-competing risks, and calculation without derivatives}
+\title{Performs Cox Proportional Hazards regression using the omnibus function}
 \usage{
 RunCoxRegression_Omnibus(
   df,
@@ -26,7 +21,7 @@ RunCoxRegression_Omnibus(
   Strat_Col = "null",
   cens_weight = c(1),
   model_control = list(),
-  Cons_Mat = as.matrix(c(0, 0)),
+  Cons_Mat = as.matrix(c(0)),
   Cons_Vec = c(0)
 )
 }
@@ -55,13 +50,13 @@ RunCoxRegression_Omnibus(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{Strat_Col}{column to stratify by if needed}
 
 \item{cens_weight}{list of weights for censoring rate}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and the Alternative_Regression_Options vignette for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 
 \item{Cons_Mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
 
@@ -71,7 +66,6 @@ RunCoxRegression_Omnibus(
 returns a list of the final results
 }
 \description{
-Performs Cox Proportional Hazards regression using the omnibus function
 \code{RunCoxRegression_Omnibus} uses user provided data, time/event columns,
 vectors specifying the model, and options to control the convergence
 and starting positions. Has additional options for starting with several

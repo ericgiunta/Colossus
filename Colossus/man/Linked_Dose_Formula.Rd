@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Linked_Dose_Formula}
 \alias{Linked_Dose_Formula}
-\title{Calculates Full Parameter list for Special Dose Formula
-\code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas}
+\title{Calculates Full Parameter list for Special Dose Formula}
 \usage{
 Linked_Dose_Formula(tforms, paras, verbose = FALSE)
 }
@@ -18,7 +17,6 @@ Linked_Dose_Formula(tforms, paras, verbose = FALSE)
 returns list of full parameters
 }
 \description{
-Calculates Full Parameter list for Special Dose Formula
 \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas
 }
 \examples{

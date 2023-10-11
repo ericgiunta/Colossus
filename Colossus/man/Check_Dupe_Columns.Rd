@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Check_Dupe_Columns}
 \alias{Check_Dupe_Columns}
-\title{checks for duplicated column names
-\code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms}
+\title{checks for duplicated column names}
 \usage{
 Check_Dupe_Columns(df, cols, term_n, verbose = FALSE, factor_check = FALSE)
 }
@@ -22,7 +21,6 @@ Check_Dupe_Columns(df, cols, term_n, verbose = FALSE, factor_check = FALSE)
 returns the usable columns
 }
 \description{
-checks for duplicated column names
 \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
 }
 \examples{

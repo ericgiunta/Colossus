@@ -2,8 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{interact_them}
 \alias{interact_them}
-\title{Defines Interactions
-\code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates}
+\title{Defines Interactions}
 \usage{
 interact_them(df, interactions, new_names, verbose = FALSE)
 }
@@ -20,7 +19,6 @@ interact_them(df, interactions, new_names, verbose = FALSE)
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 }
 \description{
-Defines Interactions
 \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 }
 \examples{

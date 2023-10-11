@@ -2,8 +2,7 @@
 % Please edit documentation in R/Poisson_Regression.R
 \name{RunPoissonRegression_Tier_Guesses}
 \alias{RunPoissonRegression_Tier_Guesses}
-\title{Performs basic poisson regression, with multiple guesses, starts with a single term
-\code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses}
+\title{Performs basic poisson regression, with multiple guesses, starts with a single term}
 \usage{
 RunPoissonRegression_Tier_Guesses(
   df,
@@ -45,9 +44,9 @@ RunPoissonRegression_Tier_Guesses(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
-\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options}
+\item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Alt_Distrib_Starts")}
 
 \item{Strat_Col}{column to stratify by if needed}
 }
@@ -55,7 +54,6 @@ RunPoissonRegression_Tier_Guesses(
 returns a list of the final results
 }
 \description{
-Performs basic poisson regression, with multiple guesses, starts with a single term
 \code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
 }
 \examples{

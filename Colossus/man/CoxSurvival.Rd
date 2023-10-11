@@ -2,8 +2,7 @@
 % Please edit documentation in R/PlotTypes.R
 \name{CoxSurvival}
 \alias{CoxSurvival}
-\title{calculates and plots survival plots of the estimated baseline
-\code{CoxSurvival} uses user provided data, columns, and identifier to create plots}
+\title{calculates and plots survival plots of the estimated baseline}
 \usage{
 CoxSurvival(t, h, ch, surv, Plot_Name, verbose, time_lims, age_unit)
 }
@@ -28,7 +27,6 @@ CoxSurvival(t, h, ch, surv, Plot_Name, verbose, time_lims, age_unit)
 saves the plots in the current directory and returns a string that it passed
 }
 \description{
-calculates and plots survival plots of the estimated baseline
 \code{CoxSurvival} uses user provided data, columns, and identifier to create plots
 }
 \seealso{

@@ -2,8 +2,7 @@
 % Please edit documentation in R/PlotTypes.R
 \name{CoxMartingale}
 \alias{CoxMartingale}
-\title{calculates and plots martingale residuals with a named dose column
-\code{CoxMartingale} uses user provided data, columns, and identifier to create plots}
+\title{calculates and plots martingale residuals with a named dose column}
 \usage{
 CoxMartingale(
   verbose,
@@ -49,7 +48,6 @@ CoxMartingale(
 saves the plots in the current directory and returns a string that it passed
 }
 \description{
-calculates and plots martingale residuals with a named dose column
 \code{CoxMartingale} uses user provided data, columns, and identifier to create plots
 }
 \seealso{

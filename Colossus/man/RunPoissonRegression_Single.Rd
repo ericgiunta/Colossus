@@ -2,8 +2,7 @@
 % Please edit documentation in R/Poisson_Regression.R
 \name{RunPoissonRegression_Single}
 \alias{RunPoissonRegression_Single}
-\title{Performs poisson regression with no derivative calculations
-\code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results}
+\title{Performs poisson regression with no derivative calculations}
 \usage{
 RunPoissonRegression_Single(
   df,
@@ -38,7 +37,7 @@ RunPoissonRegression_Single(
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 }
@@ -46,7 +45,6 @@ RunPoissonRegression_Single(
 returns a list of the final results
 }
 \description{
-Performs poisson regression with no derivative calculations
 \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
 }
 \examples{

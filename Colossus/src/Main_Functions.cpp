@@ -46,6 +46,7 @@ void visit_lambda(const Mat& m, const Func& f)
 }
 
 //' checks if the model is viable
+//'
 //' \code{Check_Risk} Calculates risks and checks for negative values
 //'
 //' @inheritParams CPP_template
@@ -193,6 +194,7 @@ bool Check_Risk( IntegerVector Term_n, StringVector tform, NumericVector a_n,Num
 }
 
 //' Primary Cox PH regression with multiple starting points and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
+//'
 //' \code{LogLik_Cox_PH_Omnibus} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 //'
 //' @inheritParams CPP_template
@@ -930,6 +932,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector Term_n, StringVector tform, NumericMat
 }
 
 //' Primary poisson regression with multiple starting points and optional combinations of stratification and no derivative calculation.
+//'
 //' \code{LogLik_Pois_Omnibus} Performs the calls to calculation functions, Structures the poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 //'
 //' @inheritParams CPP_template
