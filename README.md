@@ -11,6 +11,9 @@
 [![Project Status: Active - The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![pkgcheck](https://github.com/ericgiunta/Colossus/workflows/pkgcheck/badge.svg)](https://github.com/ericgiunta/Colossus/actions?query=workflow%3Apkgcheck)
+[![codecov](https://codecov.io/gh/ericgiunta/Colossus/branch/main/graph/badge.svg)](https://codecov.io/gh/ericgiunta/Colossus)
+[![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 The goal of Colossus is to provide an open-source means of performing

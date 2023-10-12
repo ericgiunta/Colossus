@@ -1,9 +1,8 @@
-Colossus/inst/doc
-Colossus/doc/
-Colossus/Meta/
-Colossus/src/*.o
-Colossus/src/*.so
-Colossus/*.r
+inst/doc
+doc/
+Meta/
+src/*.o
+src/*.so
+*.r
 *.Rcheck
-Colossus/.Rproj.user/
-Colossus_*.tar.gz
+.Rproj.user/
