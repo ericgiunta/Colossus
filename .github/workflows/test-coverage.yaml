@@ -28,6 +28,8 @@ jobs:
           needs: coverage
 
       - name: Test coverage
+        ignore:
+	        - "**/RcppExports*"
         run: |
           covr::codecov(
             quiet = FALSE,

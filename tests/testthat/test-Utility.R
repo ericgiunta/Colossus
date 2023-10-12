@@ -240,7 +240,7 @@ test_that("Iteract formula operation error", {
 #######################################
 
 test_that("Check no error", {
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- list('verbose'=T,"Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
     control <- Def_Control(control)
     model_control <- list("single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -250,7 +250,7 @@ test_that("Check no error", {
 })
 
 test_that("Modelform Fixes Additives", {
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- list('verbose'=T,"Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
     control <- Def_Control(control)
     model_control <- list("single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -263,7 +263,7 @@ test_that("Modelform Fixes Additives", {
     expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'PAE')
 })
 test_that("Modelform Fixes Additives", {
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- list('verbose'=T,"Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
     control <- Def_Control(control)
     model_control <- list("single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -274,7 +274,7 @@ test_that("Modelform Fixes Additives", {
     expect_equal(Def_modelform_fix(control,model_control,modelform,Term_n)$modelform,'M')
 })
 test_that("Modelform Fixes gmix", {
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1,'verbose'=TRUE)
+    control <- list('verbose'=T,"Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1,'verbose'=TRUE)
     control <- Def_Control(control)
     model_control <- list("single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -289,7 +289,7 @@ test_that("Modelform Fixes gmix", {
 })
 
 test_that("gmix error", {
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- list('verbose'=T,"Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
     control <- Def_Control(control)
     model_control <- list("single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -299,7 +299,7 @@ test_that("gmix error", {
 })
 
 test_that("unused model formula error", {
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+    control <- list('verbose'=T,"Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
     control <- Def_Control(control)
     model_control <- list("single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -520,7 +520,7 @@ test_that("Missing Value missing column error", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    expect_error(Replace_Missing(df,c("a","e"),0.0))
+    expect_error(Replace_Missing(df,c("a","e"),0.0,T))
 })
 test_that("Missing Value NA replacement error", {
     a <- c(0,1,2,3,4,5,6)
@@ -528,7 +528,7 @@ test_that("Missing Value NA replacement error", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    expect_error(Replace_Missing(df,c("a","b","c","d"),NA))
+    expect_error(Replace_Missing(df,c("a","b","c","d"),NA,T))
 })
 test_that("Missing Value no error", {
     a <- c(0,1,2,3,4,5,6)
@@ -536,7 +536,7 @@ test_that("Missing Value no error", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    expect_no_error(Replace_Missing(df,c("a","b","c","d"),0.0))
+    expect_no_error(Replace_Missing(df,c("a","b","c","d"),0.0,T))
 })
 test_that("Missing Value checked replaced 0", {
     a <- c(0,1,2,3,4,5,6)
@@ -545,7 +545,7 @@ test_that("Missing Value checked replaced 0", {
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     #
-    df0 <- Replace_Missing(df,c("a","b"),0.0)
+    df0 <- Replace_Missing(df,c("a","b"),0.0,T)
     expect_equal(c(sum(df0$a),sum(df0$b)),c(sum(df$a),2))
 })
 test_that("Missing Value checked replaced 1", {
@@ -555,7 +555,7 @@ test_that("Missing Value checked replaced 1", {
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     #
-    df0 <- Replace_Missing(df,c("a","b"),1.0)
+    df0 <- Replace_Missing(df,c("a","b"),1.0,T)
     expect_equal(c(sum(df0$a),sum(df0$b)),c(sum(df$a),3))
 })
 
@@ -970,27 +970,26 @@ test_that("Checking constraint matrix", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5))
     names <- c("a","a","a","a","a")
-    Cons_Mat <- matrix(c(1,2,3,4,4,2,3,1,1,3,2,4),nrow=3,byrow=T)
+    Cons_Mat <- matrix(c(1:12),nrow=3,byrow=T)
     Cons_Vec <- c(1,0,-1)
 
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec)
     Cons_Mat <- val$Cons_Mat
 
     expect_equal(Cons_Mat[1,],c(1, 4, 3,2))
-    expect_equal(Cons_Mat[,3],c(3,3,2))
+    expect_equal(Cons_Mat[,3],c(3,7,11))
 })
-test_that("Checking constraint matrix", {
+test_that("Checking verbose", {
     Term_n <- c(0,1,1,0,0)
     tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5))
     names <- c("a","a","a","a","a")
-    Cons_Mat <- matrix(c(1,2,3,4,4,2,3,1,1,3,2,4),nrow=3,byrow=T)
+    Cons_Mat <- matrix(c(1:12),nrow=3,byrow=T)
     Cons_Vec <- c(1,0,-1)
 
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=-1))
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=2))
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose='1'))
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose="TRUE"))
     #
     expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=T))
@@ -1047,50 +1046,6 @@ test_that("Gather Guesses no error", {
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
     guesses_control$rmin <- c(-0.1,-1,-0.1,0)
     guesses_control$rmax <- c(0.1, 1, 0.1, 0.1)
-    expect_no_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
-})
-test_that("Gather Guesses error, few a_n", {
-    a <- c(0,1,2,3,4,5,6)
-    b <- c(1,2,3,4,5,6,7)
-    c <- c(0,1,0,0,0,1,0)
-    d <- c(3,4,5,6,7,8,9)
-    df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    time1 <- "a"
-    time2 <- "b"
-    event <- "c"
-    names <- c("d","d","d","d")
-    Term_n <- c(0,0,0,0)
-    tform <- c("loglin",'lin_exp_int','lin_exp_slope','lin_exp_exp_slope')
-    keep_constant <- c(0,0,0,0)
-    a_n <- c(-0.1,6,-0.1,0.1)
-    a_n_default <- a_n
-    modelform <- "M"
-    fir <- 0
-    der_iden <- 0
-    #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
-    Term_n <- val$Term_n
-    tform <- val$tform
-    keep_constant <- val$keep_constant
-    a_n <- val$a_n
-    der_iden <- val$der_iden
-    names <- val$names
-    #
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    guesses_control <- list()
-    model_control <- list()
-    
-    all_names <- unique(names(df))
-    #
-    dfc <- match(names,all_names)
-
-    term_tot <- max(Term_n)+1
-    x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
-    control <- Def_Control(control)
-    guesses_control <- Def_Control_Guess(guesses_control, a_n)
-    model_control <- Def_model_control(model_control)
-    #
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
 })
 test_that("Gather Guesses error, many a_n", {

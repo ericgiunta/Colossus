@@ -8,7 +8,7 @@
 #' @param x_all covariate matrix
 #'
 #' @return returns a list of the final results
-#'
+#' @export
 #' @importFrom rlang .data
 Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control, model_control=list()){
     if (typeof(a_n)!="list"){
@@ -22,13 +22,31 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
     modelform <- val$modelform
     model_control <- val$model_control
     #
+    if (length(a_n_default)!=length(names)){
+        message(paste("Error: Default Parameters used: ",length(a_n_default),", Covariates used: ",length(names),
+                    sep=""))
+        stop()
+    }
+    #
+    for (i in seq_along(tform)){
+        if (grepl("_int",tform[i],fixed=FALSE)){
+            #fine
+        } else if (grepl("lin_exp_exp_slope",tform[i],fixed=FALSE)){
+            #fine
+        } else if (grepl("_slope",tform[i],fixed=FALSE)){
+            #fine
+        } else if (grepl("loglin",tform[i],fixed=FALSE)){
+            #fine
+        } else if (grepl("lin",tform[i],fixed=FALSE)){
+            #fine
+        } else {
+            message(paste("Error: tform not implemented ", tform[i],sep=""))
+            stop()
+        }
+    }
     for (i in seq_len(length(a_n))){
         a_n0 <- a_n[[i]]
-        if (length(a_n0)<length(names)){
-            message(paste("Warning: Parameters used: ",length(a_n0),", Covariates used: ",length(names),
-                ", Remaining filled with 0.01",sep=""))
-            a_n0 <- c(a_n0, rep(0.01,length(names)-length(a_n0)))
-        } else if (length(a_n0)>length(names)){
+        if (length(a_n0)!=length(names)){
             message(paste("Error: Parameters used: ",length(a_n0),", Covariates used: ",length(names),
                         sep=""))
             stop()
@@ -50,7 +68,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
             stop()
         }
         if (length(keep_constant)<length(names)){
-            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
+            keep_constant <- c(keep_constant, rep(0.0,length(names)-length(keep_constant)))
         } else if (length(keep_constant)>length(names)){
             keep_constant <- keep_constant[seq_len(length(names))]
         }
@@ -75,6 +93,8 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
             }
         }
     }
+    #
+    #
     while (length(maxiters) - length(a_n) < guesses_control$guesses-1){
         if (guesses_control$verbose){
             message(paste("Note: ",length(maxiters)," valid guesses",sep=""))
@@ -148,7 +168,9 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #' keep_constant <- c(0,0,0,1,0)
 #' a_n <- c(1,2,3,4,5)
 #' names <- c("a","a","a","a","a")
-#' val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, Cons_Mat=matrix(c(0)),Cons_Vec=c(0))
+#' val <- Correct_Formula_Order(Term_n, tform, keep_constant,
+#'                              a_n, names, Cons_Mat=matrix(c(0)),
+#'                              Cons_Vec=c(0))
 #' Term_n <- val$Term_n
 #' tform <- val$tform
 #' keep_constant <- val$keep_constant
@@ -164,11 +186,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         message("Error: verbosity arguement not valid")
         stop()
     }
-    if (is.na(verbose)){
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
-    if (der_iden %in% seq_len(length(tform))-1){
+    if (der_iden %in% (seq_len(length(tform))-1)){
         #pass
     } else {
         message("Error: der_iden should be within 0:(length(Term_n)-1)")
@@ -182,9 +200,45 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             message("Warning: Constraint Matrix was not a matrix, converted")
         }
     }
+    #
+    if (length(keep_constant)<length(names)){
+        keep_constant <- c(keep_constant, rep(0.0,length(names)-length(keep_constant)))
+    } else if (length(keep_constant)>length(names)){
+        keep_constant <- keep_constant[seq_len(length(names))]
+    }
+    if (length(Term_n)<length(names)){
+        message(paste("Error: Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    } else if (length(Term_n)>length(names)){
+        message(paste("Error: Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
+        stop()
+    }
+    if (length(tform)<length(names)){
+        message(paste("Error: Term types used: ",length(tform),", Covariates used: ",length(names),
+                    sep=""))
+        stop()
+    } else if (length(tform)>length(names)){
+        message(paste("Error: Term types used: ",length(tform),", Covariates used: ",length(names),
+                    sep=""))
+        stop()
+    }
+    #
+    col_to_cons <- c()
+    for (i in keep_constant){
+        if (i==0){
+            if (length(col_to_cons)==0){
+                col_to_cons <- c(1)
+            } else {
+                col_to_cons <- c(col_to_cons, max(col_to_cons)+1)
+            }
+        } else {
+            col_to_cons <- c(col_to_cons, 0)
+        }
+    }
+    #
     if (ncol(Cons_Mat)>1){
-        if (ncol(Cons_Mat)>length(Term_n)){
-            message("Error: Too few linear constraint columns")
+        if (ncol(Cons_Mat)!=(length(keep_constant)-sum(keep_constant))){
+            message("Error: Constraint matrix has incorrect number of columns")
             stop()
         }
         if (nrow(Cons_Mat)!=length(Cons_Vec)){
@@ -209,40 +263,6 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             message(paste("Error: Parameters used: ",length(a_n),", Covariates used: ",length(names),
                         sep=""))
             stop()
-        }
-        if (length(Term_n)<length(names)){
-            message(paste("Error: Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        } else if (length(Term_n)>length(names)){
-            message(paste("Error: Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(tform)<length(names)){
-            message(paste("Error: Term types used: ",length(tform),", Covariates used: ",length(names),
-                        sep=""))
-            stop()
-        } else if (length(tform)>length(names)){
-            message(paste("Error: Term types used: ",length(tform),", Covariates used: ",length(names),
-                        sep=""))
-            stop()
-        }
-        if (length(keep_constant)<length(names)){
-            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-        } else if (length(keep_constant)>length(names)){
-            keep_constant <- keep_constant[seq_len(length(names))]
-        }
-        #
-        col_to_cons <- c()
-        for (i in keep_constant){
-            if (i==0){
-                if (length(col_to_cons)==0){
-                    col_to_cons <- c(1)
-                } else {
-                    col_to_cons <- c(col_to_cons, max(col_to_cons)+1)
-                }
-            } else {
-                col_to_cons <- c(col_to_cons, 0)
-            }
         }
         #
         df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
@@ -278,41 +298,6 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             message(paste("Error: Parameters used: ",length(a_0),", Covariates used: ",length(names),
                         sep=""))
             stop()
-        }
-        if (length(Term_n)<length(names)){
-            message(paste("Error: Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        } else if (length(Term_n)>length(names)){
-            message(paste("Error: Terms used: ",length(Term_n),", Covariates used: ",length(names),sep=""))
-            stop()
-        }
-        if (length(tform)<length(names)){
-            message(paste("Error: Term types used: ",length(tform),", Covariates used: ",length(names),
-                        sep=""))
-            stop()
-        } else if (length(tform)>length(names)){
-            message(paste("Error: Term types used: ",length(tform),", Covariates used: ",length(names),
-                        sep=""))
-            stop()
-        }
-        if (length(keep_constant)<length(names)){
-            keep_constant <- c(keep_constant, rep(0.01,length(names)-length(keep_constant)))
-        } else if (length(keep_constant)>length(names)){
-            keep_constant <- keep_constant[seq_len(length(names))]
-        }
-        #
-        #
-        col_to_cons <- c()
-        for (i in keep_constant){
-            if (i==0){
-                if (length(col_to_cons)==0){
-                    col_to_cons <- c(1)
-                } else {
-                    col_to_cons <- c(col_to_cons, max(col_to_cons)+1)
-                }
-            } else {
-                col_to_cons <- c(col_to_cons, 0)
-            }
         }
         #
         df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
@@ -405,24 +390,17 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         }
     }
     if (ncol(Cons_Mat)>1){
-        if (ncol(Cons_Mat)==(length(keep_constant)-sum(keep_constant))){
-            colnames(Cons_Mat) <- 1:ncol(Cons_Mat)
-            r0 <- nrow(Cons_Mat)
-            c0 <- ncol(Cons_Mat)
-            Cons_Mat <- as.matrix(Cons_Mat[,cons_order])
-            if (nrow(Cons_Mat)==r0){
-                if (ncol(Cons_Mat)==c0){
-                    #all good
-                } else {
-                    message(paste("Starting size ",r0,",",c0,": new size ",nrow(Cons_Mat),",",ncol(Cons_Mat),sep=""))
-                }
-            } else {
-                if (nrow(Cons_Mat)==r0){
-                    message(paste("Starting size ",r0,",",c0,": new size ",nrow(Cons_Mat),",",ncol(Cons_Mat),sep=""))
-                } else {
-                    Cons_Mat <- t(Cons_Mat)
-                }
-            }
+        colnames(Cons_Mat) <- 1:ncol(Cons_Mat)
+        r0 <- nrow(Cons_Mat)
+        c0 <- ncol(Cons_Mat)
+        Cons_Mat <- as.matrix(Cons_Mat[,cons_order])
+        if ((nrow(Cons_Mat)==r0)&& (ncol(Cons_Mat)==c0)){
+            #all good
+        }else if ((nrow(Cons_Mat)==c0)&& (ncol(Cons_Mat)==r0)){
+            Cons_Mat <- t(Cons_Mat)
+        } else {
+            message("matrix reordering failed")
+            stop()
         }
     }
     a_temp <- df$iden_const
@@ -453,10 +431,6 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
     if (verbose %in% c(0,1,T,F)){
         verbose <- as.logical(verbose)
     } else {
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
-    if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
     }
@@ -767,10 +741,6 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
         message("Error: verbosity arguement not valid")
         stop()
     }
-    if (is.na(verbose)){
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
     full_paras <- list()
     for (nm in names(tforms)){
         if (tforms[nm]=="quad"){
@@ -867,10 +837,6 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
         message("Error: verbosity arguement not valid")
         stop()
     }
-    if (is.na(verbose)){
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
     b1 <- 10
     lr <- 1.0
     if (a0 < 0 ){
@@ -933,10 +899,6 @@ factorize <-function(df,col_list,verbose=FALSE){
         message("Error: verbosity arguement not valid")
         stop()
     }
-    if (is.na(verbose)){
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
     cols <- c()
     col0 <- names(df)
     tnum <- c()
@@ -985,10 +947,6 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
     if (verbose %in% c(0,1,T,F)){
         verbose <- as.logical(verbose)
     } else {
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
-    if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
     }
@@ -1046,10 +1004,6 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
     if (verbose %in% c(0,1,T,F)){
         verbose <- as.logical(verbose)
     } else {
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
-    if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
     }
@@ -1140,10 +1094,6 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
     if (verbose %in% c(0,1,T,F)){
         verbose <- as.logical(verbose)
     } else {
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
-    if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
     }
@@ -1260,10 +1210,6 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
     if (verbose %in% c(0,1,T,F)){
         verbose <- as.logical(verbose)
     } else {
-        message("Error: verbosity arguement not valid")
-        stop()
-    }
-    if (is.na(verbose)){
         message("Error: verbosity arguement not valid")
         stop()
     }

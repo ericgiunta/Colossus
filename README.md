@@ -64,7 +64,10 @@ a_n <- c(0.1, 0.1, 0.1, 0.1)
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list('lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+control=list('lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,
+             'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,
+             'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
+             'ties'='breslow','double_step'=1)
 
 e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
 print(e)

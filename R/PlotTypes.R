@@ -268,7 +268,7 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
         y <- e$y
         #
         dft <- data.table("x"=x,"y"=y)
-        if (length(uniq)>=100){
+        if (length(uniq)>=10){
             #
             g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
                  ggplot2::geom_line(color="black") +
