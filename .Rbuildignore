@@ -1,0 +1,12 @@
+^doc$
+^Meta$
+^README\.Rmd$
+^cran-comments\.md$
+^.*\.Rproj$
+^\.Rproj\.user$
+^.sh
+^codemeta\.json$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
