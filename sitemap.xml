@@ -46,21 +46,6 @@
     <loc>/reference/Correct_Formula_Order.html</loc>
   </url>
   <url>
-    <loc>/reference/CoxKaplanMeier.html</loc>
-  </url>
-  <url>
-    <loc>/reference/CoxMartingale.html</loc>
-  </url>
-  <url>
-    <loc>/reference/CoxRisk.html</loc>
-  </url>
-  <url>
-    <loc>/reference/CoxStratifiedSurvival.html</loc>
-  </url>
-  <url>
-    <loc>/reference/CoxSurvival.html</loc>
-  </url>
-  <url>
     <loc>/reference/Cox_Relative_Risk.html</loc>
   </url>
   <url>
@@ -92,9 +77,6 @@
   </url>
   <url>
     <loc>/reference/Linked_Lin_Exp_Para.html</loc>
-  </url>
-  <url>
-    <loc>/reference/PlotCox_Schoenfeld_Residual.html</loc>
   </url>
   <url>
     <loc>/reference/Replace_Missing.html</loc>
