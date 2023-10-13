@@ -5,7 +5,7 @@
 #' @inheritParams R_template
 #' @family {Plotting Functions}
 #' @return saves the plots in the current directory and returns a string that it passed
-#'
+#' @noRd
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Plot_Name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
     verbose <- as.logical(verbose)
@@ -121,6 +121,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 #'
 #' @inheritParams R_template
 #' @family {Plotting Functions}
+#' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
     verbose <- as.logical(verbose)
@@ -169,6 +170,7 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #'
 #' @inheritParams R_template
 #' @family {Plotting Functions}
+#' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit, model_control=list()){
     verbose <- as.logical(verbose)
@@ -231,6 +233,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 #'
 #' @inheritParams R_template
 #' @family {Plotting Functions}
+#' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er, model_control=list()){
     verbose <- as.logical(verbose)
@@ -296,6 +299,7 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
 #'
 #' @inheritParams R_template
 #' @family {Plotting Functions}
+#' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims, age_unit, model_control=list()){
     verbose <- as.logical(verbose)
@@ -407,6 +411,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @family {Plotting Functions}
+#' @noRd
 #' @importFrom rlang .data
 
 PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,age_unit,Plot_Name, model_control=list()){        

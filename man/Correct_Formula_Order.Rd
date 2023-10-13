@@ -50,7 +50,9 @@ tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
 keep_constant <- c(0,0,0,1,0)
 a_n <- c(1,2,3,4,5)
 names <- c("a","a","a","a","a")
-val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names, Cons_Mat=matrix(c(0)),Cons_Vec=c(0))
+val <- Correct_Formula_Order(Term_n, tform, keep_constant,
+                             a_n, names, Cons_Mat=matrix(c(0)),
+                             Cons_Vec=c(0))
 Term_n <- val$Term_n
 tform <- val$tform
 keep_constant <- val$keep_constant

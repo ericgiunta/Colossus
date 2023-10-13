@@ -100,13 +100,4 @@ t_c <- df$t1
 cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
 
 }
-\seealso{
-Other {Plotting Functions}: 
-\code{\link{CoxKaplanMeier}()},
-\code{\link{CoxMartingale}()},
-\code{\link{CoxRisk}()},
-\code{\link{CoxStratifiedSurvival}()},
-\code{\link{CoxSurvival}()},
-\code{\link{PlotCox_Schoenfeld_Residual}()}
-}
 \concept{{Plotting Functions}}

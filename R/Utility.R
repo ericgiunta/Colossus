@@ -9,6 +9,36 @@
 #'
 #' @return returns a list of the final results
 #' @export
+#' @examples
+#' library(data.table)
+#' a <- c(0,1,2,3,4,5,6)
+#' b <- c(1,2,3,4,5,6,7)
+#' c <- c(0,1,0,0,0,1,0)
+#' d <- c(3,4,5,6,7,8,9)
+#' df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+#' time1 <- "a"
+#' time2 <- "b"
+#' event <- "c"
+#' names <- c("d")
+#' Term_n <- c(0)
+#' tform <- c("loglin")
+#' keep_constant <- c(0)
+#' a_n <- c(-0.1)
+#' a_n_default <- a_n
+#' modelform <- "M"
+#' fir <- 0
+#' der_iden <- 0
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' guesses_control <- list()
+#' model_control <- list()
+#' all_names <- unique(names(df))
+#' dfc <- match(names,all_names)
+#' term_tot <- max(Term_n)+1
+#' x_all <- as.matrix(df[,all_names, with = FALSE])
+#' control <- Def_Control(control)
+#' guesses_control <- Def_Control_Guess(guesses_control, a_n)
+#' model_control <- Def_model_control(model_control)
+#' Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
 #' @importFrom rlang .data
 Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control, model_control=list()){
     if (typeof(a_n)!="list"){
