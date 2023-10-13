@@ -447,6 +447,11 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
 #' @inheritParams R_template
 #' @family {Data Cleaning Functions}
 #' @return returns a filled datatable
+#' @srrstats {G2.14} Replace_Missing allows user to handle missing values
+#' @srrstats {G2.14a} If not used functions will error
+#' @srrstats {G2.14b} ignoring is not applicable
+#' @srrstats {G2.14c} User input values allowed
+#' @srrstats {G2.15} Missing values checked first
 #' @export
 #' @examples
 #' library(data.table)

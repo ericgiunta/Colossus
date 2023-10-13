@@ -31,7 +31,7 @@ LinkingTo: Rcpp, RcppEigen, testthat
 SystemRequirements: make
 RoxygenNote: 7.2.3
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
+Roxygen: list(markdown = TRUE, roclets = c ("namespace", "rd", "srr::srr_stats_roclet"))
 Suggests: 
     knitr,
     rmarkdown,
