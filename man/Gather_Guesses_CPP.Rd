@@ -75,7 +75,9 @@ a_n_default <- a_n
 modelform <- "M"
 fir <- 0
 der_iden <- 0
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
+            'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
+            'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 guesses_control <- list()
 model_control <- list()
 all_names <- unique(names(df))
@@ -85,5 +87,6 @@ x_all <- as.matrix(df[,all_names, with = FALSE])
 control <- Def_Control(control)
 guesses_control <- Def_Control_Guess(guesses_control, a_n)
 model_control <- Def_model_control(model_control)
-Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
+Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default,
+                   modelform, fir, control, guesses_control)
 }

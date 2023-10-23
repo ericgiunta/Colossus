@@ -1,6 +1,8 @@
 inst/doc
-doc/
+doc/*
+man/*
 Meta/
+src/Makevars
 src/*.o
 src/*.so
 *.r
