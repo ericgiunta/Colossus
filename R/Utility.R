@@ -549,6 +549,7 @@ Def_Control <- function(control){
 #' \code{Def_model_control} checks and assigns default values
 #'
 #' @inheritParams R_template
+#' @srrstats {G2.3b} model options forced to constant case
 #' @family {Data Cleaning Functions}
 #' @return returns a filled list
 #' @export

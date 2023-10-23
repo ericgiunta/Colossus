@@ -199,7 +199,9 @@ NULL
 #' @srrstats {G5.6b} Randomized distributed start functions given one fixed start used for comparisons
 #' @srrstats {G5.8} Edge cases checked in tests
 #' @srrstats {G5.9b} Randomized inputs are compared to optimal value to test that they can't find a better solution
+#' @srrstats {RE5.0} Scaling covered in detail in manuscript
 #' @srrstats {RE1.4} Primary assumptions are that data exists and the model does not produce a negative result, which is tested
+#' @srrstats {RE7.3} By default many functions call other cleaning functions
 #' @name SRR_General_Placement
 #' @noRd
 NULL
