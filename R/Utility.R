@@ -28,7 +28,9 @@
 #' modelform <- "M"
 #' fir <- 0
 #' der_iden <- 0
-#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
+#'             'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
+#'             'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list()
 #' model_control <- list()
 #' all_names <- unique(names(df))
@@ -38,7 +40,8 @@
 #' control <- Def_Control(control)
 #' guesses_control <- Def_Control_Guess(guesses_control, a_n)
 #' model_control <- Def_model_control(model_control)
-#' Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control)
+#' Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default,
+#'                    modelform, fir, control, guesses_control)
 #' @importFrom rlang .data
 Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control, model_control=list()){
     if (typeof(a_n)!="list"){
@@ -447,11 +450,6 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
 #' @inheritParams R_template
 #' @family {Data Cleaning Functions}
 #' @return returns a filled datatable
-#' @srrstats {G2.14} Replace_Missing allows user to handle missing values
-#' @srrstats {G2.14a} If not used functions will error
-#' @srrstats {G2.14b} ignoring is not applicable
-#' @srrstats {G2.14c} User input values allowed
-#' @srrstats {G2.15} Missing values checked first
 #' @export
 #' @examples
 #' library(data.table)
@@ -549,7 +547,6 @@ Def_Control <- function(control){
 #' \code{Def_model_control} checks and assigns default values
 #'
 #' @inheritParams R_template
-#' @srrstats {G2.3b} model options forced to constant case
 #' @family {Data Cleaning Functions}
 #' @return returns a filled list
 #' @export
@@ -589,7 +586,7 @@ Def_modelform_fix <- function(control,model_control,modelform,Term_n){
         gmix_term <- model_control$gmix_term
         if (length(gmix_term) != term_tot){
             if (control$verbose){
-                message(paste("Error: Terms used:",term_tot,", Terms with gmix types avaliable:",length(gmix_term),sep=" "))
+                message(paste("Error: Terms used:",term_tot,", Terms with gmix types available:",length(gmix_term),sep=" "))
             }
             stop()
         }

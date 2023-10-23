@@ -8,3 +8,5 @@ src/*.so
 .Rproj.user/
 Colossus/src/Calc_Repeated.o
 *.o
+/doc/
+/Meta/

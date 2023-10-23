@@ -181,35 +181,4 @@ NULL
 #' @name CPP_template
 NULL
 
-#' @srrstats {G1.2} ReadME has a life cycle badge
-#' @srrstats {G1.4} Roxygen2 used, with exception to NAMESPACE due to certain imports not being included
-#' @srrstats {G1.4a} NoRd tags used on functions not intended to be directly called
-#' @srrstats {G5.0} Tests are created by user
-#' @srrstats {G5.1} Tests are defined inline or CSV distributed with package
-#' @srrstats {G5.2} Tests applied to known errors
-#' @srrstats {G5.2a} Similar errors give the same message to identify what variable caused the error
-#' @srrstats {G5.2b} Tests provide examples of failing datasets
-#' @srrstats {G5.3} Conditions that cause NA returns are caught by checks, explicit NA returns are done to induce an error on R side
-#' @srrstats {G5.4} hundreds of tests defined for specific results in specific functions with specific different inputs
-#' @srrstats {G5.4a} Functions tested against validated software and/or numerical analysis of every step
-#' @srrstats {G5.4b} Comparison with EPICURE sets not feasible, so user created data used instead
-#' @srrstats {G5.5} Fixed random seed used
-#' @srrstats {G5.6} converged results checked
-#' @srrstats {G5.6a} Tolerance of 1e-2 used generally
-#' @srrstats {G5.6b} Randomized distributed start functions given one fixed start used for comparisons
-#' @srrstats {G5.8} Edge cases checked in tests
-#' @srrstats {G5.9b} Randomized inputs are compared to optimal value to test that they can't find a better solution
-#' @srrstats {RE5.0} Scaling covered in detail in manuscript
-#' @srrstats {RE1.4} Primary assumptions are that data exists and the model does not produce a negative result, which is tested
-#' @srrstats {RE7.3} By default many functions call other cleaning functions
-#' @name SRR_General_Placement
-#' @noRd
-NULL
-
-
-
-
-
-
-
 

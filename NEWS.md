@@ -9,7 +9,11 @@
 
 # Colossus 0.9.5
 
-* Preparing package for submission to ROpenSci
+* Checking against standards for submission to ROpenSci
 * checks from pkgcheck
 * checks from autotest
 * srr standards
+
+# Colossus 0.9.6
+
+* removed explicit srr requirements
