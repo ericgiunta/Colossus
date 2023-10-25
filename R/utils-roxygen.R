@@ -40,7 +40,7 @@
 #' @param name_list  vector of string column names to check
 #' @param names  columns for elements of the model, used to identify data columns
 #' @param new_names  list of new names to use instead of default, default used if entry is ''
-#' @param nthreads  number of threads to use, do not use more threads than avaliable on your machine
+#' @param nthreads  number of threads to use, do not use more threads than available on your machine
 #' @param null_model  a model to compare against, in list form
 #' @param paras  list of formula parameters
 #' @param plot_options  list of parameters controlling the plot options, see RunCoxPlots() for different options
@@ -180,5 +180,18 @@ NULL
 #'
 #' @name CPP_template
 NULL
+
+#' @importFrom Rcpp evalCpp
+#' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD
+#' @importFrom parallel detectCores
+#' @importFrom stats runif
+#' @importFrom utils combn head
+#' @importFrom grDevices colorRampPalette dev.off jpeg
+#' @importFrom graphics legend lines smoothScatter
+#' @importFrom stats approxfun time qchisq
+#' @importFrom rlang .data
+#' @useDynLib Colossus, .registration = TRUE
+NULL
+
 
 

@@ -42,7 +42,7 @@ gen_time_dep(
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
-\item{nthreads}{number of threads to use, do not use more threads than avaliable on your machine}
+\item{nthreads}{number of threads to use, do not use more threads than available on your machine}
 }
 \value{
 returns the updated dataframe
@@ -56,7 +56,7 @@ library(data.table)
 a <- c(20,20,5,10,15)
 b <- c(1,2,1,1,2)
 c <- c(0,0,1,1,1)
-df <- data.table("a"=a,"b"=b,"c"=c)
+df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 time1 <- "\%trunc\%"
 time2 <- "a"
 event <- "c"

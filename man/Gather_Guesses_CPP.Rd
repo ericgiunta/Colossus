@@ -62,7 +62,7 @@ a <- c(0,1,2,3,4,5,6)
 b <- c(1,2,3,4,5,6,7)
 c <- c(0,1,0,0,0,1,0)
 d <- c(3,4,5,6,7,8,9)
-df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+df <- data.table::data.table("a"=a,"b"=b,"c"=c,"d"=d)
 time1 <- "a"
 time2 <- "b"
 event <- "c"

@@ -15,7 +15,7 @@
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -86,7 +86,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         }
     }
     if (model_control$strata==FALSE){
-        setkeyv(df, c(time2, event0))
+        data.table::setkeyv(df, c(time2, event0))
         uniq <- c(0)
         ce <- c(time1,time2,event0)
     } else {
@@ -112,7 +112,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
             message(paste("Note:",length(uniq)," strata used",sep=" "))
         }
         #
-        setkeyv(df, c(time2, event0, Strat_Col))
+        data.table::setkeyv(df, c(time2, event0, Strat_Col))
         ce <- c(time1,time2,event0,Strat_Col)
     }
     dfend <- df[get(event0)==1, ]
@@ -201,7 +201,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -256,7 +256,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -307,7 +307,7 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -361,7 +361,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -419,7 +419,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -501,7 +501,7 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
@@ -540,7 +540,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -590,7 +590,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             df$CONST <- 1
         }
     }
-    setkeyv(df, c(time2, event0))
+    data.table::setkeyv(df, c(time2, event0))
     base  <- NULL
     der_iden <- 0
     Plot_Type <- plot_options$type
@@ -704,9 +704,9 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         }
     }
     control <- Def_Control(control)
-    verbose <- copy(plot_options$verbose)
-    verbosec <- copy(control$verbose)
-    maxiterc <- copy(control$maxiter)
+    verbose <- data.table::copy(plot_options$verbose)
+    verbosec <- data.table::copy(control$verbose)
+    maxiterc <- data.table::copy(control$maxiter)
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
@@ -764,7 +764,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         if (verbose){
             message("Note: writing survival data")
         }
-        dft <- data.table("time"=tu,"base"=e$baseline,
+        dft <- data.table::data.table("time"=tu,"base"=e$baseline,
                           "basehaz"=e$standard_error)
         for (i in tu){
             t <- c(t,i)
@@ -833,7 +833,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -962,7 +962,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   2,   1,   2,   0),
@@ -1020,7 +1020,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -1094,7 +1094,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         a_n_default[i] <- a_n[[1]][i]
     }
     if (guesses_control$strata==FALSE){
-        setkeyv(df, c(time2, event0))
+        data.table::setkeyv(df, c(time2, event0))
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
         if (length(tu)==0){
@@ -1136,7 +1136,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
             message(paste("Note:",length(uniq)," strata used",sep=" "))
         }
         #
-        setkeyv(df, c(time2, event0, Strat_Col))
+        data.table::setkeyv(df, c(time2, event0, Strat_Col))
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
         if (length(tu)==0){

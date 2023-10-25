@@ -63,7 +63,7 @@ The second type of time dependent covariate is one which changes based on condit
 
 So the following would be equivalent to "$0g?6g?12g?$"
 
-```{r, fig.cap='Linear Interpolated Function'}
+```{r, fig.cap='Monotonic Step Function Applied'}
 dft <- data.table("x"=c(-1,1,5,8,13),"y"=c(0,1,1,2,3))
 g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
      ggplot2::geom_point(color="black")
@@ -83,7 +83,7 @@ $$
 
 Meanwhile the following is equivalent to "$0g?6g?12l?$"
 
-```{r, fig.cap='Linear Interpolated Function'}
+```{r, fig.cap='Step Function Applied'}
 dft <- data.table("x"=c(-1,1,5,8,13),"y"=c(1,2,2,3,2))
 g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
      ggplot2::geom_point(color="black")

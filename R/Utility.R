@@ -15,7 +15,7 @@
 #' b <- c(1,2,3,4,5,6,7)
 #' c <- c(0,1,0,0,0,1,0)
 #' d <- c(3,4,5,6,7,8,9)
-#' df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+#' df <- data.table::data.table("a"=a,"b"=b,"c"=c,"d"=d)
 #' time1 <- "a"
 #' time2 <- "b"
 #' event <- "c"
@@ -298,7 +298,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             stop()
         }
         #
-        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
+        df <- data.table::data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
                          "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)),"current_order"=1:length(tform),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
         tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top",
@@ -308,7 +308,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
         keycol <-c("Term_n","names","tform_order")
-        setorderv(df, keycol)
+        data.table::setorderv(df, keycol)
         a_n <- df$a_n
     } else {
         a_0 <- a_n[[1]]
@@ -333,7 +333,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
             stop()
         }
         #
-        df <- data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
+        df <- data.table::data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
                          "names"=names,"iden_const"=rep(0,length(names)),"current_order"=1:(length(tform)),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
         for (i in seq_len(length(a_n))){
@@ -346,7 +346,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
         keycol <-c("Term_n","names","tform_order")
-        setorderv(df, keycol)
+        data.table::setorderv(df, keycol)
         for (i in seq_len(length(a_n))){
             a_n[[i]] <- df[[paste("a_",i,sep="")]]
         }
@@ -455,7 +455,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  NA,  47,  36,  NA,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
@@ -485,7 +485,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
         }
         #
         if (sum(is.na(df[[j]]))){
-            set(df,which(is.na(df[[j]])),j,MSV)
+            data.table::set(df,which(is.na(df[[j]])),j,MSV)
             if (verbose){
                 message(paste("Note: Column ",j," had replaced values",sep=""))
             }
@@ -523,7 +523,7 @@ Def_Control <- function(control){
                 if (control$Ncores>control_def$Ncores){
                     if (control$verbose){
                         message(paste("Error: Cores Requested:",control["Ncores"],
-                              ", Cores Avaliable:",control_def["Ncores"],sep=" "))
+                              ", Cores Available:",control_def["Ncores"],sep=" "))
                     }
                     stop()
                 }
@@ -919,7 +919,7 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 #' a <- c(0,1,2,3,4,5,6)
 #' b <- c(1,2,3,4,5,6,7)
 #' c <- c(0,1,2,1,0,1,0)
-#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 #' col_list <- c("c")
 #' val <- factorize(df,col_list)
 #' df <- val$df
@@ -970,7 +970,7 @@ factorize <-function(df,col_list,verbose=FALSE){
 #' a <- c(0,1,2,3,4,5,6)
 #' b <- c(1,2,3,4,5,6,7)
 #' c <- c(0,1,2,1,0,1,0)
-#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 #' col_list <- c("c")
 #' val <- factorize_par(df,col_list,FALSE,2)
 #' df <- val$df
@@ -1003,7 +1003,7 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
     }
     #
     df0 <- Gen_Fac_Par(as.matrix(df[, col_list,with=FALSE]), vals, cols, nthreads)
-    df0 <- as.data.table(df0)
+    df0 <- data.table::as.data.table(df0)
     names(df0) <- names
     #
     col_keep <- Check_Dupe_Columns(df0,names,rep(0,length(cols)),verbose,TRUE)
@@ -1026,7 +1026,7 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 #' a <- c(0,1,2,3,4,5,6)
 #' b <- c(1,2,3,4,5,6,7)
 #' c <- c(0,1,2,1,0,1,0)
-#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 #' interactions <- c("a?+?b","a?*?c")
 #' new_names <- c("ab","ac")
 #' vals <- interact_them(df, interactions, new_names)
@@ -1118,7 +1118,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 #' a <- c(0,1,2,3,4,5,6)
 #' b <- c(1,2,3,4,5,6,7)
 #' c <- c(0,1,2,1,0,1,0)
-#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 #' cols <- c("a","b","c")
 #' term_n <- c(0,0,1)
 #' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
@@ -1227,7 +1227,7 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
 #' @examples
 #' library(data.table)
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
@@ -1284,7 +1284,7 @@ Check_Trunc <- function(df,ce,verbose=FALSE){
 #' a <- c(20,20,5,10,15)
 #' b <- c(1,2,1,1,2)
 #' c <- c(0,0,1,1,1)
-#' df <- data.table("a"=a,"b"=b,"c"=c)
+#' df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 #' time1 <- "%trunc%"
 #' time2 <- "a"
 #' event <- "c"
@@ -1347,9 +1347,9 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 		nthreads <- 2
 	}
     Write_Time_Dep(x_time, x_dep, x_same, x_event, dt, fname,tform,tu,iscox, nthreads)
-    df_new <- fread(fname,data.table=TRUE,header=FALSE,nThread=nthreads,
+    df_new <- data.table::fread(fname,data.table=TRUE,header=FALSE,nThread=nthreads,
                     col.names=c(time1,time2,new_names,dfn_same,event0))
-    setkeyv(df_new, c(time2, event0))
+    data.table::setkeyv(df_new, c(time2, event0))
     return (df_new)
 }
 
@@ -1371,7 +1371,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 #' d1 <- c(6,7,8,9)
 #' y0 <- c(1990,1991,1997,1998)
 #' y1 <- c(2001,2003,2005,2006)
-#' df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+#' df <- data.table::data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
 #' df <- Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since")
 #'
 Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
@@ -1407,7 +1407,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units="days"){
 #'d1 <- c(6,7,8,9)
 #'y0 <- c(1990,1991,1997,1998)
 #'y1 <- c(2001,2003,2005,2006)
-#'df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+#'df <- data.table::data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
 #'tref <- strptime( "3-22-1997", format = "%m-%d-%Y",tz = 'UTC')
 #'df <- Time_Since(df,c("m1","d1","y1"),tref,"date_since")
 #'

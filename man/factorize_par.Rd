@@ -18,7 +18,7 @@ factorize_par(
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
-\item{nthreads}{number of threads to use, do not use more threads than avaliable on your machine}
+\item{nthreads}{number of threads to use, do not use more threads than available on your machine}
 }
 \value{
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names
@@ -32,7 +32,7 @@ library(data.table)
 a <- c(0,1,2,3,4,5,6)
 b <- c(1,2,3,4,5,6,7)
 c <- c(0,1,2,1,0,1,0)
-df <- data.table("a"=a,"b"=b,"c"=c)
+df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 col_list <- c("c")
 val <- factorize_par(df,col_list,FALSE,2)
 df <- val$df

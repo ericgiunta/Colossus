@@ -13,7 +13,7 @@
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -106,15 +106,15 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
             } else {
                 val_cols <- c(val_cols,col)				
             }
-			setkeyv(df0, c(pyr0, event0))
+			data.table::setkeyv(df0, c(pyr0, event0))
         }
     } else {
-        df0 <- data.table("a"=c(0,0))
+        df0 <- data.table::data.table("a"=c(0,0))
         val <- list(cols=c("a"))
         val_cols <- c("a")
     }
     #
-    setkeyv(df, c(pyr0, event0))
+    data.table::setkeyv(df, c(pyr0, event0))
     all_names <- unique(names)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
@@ -185,7 +185,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -236,7 +236,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -287,7 +287,7 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, 
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -342,7 +342,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -458,7 +458,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' 
-#' df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 #'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
 #'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
@@ -531,7 +531,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, Term_n, tf
         a_n_default[i] <- a_n[[1]][i]
     }
     #
-    setkeyv(df, c(pyr0, event0))
+    data.table::setkeyv(df, c(pyr0, event0))
     all_names <- unique(names)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
