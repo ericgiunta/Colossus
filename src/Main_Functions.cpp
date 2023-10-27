@@ -876,6 +876,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector Term_n, StringVector tform, NumericMat
     }
     //
     if (verbose){
+        Rcout << "C++ Note: Exiting Regression" << endl;
         Rcout << "C++ Note: df501 " << Ll_abs_best << endl;
         Rcout << "C++ Note: df504 ";//prints parameter values
         for (int ij=0;ij<totalnum;ij++){
