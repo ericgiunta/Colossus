@@ -25,17 +25,16 @@ if (os=="linux"){
     define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
     define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
     define(LDFLAGS = "#LDFLAGS += -lomp")
+    configure_file("src/Makevars.in")
 } else if (os=="osx"){
     define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
     define(PKG_LIBS = '#PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
     define(CPPFLAGS = "CPPFLAGS += -Xclang -fopenmp")
     define(LDFLAGS = "LDFLAGS += -lomp")
+    configure_file("src/Makevars.in")
 } else {
     print(paste("OS",os,sep=" "))
     define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
-    define(PKG_LIBS = '#PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
-    define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
-    define(LDFLAGS = "#LDFLAGS += -lomp")
+    define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
+    configure_file("src/Makevars.win.in")
 }
-
-configure_file("src/Makevars.in")
