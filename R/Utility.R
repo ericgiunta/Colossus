@@ -1424,3 +1424,156 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
     return (df[,def_cols,with=FALSE])
 }
 
+#' Automates creating data for a joint competing risks analysis
+#'
+#' \code{Joint_Multiple_Events} generates input for a regression with multiple non-independent events and models
+#'
+#' @inheritParams R_template
+#' @family {Data Cleaning Functions}
+#' @return returns the updated dataframe and model inputs
+#' @export
+#' @examples
+#' library(data.table)
+#' a <- c(0,0,0,1,1,1)
+#' b <- c(1,1,1,2,2,2)
+#' c <- c(0,1,2,2,1,0)
+#' d <- c(1,1,0,0,1,1)
+#' e <- c(0,1,1,1,0,0)
+#' df <- data.table('t0'=a,'t1'=b,'e0'=c,'e1'=d,'fac'=e)
+#' time1 <- "t0"
+#' time2 <- "t1"
+#' df$pyr <- df$t1 - df$t0
+#' pyr <- "pyr"
+#' events <- c('e0','e1')
+#' names_e0 <- c('fac')
+#' names_e1 <- c('fac')
+#' names_shared <- c('t0','t0')
+#' Term_n_e0 <- c(0)
+#' Term_n_e1 <- c(0)
+#' Term_n_shared <- c(0,0)
+#' tform_e0 <- c("loglin")
+#' tform_e1 <- c("loglin")
+#' tform_shared <- c("quad_slope","loglin")
+#' keep_constant_e0 <- c(0)
+#' keep_constant_e1 <- c(0)
+#' keep_constant_shared <- c(0,0)
+#' a_n_e0 <- c(-0.1)
+#' a_n_e1 <- c(0.1)
+#' a_n_shared <- c(0.001, -0.02)
+#' name_list <- list('shared'=names_shared,'e0'=names_e0,'e1'=names_e1)
+#' Term_n_list <- list('shared'=Term_n_shared,'e0'=Term_n_e0,'e1'=Term_n_e1)
+#' tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
+#' keep_constant_list <- list('shared'=keep_constant_shared,'e0'=keep_constant_e0,'e1'=keep_constant_e1)
+#' a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
+#' val <- Joint_Multiple_Events(df, events, Term_n_list, tform_list, keep_constant_list, a_n_list)
+#'
+Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list()){
+    # ------------------- #
+    # filling missing values
+    print("testing 0 ------------------------------------------------")
+    for (i in names(name_list)){
+        temp0 <- unlist(name_list[i],use.names=F)
+        if (i %in% names(Term_n_list)){
+            temp1 <- unlist(Term_n_list[i],use.names=F)
+            if (length(temp0)!=length(temp1)){
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in Term_n_list has ",length(temp1),
+                              " items. Omit entry in Term_n_list to set to default of term 0 or add missing values",sep=""))
+                stop()
+            }
+        } else {
+            Term_n_list[i] <- rep(0,length(temp0))
+        }
+        if (i %in% names(tform_list)){
+            temp1 <- unlist(tform_list[i],use.names=F)
+            if (length(temp0)!=length(temp1)){
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in tform_list has ",length(temp1),
+                              " items. Omit entry in tform_list to set to default of 'loglin' or add missing values",sep=""))
+                stop()
+            }
+        } else {
+            tform_list[i] <- rep('loglin',length(temp0))
+        }
+        if (i %in% names(keep_constant_list)){
+            temp1 <- unlist(keep_constant_list[i],use.names=F)
+            if (length(temp0)!=length(temp1)){
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in keep_constant_list has ",length(temp1),
+                              " items. Omit entry in tform_list to set to default of 0 or add missing values",sep=""))
+                stop()
+            }
+        } else {
+            keep_constant_list[i] <- rep(0,length(temp0))
+        }
+        if (i %in% names(a_n_list)){
+            temp1 <- unlist(a_n_list[i],use.names=F)
+            if (length(temp0)!=length(temp1)){
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in a_n_list has ",length(temp1),
+                              " items. Omit entry in a_n_list to set to default of 0 or add missing values",sep=""))
+                stop()
+            }
+        } else {
+            print(names(a_n_list))
+            a_n_list[i] <- rep(0,length(temp0))
+        }
+    }
+    print("testing 1 ------------------------------------------------")
+    # ------------------- #
+    df0 <- data.table()
+    for (i in names(df)){
+        if (i %in% events){
+            if (i == events[1]){
+                temp <- c()
+                for (j in events){
+                    temp <- c(temp, unlist(df[,j,with=F],use.names=F))
+                }
+                df0[,'events'] <- temp
+            }
+            temp <- c()
+            for (j in events){
+                if (i==j){
+                    temp <- c(temp,rep(1,nrow(df)))
+                } else {
+                    temp <- c(temp,rep(0,nrow(df)))
+                }
+            }
+            df0[,i] <- temp
+        } else {
+            temp <- rep(unlist(df[,i,with=F],use.names=F),length(events))
+            df0[,i] <- temp
+        }
+    }
+    print("testing 2 ------------------------------------------------")
+    names <- c()
+    Term_n <- c()
+    tform <- c()
+    keep_constant <- c()
+    a_n <- c()
+
+    if ('shared' %in% names(name_list)){
+        names <- c(names, unlist(name_list['shared'],use.names=F))
+        Term_n <- c(Term_n, unlist(Term_n_list['shared'],use.names=F))
+        tform <- c(tform, unlist(tform_list['shared'],use.names=F))
+        keep_constant <- c(keep_constant, unlist(keep_constant_list['shared'],use.names=F))
+        a_n <- c(a_n, unlist(a_n_list['shared'],use.names=F))
+    }
+    print("testing 3 ------------------------------------------------")
+    for (i in events){
+        if (i %in% names(name_list)){
+            interactions <- c()
+            new_names <- c()
+            for (j in unlist(name_list[i],use.names=F)){
+                interactions <- c(interactions, paste(j,"?*?",i,sep=""))
+                new_names <- c(new_names, paste(j,"_",i,sep=""))
+            }
+            vals <- interact_them(df0, interactions, new_names)
+            df0 <- vals$df
+            new_names <- vals$cols
+            names <- c(names, new_names)
+            Term_n <- c(Term_n, unlist(Term_n_list[i],use.names=F))
+            tform <- c(tform, unlist(tform_list[i],use.names=F))
+            keep_constant <- c(keep_constant, unlist(keep_constant_list[i],use.names=F))
+            a_n <- c(a_n, unlist(a_n_list[i],use.names=F))
+        }
+    }
+    print("testing 4 ------------------------------------------------")
+    return (list('df'=df0,'names'=names,'Term_n'=Term_n,'tform'=tform,'keep_constant'=keep_constant,'a_n'=a_n))
+}
