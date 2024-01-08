@@ -1459,7 +1459,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
 #' Term_n_shared <- c(0,0)
 #' tform_e0 <- c("loglin")
 #' tform_e1 <- c("loglin")
-#' tform_shared <- c("quad_slope","loglin")
+#' tform_shared <- c("quad_slope","loglin_top")
 #' keep_constant_e0 <- c(0)
 #' keep_constant_e1 <- c(0)
 #' keep_constant_shared <- c(0,0)

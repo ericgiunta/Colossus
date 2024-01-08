@@ -244,6 +244,115 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
     return (e)
 }
 
+#' Approximates how many events were due to baseline vs excess risk
+#'
+#' \code{RunCoxEventAssignment} uses user provided data, time/event columns,
+#' vectors specifying the model, and options to control the convergence
+#' and starting position, calculates approximated background and excess events
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family {Cox Wrapper Functions}
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#'    'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
+#'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' 
+#' e <- RunCoxEventAssignment(df, time1, time2, event, names, Term_n, tform,
+#'                      keep_constant, a_n, modelform, fir, der_iden, control)
+#' @importFrom rlang .data
+
+RunCoxEventAssignment <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+    #
+    control <- Def_Control(control)
+    control$maxiters <- c(1, control$maxiter)
+    control$guesses <- 1
+
+    control <- Def_Control(control)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
+                                 names, der_iden, c(), c(),control$verbose)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
+    model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
+    if (min(keep_constant)>0){
+        message("Error: Atleast one parameter must be free")
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    data.table::setkeyv(df, c(time2, event0))
+    ce <- c(time1,time2,event0)
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+    if (length(tu)==0){
+        if (control$verbose){
+            message("Error: no events")
+        }
+        stop()
+    }
+    if (control$verbose){
+        message(paste("Note: ",length(tu)," risk groups",sep=""))
+    }
+    all_names <- unique(names)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+
+    e <- Assigned_Event_transition(matrix(c(0)),Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, model_control=list())
+    #
+    return (e)
+}
+
 #' Performs basic Cox Proportional Hazards calculation with no derivative
 #'
 #' \code{RunCoxRegression_Single} uses user provided data, time/event columns, vectors specifying the model, and options and returns the log-likelihood

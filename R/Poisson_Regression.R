@@ -304,6 +304,108 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
     return (e)
 }
 
+#' Predicts how many events are due to baseline vs excess
+#'
+#' \code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#'
+#' @inheritParams R_template
+#' @family {Poisson Wrapper Functions}
+#' @return returns a list of the final results
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1))
+#' # For the interval case
+#' df$pyr <- df$Ending_Age - df$Starting_Age
+#' pyr <- 'pyr'
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' a_n <- c(0.1, 0.1, 0.1, 0.1)
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
+#' 
+#' e <- Assigned_Event_transition(df, pyr, event, names, Term_n, tform, keep_constant,
+#'                           a_n, modelform, fir, der_iden, control)
+#' @export
+#'
+RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+    control <- Def_Control(control)
+    control$maxiters <- c(1,control$maxiter)
+    control$guesses <- 1
+    #
+    control <- Def_Control(control)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
+                                 names, der_iden, c(), c(),control$verbose)
+    Term_n <- val$Term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
+	df <- df[get(pyr0)>0,]
+    model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
+    if (min(keep_constant)>0){
+        message("Error: Atleast one parameter must be free")
+        stop()
+    }
+    if (sum(df[,event0, with = FALSE])==0){
+        if (control$verbose){
+            message("Error: no events")
+        }
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    df0 <- data.table::data.table("a"=c(0,0))
+    val <- list(cols=c("a"))
+    val_cols <- c("a")
+    #
+    data.table::setkeyv(df, c(pyr0, event0))
+    all_names <- unique(names)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    #
+    dfc <- match(names,all_names)
+
+    term_tot <- max(Term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    ce <- c(pyr0,event0)
+    #
+    a_ns <- c()
+    for (i in a_n){
+        a_ns <- c(a_ns, i)
+    }
+    #
+    e <- Assigned_Event_transition(as.matrix(df[,ce, with = FALSE]),Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, matrix(c()), c(), keep_constant, term_tot, model_control=list())
+    #
+    return (e)
+}
+
 #' Performs poisson regression with no derivative calculations
 #'
 #' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results

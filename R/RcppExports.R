@@ -621,6 +621,19 @@ Plot_Omnibus <- function(Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelfor
     .Call(`_Colossus_Plot_Omnibus`, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term)
 }
 
+#' Splits events into background and excess
+#'
+#' \code{Assign_Events} Calculates proportion of events due to background and excess
+#'
+#' @inheritParams CPP_template
+#'
+#' @return returns proportion of events due to background and excess for each term
+#' @noRd
+#'
+Assign_Events <- function(Term_n, tform, a_n, x_all, dfc, PyrC, df_groups, tu, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term) {
+    .Call(`_Colossus_Assign_Events`, Term_n, tform, a_n, x_all, dfc, PyrC, df_groups, tu, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term)
+}
+
 #' Interface between R code and the Cox PH omnibus regression function
 #'
 #' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
@@ -655,6 +668,18 @@ pois_Omnibus_transition <- function(dfe, Term_n, tform, a_ns, dfc, x_all, fir, d
 #' @family {Omnibus Plotting Functions}
 Plot_Omnibus_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control) {
     .Call(`_Colossus_Plot_Omnibus_transition`, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control)
+}
+
+#' Interface between R code and the event assignment omnibus function
+#'
+#' \code{Assigned_Event_transition} Called directly from R, Defines the control variables and calls the assigning functions
+#' @inheritParams CPP_template
+#'
+#' @return list of assigned/predicted background/excess events
+#' @noRd
+#' @family {Omnibus Plotting Functions}
+Assigned_Event_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, model_control) {
+    .Call(`_Colossus_Assigned_Event_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, model_control)
 }
 
 #' Generates csv file with time-dependent columns

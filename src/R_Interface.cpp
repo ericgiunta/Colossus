@@ -183,6 +183,37 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
     return res;
 }
 
+//' Interface between R code and the event assignment omnibus function
+//'
+//' \code{Assigned_Event_transition} Called directly from R, Defines the control variables and calls the assigning functions
+//' @inheritParams CPP_template
+//'
+//' @return list of assigned/predicted background/excess events
+//' @noRd
+//' @family {Omnibus Plotting Functions}
+// [[Rcpp::export]]
+List Assigned_Event_transition(NumericMatrix dfe,IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, List model_control){
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["Ncores"];
+    //
+	double cens_thres = Control["cens_thres"];
+	double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
+	//
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    //
+    // Performs regression
+    List res;
+    //----------------------------------------------------------------------------------------------------------------//
+    res = Assign_Events( Term_n, tform, a_n, x_all, dfc, PyrC, df_groups,  tu, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 //' Generates csv file with time-dependent columns
 //'
 //' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
