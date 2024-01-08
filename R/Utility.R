@@ -1429,6 +1429,12 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
 #' \code{Joint_Multiple_Events} generates input for a regression with multiple non-independent events and models
 #'
 #' @inheritParams R_template
+#' @param events vector of event column names
+#' @param Term_n_list list of vectors for term numbers for event specific or shared model elements, defaults to term 0
+#' @param tform_list list of vectors for subterm types for event specific or shared model elements, defaults to loglinear
+#' @param keep_constant_list list of vectors for constant elements for event specific or shared model elements, defaults to free (0)
+#' @param a_n_list list of vectors for parameter values for event specific or shared model elements, defaults to term 0
+#' @param name_list list of vectors for columns for event specific or shared model elements, required
 #' @family {Data Cleaning Functions}
 #' @return returns the updated dataframe and model inputs
 #' @export
@@ -1465,12 +1471,11 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
 #' tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
 #' keep_constant_list <- list('shared'=keep_constant_shared,'e0'=keep_constant_e0,'e1'=keep_constant_e1)
 #' a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
-#' val <- Joint_Multiple_Events(df, events, Term_n_list, tform_list, keep_constant_list, a_n_list)
+#' val <- Joint_Multiple_Events(df, events, name_list, Term_n_list, tform_list, keep_constant_list, a_n_list)
 #'
 Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list()){
     # ------------------- #
     # filling missing values
-    print("testing 0 ------------------------------------------------")
     for (i in names(name_list)){
         temp0 <- unlist(name_list[i],use.names=F)
         if (i %in% names(Term_n_list)){
@@ -1511,11 +1516,9 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
                 stop()
             }
         } else {
-            print(names(a_n_list))
             a_n_list[i] <- rep(0,length(temp0))
         }
     }
-    print("testing 1 ------------------------------------------------")
     # ------------------- #
     df0 <- data.table()
     for (i in names(df)){
@@ -1541,7 +1544,6 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
             df0[,i] <- temp
         }
     }
-    print("testing 2 ------------------------------------------------")
     names <- c()
     Term_n <- c()
     tform <- c()
@@ -1555,7 +1557,6 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
         keep_constant <- c(keep_constant, unlist(keep_constant_list['shared'],use.names=F))
         a_n <- c(a_n, unlist(a_n_list['shared'],use.names=F))
     }
-    print("testing 3 ------------------------------------------------")
     for (i in events){
         if (i %in% names(name_list)){
             interactions <- c()
@@ -1574,6 +1575,5 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
             a_n <- c(a_n, unlist(a_n_list[i],use.names=F))
         }
     }
-    print("testing 4 ------------------------------------------------")
     return (list('df'=df0,'names'=names,'Term_n'=Term_n,'tform'=tform,'keep_constant'=keep_constant,'a_n'=a_n))
 }
