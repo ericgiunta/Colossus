@@ -221,7 +221,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' name_list <- list('shared'=names_shared,'e0'=names_e0,'e1'=names_e1)
 #' Term_n_list <- list('shared'=Term_n_shared,'e0'=Term_n_e0,'e1'=Term_n_e1)
 #' tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
-#' keep_constant_list <- list('shared'=keep_constant_shared,'e0'=keep_constant_e0,'e1'=keep_constant_e1)
+#' keep_constant_list <- list('shared'=keep_constant_shared,
+#'                            'e0'=keep_constant_e0,'e1'=keep_constant_e1)
 #' a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
 #' 
 #' der_iden <- 0
@@ -234,7 +235,9 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
 #'      strata=FALSE)
 #' Strat_Col <- 'f'
-#' e <- RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, Term_n_list, tform_list, keep_constant_list, a_n_list, modelform, fir, der_iden, control,Strat_Col)
+#' e <- RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, Term_n_list,
+#'                                         tform_list, keep_constant_list, a_n_list,
+#'                                         modelform, fir, der_iden, control,Strat_Col)
 #' 
 #' @importFrom rlang .data
 RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, Term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list(), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){

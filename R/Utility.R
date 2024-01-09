@@ -1469,9 +1469,11 @@ Time_Since <- function(df, dcol0, tref, col_name, units="days"){
 #' name_list <- list('shared'=names_shared,'e0'=names_e0,'e1'=names_e1)
 #' Term_n_list <- list('shared'=Term_n_shared,'e0'=Term_n_e0,'e1'=Term_n_e1)
 #' tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
-#' keep_constant_list <- list('shared'=keep_constant_shared,'e0'=keep_constant_e0,'e1'=keep_constant_e1)
+#' keep_constant_list <- list('shared'=keep_constant_shared,
+#'                            'e0'=keep_constant_e0,'e1'=keep_constant_e1)
 #' a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
-#' val <- Joint_Multiple_Events(df, events, name_list, Term_n_list, tform_list, keep_constant_list, a_n_list)
+#' val <- Joint_Multiple_Events(df, events, name_list, Term_n_list,
+#'                              tform_list, keep_constant_list, a_n_list)
 #'
 Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list()){
     # ------------------- #

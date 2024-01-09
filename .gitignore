@@ -13,3 +13,8 @@ Colossus/src/Calc_Repeated.o
 *.o
 /doc/
 /Meta/
+*.Rd
+out.txt
+src/Colossus.dll
+src/Makevars
+src/Makevars.win
