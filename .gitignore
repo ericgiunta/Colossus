@@ -1,6 +1,7 @@
 inst/doc
 doc/*
 man/*
+man/*.Rd
 Meta/
 src/Makevars
 src/*.o

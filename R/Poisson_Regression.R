@@ -341,7 +341,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
 #' 
-#' e <- Assigned_Event_transition(df, pyr, event, names, Term_n, tform, keep_constant,
+#' e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant,
 #'                           a_n, modelform, fir, der_iden, control)
 #' @export
 #'
@@ -352,7 +352,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
     #
     control <- Def_Control(control)
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
-                                 names, der_iden, c(), c(),control$verbose)
+                                 names, der_iden, as.matrix(c(0)), c(0),control$verbose)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -360,7 +360,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
     der_iden <- val$der_iden
     names <- val$names
 	df <- df[get(pyr0)>0,]
-    model_control <- Def_model_control(model_control)
+    model_control <- Def_model_control(list())
     val <- Def_modelform_fix(control,model_control,modelform,Term_n)
     modelform <- val$modelform
     model_control <- val$model_control
@@ -401,7 +401,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
         a_ns <- c(a_ns, i)
     }
     #
-    e <- Assigned_Event_transition(as.matrix(df[,ce, with = FALSE]),Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, matrix(c()), c(), keep_constant, term_tot, model_control=list())
+    e <- Assigned_Event_transition(as.matrix(df[,ce, with = FALSE]),Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, matrix(c(0)), c(0), keep_constant, term_tot, model_control)
     #
     return (e)
 }

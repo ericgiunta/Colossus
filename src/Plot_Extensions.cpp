@@ -579,7 +579,7 @@ List Assign_Events( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     int ntime = tu.size();
     vector<double> caused(2,0.0);
     vector<double> predict(2,0.0);
-    if (ntime>0){
+    if (PyrC.cols()==1){
         //
         // Iterates through the risk groups and approximates the baseline
         //

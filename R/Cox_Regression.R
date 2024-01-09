@@ -298,14 +298,14 @@ RunCoxEventAssignment <- function(df, time1, time2, event0, names, Term_n, tform
 
     control <- Def_Control(control)
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
-                                 names, der_iden, c(), c(),control$verbose)
+                                 names, der_iden, as.matrix(c(0)), c(0),control$verbose)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    model_control <- Def_model_control(model_control)
+    model_control <- Def_model_control(list())
     val <- Def_modelform_fix(control,model_control,modelform,Term_n)
     modelform <- val$modelform
     model_control <- val$model_control
@@ -347,8 +347,7 @@ RunCoxEventAssignment <- function(df, time1, time2, event0, names, Term_n, tform
     df <- t_check$df
     ce <- t_check$ce
     #
-
-    e <- Assigned_Event_transition(matrix(c(0)),Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, model_control=list())
+    e <- Assigned_Event_transition(matrix(c(0)),Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot, model_control)
     #
     return (e)
 }
