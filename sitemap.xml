@@ -67,6 +67,9 @@
     <loc>/reference/GetCensWeight.html</loc>
   </url>
   <url>
+    <loc>/reference/Joint_Multiple_Events.html</loc>
+  </url>
+  <url>
     <loc>/reference/Likelihood_Ratio_Test.html</loc>
   </url>
   <url>
@@ -77,6 +80,9 @@
   </url>
   <url>
     <loc>/reference/Replace_Missing.html</loc>
+  </url>
+  <url>
+    <loc>/reference/RunCoxEventAssignment.html</loc>
   </url>
   <url>
     <loc>/reference/RunCoxNull.html</loc>
@@ -109,10 +115,16 @@
     <loc>/reference/RunCoxRegression_Tier_Guesses.html</loc>
   </url>
   <url>
+    <loc>/reference/RunPoissonEventAssignment.html</loc>
+  </url>
+  <url>
     <loc>/reference/RunPoissonRegression.html</loc>
   </url>
   <url>
     <loc>/reference/RunPoissonRegression_Guesses_CPP.html</loc>
+  </url>
+  <url>
+    <loc>/reference/RunPoissonRegression_Joint_Omnibus.html</loc>
   </url>
   <url>
     <loc>/reference/RunPoissonRegression_Omnibus.html</loc>
