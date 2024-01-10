@@ -16,3 +16,5 @@ out.txt
 src/Colossus.dll
 src/Makevars
 src/Makevars.win
+R/RcppExports.R
+src/RcppExports.cpp

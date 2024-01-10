@@ -349,26 +349,26 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     tt <- c()
     tsurv <- c()
     categ <- c()
-    for (col_u in uniq){
+    
+    if (verbose){
+        message(paste("Note: Starting Stratification: Calculation"))
+    }
+    model_control$Surv <- TRUE
+    model_control$strata <- TRUE
+    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden,
+                                 modelform, control, as.matrix(df[,ce, with = FALSE]),
+                                 tu, keep_constant, term_tot, uniq, c(0), model_control)
+	for (col_i in 1:length(uniq)){
         if (verbose){
-            message(paste("Note: Starting Stratification: ",col_u))
+            message(paste("Note: Starting Stratification calculation ",col_i))
         }
-        df0 <- df[get(Strat_Col)==col_u,]
-        dfend <- df0[get(event0)==1, ]
-        x_all <- as.matrix(df0[,all_names, with = FALSE])
-        tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
-        #
-        model_control$Surv <- TRUE
-        model_control$strata <- FALSE
-        e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden,
-                                     modelform, control, as.matrix(df0[,ce, with = FALSE]),
-                                     tu, keep_constant, term_tot, c(0), c(0), model_control)
-        #
+        col_u <- uniq[col_i]
+#        #
         t <- c()
         h <- c()
         ch <- c()
         surv <- c()
-        dft<- data.table::data.table("time"=tu,"base"=e$baseline)
+        dft<- data.table::data.table("time"=tu,"base"=e$baseline[,col_i])
         for (i in tu){
             if ((i<=time_lims[2])&&(i>=time_lims[1])){
                 t <- c(t,i)

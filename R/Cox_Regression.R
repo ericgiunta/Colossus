@@ -858,47 +858,57 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             message("Note: starting ph_plot")
         }
         #
-        model_control$Surv <- TRUE
-        e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir,
-                                     der_iden, modelform, control,
-                                     as.matrix(df[,ce, with = FALSE]),tu,
-                                     keep_constant, term_tot, c(0), c(0),
-                                     model_control)
-        #
-        t <- c()
-        h <- c()
-        ch <- c()
-        surv <- c()
-        if (verbose){
-            message("Note: writing survival data")
-        }
-        dft <- data.table::data.table("time"=tu,"base"=e$baseline,
-                          "basehaz"=e$standard_error)
-        for (i in tu){
-            t <- c(t,i)
-            temp <- sum(dft[time<i, base])
-            ch <- c(ch, temp)
-            if (length(h)==0){
-                h <- c(temp)
-            } else {
-                h <- c(h, ch[length(ch)]-ch[length(ch)-1])
+        if (plot_options$strat_haz==FALSE){
+        	if (verbose){
+		        message("Note: nonStratified survival curve calculation")
+		    }
+		    model_control$Surv <- TRUE
+		    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir,
+		                                 der_iden, modelform, control,
+		                                 as.matrix(df[,ce, with = FALSE]),tu,
+		                                 keep_constant, term_tot, c(0), c(0),
+		                                 model_control)
+		    #
+		    t <- c()
+		    h <- c()
+		    ch <- c()
+		    surv <- c()
+		    if (verbose){
+		        message("Note: writing survival data")
+		    }
+		    dft <- data.table::data.table("time"=tu,"base"=e$baseline,
+		                      "basehaz"=e$standard_error)
+		    for (i in tu){
+		        t <- c(t,i)
+		        temp <- sum(dft[time<i, base])
+		        ch <- c(ch, temp)
+		        if (length(h)==0){
+		            h <- c(temp)
+		        } else {
+		            h <- c(h, ch[length(ch)]-ch[length(ch)-1])
+		        }
+		        surv <- c(surv, exp(-1*temp))
+		    }
+		    #
+		    age_unit <- plot_options$age_unit
+		    if (plot_options$Martingale==TRUE){
+		        #
+		        CoxMartingale(verbose, df, time1, time2, event0, e, t, ch,
+		                      plot_options$cov_cols,
+		                      Plot_Type[2], age_unit,plot_options$studyID)
+		        #
+		    }
+		    if (plot_options$surv_curv==TRUE){
+		        CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,
+		                    plot_options$time_lims, age_unit)
             }
-            surv <- c(surv, exp(-1*temp))
-        }
-        #
-        age_unit <- plot_options$age_unit
-        if (plot_options$Martingale==TRUE){
-            #
-            CoxMartingale(verbose, df, time1, time2, event0, e, t, ch,
-                          plot_options$cov_cols,
-                          Plot_Type[2], age_unit,plot_options$studyID)
-            #
-        }
-        if (plot_options$surv_curv==TRUE){
-            CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,
-                        plot_options$time_lims, age_unit)
-            if (plot_options$strat_haz==TRUE){
-                model_control$strata <- FALSE
+        } else {
+        	age_unit <- plot_options$age_unit
+        	if (verbose){
+		        message("Note: Stratified survival curve calculation")
+		    }
+            if (plot_options$surv_curv==TRUE){
+                model_control$strata <- TRUE
                 CoxStratifiedSurvival(verbose, df, event0, time1, time2,
                      all_names,Term_n, tform, a_n, er, fir, der_iden,
                      modelform, control, keep_constant, Plot_Type,
