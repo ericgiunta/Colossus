@@ -1,7 +1,5 @@
 inst/doc
 doc/*
-man/*
-man/*.Rd
 Meta/
 src/*.o
 src/*.so
@@ -11,10 +9,5 @@ src/*.so
 *.o
 /doc/
 /Meta/
-*.Rd
 out.txt
 src/Colossus.dll
-src/Makevars
-src/Makevars.win
-R/RcppExports.R
-src/RcppExports.cpp
