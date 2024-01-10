@@ -3,13 +3,11 @@ doc/*
 man/*
 man/*.Rd
 Meta/
-src/Makevars
 src/*.o
 src/*.so
 *.r
 *.Rcheck
 .Rproj.user/
-Colossus/src/Calc_Repeated.o
 *.o
 /doc/
 /Meta/

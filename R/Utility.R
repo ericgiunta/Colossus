@@ -1488,7 +1488,9 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
                 stop()
             }
         } else {
-            Term_n_list[i] <- rep(0,length(temp0))
+        	temp <- list(rep(0,length(temp0)))
+        	names(temp) <- i
+            Term_n_list <- c(Term_n_list,temp)
         }
         if (i %in% names(tform_list)){
             temp1 <- unlist(tform_list[i],use.names=F)
@@ -1498,7 +1500,9 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
                 stop()
             }
         } else {
-            tform_list[i] <- rep('loglin',length(temp0))
+        	temp <- list(rep('loglin',length(temp0)))
+        	names(temp) <- i
+            tform_list <-  c(tform_list,temp)
         }
         if (i %in% names(keep_constant_list)){
             temp1 <- unlist(keep_constant_list[i],use.names=F)
@@ -1508,7 +1512,9 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
                 stop()
             }
         } else {
-            keep_constant_list[i] <- rep(0,length(temp0))
+        	temp <- list(rep(0,length(temp0)))
+        	names(temp) <- i
+            keep_constant_list <-  c(keep_constant_list,temp)
         }
         if (i %in% names(a_n_list)){
             temp1 <- unlist(a_n_list[i],use.names=F)
@@ -1518,7 +1524,9 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
                 stop()
             }
         } else {
-            a_n_list[i] <- rep(0,length(temp0))
+        	temp <- list(rep(0,length(temp0)))
+        	names(temp) <- i
+            a_n_list <-  c(a_n_list,temp)
         }
     }
     # ------------------- #
