@@ -4,8 +4,9 @@ pkgdown_sha: ~
 articles:
   Alt_Distrib_Starts: Alt_Distrib_Starts.html
   Alt_Run_opt: Alt_Run_opt.html
+  Plotting_And_Analysis: Plotting_And_Analysis.html
   Time_Dep_Cov: Time_Dep_Cov.html
   dose_formula_inputs: dose_formula_inputs.html
   starting-description: starting-description.html
-last_built: 2024-01-10T19:27Z
+last_built: 2024-01-12T19:45Z
 

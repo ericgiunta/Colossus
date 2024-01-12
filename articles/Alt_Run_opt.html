@@ -43,6 +43,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed_Start_Framework</a>
     <a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative_Regression_Options</a>
+    <a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for plotting and analysis</a>
     <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time_Dependent_Covariate_Use</a>
     <a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose_Response_Formula_Terms</a>
     <a class="dropdown-item" href="../articles/starting-description.html">Colossus_Description</a>
@@ -271,6 +272,9 @@ user’s convenience.</p>
 <div class="section level2">
 <h2 id="competing-risks">Competing Risks<a class="anchor" aria-label="anchor" href="#competing-risks"></a>
 </h2>
+<div class="section level3">
+<h3 id="grey-fine">Grey-Fine<a class="anchor" aria-label="anchor" href="#grey-fine"></a>
+</h3>
 <p>In Cox PH there is an assumption that every individual is recorded
 until they have an event or they are naturally censored, and the same
 censoring rates are assumed to apply to every individual. These are
@@ -350,6 +354,263 @@ which individuals have events and which are censored.</p>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_CR.html">RunCoxRegression_CR</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
 <span>                         <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>,<span class="va">cens_weight</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="poisson-joint-analysis">Poisson Joint Analysis<a class="anchor" aria-label="anchor" href="#poisson-joint-analysis"></a>
+</h3>
+<p>For a dataset with multiple outcomes there are often two ways that
+poisson models are fit. Either multiple independent models are fit or
+the events are combined and one model is fit to several events. These
+methods limit models to be completely independent or identical. The true
+model may be a combination of shared terms and terms specific to each
+event, which cannot be modeled with these methods. To fit this type of
+model a joint analysis method [1] is available in Colossus.</p>
+<p>Suppose one has a table of person-years, a covariate, and counts for
+two events. Assume we are fitting the event rate (<span class="math inline">\(\lambda\)</span>) for each event and have reason
+to believe that the background rate (<span class="math inline">\(\beta\)</span>) is the same for each event.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="center">Time</th>
+<th align="center">a</th>
+<th align="center">y</th>
+<th align="center">z</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center"><span class="math inline">\(t_1\)</span></td>
+<td align="center"><span class="math inline">\(a_1\)</span></td>
+<td align="center"><span class="math inline">\(y_1\)</span></td>
+<td align="center"><span class="math inline">\(z_1\)</span></td>
+</tr>
+<tr class="even">
+<td align="center"><span class="math inline">\(t_2\)</span></td>
+<td align="center"><span class="math inline">\(a_2\)</span></td>
+<td align="center"><span class="math inline">\(y_2\)</span></td>
+<td align="center"><span class="math inline">\(z_2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p class="text-center" style="background-color: aliceblue">
+<span class="math display">\[
+\begin{aligned}
+    \lambda_y(a) = \beta*\exp{(\mu_y*a)}\\
+    \lambda_z(a) = \beta*\exp{(\mu_z*a)}
+\end{aligned}
+\]</span>
+</p>
+<p>If one were to solve the equations seperately the table would be
+split into two tables, each with one event column. The premise of a
+joint analysis is to write a model that can be applied to every event,
+including a factor covariate to select which event is being solved for.
+Then the split tables can be recombined and multiple events can be
+solved at once allowing for shared and event-specific parameters.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="center">Time</th>
+<th align="center">a</th>
+<th align="center"><span class="math inline">\(\alpha_y\)</span></th>
+<th align="center"><span class="math inline">\(\alpha_z\)</span></th>
+<th align="center">events</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center"><span class="math inline">\(t_1\)</span></td>
+<td align="center"><span class="math inline">\(a_1\)</span></td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center"><span class="math inline">\(y_1\)</span></td>
+</tr>
+<tr class="even">
+<td align="center"><span class="math inline">\(t_1\)</span></td>
+<td align="center"><span class="math inline">\(a_1\)</span></td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center"><span class="math inline">\(z_1\)</span></td>
+</tr>
+<tr class="odd">
+<td align="center"><span class="math inline">\(t_2\)</span></td>
+<td align="center"><span class="math inline">\(a_2\)</span></td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center"><span class="math inline">\(y_2\)</span></td>
+</tr>
+<tr class="even">
+<td align="center"><span class="math inline">\(t_2\)</span></td>
+<td align="center"><span class="math inline">\(a_2\)</span></td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center"><span class="math inline">\(z_2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p class="text-center" style="background-color: aliceblue">
+<span class="math display">\[
+\begin{aligned}
+    \lambda(a,\alpha_y,\alpha_z) = \beta*\exp{(\mu_y*(a*\alpha_y) +
+\mu_z*(a*\alpha_z))}
+\end{aligned}
+\]</span>
+</p>
+<p>Colossus includes several functions which apply this method, a
+function that produces input for a joint analysis regression and
+functions which additionally run the regressions. The most general
+converts a table and lists of model parameters into the input for a
+regression.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="st">'t0'</span><span class="op">=</span><span class="va">a</span>,<span class="st">'t1'</span><span class="op">=</span><span class="va">b</span>,<span class="st">'e0'</span><span class="op">=</span><span class="va">c</span>,<span class="st">'e1'</span><span class="op">=</span><span class="va">d</span>,<span class="st">'fac'</span><span class="op">=</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"t0"</span></span>
+<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"t1"</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">t1</span> <span class="op">-</span> <span class="va">df</span><span class="op">$</span><span class="va">t0</span></span>
+<span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="st">"pyr"</span></span>
+<span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'e0'</span>,<span class="st">'e1'</span><span class="op">)</span></span></code></pre></div>
+<p>Colossus generally accepts a series of vectors to describe the
+elements of model. For a joint analysis, Colossus instead expects lists.
+Each list is expected to contain vectors for shared elements and
+elements specific to each event. Colossus expects the list names to be
+either “shared” or the event column names.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">names_e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'fac'</span><span class="op">)</span></span>
+<span><span class="va">names_e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'fac'</span><span class="op">)</span></span>
+<span><span class="va">names_shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'t0'</span>,<span class="st">'t0'</span><span class="op">)</span></span>
+<span><span class="va">Term_n_e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">Term_n_e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">Term_n_shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">tform_e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span><span class="op">)</span></span>
+<span><span class="va">tform_e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span><span class="op">)</span></span>
+<span><span class="va">tform_shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quad_slope"</span>,<span class="st">"loglin_top"</span><span class="op">)</span></span>
+<span><span class="va">keep_constant_e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">keep_constant_e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">keep_constant_shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">a_n_e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">a_n_e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">a_n_shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="op">-</span><span class="fl">0.02</span><span class="op">)</span></span>
+<span><span class="va">name_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'shared'</span><span class="op">=</span><span class="va">names_shared</span>,<span class="st">'e0'</span><span class="op">=</span><span class="va">names_e0</span>,<span class="st">'e1'</span><span class="op">=</span><span class="va">names_e1</span><span class="op">)</span></span>
+<span><span class="va">Term_n_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'shared'</span><span class="op">=</span><span class="va">Term_n_shared</span>,<span class="st">'e0'</span><span class="op">=</span><span class="va">Term_n_e0</span>,<span class="st">'e1'</span><span class="op">=</span><span class="va">Term_n_e1</span><span class="op">)</span></span>
+<span><span class="va">tform_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'shared'</span><span class="op">=</span><span class="va">tform_shared</span>,<span class="st">'e0'</span><span class="op">=</span><span class="va">tform_e0</span>,<span class="st">'e1'</span><span class="op">=</span><span class="va">tform_e1</span><span class="op">)</span></span>
+<span><span class="va">keep_constant_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'shared'</span><span class="op">=</span><span class="va">keep_constant_shared</span>,</span>
+<span>                           <span class="st">'e0'</span><span class="op">=</span><span class="va">keep_constant_e0</span>,<span class="st">'e1'</span><span class="op">=</span><span class="va">keep_constant_e1</span><span class="op">)</span></span>
+<span><span class="va">a_n_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'shared'</span><span class="op">=</span><span class="va">a_n_shared</span>,<span class="st">'e0'</span><span class="op">=</span><span class="va">a_n_e0</span>,<span class="st">'e1'</span><span class="op">=</span><span class="va">a_n_e1</span><span class="op">)</span></span></code></pre></div>
+<p>The function returns a list which contains the conbined table and
+vectors.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/Joint_Multiple_Events.html">Joint_Multiple_Events</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">events</span>, <span class="va">name_list</span>, <span class="va">Term_n_list</span>,</span>
+<span>                      <span class="va">tform_list</span>, <span class="va">keep_constant_list</span>, <span class="va">a_n_list</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $df</span></span>
+<span><span class="co">#&gt;     t0 t1 events e0 e1 fac pyr fac_e0 fac_e1</span></span>
+<span><span class="co">#&gt;  1:  0  1      0  1  0   0   1      0      0</span></span>
+<span><span class="co">#&gt;  2:  0  1      1  1  0   1   1      1      0</span></span>
+<span><span class="co">#&gt;  3:  0  1      2  1  0   1   1      1      0</span></span>
+<span><span class="co">#&gt;  4:  1  2      2  1  0   1   1      1      0</span></span>
+<span><span class="co">#&gt;  5:  1  2      1  1  0   0   1      0      0</span></span>
+<span><span class="co">#&gt;  6:  1  2      0  1  0   0   1      0      0</span></span>
+<span><span class="co">#&gt;  7:  0  1      1  0  1   0   1      0      0</span></span>
+<span><span class="co">#&gt;  8:  0  1      1  0  1   1   1      0      1</span></span>
+<span><span class="co">#&gt;  9:  0  1      0  0  1   1   1      0      1</span></span>
+<span><span class="co">#&gt; 10:  1  2      0  0  1   1   1      0      1</span></span>
+<span><span class="co">#&gt; 11:  1  2      1  0  1   0   1      0      0</span></span>
+<span><span class="co">#&gt; 12:  1  2      1  0  1   0   1      0      0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $names</span></span>
+<span><span class="co">#&gt; [1] "t0"     "t0"     "fac_e0" "fac_e1"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Term_n</span></span>
+<span><span class="co">#&gt; [1] 0 0 0 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $tform</span></span>
+<span><span class="co">#&gt; [1] "quad_slope" "loglin_top" "loglin"     "loglin"    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $keep_constant</span></span>
+<span><span class="co">#&gt; [1] 0 0 0 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $a_n</span></span>
+<span><span class="co">#&gt; [1]  0.001 -0.020 -0.100  0.100</span></span></code></pre></div>
+<p>These results could be then used as input for any of the avaliable
+regression functions. Colossus also includes a wrapper functions to
+directly call the poisson regression function. This method could applied
+to a Cox model assuming every event has the same baseline hazard.
+However this is not the intended use, so a wrapper function was not
+included.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
+<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">10</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span>
+<span>   <span class="st">'dbeta_max'</span> <span class="op">=</span> <span class="fl">0.5</span>,<span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>, <span class="st">'abs_max'</span><span class="op">=</span><span class="fl">1.0</span>,<span class="st">'change_all'</span><span class="op">=</span><span class="cn">TRUE</span>,</span>
+<span>   <span class="st">'dose_abs_max'</span><span class="op">=</span><span class="fl">100.0</span>,<span class="st">'verbose'</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="st">'ties'</span><span class="op">=</span><span class="st">'breslow'</span>,<span class="st">'double_step'</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">guesses_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"maxiter"</span><span class="op">=</span><span class="fl">10</span>,<span class="st">"guesses"</span><span class="op">=</span><span class="fl">10</span>,<span class="st">"lin_min"</span><span class="op">=</span><span class="fl">0.001</span>,<span class="st">"lin_max"</span><span class="op">=</span><span class="fl">1</span>,</span>
+<span>    <span class="st">"loglin_min"</span><span class="op">=</span><span class="op">-</span><span class="fl">1</span>,<span class="st">"loglin_max"</span><span class="op">=</span><span class="fl">1</span>, <span class="st">"lin_method"</span><span class="op">=</span><span class="st">"uniform"</span>,<span class="st">"loglin_method"</span><span class="op">=</span><span class="st">"uniform"</span>,</span>
+<span>     strata<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">'f'</span></span>
+<span><span class="fu"><a href="../reference/RunPoissonRegression_Joint_Omnibus.html">RunPoissonRegression_Joint_Omnibus</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">pyr</span>, <span class="va">events</span>, <span class="va">name_list</span>, <span class="va">Term_n_list</span>,</span>
+<span>                                        <span class="va">tform_list</span>, <span class="va">keep_constant_list</span>, <span class="va">a_n_list</span>,</span>
+<span>                                        <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>,<span class="va">Strat_Col</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $LogLik</span></span>
+<span><span class="co">#&gt; [1] -10.44542</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $First_Der</span></span>
+<span><span class="co">#&gt; [1]  0.0002673781 -0.0001428182  0.0004757472  0.0004853580</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Second_Der</span></span>
+<span><span class="co">#&gt;           [,1]      [,2]      [,3]      [,4]</span></span>
+<span><span class="co">#&gt; [1,] -4.999733  0.000000 -2.404049 -2.452614</span></span>
+<span><span class="co">#&gt; [2,]  0.000000 -1.000143  0.000000  0.000000</span></span>
+<span><span class="co">#&gt; [3,] -2.404049  0.000000 -7.223837 -7.370253</span></span>
+<span><span class="co">#&gt; [4,] -2.452614  0.000000 -7.370253 -7.519142</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $beta_0</span></span>
+<span><span class="co">#&gt; [1]  0.5742600 -1.0349816 -0.0200000 -0.1647421</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Standard_Deviation</span></span>
+<span><span class="co">#&gt; [1] 0.4879656 0.9999286       NaN       NaN</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $AIC</span></span>
+<span><span class="co">#&gt; [1] 14.43602</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $BIC</span></span>
+<span><span class="co">#&gt; [1] 30.83046</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Deviation</span></span>
+<span><span class="co">#&gt; [1] 6.436015</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Parameter_Lists</span></span>
+<span><span class="co">#&gt; $Parameter_Lists$Term_n</span></span>
+<span><span class="co">#&gt; [1] 0 0 0 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Parameter_Lists$tforms</span></span>
+<span><span class="co">#&gt; [1] "loglin"     "loglin"     "loglin_top" "quad_slope"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Parameter_Lists$names</span></span>
+<span><span class="co">#&gt; [1] "fac_e0" "fac_e1" "t0"     "t0"    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Control_List</span></span>
+<span><span class="co">#&gt; $Control_List$Iteration</span></span>
+<span><span class="co">#&gt; [1] 9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Control_List$`Maximum Step`</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Control_List$`Derivative Limiting`</span></span>
+<span><span class="co">#&gt; [1] 0.000485358</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Converged</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>[1] John Cologne, Jaeyoung Kim, Hiromi Sugiyama, Benjamin French,
+Harry M. Cullings, Dale L. Preston, Kiyohiko Mabuchi, and Kotaro Ozasa
+“Effect of Heterogeneity in Background Incidence on Inference about the
+Solid-Cancer Radiation Dose Response in Atomic Bomb Survivors,”
+Radiation Research 192(4), 388-398, (29 July 2019). <a href="https://doi.org/10.1667/RR15127.1" class="external-link uri">https://doi.org/10.1667/RR15127.1</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
