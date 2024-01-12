@@ -116,6 +116,8 @@ e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform,
 
 ## Competing Risks
 
+### Grey-Fine
+
 In Cox PH there is an assumption that every individual is recorded until they have an event or they are naturally censored, and the same censoring rates are assumed to apply to every individual. These are violated when there is a competing event occurring. In sensitivity analysis there are two extremes that can be tested. Either every person with a competing event is treated as having the event of interest instead, or they are assumed to never experience the event of interest. However there are methods to find a more realistic alternative. Colossus applies the Fine-Gray model for competing risks, which instead weights the contribution of competing event intervals in future intervals by the probability they wouldn't have been censored.
 
 As previously established, the risk groups are formed to measure the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time:
@@ -172,14 +174,111 @@ e <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform, keep_con
                          a_n, modelform, fir, der_iden, control,cens_weight)
 ```
 
+### Poisson Joint Analysis
+
+For a dataset with multiple outcomes there are often two ways that poisson models are fit. Either multiple independent models are fit or the events are combined and one model is fit to several events. These methods limit models to be completely independent or identical. The true model may be a combination of shared terms and terms specific to each event, which cannot be modeled with these methods. To fit this type of model a joint analysis method [1] is available in Colossus.
+
+Suppose one has a table of person-years, a covariate, and counts for two events. Assume we are fitting the event rate ($\lambda$) for each event and have reason to believe that the background rate ($\beta$) is the same for each event.
+
+ | Time | a | y | z |
+ | :--: | :--: | :--: | :--: |
+ | $t_1$  | $a_1$ | $y_1$ | $z_1$ |
+ | $t_2$  | $a_2$ | $y_2$ | $z_2$ |
 
 
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \lambda_y(a) = \beta*\exp{(\mu_y*a)}\\
+    \lambda_z(a) = \beta*\exp{(\mu_z*a)}
+\end{aligned}
+$$
+</p>
+
+If one were to solve the equations seperately the table would be split into two tables, each with one event column. The premise of a joint analysis is to write a model that can be applied to every event, including a factor covariate to select which event is being solved for. Then the split tables can be recombined and multiple events can be solved at once allowing for shared and event-specific parameters.
+
+ | Time | a | $\alpha_y$ | $\alpha_z$ | events |
+ | :--: | :--: | :--: | :--: | :--: |
+ | $t_1$  | $a_1$ | 1 | 0 | $y_1$ |
+ | $t_1$  | $a_1$ | 0 | 1 | $z_1$ |
+ | $t_2$  | $a_2$ | 1 | 0 | $y_2$ |
+ | $t_2$  | $a_2$ | 0 | 1 | $z_2$ |
 
 
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \lambda(a,\alpha_y,\alpha_z) = \beta*\exp{(\mu_y*(a*\alpha_y) + \mu_z*(a*\alpha_z))}
+\end{aligned}
+$$
+</p>
 
+Colossus includes several functions which apply this method, a function that produces input for a joint analysis regression and functions which additionally run the regressions. The most general converts a table and lists of model parameters into the input for a regression.
 
+```{r, eval=TRUE}
+a <- c(0,0,0,1,1,1)
+b <- c(1,1,1,2,2,2)
+c <- c(0,1,2,2,1,0)
+d <- c(1,1,0,0,1,1)
+e <- c(0,1,1,1,0,0)
+df <- data.table('t0'=a,'t1'=b,'e0'=c,'e1'=d,'fac'=e)
+time1 <- "t0"
+time2 <- "t1"
+df$pyr <- df$t1 - df$t0
+pyr <- "pyr"
+events <- c('e0','e1')
+```
+Colossus generally accepts a series of vectors to describe the elements of model. For a joint analysis, Colossus instead expects lists. Each list is expected to contain vectors for shared elements and elements specific to each event. Colossus expects the list names to be either "shared" or the event column names.
 
+```{r, eval=TRUE}
+names_e0 <- c('fac')
+names_e1 <- c('fac')
+names_shared <- c('t0','t0')
+Term_n_e0 <- c(0)
+Term_n_e1 <- c(0)
+Term_n_shared <- c(0,0)
+tform_e0 <- c("loglin")
+tform_e1 <- c("loglin")
+tform_shared <- c("quad_slope","loglin_top")
+keep_constant_e0 <- c(0)
+keep_constant_e1 <- c(0)
+keep_constant_shared <- c(0,0)
+a_n_e0 <- c(-0.1)
+a_n_e1 <- c(0.1)
+a_n_shared <- c(0.001, -0.02)
+name_list <- list('shared'=names_shared,'e0'=names_e0,'e1'=names_e1)
+Term_n_list <- list('shared'=Term_n_shared,'e0'=Term_n_e0,'e1'=Term_n_e1)
+tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
+keep_constant_list <- list('shared'=keep_constant_shared,
+                           'e0'=keep_constant_e0,'e1'=keep_constant_e1)
+a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
+```
+The function returns a list which contains the conbined table and vectors.
+```{r, eval=TRUE}
+Joint_Multiple_Events(df, events, name_list, Term_n_list,
+                      tform_list, keep_constant_list, a_n_list)
+```
 
+These results could be then used as input for any of the avaliable regression functions. Colossus also includes a wrapper functions to directly call the poisson regression function. This method could applied to a Cox model assuming every event has the same baseline hazard. However this is not the intended use, so a wrapper function was not included.
+```{r, eval=TRUE}
+der_iden <- 0
+modelform <- "M"
+fir <- 0
+control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 10,'halfmax' = 5,'epsilon' = 1e-3,
+   'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+   'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+    "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
+     strata=FALSE)
+Strat_Col <- 'f'
+RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, Term_n_list,
+                                        tform_list, keep_constant_list, a_n_list,
+                                        modelform, fir, der_iden, control,Strat_Col)
+```
+
+## References
+
+[1]  John Cologne, Jaeyoung Kim, Hiromi Sugiyama, Benjamin French, Harry M. Cullings, Dale L. Preston, Kiyohiko Mabuchi, and Kotaro Ozasa "Effect of Heterogeneity in Background Incidence on Inference about the Solid-Cancer Radiation Dose Response in Atomic Bomb Survivors," Radiation Research 192(4), 388-398, (29 July 2019). https://doi.org/10.1667/RR15127.1 
 
 
 

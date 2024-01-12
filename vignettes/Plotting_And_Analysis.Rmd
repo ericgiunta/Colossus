@@ -1,0 +1,119 @@
+---
+title: "Functions for plotting and analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Plotting_And_Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Colossus)
+library(data.table)
+
+```
+## Survival Function Approximation
+
+After fitting a Cox proportional hazards model, one may be interested in what the baseline survival rate is. One method of doing so is by weighting the number of events at each event time by the total risk. In the absence of excess risk the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one, so this assumption holds for the case with negligable excess risk.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \lambda(t) = \frac{d[t]}{n[t]} = \frac{d[t]}{\sum_{i=1}^n(1)} = \frac{d[t]}{\sum_{i=1}^n(r_i)}
+\end{aligned}
+$$
+</p>
+
+Suppose every row at risk at a time were twice as likely to experience an event than the baseline. Then we would expect there to be twice as many events as there would be at baseline. The same logic applies for the case with every row at risk being half as likely. This generalizes to any average risk. Colossus allows the instantaneous hazard to be approximated for both stratified and non-stratified models. 
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+     \lambda(t) = \frac{d[t]}{\sum_{i=1}^n(r_i)} = \frac{d[t]}{\sum_{i=1}^n(2)} = \frac{d[t]/2}{n[t]}\\
+     \lambda(t) = \frac{d[t]}{\sum_{i=1}^n(r_i)} = \frac{d[t]}{\sum_{i=1}^n(0.5)} = \frac{d[t]*2}{n[t]}
+\end{aligned}
+$$
+</p>
+
+Once the instantaneous hazard is approximated, the cumulative hazard can be approximated. Then the surviving fraction is approximately equal to the exponential of the negative cumulative hazard at each event time.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \Lambda(t) = \int_0^t (\lambda(x) dx\\
+    S(t) = \exp{(-\Lambda(t))}
+\end{aligned}
+$$
+</p>
+
+```{r, eval=TRUE}
+t <- c(1,2,5,6,7)
+r <- c(4,3,5,4,2)
+d <- c(1,2,3,2,1)
+
+lambda  <- c()
+Lambda <- c(0)
+S      <- c(1)
+T      <- c(0)
+
+for (i in 1:5){
+	lambda <- c(lambda, d[i]/r[i])
+	Lambda <- c(Lambda, Lambda[i] + lambda[i])
+	S     <- c(S, exp(-1*Lambda[i+1]))
+	T     <- c(T, t[i])
+}
+
+dft <- data.table("x"=t,"y"=lambda)
+g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + 
+     ggplot2::geom_point(color="black") +
+     ggplot2::labs(x="age", y="Instantaneous Hazard")
+g
+
+dft <- data.table("x"=T,"y"=Lambda, "z"=S)
+g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + 
+     ggplot2::geom_line(color="black",alpha=1) + 
+     ggplot2::labs(x="age", y="Cumulative Hazard")
+g
+
+g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$z)) + 
+     ggplot2::geom_line(color="black",alpha=1) + 
+     ggplot2::labs(x="age", y="Surviving Fraction")
+g
+```
+
+## Cox Proportional Hazards model assumptions
+
+The Cox proportional hazards model by definition assumes proportional hazards independent of time. If this is violated, then the results of a regression may be misleading. There are two functions that Colossus provides that can be used to test this assumption, the Schoenfeld residuals and Martingale residuals. In both cases the premise is that if the the hazard ratio were independent of time, then the residuals should also be independent of time.
+
+### Schoenfeld Residuals
+
+Schoenfeld residuals compare the average covariate value of rows with events with the risk weighted average of the covariate in rows at risk. Consistantly high or low residuals may be due to hazard being much higher or lower than the model predicts. If these residuals are also corelated with event time, then the hazard ratio may be dependent on event time.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    s(t,x) = \frac{\sum_{i \in events} x_i}{d[t]} - \frac{\sum_i^n x_i*r_i}{\sum_i^n r_i}
+\end{aligned}
+$$
+</p>
+
+### Martingale Residuals
+
+Martingale residuals compare the event status and cumulative hazard for each subject. The residual is bound in the open interval $(-\infty, 1)$. Negative residuals correspond with subjects that survive despite high cumulative hazard and residuals near unity correspond with subject that experienced an event despite low cumulative hazard. The distribution of residuals with event time can indicate if the model is overpredicting or underpredicting dependent on time.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    m_j = \delta_j - \int_{t_0}^{t_1} \lambda(t) * r_j dt
+\end{aligned}
+$$
+</p>
+
+
