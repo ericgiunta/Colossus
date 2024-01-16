@@ -98,7 +98,9 @@ e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
 }
 \seealso{
 Other {Poisson Wrapper Functions}: 
+\code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
+\code{\link{RunPoissonRegression_Joint_Omnibus}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
 \code{\link{RunPoissonRegression_STRATA}()},
 \code{\link{RunPoissonRegression_Single}()},

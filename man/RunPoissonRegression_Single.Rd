@@ -81,7 +81,9 @@ e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform, a_n, mode
 }
 \seealso{
 Other {Poisson Wrapper Functions}: 
+\code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
+\code{\link{RunPoissonRegression_Joint_Omnibus}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
 \code{\link{RunPoissonRegression_STRATA}()},
 \code{\link{RunPoissonRegression_Tier_Guesses}()},

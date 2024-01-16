@@ -41,6 +41,7 @@ Other {Data Cleaning Functions}:
 \code{\link{Def_Control}()},
 \code{\link{Def_model_control}()},
 \code{\link{Def_modelform_fix}()},
+\code{\link{Joint_Multiple_Events}()},
 \code{\link{Time_Since}()},
 \code{\link{factorize_par}()},
 \code{\link{factorize}()},

@@ -74,6 +74,7 @@ e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant,
 }
 \seealso{
 Other {Cox Wrapper Functions}: 
+\code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression_CR}()},
 \code{\link{RunCoxRegression_Guesses_CPP}()},

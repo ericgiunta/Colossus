@@ -98,6 +98,7 @@ e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n,
 }
 \seealso{
 Other {Cox Wrapper Functions}: 
+\code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression_Basic}()},
 \code{\link{RunCoxRegression_CR}()},

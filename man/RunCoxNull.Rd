@@ -44,6 +44,7 @@ e <- RunCoxNull(df, time1, time2, event, control)
 }
 \seealso{
 Other {Cox Wrapper Functions}: 
+\code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxRegression_Basic}()},
 \code{\link{RunCoxRegression_CR}()},
 \code{\link{RunCoxRegression_Guesses_CPP}()},
