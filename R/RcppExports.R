@@ -582,6 +582,19 @@ Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, R
     invisible(.Call(`_Colossus_Pois_Dev_LL_Calc`, reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev))
 }
 
+#' Primary Cox PH baseline hazard function with stratification
+#'
+#' \code{PLOT_SURV_STRATA} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of results: baseline hazard, risk for each row
+#' @noRd
+#' @family {Omnibus Plotting Functions}
+PLOT_SURV_STRATA <- function(reqrdnum, R, Rd, a_er, df_groups, tu, STRATA_vals, verbose, debugging, nthreads) {
+    .Call(`_Colossus_PLOT_SURV_STRATA`, reqrdnum, R, Rd, a_er, df_groups, tu, STRATA_vals, verbose, debugging, nthreads)
+}
+
 #' Primary Cox PH baseline hazard function
 #'
 #' \code{PLOT_SURV} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives

@@ -43,7 +43,87 @@ void visit_lambda(const Mat& m, const Func& f)
 
 
 
-
+//' Primary Cox PH baseline hazard function with stratification
+//'
+//' \code{PLOT_SURV_STRATA} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+//'
+//' @inheritParams CPP_template
+//'
+//' @return List of results: baseline hazard, risk for each row
+//' @noRd
+//' @family {Omnibus Plotting Functions}
+// [[Rcpp::export]]
+List PLOT_SURV_STRATA(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, NumericMatrix df_groups, NumericVector tu, NumericVector& STRATA_vals , bool verbose, bool debugging, int nthreads){
+    //
+    int ntime = tu.size();
+    NumericMatrix baseline(ntime, STRATA_vals.size());
+    NumericMatrix hazard_error(ntime, STRATA_vals.size());
+//    vector<double> baseline(ntime,0.0);
+//    vector<double> hazard_error(ntime,0.0);
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    for (int ijk=0;ijk<reqrdnum;ijk++){
+        Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk],2);
+    }
+    //
+    // Iterates through the risk groups and approximates the baseline
+    //
+    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
+        for (int ijk=0;ijk<ntime;ijk++){
+            double t0 = tu[ijk];
+            VectorXi select_ind_end = ((df_m.col(2).array() == 1)&&(df_m.col(1).array()==t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices with events
+            vector<int> indices_end;
+            //
+            //
+            int th = 1;
+            visit_lambda(select_ind_end,
+                [&indices_end, th](double v, int i, int j) {
+                    if (v==th)
+                        indices_end.push_back(i+1);
+                });
+            //
+            vector<int> indices; //generates vector of (start,end) pairs for indices at risk
+            if (indices_end.size()>0){
+            	int dj = indices_end[indices_end.size()-1] - indices_end[0] + 1;// number of events
+                //
+                select_ind_end = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)&&(df_m.col(3).array()==STRATA_vals[s_ij])).cast<int>(); //indices at risk
+                indices_end.clear();
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v==th)
+                            indices_end.push_back(i+1);
+                    });
+                for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                    if (indices.size()==0){
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else if (indices[indices.size()-1]+1<*it){
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else {
+                        indices[indices.size()-1] = *it;
+                    }
+                }
+                double Rs1 = 0; //total risk
+				for (vector<double>::size_type i = 0; i < indices.size()-1; i=i+2){
+				    Rs1 += R.block(indices[i]-1,0,indices[i+1]-indices[i]+1,1).sum();
+				}
+				baseline(ijk,s_ij) = dj / Rs1; //approximates the baseline hazard
+				hazard_error(ijk,s_ij) = dj / pow(Rs1,2);
+            } else {
+                baseline(ijk,s_ij) = 0; //approximates the baseline hazard
+				hazard_error(ijk,s_ij) = 0;
+            }
+        }
+    }
+    //
+    NumericVector w_R = wrap(R.col(0));
+    // returns the baseline approximates and the risk information
+    List res_list = List::create(_["baseline"]=baseline, _["standard_error"]=hazard_error, _["Risks"]=w_R);
+    //
+    return res_list;
+}
 
 //' Primary Cox PH baseline hazard function
 //'
@@ -434,7 +514,11 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     NumericVector a_er(wrap(stdev));
     //
     if (Surv_bool){
-        res_list = PLOT_SURV(reqrdnum, R, Rd, a_er, df_groups, tu , verbose, debugging, nthreads);
+    	if (strata_bool){
+    		res_list = PLOT_SURV_STRATA(reqrdnum, R, Rd, a_er, df_groups, tu, STRATA_vals , verbose, debugging, nthreads);
+    	} else {
+        	res_list = PLOT_SURV(reqrdnum, R, Rd, a_er, df_groups, tu , verbose, debugging, nthreads);
+    	}
         return res_list;
     }
     if (Schoenfeld_bool){
