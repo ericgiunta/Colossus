@@ -130,6 +130,21 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
         a_ns <- c(a_ns, i)
     }
     if ("maxiters" %in% names(control)){
+    	if (length(control$maxiters) == length(a_n)+1){
+    		#all good, it matches
+    	} else {
+    		if (control$verbose){
+                message(paste("Note: Initial starts:",length(a_n),
+                      ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+            }
+            if (length(control$maxiters) < length(a_n)+1){
+		        additional <- length(a_n)+1 - length(control$maxiters)
+		        control$maxiters <- c(control$maxiters, rep(1, additional))
+	        } else {
+	        	additional <- length(a_n)+1
+	        	control$maxiters <- control$maxiters[1:additional]
+	        }
+    	}
 	    if ("guesses" %in% names(control)){
 	        #both are in
 	        if (control$guesses+1 == length(control$maxiters)){
@@ -146,10 +161,15 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 	    }
 	} else {
 	    if ("guesses" %in% names(control)){
+	    	if (control$guesses == length(a_n)){
+	    		#both match, all good
+    		} else {
+    			control$guesses = length(a_n)
+    		}
             control$maxiters = rep(1,control$guesses+1)
         } else {
-            control$guesses = 1
-            control$maxiters = c(1,control$maxiter)
+            control$guesses = length(a_n)
+            control$maxiters = c(rep(1,length(a_n)),control$maxiter)
         }
     }
     #

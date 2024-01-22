@@ -195,7 +195,7 @@ $$
 $$
 </p>
 
-If one were to solve the equations seperately the table would be split into two tables, each with one event column. The premise of a joint analysis is to write a model that can be applied to every event, including a factor covariate to select which event is being solved for. Then the split tables can be recombined and multiple events can be solved at once allowing for shared and event-specific parameters.
+If one were to solve the equations separately the table would be split into two tables, each with one event column. The premise of a joint analysis is to write a model that can be applied to every event, including a factor covariate to select which event is being solved for. Then the split tables can be recombined and multiple events can be solved at once allowing for shared and event-specific parameters.
 
  | Time | a | $\alpha_y$ | $\alpha_z$ | events |
  | :--: | :--: | :--: | :--: | :--: |
@@ -253,13 +253,13 @@ keep_constant_list <- list('shared'=keep_constant_shared,
                            'e0'=keep_constant_e0,'e1'=keep_constant_e1)
 a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
 ```
-The function returns a list which contains the conbined table and vectors.
+The function returns a list which contains the combined table and vectors.
 ```{r, eval=TRUE}
 Joint_Multiple_Events(df, events, name_list, Term_n_list,
                       tform_list, keep_constant_list, a_n_list)
 ```
 
-These results could be then used as input for any of the avaliable regression functions. Colossus also includes a wrapper functions to directly call the poisson regression function. This method could applied to a Cox model assuming every event has the same baseline hazard. However this is not the intended use, so a wrapper function was not included.
+These results could be then used as input for any of the available regression functions. Colossus also includes a wrapper functions to directly call the poisson regression function. This method could applied to a Cox model assuming every event has the same baseline hazard. However this is not the intended use, so a wrapper function was not included.
 ```{r, eval=TRUE}
 der_iden <- 0
 modelform <- "M"
