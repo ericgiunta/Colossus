@@ -8,7 +8,7 @@ test_that("Default control no error", {
     expect_no_error(Def_Control(control_def))
 })
 test_that("Default control error", {
-    control_def=list("Ncores"=detectCores()+100)
+    control_def=list("Ncores"=detectCores()+100,"verbose"=T)
     expect_error(Def_Control(control_def))
 })
 test_that("Default control no error", {
@@ -60,7 +60,7 @@ test_that("No dupe columns", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d"),c(0,0,0,0),FALSE), c("a","b","c","d"))
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d"),c(0,0,0,0),TRUE), c("a","b","c","d"))
 })
 test_that("No columns", {
     a <- c(0,1,2,3,4,5,6)
@@ -68,7 +68,7 @@ test_that("No columns", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    expect_equal(Check_Dupe_Columns(df,c(),c(),FALSE), c())
+    expect_equal(Check_Dupe_Columns(df,c(),c(),TRUE), c())
 })
 test_that("One column with varying", {
     a <- c(0,1,2,3,4,5,6)
@@ -76,7 +76,7 @@ test_that("One column with varying", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    expect_equal(Check_Dupe_Columns(df,c("a"),c(0),FALSE), c("a"))
+    expect_equal(Check_Dupe_Columns(df,c("a"),c(0),TRUE), c("a"))
 })
 test_that("One column with constant", {
     a <- c(0,1,2,3,4,5,6)
@@ -84,7 +84,7 @@ test_that("One column with constant", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    expect_equal(Check_Dupe_Columns(df,c("c"),c(0),FALSE), c("c"))
+    expect_equal(Check_Dupe_Columns(df,c("c"),c(0),TRUE), c("c"))
 })
 test_that("One duplicate column", {
     a <- c(0,1,2,3,4,5,6)
@@ -92,7 +92,7 @@ test_that("One duplicate column", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d,"e"=a)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","e"),c(0,0,0,0,0),FALSE), c("a","b","c","d"))
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","e"),c(0,0,0,0,0),TRUE), c("a","b","c","d"))
 })
 test_that("One duplicate column, different term", {
     a <- c(0,1,2,3,4,5,6)
@@ -100,7 +100,7 @@ test_that("One duplicate column, different term", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d,"e"=a)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","e"),c(0,0,0,1,1),FALSE), c("a","b","c","d","e"))
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","e"),c(0,0,0,1,1),TRUE), c("a","b","c","d","e"))
 })
 test_that("Multiple duplicate columns", {
     a <- c(0,1,2,3,4,5,6)
@@ -108,7 +108,7 @@ test_that("Multiple duplicate columns", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d,"e"=a,"f"=b)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c","e","f"),c(0,0,0,0,0),FALSE), c("a","b","c"))
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c","e","f"),c(0,0,0,0,0),TRUE), c("a","b","c"))
 })
 test_that("All duplicate columns, different terms", {
     a <- c(0,1,2,3,4,5,6)
@@ -116,7 +116,7 @@ test_that("All duplicate columns, different terms", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=a,"c"=a,"d"=a,"e"=a,"f"=a)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c","e","f"),c(0,1,2,3,4),FALSE), c("a","b","c","e","f"))
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c","e","f"),c(0,1,2,3,4),TRUE), c("a","b","c","e","f"))
 })
 test_that("Repeated duplicate columns", {
     a <- c(0,1,2,3,4,5,6)
@@ -124,7 +124,7 @@ test_that("Repeated duplicate columns", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=a,"e"=a,"f"=a)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","f"),c(0,0,0,0,0),FALSE), c("a","b","c"))
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c","d","f"),c(0,0,0,0,0),TRUE), c("a","b","c"))
 })
 test_that("All but one duplicate column with varying", {
     a <- c(0,1,2,3,4,5,6)
@@ -132,7 +132,7 @@ test_that("All but one duplicate column with varying", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=a,"c"=a)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c"),c(0,0,0),FALSE), c("a"))
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c"),c(0,0,0),TRUE), c("a"))
 })
 test_that("All but one duplicate column with constant", {
     a <- c(0,1,2,3,4,5,6)
@@ -140,7 +140,7 @@ test_that("All but one duplicate column with constant", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=c,"b"=c,"c"=c)
-    expect_equal(Check_Dupe_Columns(df,c("a","b","c"),c(0,0,0),FALSE), c())
+    expect_equal(Check_Dupe_Columns(df,c("a","b","c"),c(0,0,0),TRUE), c())
 })
 test_that("Duplicate with column not in df error", {
     a <- c(0,1,2,3,4,5,6)
@@ -148,7 +148,8 @@ test_that("Duplicate with column not in df error", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=c,"b"=c,"c"=c)
-    expect_error(Check_Dupe_Columns(df,c("a","b","c","e"),c(0,0,0,0),FALSE))
+    expect_error(Check_Dupe_Columns(df,c("a","b","c","e"),c(0,0,0,0),TRUE))
+    expect_error(Check_Dupe_Columns(df,c("a","e","c","c"),c(0,0,0,0),TRUE))
 })
 
 ## ------------------------------------- ##
@@ -205,7 +206,7 @@ test_that("Iteract with direct dupes", {
     df <- data.table("a"=c,"b"=c,"c"=c)
     interactions <- c("a?+?b","a?*?b","a?+?b","a?+?a")
     new_names <- c("","","","")
-    expect_equal(interact_them(df,interactions,new_names,FALSE)$cols, c("a*b","a+b","a+a"))
+    expect_equal(interact_them(df,interactions,new_names,TRUE)$cols, c("a*b","a+b","a+a"))
 })
 test_that("Iteract with reverse dupes", {
     a <- c(0,1,2,3,4,5,6)
@@ -214,7 +215,7 @@ test_that("Iteract with reverse dupes", {
     df <- data.table("a"=c,"b"=c,"c"=c)
     interactions <- c("a?+?b","a?*?b","b?+?a","a?+?a")
     new_names <- c("","","","")
-    expect_equal(interact_them(df,interactions,new_names,FALSE)$cols, c("a*b","b+a","a+a"))
+    expect_equal(interact_them(df,interactions,new_names,TRUE)$cols, c("a*b","b+a","a+a"))
 })
 test_that("Iteract formula long error", {
     a <- c(0,1,2,3,4,5,6)
@@ -223,7 +224,7 @@ test_that("Iteract formula long error", {
     df <- data.table("a"=c,"b"=c,"c"=c)
     interactions <- c("a?+?b?+c","a?*?b")
     new_names <- c("","")
-    expect_error(interact_them(df,interactions,new_names,FALSE))
+    expect_error(interact_them(df,interactions,new_names,TRUE))
 })
 test_that("Iteract formula operation error", {
     a <- c(0,1,2,3,4,5,6)
@@ -232,7 +233,7 @@ test_that("Iteract formula operation error", {
     df <- data.table("a"=c,"b"=c,"c"=c)
     interactions <- c("a?++?b","a?*?b")
     new_names <- c("","")
-    expect_error(interact_them(df,interactions,new_names,FALSE))
+    expect_error(interact_them(df,interactions,new_names,TRUE))
 })
 
 #######################################
@@ -322,7 +323,7 @@ test_that("Factorize factor", {
     c <- c(1,1,1,1,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     col_list <- c("c")
-    expect_equal(factorize(df,col_list)$cols, c("c_1"))
+    expect_equal(factorize(df,col_list,TRUE)$cols, c("c_1"))
 })
 test_that("Factorize discrete", {
     a <- c(0,1,2,3,4,5,6)
@@ -330,7 +331,7 @@ test_that("Factorize discrete", {
     c <- c(0,0,0,0,0,0,0)
     df <- data.table("a"=a,"b"=b,"c"=c)
     col_list <- c("a")
-    expect_equal(factorize(df,col_list)$cols, c("a_0","a_1","a_2","a_3","a_4","a_5","a_6"))
+    expect_equal(factorize(df,col_list,TRUE)$cols, c("a_0","a_1","a_2","a_3","a_4","a_5","a_6"))
 })
 test_that("Factorize missing", {
     a <- c(0,1,2,3,4,5,6)
@@ -338,7 +339,7 @@ test_that("Factorize missing", {
     c <- c(0,0,0,0,0,0,0)
     df <- data.table("a"=a,"b"=b,"c"=c)
     col_list <- c("d")
-    expect_error(factorize(df,col_list))
+    expect_error(factorize(df,col_list,TRUE))
 })
 
 
@@ -626,7 +627,7 @@ test_that("tform order, tform order", {
     keep_constant <- c(0,0,0,0,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -641,7 +642,7 @@ test_that("tform order, tform and Term_n order", {
     keep_constant <- c(0,0,0,0,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -656,7 +657,7 @@ test_that("tform order, combined", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -671,7 +672,7 @@ test_that("tform order, tform order, list single", {
     keep_constant <- c(0,0,0,0,0)
     a_n <- list(c(1,2,3,4,5))
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -686,7 +687,7 @@ test_that("tform order, tform and Term_n order, list single", {
     keep_constant <- c(0,0,0,0,0)
     a_n <- list(c(1,2,3,4,5))
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -701,7 +702,7 @@ test_that("tform order, combined, list single", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5))
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -716,7 +717,7 @@ test_that("formula order, too few parameters", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4)
     names <- c("a","a","a","a","a")
-    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, no free", {
     Term_n <- c(0,1,1,0,0)
@@ -724,7 +725,7 @@ test_that("formula order, no free", {
     keep_constant <- c(1,1,1,1,1)
     a_n <- c(1,2,3,4,5,6)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too many parameters", {
     Term_n <- c(0,1,1,0,0)
@@ -732,7 +733,7 @@ test_that("formula order, too many parameters", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5,6)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too few term numbers", {
     Term_n <- c(0,1,1,0)
@@ -740,7 +741,7 @@ test_that("formula order, too few term numbers", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too many term numbers", {
     Term_n <- c(0,1,1,0,0,1)
@@ -748,7 +749,7 @@ test_that("formula order, too many term numbers", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too few term types", {
     Term_n <- c(0,1,1,0,0)
@@ -756,7 +757,7 @@ test_that("formula order, too few term types", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too many term types", {
     Term_n <- c(0,1,1,0,0)
@@ -764,7 +765,7 @@ test_that("formula order, too many term types", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 
 test_that("formula order, missing lin_int", {
@@ -773,7 +774,7 @@ test_that("formula order, missing lin_int", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing step_int", {
     Term_n <- c(0,1,1,0,0)
@@ -781,7 +782,7 @@ test_that("formula order, missing step_int", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing loglin_top", {
     Term_n <- c(0,1,1,0,0)
@@ -789,7 +790,7 @@ test_that("formula order, missing loglin_top", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing lin_quad_slope", {
     Term_n <- c(0,1,1,0,0)
@@ -797,7 +798,7 @@ test_that("formula order, missing lin_quad_slope", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing lin_exp_int", {
     Term_n <- c(0,1,1,0,0)
@@ -805,7 +806,7 @@ test_that("formula order, missing lin_exp_int", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing lin_exp_exp_slope", {
     Term_n <- c(0,1,1,0,0)
@@ -813,7 +814,7 @@ test_that("formula order, missing lin_exp_exp_slope", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 
 test_that("formula order, missing step_slope", {
@@ -822,7 +823,7 @@ test_that("formula order, missing step_slope", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing lin_slope", {
     Term_n <- c(0,1,1,0,0)
@@ -830,7 +831,7 @@ test_that("formula order, missing lin_slope", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing lin_quad_slope", {
     Term_n <- c(0,1,1,0,0)
@@ -838,7 +839,7 @@ test_that("formula order, missing lin_quad_slope", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing lin_exp_slope", {
     Term_n <- c(0,1,1,0,0)
@@ -846,7 +847,7 @@ test_that("formula order, missing lin_exp_slope", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, missing lin_exp_exp_int", {
     Term_n <- c(0,1,1,0,0)
@@ -854,7 +855,7 @@ test_that("formula order, missing lin_exp_exp_int", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4,5)
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 
 #######################################
@@ -866,7 +867,7 @@ test_that("tform order, tform order, list double", {
     keep_constant <- c(0,0,0,0,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -881,7 +882,7 @@ test_that("tform order, tform and Term_n order, list double", {
     keep_constant <- c(0,0,0,0,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -896,7 +897,7 @@ test_that("tform order, combined, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -911,7 +912,7 @@ test_that("formula order, different parameter lengths, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5))
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too few parameters, list double", {
     Term_n <- c(0,1,1,0,0)
@@ -919,7 +920,7 @@ test_that("formula order, too few parameters, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4),c(2,3,4,5))
     names <- c("a","a","a","a","a")
-    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too many parameters, list double", {
     Term_n <- c(0,1,1,0,0)
@@ -927,7 +928,7 @@ test_that("formula order, too many parameters, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5,6),c(2,3,4,5,6,7))
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too few term numbers, list double", {
     Term_n <- c(0,1,1,0)
@@ -935,7 +936,7 @@ test_that("formula order, too few term numbers, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too many term numbers, list double", {
     Term_n <- c(0,1,1,0,0,1)
@@ -943,7 +944,7 @@ test_that("formula order, too many term numbers, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too few term types, list double", {
     Term_n <- c(0,1,1,0,0)
@@ -951,7 +952,7 @@ test_that("formula order, too few term types, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 test_that("formula order, too many term types, list double", {
     Term_n <- c(0,1,1,0,0)
@@ -959,7 +960,7 @@ test_that("formula order, too many term types, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names))
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 #######################################
 ## Formula order, Constraints and verbose check
@@ -1020,7 +1021,7 @@ test_that("Gather Guesses no error", {
     fir <- 0
     der_iden <- 0
     #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -1067,7 +1068,7 @@ test_that("Gather Guesses error, many a_n", {
     fir <- 0
     der_iden <- 0
     #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -1113,7 +1114,7 @@ test_that("Gather Guesses error, few term numbers", {
     fir <- 0
     der_iden <- 0
     #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -1158,7 +1159,7 @@ test_that("Gather Guesses error, many term numbers", {
     fir <- 0
     der_iden <- 0
     #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -1203,7 +1204,7 @@ test_that("Gather Guesses error, few term formula", {
     fir <- 0
     der_iden <- 0
     #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
@@ -1248,7 +1249,7 @@ test_that("Gather Guesses error, many term formula", {
     fir <- 0
     der_iden <- 0
     #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
+    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
