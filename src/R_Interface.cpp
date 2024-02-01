@@ -1,5 +1,7 @@
 #include <RcppEigen.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include "R_Interface.h"
 #include "Main_Functions.h"
 #include "Plot_Extensions.h"
@@ -270,7 +272,9 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 }
             }
             True_Rows = serial_1 - serial_0 + 1;
+            #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
             for (int i_inner=serial_0;i_inner<serial_1+1;i_inner++){
                 VectorXd dep_temp = VectorXd::Zero(df_dep.cols()/2);
                 double t0 = tu[i_inner]- dt/2;
@@ -352,7 +356,9 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
             }
         } else {
             True_Rows = ceil( (df_Times.coeff(i_row,1) - df_Times.coeff(i_row,0))/dt);
+            #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
             for (int i_inner=0;i_inner<True_Rows;i_inner++){
                 VectorXd dep_temp = VectorXd::Zero(df_dep.cols()/2);
                 double ratio = (i_inner+0.5)/True_Rows;
@@ -432,7 +438,9 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
     const Map<MatrixXd> df(as<Map<MatrixXd> >(df0));
     MatrixXd Mat_Fac = MatrixXd::Zero(df.rows(), vals.size());
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<vals.size();ijk++){
         double col_c = cols[ijk];
         double val_c = vals[ijk];
@@ -495,10 +503,12 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     vector<double> plin_count(term_tot,0);
     vector<double> loglin_count(term_tot,0);
     vector<double> dose_count(term_tot,0);
+    #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
             initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:dose_count,plin_count,loglin_count)
+    #endif
     for (int ij=0;ij<(Term_n.size());ij++){
         int tn = Term_n[ij];
         if (as< string>(tform[ij])=="loglin") {

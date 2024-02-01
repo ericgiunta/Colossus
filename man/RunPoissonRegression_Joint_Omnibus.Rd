@@ -120,11 +120,11 @@ e <- RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, Term_n_list,
 \seealso{
 Other {Poisson Wrapper Functions}: 
 \code{\link{RunPoissonEventAssignment}()},
+\code{\link{RunPoissonRegression}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
 \code{\link{RunPoissonRegression_STRATA}()},
 \code{\link{RunPoissonRegression_Single}()},
-\code{\link{RunPoissonRegression_Tier_Guesses}()},
-\code{\link{RunPoissonRegression}()}
+\code{\link{RunPoissonRegression_Tier_Guesses}()}
 }
 \concept{{Poisson Wrapper Functions}}

@@ -85,12 +85,12 @@ e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
 Other {Cox Wrapper Functions}: 
 \code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
+\code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},
 \code{\link{RunCoxRegression_CR}()},
 \code{\link{RunCoxRegression_Guesses_CPP}()},
 \code{\link{RunCoxRegression_Omnibus}()},
 \code{\link{RunCoxRegression_STRATA}()},
-\code{\link{RunCoxRegression_Tier_Guesses}()},
-\code{\link{RunCoxRegression}()}
+\code{\link{RunCoxRegression_Tier_Guesses}()}
 }
 \concept{{Cox Wrapper Functions}}

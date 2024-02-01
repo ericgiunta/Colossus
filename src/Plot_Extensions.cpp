@@ -1,5 +1,7 @@
 #include <RcppEigen.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include "Plot_Extensions.h"
 #include "Calc_Repeated.h"
 #include "Omnibus_Pieces.h"
@@ -60,7 +62,9 @@ List PLOT_SURV_STRATA(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_e
     NumericMatrix hazard_error(ntime, STRATA_vals.size());
 //    vector<double> baseline(ntime,0.0);
 //    vector<double> hazard_error(ntime,0.0);
+	#ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<reqrdnum;ijk++){
         Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk],2);
     }
@@ -68,7 +72,9 @@ List PLOT_SURV_STRATA(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_e
     // Iterates through the risk groups and approximates the baseline
     //
     const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
         for (int ijk=0;ijk<ntime;ijk++){
             double t0 = tu[ijk];
@@ -140,7 +146,9 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, Nume
     int ntime = tu.size();
     vector<double> baseline(ntime,0.0);
     vector<double> hazard_error(ntime,0.0);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<reqrdnum;ijk++){
         Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk],2);
     }
@@ -148,7 +156,9 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, Nume
     // Iterates through the risk groups and approximates the baseline
     //
     const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
-    #pragma omp parallel for schedule(dynamic) num_threads(1)
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<ntime;ijk++){
         double t0 = tu[ijk];
         VectorXi select_ind_all = ((df_m.col(0).array() <= t0)&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
@@ -229,7 +239,9 @@ List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  M
             req_beta[j] = beta_0[i];
         }
     }
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             //
@@ -334,7 +346,9 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
         dx = (df1.col(ijk_risk).maxCoeff() - df1.col(ijk_risk).minCoeff())/(vv.size()-1);//varies from max to minimum
         vv[0] = df1.col(ijk_risk).minCoeff();
         generate(vv.begin(), vv.end(), [n = 0, &dx]() mutable { return n++ * dx; });
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (vector<float>::size_type ij=0;ij<vv.size();ij++){
             df0(ij,ijk_risk)=vv[ij]; //fills the column with varying values
         }
@@ -488,7 +502,9 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, FALSE, start, 0);
     int kept_covs = totalnum - sum(KeepConstant); //does !base the standard deviation off of constant parameters
     NumericVector Lldd_vec(kept_covs * kept_covs);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
         int ij = 0;
         int jk = ijk;
@@ -668,10 +684,12 @@ List Assign_Events( IntegerVector Term_n, StringVector tform, NumericVector a_n,
         // Iterates through the risk groups and approximates the baseline
         //
         const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+        #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:caused,predict)
+        #endif
         for (int ijk=0;ijk<ntime;ijk++){
             double t0 = tu[ijk];
             VectorXi select_ind_all = ((df_m.col(0).array() <= t0)&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk

@@ -3,11 +3,9 @@ doc/*
 Meta/
 src/*.o
 src/*.so
-*.r
 *.Rcheck
 .Rproj.user/
 *.o
 /doc/
 /Meta/
-out.txt
 src/Colossus.dll

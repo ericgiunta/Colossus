@@ -33,8 +33,8 @@ Other {Data Cleaning Functions}:
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Replace_Missing}()},
 \code{\link{Time_Since}()},
-\code{\link{factorize_par}()},
 \code{\link{factorize}()},
+\code{\link{factorize_par}()},
 \code{\link{gen_time_dep}()},
 \code{\link{interact_them}()}
 }

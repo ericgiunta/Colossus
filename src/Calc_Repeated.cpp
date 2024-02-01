@@ -1,5 +1,7 @@
 #include <RcppEigen.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include "Calc_Repeated.h"
 #include "Colossus_types.h"
 #include <fstream>
@@ -60,12 +62,14 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     //
     vector<int> lin_count(nonDose.cols(),0);
     vector<int> dose_count(nonDose.cols(),0);
+    #ifdef _OPENMP
     #pragma omp declare reduction (eig_plus: MatrixXd: omp_out=omp_out.array() + omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),0.0))
     #pragma omp declare reduction (eig_mult: MatrixXd: omp_out=omp_out.array() * omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),1.0))
     #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
             initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose,nonDose_LIN,nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count,dose_count)
+    #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
@@ -192,7 +196,9 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     }
     TTerm << Dose.array() * nonDose.array();
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
@@ -603,7 +609,9 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     //
     // Adds in possible log-linear subterm second derivatives between DIFFERENT covariates
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
         int ij = 0;
         int jk = ijk;
@@ -648,12 +656,14 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     //
     vector<int> lin_count(nonDose.cols(),0);
     vector<int> dose_count(nonDose.cols(),0);
+    #ifdef _OPENMP
     #pragma omp declare reduction (eig_plus: MatrixXd: omp_out=omp_out.array() + omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),0.0))
     #pragma omp declare reduction (eig_mult: MatrixXd: omp_out=omp_out.array() * omp_in.array()) initializer(omp_priv=MatrixXd::Constant(omp_orig.rows(),omp_orig.cols(),1.0))
     #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
             initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose,nonDose_LIN,nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count,dose_count)
+    #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         int tn = Term_n[ij];
@@ -780,7 +790,9 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
         nonDose.col(ijk) = nonDose_LIN.col(ijk).array()  * nonDose_PLIN.col(ijk).array()  * nonDose_LOGLIN.col(ijk).array() ;
     }
     TTerm << Dose.array() * nonDose.array();
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ij=0;ij<(totalnum);ij++){
         int tn = Term_n[ij];
         if (as< string>(tform[ij])=="loglin") {
@@ -848,7 +860,9 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
     //
     // Calculates the sub term values
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
         T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
@@ -891,7 +905,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         if (modelform=="A"){
             R << Te.array();
             //
+            #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
             for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                 int ij = 0;
                 int jk = ijk;
@@ -974,7 +990,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                 Te = Te.array() + 1;
             }
             R << TTerm.col(fir).array() * Te.array();
+            #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
             for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                 int ij = 0;
                 int jk = ijk;
@@ -1176,7 +1194,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         //
         Rd = Td0.array();
         //
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ij=0;ij<totalnum;ij++){
             int tij = Term_n[ij];
             if (KeepConstant[ij]==0){
@@ -1200,7 +1220,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         Rd = (Rd.array().isFinite()).select(Rd,0);
         //
         //
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
             int ij = 0;
             int jk = ijk;
@@ -1240,7 +1262,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         B_vec = TTerm.rightCols(TTerm.cols()-1).array().rowwise().sum().array() - TTerm.cols() + 2;
         R << TTerm.col(0).array() * A_vec.array().pow(gmix_theta).array() * B_vec.array().pow(1-gmix_theta).array();
         //
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ij=0;ij<totalnum;ij++){
             int tij = Term_n[ij];
             if (KeepConstant[ij]==0){
@@ -1253,7 +1277,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             }
         }
         //
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
             int ij = 0;
             int jk = ijk;
@@ -1452,7 +1478,9 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant){
     //
     R.col(0) = T0.rowwise().prod();
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ij=0;ij<totalnum;ij++){
         int df0_c = dfc[ij]-1;
         if (KeepConstant[ij]==0){
@@ -1462,7 +1490,9 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
     }
     R = (R.array().isFinite()).select(R,-1);
     Rd = (Rd.array().isFinite()).select(Rd,0);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
         int ij = 0;
         int jk = ijk;
@@ -1485,7 +1515,9 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
     //
     for (int ij=0;ij<totalnum;ij++){//Calculates ratios
         int df0_ij = dfc[ij]-1;
-        RdR.col(ij)=df0.col(df0_ij).array();
+        if (KeepConstant[ij]==0){
+        	RdR.col(ij)=df0.col(df0_ij).array();
+    	}
     }
     return;
 }
@@ -1501,7 +1533,9 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //' @family {Risk Group Definition Functions}
 // [[Rcpp::export]]
 void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging ){
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<ntime;ijk++){
         double t0 = tu[ijk];
         VectorXi select_ind_all = (((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0)).cast<int>(); //indices at risk
@@ -1555,7 +1589,9 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 //' @family {Risk Group Definition Functions}
 // [[Rcpp::export]]
 void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const VectorXd& cens_weight, const double cens_cutoff, const int& nthreads, bool debugging ){
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<ntime;ijk++){
         double t0 = tu[ijk];
         VectorXi select_ind_all = ((((df_m.col(0).array() < t0)||(df_m.col(0).array()==df_m.col(1).array()))&&(df_m.col(1).array()>=t0))||((df_m.col(2).array() == 2)&&(df_m.col(1).array()<=t0))).cast<int>(); //indices at risk
@@ -1619,7 +1655,9 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
         safe_group[i] = vector<string>(RiskGroup.cols(),"");
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
         for (int ijk=0;ijk<ntime;ijk++){
             double t0 = tu[ijk];
@@ -1696,7 +1734,9 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
         safe_group[i] = vector<string>(RiskGroup.cols(),"");
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
         for (int ijk=0;ijk<ntime;ijk++){
             double t0 = tu[ijk];
@@ -1768,7 +1808,9 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
         //
@@ -1795,7 +1837,9 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
         Lls1(j,0) = Ld.col(0).sum();
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             double Rs2 = 0;
@@ -1824,7 +1868,9 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
         }
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
 //            int ij = 0;
@@ -1872,7 +1918,9 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
 // [[Rcpp::export]]
 void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(1)
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
         //
@@ -1906,7 +1954,9 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
         Lls1(j,0) = Ld.col(0).sum();
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             double Rs2 = 0;
@@ -1944,7 +1994,9 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
         }
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             double Rs3 = 0;
@@ -1993,7 +2045,9 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 //' @family {Cox LogLiklihood Calculation Functions}
 // [[Rcpp::export]]
 void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(1)
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
         //
@@ -2039,7 +2093,9 @@ void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<strin
 //' @family {Cox LogLiklihood Calculation Functions}
 // [[Rcpp::export]]
 void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging){
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
         //
@@ -2075,7 +2131,9 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
 //' @family {Cox LogLiklihood Calculation Functions}
 // [[Rcpp::export]]
 void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging){
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
         //
@@ -2123,7 +2181,9 @@ void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<strin
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int j=0;j<ntime;j++){
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 = 0;
@@ -2152,7 +2212,9 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
         }
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    #endif
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2183,7 +2245,9 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
         }
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2233,7 +2297,9 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    #endif
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2278,7 +2344,9 @@ void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMa
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int j=0;j<ntime;j++){
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 = 0;
@@ -2317,7 +2385,9 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
         }
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    #endif
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2357,7 +2427,9 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
         }
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2416,7 +2488,9 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
+    #endif
     for (int ij=0;ij<reqrdnum;ij++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2469,10 +2543,12 @@ void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const Strin
 // [[Rcpp::export]]
 void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
             int ij = 0;
@@ -2549,7 +2625,9 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
         }
     }
     fill(Ll.begin(), Ll.end(), LogLik);
+    #ifdef _OPENMP
     #pragma omp parallel for num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
         int jk = ijk;
@@ -2573,10 +2651,12 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
 // [[Rcpp::export]]
 void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
             int ij = 0;
@@ -2647,7 +2727,9 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
         }
     }
     fill(Ll.begin(), Ll.end(), LogLik);
+    #ifdef _OPENMP
     #pragma omp parallel for num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
         int jk = ijk;
@@ -2670,10 +2752,12 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
 //' @family {Cox LogLiklihood Calculation Functions}
 // [[Rcpp::export]]
 void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, const IntegerVector& KeepConstant){
+	#ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
+    #endif
 	for (int j=0;j<ntime;j++){
 		double Rs1 = Rls1(j,0);
 		//
@@ -2717,10 +2801,12 @@ void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail,
 //' @family {Cox LogLiklihood Calculation Functions}
 // [[Rcpp::export]]
 void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method){
+	#ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = Rls1(j,0);
         //
@@ -2761,10 +2847,12 @@ void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(3)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2845,7 +2933,9 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
         }
     }
     fill(Ll.begin(), Ll.end(), LogLik);
+    #ifdef _OPENMP
     #pragma omp parallel for num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
         int jk = ijk;
@@ -2869,10 +2959,12 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
 //    int reqrdnum = totalnum - sum(KeepConstant);
+	#ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
+    #endif
     for (int j=0;j<ntime;j++){
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 =  Rls1(j,s_ij);
@@ -2920,10 +3012,12 @@ void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(3)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -2998,7 +3092,9 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
         }
     }
     fill(Ll.begin(), Ll.end(), LogLik);
+    #ifdef _OPENMP
     #pragma omp parallel for num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
         int jk = ijk;
@@ -3022,10 +3118,12 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_BASIC_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R ,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(3)
+    #endif
     for (int ij=0;ij<reqrdnum;ij++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
             for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
@@ -3091,8 +3189,9 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
     fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp,0).sum());
     
     CoL = PyrC.col(1).array() * R.col(0).array().pow(-1).array();
-
+	#ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         int ij = 0;
         int jk = ijk;
@@ -3145,7 +3244,9 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
     Dose_Iden.insert("step_int");
     Dose_Iden.insert("lin_quad_int");
     Dose_Iden.insert("lin_exp_int");
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ij=0;ij<totalnum;ij++){
         if ((Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end())&&(KeepConstant[ij]==0)){
             int df0_c = dfc[ij]-1;
@@ -3188,7 +3289,9 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
     //
     NumericVector Lldd_vec(total_covs*total_covs);
     NumericVector Lld_vec(total_covs);
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<total_covs*(total_covs+1)/2;ijk++){
         int ij = 0;
         int jk = ijk;
@@ -3232,7 +3335,9 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
         }
     }
     //
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int ijk=0;ijk<totalnum;ijk++){
         if (KeepConstant[ijk]==0){
             int pjk_ind = ijk - sum(head(KeepConstant,ijk));
@@ -3276,7 +3381,9 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         int kept_covs = totalnum - sum(KeepConstant);
         NumericVector Lldd_vec(kept_covs * kept_covs);
         NumericVector Lld_vec(kept_covs);
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
             int ij = 0;
             int jk = ijk;
@@ -3305,7 +3412,9 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
             }
         }
         //
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<totalnum;ijk++){
             if (change_all){
                 if (KeepConstant[ijk]==0){
@@ -3348,7 +3457,9 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         }
     } else {
         int kept_covs = totalnum - sum(KeepConstant);
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<totalnum;ijk++){
             if (change_all){
                 if (KeepConstant[ijk]==0){
@@ -3404,7 +3515,9 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
         int kept_covs = totalnum - sum(KeepConstant);
         NumericVector Lldd_vec(kept_covs * kept_covs);
         NumericVector Lld_vec(kept_covs);
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
             int ij = 0;
             int jk = ijk;
@@ -3431,7 +3544,9 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
             }
         }
         //
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<totalnum;ijk++){
             if (change_all){
                 if (KeepConstant[ijk]==0){
@@ -3465,7 +3580,9 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
         }
     } else {
         int kept_covs = totalnum - sum(KeepConstant);
+        #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
         for (int ijk=0;ijk<totalnum;ijk++){
             if (change_all){
                 if (KeepConstant[ijk]==0){
@@ -3513,7 +3630,9 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 //' @family {Null Cox Functions}
 // [[Rcpp::export]]
 void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads){
+    #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = 0;
         //
@@ -3551,10 +3670,12 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  
 //' @family {Null Cox Functions}
 // [[Rcpp::export]]
 void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, string ties_method){
+	#ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
+    #endif
     for (int j=0;j<ntime;j++){
         double Rs1 = Rls1(j,0);
         int dj = RiskFail(j,1)-RiskFail(j,0)+1;
@@ -3593,7 +3714,9 @@ void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const v
 //' @family {Null Cox Functions}
 // [[Rcpp::export]]
 void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, NumericVector& STRATA_vals,const int& nthreads){
+	#ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
     for (int j=0;j<ntime;j++){
         for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
             double Rs1 = 0;
@@ -3636,10 +3759,12 @@ void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatr
 //' @family {Null Cox Functions}
 // [[Rcpp::export]]
 void Calc_Null_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, NumericVector& STRATA_vals, vector<double>& Ll, string ties_method){
+	#ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
+    #endif
     for (int s_ij=0;s_ij<STRATA_vals.size();s_ij++){
         for (int j=0;j<ntime;j++){
             double Rs1 =  Rls1(j,s_ij);

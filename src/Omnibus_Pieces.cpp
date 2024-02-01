@@ -1,5 +1,7 @@
 #include <RcppEigen.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include "Omnibus_Pieces.h"
 #include "Calc_Repeated.h"
 #include "Colossus_types.h"

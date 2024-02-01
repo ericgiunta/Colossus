@@ -115,12 +115,12 @@ e <- RunCoxRegression_Omnibus(df, time1, time2, event,
 Other {Cox Wrapper Functions}: 
 \code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
+\code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},
 \code{\link{RunCoxRegression_CR}()},
 \code{\link{RunCoxRegression_Guesses_CPP}()},
 \code{\link{RunCoxRegression_STRATA}()},
 \code{\link{RunCoxRegression_Single}()},
-\code{\link{RunCoxRegression_Tier_Guesses}()},
-\code{\link{RunCoxRegression}()}
+\code{\link{RunCoxRegression_Tier_Guesses}()}
 }
 \concept{{Cox Wrapper Functions}}
