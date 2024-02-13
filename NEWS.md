@@ -17,3 +17,7 @@
 # Colossus 0.9.6
 
 * removed explicit srr requirements
+
+# Colossus 0.9.7
+
+* Additional joint poisson model capability added

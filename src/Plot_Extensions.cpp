@@ -53,15 +53,13 @@ void visit_lambda(const Mat& m, const Func& f)
 //'
 //' @return List of results: baseline hazard, risk for each row
 //' @noRd
-//' @family {Omnibus Plotting Functions}
+//'
 // [[Rcpp::export]]
 List PLOT_SURV_STRATA(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, NumericMatrix df_groups, NumericVector tu, NumericVector& STRATA_vals , bool verbose, bool debugging, int nthreads){
     //
     int ntime = tu.size();
     NumericMatrix baseline(ntime, STRATA_vals.size());
     NumericMatrix hazard_error(ntime, STRATA_vals.size());
-//    vector<double> baseline(ntime,0.0);
-//    vector<double> hazard_error(ntime,0.0);
 	#ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -139,7 +137,7 @@ List PLOT_SURV_STRATA(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_e
 //'
 //' @return List of results: baseline hazard, risk for each row
 //' @noRd
-//' @family {Omnibus Plotting Functions}
+//'
 // [[Rcpp::export]]
 List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, NumericMatrix df_groups, NumericVector tu , bool verbose, bool debugging, int nthreads){
     //
@@ -221,7 +219,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector a_er, Nume
 //'
 //' @return List of results: scaled schoenfeld residuals
 //' @noRd
-//' @family {Omnibus Plotting Functions}
+//'
 // [[Rcpp::export]]
 List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  MatrixXd& df0, const MatrixXd& R, MatrixXd Lldd_inv, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup,IntegerVector dfc, bool verbose, bool debugging, IntegerVector KeepConstant, int nthreads){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -297,7 +295,7 @@ List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  M
 //'
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
-//' @family {Omnibus Plotting Functions}
+//'
 // [[Rcpp::export]]
 List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix df_groups, NumericVector tu, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, int uniq_v, bool strata_bool, bool basic_bool, bool CR_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term){
     ;
@@ -561,7 +559,6 @@ List Assign_Events( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     ;
     //
     int totalnum = Term_n.size();
-    int reqrdnum = totalnum - sum(KeepConstant);
     List res_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
     if (verbose){
         Rcout << "C++ Note: START_RISK_CHECK" << endl;

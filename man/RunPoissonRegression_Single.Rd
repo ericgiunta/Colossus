@@ -80,7 +80,7 @@ control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control)
 }
 \seealso{
-Other {Poisson Wrapper Functions}: 
+Other Poisson Wrapper Functions: 
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
@@ -89,4 +89,4 @@ Other {Poisson Wrapper Functions}:
 \code{\link{RunPoissonRegression_STRATA}()},
 \code{\link{RunPoissonRegression_Tier_Guesses}()}
 }
-\concept{{Poisson Wrapper Functions}}
+\concept{Poisson Wrapper Functions}

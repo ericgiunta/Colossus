@@ -100,4 +100,4 @@ t_c <- df$t1
 cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
 
 }
-\concept{{Plotting Functions}}
+\concept{Plotting Functions}

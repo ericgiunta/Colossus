@@ -36,7 +36,7 @@ using Rcpp::as;
 //'
 //' @return Updates matrices in place
 //' @noRd
-//' @family {Omnibus Matrix Refreshing Functions}
+//'
 // [[Rcpp::export]]
 void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp,double& dose_abs_max, double& abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, bool basic_bool, bool single_bool){
     T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
@@ -88,7 +88,7 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Omnibus Matrix Refreshing Functions}
+//'
 // [[Rcpp::export]]
 void Cox_Refresh_R_SIDES( const int& reqrdnum, const int& ntime, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, NumericVector& STRATA_vals, bool strata_bool, bool single_bool){
     if (strata_bool){
@@ -122,13 +122,9 @@ void Cox_Refresh_R_SIDES( const int& reqrdnum, const int& ntime, MatrixXd& Rls1,
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Omnibus Matrix Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool basic_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
-    time_point<system_clock> end_point;
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    auto gibtime = system_clock::to_time_t(system_clock::now());
     int reqrdnum = totalnum - sum(KeepConstant);
     if (basic_bool){
 		// Calculates the subterm and term values
@@ -149,15 +145,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 			}
 			Rcout << " " << endl;
 		}
-		//
-		//
-		//if (verbose){
-		//	end_point = system_clock::now();
-		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
-		//	gibtime = system_clock::to_time_t(system_clock::now());
-		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-		//}
 		//
 		// Calculates the risk for each row
 		Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging,df0,dfc,KeepConstant);
@@ -185,11 +172,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 			}
 			Rcout << " " << endl;
 			//
-			//end_point = system_clock::now();
-			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
-			//gibtime = system_clock::to_time_t(system_clock::now());
-			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	} else if (single_bool){
 		// Calculates the subterm and term values
@@ -237,14 +219,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		}
 		//
 		//
-		//if (verbose){
-		//	end_point = system_clock::now();
-		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
-		//	gibtime = system_clock::to_time_t(system_clock::now());
-		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-		//}
-		//
 		// Calculates the risk for each row
         Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
 		//
@@ -259,12 +233,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 				Rcout << R.col(0).sum() << " ";
 			}
 			Rcout << " " << endl;
-			//
-			//end_point = system_clock::now();
-			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
-			//gibtime = system_clock::to_time_t(system_clock::now());
-			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	} else {
 		//
@@ -325,14 +293,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		}
 		//
 		//
-		//if (verbose){
-		//	end_point = system_clock::now();
-		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
-		//	gibtime = system_clock::to_time_t(system_clock::now());
-		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-		//}
-		//
 		// Calculates the risk for each row
         Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
 		//
@@ -360,11 +320,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 			}
 			Rcout << " " << endl;
 			//
-			//end_point = system_clock::now();
-			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
-			//gibtime = system_clock::to_time_t(system_clock::now());
-			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	}
 	return;
@@ -377,13 +332,9 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Omnibus Matrix Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd,  MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& STRATA_vals, VectorXd beta_0 , MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant,string ties_method, bool verbose,bool strata_bool, bool CR_bool, bool basic_bool, bool single_bool, int start, int iter_stop){
-    time_point<system_clock> end_point;
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    auto gibtime = system_clock::to_time_t(system_clock::now());
     // Calculates the side sum terms used
     if (strata_bool){
         if (CR_bool){
@@ -409,14 +360,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     } else {
         Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging,KeepConstant);
     }
-    //
-    //if (verbose){
-    //    end_point = system_clock::now();
-    //    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-    //    Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_Sides" <<endl;
-    //    gibtime = system_clock::to_time_t(system_clock::now());
-    //    Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    //}
     //
     if (strata_bool){
         if (verbose){
@@ -508,11 +451,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     if (single_bool){
         iter_stop=1;
         if (verbose){
-            //end_point = system_clock::now();
-            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
-            //gibtime = system_clock::to_time_t(system_clock::now());
-            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
@@ -526,11 +464,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
         }
     } else {
         if (verbose){
-            //end_point = system_clock::now();
-            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
-            //gibtime = system_clock::to_time_t(system_clock::now());
-            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
@@ -572,13 +505,9 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Omnibus Matrix Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool strata_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
-    time_point<system_clock> end_point;
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    auto gibtime = system_clock::to_time_t(system_clock::now());
     int reqrdnum = totalnum - sum(KeepConstant);
     if (single_bool){
 		// Calculates the subterm and term values
@@ -625,15 +554,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 			Rcout << " " << endl;
 		}
 		//
-		//
-		//if (verbose){
-		//	end_point = system_clock::now();
-		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
-		//	gibtime = system_clock::to_time_t(system_clock::now());
-		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-		//}
-		//
 		// Calculates the risk for each row
 		if (strata_bool){
             Make_Risks_Weighted_Single(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
@@ -653,11 +573,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 			}
 			Rcout << " " << endl;
 			//
-			//end_point = system_clock::now();
-			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
-			//gibtime = system_clock::to_time_t(system_clock::now());
-			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	} else {
 		//
@@ -716,17 +631,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 			}
 			Rcout << " " << endl;
 		}
-		//
-		//
-		//if (verbose){
-		//	end_point = system_clock::now();
-		//	ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-		//	Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
-		//	gibtime = system_clock::to_time_t(system_clock::now());
-		//	Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-		//}
-		//
-		//
 		// Calculates the risk for each row
 		if (strata_bool){
             Make_Risks_Weighted(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
@@ -758,11 +662,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 			}
 			Rcout << " " << endl;
 			//
-			//end_point = system_clock::now();
-			//ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-			//Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<-1<< ",Prep_R" <<endl;
-			//gibtime = system_clock::to_time_t(system_clock::now());
-			//Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
 		}
 	}
 	return;
@@ -778,13 +677,9 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Omnibus Matrix Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, VectorXd beta_0 , MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const MatrixXd& PyrC, MatrixXd& dev_temp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool single_bool, int start, int iter_stop, double& dev){
-    time_point<system_clock> end_point;
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    auto gibtime = system_clock::to_time_t(system_clock::now());
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!single_bool){
         fill(Lld.begin(), Lld.end(), 0.0);
@@ -813,11 +708,6 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
     if (single_bool){
         iter_stop=1;
         if (verbose){
-            //end_point = system_clock::now();
-            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
-            //gibtime = system_clock::to_time_t(system_clock::now());
-            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
@@ -832,11 +722,6 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
         }
     } else {
         if (verbose){
-            //end_point = system_clock::now();
-            //ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-            //Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Calc" <<endl;//prints the time
-            //gibtime = system_clock::to_time_t(system_clock::now());
-            //Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";

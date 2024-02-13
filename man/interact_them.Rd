@@ -35,7 +35,7 @@ new_col <- vals$cols
 
 }
 \seealso{
-Other {Data Cleaning Functions}: 
+Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Correct_Formula_Order}()},
@@ -51,4 +51,4 @@ Other {Data Cleaning Functions}:
 \code{\link{factorize_par}()},
 \code{\link{gen_time_dep}()}
 }
-\concept{{Data Cleaning Functions}}
+\concept{Data Cleaning Functions}

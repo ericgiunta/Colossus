@@ -10,7 +10,7 @@
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -216,7 +216,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -274,7 +274,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -377,7 +377,7 @@ RunCoxEventAssignment <- function(df, time1, time2, event0, names, Term_n, tform
 #' \code{RunCoxRegression_Single} uses user provided data, time/event columns, vectors specifying the model, and options and returns the log-likelihood
 #'
 #' @inheritParams R_template
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #' @examples
@@ -428,7 +428,7 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 #' \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #' @examples
@@ -482,7 +482,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #' the convergence and starting positions
 #'
 #' @inheritParams R_template
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #' @examples
@@ -540,7 +540,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 #' and options to calculate relative risk for every row in the provided data
 #'
 #' @inheritParams R_template
-#' @family {Plotting Wrapper Functions}
+#' @family Plotting Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #' @examples
@@ -622,7 +622,7 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
 #' to calculate the log-likelihood with constant hazard ratio
 #'
 #' @inheritParams R_template
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #' @examples
@@ -663,7 +663,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #'
 #' @return saves the plots in the current directory and returns a string
 #' @export
-#' @family {Plotting Wrapper Functions}
+#' @family Plotting Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -966,7 +966,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -1095,7 +1095,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -1153,7 +1153,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Cox Wrapper Functions}
+#' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette

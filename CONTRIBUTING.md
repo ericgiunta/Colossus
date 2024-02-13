@@ -33,6 +33,7 @@ We try to follow the GitHub flow for development.
         -Document your code (see function documentation above).
         -Check your code with devtools::check() and aim for 0 errors and warnings.
     -Commit and push your changes.
+    -Every Github action is expected to pass
     -Submit a pull request.
 
 ## Roadmap

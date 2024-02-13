@@ -97,7 +97,7 @@ e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n,
 
 }
 \seealso{
-Other {Cox Wrapper Functions}: 
+Other Cox Wrapper Functions: 
 \code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression}()},
@@ -108,4 +108,4 @@ Other {Cox Wrapper Functions}:
 \code{\link{RunCoxRegression_Single}()},
 \code{\link{RunCoxRegression_Tier_Guesses}()}
 }
-\concept{{Cox Wrapper Functions}}
+\concept{Cox Wrapper Functions}

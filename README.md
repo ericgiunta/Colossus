@@ -12,7 +12,7 @@
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![pkgcheck](https://github.com/ericgiunta/Colossus/workflows/pkgcheck/badge.svg)](https://github.com/ericgiunta/Colossus/actions?query=workflow%3Apkgcheck)
-[![codecov](https://codecov.io/gh/ericgiunta/Colossus/branch/main/graph/badge.svg)](https://codecov.io/gh/ericgiunta/Colossus)
+[![codecov](https://app.codecov.io/gh/ericgiunta/Colossus/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ericgiunta/Colossus)
 [![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
@@ -25,10 +25,8 @@ other radiation dose response formula highlighted in the vignettes.
 Additional plotting capabilities are available.
 
 Please consult the GitHub for details on libraries required for your OS.
-
-Please note that this package is released with a [Contributor Code of
-Conduct](https://ropensci.org/code-of-conduct/). By contributing to this
-project, you agree to abide by its terms.
+Note that Colossus requires OpenMP support to perform parallel
+calculations.
 
 ## Example
 
@@ -92,6 +90,9 @@ print(e)
 #> 
 #> $AIC
 #> [1] 9.350729
+#> 
+#> $BIC
+#> [1] 9.134369
 #> 
 #> $Parameter_Lists
 #> $Parameter_Lists$Term_n

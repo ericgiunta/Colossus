@@ -97,7 +97,7 @@ RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
 
 }
 \seealso{
-Other {Plotting Wrapper Functions}: 
+Other Plotting Wrapper Functions: 
 \code{\link{Cox_Relative_Risk}()}
 }
-\concept{{Plotting Wrapper Functions}}
+\concept{Plotting Wrapper Functions}

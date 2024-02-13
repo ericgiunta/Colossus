@@ -3,7 +3,7 @@
 #' \code{CoxMartingale} uses user provided data, columns, and identifier to create plots
 #'
 #' @inheritParams R_template
-#' @family {Plotting Functions}
+#' @family Plotting Functions
 #' @return saves the plots in the current directory and returns a string that it passed
 #' @noRd
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Plot_Name, age_unit, studyID){
@@ -120,7 +120,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 #' \code{CoxSurvival} uses user provided data, columns, and identifier to create plots
 #'
 #' @inheritParams R_template
-#' @family {Plotting Functions}
+#' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
@@ -169,7 +169,7 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #' \code{CoxKaplanMeier} uses user provided data, columns, and identifier to create plots, plots the kaplan-meier survival and log(time) vs log(-log(survival))
 #'
 #' @inheritParams R_template
-#' @family {Plotting Functions}
+#' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit, model_control=list()){
@@ -232,7 +232,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 #' \code{CoxRisk} uses user provided data, columns, and identifier to create plots of risk by covariate value for each column
 #'
 #' @inheritParams R_template
-#' @family {Plotting Functions}
+#' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er, model_control=list()){
@@ -298,7 +298,7 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,Term_n, tform, a_n, 
 #' \code{CoxStratifiedSurvival} uses user provided data, columns, and identifier to calculate the survival fraction for each strata
 #'
 #' @inheritParams R_template
-#' @family {Plotting Functions}
+#' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, Strat_Col,time_lims, age_unit, model_control=list()){
@@ -410,7 +410,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
 #' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns a string that it passed
-#' @family {Plotting Functions}
+#' @family Plotting Functions
 #' @noRd
 #' @importFrom rlang .data
 
@@ -495,7 +495,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #' \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
 #'
 #' @inheritParams R_template
-#' @family {Plotting Functions}
+#' @family Plotting Functions
 #' @return saves the plots in the current directory and returns a data.table of time and corresponding hazard, cumulative hazard, and survival
 #' @export
 #' @examples

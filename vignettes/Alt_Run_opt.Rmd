@@ -176,7 +176,7 @@ e <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform, keep_con
 
 ### Poisson Joint Analysis
 
-For a dataset with multiple outcomes there are often two ways that poisson models are fit. Either multiple independent models are fit or the events are combined and one model is fit to several events. These methods limit models to be completely independent or identical. The true model may be a combination of shared terms and terms specific to each event, which cannot be modeled with these methods. To fit this type of model a joint analysis method [1] is available in Colossus.
+For a dataset with multiple outcomes there are often two ways that poisson models are fit. Either multiple independent models are fit or the events are combined and one model is fit to several events. These methods limit models to be completely independent or identical. The true model may be a combination of shared terms and terms specific to each event, which cannot be modeled with these methods. To fit this type of model a joint analysis method (Cologne, 2019) is available in Colossus.
 
 Suppose one has a table of person-years, a covariate, and counts for two events. Assume we are fitting the event rate ($\lambda$) for each event and have reason to believe that the background rate ($\beta$) is the same for each event.
 
@@ -275,10 +275,6 @@ RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, Term_n_list,
                                         tform_list, keep_constant_list, a_n_list,
                                         modelform, fir, der_iden, control,Strat_Col)
 ```
-
-## References
-
-[1]  John Cologne, Jaeyoung Kim, Hiromi Sugiyama, Benjamin French, Harry M. Cullings, Dale L. Preston, Kiyohiko Mabuchi, and Kotaro Ozasa "Effect of Heterogeneity in Background Incidence on Inference about the Solid-Cancer Radiation Dose Response in Atomic Bomb Survivors," Radiation Research 192(4), 388-398, (29 July 2019). https://doi.org/10.1667/RR15127.1 
 
 
 

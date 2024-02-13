@@ -53,7 +53,6 @@ void visit_lambda(const Mat& m, const Func& f)
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//' @family {Subterm Calculation Functions}
 // [[Rcpp::export]]
 void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
@@ -85,7 +84,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
 
         } else if (as< string>(tform[ij])=="plin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-//            T0.col(ij) = 1 + T0.col(ij).array();
             nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
 
         } else if (as< string>(tform[ij])=="loglin_slope"){
@@ -648,7 +646,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//' @family {Subterm Calculation Functions}
 // [[Rcpp::export]]
 void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
@@ -679,7 +676,6 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
 
         } else if (as< string>(tform[ij])=="plin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
-//            T0.col(ij) = 1 + T0.col(ij).array();
             nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
 
         } else if (as< string>(tform[ij])=="loglin_slope"){
@@ -854,7 +850,6 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//' @family {Subterm Calculation Functions}
 // [[Rcpp::export]]
 void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd& T0, const VectorXd& beta_0,const MatrixXd& df0, const int& nthreads, bool debugging){
     //
@@ -878,7 +873,6 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//' @family {Risk Calculation Functions}
 // [[Rcpp::export]]
 void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     set<string> Dose_Iden; //List of dose subterms
@@ -1344,7 +1338,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//' @family {Risk Calculation Functions}
 // [[Rcpp::export]]
 void Make_Risks_Weighted(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     //
@@ -1382,7 +1375,6 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//' @family {Risk Calculation Functions}
 // [[Rcpp::export]]
 void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     //
@@ -1402,7 +1394,6 @@ void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, con
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//' @family {Risk Calculation Functions}
 // [[Rcpp::export]]
 void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     set<string> Dose_Iden; //List of dose subterms
@@ -1473,7 +1464,6 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//' @family {Risk Calculation Functions}
 // [[Rcpp::export]]
 void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging,const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant){
     //
@@ -1530,7 +1520,7 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
-//' @family {Risk Group Definition Functions}
+//'
 // [[Rcpp::export]]
 void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging ){
     #ifdef _OPENMP
@@ -1586,7 +1576,7 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
-//' @family {Risk Group Definition Functions}
+//'
 // [[Rcpp::export]]
 void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup,  NumericVector& tu, const VectorXd& cens_weight, const double cens_cutoff, const int& nthreads, bool debugging ){
     #ifdef _OPENMP
@@ -1644,7 +1634,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
-//' @family {Risk Group Definition Functions}
+//'
 // [[Rcpp::export]]
 void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals){
     //
@@ -1723,7 +1713,7 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
-//' @family {Risk Group Definition Functions}
+//'
 // [[Rcpp::export]]
 void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup,  NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const VectorXd& cens_weight, const double cens_cutoff){
     //
@@ -1803,7 +1793,7 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -1873,12 +1863,6 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
     #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//totalnum*(totalnum+1)/2
         for (int j=0;j<ntime;j++){
-//            int ij = 0;
-//            int jk = ijk;
-//            while (jk>ij){
-//                ij++;
-//                jk-=ij;
-//            }
             double Rs3 = 0;
             //
             vector<int> InGroup;
@@ -1914,7 +1898,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2042,7 +2026,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     #ifdef _OPENMP
@@ -2090,7 +2074,7 @@ void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<strin
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging){
     #ifdef _OPENMP
@@ -2128,7 +2112,7 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging){
     #ifdef _OPENMP
@@ -2177,7 +2161,7 @@ void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<strin
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2293,7 +2277,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2340,7 +2324,7 @@ void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMa
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2484,7 +2468,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2539,7 +2523,7 @@ void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const Strin
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2647,7 +2631,7 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2749,7 +2733,7 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, const IntegerVector& KeepConstant){
 	#ifdef _OPENMP
@@ -2798,7 +2782,7 @@ void Calc_LogLik_Basic_Single(const int& nthreads,const IntegerMatrix& RiskFail,
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method){
 	#ifdef _OPENMP
@@ -2843,7 +2827,7 @@ void Calc_LogLik_Single(const int& nthreads,const IntegerMatrix& RiskFail, const
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2955,7 +2939,7 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
 //    int reqrdnum = totalnum - sum(KeepConstant);
@@ -3008,7 +2992,7 @@ void Calc_LogLik_STRATA_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR,const MatrixXd& Rls1,const MatrixXd& Rls2,const MatrixXd& Rls3,const MatrixXd& Lls1,const MatrixXd& Lls2,const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -3114,7 +3098,7 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Cox LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Calc_LogLik_STRATA_BASIC_SINGLE(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R ,const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, bool debugging,string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -3178,7 +3162,7 @@ void Calc_LogLik_STRATA_BASIC_SINGLE(const int& nthreads,const IntegerMatrix& Ri
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Poisson LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, const IntegerVector& KeepConstant){
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -3219,7 +3203,7 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Poisson LogLiklihood Calculation Functions}
+//'
 // [[Rcpp::export]]
 void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, vector<double>& Ll, bool debugging){
     int reqrdnum = Ll.size();
@@ -3236,7 +3220,7 @@ void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const Matri
 //' 
 //' @return Updates vector in place: parameter vector
 //' @noRd
-//' @family {Newton Step Functions}
+//'
 // [[Rcpp::export]]
 void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const  MatrixXd& df0, const IntegerVector& KeepConstant, bool debugging,const StringVector&  tform){
     set<string> Dose_Iden; //List of dose subterms
@@ -3270,7 +3254,7 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 //'
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
-//' @family {Newton Step Functions}
+//'
 // [[Rcpp::export]]
 void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging){
     //
@@ -3374,7 +3358,7 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
 //'
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
-//' @family {Newton Step Functions}
+//'
 // [[Rcpp::export]]
 void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging){
     if (double_step==1){
@@ -3507,7 +3491,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
 //'
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
-//' @family {Newton Step Functions}
+//'
 // [[Rcpp::export]]
 void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, IntegerVector KeepConstant, bool debugging){
     if (double_step==1){
@@ -3562,7 +3546,6 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
                         dbeta[ijk] = lr * Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                     }
                     //
-//                    dbeta[ijk] = lr * Lldd_solve(ijk);
                     //
                     if (abs(dbeta[ijk])>abs_max){
                         dbeta[ijk] = abs_max * sign(dbeta[ijk]);
@@ -3627,7 +3610,7 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Null Cox Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1,const int& nthreads){
     #ifdef _OPENMP
@@ -3667,7 +3650,7 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Null Cox Functions}
+//'
 // [[Rcpp::export]]
 void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, vector<double>& Ll, string ties_method){
 	#ifdef _OPENMP
@@ -3711,7 +3694,7 @@ void Calc_Null_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const v
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
-//' @family {Null Cox Functions}
+//'
 // [[Rcpp::export]]
 void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, NumericVector& STRATA_vals,const int& nthreads){
 	#ifdef _OPENMP
@@ -3756,7 +3739,7 @@ void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatr
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
-//' @family {Null Cox Functions}
+//'
 // [[Rcpp::export]]
 void Calc_Null_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1,const MatrixXd& Lls1, NumericVector& STRATA_vals, vector<double>& Ll, string ties_method){
 	#ifdef _OPENMP

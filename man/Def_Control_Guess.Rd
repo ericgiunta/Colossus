@@ -26,7 +26,7 @@ guesses_control <- Def_Control_Guess(guesses_control, a_n)
 
 }
 \seealso{
-Other {Data Cleaning Functions}: 
+Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Correct_Formula_Order}()},
@@ -42,4 +42,4 @@ Other {Data Cleaning Functions}:
 \code{\link{gen_time_dep}()},
 \code{\link{interact_them}()}
 }
-\concept{{Data Cleaning Functions}}
+\concept{Data Cleaning Functions}

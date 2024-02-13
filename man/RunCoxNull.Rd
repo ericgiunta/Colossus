@@ -43,7 +43,7 @@ e <- RunCoxNull(df, time1, time2, event, control)
 
 }
 \seealso{
-Other {Cox Wrapper Functions}: 
+Other Cox Wrapper Functions: 
 \code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},
@@ -54,4 +54,4 @@ Other {Cox Wrapper Functions}:
 \code{\link{RunCoxRegression_Single}()},
 \code{\link{RunCoxRegression_Tier_Guesses}()}
 }
-\concept{{Cox Wrapper Functions}}
+\concept{Cox Wrapper Functions}

@@ -74,7 +74,7 @@ val <- Joint_Multiple_Events(df, events, name_list, Term_n_list,
 
 }
 \seealso{
-Other {Data Cleaning Functions}: 
+Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Correct_Formula_Order}()},
@@ -90,4 +90,4 @@ Other {Data Cleaning Functions}:
 \code{\link{gen_time_dep}()},
 \code{\link{interact_them}()}
 }
-\concept{{Data Cleaning Functions}}
+\concept{Data Cleaning Functions}

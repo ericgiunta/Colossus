@@ -54,7 +54,7 @@ void visit_lambda(const Mat& m, const Func& f)
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
-//' @family {Main Cox Functions}
+//'
 // [[Rcpp::export]]
 List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     bool change_all = Control["change_all"];
@@ -102,7 +102,7 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
-//' @family {Main Poisson Functions}
+//'
 // [[Rcpp::export]]
 List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     //
@@ -148,7 +148,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
-//' @family {Omnibus Plotting Functions}
+//'
 // [[Rcpp::export]]
 List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control){
     bool verbose = Control["verbose"];
@@ -192,17 +192,14 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
 //'
 //' @return list of assigned/predicted background/excess events
 //' @noRd
-//' @family {Omnibus Plotting Functions}
+//'
 // [[Rcpp::export]]
 List Assigned_Event_transition(NumericMatrix dfe,IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, List model_control){
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
     string ties_method =Control["ties"];
     int nthreads = Control["Ncores"];
     //
-	double cens_thres = Control["cens_thres"];
 	double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
 	//

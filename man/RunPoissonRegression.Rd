@@ -84,7 +84,7 @@ e <- RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant,
                           a_n, modelform, fir, der_iden, control)
 }
 \seealso{
-Other {Poisson Wrapper Functions}: 
+Other Poisson Wrapper Functions: 
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},
@@ -93,4 +93,4 @@ Other {Poisson Wrapper Functions}:
 \code{\link{RunPoissonRegression_Single}()},
 \code{\link{RunPoissonRegression_Tier_Guesses}()}
 }
-\concept{{Poisson Wrapper Functions}}
+\concept{Poisson Wrapper Functions}

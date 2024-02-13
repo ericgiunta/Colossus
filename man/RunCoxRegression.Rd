@@ -90,7 +90,7 @@ e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform,
                      keep_constant, a_n, modelform, fir, der_iden, control)
 }
 \seealso{
-Other {Cox Wrapper Functions}: 
+Other Cox Wrapper Functions: 
 \code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression_Basic}()},
@@ -101,4 +101,4 @@ Other {Cox Wrapper Functions}:
 \code{\link{RunCoxRegression_Single}()},
 \code{\link{RunCoxRegression_Tier_Guesses}()}
 }
-\concept{{Cox Wrapper Functions}}
+\concept{Cox Wrapper Functions}

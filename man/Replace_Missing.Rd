@@ -32,7 +32,7 @@ df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
 df <- Replace_Missing(df, c("Starting_Age","Ending_Age"), 70)
 }
 \seealso{
-Other {Data Cleaning Functions}: 
+Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Correct_Formula_Order}()},
@@ -48,4 +48,4 @@ Other {Data Cleaning Functions}:
 \code{\link{gen_time_dep}()},
 \code{\link{interact_them}()}
 }
-\concept{{Data Cleaning Functions}}
+\concept{Data Cleaning Functions}

@@ -21,19 +21,14 @@ knitr::opts_chunk$set(
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![pkgcheck](https://github.com/ericgiunta/Colossus/workflows/pkgcheck/badge.svg)](https://github.com/ericgiunta/Colossus/actions?query=workflow%3Apkgcheck)
-[![codecov](https://codecov.io/gh/ericgiunta/Colossus/branch/main/graph/badge.svg)](https://codecov.io/gh/ericgiunta/Colossus)
+[![codecov](https://app.codecov.io/gh/ericgiunta/Colossus/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ericgiunta/Colossus)
 [![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 The goal of Colossus is to provide an open-source means of performing survival analysis on big data with complex risk formula. Colossus is designed to perform Cox Proportional Hazard regressions and Poisson regressions on datasets loaded as data.tables or data.frames. The risk models allowed are sums or products of linear, log-linear, or several other radiation dose response formula highlighted in the vignettes. Additional plotting capabilities are available.
 
 
-Please consult the GitHub for details on libraries required for your OS. Note that Colossus requires OpenMP support to perform parallelization.
-
-Please note that this package is released with a [Contributor
-Code of Conduct](https://ropensci.org/code-of-conduct/). 
-By
-contributing to this project, you agree to abide by its terms.
+Please consult the GitHub for details on libraries required for your OS. Note that Colossus requires OpenMP support to perform parallel calculations.
 
 ## Example
 

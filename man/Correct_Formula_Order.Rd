@@ -62,7 +62,7 @@ names <- val$names
 
 }
 \seealso{
-Other {Data Cleaning Functions}: 
+Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Date_Shift}()},
@@ -78,4 +78,4 @@ Other {Data Cleaning Functions}:
 \code{\link{gen_time_dep}()},
 \code{\link{interact_them}()}
 }
-\concept{{Data Cleaning Functions}}
+\concept{Data Cleaning Functions}

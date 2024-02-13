@@ -8,7 +8,7 @@
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -206,7 +206,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -281,7 +281,7 @@ RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, Term_
 #' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
 #' @examples
 #' library(data.table)
@@ -332,7 +332,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #' \code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
 #' @examples
 #' library(data.table)
@@ -434,7 +434,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
 #' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
 #'
 #' @inheritParams R_template
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
 #' @examples
 #' library(data.table)
@@ -484,7 +484,7 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, 
 #' \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #' @examples
@@ -538,7 +538,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #' \code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
 #'
 #' @inheritParams R_template
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #'
@@ -654,7 +654,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 #' \code{RunPoissonRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'
 #' @inheritParams R_template
-#' @family {Poisson Wrapper Functions}
+#' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
 #' @export
 #'

@@ -90,7 +90,7 @@ e <- RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_cons
 
 }
 \seealso{
-Other {Poisson Wrapper Functions}: 
+Other Poisson Wrapper Functions: 
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
@@ -99,4 +99,4 @@ Other {Poisson Wrapper Functions}:
 \code{\link{RunPoissonRegression_Single}()},
 \code{\link{RunPoissonRegression_Tier_Guesses}()}
 }
-\concept{{Poisson Wrapper Functions}}
+\concept{Poisson Wrapper Functions}
