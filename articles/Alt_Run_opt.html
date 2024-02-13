@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -364,7 +364,8 @@ the events are combined and one model is fit to several events. These
 methods limit models to be completely independent or identical. The true
 model may be a combination of shared terms and terms specific to each
 event, which cannot be modeled with these methods. To fit this type of
-model a joint analysis method [1] is available in Colossus.</p>
+model a joint analysis method (Cologne, 2019) is available in
+Colossus.</p>
 <p>Suppose one has a table of person-years, a covariate, and counts for
 two events. Assume we are fitting the event rate (<span class="math inline">\(\lambda\)</span>) for each event and have reason
 to believe that the background rate (<span class="math inline">\(\beta\)</span>) is the same for each event.</p>
@@ -603,15 +604,6 @@ included.</p>
 <span><span class="co">#&gt; $Converged</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
-</div>
-<div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h2>
-<p>[1] John Cologne, Jaeyoung Kim, Hiromi Sugiyama, Benjamin French,
-Harry M. Cullings, Dale L. Preston, Kiyohiko Mabuchi, and Kotaro Ozasa
-“Effect of Heterogeneity in Background Incidence on Inference about the
-Solid-Cancer Radiation Dose Response in Atomic Bomb Survivors,”
-Radiation Research 192(4), 388-398, (29 July 2019). <a href="https://doi.org/10.1667/RR15127.1" class="external-link uri">https://doi.org/10.1667/RR15127.1</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
