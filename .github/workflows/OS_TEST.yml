@@ -14,10 +14,10 @@ permissions:
   contents: read
 
 jobs:
-  strategy:
-    matrix:
-      compiler: [gcc++, clang++]
   ubuntu_check:
+    strategy:
+      matrix:
+        compiler: [gcc++, clang++]
     runs-on: ubuntu-latest
     env:
       CXX: ${{ matrix.compiler }}
