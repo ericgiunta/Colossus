@@ -26,10 +26,10 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod u+x llvm.sh
           sudo ./llvm.sh 17
-          clang-xx --version
       - name: move to package and check
         run: |
           ls
+          clang --version
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
