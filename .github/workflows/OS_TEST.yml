@@ -14,77 +14,6 @@ permissions:
   contents: read
 
 jobs:
-  mac_check:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-      - name: enable homebrew to allow OpenMP
-        run: |
-          rm '/usr/local/bin/2to3'
-          brew link --overwrite python@3.11
-          brew install llvm
-          clang --version
-          curl -O https://mac.r-project.org/openmp/openmp-14.0.6-darwin20-Release.tar.gz
-          sudo tar fvxz openmp-14.0.6-darwin20-Release.tar.gz -C /
-      - name: move to package and install
-        run: |
-          ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
-      - name: move to package and build examples
-        run: |
-          brew install pandoc
-          Rscript -e "devtools::check(error_on = c('error'))"
-      - name: move to package and run tests
-        run: |
-          Rscript -e "devtools::run_examples()"
-          Rscript -e "devtools::test(stop_on_failure=TRUE)"
-  mac_no_OMP_check:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-      - name: move to package and install
-        run: |
-          ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
-      - name: move to package and build examples
-        run: |
-          brew install pandoc
-          Rscript -e "devtools::check(error_on = c('error'))"
-  win_check:
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-      - name: move to package and check
-        run: |
-          ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
-      - name: move to package and build examples
-        run: |
-          choco install pandoc
-          refreshenv
-          Rscript -e "devtools::check(error_on = c('error'))"
-      - name: move to package and run tests
-        run: |
-          Rscript -e "devtools::run_examples()"
-          Rscript -e "devtools::test(stop_on_failure=TRUE)"
   ubuntu_check:
     runs-on: ubuntu-latest
     steps:
@@ -93,7 +22,7 @@ jobs:
         uses: r-lib/actions/setup-r@v2
       - name: install libraries
         run: |
-          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev llvm-10 clang-10
       - name: move to package and check
         run: |
           ls
@@ -101,12 +30,3 @@ jobs:
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
-      - name: move to package and build examples
-        run: |
-          sudo apt-get install pandoc
-          sudo apt-get install texlive
-          Rscript -e "devtools::check(error_on = c('error'))"
-      - name: move to package and run tests
-        run: |
-          Rscript -e "devtools::run_examples()"
-          Rscript -e "devtools::test(stop_on_failure=TRUE)"

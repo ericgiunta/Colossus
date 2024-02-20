@@ -18,7 +18,18 @@ get_os <- function(){
   tolower(os)
 }
 
+gcc_version <- function() {
+  out <- tryCatch(processx::run("gcc", "-v", stderr_to_stdout = TRUE),
+                  error = function(cnd) list(stdout = ""))
+  out$stdout
+#  out <- stringr::str_match(out$stdout, "gcc version (\\d+(?:\\.\\d+)*)")[1, 2]
+#  if (!is.na(out)) out <- "gcc"
+#  out
+}
+
 os <- get_os()
+compiler <- gcc_version()
+print(compiler)
 
 if (os=="linux"){
     define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
