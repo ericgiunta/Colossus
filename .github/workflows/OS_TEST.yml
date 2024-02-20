@@ -85,45 +85,10 @@ jobs:
         run: |
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
-  ubuntu_GCC_check:
-    - runs-on: ubuntu-latest
+  ubuntu_check:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install compiler
-	      id: install_cc
-	      uses: rlalik/setup-cpp-compiler@master
-	      with:
-	        compiler: gcc-latest
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-      - name: install libraries
-        run: |
-          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
-      - name: move to package and check
-        run: |
-          ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
-      - name: move to package and build examples
-        run: |
-          sudo apt-get install pandoc
-          sudo apt-get install texlive
-          Rscript -e "devtools::check(error_on = c('error'))"
-      - name: move to package and run tests
-        run: |
-          Rscript -e "devtools::run_examples()"
-          Rscript -e "devtools::test(stop_on_failure=TRUE)"
-  ubuntu_CLANG_check:
-    - runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install compiler
-	      id: install_cc
-	      uses: rlalik/setup-cpp-compiler@master
-	      with:
-	        compiler: clang-latest
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
       - name: install libraries
