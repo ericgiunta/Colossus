@@ -29,7 +29,9 @@ gcc_version <- function() {
 
 os <- get_os()
 compiler <- gcc_version()
+print("-------------------------------CONFIG START------------------------")
 print(compiler)
+print("-------------------------------CONFIG END------------------------")
 
 if (os=="linux"){
     define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
