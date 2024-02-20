@@ -17,8 +17,9 @@ permissions:
 jobs:
   ubuntu_check:
     runs-on: ubuntu-latest
-    env:
-	  CC: clang
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
     steps:
       - uses: actions/checkout@v3
         name: Set up R
@@ -27,10 +28,14 @@ jobs:
         run: |
           sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
       - name: move to package and install dependencies
+        env:
+          CC: ${{ matrix.compiler }}
         run: |
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
 	  - name: run installation
+	    env:
+          CC: ${{ matrix.compiler }}
         run: |
           Rscript -e "devtools::install()"
