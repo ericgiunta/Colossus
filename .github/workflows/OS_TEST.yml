@@ -13,6 +13,10 @@ on: [push, workflow_dispatch]
 permissions:
   contents: read
 
+strategy:
+  matrix:
+    compiler: [gcc, clang]
+
 jobs:
   ubuntu_check:
     runs-on: ubuntu-latest
@@ -23,20 +27,15 @@ jobs:
       - name: install libraries
         run: |
           sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
-          wget https://apt.llvm.org/llvm.sh
-          chmod u+x llvm.sh
-          sudo ./llvm.sh 17
       - name: move to package and install dependencies
         env:
-          CC: clang
-          CXX: clang++
+          CC: ${{ matrix.compiler }}
         run: |
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
 	  - name: run installation
         env:
-          CC: clang
-          CXX: clang++
+          CC: ${{ matrix.compiler }}
         run: |
           Rscript -e "devtools::install()"
