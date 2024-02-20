@@ -85,7 +85,7 @@ jobs:
         run: |
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
-  ubuntu__GCC_check:
+  ubuntu_GCC_check:
     - runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -115,7 +115,7 @@ jobs:
         run: |
           Rscript -e "devtools::run_examples()"
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
-  ubuntu__CLANG_check:
+  ubuntu_CLANG_check:
     - runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
