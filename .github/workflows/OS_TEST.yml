@@ -13,11 +13,10 @@ on: [workflow_dispatch]
 permissions:
   contents: read
 
-strategy:
-  matrix:
-    compiler: [gcc++, clang++]
-
 jobs:
+  strategy:
+    matrix:
+      compiler: [gcc++, clang++]
   ubuntu_check:
     runs-on: ubuntu-latest
     env:
