@@ -13,12 +13,12 @@ on: [push, workflow_dispatch]
 permissions:
   contents: read
 
-env:
-	CC: clang
 
 jobs:
   ubuntu_check:
     runs-on: ubuntu-latest
+    env:
+	  CC: clang
     steps:
       - uses: actions/checkout@v3
         name: Set up R
