@@ -87,9 +87,13 @@ jobs:
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   ubuntu__GCC_check:
     - runs-on: ubuntu-latest
-      compiler: gcc
     steps:
       - uses: actions/checkout@v3
+      - name: Install compiler
+	      id: install_cc
+	      uses: rlalik/setup-cpp-compiler@master
+	      with:
+	        compiler: gcc-latest
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
       - name: install libraries
@@ -113,9 +117,13 @@ jobs:
           Rscript -e "devtools::test(stop_on_failure=TRUE)"
   ubuntu__CLANG_check:
     - runs-on: ubuntu-latest
-      compiler: clang
     steps:
       - uses: actions/checkout@v3
+      - name: Install compiler
+	      id: install_cc
+	      uses: rlalik/setup-cpp-compiler@master
+	      with:
+	        compiler: clang-latest
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
       - name: install libraries
