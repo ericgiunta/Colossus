@@ -19,12 +19,20 @@ get_os <- function(){
 }
 
 gcc_version <- function() {
-  out <- tryCatch(processx::run("gcc", "-v", stderr_to_stdout = TRUE),
+  out <- tryCatch(processx::run("c++", "-v", stderr_to_stdout = TRUE),
                   error = function(cnd) list(stdout = ""))
-  out$stdout
-#  out <- stringr::str_match(out$stdout, "gcc version (\\d+(?:\\.\\d+)*)")[1, 2]
-#  if (!is.na(out)) out <- "gcc"
-#  out
+  out0 <- stringr::str_match(out$stdout, "gcc version (\\d+(?:\\.\\d+)*)")[1, 2]
+  if (!is.na(out0)){
+  	out <- "gcc"
+  } else {
+    out0 <- stringr::str_match(out$stdout, "clang version")[1, 2]
+    if (!is.na(out0)){
+      out <- "clang"
+    } else {
+      out <- out$stdout
+    }
+  }
+  out
 }
 
 os <- get_os()
@@ -34,11 +42,19 @@ print(compiler)
 print("-------------------------------CONFIG END------------------------")
 
 if (os=="linux"){
-    define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
-    define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
-    define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
-    define(LDFLAGS = "#LDFLAGS += -lomp")
-    configure_file("src/Makevars.in")
+	if (compiler=="gcc"){
+		define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
+		define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
+		define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
+		define(LDFLAGS = "#LDFLAGS += -lomp")
+		configure_file("src/Makevars.in")
+	} else if (compiler=='clang'){
+		define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
+		define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)')
+		define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
+		define(LDFLAGS = "#LDFLAGS += -lomp")
+		configure_file("src/Makevars.in")
+	}
 } else if (os=="osx"){
     define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
     define(PKG_LIBS = '#PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')

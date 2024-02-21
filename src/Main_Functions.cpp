@@ -947,9 +947,9 @@ List LogLik_Cox_PH_Omnibus( IntegerVector Term_n, StringVector tform, NumericMat
     //
     //
     if (basic_bool){
-        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Control_List"]=control_list,_["Convgerged"]=convgd);
+        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Control_List"]=control_list,_["Converged"]=convgd);
     } else {
-        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Convgerged"]=convgd);
+        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
     }
     // returns a list of results
     return res_list;

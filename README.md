@@ -116,6 +116,6 @@ print(e)
 #> [1] 0.0001919948
 #> 
 #> 
-#> $Convgerged
+#> $Converged
 #> [1] FALSE
 ```
