@@ -21,11 +21,11 @@ get_os <- function(){
 gcc_version <- function() {
   out <- tryCatch(processx::run("c++", "-v", stderr_to_stdout = TRUE),
                   error = function(cnd) list(stdout = ""))
-  out0 <- stringr::str_match(out$stdout, "gcc version (\\d+(?:\\.\\d+)*)")[1, 2]
+  out0 <- stringr::str_match(out$stdout, "gcc version")[1]
   if (!is.na(out0)){
   	out <- "gcc"
   } else {
-    out0 <- stringr::str_match(out$stdout, "clang version")[1, 2]
+    out0 <- stringr::str_match(out$stdout, "clang version")[1]
     if (!is.na(out0)){
       out <- "clang"
     } else {
