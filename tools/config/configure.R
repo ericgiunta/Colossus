@@ -35,20 +35,65 @@ gcc_version <- function() {
   out
 }
 
+Rcomp_version <- function() {
+  out <- callr::rcmd("config","CC")
+  out0 <- stringr::str_match(out$stdout, "clang")[1]
+  if (!is.na(out0)){
+  	out <- "clang"
+  } else {
+    out0 <- stringr::str_match(out$stdout, "gcc")[1]
+    if (!is.na(out0)){
+      out <- "gcc"
+    } else {
+      out <- out$stdout
+    }
+  }
+  out
+}
+
+Rcpp_version <- function() {
+  out <- tryCatch(processx::run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
+                  error = function(cnd) list(stdout = ""))
+  out0 <- stringr::str_match(out$stdout, "clang")[1]
+  if (!is.na(out0)){
+  	out <- "clang"
+  } else {
+    out0 <- stringr::str_match(out$stdout, "gcc")[1]
+    if (!is.na(out0)){
+      out <- "gcc"
+    } else {
+      out <- out$stdout
+    }
+  }
+  out
+}
+
 os <- get_os()
-compiler <- gcc_version()
+cpp_compiler <- gcc_version()
+R_compiler <- Rcomp_version()
+R_Make_Comp <- Rcpp_version()
 print("-------------------------------CONFIG START------------------------")
-print(compiler)
+print(cpp_compiler)
+print(R_compiler)
+print(R_Make_Comp)
 print("-------------------------------CONFIG END------------------------")
 
 if (os=="linux"){
-	if (compiler=="gcc"){
-		define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
-		define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
-		define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
-		define(LDFLAGS = "#LDFLAGS += -lomp")
-		configure_file("src/Makevars.in")
-	} else if (compiler=='clang'){
+	if (cpp_compiler=="gcc"){
+	    if (R_compiler=="gcc"){
+		    define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
+		    define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
+		    define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
+		    define(LDFLAGS = "#LDFLAGS += -lomp")
+		    configure_file("src/Makevars.in")
+	    } else {
+	        define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
+		    define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)')
+		    define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
+		    define(LDFLAGS = "#LDFLAGS += -lomp")
+		    configure_file("src/Makevars.in")
+	    }
+	} else if (cpp_compiler=='clang'){
 		define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
 		define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)')
 		define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
