@@ -26,7 +26,10 @@ Imports:
     stats,
     utils,
     ggplot2,
-    rlang
+    rlang,
+    callr,
+    stringr,
+    processx
 LinkingTo: Rcpp, RcppEigen, testthat
 SystemRequirements: make
 RoxygenNote: 7.3.1
