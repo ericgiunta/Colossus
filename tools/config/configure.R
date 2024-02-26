@@ -76,16 +76,16 @@ R_Make_Comp <- Rcpp_version()
 if (os=="linux"){
 	if (cpp_compiler=="gcc"){
 	    if (R_compiler=="gcc"){
-        print("Identified linux system with c++ default to gcc and R compiled with gcc")
-        print("Building linux with gcc and openmp support")
+        print("CONFIG NOTE: Identified linux system with c++ default to gcc and R compiled with gcc")
+        print("CONFIG NOTE: Building linux with gcc and openmp support")
 		    define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
 		    define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
 		    define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
 		    define(LDFLAGS = "#LDFLAGS += -lomp")
 		    configure_file("src/Makevars.in")
 	    } else {
-        print("Identified linux system with c++ default to gcc and R compiled with clang")
-        print("Building linux with clang and no openmp support")
+        print("CONFIG NOTE: Identified linux system with c++ default to gcc and R compiled with clang")
+        print("CONFIG NOTE: Building linux with clang and no openmp support")
 	      define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
 		    define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)')
 		    define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
@@ -93,8 +93,8 @@ if (os=="linux"){
 		    configure_file("src/Makevars.in")
 	    }
 	} else if (cpp_compiler=='clang'){
-    print("Identified linux system with c++ default to clang")
-    print("Building linux with clang and no openmp support")
+    print("CONFIG NOTE: Identified linux system with c++ default to clang")
+    print("CONFIG NOTE: Building linux with clang and no openmp support")
 		define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
 		define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)')
 		define(CPPFLAGS = "#CPPFLAGS += -Xclang -fopenmp")
@@ -102,14 +102,14 @@ if (os=="linux"){
 		configure_file("src/Makevars.in")
 	}
 } else if (os=="osx"){
-    print("Building mac and allowing xclang openmp support")
+    print("CONFIG NOTE: Building mac and allowing xclang openmp support")
     define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
     define(PKG_LIBS = '#PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
     define(CPPFLAGS = "CPPFLAGS += -Xclang -fopenmp")
     define(LDFLAGS = "LDFLAGS += -lomp")
     configure_file("src/Makevars.in")
 } else {
-    print("Building windows with openmp support")
+    print("CONFIG NOTE: Building windows with openmp support")
     # print(paste("OS",os,sep=" "))
     define(PKG_CXXFLAGS = "PKG_CXXFLAGS=-fopenmp")
     define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
