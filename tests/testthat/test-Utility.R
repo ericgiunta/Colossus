@@ -1002,14 +1002,13 @@ test_that("Checking keep_constant limits", {
     Term_n <- c(0,1,1,0,0)
     tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
     keep_constant <- c(0,0,0,1,0)
-    a_n <- list(c(1,2,3,4),c(2,3,4,5))
+    a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c("a","a","a","a","a")
-    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
     keep_constant <- c(0,0,0,-1,0)
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
     keep_constant <- c(0,0,0,10,0)
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
-    keep_constant <- c(0,0,0,1,0)/5
+    keep_constant <- c(0,0,0,1,0.5)
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 

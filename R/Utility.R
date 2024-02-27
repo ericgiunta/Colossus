@@ -242,7 +242,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         message(paste("Error: keep_constant expects 0/1 values, maximum value was ",max(keep_constant),sep=""))
         stop()
     }
-    if (all(round(keep_constant) != keep_constant)){
+    if (any(keep_constant != round(keep_constant))){
         message(paste("Error: keep_constant expects 0/1 values, atleast one value was noninteger",sep=""))
         stop()
     }
