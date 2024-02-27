@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,24 +60,20 @@
 <ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.9.2" id="colossus-092">Colossus 0.9.2<a class="anchor" aria-label="anchor" href="#colossus-092"></a></h2>
-<ul><li>Preparing package for submission</li>
-<li>Incomplete functions moved to experimental branch</li>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="colossus-100">Colossus 1.0.0<a class="anchor" aria-label="anchor" href="#colossus-100"></a></h2><p class="text-muted">CRAN release: 2024-02-20</p>
+<ul><li>Initial submission</li>
+<li>C++ code modified to not apply OpenMP code if OpenMP isn’t detected, to resolve MacOS installation failures</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.9.5" id="colossus-095">Colossus 0.9.5<a class="anchor" aria-label="anchor" href="#colossus-095"></a></h2>
-<ul><li>Checking against standards for submission to ROpenSci</li>
-<li>checks from pkgcheck</li>
-<li>checks from autotest</li>
-<li>srr standards</li>
+<h2 class="pkg-version" data-toc-text="1.0.1" id="colossus-101">Colossus 1.0.1<a class="anchor" aria-label="anchor" href="#colossus-101"></a></h2><p class="text-muted">CRAN release: 2024-02-26</p>
+<ul><li>Configuration improved to detect compiler information</li>
+<li>Linux configuration depends on the system wide c++ default and the compiler used to compile R</li>
+<li>OpenMP support is not used if the c++ default or the R compiler is clang</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.9.6" id="colossus-096">Colossus 0.9.6<a class="anchor" aria-label="anchor" href="#colossus-096"></a></h2>
-<ul><li>removed explicit srr requirements</li>
-</ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.9.7" id="colossus-097">Colossus 0.9.7<a class="anchor" aria-label="anchor" href="#colossus-097"></a></h2>
-<ul><li>Additional joint poisson model capability added</li>
+<h2 class="pkg-version" data-toc-text="1.0.2" id="colossus-102">Colossus 1.0.2<a class="anchor" aria-label="anchor" href="#colossus-102"></a></h2>
+<ul><li>utility checks updated to check that keep_constant is 0/1 values</li>
+<li>code will fail if keep_constant is not integer valued and 0/1, with explanation of why</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
