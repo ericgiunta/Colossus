@@ -11,7 +11,6 @@
 [![Project Status: Active - The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![pkgcheck](https://github.com/ericgiunta/Colossus/workflows/pkgcheck/badge.svg)](https://github.com/ericgiunta/Colossus/actions?query=workflow%3Apkgcheck)
 [![codecov](https://codecov.io/gh/ericgiunta/Colossus/graph/badge.svg?token=NMH5R502W8)](https://codecov.io/gh/ericgiunta/Colossus)
 [![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
 [![OS\_Checks](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml/badge.svg?branch=main)](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml)

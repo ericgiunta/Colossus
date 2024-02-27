@@ -2,22 +2,18 @@
 
 * Added a `NEWS.md` file to track changes to the package.
 
-# Colossus 0.9.2
+# Colossus 1.0.0
 
-* Preparing package for submission
-* Incomplete functions moved to experimental branch
+* Initial submission
+* C++ code modified to not apply OpenMP code if OpenMP isn't detected, to resolve MacOS installation failures
 
-# Colossus 0.9.5
+# Colossus 1.0.1
 
-* Checking against standards for submission to ROpenSci
-* checks from pkgcheck
-* checks from autotest
-* srr standards
+* Configuration improved to detect compiler information
+* Linux configuration depends on the system wide c++ default and the compiler used to compile R
+* OpenMP support is not used if the c++ default or the R compiler is clang
 
-# Colossus 0.9.6
+# Colossus 1.0.2
 
-* removed explicit srr requirements
-
-# Colossus 0.9.7
-
-* Additional joint poisson model capability added
+* utility checks updated to check that keep_constant is 0/1 values
+* code will fail if keep_constant is not integer valued and 0/1, with explanation of why
