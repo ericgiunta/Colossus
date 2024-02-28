@@ -1,7 +1,7 @@
 Package: Colossus
 Type: Package
 Title: "Risk Model Regression and Analysis with Complex Non-Linear Models"
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: c(
     person("Eric", "Giunta", email="egiunta@ksu.edu", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1577-766X")),
     person("Amir", "Bahadori", role=c("ctb"), comment = c(ORCID = "0000-0002-4589-105X")),
@@ -26,7 +26,10 @@ Imports:
     stats,
     utils,
     ggplot2,
-    rlang
+    rlang,
+    callr,
+    stringr,
+    processx
 LinkingTo: Rcpp, RcppEigen, testthat
 SystemRequirements: make
 RoxygenNote: 7.3.1
@@ -38,10 +41,7 @@ Suggests:
     testthat,
     xml2,
     pandoc,
-    spelling,
-    callr,
-    stringr,
-    processx
+    spelling
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Language: en-US

@@ -1599,3 +1599,89 @@ Joint_Multiple_Events <- function(df, events, name_list, Term_n_list=list(), tfo
     }
     return (list('df'=df0,'names'=names,'Term_n'=Term_n,'tform'=tform,'keep_constant'=keep_constant,'a_n'=a_n))
 }
+
+#' Checks system OS
+#'
+#' \code{get_os} checks the system OS, part of configuration script
+#'
+#' @return returns a string representation of OS
+get_os <- function(){
+  sysinf <- Sys.info()
+  if (!is.null(sysinf)){
+    os <- sysinf['sysname']
+    if (os == 'Darwin')
+      os <- "osx"
+  } else { ## mystery machine
+    os <- .Platform$OS.type
+    if (grepl("^darwin", R.version$os))
+      os <- "osx"
+    if (grepl("linux-gnu", R.version$os))
+      os <- "linux"
+  }
+  tolower(os)
+}
+
+#' Checks default c++ compiler
+#'
+#' \code{gcc_version} Checks default c++ compiler, part of configuration script
+#'
+#' @return returns a string representation of gcc, clang, or c++ outsput
+gcc_version <- function() {
+  out <- tryCatch(run("c++", "-v", stderr_to_stdout = TRUE),
+                  error = function(cnd) list(stdout = ""))
+  out0 <- str_match(out$stdout, "gcc version")[1]
+  if (!is.na(out0)){
+  	out <- "gcc"
+  } else {
+    out0 <- str_match(out$stdout, "clang version")[1]
+    if (!is.na(out0)){
+      out <- "clang"
+    } else {
+      out <- out$stdout
+    }
+  }
+  out
+}
+
+#' Checks how R was compiled
+#'
+#' \code{Rcomp_version} Checks how R was compiled, part of configuration script
+#'
+#' @return returns a string representation of gcc, clang, or R CMD config CC outsput
+Rcomp_version <- function() {
+  out <- rcmd("config","CC")
+  out0 <- str_match(out$stdout, "clang")[1]
+  if (!is.na(out0)){
+  	out <- "clang"
+  } else {
+    out0 <- str_match(out$stdout, "gcc")[1]
+    if (!is.na(out0)){
+      out <- "gcc"
+    } else {
+      out <- out$stdout
+    }
+  }
+  out
+}
+
+#' Checks default R c++ compiler
+#'
+#' \code{Rcpp_version} checks ~/.R/Makevars script for default compilers set, part of configuration script
+#'
+#' @return returns a string representation of gcc, clang, or head ~/.R/Makevars
+Rcpp_version <- function() {
+  out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
+                  error = function(cnd) list(stdout = ""))
+  out0 <- str_match(out$stdout, "clang")[1]
+  if (!is.na(out0)){
+  	out <- "clang"
+  } else {
+    out0 <- str_match(out$stdout, "gcc")[1]
+    if (!is.na(out0)){
+      out <- "gcc"
+    } else {
+      out <- out$stdout
+    }
+  }
+  out
+}

@@ -6,6 +6,7 @@ breslow
 breslow's
 Calc
 codecov
+CONFIG
 csv
 Cullings
 datatable
@@ -37,12 +38,14 @@ Kotaro
 ksu
 LEXP
 lin
+linux
 LogLik
 loglin
 LogLinear
 LQ
 lr
 Mabuchi
+MacOS
 maxiter
 meier
 Meier
@@ -54,6 +57,7 @@ NCRP
 NL
 nonDose
 NSSC
+OpenMP
 Ozasa
 PAE
 pkgcheck

@@ -190,6 +190,9 @@ NULL
 #' @importFrom graphics legend lines smoothScatter
 #' @importFrom stats approxfun time qchisq
 #' @importFrom rlang .data
+#' @importFrom processx run
+#' @importFrom stringr str_match
+#' @importFrom callr rcmd
 #' @useDynLib Colossus, .registration = TRUE
 NULL
 
