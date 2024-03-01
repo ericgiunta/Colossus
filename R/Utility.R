@@ -222,7 +222,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
     if (der_iden %in% (seq_len(length(tform))-1)){
         #pass
     } else {
-        message("Error: der_iden should be within 0:(length(Term_n)-1)")
+        message("Error: der_iden should be within 0:(length(tform)-1)")
         stop()
     }
     if (is.matrix(Cons_Mat)){
@@ -244,6 +244,18 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
     }
     if (any(keep_constant != round(keep_constant))){
         message(paste("Error: keep_constant expects 0/1 values, atleast one value was noninteger",sep=""))
+        stop()
+    }
+    if (any(Term_n != round(Term_n))){
+        message(paste("Error: Term_n expects integer values, atleast one value was noninteger",sep=""))
+        stop()
+    }
+    if (min(Term_n)!=0){
+        message(paste("Warning: Term_n expects nonnegative integer values and a minimum of 0, minimum value was ",min(Term_n),". Minimum value set to 0, others shifted by ",-1*min(Term_n),sep=""))
+        Term_n <- Term_n - min(Term_n)
+    }
+    if (length(sort(unique(Term_n))) != length(min(Term_n):max(Term_n))){
+        message(paste("Error: Term_n expects no missing integer values. Term numbers range from ",min(Term_n)," to ",max(Term_n)," but Term_n has ", length(unique(Term_n)), " unique values instead of ",length(min(Term_n):max(Term_n)),sep=""))
         stop()
     }
     if (length(keep_constant)<length(names)){
@@ -295,6 +307,16 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         message("Error: Atleast one parameter must be free")
         stop()
     }
+    tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top",
+                     "lin_slope", "lin_int", "quad_slope", "step_slope",
+                     "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope",
+                     "lin_exp_int", "lin_exp_exp_slope")
+    tform_iden <- match(tform,tform_order)
+    if (any(is.na(tform_iden))){
+        message("Error: Missing tform items:")
+        message(paste("missing ", tform[is.na(tform_iden)]," ",sep=""))
+        stop()
+    }
     if (((typeof(a_n)=="list")&&(length(a_n)==1))||(typeof(a_n)!="list")){
         #
         if (typeof(a_n)=="list"){
@@ -313,11 +335,6 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         df <- data.table::data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
                          "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)),"current_order"=1:length(tform),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
-        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top",
-                         "lin_slope", "lin_int", "quad_slope", "step_slope",
-                         "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope",
-                         "lin_exp_int", "lin_exp_exp_slope")
-        tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
         keycol <-c("Term_n","names","tform_order")
         data.table::setorderv(df, keycol)
@@ -351,11 +368,6 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         for (i in seq_len(length(a_n))){
             df[[paste("a_",i,sep="")]] <- a_n[[i]]
         }
-        tform_order <- c("loglin", "lin", "plin", "loglin_slope", "loglin_top",
-                         "lin_slope", "lin_int", "quad_slope", "step_slope",
-                         "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope",
-                         "lin_exp_int", "lin_exp_exp_slope")
-        tform_iden <- match(tform,tform_order)
         df$tform_order <- tform_iden
         keycol <-c("Term_n","names","tform_order")
         data.table::setorderv(df, keycol)

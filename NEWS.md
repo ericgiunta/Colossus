@@ -22,3 +22,8 @@
 
 * configuration script libraries moved from Suggested: to Imports:
 * configuration script functions moved to non-exported functions in Colossus, circumvents note about imported libraries not being used and may be later used to provide the user with a function that informs them of why OpenMP is/isn't supported
+
+# Colossus 1.0.4
+
+* utility checks updated to check term numbers and subterm types in R side
+* code will fail if term numbers are not integers, term numbers are missing, or subterm types are

@@ -1011,6 +1011,31 @@ test_that("Checking keep_constant limits", {
     keep_constant <- c(0,0,0,1,0.5)
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
+test_that("Checking Term_n limits", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'loglin','loglin', "loglin", "loglin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
+    names <- c("a","a","a","a","a")
+    Term_n <- c(0,0,0,-1,0)
+    expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
+    Term_n <- c(0,0,0,1,0.5)
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
+    Term_n <- c(0,1,1,1,3)
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
+})
+test_that("Checking tform values", {
+    Term_n <- c(0,1,1,0,0)
+    tform <- c("loglin",'loglin','loglin', "loglin", "loglin")
+    keep_constant <- c(0,0,0,1,0)
+    a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
+    names <- c("a","a","a","a","a")
+    Term_n <- c(0,0,0,-1,0)
+    tform <- c("loglin",'fake','loglin', "loglin", "loglin")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
+    tform <- c("loglin",'fake','bad', "loglin", "loglin")
+    expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
+})
 
 ## ------------------------------------- ##
 ## gather guesses
