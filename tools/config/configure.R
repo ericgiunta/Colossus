@@ -81,8 +81,8 @@ if (os=="linux"){
     configure_file("src/Makevars.in")
 } else if (os=="osx"){
     define(PKG_CXXFLAGS = "#PKG_CXXFLAGS= $(SHLIB_OPENMP_CXXFLAGS)")
-    define(PKG_LIBS = 'PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) $(SHLIB_OPENMP_CPPFLAGS) -lomp"')
-    define(PKG_CPPFLAGS = "PKG_CPPFLAGS = $(SHLIB_OPENMP_CPPFLAGS) -Xclang")
+    define(PKG_LIBS = 'LDFLAGS = $(LDFLAGS)  -lomp"')
+    define(PKG_CPPFLAGS = "PKG_CPPFLAGS = $(PKG_CPPFLAGS) -Xclang")
     configure_file("src/Makevars.in")
 } else {
     define(PKG_CXXFLAGS = "PKG_CXXFLAGS= $(SHLIB_OPENMP_CXXFLAGS)")
