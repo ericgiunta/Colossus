@@ -27,3 +27,7 @@
 
 * utility checks updated to check term numbers and subterm types in R side
 * code will fail if term numbers are not integers, term numbers are missing, or subterm types are
+
+# Colossus 1.0.5
+
+* compilation flags changed to macros
