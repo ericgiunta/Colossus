@@ -80,9 +80,9 @@ if (os=="linux"){
     define(PKG_CPPFLAGS = "#PKG_CPPFLAGS = -Xclang -fopenmp")
     configure_file("src/Makevars.in")
 } else if (os=="osx"){
-    define(PKG_CXXFLAGS = "#PKG_CXXFLAGS= $(SHLIB_OPENMP_CXXFLAGS)")
-    define(PKG_LIBS = 'LDFLAGS = $(LDFLAGS)  -lomp"')
-    define(PKG_CPPFLAGS = "PKG_CPPFLAGS = $(PKG_CPPFLAGS) -Xclang")
+    define(PKG_CXXFLAGS = "PKG_CXXFLAGS= $(SHLIB_OPENMP_CXXFLAGS)")
+    define(PKG_LIBS = '#LDFLAGS = -lomp"')
+    define(PKG_CPPFLAGS = "#PKG_CPPFLAGS = -Xclang -fopenmp")
     configure_file("src/Makevars.in")
 } else {
     define(PKG_CXXFLAGS = "PKG_CXXFLAGS= $(SHLIB_OPENMP_CXXFLAGS)")
