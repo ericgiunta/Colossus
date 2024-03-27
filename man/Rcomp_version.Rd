@@ -7,7 +7,7 @@
 Rcomp_version()
 }
 \value{
-returns a string representation of gcc, clang, or R CMD config CC outsput
+returns a string representation of gcc, clang, or R CMD config CC output
 }
 \description{
 \code{Rcomp_version} Checks how R was compiled, part of configuration script

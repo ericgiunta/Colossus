@@ -6,6 +6,8 @@ breslow
 breslow's
 Calc
 codecov
+config
+CMD
 CONFIG
 csv
 Cullings
@@ -24,6 +26,7 @@ Eigen
 eigen
 EPS
 func
+gcc
 GitHub
 GMIX
 halfmax
@@ -46,6 +49,7 @@ LQ
 lr
 Mabuchi
 MacOS
+Makevars
 maxiter
 meier
 Meier

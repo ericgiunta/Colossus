@@ -7,7 +7,7 @@
 gcc_version()
 }
 \value{
-returns a string representation of gcc, clang, or c++ outsput
+returns a string representation of gcc, clang, or c++ output
 }
 \description{
 \code{gcc_version} Checks default c++ compiler, part of configuration script

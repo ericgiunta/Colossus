@@ -1637,7 +1637,7 @@ get_os <- function(){
 #'
 #' \code{gcc_version} Checks default c++ compiler, part of configuration script
 #'
-#' @return returns a string representation of gcc, clang, or c++ outsput
+#' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
   out <- tryCatch(run("c++", "-v", stderr_to_stdout = TRUE),
                   error = function(cnd) list(stdout = ""))
@@ -1659,7 +1659,7 @@ gcc_version <- function() {
 #'
 #' \code{Rcomp_version} Checks how R was compiled, part of configuration script
 #'
-#' @return returns a string representation of gcc, clang, or R CMD config CC outsput
+#' @return returns a string representation of gcc, clang, or R CMD config CC output
 Rcomp_version <- function() {
   out <- rcmd("config","CC")
   out0 <- str_match(out$stdout, "clang")[1]
