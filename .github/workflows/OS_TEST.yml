@@ -39,7 +39,7 @@ jobs:
       - name: move to package and build examples
         run: |
           brew install pandoc
-          Rscript -e "devtools::check(error_on = c('error'))"
+          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
       - name: move to package and run tests
         run: |
           Rscript -e "devtools::run_examples()"
@@ -61,7 +61,7 @@ jobs:
       - name: move to package and build examples
         run: |
           brew install pandoc
-          Rscript -e "devtools::check(error_on = c('error'))"
+          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   win_check:
     runs-on: windows-latest
 
@@ -80,7 +80,7 @@ jobs:
         run: |
           choco install pandoc
           refreshenv
-          Rscript -e "devtools::check(error_on = c('error'))"
+          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
       - name: move to package and run tests
         run: |
           Rscript -e "devtools::run_examples()"
@@ -105,7 +105,7 @@ jobs:
         run: |
           sudo apt-get install pandoc
           sudo apt-get install texlive
-          Rscript -e "devtools::check(error_on = c('error'))"
+          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
       - name: move to package and run tests
         run: |
           Rscript -e "devtools::run_examples()"
