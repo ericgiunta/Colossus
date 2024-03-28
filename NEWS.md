@@ -31,3 +31,9 @@
 # Colossus 1.0.5
 
 * compilation flags changed to macros
+
+# Colossus 1.1.0
+
+* Default Makevars is now fully portable
+* By default only windows uses OpenMP now
+* The github version will include instructions on activating configuration to use OpenMP on other systems
