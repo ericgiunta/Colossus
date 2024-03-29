@@ -1555,6 +1555,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// OMP_Check
+bool OMP_Check();
+RcppExport SEXP _Colossus_OMP_Check() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(OMP_Check());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
@@ -1618,6 +1628,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Gen_Fac_Par", (DL_FUNC) &_Colossus_Gen_Fac_Par, 4},
     {"_Colossus_risk_check_transition", (DL_FUNC) &_Colossus_risk_check_transition, 11},
     {"_Colossus_Gen_Strat_Weight", (DL_FUNC) &_Colossus_Gen_Strat_Weight, 8},
+    {"_Colossus_OMP_Check", (DL_FUNC) &_Colossus_OMP_Check, 0},
     {NULL, NULL, 0}
 };
 

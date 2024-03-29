@@ -735,3 +735,13 @@ Gen_Strat_Weight <- function(modelform, dfs, PyrC, s_weights, nthreads, tform, T
     invisible(.Call(`_Colossus_Gen_Strat_Weight`, modelform, dfs, PyrC, s_weights, nthreads, tform, Term_n, term_tot))
 }
 
+#' Checks the OMP flag
+#'
+#' \code{OMP_Check} Called directly from R, checks the omp flag and returns if omp is enabled
+#'
+#' @return boolean: True for OMP allowed
+#'
+OMP_Check <- function() {
+    .Call(`_Colossus_OMP_Check`)
+}
+

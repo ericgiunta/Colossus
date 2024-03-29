@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 : "${R_HOME=`R RHOME`}"
-if [[ ! -z "${R_COLOSSUS_NOT_CRAN}" ]]; then
-    "${R_HOME}/bin/Rscript" tools/config.R configure "$@"
+if [ ! -z "${R_COLOSSUS_NOT_CRAN}" ]; then
+     "${R_HOME}/bin/Rscript" tools/config.R configure "$@"
 fi

@@ -1697,3 +1697,17 @@ Rcpp_version <- function() {
   }
   out
 }
+
+#' Checks OS, compilers, and OMP
+#'
+#' \code{System_Version} checks OS, default R c++ compiler, and if OMP is enabled
+#'
+#' @return returns a list of results
+#' @export
+System_Version <- function() {
+  os <- get_os()
+  gcc <- gcc_version()
+  Rcomp <- Rcomp_version()
+  OMP <- OMP_Check()
+  list("Operating System"=os,"Default c++"=gcc, "R Compiler"=Rcomp, "OpenMP Enabled"=OMP)
+}

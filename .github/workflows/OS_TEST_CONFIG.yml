@@ -35,12 +35,13 @@ jobs:
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
+          Rscript -e "Sys.setenv("R_COLOSSUS_NOT_CRAN"="T")
+          devtools::install()"
       - name: check detected OS and OpenMP
         run: |
            Rscript -e "a=Colossus::System_Version()
             print(a)
-            if (a['OpenMP Enabled']!='FALSE'){
+            if (a['OpenMP Enabled']!='TRUE'){
             stop
             }
             if (a['Operating System']!='osx'){
@@ -68,7 +69,8 @@ jobs:
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
+          Rscript -e "Sys.setenv("R_COLOSSUS_NOT_CRAN"="T")
+          devtools::install()"
       - name: check detected OS and OpenMP
         run: |
            Rscript -e "a=Colossus::System_Version()
@@ -97,7 +99,8 @@ jobs:
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
+          Rscript -e "Sys.setenv("R_COLOSSUS_NOT_CRAN"="T")
+          devtools::install()"
       - name: check detected OS and OpenMP
         run: |
            Rscript -e "a=Colossus::System_Version()
@@ -130,12 +133,13 @@ jobs:
           Rscript -e "install.packages(c('devtools'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
+          Rscript -e "Sys.setenv("R_COLOSSUS_NOT_CRAN"="T")
+          devtools::install()"
       - name: check detected OS and OpenMP
         run: |
            Rscript -e "a=Colossus::System_Version()
             print(a)
-            if (a['OpenMP Enabled']!='FALSE'){
+            if (a['OpenMP Enabled']!='TRUE'){
             stop
             }
             if (a['Operating System']!='linux'){
