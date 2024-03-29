@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-if [[ ! -z "${R_COLOSSUS_NOT_CRAN}" ]]; then
-    "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" tools/config.R configure "$@"
-fi
