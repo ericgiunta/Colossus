@@ -539,6 +539,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, Term_n,
 #' cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
 #'
 GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list(),Strat_Col="e"){
+    df <- data.table(df)
     if (plot_options$verbose){
         message("Note: Starting Censoring weight Plot Function")
     }

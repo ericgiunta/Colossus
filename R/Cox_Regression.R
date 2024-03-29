@@ -51,6 +51,7 @@
 #'                               "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+    df <- data.table(df)
     control <- Def_Control(control)
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
                                  names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
@@ -312,6 +313,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 
 RunCoxEventAssignment <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     #
+    df <- data.table(df)
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
@@ -577,6 +579,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 #'      keep_constant, a_n, modelform, fir, control)
 #'
 Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control, model_control=list()){
+    df <- data.table(df)
     control <- Def_Control(control)
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,Term_n)
@@ -703,6 +706,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #'             a_n, modelform, fir, control, plot_options)
 #'
 RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list()){
+    df <- data.table(df)
     control <- Def_Control(control)
     if (min(keep_constant)>0){
         message("Error: Atleast one parameter must be free")
@@ -1011,6 +1015,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #'
 #' @importFrom rlang .data
 RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col,model_control=list(),cens_weight=c(0)){
+    df <- data.table(df)
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     if (min(keep_constant)>0){
@@ -1193,6 +1198,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #'                               der_iden, control,guesses_control,Strat_Col)
 #' @importFrom rlang .data
 RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col,model_control=list(),cens_weight=c(0)){
+    df <- data.table(df)
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }

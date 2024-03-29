@@ -46,6 +46,7 @@
 #'                                   a_n, modelform, fir, der_iden, control,Strat_Col)
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+    df <- data.table(df)
     control <- Def_Control(control)
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
                                  names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
@@ -261,6 +262,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' 
 #' @importFrom rlang .data
 RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, Term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list(), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+    df <- data.table(df)
     val <- Joint_Multiple_Events(df, events, name_list, Term_n_list, tform_list, keep_constant_list, a_n_list)
     df <- val$df
     names <- val$names
@@ -369,6 +371,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #' @export
 #'
 RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+    df <- data.table(df)
     control <- Def_Control(control)
     control$maxiters <- c(1,control$maxiter)
     control$guesses <- 1
@@ -583,6 +586,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #'
 #' @importFrom rlang .data
 RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Col){
+    df <- data.table(df)
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     t_initial <- guesses_control$term_initial
@@ -696,6 +700,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 #'                               der_iden, control,guesses_control,Strat_Col)
 #' @importFrom rlang .data
 RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col=c("null"),model_control=list()){
+    df <- data.table(df)
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
