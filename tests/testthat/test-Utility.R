@@ -1,3 +1,9 @@
+## ------------------------------------- ##
+## Verify the system check code
+## ------------------------------------- ##
+test_that("System version", {
+    expect_no_error(System_Version())
+})
 
 ## ------------------------------------- ##
 ## Default control

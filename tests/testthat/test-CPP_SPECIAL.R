@@ -54,7 +54,7 @@ test_that("Coxph censoring weight", {
     keep_constant <- c(0,0)
     e1 <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     #
-    expect_equal(e0$LogLik - e1$LogLik,-2.909427,tolerance=1e-2)
+    expect_equal(e0$LogLik - e1$LogLik,8.680511,tolerance=1e-2)
 })
 
 

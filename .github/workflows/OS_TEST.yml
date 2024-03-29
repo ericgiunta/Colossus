@@ -41,10 +41,10 @@ jobs:
            Rscript -e "a=Colossus::System_Version()
             print(a)
             if (a['OpenMP Enabled']!='FALSE'){
-            stop
+            stop()
             }
             if (a['Operating System']!='osx'){
-            stop
+            stop()
             }
             "
       - name: move to package and build examples
@@ -74,10 +74,10 @@ jobs:
            Rscript -e "a=Colossus::System_Version()
             print(a)
             if (a['OpenMP Enabled']!='FALSE'){
-            stop
+            stop()
             }
             if (a['Operating System']!='osx'){
-            stop
+            stop()
             }
             "
       - name: move to package and build examples
@@ -103,7 +103,7 @@ jobs:
            Rscript -e "a=Colossus::System_Version()
             print(a)
             if (a['OpenMP Enabled']!='TRUE'){
-            stop
+            stop()
             }
             "
       - name: move to package and build examples
@@ -136,10 +136,10 @@ jobs:
            Rscript -e "a=Colossus::System_Version()
             print(a)
             if (a['OpenMP Enabled']!='FALSE'){
-            stop
+            stop()
             }
             if (a['Operating System']!='linux'){
-            stop
+            stop()
             }
             "
       - name: move to package and build examples
