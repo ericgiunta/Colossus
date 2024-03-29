@@ -79,6 +79,9 @@
     <loc>/reference/Linked_Lin_Exp_Para.html</loc>
   </url>
   <url>
+    <loc>/reference/OMP_Check.html</loc>
+  </url>
+  <url>
     <loc>/reference/Rcomp_version.html</loc>
   </url>
   <url>
@@ -143,6 +146,9 @@
   </url>
   <url>
     <loc>/reference/RunPoissonRegression_Tier_Guesses.html</loc>
+  </url>
+  <url>
+    <loc>/reference/System_Version.html</loc>
   </url>
   <url>
     <loc>/reference/Time_Since.html</loc>
