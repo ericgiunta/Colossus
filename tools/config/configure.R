@@ -86,6 +86,7 @@ if (os=="linux"){
 	}
 } else if (os=="osx"){
     print("CONFIG NOTE: Building mac and allowing xclang openmp support")
+    print("CONFIG NOTE: Building with no openmp support")
     define(PKG_CXXFLAGS = "#PKG_CXXFLAGS=-fopenmp")
     define(PKG_LIBS = '#PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp')
     define(PKG_CPPFLAGS = "CPPFLAGS += -Xclang -fopenmp")

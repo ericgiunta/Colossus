@@ -24,12 +24,14 @@ models allowed are sums or products of linear, log-linear, or several
 other radiation dose response formula highlighted in the vignettes.
 Additional plotting capabilities are available.
 
-Please consult the GitHub for details on libraries required for your OS.
-Note that Colossus requires OpenMP support to perform parallel
-calculations. During the configuration stage of installation, text
-starting with “CONFIG NOTE” will denote what OS/Compiler are detected
-and if OpenMP support is configured. Currently OpenMP support is not
-configured for linux and MacOS operating systems compiling with clang.
+By default a fully portable version of the code is compiled, which does
+not support OpenMP on every system. Please consult the GitHub for
+details on libraries required for your OS if you are interested in using
+OpenMP on linux. Note that Colossus requires OpenMP support to perform
+parallel calculations. During the configuration stage of installation,
+text starting with “CONFIG NOTE” will denote what OS/Compiler are
+detected and if OpenMP support is configured. Currently OpenMP support
+is not configured for linux compiling with clang and MacOS systems.
 
 ## Example
 
@@ -76,20 +78,20 @@ print(e)
 #> [1] -0.6753644
 #> 
 #> $First_Der
-#> [1] -2.220446e-16 -7.187040e-05  7.361232e-05  1.919948e-04
+#> [1]  0.000000e+00 -7.187040e-05  7.361232e-05  1.919948e-04
 #> 
 #> $Second_Der
 #>              [,1]         [,2]          [,3]          [,4]
-#> [1,] 2.220446e-16 2.710505e-20  1.734723e-18  3.559233e-18
-#> [2,] 2.710505e-20 1.742209e-08  7.238366e-07  2.311365e-07
-#> [3,] 1.734723e-18 7.238366e-07 -1.501037e-06 -2.356033e-07
-#> [4,] 3.559233e-18 2.311365e-07 -2.356033e-07 -3.687577e-06
+#> [1,] 0.000000e+00 0.000000e+00  0.000000e+00  4.965508e-19
+#> [2,] 0.000000e+00 1.742209e-08  7.238366e-07  2.311365e-07
+#> [3,] 0.000000e+00 7.238366e-07 -1.501037e-06 -2.356033e-07
+#> [4,] 4.965508e-19 2.311365e-07 -2.356033e-07 -3.687577e-06
 #> 
 #> $beta_0
-#> [1]  42.97183  98.72266  96.82311 101.10000
+#> [1]  41.26157  98.72266  96.82311 101.10000
 #> 
 #> $Standard_Deviation
-#> [1]      NaN      NaN 240.8255 520.7003
+#> [1]      NaN      NaN 177.9643   0.0000
 #> 
 #> $AIC
 #> [1] 9.350729

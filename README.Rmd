@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 The goal of Colossus is to provide an open-source means of performing survival analysis on big data with complex risk formula. Colossus is designed to perform Cox Proportional Hazard regressions and Poisson regressions on datasets loaded as data.tables or data.frames. The risk models allowed are sums or products of linear, log-linear, or several other radiation dose response formula highlighted in the vignettes. Additional plotting capabilities are available.
 
 
-Please consult the GitHub for details on libraries required for your OS. Note that Colossus requires OpenMP support to perform parallel calculations. During the configuration stage of installation, text starting with "CONFIG NOTE" will denote what OS/Compiler are detected and if OpenMP support is configured. Currently OpenMP support is not configured for linux and MacOS operating systems compiling with clang.
+By default a fully portable version of the code is compiled, which does not support OpenMP on every system. Please consult the GitHub for details on libraries required for your OS if you are interested in using OpenMP on linux. Note that Colossus requires OpenMP support to perform parallel calculations. During the configuration stage of installation, text starting with "CONFIG NOTE" will denote what OS/Compiler are detected and if OpenMP support is configured. Currently OpenMP support is not configured for linux compiling with clang and MacOS systems.
 
 ## Example
 
