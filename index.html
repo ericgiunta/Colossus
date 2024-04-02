@@ -77,7 +77,7 @@
 <!-- badges: start -->
 
 <p>The goal of Colossus is to provide an open-source means of performing survival analysis on big data with complex risk formula. Colossus is designed to perform Cox Proportional Hazard regressions and Poisson regressions on datasets loaded as data.tables or data.frames. The risk models allowed are sums or products of linear, log-linear, or several other radiation dose response formula highlighted in the vignettes. Additional plotting capabilities are available.</p>
-<p>Please consult the GitHub for details on libraries required for your OS. Note that Colossus requires OpenMP support to perform parallel calculations. During the configuration stage of installation, text starting with “CONFIG NOTE” will denote what OS/Compiler are detected and if OpenMP support is configured. Currently OpenMP support is not configured for linux and MacOS operating systems compiling with clang.</p>
+<p>By default a fully portable version of the code is compiled, which does not support OpenMP on every system. Please consult the GitHub for details on libraries required for your OS if you are interested in using OpenMP on linux. Note that Colossus requires OpenMP support to perform parallel calculations. During the configuration stage of installation, text starting with “CONFIG NOTE” will denote what OS/Compiler are detected and if OpenMP support is configured. Currently OpenMP support is not configured for linux compiling with clang and MacOS systems.</p>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
@@ -123,20 +123,20 @@
 <span><span class="co">#&gt; [1] -0.6753644</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $First_Der</span></span>
-<span><span class="co">#&gt; [1] -2.220446e-16 -7.187040e-05  7.361232e-05  1.919948e-04</span></span>
+<span><span class="co">#&gt; [1]  0.000000e+00 -7.187040e-05  7.361232e-05  1.919948e-04</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Second_Der</span></span>
 <span><span class="co">#&gt;              [,1]         [,2]          [,3]          [,4]</span></span>
-<span><span class="co">#&gt; [1,] 2.220446e-16 2.710505e-20  1.734723e-18  3.559233e-18</span></span>
-<span><span class="co">#&gt; [2,] 2.710505e-20 1.742209e-08  7.238366e-07  2.311365e-07</span></span>
-<span><span class="co">#&gt; [3,] 1.734723e-18 7.238366e-07 -1.501037e-06 -2.356033e-07</span></span>
-<span><span class="co">#&gt; [4,] 3.559233e-18 2.311365e-07 -2.356033e-07 -3.687577e-06</span></span>
+<span><span class="co">#&gt; [1,] 0.000000e+00 0.000000e+00  0.000000e+00  4.965508e-19</span></span>
+<span><span class="co">#&gt; [2,] 0.000000e+00 1.742209e-08  7.238366e-07  2.311365e-07</span></span>
+<span><span class="co">#&gt; [3,] 0.000000e+00 7.238366e-07 -1.501037e-06 -2.356033e-07</span></span>
+<span><span class="co">#&gt; [4,] 4.965508e-19 2.311365e-07 -2.356033e-07 -3.687577e-06</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $beta_0</span></span>
-<span><span class="co">#&gt; [1]  42.97183  98.72266  96.82311 101.10000</span></span>
+<span><span class="co">#&gt; [1]  41.26157  98.72266  96.82311 101.10000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Standard_Deviation</span></span>
-<span><span class="co">#&gt; [1]      NaN      NaN 240.8255 520.7003</span></span>
+<span><span class="co">#&gt; [1]      NaN      NaN 177.9643   0.0000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $AIC</span></span>
 <span><span class="co">#&gt; [1] 9.350729</span></span>
