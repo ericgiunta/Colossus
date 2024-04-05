@@ -632,7 +632,7 @@ Def_modelform_fix <- function(control,model_control,modelform,Term_n){
 #' control <- Def_model_control(control)
 #'
 Def_model_control <- function(control){
-    control_def_names <- c('single','basic','null','CR','constraint','strata','Surv','Schoenfeld','Risk','Risk_Subset')
+    control_def_names <- c('single','basic','null','CR','constraint','strata','Surv','Schoenfeld','Risk','Risk_Subset','Log_Bound')
     for (nm in control_def_names){
         if (nm %in% names(control)){
             #fine

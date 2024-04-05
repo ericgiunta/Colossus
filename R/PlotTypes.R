@@ -635,10 +635,12 @@ GetCensWeight <- function(df, time1, time2, event0, names, Term_n, tform, keep_c
     dft <- data.table::data.table("t"=t,"h"=h,"ch"=ch,"surv"=surv)
     data.table::setkeyv(dft,"t")
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) +
-        ggplot2::geom_point(color="black") +
-        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-    ggplot2::ggsave(paste(Plot_Name,"_weight_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+    if (system.file(package='ggplot2')!=""){
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) +
+            ggplot2::geom_point(color="black") +
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+        ggplot2::ggsave(paste(Plot_Name,"_weight_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+    }
     #
     return (dft)
 }

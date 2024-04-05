@@ -195,15 +195,22 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         a_ns <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
     }
     #
-    e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden,
-         modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
-         keep_constant,term_tot, uniq, cens_weight, model_control,
-         Cons_Mat, Cons_Vec)
-	if (is.nan(e$LogLik)){
-		if (control$verbose){message("Invalid risk")}
-		stop()
-	}
-    e$Parameter_Lists$names <- names
+    if (model_control$Log_Bound){
+        e <- cox_ph_cox_ph_Omnibus_Bounds_transition(Term_n,tform,a_ns[1,],dfc,x_all, fir,
+             modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
+             keep_constant,term_tot, uniq, cens_weight, model_control,
+             Cons_Mat, Cons_Vec)
+    } else {
+        e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden,
+             modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
+             keep_constant,term_tot, uniq, cens_weight, model_control,
+             Cons_Mat, Cons_Vec)
+	    if (is.nan(e$LogLik)){
+		    if (control$verbose){message("Invalid risk")}
+		    stop()
+	    }
+        e$Parameter_Lists$names <- names
+    }
     return (e)
 }
 
@@ -706,6 +713,10 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #'             a_n, modelform, fir, control, plot_options)
 #'
 RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list()){
+    if (system.file(package='ggplot2')==""){
+        message("Error: ggplot2 is not detected, required to run plotting functions")
+        return ("Passed")
+    }
     df <- data.table(df)
     control <- Def_Control(control)
     if (min(keep_constant)>0){

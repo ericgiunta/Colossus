@@ -37,3 +37,7 @@
 * Default Makevars is now fully portable
 * By default only windows uses OpenMP now
 * The GitHub version will include instructions on activating configuration to use OpenMP on gcc Linux
+
+# Colossus 1.1.1
+
+* ggplot2 no longer required, now optional
