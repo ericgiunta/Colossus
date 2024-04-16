@@ -825,7 +825,7 @@ void Simplified_Inform_Matrix(const int& nthreads,const IntegerMatrix& RiskFail,
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
-    #pragma omp parallel for schedule(dynamic) num_threads(num_threads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(2)
     #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
@@ -928,7 +928,7 @@ void Simplified_Inform_Matrix_STRATA(const int& nthreads,const IntegerMatrix& Ri
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll,Lld,Lldd) collapse(2)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(3)
     #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//performs log-likelihood calculations for every derivative combination and risk group
         for (int j=0;j<ntime;j++){
