@@ -1,12 +1,12 @@
 pandoc: 3.1.11
-pkgdown: 2.0.7
+pkgdown: 2.0.8
 pkgdown_sha: ~
 articles:
   Alt_Distrib_Starts: Alt_Distrib_Starts.html
   Alt_Run_opt: Alt_Run_opt.html
-  Plotting_And_Analysis: Plotting_And_Analysis.html
-  Time_Dep_Cov: Time_Dep_Cov.html
   dose_formula_inputs: dose_formula_inputs.html
+  Plotting_And_Analysis: Plotting_And_Analysis.html
   starting-description: starting-description.html
-last_built: 2024-04-05T16:41Z
+  Time_Dep_Cov: Time_Dep_Cov.html
+last_built: 2024-04-16T02:24Z
 
