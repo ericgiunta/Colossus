@@ -919,7 +919,41 @@ List LogLik_Cox_PH_Omnibus( IntegerVector Term_n, StringVector tform, NumericMat
     }
     List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst); //stores the total number of iterations used
     //
-    NumericVector Lldd_vec(reqrdnum * reqrdnum);
+    vector<double> InMa(pow(reqrdnum,2),0.0);
+    if (!strata_bool){
+        //Rcout << "Normal" << endl;
+        Simplified_Inform_Matrix( nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, InMa, debugging, ties_method, KeepConstant);
+    } else {
+        //Rcout << "Strata" << endl;
+        Simplified_Inform_Matrix_STRATA( nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, InMa, debugging, ties_method, STRATA_vals, KeepConstant);
+    }
+    NumericVector InMa_vec(reqrdnum * reqrdnum); //simplfied information matrix
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        InMa_vec[ij * reqrdnum + jk]=InMa[ij*reqrdnum+jk];
+        InMa_vec[jk * reqrdnum + ij]=InMa[ij * reqrdnum + jk];
+    }
+    InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+    const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));
+    //
+    MatrixXd InMa_inv = InMa_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev_simplified = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant,ij));
+            stdev_simplified(ij) = sqrt(InMa_inv(pij_ind,pij_ind));
+        }
+    }
+    //
+    NumericVector Lldd_vec(reqrdnum * reqrdnum); //simplfied information matrix
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -947,9 +981,9 @@ List LogLik_Cox_PH_Omnibus( IntegerVector Term_n, StringVector tform, NumericMat
     //
     //
     if (basic_bool){
-        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Control_List"]=control_list,_["Converged"]=convgd);
+        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev),_["Alternate_Standard_Deviation"]=wrap(stdev_simplified) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Control_List"]=control_list,_["Converged"]=convgd);
     } else {
-        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
+        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev),_["Alternate_Standard_Deviation"]=wrap(stdev_simplified) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
     }
     // returns a list of results
     return res_list;

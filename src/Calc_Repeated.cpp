@@ -3800,5 +3800,3 @@ void Calc_Null_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, 
     }
     return;
 }
-
-
