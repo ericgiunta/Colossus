@@ -2192,19 +2192,19 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;// stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;// stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;// stores the best parameters
-    double halves = 0; //number of half-steps taken
-    int ind0 = fir; //used for validations
+    // double halves = 0; //number of half-steps taken
+    // int ind0 = fir; //used for validations
     int iteration=0; //iteration number
-    int maxiter=0;
+    // int maxiter=0;
     //
     bool convgd = FALSE;
     int iter_stop =0; //tracks if the iterations should be stopped for convergence
-    int iter_check=0; //signal to check for convergence
+    // int iter_check=0; //signal to check for convergence
     //
     //
-    double Ll_abs_best = 10;
+    // double Ll_abs_best = 10;
     vector<double> beta_abs_best(totalnum,0.0);
-    int guess_abs_best =-1;
+    // int guess_abs_best =-1;
     //
     Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
@@ -2220,17 +2220,16 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     abs_max = abs_max0;
     dose_abs_max = dose_abs_max0;
     iter_stop = 0;
-    halves=0;
+    // halves=0;
     iteration=0;
-    halves = 0; //number of half-steps taken
-    ind0 = fir; //used for validations
+    // halves = 0; //number of half-steps taken
+    // ind0 = fir; //used for validations
     iteration=0; //iteration number
     //
     convgd = FALSE;
     iter_stop =0; //tracks if the iterations should be stopped for convergence
-    iter_check=0; //signal to check for convergence
+    // iter_check=0; //signal to check for convergence
     //
-    maxiter = 10;
     for (int i=0;i<beta_0.size();i++){
         beta_0[i] = a_n[i];
     }

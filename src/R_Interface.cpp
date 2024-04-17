@@ -620,8 +620,8 @@ bool OMP_Check(){
 //'
 // [[Rcpp::export]]
 List cox_ph_cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
+    // bool change_all = Control["change_all"];
+    // int double_step = Control["double_step"];
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
