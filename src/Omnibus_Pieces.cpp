@@ -772,39 +772,39 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool verbose){
     // starts with solved likelihoods and derivatives
     // store the second derivative as D0
-    MatrixXd D0 = Lldd_mat;
-    if (step==0){
-        //Initial step, calculate dom/dbet and h
-        VectorXd dOmdBeta = Lldd_mat.col(para_number);
-        removeRow(D0, para_number);
-        removeColumn(D0, para_number);
-        D0 = D0.inverse().matrix();
-        dOmdBeta = -1 * D0 * dOmdBeta;
-        //
-        double h = Lldd_mat(para_number, para_number) - Lldd_mat.row(para_number) * D0 * Lldd_mat.col(para_number);
-        h = pow(qchi/(-1*h),0.5);
-        if (upper){
-            h = h/2;
-        } else {
-            h = h/-2;
-        }
-        Rcout << h << endl;
-        // calculate first step
-        int j=0;
-        for (int ij=0;ij<totalnum;ij++){
-            if (KeepConstant[ij]==0){
-                int pij_ind = ij - sum(head(KeepConstant,ij));
-                if (pij_ind == para_number){
-                    dbeta[ij] = h;
-                } else {
-                    dbeta[ij] = dOmdBeta(j);
-                    j=j+1;
-                }
-            }
-        }
-    } else {
-        ;
-    }
+    // MatrixXd D0 = Lldd_mat;
+    // if (step==0){
+    //     //Initial step, calculate dom/dbet and h
+    //     VectorXd dOmdBeta = Lldd_mat.col(para_number);
+    //     removeRow(D0, para_number);
+    //     removeColumn(D0, para_number);
+    //     D0 = D0.inverse().matrix();
+    //     dOmdBeta = -1 * D0 * dOmdBeta;
+    //     //
+    //     double h = Lldd_mat(para_number, para_number) - Lldd_mat.row(para_number) * D0 * Lldd_mat.col(para_number);
+    //     h = pow(qchi/(-1*h),0.5);
+    //     if (upper){
+    //         h = h/2;
+    //     } else {
+    //         h = h/-2;
+    //     }
+    //     Rcout << h << endl;
+    //     // calculate first step
+    //     int j=0;
+    //     for (int ij=0;ij<totalnum;ij++){
+    //         if (KeepConstant[ij]==0){
+    //             int pij_ind = ij - sum(head(KeepConstant,ij));
+    //             if (pij_ind == para_number){
+    //                 dbeta[ij] = h;
+    //             } else {
+    //                 dbeta[ij] = dOmdBeta(j);
+    //                 j=j+1;
+    //             }
+    //         }
+    //     }
+    // } else {
+    //     ;
+    // }
     return;
 }
 
