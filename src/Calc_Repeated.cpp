@@ -2127,55 +2127,6 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives, applies competing risks
-//'
-//' \code{Calculate_Sides_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group with competing risks
-//' @inheritParams CPP_template
-//'
-//' @return Updates matrices in place: risk storage matrices
-//' @noRd
-//'
-// [[Rcpp::export]]
-void Calculate_Sides_Single_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight,const int& nthreads, bool debugging){
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int j=0;j<ntime;j++){
-        double Rs1 = 0;
-        //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);    
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
-        //Now has the grouping pairs
-        int dj = RiskFail(j,1)-RiskFail(j,0)+1;
-        double cens_0 = cens_weight[RiskFail(j,0)];
-		VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0]+1);
-		for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
-			if (weighting.size() < InGroup[i+1]-InGroup[i]+1){
-				weighting.resize(InGroup[i+1]-InGroup[i]+1);
-			}
-			//
-			//
-			weighting.head(InGroup[i+1]-InGroup[i]+1) << cens_weight.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1);
-			weighting = weighting / cens_0;
-			weighting = (weighting.array()<1).select(weighting,1);
-			//
-			Rs1 += (R.block(InGroup[i]-1,0,InGroup[i+1]-InGroup[i]+1,1).array() * weighting.head(InGroup[i+1]-InGroup[i]+1).array()).sum();
-		} //precalculates the sums of risk groups
-        MatrixXd Ld = MatrixXd::Zero(dj,1);
-        Ld << R.block(RiskFail(j,0),0,dj,1);//sum of risks in group
-        Rls1(j,0) = Rs1;
-        Lls1(j,0) = Ld.col(0).sum();
-    }
-    return;
-}
-
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
 //'
 //' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group

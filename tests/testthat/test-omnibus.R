@@ -156,6 +156,45 @@ test_that("Pois strata_single", {
     }
 })
 
+test_that("Pois comb_forms", {
+	fname <- 'll_0.csv'
+	colTypes=c("double","double","double","integer","integer")
+	df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+	time1 <- "t0"
+	df$pyr <- df$t1-df$t0
+	pyr <- "pyr"
+	event <- "lung"
+	df$rand <- floor(runif(nrow(df), min=1, max=5))
+	names <- c("dose","rand","rand", "dose", "dose")
+	Term_n <- c(0,0,0, 0, 0)
+	tform <- c("loglin","lin","plin", "loglin_slope", "loglin_top")
+	keep_constant <- c(0,0,0, 0, 0)
+	a_n <- c(0.01,0.1,0.1, 1.0, 0.1)
+	modelform <- "PAE"
+	fir <- 0
+	der_iden <- 0
+	control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=0)
+	Strat_Col <- "fac"
+
+	verbose <- FALSE
+	modelforms <- c("A", "PAE", "M")
+	for (modelform in modelforms){
+		model_control=list('strata'=FALSE, 'single'=FALSE)
+		if (verbose){print(model_control)}
+		a_n <- c(0.01,0.1,0.1, 1.0, 0.1)
+		expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col,model_control))
+		if (verbose){print("---------------")}
+	}
+	Term_n <- c(1,1,1, 0, 0)
+	for (modelform in modelforms){
+		model_control=list('strata'=FALSE, 'single'=FALSE)
+		if (verbose){print(model_control)}
+		a_n <- c(0.01,0.1,0.1, 1.0, 0.1)
+		expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col,model_control))
+		if (verbose){print("---------------")}
+	}
+})
+
 test_that("Pois strata_single expanded", {
     fname <- 'll_0.csv'
     colTypes=c("double","double","double","integer","integer")
@@ -165,11 +204,11 @@ test_that("Pois strata_single expanded", {
 	pyr <- "pyr"
     event <- "lung"
     df$rand <- floor(runif(nrow(df), min=0, max=5))
-    names <- c("dose","dose","dose","dose","dose","dose","dose","dose","dose","dose","dose",  "rand","rand","rand","rand","rand","rand","rand","rand","rand","rand","rand")
-    Term_n <- c(0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1)
-    tform <- c("loglin_top","lin_slope","lin_int","quad_slope","step_slope","step_int","lin_quad_slope","lin_quad_int","lin_exp_slope","lin_exp_int","lin_exp_exp_slope","loglin_top","lin_slope","lin_int","quad_slope","step_slope","step_int","lin_quad_slope","lin_quad_int","lin_exp_slope","lin_exp_int","lin_exp_exp_slope")
-    keep_constant <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-    a_n <-   c(-0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1, -0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1)
+    names <- c("dose", "dose","dose","dose","dose","dose","dose","dose","dose","dose","dose","dose",  "rand","rand","rand","rand","rand","rand","rand","rand","rand","rand","rand")
+    Term_n <- c(0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1)
+    tform <- c("loglin_slope", "loglin_top","lin_slope","lin_int","quad_slope","step_slope","step_int","lin_quad_slope","lin_quad_int","lin_exp_slope","lin_exp_int","lin_exp_exp_slope","loglin_top","lin_slope","lin_int","quad_slope","step_slope","step_int","lin_quad_slope","lin_quad_int","lin_exp_slope","lin_exp_int","lin_exp_exp_slope")
+    keep_constant <- c(0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+    a_n <-   c(1, -0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1, -0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1)
 
     modelform <- "PAE"
     fir <- 0
