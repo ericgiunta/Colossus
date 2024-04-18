@@ -1,0 +1,15 @@
+bibentry(
+  bibtype  = "Manual",
+  title    = "Colossus: Risk Model Regression and Analysis with Complex Non-Linear Models",
+  author   = c(
+    person("Eric", "Giunta"),
+    person("Amir", "Bahadori"),
+    person("Dan", "Andresen"),
+    person("Linda", "Walsh"),
+    person("Benjamin", "French"),
+    person("Lawrence", "Dauer"),
+    person("John", "Boice Jr")
+    ),
+  year     = "2024",
+  url = "https://github.com/ericgiunta/Colossus"
+)
