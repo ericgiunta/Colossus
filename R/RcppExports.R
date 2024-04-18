@@ -185,18 +185,6 @@ Calculate_Sides_Single <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1
     invisible(.Call(`_Colossus_Calculate_Sides_Single`, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, nthreads, debugging))
 }
 
-#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives, applies competing risks
-#'
-#' \code{Calculate_Sides_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group with competing risks
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: risk storage matrices
-#' @noRd
-#'
-Calculate_Sides_Single_CR <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, debugging) {
-    invisible(.Call(`_Colossus_Calculate_Sides_Single_CR`, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, debugging))
-}
-
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
 #'
 #' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
@@ -599,6 +587,30 @@ Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, R
 #'
 Log_Bound <- function(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose) {
     invisible(.Call(`_Colossus_Log_Bound`, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose))
+}
+
+#' Utility function to calculate Cox Log-Likelihood and derivatives
+#'
+#' \code{Simplified_Inform_Matrix} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Simplified_Inform_Matrix <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, InMa, debugging, ties_method, KeepConstant) {
+    invisible(.Call(`_Colossus_Simplified_Inform_Matrix`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, InMa, debugging, ties_method, KeepConstant))
+}
+
+#' Utility function to calculate Cox Log-Likelihood and derivatives
+#'
+#' \code{Simplified_Inform_Matrix_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Simplified_Inform_Matrix_STRATA <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, InMa, debugging, ties_method, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Simplified_Inform_Matrix_STRATA`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, InMa, debugging, ties_method, STRATA_vals, KeepConstant))
 }
 
 #' Primary Cox PH baseline hazard function with stratification
