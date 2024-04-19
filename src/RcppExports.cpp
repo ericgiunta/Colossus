@@ -12,224 +12,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// Make_subterms
-void Make_subterms(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Make_subterms(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Td0(Td0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Tdd0(Tdd0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Make_subterms(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant);
-    return R_NilValue;
-END_RCPP
-}
-// Make_subterms_Single
-void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Make_subterms_Single(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Make_subterms_Single(totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
-    return R_NilValue;
-END_RCPP
-}
-// Make_subterms_Basic
-void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd& T0, const VectorXd& beta_0, const MatrixXd& df0, const int& nthreads, bool debugging);
-RcppExport SEXP _Colossus_Make_subterms_Basic(SEXP totalnumSEXP, SEXP dfcSEXP, SEXP T0SEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Make_subterms_Basic(totalnum, dfc, T0, beta_0, df0, nthreads, debugging);
-    return R_NilValue;
-END_RCPP
-}
-// Make_Risks
-void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
-RcppExport SEXP _Colossus_Make_Risks(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Td0(Td0SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Tdd0(Tdd0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type RddR(RddRSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
-    Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
-    return R_NilValue;
-END_RCPP
-}
-// Make_Risks_Weighted
-void Make_Risks_Weighted(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
-RcppExport SEXP _Colossus_Make_Risks_Weighted(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP s_weightsSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type s_weights(s_weightsSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Td0(Td0SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Tdd0(Tdd0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type RddR(RddRSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
-    Make_Risks_Weighted(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
-    return R_NilValue;
-END_RCPP
-}
-// Make_Risks_Weighted_Single
-void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
-RcppExport SEXP _Colossus_Make_Risks_Weighted_Single(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP s_weightsSEXP, SEXP T0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type s_weights(s_weightsSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
-    Make_Risks_Weighted_Single(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
-    return R_NilValue;
-END_RCPP
-}
-// Make_Risks_Single
-void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
-RcppExport SEXP _Colossus_Make_Risks_Single(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
-    Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
-    return R_NilValue;
-END_RCPP
-}
-// Make_Risks_Basic
-void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging, const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Make_Risks_Basic(SEXP totalnumSEXP, SEXP T0SEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP df0SEXP, SEXP dfcSEXP, SEXP KeepConstantSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
-    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc, KeepConstant);
-    return R_NilValue;
-END_RCPP
-}
 // Make_Groups
 void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>& RiskGroup, NumericVector& tu, const int& nthreads, bool debugging);
 RcppExport SEXP _Colossus_Make_Groups(SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP tuSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
@@ -1704,16 +1486,226 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Make_subterms
+void Make_subterms(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Make_subterms(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Td0(Td0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Tdd0(Tdd0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Make_subterms(totalnum, Term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant);
+    return R_NilValue;
+END_RCPP
+}
+// Make_subterms_Single
+void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Make_subterms_Single(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Make_subterms_Single(totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
+    return R_NilValue;
+END_RCPP
+}
+// Make_subterms_Basic
+void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd& T0, const VectorXd& beta_0, const MatrixXd& df0, const int& nthreads, bool debugging);
+RcppExport SEXP _Colossus_Make_subterms_Basic(SEXP totalnumSEXP, SEXP dfcSEXP, SEXP T0SEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Make_subterms_Basic(totalnum, dfc, T0, beta_0, df0, nthreads, debugging);
+    return R_NilValue;
+END_RCPP
+}
+// Make_Risks
+void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
+RcppExport SEXP _Colossus_Make_Risks(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Td0(Td0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Tdd0(Tdd0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RddR(RddRSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
+    Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
+    return R_NilValue;
+END_RCPP
+}
+// Make_Risks_Weighted
+void Make_Risks_Weighted(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
+RcppExport SEXP _Colossus_Make_Risks_Weighted(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP s_weightsSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type s_weights(s_weightsSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Td0(Td0SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Tdd0(Tdd0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RddR(RddRSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
+    Make_Risks_Weighted(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
+    return R_NilValue;
+END_RCPP
+}
+// Make_Risks_Weighted_Single
+void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
+RcppExport SEXP _Colossus_Make_Risks_Weighted_Single(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP s_weightsSEXP, SEXP T0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type s_weights(s_weightsSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
+    Make_Risks_Weighted_Single(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
+    return R_NilValue;
+END_RCPP
+}
+// Make_Risks_Single
+void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term);
+RcppExport SEXP _Colossus_Make_Risks_Single(SEXP modelformSEXP, SEXP tformSEXP, SEXP Term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
+    Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
+    return R_NilValue;
+END_RCPP
+}
+// Make_Risks_Basic
+void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, bool debugging, const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Make_Risks_Basic(SEXP totalnumSEXP, SEXP T0SEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP df0SEXP, SEXP dfcSEXP, SEXP KeepConstantSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc, KeepConstant);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
-    {"_Colossus_Make_subterms_Single", (DL_FUNC) &_Colossus_Make_subterms_Single, 17},
-    {"_Colossus_Make_subterms_Basic", (DL_FUNC) &_Colossus_Make_subterms_Basic, 7},
-    {"_Colossus_Make_Risks", (DL_FUNC) &_Colossus_Make_Risks, 25},
-    {"_Colossus_Make_Risks_Weighted", (DL_FUNC) &_Colossus_Make_Risks_Weighted, 26},
-    {"_Colossus_Make_Risks_Weighted_Single", (DL_FUNC) &_Colossus_Make_Risks_Weighted_Single, 20},
-    {"_Colossus_Make_Risks_Single", (DL_FUNC) &_Colossus_Make_Risks_Single, 19},
-    {"_Colossus_Make_Risks_Basic", (DL_FUNC) &_Colossus_Make_Risks_Basic, 11},
     {"_Colossus_Make_Groups", (DL_FUNC) &_Colossus_Make_Groups, 7},
     {"_Colossus_Make_Groups_CR", (DL_FUNC) &_Colossus_Make_Groups_CR, 9},
     {"_Colossus_Make_Groups_STRATA", (DL_FUNC) &_Colossus_Make_Groups_STRATA, 8},
@@ -1772,6 +1764,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Gen_Strat_Weight", (DL_FUNC) &_Colossus_Gen_Strat_Weight, 8},
     {"_Colossus_OMP_Check", (DL_FUNC) &_Colossus_OMP_Check, 0},
     {"_Colossus_cox_ph_cox_ph_Omnibus_Bounds_transition", (DL_FUNC) &_Colossus_cox_ph_cox_ph_Omnibus_Bounds_transition, 17},
+    {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
+    {"_Colossus_Make_subterms_Single", (DL_FUNC) &_Colossus_Make_subterms_Single, 17},
+    {"_Colossus_Make_subterms_Basic", (DL_FUNC) &_Colossus_Make_subterms_Basic, 7},
+    {"_Colossus_Make_Risks", (DL_FUNC) &_Colossus_Make_Risks, 25},
+    {"_Colossus_Make_Risks_Weighted", (DL_FUNC) &_Colossus_Make_Risks_Weighted, 26},
+    {"_Colossus_Make_Risks_Weighted_Single", (DL_FUNC) &_Colossus_Make_Risks_Weighted_Single, 20},
+    {"_Colossus_Make_Risks_Single", (DL_FUNC) &_Colossus_Make_Risks_Single, 19},
+    {"_Colossus_Make_Risks_Basic", (DL_FUNC) &_Colossus_Make_Risks_Basic, 11},
     {NULL, NULL, 0}
 };
 

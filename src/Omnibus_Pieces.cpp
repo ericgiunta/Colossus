@@ -4,6 +4,7 @@
 #endif
 #include "Omnibus_Pieces.h"
 #include "Calc_Repeated.h"
+#include "Subterms_Risk.h"
 #include "Colossus_types.h"
 #include <fstream>
 #include <sstream>
