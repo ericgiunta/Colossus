@@ -319,9 +319,9 @@ test_that("unused model formula error", {
     expect_error(Def_modelform_fix(control,model_control,modelform,Term_n))
 })
 
-#######################################
-## FACTORING
-#######################################
+######################################
+# FACTORING
+######################################
 
 test_that("Factorize factor", {
     a <- c(0,1,2,3,4,5,6)
@@ -376,16 +376,16 @@ test_that("Factorize parallel missing", {
 
 
 
-#######################################
-## Time Dependent Cov gens
-#######################################
+######################################
+# Time Dependent Cov gens
+######################################
 
 test_that("Gen_time_dep time error", {
     a <- c(20,20,5,10,15)
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a_bad"
     event="c"
@@ -395,7 +395,7 @@ test_that("Gen_time_dep time error", {
     }
     func_form <- c("lin")
     
-    #
+    
     expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form,2))
 })
 test_that("Gen_time_dep event error", {
@@ -403,7 +403,7 @@ test_that("Gen_time_dep event error", {
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a"
     event="c_bad"
@@ -413,7 +413,7 @@ test_that("Gen_time_dep event error", {
     }
     func_form <- c("lin")
     
-    #
+    
     expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form,2))
 })
 test_that("Gen_time_dep function error", {
@@ -421,7 +421,7 @@ test_that("Gen_time_dep function error", {
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a"
     event="c_bad"
@@ -432,7 +432,7 @@ test_that("Gen_time_dep function error", {
     }
     func_form <- c("lin")
     
-    #
+    
     expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste("test","_new.csv",sep=""), func_form,2))
 })
 test_that("Gen_time_dep functional form error", {
@@ -440,7 +440,7 @@ test_that("Gen_time_dep functional form error", {
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a"
     event="c"
@@ -450,9 +450,8 @@ test_that("Gen_time_dep functional form error", {
     }
     func_form <- c("badbad")
     
-    #
+    
     expect_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form,2))
-    #file.remove('test_new.csv')
 })
 
 test_that("Gen_time_dep no error lin cox", {
@@ -460,7 +459,7 @@ test_that("Gen_time_dep no error lin cox", {
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a"
     event="c"
@@ -470,16 +469,15 @@ test_that("Gen_time_dep no error lin cox", {
     }
     func_form <- c("lin")
     
-    #
+    
     expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form,2))
-    #file.remove('test_new.csv')
 })
 test_that("Gen_time_dep no error step cox", {
     a <- c(20,20,5,10,15)
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a"
     event="c"
@@ -489,9 +487,8 @@ test_that("Gen_time_dep no error step cox", {
     }
     func_form <- c("step?0g?7l?12a?18b?")
     
-    #
+    
     expect_no_error(gen_time_dep(df,time1,time2,event,TRUE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form,2))
-    #file.remove('test_new.csv')
 })
 
 test_that("Gen_time_dep no error lin not cox", {
@@ -499,7 +496,7 @@ test_that("Gen_time_dep no error lin not cox", {
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a"
     event="c"
@@ -509,16 +506,15 @@ test_that("Gen_time_dep no error lin not cox", {
     }
     func_form <- c("lin")
     
-    #
+    
     expect_no_error(gen_time_dep(df,time1,time2,event,FALSE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form,2))
-    #file.remove('test_new.csv')
 })
 test_that("Gen_time_dep no error step not cox", {
     a <- c(20,20,5,10,15)
     b <- c(1,2,1,1,2)
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
-    #
+    
     time1="%trunc%"
     time2="a"
     event="c"
@@ -528,9 +524,8 @@ test_that("Gen_time_dep no error step not cox", {
     }
     func_form <- c("step?0g?7l?12a?18b?")
     
-    #
+    
     expect_no_error(gen_time_dep(df,time1,time2,event,FALSE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form,2))
-    #file.remove('test_new.csv')
 })
 
 test_that("linked quad negative slope error", {
@@ -628,7 +623,7 @@ test_that("Missing Value checked replaced 0", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    #
+    
     df0 <- Replace_Missing(df,c("a","b"),0.0,T)
     expect_equal(c(sum(df0$a),sum(df0$b)),c(sum(df$a),2))
 })
@@ -638,7 +633,7 @@ test_that("Missing Value checked replaced 1", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
-    #
+    
     df0 <- Replace_Missing(df,c("a","b"),1.0,T)
     expect_equal(c(sum(df0$a),sum(df0$b)),c(sum(df$a),3))
 })
@@ -701,9 +696,9 @@ test_that("Check Date Since, exact value", {
 })
 
 
-#######################################
-## Formula order
-#######################################
+#####################################
+# Formula order
+#####################################
 test_that("tform order, tform order", {
     Term_n <- c(0,0,0,0,0)
     tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
@@ -941,9 +936,9 @@ test_that("formula order, missing lin_exp_exp_int", {
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 
-#######################################
-## Formula order, List a_n
-#######################################
+#####################################
+# Formula order, List a_n
+#####################################
 test_that("tform order, tform order, list double", {
     Term_n <- c(0,0,0,0,0)
     tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
@@ -1045,9 +1040,9 @@ test_that("formula order, too many term types, list double", {
     names <- c("a","a","a","a","a")
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
-#######################################
-## Formula order, Constraints and verbose check
-#######################################
+#####################################
+# Formula order, Constraints and verbose check
+#####################################
 test_that("Checking constraint matrix", {
     Term_n <- c(0,1,1,0,0)
     tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
@@ -1075,7 +1070,7 @@ test_that("Checking verbose", {
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=-1))
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=2))
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose="TRUE"))
-    #
+    
     expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=T))
     expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=F))
     expect_no_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=1))
@@ -1120,9 +1115,9 @@ test_that("Checking tform values", {
     expect_error(Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T))
 })
 
-## ------------------------------------- ##
-## gather guesses
-## ------------------------------------- ##
+# ------------------------------------- ##
+# gather guesses
+# ------------------------------------- ##
 test_that("Gather Guesses no error", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
@@ -1141,7 +1136,7 @@ test_that("Gather Guesses no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    #
+    
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
@@ -1149,22 +1144,22 @@ test_that("Gather Guesses no error", {
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    #
+    
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
     all_names <- unique(names(df))
-    #
+    
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
+    
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     model_control <- Def_model_control(model_control)
-    #
+    
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
     guesses_control$rmin <- c(-0.1,-1,-0.1,0)
     guesses_control$rmax <- c(0.1, 1, 0.1, 0.1)
@@ -1188,7 +1183,7 @@ test_that("Gather Guesses error, many a_n", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    #
+    
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
@@ -1196,7 +1191,7 @@ test_that("Gather Guesses error, many a_n", {
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    #
+    
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
@@ -1204,16 +1199,16 @@ test_that("Gather Guesses error, many a_n", {
     a_n_default <- a_n
     
     all_names <- unique(names(df))
-    #
+    
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
+    
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     model_control <- Def_model_control(model_control)
-    #
+    
     expect_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
 })
 test_that("Gather Guesses error, few term numbers", {
@@ -1234,7 +1229,7 @@ test_that("Gather Guesses error, few term numbers", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    #
+    
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
@@ -1242,23 +1237,23 @@ test_that("Gather Guesses error, few term numbers", {
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    #
+    
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
     all_names <- unique(names(df))
-    #
+    
     dfc <- match(names,all_names)
     Term_n <- c(0)
 
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
+    
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     model_control <- Def_model_control(model_control)
-    #
+    
     expect_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
 })
 test_that("Gather Guesses error, many term numbers", {
@@ -1279,7 +1274,7 @@ test_that("Gather Guesses error, many term numbers", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    #
+    
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
@@ -1287,23 +1282,23 @@ test_that("Gather Guesses error, many term numbers", {
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    #
+    
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     Term_n <- c(0,0,0,0,0,0,0,0)
     
     all_names <- unique(names(df))
-    #
+    
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
+    
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     model_control <- Def_model_control(model_control)
-    #
+    
     expect_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
 })
 test_that("Gather Guesses error, few term formula", {
@@ -1324,7 +1319,7 @@ test_that("Gather Guesses error, few term formula", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    #
+    
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
@@ -1332,23 +1327,23 @@ test_that("Gather Guesses error, few term formula", {
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    #
+    
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
     all_names <- unique(names(df))
     tform <- c("loglin")
-    #
+    
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
+    
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     model_control <- Def_model_control(model_control)
-    #
+    
     expect_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
 })
 test_that("Gather Guesses error, many term formula", {
@@ -1369,7 +1364,7 @@ test_that("Gather Guesses error, many term formula", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    #
+    
     val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names,T)
     Term_n <- val$Term_n
     tform <- val$tform
@@ -1377,23 +1372,23 @@ test_that("Gather Guesses error, many term formula", {
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    #
+    
     control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     tform <- c("loglin",'lin_exp_int','lin_exp_slope','lin_exp_exp_slope','lin')
     
     all_names <- unique(names(df))
-    #
+    
     dfc <- match(names,all_names)
 
     term_tot <- max(Term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
-    #
+    
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     model_control <- Def_model_control(model_control)
-    #
+    
     expect_error(Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
 })
 

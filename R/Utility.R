@@ -1342,6 +1342,24 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
         dfn_dep <- c(dfn_dep, name0, name1)
     }
     #
+	if (length(new_names)!=length(func_form)){
+		message(paste("Error: new_names vector should be the same size as the list of functions applied",sep=""))
+		stop()
+	}
+	if (length(new_names)!=length(tform)){
+		message(paste("Error: new_names vector should be the same size as the list of interpolation method used",sep=""))
+		stop()
+	}
+	for (i in 1:length(tform)){
+		temp <- tform[i]
+		if (temp!='lin'){
+			a <- substr(temp, 1, 5)
+			if (a!="step?"){
+				message(paste("Error: Interpolation method not recognized: ", temp, sep=""))
+				stop()
+			}
+		}
+	}
     #
     dfn_time <- c(time1, time2)
     dfn_event <- c(event0)
