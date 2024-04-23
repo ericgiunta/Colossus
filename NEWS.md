@@ -41,3 +41,5 @@
 # Colossus 1.1.1
 
 * ggplot2 no longer required, now optional
+* additional testing added for coverage
+* default Makevars added via bash script
