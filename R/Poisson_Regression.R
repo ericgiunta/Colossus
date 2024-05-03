@@ -191,7 +191,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     return (e)
 }
 
-#' Performs basic Poisson regression using the omnibus function
+#' Performs joint Poisson regression using the omnibus function
 #'
 #' \code{RunPoissonRegression_Joint_Omnibus} uses user provided data, time/event columns,
 #'  vectors specifying the model, and options to control the convergence and starting positions.
@@ -280,7 +280,7 @@ RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, Term_
 
 #' Performs basic poisson regression
 #'
-#' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions with no special options
 #'
 #' @inheritParams R_template
 #' @family Poisson Wrapper Functions
@@ -331,7 +331,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 
 #' Predicts how many events are due to baseline vs excess
 #'
-#' \code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#' \code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to calculate background and excess events
 #'
 #' @inheritParams R_template
 #' @family Poisson Wrapper Functions
@@ -653,7 +653,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     return(e)
 }
 
-#' Performs basic Poisson regression, Allows for multiple starting guesses on c++ side
+#' Performs basic Poisson regression, genreates multiple starting guesses on c++ side
 #'
 #' \code{RunPoissonRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'

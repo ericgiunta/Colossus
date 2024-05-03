@@ -277,6 +277,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #' \code{RunCoxEventAssignment} uses user provided data, time/event columns,
 #' vectors specifying the model, and options to control the convergence
 #' and starting position, calculates approximated background and excess events
+#' note this function uses the survival function to estimate the background
 #'
 #' @inheritParams R_template
 #'
@@ -1161,7 +1162,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
     return (e)
 }
 
-#' Performs basic Cox Proportional Hazards regression, Allows for multiple starting guesses on c++ side
+#' Performs basic Cox Proportional Hazards regression, Generates multiple starting guesses on c++ side
 #'
 #' \code{RunCoxRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'

@@ -185,7 +185,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 
 #' Corrects the order of terms/formula/etc
 #'
-#' \code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues
+#' \code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues, orders alphabetically, by term number, etc.
 #'
 #' @inheritParams R_template
 #'
@@ -566,9 +566,9 @@ Def_Control <- function(control){
     return (control)
 }
 
-#' Automatically assigns geometric-mixture values
+#' Automatically assigns geometric-mixture values and checks that a valid modelform is used
 #'
-#' \code{Def_model_control} checks and assigns default values
+#' \code{Def_model_control} checks and assigns default values for modelform options
 #'
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
@@ -1082,9 +1082,13 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
         col1 <- formula[1]
         col2 <- formula[3]
         if (paste(formula[1],"?",formula[2],"?",formula[3],sep="") %in% interactions[i+seq_len(length(interactions))]){
-            "its duped"
+            if (verbose){
+                message(paste("Warning: interation ", i, "is duplicated"))
+            }
         } else if (paste(formula[3],"?",formula[2],"?",formula[1],sep="") %in% interactions[i+seq_len(length(interactions))]){
-            "the reverse is duped"
+            if (verbose){
+                message(paste("Warning: the reverse of interation ", i, "is duplicated"))
+            }
         } else {
             if (formula[2]=="+"){
                 df[, newcol] <- df[,col1, with = FALSE] + df[,col2, with = FALSE]
@@ -1131,7 +1135,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 
 #' checks for duplicated column names
 #'
-#' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
+#' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with single value. Currently not updated for multi-terms
 #'
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
@@ -1240,7 +1244,7 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
     return(c())
 }
 
-#' Applies time duration truncation limits
+#' Applies time duration truncation limits to create columns for Cox model
 #'
 #' \code{Check_Trunc} creates columns to use for truncation
 #'
