@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{Check_Trunc}
 \alias{Check_Trunc}
-\title{Applies time duration truncation limits}
+\title{Applies time duration truncation limits to create columns for Cox model}
 \usage{
 Check_Trunc(df, ce, verbose = FALSE)
 }

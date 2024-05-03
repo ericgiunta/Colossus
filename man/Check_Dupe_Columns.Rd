@@ -21,7 +21,7 @@ Check_Dupe_Columns(df, cols, term_n, verbose = FALSE, factor_check = FALSE)
 returns the usable columns
 }
 \description{
-\code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with 1 value. Currently not updated for multi-terms
+\code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with single value. Currently not updated for multi-terms
 }
 \examples{
 library(data.table)

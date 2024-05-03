@@ -370,7 +370,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #'                           a_n, modelform, fir, der_iden, control)
 #' @export
 #'
-RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col="null",model_control=list()){
     df <- data.table(df)
     control <- Def_Control(control)
     control$maxiters <- c(1,control$maxiter)
@@ -386,7 +386,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
     der_iden <- val$der_iden
     names <- val$names
 	df <- df[get(pyr0)>0,]
-    model_control <- Def_model_control(list())
+    model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,Term_n)
     modelform <- val$modelform
     model_control <- val$model_control
@@ -407,9 +407,32 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
             df$CONST <- 1
         }
     }
-    df0 <- data.table::data.table("a"=c(0,0))
-    val <- list(cols=c("a"))
-    val_cols <- c("a")
+    if (model_control$strata==TRUE){
+        #
+        val <- factorize(df, Strat_Col)
+        df0 <- val$df
+        df <- val$df
+        #
+        val_cols <- c()
+        for (col in val$cols){
+            dftemp <- df[get(col)==1,]
+            temp <- sum(dftemp[,get(event0)])
+            if (temp==0){
+                if (control$verbose){
+                    message(paste("Warning: no events for strata group:",col,sep=" "))
+                }
+                df <- df[get(col)!=1,]
+                df0 <- df0[get(col)!=1,]
+            } else {
+                val_cols <- c(val_cols,col)				
+            }
+			data.table::setkeyv(df0, c(pyr0, event0))
+        }
+    } else {
+        df0 <- data.table::data.table("a"=c(0,0))
+        val <- list(cols=c("a"))
+        val_cols <- c("a")
+    }
     #
     data.table::setkeyv(df, c(pyr0, event0))
     all_names <- unique(names)
@@ -427,7 +450,8 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
         a_ns <- c(a_ns, i)
     }
     #
-    e <- Assigned_Event_transition(as.matrix(df[,ce, with = FALSE]),Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, matrix(c(0)), c(0), keep_constant, term_tot, model_control)
+    e <- Assigned_Event_Poisson_transition(as.matrix(df[,ce, with = FALSE]), as.matrix(df0), Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, keep_constant, term_tot, model_control)
+    #    Assigned_Event_Poisson_transition(NumericMatrix dfe,  NumericMatrix df0,IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control)
     #
     return (e)
 }

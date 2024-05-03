@@ -282,7 +282,6 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
 #' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)

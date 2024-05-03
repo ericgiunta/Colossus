@@ -2,7 +2,7 @@
 % Please edit documentation in R/Cox_Regression.R
 \name{RunCoxRegression_Guesses_CPP}
 \alias{RunCoxRegression_Guesses_CPP}
-\title{Performs basic Cox Proportional Hazards regression, Allows for multiple starting guesses on c++ side}
+\title{Performs basic Cox Proportional Hazards regression, Generates multiple starting guesses on c++ side}
 \usage{
 RunCoxRegression_Guesses_CPP(
   df,

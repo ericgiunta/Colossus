@@ -141,6 +141,36 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
     return res;
 }
 
+//' Interface between R code and the event assignment omnibus function
+//'
+//' \code{Assigned_Event_transition} Called directly from R, Defines the control variables and calls the assigning functions
+//' @inheritParams CPP_template
+//'
+//' @return list of assigned/predicted background/excess events
+//' @noRd
+//'
+// [[Rcpp::export]]
+List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0,IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control){
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    string ties_method =Control["ties"];
+    bool strata_bool = model_control["strata"];
+    int nthreads = Control["Ncores"];
+    //
+	double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
+	//
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
+    //
+    // Performs regression
+    List res;
+    //----------------------------------------------------------------------------------------------------------------//
+    res = Assign_Events_Pois( Term_n, tform, a_n, x_all, dfc, PyrC, dfs, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term, strata_bool);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 //' Interface between R code and the plotting omnibus function
 //'
 //' \code{Plot_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
@@ -181,34 +211,6 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
     }
     //----------------------------------------------------------------------------------------------------------------//
     res = Plot_Omnibus( Term_n, tform, a_n,x_all,dfc, fir,  der_iden, modelform, abs_max,dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the event assignment omnibus function
-//'
-//' \code{Assigned_Event_transition} Called directly from R, Defines the control variables and calls the assigning functions
-//' @inheritParams CPP_template
-//'
-//' @return list of assigned/predicted background/excess events
-//' @noRd
-//'
-// [[Rcpp::export]]
-List Assigned_Event_transition(NumericMatrix dfe,IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, List model_control){
-    bool verbose = Control["verbose"];
-    bool debugging = FALSE;
-    string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
-    //
-	double gmix_theta = model_control["gmix_theta"];
-	IntegerVector gmix_term = model_control["gmix_term"];
-	//
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    //
-    // Performs regression
-    List res;
-    //----------------------------------------------------------------------------------------------------------------//
-    res = Assign_Events( Term_n, tform, a_n, x_all, dfc, PyrC, df_groups,  tu, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

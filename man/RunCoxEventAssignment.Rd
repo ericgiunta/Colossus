@@ -54,6 +54,7 @@ returns a list of the final results
 \code{RunCoxEventAssignment} uses user provided data, time/event columns,
 vectors specifying the model, and options to control the convergence
 and starting position, calculates approximated background and excess events
+note this function uses the survival function to estimate the background
 }
 \examples{
 library(data.table)

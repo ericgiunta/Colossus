@@ -48,7 +48,7 @@ RunPoissonRegression(
 returns a list of the final results
 }
 \description{
-\code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
+\code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions with no special options
 }
 \examples{
 library(data.table)

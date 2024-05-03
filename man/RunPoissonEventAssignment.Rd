@@ -16,7 +16,9 @@ RunPoissonEventAssignment(
   modelform,
   fir,
   der_iden,
-  control
+  control,
+  Strat_Col = "null",
+  model_control = list()
 )
 }
 \arguments{
@@ -43,12 +45,16 @@ RunPoissonEventAssignment(
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
+
+\item{Strat_Col}{column to stratify by if needed}
+
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 returns a list of the final results
 }
 \description{
-\code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions
+\code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to calculate background and excess events
 }
 \examples{
 library(data.table)

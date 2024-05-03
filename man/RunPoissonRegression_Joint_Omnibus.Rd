@@ -2,7 +2,7 @@
 % Please edit documentation in R/Poisson_Regression.R
 \name{RunPoissonRegression_Joint_Omnibus}
 \alias{RunPoissonRegression_Joint_Omnibus}
-\title{Performs basic Poisson regression using the omnibus function}
+\title{Performs joint Poisson regression using the omnibus function}
 \usage{
 RunPoissonRegression_Joint_Omnibus(
   df,

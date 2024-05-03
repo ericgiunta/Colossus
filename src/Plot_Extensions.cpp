@@ -739,3 +739,156 @@ List Assign_Events( IntegerVector Term_n, StringVector tform, NumericVector a_n,
     }
     return res_list;
 }
+
+//' Splits events into background and excess for a poisson regression
+//'
+//' \code{Assign_Events_Pois} Calculates proportion of events due to background and excess
+//'
+//' @inheritParams CPP_template
+//'
+//' @return returns proportion of events due to background and excess for each term
+//' @noRd
+//'
+// [[Rcpp::export]]
+List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,MatrixXd PyrC, MatrixXd dfs,int fir,string modelform, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, const bool strata_bool){
+    ;
+    //
+    int totalnum = Term_n.size();
+    List res_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
+    if (verbose){
+        Rcout << "C++ Note: START_RISK_CHECK" << endl;
+    }
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //
+    auto gibtime = system_clock::to_time_t(system_clock::now());
+    if (verbose){
+        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+    }
+    //
+    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    //
+    //
+    if (verbose){
+        Rcout << "C++ Note: Term checked ";
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Term_n[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    Rcout.precision(7); //forces higher precision numbers printed to terminal
+    //
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout << "C++ Note: df99," << (ending-start) << ",Starting" <<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+    }
+    // ---------------------------------------------
+    // To Start, needs to seperate the derivative terms
+    // ---------------------------------------------
+    //
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+    //
+    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
+    MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
+    //
+    MatrixXd Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
+    MatrixXd nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
+    MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
+    MatrixXd nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
+    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
+    MatrixXd TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
+    //
+    if (verbose){
+        Rcout << "C++ Note: starting subterms " << term_tot << endl;
+    }
+    // Calculates the subterm and term values
+    Make_subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
+    // ---------------------------------------------------------
+    // Prints off a series of calculations to check at what point values are changing
+    // ---------------------------------------------------------
+    //
+    //
+    if (verbose){
+        Rcout << "C++ Note: values checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << beta_0[ijk] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: sums checked ";
+        for (int ijk=0;ijk<totalnum;ijk++){
+            Rcout << T0.col(ijk).sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << Dose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: LIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: PLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: LOGLIN_non-dose checked ";
+        for (int ijk=0;ijk<term_tot;ijk++){
+            Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    //
+    if (verbose){
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout << "C++ Note: df99," << (ending-start) << ",Prep_Terms" <<endl;
+        gibtime = system_clock::to_time_t(system_clock::now());
+        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+    }
+    //
+    // Calculates the risk for each row
+    VectorXd s_weights;
+    if (strata_bool){
+        s_weights = VectorXd::Zero(df0.rows());
+        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, Term_n, term_tot);
+        Make_Risks_Weighted_Single(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
+    } else {
+        Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
+    }
+    //
+    MatrixXd caused = MatrixXd::Zero(PyrC.rows(),3);
+    MatrixXd predict = MatrixXd::Zero(PyrC.rows(),3);
+    //
+//    caused.col(0) = (TTerm.col(fir).array() / R.col(0).array() * PyrC.col(1).array()).array().sum();
+//    caused.col(1) = PyrC.col(1).array().sum() - caused[0];
+    //
+    predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
+    predict.col(1) = (R.col(0).array() * PyrC.col(0).array()).array() - predict.col(0).array();
+    predict.col(2) = predict.col(0).array() + predict.col(1).array();
+    //
+    caused.col(0) = PyrC.col(1).array() * predict.col(0).array() / predict.col(2).array();
+    caused.col(1) = PyrC.col(1).array() * predict.col(1).array() / predict.col(2).array();
+    caused.col(2) = PyrC.col(1).array();
+    //
+    res_list = List::create(_["caused"]=wrap(caused),_["predict"]=wrap(predict));
+    return res_list;
+}

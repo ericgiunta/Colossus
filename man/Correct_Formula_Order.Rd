@@ -39,7 +39,7 @@ Correct_Formula_Order(
 returns the corrected lists
 }
 \description{
-\code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues
+\code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues, orders alphabetically, by term number, etc.
 }
 \examples{
 library(data.table)

@@ -1273,6 +1273,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Assign_Events_Pois
+List Assign_Events_Pois(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, MatrixXd PyrC, MatrixXd dfs, int fir, string modelform, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, const bool strata_bool);
+RcppExport SEXP _Colossus_Assign_Events_Pois(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP PyrCSEXP, SEXP dfsSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP strata_boolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< MatrixXd >::type PyrC(PyrCSEXP);
+    Rcpp::traits::input_parameter< MatrixXd >::type dfs(dfsSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
+    Rcpp::traits::input_parameter< const bool >::type strata_bool(strata_boolSEXP);
+    rcpp_result_gen = Rcpp::wrap(Assign_Events_Pois(Term_n, tform, a_n, x_all, dfc, PyrC, dfs, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term, strata_bool));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cox_ph_Omnibus_transition
 List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec);
 RcppExport SEXP _Colossus_cox_ph_Omnibus_transition(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP, SEXP cens_vecSEXP, SEXP model_controlSEXP, SEXP Cons_MatSEXP, SEXP Cons_VecSEXP) {
@@ -1327,6 +1354,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Assigned_Event_Poisson_transition
+List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0, IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
+RcppExport SEXP _Colossus_Assigned_Event_Poisson_transition(SEXP dfeSEXP, SEXP df0SEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP model_controlSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type dfe(dfeSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< int >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(Assigned_Event_Poisson_transition(dfe, df0, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, model_control));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Plot_Omnibus_transition
 List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control);
 RcppExport SEXP _Colossus_Plot_Omnibus_transition(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP STRATA_valsSEXP, SEXP cens_vecSEXP, SEXP model_controlSEXP) {
@@ -1350,31 +1401,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type cens_vec(cens_vecSEXP);
     Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
     rcpp_result_gen = Rcpp::wrap(Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control));
-    return rcpp_result_gen;
-END_RCPP
-}
-// Assigned_Event_transition
-List Assigned_Event_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, List model_control);
-RcppExport SEXP _Colossus_Assigned_Event_transition(SEXP dfeSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP x_allSEXP, SEXP firSEXP, SEXP der_idenSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP model_controlSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type dfe(dfeSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< int >::type der_iden(der_idenSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(Assigned_Event_transition(dfe, Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, model_control));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1754,10 +1780,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Schoenfeld_Calc", (DL_FUNC) &_Colossus_Schoenfeld_Calc, 13},
     {"_Colossus_Plot_Omnibus", (DL_FUNC) &_Colossus_Plot_Omnibus, 31},
     {"_Colossus_Assign_Events", (DL_FUNC) &_Colossus_Assign_Events, 17},
+    {"_Colossus_Assign_Events_Pois", (DL_FUNC) &_Colossus_Assign_Events_Pois, 17},
     {"_Colossus_cox_ph_Omnibus_transition", (DL_FUNC) &_Colossus_cox_ph_Omnibus_transition, 18},
     {"_Colossus_pois_Omnibus_transition", (DL_FUNC) &_Colossus_pois_Omnibus_transition, 16},
+    {"_Colossus_Assigned_Event_Poisson_transition", (DL_FUNC) &_Colossus_Assigned_Event_Poisson_transition, 14},
     {"_Colossus_Plot_Omnibus_transition", (DL_FUNC) &_Colossus_Plot_Omnibus_transition, 16},
-    {"_Colossus_Assigned_Event_transition", (DL_FUNC) &_Colossus_Assigned_Event_transition, 15},
     {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 10},
     {"_Colossus_Gen_Fac_Par", (DL_FUNC) &_Colossus_Gen_Fac_Par, 4},
     {"_Colossus_risk_check_transition", (DL_FUNC) &_Colossus_risk_check_transition, 11},
