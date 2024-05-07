@@ -677,7 +677,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     return(e)
 }
 
-#' Performs basic Poisson regression, genreates multiple starting guesses on c++ side
+#' Performs basic Poisson regression, generates multiple starting guesses on c++ side
 #'
 #' \code{RunPoissonRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
 #'

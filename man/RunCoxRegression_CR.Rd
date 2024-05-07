@@ -96,7 +96,6 @@ e <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform,
 }
 \seealso{
 Other Cox Wrapper Functions: 
-\code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},

@@ -113,7 +113,6 @@ e <- RunCoxRegression_Tier_Guesses(df, time1, time2, event, names,
 }
 \seealso{
 Other Cox Wrapper Functions: 
-\code{\link{RunCoxEventAssignment}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},
