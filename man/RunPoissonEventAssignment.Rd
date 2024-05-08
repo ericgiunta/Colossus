@@ -91,6 +91,7 @@ e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_consta
 }
 \seealso{
 Other Poisson Wrapper Functions: 
+\code{\link{RunPoissonEventAssignment_bound}()},
 \code{\link{RunPoissonRegression}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},

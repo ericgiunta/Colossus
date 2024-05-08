@@ -120,6 +120,7 @@ e <- RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, Term_n_list,
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{RunPoissonEventAssignment}()},
+\code{\link{RunPoissonEventAssignment_bound}()},
 \code{\link{RunPoissonRegression}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
 \code{\link{RunPoissonRegression_Omnibus}()},

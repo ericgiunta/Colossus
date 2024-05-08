@@ -451,9 +451,80 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
     }
     #
     e <- Assigned_Event_Poisson_transition(as.matrix(df[,ce, with = FALSE]), as.matrix(df0), Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, keep_constant, term_tot, model_control)
-    #    Assigned_Event_Poisson_transition(NumericMatrix dfe,  NumericMatrix df0,IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control)
     #
     return (e)
+}
+
+#' Predicts how many events are due to baseline vs excess at the confidence bounds of a single parameter
+#'
+#' \code{RunPoissonEventAssignment_bound} uses user provided data, the results of a poisson regression, and options to calculate background and excess events
+#'
+#' @inheritParams R_template
+#' @param check_num the parameter number to check at the bounds of, indexed from 1 using the order returned by Colossus
+#' @param z Z score to use for confidence interval
+#' @family Poisson Wrapper Functions
+#' @return returns a list of the final results
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   1,   0,   0,   0,   1))
+#' # For the interval case
+#' pyr <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
+#' Term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' 
+#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+#'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
+#'      strata=FALSE)
+#' Strat_Col <- 'e'
+#' e0 <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
+#'                                   a_n, modelform, fir, der_iden, control,Strat_Col)
+#' 
+#' e <- RunPoissonEventAssignment_bound(df, pyr, event, e0, keep_constant,
+#'                           modelform, fir, der_iden, 4, 2, control)
+#' @export
+#'
+RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model, keep_constant, modelform, fir, der_iden, check_num=1, z=2, control=list(),Strat_Col="null",model_control=list()){
+    df <- data.table(df)
+    #
+    names <- alternative_model$Parameter_Lists$names
+    Term_n <- alternative_model$Parameter_Lists$Term_n
+    tform <- alternative_model$Parameter_Lists$tforms
+    a_n <- alternative_model$beta_0
+    stdev <- alternative_model$Standard_Deviation
+    #
+    e_mid <- RunPoissonEventAssignment(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col, model_control)
+    #
+    a_n <- alternative_model$beta_0
+    a_n[check_num] <- a_n[check_num] - z* stdev[check_num] 
+    e_low <- RunPoissonEventAssignment(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col, model_control)
+    #
+    a_n <- alternative_model$beta_0
+    a_n[check_num] <- a_n[check_num] + z* stdev[check_num] 
+    e_high <- RunPoissonEventAssignment(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col, model_control)
+    #
+    bound_results <- list("lower_limit"=e_low, "midpoint"=e_mid, "upper_limit"=e_high)
+    return (bound_results)
 }
 
 #' Performs poisson regression with no derivative calculations

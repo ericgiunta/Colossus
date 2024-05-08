@@ -7,7 +7,7 @@
 Likelihood_Ratio_Test(alternative_model, null_model)
 }
 \arguments{
-\item{alternative_model}{the new model of interest in list form}
+\item{alternative_model}{the new model of interest in list form, output from a poisson regression}
 
 \item{null_model}{a model to compare against, in list form}
 }

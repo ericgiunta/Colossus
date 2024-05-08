@@ -7,7 +7,7 @@
 #' @param a1_goal  exponential maximum desired
 #' @param a_n  list of initial parameter values, used to determine number of parameters
 #' @param age_unit  age unit
-#' @param alternative_model  the new model of interest in list form
+#' @param alternative_model  the new model of interest in list form, output from a poisson regression
 #' @param b  optimum parameter values used
 #' @param ce  columns to check for truncation, (t0, t1, event)
 #' @param cens_weight  list of weights for censoring rate

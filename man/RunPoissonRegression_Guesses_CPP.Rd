@@ -99,6 +99,7 @@ e <- RunPoissonRegression_Guesses_CPP(df, pyr, event, names, Term_n,
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{RunPoissonEventAssignment}()},
+\code{\link{RunPoissonEventAssignment_bound}()},
 \code{\link{RunPoissonRegression}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
