@@ -2,7 +2,7 @@
 % Please edit documentation in R/Poisson_Regression.R
 \name{RunPoissonRegression_Guesses_CPP}
 \alias{RunPoissonRegression_Guesses_CPP}
-\title{Performs basic Poisson regression, genreates multiple starting guesses on c++ side}
+\title{Performs basic Poisson regression, generates multiple starting guesses on c++ side}
 \usage{
 RunPoissonRegression_Guesses_CPP(
   df,
