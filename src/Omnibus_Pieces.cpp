@@ -773,39 +773,63 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool verbose){
     // starts with solved likelihoods and derivatives
     // store the second derivative as D0
-    // MatrixXd D0 = Lldd_mat;
-    // if (step==0){
-    //     //Initial step, calculate dom/dbet and h
-    //     VectorXd dOmdBeta = Lldd_mat.col(para_number);
-    //     removeRow(D0, para_number);
-    //     removeColumn(D0, para_number);
-    //     D0 = D0.inverse().matrix();
-    //     dOmdBeta = -1 * D0 * dOmdBeta;
-    //     //
-    //     double h = Lldd_mat(para_number, para_number) - Lldd_mat.row(para_number) * D0 * Lldd_mat.col(para_number);
-    //     h = pow(qchi/(-1*h),0.5);
-    //     if (upper){
-    //         h = h/2;
-    //     } else {
-    //         h = h/-2;
-    //     }
-    //     Rcout << h << endl;
-    //     // calculate first step
-    //     int j=0;
-    //     for (int ij=0;ij<totalnum;ij++){
-    //         if (KeepConstant[ij]==0){
-    //             int pij_ind = ij - sum(head(KeepConstant,ij));
-    //             if (pij_ind == para_number){
-    //                 dbeta[ij] = h;
-    //             } else {
-    //                 dbeta[ij] = dOmdBeta(j);
-    //                 j=j+1;
-    //             }
-    //         }
-    //     }
-    // } else {
-    //     ;
-    // }
+    MatrixXd D0 = Lldd_mat;
+    return;
+    if (step==0){
+        //Initial step, calculate dom/dbet and h
+        VectorXd dOmdBeta = Lldd_mat.col(para_number);
+        removeRow(D0, para_number);
+        removeColumn(D0, para_number);
+        D0 = D0.inverse().matrix();
+        dOmdBeta = -1 * D0 * dOmdBeta;
+        //
+        double h = Lldd_mat(para_number, para_number) - Lldd_mat.row(para_number) * D0 * Lldd_mat.col(para_number);
+        h = pow(qchi/(abs(h)),0.5);
+        if (upper){
+            h = h/2;
+        } else {
+            h = h/-2;
+        }
+        // calculate first step
+        int j=0;
+        for (int ij=0;ij<totalnum;ij++){
+            if (KeepConstant[ij]==0){
+                int pij_ind = ij - sum(head(KeepConstant,ij));
+                if (pij_ind == para_number){
+                    dbeta[ij] = h;
+                } else {
+                    dbeta[ij] = h * dOmdBeta(j);
+                    j=j+1;
+                }
+            }
+        }
+//        Rcout << "finished step 0" << endl;
+    } else {
+        //Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);
+        MatrixXd G = MatrixXd::Zero(reqrdnum, reqrdnum);
+        VectorXd v = VectorXd::Zero(reqrdnum);
+        v[0] = L0 - Lstar;
+        G.row(0) = Lld_vec;
+        for (int j=0; j<reqrdnum;j++){
+            if (j<para_number){
+                G.row(j+1) = D0.row(j);
+                v[j+1] = Lld_vec[j];
+            } else if (j>para_number){
+                G.row(j) = D0.row(j);
+                v[j] = Lld_vec[j];
+            }
+        }
+        G = G.inverse().matrix();
+//        Rcout << "reached G" << endl;
+        VectorXd g1 = G.col(0);
+        // we now must solve for the roots
+        double as2 = g1.matrix().transpose() * D0 * g1.matrix();
+        double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
+        double cs0 = v.matrix().transpose() * D0 * v.matrix();
+        //
+//        if (pow(bs1,2)-4*as2*cs0)
+//        Rcout << as2 << ", " << bs1 << ", " << cs0 << endl;
+    }
     return;
 }
 

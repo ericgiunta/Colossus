@@ -2267,10 +2267,72 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     double qchi = 10;
     double Lstar = Ll[0]-qchi;
     int para_number = 0;
-    int step = 0;
     bool upper = true;
+    int half_check = 0;
     //
-    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose);
+    for (int step=0;step<2;step++){
+//        Rcout << "Starting step " << step << endl;
+        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose);
+        //
+        beta_p = beta_c;//
+        beta_a = beta_c;//
+        beta_best = beta_c;//
+
+        Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+        for (int ij=0;ij<totalnum;ij++){
+            beta_0[ij] = beta_a[ij] + dbeta[ij];
+            beta_c[ij] = beta_0[ij];
+        }
+        // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+        // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+        // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+        Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+        while (R.minCoeff()<=0){
+            half_check++;
+            if (half_check>10){
+                temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED",_["LogLik"]=R_NaN);
+	            return temp_list;
+            }
+	        #ifdef _OPENMP
+            #pragma omp parallel for num_threads(nthreads)
+            #endif
+            for (int ijk=0;ijk<totalnum;ijk++){
+                int tij = Term_n[ijk];
+                if (TTerm.col(tij).minCoeff()<=0){
+                    dbeta[ijk] = dbeta[ijk] / 2.0;
+                } else if (isinf(TTerm.col(tij).maxCoeff())){
+                    dbeta[ijk] = dbeta[ijk] / 2.0;
+                }
+            }
+            for (int ij=0;ij<totalnum;ij++){
+                beta_0[ij] = beta_a[ij] + dbeta[ij];
+                beta_c[ij] = beta_0[ij];
+            }
+            Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+        }
+        Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+        //
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+            int ij = 0;
+            int jk = ijk;
+            while (jk>ij){
+                ij++;
+                jk-=ij;
+            }
+            Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
+            Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
+            if (ij==jk){
+                Lld_vecc[ij] = Lld[ij];
+            }
+        }
+        Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+    }
     //
     List res_list;
     //
@@ -2280,37 +2342,10 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     }
     List control_list = List::create(_["Iteration"]=iteration, _["Maximum Step"]=abs_max, _["Derivative Limiting"]=Lld_worst); //stores the total number of iterations used
     //
-//    NumericVector Lldd_vec(reqrdnum * reqrdnum);
-//    #ifdef _OPENMP
-//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//    #endif
-//    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-//        int ij = 0;
-//        int jk = ijk;
-//        while (jk>ij){
-//            ij++;
-//            jk-=ij;
-//        }
-//        Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
-//        Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
-//    }
-//    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-//    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-    //
-    MatrixXd Lldd_inv = -1 * Lldd_mat.inverse().matrix(); //uses inverse information matrix to calculate the standard deviation
-    VectorXd stdev = VectorXd::Zero(totalnum);
-    for (int ij=0;ij<totalnum;ij++){
-        if (KeepConstant[ij]==0){
-            int pij_ind = ij - sum(head(KeepConstant,ij));
-            stdev(ij) = sqrt(Lldd_inv(pij_ind,pij_ind));
-        }
-    }
-    //
-    //
     if (basic_bool){
-        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Control_List"]=control_list,_["Converged"]=convgd);
+        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0),_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Control_List"]=control_list,_["Converged"]=convgd);
     } else {
-        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0) ,_["Standard_Deviation"]=wrap(stdev) ,_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
+        res_list = List::create(_["LogLik"]=wrap(Ll[0]),_["First_Der"]=wrap(Lld),_["Second_Der"]=Lldd_vec,_["beta_0"]=wrap(beta_0),_["AIC"]=2*(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))-2*Ll[0],_["BIC"]=(totalnum-accumulate(KeepConstant.begin(),KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0],_["Parameter_Lists"]=para_list,_["Control_List"]=control_list,_["Converged"]=convgd);
     }
     // returns a list of results
     return res_list;
