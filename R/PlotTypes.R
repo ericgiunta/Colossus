@@ -358,7 +358,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,Term_
     e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir, der_iden,
                                  modelform, control, as.matrix(df[,ce, with = FALSE]),
                                  tu, keep_constant, term_tot, uniq, c(0), model_control)
-	for (col_i in 1:length(uniq)){
+	for (col_i in seq_along(uniq)){
         if (verbose){
             message(paste("Note: Starting Stratification calculation ",col_i))
         }

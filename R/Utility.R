@@ -333,7 +333,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         }
         #
         df <- data.table::data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
-                         "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)),"current_order"=1:length(tform),"constraint_order"=col_to_cons)
+                         "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)),"current_order"=seq_len(length(tform)),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
         df$tform_order <- tform_iden
         keycol <-c("Term_n","names","tform_order")
@@ -447,7 +447,7 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         }
     }
     if (ncol(Cons_Mat)>1){
-        colnames(Cons_Mat) <- 1:ncol(Cons_Mat)
+        colnames(Cons_Mat) <- seq_len(ncol(Cons_Mat))
         r0 <- nrow(Cons_Mat)
         c0 <- ncol(Cons_Mat)
         Cons_Mat <- as.matrix(Cons_Mat[,cons_order])
@@ -1354,7 +1354,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 		message(paste("Error: new_names vector should be the same size as the list of interpolation method used",sep=""))
 		stop()
 	}
-	for (i in 1:length(tform)){
+	for (i in seq_len(length(tform))){
 		temp <- tform[i]
 		if (temp!='lin'){
 			a <- substr(temp, 1, 5)

@@ -1246,33 +1246,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// Assign_Events
-List Assign_Events(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, MatrixXd PyrC, NumericMatrix df_groups, NumericVector tu, int fir, string modelform, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term);
-RcppExport SEXP _Colossus_Assign_Events(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP PyrCSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type Term_n(Term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type x_all(x_allSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type PyrC(PyrCSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
-    rcpp_result_gen = Rcpp::wrap(Assign_Events(Term_n, tform, a_n, x_all, dfc, PyrC, df_groups, tu, fir, modelform, verbose, debugging, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term));
-    return rcpp_result_gen;
-END_RCPP
-}
 // Assign_Events_Pois
 List Assign_Events_Pois(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, MatrixXd PyrC, MatrixXd dfs, int fir, string modelform, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, const bool strata_bool);
 RcppExport SEXP _Colossus_Assign_Events_Pois(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP PyrCSEXP, SEXP dfsSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP strata_boolSEXP) {
@@ -1779,7 +1752,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_PLOT_SURV", (DL_FUNC) &_Colossus_PLOT_SURV, 9},
     {"_Colossus_Schoenfeld_Calc", (DL_FUNC) &_Colossus_Schoenfeld_Calc, 13},
     {"_Colossus_Plot_Omnibus", (DL_FUNC) &_Colossus_Plot_Omnibus, 31},
-    {"_Colossus_Assign_Events", (DL_FUNC) &_Colossus_Assign_Events, 17},
     {"_Colossus_Assign_Events_Pois", (DL_FUNC) &_Colossus_Assign_Events_Pois, 17},
     {"_Colossus_cox_ph_Omnibus_transition", (DL_FUNC) &_Colossus_cox_ph_Omnibus_transition, 18},
     {"_Colossus_pois_Omnibus_transition", (DL_FUNC) &_Colossus_pois_Omnibus_transition, 16},
