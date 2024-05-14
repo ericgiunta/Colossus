@@ -774,17 +774,19 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
     // starts with solved likelihoods and derivatives
     // store the second derivative as D0
     MatrixXd D0 = Lldd_mat;
-    return;
+//    return;
     if (step==0){
         //Initial step, calculate dom/dbet and h
         VectorXd dOmdBeta = Lldd_mat.col(para_number);
         removeRow(D0, para_number);
         removeColumn(D0, para_number);
         D0 = D0.inverse().matrix();
-        dOmdBeta = -1 * D0 * dOmdBeta;
+        dOmdBeta = -1 * dOmdBeta * D0;
         //
-        double h = Lldd_mat(para_number, para_number) - Lldd_mat.row(para_number) * D0 * Lldd_mat.col(para_number);
-        h = pow(qchi/(abs(h)),0.5);
+        MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
+        removeColumn(dLdBdO, para_number);
+        double h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0,0);
+        h = pow(qchi/(h),0.5);
         if (upper){
             h = h/2;
         } else {
@@ -827,7 +829,39 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
         double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
         double cs0 = v.matrix().transpose() * D0 * v.matrix();
         //
-//        if (pow(bs1,2)-4*as2*cs0)
+        if (pow(bs1,2)-4*as2*cs0 >= 0){
+            double s0 = pow(bs1,2)-4*as2*cs0;
+            double s1 = (-bs1 - pow(s0, 0.5))/(2*as2);
+            s0 = (-bs1 + pow(s0, 0.5))/(2*as2);
+            // check which is closer
+            double s01 = 0;
+            for (int j = 0; j < reqrdnum; j++){
+                s01 += pow(v[j]+g1[j]*s0,2) - pow(v[j]+g1[j]*s1,2);
+            }
+            if (s01<0){
+                //s1 is further away
+                for (int ij=0;ij<totalnum;ij++){
+                    if (KeepConstant[ij]==0){
+                        int pij_ind = ij - sum(head(KeepConstant,ij));
+                        dbeta[ij] = v[pij_ind] + g1[pij_ind]*s0;
+                    }
+                }
+            } else {
+                //s0 is further away
+                for (int ij=0;ij<totalnum;ij++){
+                    if (KeepConstant[ij]==0){
+                        int pij_ind = ij - sum(head(KeepConstant,ij));
+                        dbeta[ij] = v[pij_ind] + g1[pij_ind]*s1;
+                    }
+                }
+            }
+        } else {
+            // there are no real solutions, needs a more conservative step?
+            // currently will just stop
+            for (int ij=0;ij<totalnum;ij++){
+                dbeta[ij] = 0;
+            }
+        }
 //        Rcout << as2 << ", " << bs1 << ", " << cs0 << endl;
     }
     return;

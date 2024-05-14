@@ -530,7 +530,7 @@ test_that("check Linear Constraints", {
     }
 })
 
-test_that("Coxph strata_basic_single_CR log_bound", {
+test_that("Coxph strata_basic_single_CR", {
     fname <- 'll_comp_0.csv'
     colTypes=c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -571,7 +571,7 @@ test_that("Coxph strata_basic_single_CR log_bound", {
         for (j in c(TRUE,FALSE)){
             for (k in c(TRUE,FALSE)){
                 for (l in c(TRUE,FALSE)){
-                    model_control=list('strata'=i, 'basic'=j, 'single'=k, 'CR'=l, 'Log_Bound'=TRUE)
+                    model_control=list('strata'=i, 'basic'=j, 'single'=k, 'CR'=l)
                     if (verbose){print(model_control)}
                     a_n <- c(-0.1,-0.1)
                     control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
