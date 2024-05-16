@@ -776,6 +776,16 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
     MatrixXd D0 = Lldd_mat;
 //    return;
     if (step==0){
+        if (verbose){
+            // gibtime = system_clock::to_time_t(system_clock::now());
+            // Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+            Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
+            Rcout << "C++ Note: df204 ";//prints parameter values
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << beta_0[ij] << " ";
+            }
+            Rcout << " " << endl;
+        }
         //Initial step, calculate dom/dbet and h
         VectorXd dOmdBeta = Lldd_mat.col(para_number);
         removeRow(D0, para_number);
@@ -822,6 +832,28 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
             }
         }
         G = G.inverse().matrix();
+        // At this point, we have the standard newton-raphson equation defined
+        if (verbose){
+            // gibtime = system_clock::to_time_t(system_clock::now());
+            // Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+            Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
+            Rcout << "C++ Note: df202 ";//prints the first derivatives
+            for (int ij=0;ij<reqrdnum;ij++){
+                Rcout << v[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: df203 ";//prints the second derivatives
+            for (int ij=0;ij<reqrdnum;ij++){
+                Rcout << G(ij, ij) << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: df204 ";//prints parameter values
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << beta_0[ij] << " ";
+            }
+            Rcout << " " << endl;
+        }
+        //
         v = G.matrix() * v.matrix();
 //        Rcout << "reached G" << endl;
         VectorXd g1 = G.col(para_number);
@@ -871,6 +903,13 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
                     dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s0;
                 }
             }
+        }
+        if (verbose){
+            Rcout << "C++ Note: df205 ";//prints parameter values
+            for (int ij=0;ij<totalnum;ij++){
+                Rcout << dbeta[ij] << " ";
+            }
+            Rcout << " " << endl;
         }
 //        Rcout << as2 << ", " << bs1 << ", " << cs0 << endl;
     }
