@@ -655,6 +655,29 @@ Def_model_control <- function(control){
     } else {
         control["gmix_term"] <- c(0)
     }
+    if (control[['Log_Bound']]){
+        if ("alpha" %in% names(control)){
+            control['qchi'] <- qchisq(1-control[['alpha']], df=1)/2
+        } else {
+            control["alpha"] <- 0.05
+            control['qchi'] <- qchisq(1-control[['alpha']], df=1)/2
+        }
+        if ("para_number" %in% names(control)){
+            #fine
+        } else {
+            control["para_number"] <- 0
+        }
+        if ("half_check" %in% names(control)){
+            #fine
+        } else {
+            control["half_check"] <- 5
+        }
+        if ("maxstep" %in% names(control)){
+            #fine
+        } else {
+            control["maxstep"] <- 10
+        }
+    }
     return (control)
 }
 

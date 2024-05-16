@@ -786,12 +786,15 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
         MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
         removeColumn(dLdBdO, para_number);
         double h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0,0);
-        h = pow(qchi/(h),0.5);
+//        Rcout << h << endl;
+        h = pow(qchi/(-1*h),0.5);
+//        Rcout << h << endl;
         if (upper){
             h = h/2;
         } else {
             h = h/-2;
         }
+//        Rcout << h << endl;
         // calculate first step
         int j=0;
         for (int ij=0;ij<totalnum;ij++){
@@ -810,40 +813,43 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
         //Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);
         MatrixXd G = MatrixXd::Zero(reqrdnum, reqrdnum);
         VectorXd v = VectorXd::Zero(reqrdnum);
-        v[0] = L0 - Lstar;
-        G.row(0) = Lld_vec;
+        v[para_number] = L0 - Lstar;
+        G.row(para_number) = Lld_vec;
         for (int j=0; j<reqrdnum;j++){
-            if (j<para_number){
-                G.row(j+1) = D0.row(j);
-                v[j+1] = Lld_vec[j];
-            } else if (j>para_number){
+            if (j!=para_number){
                 G.row(j) = D0.row(j);
                 v[j] = Lld_vec[j];
             }
         }
         G = G.inverse().matrix();
+        v = G.matrix() * v.matrix();
 //        Rcout << "reached G" << endl;
-        VectorXd g1 = G.col(0);
+        VectorXd g1 = G.col(para_number);
         // we now must solve for the roots
         double as2 = g1.matrix().transpose() * D0 * g1.matrix();
         double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
         double cs0 = v.matrix().transpose() * D0 * v.matrix();
+//        Rcout << as2 << "s^2 + " << bs1 << "s + " << cs0 << endl;
         //
         if (pow(bs1,2)-4*as2*cs0 >= 0){
             double s0 = pow(bs1,2)-4*as2*cs0;
             double s1 = (-bs1 - pow(s0, 0.5))/(2*as2);
             s0 = (-bs1 + pow(s0, 0.5))/(2*as2);
             // check which is closer
-            double s01 = 0;
-            for (int j = 0; j < reqrdnum; j++){
-                s01 += pow(v[j]+g1[j]*s0,2) - pow(v[j]+g1[j]*s1,2);
-            }
-            if (s01<0){
+            double s00 = (v + s0*g1).matrix().transpose() * D0 * (v + s0*g1).matrix();
+            double s11 = (v + s1*g1).matrix().transpose() * D0 * (v + s1*g1).matrix();
+            //
+//            double s01 = 0;
+//            for (int j = 0; j < reqrdnum; j++){
+//                s01 += pow(v[j]+g1[j]*s0,2) - pow(v[j]+g1[j]*s1,2);
+//            }
+//            Rcout << s00 << ", " << s11 << ", " << s01 << endl;
+            if (abs(s00)<abs(s11)){
                 //s1 is further away
                 for (int ij=0;ij<totalnum;ij++){
                     if (KeepConstant[ij]==0){
                         int pij_ind = ij - sum(head(KeepConstant,ij));
-                        dbeta[ij] = v[pij_ind] + g1[pij_ind]*s0;
+                        dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s0;
                     }
                 }
             } else {
@@ -851,15 +857,19 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
                 for (int ij=0;ij<totalnum;ij++){
                     if (KeepConstant[ij]==0){
                         int pij_ind = ij - sum(head(KeepConstant,ij));
-                        dbeta[ij] = v[pij_ind] + g1[pij_ind]*s1;
+                        dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s1;
                     }
                 }
             }
         } else {
             // there are no real solutions, needs a more conservative step?
-            // currently will just stop
+            // currently will just use the extrema
+            double s0 = -bs1/2/as2;
             for (int ij=0;ij<totalnum;ij++){
-                dbeta[ij] = 0;
+                if (KeepConstant[ij]==0){
+                    int pij_ind = ij - sum(head(KeepConstant,ij));
+                    dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s0;
+                }
             }
         }
 //        Rcout << as2 << ", " << bs1 << ", " << cs0 << endl;
