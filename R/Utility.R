@@ -667,10 +667,10 @@ Def_model_control <- function(control){
         } else {
             control["para_number"] <- 0
         }
-        if ("half_check" %in% names(control)){
+        if ("half_max" %in% names(control)){
             #fine
         } else {
-            control["half_check"] <- 5
+            control["half_max"] <- 5
         }
         if ("maxstep" %in% names(control)){
             #fine

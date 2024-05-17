@@ -831,7 +831,6 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
                 v[j] = Lld_vec[j];
             }
         }
-        G = G.inverse().matrix();
         // At this point, we have the standard newton-raphson equation defined
         if (verbose){
             // gibtime = system_clock::to_time_t(system_clock::now());
@@ -852,55 +851,62 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
                 Rcout << beta_0[ij] << " ";
             }
             Rcout << " " << endl;
+            Rcout << "C++ Note: Second Derivative Determinant: " << G.determinant() << endl;
         }
         //
-        v = G.matrix() * v.matrix();
-//        Rcout << "reached G" << endl;
-        VectorXd g1 = G.col(para_number);
-        // we now must solve for the roots
-        double as2 = g1.matrix().transpose() * D0 * g1.matrix();
-        double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
-        double cs0 = v.matrix().transpose() * D0 * v.matrix();
-//        Rcout << as2 << "s^2 + " << bs1 << "s + " << cs0 << endl;
-        //
-        if (pow(bs1,2)-4*as2*cs0 >= 0){
-            double s0 = pow(bs1,2)-4*as2*cs0;
-            double s1 = (-bs1 - pow(s0, 0.5))/(2*as2);
-            s0 = (-bs1 + pow(s0, 0.5))/(2*as2);
-            // check which is closer
-            double s00 = (v + s0*g1).matrix().transpose() * D0 * (v + s0*g1).matrix();
-            double s11 = (v + s1*g1).matrix().transpose() * D0 * (v + s1*g1).matrix();
+        if (abs(G.determinant()) < 1e-6){
+            // The inverted matrix does not exist
+            for (int ij=0;ij<totalnum;ij++){
+                if (KeepConstant[ij]==0){
+                    int pij_ind = ij - sum(head(KeepConstant,ij));
+                    dbeta[ij] = -v[pij_ind]/G(pij_ind,pij_ind);
+                }
+            }
+        } else {
+            G = G.inverse().matrix();
+            v = G.matrix() * v.matrix();
+    //        Rcout << "reached G" << endl;
+            VectorXd g1 = G.col(para_number);
+            // we now must solve for the roots
+            double as2 = g1.matrix().transpose() * D0 * g1.matrix();
+            double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
+            double cs0 = v.matrix().transpose() * D0 * v.matrix();
+//            Rcout << as2 << "s^2 + " << bs1 << "s + " << cs0 << endl;
             //
-//            double s01 = 0;
-//            for (int j = 0; j < reqrdnum; j++){
-//                s01 += pow(v[j]+g1[j]*s0,2) - pow(v[j]+g1[j]*s1,2);
-//            }
-//            Rcout << s00 << ", " << s11 << ", " << s01 << endl;
-            if (abs(s00)<abs(s11)){
-                //s1 is further away
+            if (pow(bs1,2)-4*as2*cs0 >= 0){
+                double s0 = pow(bs1,2)-4*as2*cs0;
+                double s1 = (-bs1 - pow(s0, 0.5))/(2*as2);
+                s0 = (-bs1 + pow(s0, 0.5))/(2*as2);
+                // check which is closer
+                double s00 = (v + s0*g1).matrix().transpose() * D0 * (v + s0*g1).matrix();
+                double s11 = (v + s1*g1).matrix().transpose() * D0 * (v + s1*g1).matrix();
+                //
+                if (abs(s00)<abs(s11)){
+                    //s1 is further away
+                    for (int ij=0;ij<totalnum;ij++){
+                        if (KeepConstant[ij]==0){
+                            int pij_ind = ij - sum(head(KeepConstant,ij));
+                            dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s0;
+                        }
+                    }
+                } else {
+                    //s0 is further away
+                    for (int ij=0;ij<totalnum;ij++){
+                        if (KeepConstant[ij]==0){
+                            int pij_ind = ij - sum(head(KeepConstant,ij));
+                            dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s1;
+                        }
+                    }
+                }
+            } else {
+                // there are no real solutions, needs a more conservative step?
+                // currently will just use the extrema
+                double s0 = -bs1/2/as2;
                 for (int ij=0;ij<totalnum;ij++){
                     if (KeepConstant[ij]==0){
                         int pij_ind = ij - sum(head(KeepConstant,ij));
                         dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s0;
                     }
-                }
-            } else {
-                //s0 is further away
-                for (int ij=0;ij<totalnum;ij++){
-                    if (KeepConstant[ij]==0){
-                        int pij_ind = ij - sum(head(KeepConstant,ij));
-                        dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s1;
-                    }
-                }
-            }
-        } else {
-            // there are no real solutions, needs a more conservative step?
-            // currently will just use the extrema
-            double s0 = -bs1/2/as2;
-            for (int ij=0;ij<totalnum;ij++){
-                if (KeepConstant[ij]==0){
-                    int pij_ind = ij - sum(head(KeepConstant,ij));
-                    dbeta[ij] = -v[pij_ind] - g1[pij_ind]*s0;
                 }
             }
         }

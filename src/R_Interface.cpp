@@ -655,12 +655,12 @@ List cox_ph_cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector 
 	//
 	double qchi     = model_control["qchi"];
     int para_number = model_control["para_number"];
-    int half_check  = model_control["half_check"];
+    int half_max  = model_control["half_max"];
     int maxstep     = model_control["maxstep"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_check, maxstep);
+    List res = LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
