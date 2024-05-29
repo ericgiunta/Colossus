@@ -2211,6 +2211,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     bool upper = true;
     int half_check = 0;
     bool trouble = false;
+    IntegerVector KeepConstant_trouble (totalnum);
+    for (int i=0; i<totalnum;i++){
+        KeepConstant_trouble[i] = KeepConstant[i];
+    }
+    KeepConstant_trouble[para_number] = 1;
 //    int maxstep=10;
     //
     vector<double> limits(2,0.0);
@@ -2225,7 +2230,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     }
     upper = true;
     for (int step=0;step<maxstep;step++){
+        trouble = false;
         Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        if (trouble){
+            Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
+        }
         //
         beta_p = beta_c;//
         beta_a = beta_c;//
@@ -2353,7 +2362,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     //
     upper = false;
     for (int step=0;step<maxstep;step++){
+        trouble = false;
         Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        if (trouble){
+            Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
+        }
         //
         beta_p = beta_c;//
         beta_a = beta_c;//

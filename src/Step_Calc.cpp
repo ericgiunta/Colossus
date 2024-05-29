@@ -565,6 +565,7 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
             } else {
                 // there are no real solutions, needs a more conservative step?
                 // currently will just use the extrema
+                trouble = true;
                 double s0 = -bs1/2/as2;
                 for (int ij=0;ij<totalnum;ij++){
                     if (KeepConstant[ij]==0){
@@ -595,7 +596,7 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble, bool debugging){
+void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble, bool debugging){
     int kept_covs = totalnum - sum(KeepConstant_trouble);
     NumericVector Lldd_vec(kept_covs * kept_covs);
     NumericVector Lld_vec(kept_covs);

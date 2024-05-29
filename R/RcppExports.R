@@ -729,8 +729,8 @@ Log_Bound <- function(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads,
 #' @return Updates matrices in place: parameter change matrix
 #' @noRd
 #'
-Calc_Change_trouble <- function(para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change_trouble`, para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging))
+Calc_Change_trouble <- function(para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_trouble`, para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging))
 }
 
 #' Utility function to calculate the term and subterm values

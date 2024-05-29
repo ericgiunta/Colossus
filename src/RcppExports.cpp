@@ -1542,14 +1542,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // Calc_Change_trouble
-void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble, bool debugging);
-RcppExport SEXP _Colossus_Calc_Change_trouble(SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstant_troubleSEXP, SEXP debuggingSEXP) {
+void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble, bool debugging);
+RcppExport SEXP _Colossus_Calc_Change_trouble(SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstant_troubleSEXP, SEXP debuggingSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type para_number(para_numberSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
     Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
     Rcpp::traits::input_parameter< const double& >::type dose_abs_max(dose_abs_maxSEXP);
     Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
@@ -1563,7 +1562,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant_trouble(KeepConstant_troubleSEXP);
     Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Calc_Change_trouble(para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
+    Calc_Change_trouble(para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
     return R_NilValue;
 END_RCPP
 }
@@ -1846,7 +1845,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 18},
     {"_Colossus_Calc_Change_Basic", (DL_FUNC) &_Colossus_Calc_Change_Basic, 14},
     {"_Colossus_Log_Bound", (DL_FUNC) &_Colossus_Log_Bound, 17},
-    {"_Colossus_Calc_Change_trouble", (DL_FUNC) &_Colossus_Calc_Change_trouble, 17},
+    {"_Colossus_Calc_Change_trouble", (DL_FUNC) &_Colossus_Calc_Change_trouble, 16},
     {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
     {"_Colossus_Make_subterms_Single", (DL_FUNC) &_Colossus_Make_subterms_Single, 17},
     {"_Colossus_Make_subterms_Basic", (DL_FUNC) &_Colossus_Make_subterms_Basic, 7},
