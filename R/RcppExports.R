@@ -510,8 +510,20 @@ Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, R
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Log_Bound <- function(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose) {
-    invisible(.Call(`_Colossus_Log_Bound`, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose))
+Log_Bound <- function(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose) {
+    invisible(.Call(`_Colossus_Log_Bound`, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose))
+}
+
+#' Utility function to calculate the change to make each iteration
+#'
+#' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change_trouble <- function(para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_trouble`, para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging))
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives

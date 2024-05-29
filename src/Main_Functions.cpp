@@ -2035,7 +2035,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     // Lld_worst: stores the highest magnitude log-likelihood derivative
     //
     //
-    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
+//    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -2147,9 +2147,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;// stores the best parameters
     // double halves = 0; //number of half-steps taken
     // int ind0 = fir; //used for validations
-    int iteration=0; //iteration number
+//    int iteration=0; //iteration number
     //
-    bool convgd = FALSE;
+//    bool convgd = FALSE;
     int iter_stop =0; //tracks if the iterations should be stopped for convergence
     // int iter_check=0; //signal to check for convergence
     //
@@ -2169,16 +2169,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     beta_c = beta_best;//
     abs_max = abs_max0;
     dose_abs_max = dose_abs_max0;
-    iter_stop = 0;
-    // halves=0;
-    iteration=0;
-    // halves = 0; //number of half-steps taken
-    // ind0 = fir; //used for validations
-    iteration=0; //iteration number
-    //
-    convgd = FALSE;
-    iter_stop =0; //tracks if the iterations should be stopped for convergence
-    // iter_check=0; //signal to check for convergence
     //
     for (int i=0;i<beta_0.size();i++){
         beta_0[i] = a_n[i];
@@ -2219,6 +2209,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
 //    int para_number = 0;
     bool upper = true;
     int half_check = 0;
+    bool trouble = false;
 //    int maxstep=10;
     //
     vector<double> limits(2,0.0);
@@ -2233,7 +2224,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     }
     upper = true;
     for (int step=0;step<maxstep;step++){
-        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose);
+        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
         //
         beta_p = beta_c;//
         beta_a = beta_c;//
@@ -2361,7 +2352,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     //
     upper = false;
     for (int step=0;step<maxstep;step++){
-        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose);
+        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
         //
         beta_p = beta_c;//
         beta_a = beta_c;//
@@ -2537,7 +2528,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_alt( IntegerVector Term_n, StringVector tfo
     // Lld_worst: stores the highest magnitude log-likelihood derivative
     //
     //
-    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
+//    double Lld_worst = 0.0; //stores derivative value used to determine if every parameter is near convergence
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -2706,9 +2697,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_alt( IntegerVector Term_n, StringVector tfo
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;// stores the best parameters
     // double halves = 0; //number of half-steps taken
     // int ind0 = fir; //used for validations
-    int iteration=0; //iteration number
+//    int iteration=0; //iteration number
     //
-    bool convgd = FALSE;
+//    bool convgd = FALSE;
     int iter_stop =0; //tracks if the iterations should be stopped for convergence
     // int iter_check=0; //signal to check for convergence
     //
@@ -2734,9 +2725,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_alt( IntegerVector Term_n, StringVector tfo
     // halves=0;
     // halves = 0; //number of half-steps taken
     // ind0 = fir; //used for validations
-    iteration=0; //iteration number
+//    iteration=0; //iteration number
     //
-    convgd = FALSE;
+//    convgd = FALSE;
     iter_stop =0; //tracks if the iterations should be stopped for convergence
     // iter_check=0; //signal to check for convergence
     //
@@ -2779,6 +2770,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_alt( IntegerVector Term_n, StringVector tfo
 //    int para_number = 0;
     bool upper = true;
     int half_check = 0;
+    bool trouble = false;
 //    int maxstep=10;
     //
     vector<double> limits(2,0.0);
@@ -2797,7 +2789,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_alt( IntegerVector Term_n, StringVector tfo
         half_check = 0;
         iter_stop =0;
         Ll_comp[0] = Ll[0];
-        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, verbose);
+        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
         //
         beta_p = beta_c;//
         beta_a = beta_c;//
@@ -2807,7 +2799,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_alt( IntegerVector Term_n, StringVector tfo
         //
         for (int ijk=0;ijk<totalnum;ijk++){
             if (KeepConstant[ijk]==0){
-                int pjk_ind = ijk - sum(head(KeepConstant,ijk));
+//                int pjk_ind = ijk - sum(head(KeepConstant,ijk));
                 //
                 if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
                     if (abs(dbeta[ijk])>dose_abs_max){

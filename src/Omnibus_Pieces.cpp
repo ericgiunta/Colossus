@@ -29,6 +29,10 @@ using Eigen::SparseMatrix;
 using Eigen::VectorXd;
 using Rcpp::as;
 
+template <typename T> int sign(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
 
 //' Utility function to refresh risk and subterm matrices for Cox Omnibus function
 //'
@@ -770,15 +774,12 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool verbose){
+void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose){
     // starts with solved likelihoods and derivatives
     // store the second derivative as D0
     MatrixXd D0 = Lldd_mat;
-//    return;
     if (step==0){
         if (verbose){
-            // gibtime = system_clock::to_time_t(system_clock::now());
-            // Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
             Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
             Rcout << "C++ Note: df204 ";//prints parameter values
             for (int ij=0;ij<totalnum;ij++){
@@ -796,15 +797,12 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
         MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
         removeColumn(dLdBdO, para_number);
         double h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0,0);
-//        Rcout << h << endl;
         h = pow(qchi/(-1*h),0.5);
-//        Rcout << h << endl;
         if (upper){
             h = h/2;
         } else {
             h = h/-2;
         }
-//        Rcout << h << endl;
         // calculate first step
         int j=0;
         for (int ij=0;ij<totalnum;ij++){
@@ -833,8 +831,6 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
         }
         // At this point, we have the standard newton-raphson equation defined
         if (verbose){
-            // gibtime = system_clock::to_time_t(system_clock::now());
-            // Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
             Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
             Rcout << "C++ Note: df202 ";//prints the first derivatives
             for (int ij=0;ij<reqrdnum;ij++){
@@ -922,6 +918,89 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
     return;
 }
 
+//' Utility function to calculate the change to make each iteration
+//'
+//' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: parameter change matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta,const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble, bool debugging){
+    int kept_covs = totalnum - sum(KeepConstant_trouble);
+    NumericVector Lldd_vec(kept_covs * kept_covs);
+    NumericVector Lld_vec(kept_covs);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk=0;ijk<kept_covs*(kept_covs+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        int ij0 = ij;
+        int jk0 = jk;
+        if (ij >= para_number){
+            ij0++;
+        }
+        if (jk >= para_number){
+            jk0++;
+        }
+        Lldd_vec[jk * kept_covs + ij]=Lldd[jk0 * (kept_covs+1) + ij0];
+        if (ij==jk){
+            Lld_vec[ij]=Lld[ij0];
+        } else {
+            Lldd_vec[ij * kept_covs + jk]=Lldd_vec[jk0 * (kept_covs+1) + ij0];
+        }
+    }
+    //
+    //
+    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+    VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(-1*Lld_mat);
+    VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+    for (int ij=0;ij<totalnum;ij++){
+        if (KeepConstant_trouble[ij]==0){
+            int pij_ind = ij - sum(head(KeepConstant_trouble,ij));
+            Lldd_solve(ij) = Lldd_solve0(pij_ind);
+        }
+    }
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk=0;ijk<totalnum;ijk++){
+        if (KeepConstant_trouble[ijk]==0){
+            int pjk_ind = ijk - sum(head(KeepConstant_trouble,ijk));
+            if (isnan(Lldd_solve(ijk))){
+                if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0 ){
+                    dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+                } else {
+                    dbeta[ijk] = 0;
+                }
+            } else {
+                dbeta[ijk] = lr * Lldd_solve(ijk);//-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+            }
+//            //
+            if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                if (abs(dbeta[ijk])>dose_abs_max){
+                    dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                }
+            }else{
+                if (abs(dbeta[ijk])>abs_max){
+                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                }
+            }
+        } else {
+            dbeta[ijk]=0;
+        }
+    }
+    return;
+}
 
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives
