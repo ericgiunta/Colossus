@@ -265,54 +265,6 @@ Poisson_LogLik_Single <- function(nthreads, totalnum, PyrC, R, Ll, debugging) {
     invisible(.Call(`_Colossus_Poisson_LogLik_Single`, nthreads, totalnum, PyrC, R, Ll, debugging))
 }
 
-#' Utility function to keep intercept parameters within the range of possible values
-#'
-#' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
-#' @inheritParams CPP_template
-#' 
-#' @return Updates vector in place: parameter vector
-#' @noRd
-#'
-Intercept_Bound <- function(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform) {
-    invisible(.Call(`_Colossus_Intercept_Bound`, nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform))
-}
-
-#' Utility function to calculate the change to make each iteration, applying linear constraints
-#'
-#' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints    
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: parameter change matrix
-#' @noRd
-#'
-Calc_Change_Cons <- function(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change_Cons`, Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging))
-}
-
-#' Utility function to calculate the change to make each iteration
-#'
-#' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: parameter change matrix
-#' @noRd
-#'
-Calc_Change <- function(double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging))
-}
-
-#' Utility function to calculate the change to make each iteration, with basic model
-#'
-#' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: parameter change matrix
-#' @noRd
-#'
-Calc_Change_Basic <- function(double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change_Basic`, double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging))
-}
-
 #' Utility function to perform null model equivalent of Calculate_Sides
 #'
 #' \code{Calculate_Null_Sides} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
@@ -498,32 +450,6 @@ Pois_Term_Risk_Calc <- function(modelform, tform, Term_n, totalnum, fir, dfc, te
 #'
 Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev) {
     invisible(.Call(`_Colossus_Pois_Dev_LL_Calc`, reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev))
-}
-
-#' Utility function to calculate steps for a likelihood based bound
-#'
-#' \code{Log_Bound} Called to perform likelihood bound steps
-#' @inheritParams CPP_template
-#' @param Lstar likelihood goal
-#' @param L0 current likelihood
-#'
-#' @return Updates matrices in place: risk storage matrices
-#' @noRd
-#'
-Log_Bound <- function(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose) {
-    invisible(.Call(`_Colossus_Log_Bound`, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose))
-}
-
-#' Utility function to calculate the change to make each iteration
-#'
-#' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: parameter change matrix
-#' @noRd
-#'
-Calc_Change_trouble <- function(para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging) {
-    invisible(.Call(`_Colossus_Calc_Change_trouble`, para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging))
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives
@@ -731,6 +657,80 @@ OMP_Check <- function() {
 #'
 cox_ph_cox_ph_Omnibus_Bounds_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
     .Call(`_Colossus_cox_ph_cox_ph_Omnibus_Bounds_transition`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Utility function to keep intercept parameters within the range of possible values
+#'
+#' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
+#' @inheritParams CPP_template
+#' 
+#' @return Updates vector in place: parameter vector
+#' @noRd
+#'
+Intercept_Bound <- function(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform) {
+    invisible(.Call(`_Colossus_Intercept_Bound`, nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform))
+}
+
+#' Utility function to calculate the change to make each iteration, applying linear constraints
+#'
+#' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints    
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change_Cons <- function(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_Cons`, Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging))
+}
+
+#' Utility function to calculate the change to make each iteration
+#'
+#' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change <- function(double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging))
+}
+
+#' Utility function to calculate the change to make each iteration, with basic model
+#'
+#' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change_Basic <- function(double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_Basic`, double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging))
+}
+
+#' Utility function to calculate steps for a likelihood based bound
+#'
+#' \code{Log_Bound} Called to perform likelihood bound steps
+#' @inheritParams CPP_template
+#' @param Lstar likelihood goal
+#' @param L0 current likelihood
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+Log_Bound <- function(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose) {
+    invisible(.Call(`_Colossus_Log_Bound`, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose))
+}
+
+#' Utility function to calculate the change to make each iteration
+#'
+#' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change_trouble <- function(para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_trouble`, para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging))
 }
 
 #' Utility function to calculate the term and subterm values

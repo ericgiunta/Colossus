@@ -511,102 +511,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// Intercept_Bound
-void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const MatrixXd& df0, const IntegerVector& KeepConstant, bool debugging, const StringVector& tform);
-RcppExport SEXP _Colossus_Intercept_Bound(SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP beta_0SEXP, SEXP dbetaSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP, SEXP tformSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
-    return R_NilValue;
-END_RCPP
-}
-// Calc_Change_Cons
-void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const VectorXd& beta_0, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging);
-RcppExport SEXP _Colossus_Calc_Change_Cons(SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP beta_0SEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Lin_Sys(Lin_SysSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type Lin_Res(Lin_ResSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dose_abs_max(dose_abs_maxSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging);
-    return R_NilValue;
-END_RCPP
-}
-// Calc_Change
-void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging);
-RcppExport SEXP _Colossus_Calc_Change(SEXP double_stepSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP change_allSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type double_step(double_stepSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dose_abs_max(dose_abs_maxSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
-    Rcpp::traits::input_parameter< const bool >::type change_all(change_allSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Calc_Change(double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging);
-    return R_NilValue;
-END_RCPP
-}
-// Calc_Change_Basic
-void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, IntegerVector KeepConstant, bool debugging);
-RcppExport SEXP _Colossus_Calc_Change_Basic(SEXP double_stepSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP change_allSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type double_step(double_stepSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
-    Rcpp::traits::input_parameter< const bool >::type change_all(change_allSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Calc_Change_Basic(double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
-    return R_NilValue;
-END_RCPP
-}
 // Calculate_Null_Sides
 void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads);
 RcppExport SEXP _Colossus_Calculate_Null_Sides(SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP Rls1SEXP, SEXP Lls1SEXP, SEXP nthreadsSEXP) {
@@ -1114,58 +1018,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// Log_Bound
-void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose);
-RcppExport SEXP _Colossus_Log_Bound(SEXP Lldd_matSEXP, SEXP Lld_vecSEXP, SEXP LstarSEXP, SEXP qchiSEXP, SEXP L0SEXP, SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP reqrdnumSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP stepSEXP, SEXP dbetaSEXP, SEXP beta_0SEXP, SEXP upperSEXP, SEXP troubleSEXP, SEXP verboseSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Lldd_mat(Lldd_matSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type Lld_vec(Lld_vecSEXP);
-    Rcpp::traits::input_parameter< const double& >::type Lstar(LstarSEXP);
-    Rcpp::traits::input_parameter< const double& >::type qchi(qchiSEXP);
-    Rcpp::traits::input_parameter< const double& >::type L0(L0SEXP);
-    Rcpp::traits::input_parameter< const int& >::type para_number(para_numberSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type reqrdnum(reqrdnumSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< const int& >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< const int& >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
-    Rcpp::traits::input_parameter< bool >::type upper(upperSEXP);
-    Rcpp::traits::input_parameter< bool& >::type trouble(troubleSEXP);
-    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
-    return R_NilValue;
-END_RCPP
-}
-// Calc_Change_trouble
-void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble, bool debugging);
-RcppExport SEXP _Colossus_Calc_Change_trouble(SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstant_troubleSEXP, SEXP debuggingSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type para_number(para_numberSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dose_abs_max(dose_abs_maxSEXP);
-    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
-    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
-    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
-    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant_trouble(KeepConstant_troubleSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Calc_Change_trouble(para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
-    return R_NilValue;
-END_RCPP
-}
 // Simplified_Inform_Matrix
 void Simplified_Inform_Matrix(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& InMa, bool debugging, string ties_method, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Simplified_Inform_Matrix(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP InMaSEXP, SEXP debuggingSEXP, SEXP ties_methodSEXP, SEXP KeepConstantSEXP) {
@@ -1567,6 +1419,154 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Intercept_Bound
+void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const MatrixXd& df0, const IntegerVector& KeepConstant, bool debugging, const StringVector& tform);
+RcppExport SEXP _Colossus_Intercept_Bound(SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP beta_0SEXP, SEXP dbetaSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP, SEXP tformSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
+    return R_NilValue;
+END_RCPP
+}
+// Calc_Change_Cons
+void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const VectorXd& beta_0, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging);
+RcppExport SEXP _Colossus_Calc_Change_Cons(SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP beta_0SEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lin_Sys(Lin_SysSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type Lin_Res(Lin_ResSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, debugging);
+    return R_NilValue;
+END_RCPP
+}
+// Calc_Change
+void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging);
+RcppExport SEXP _Colossus_Calc_Change(SEXP double_stepSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP change_allSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type change_all(change_allSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Calc_Change(double_step, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging);
+    return R_NilValue;
+END_RCPP
+}
+// Calc_Change_Basic
+void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, IntegerVector KeepConstant, bool debugging);
+RcppExport SEXP _Colossus_Calc_Change_Basic(SEXP double_stepSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP change_allSEXP, SEXP KeepConstantSEXP, SEXP debuggingSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type change_all(change_allSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Calc_Change_Basic(double_step, nthreads, totalnum, der_iden, dbeta_cap, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
+    return R_NilValue;
+END_RCPP
+}
+// Log_Bound
+void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose);
+RcppExport SEXP _Colossus_Log_Bound(SEXP Lldd_matSEXP, SEXP Lld_vecSEXP, SEXP LstarSEXP, SEXP qchiSEXP, SEXP L0SEXP, SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP reqrdnumSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP stepSEXP, SEXP dbetaSEXP, SEXP beta_0SEXP, SEXP upperSEXP, SEXP troubleSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lldd_mat(Lldd_matSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type Lld_vec(Lld_vecSEXP);
+    Rcpp::traits::input_parameter< const double& >::type Lstar(LstarSEXP);
+    Rcpp::traits::input_parameter< const double& >::type qchi(qchiSEXP);
+    Rcpp::traits::input_parameter< const double& >::type L0(L0SEXP);
+    Rcpp::traits::input_parameter< const int& >::type para_number(para_numberSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type reqrdnum(reqrdnumSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< const int& >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< const int& >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< bool >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< bool& >::type trouble(troubleSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+    return R_NilValue;
+END_RCPP
+}
+// Calc_Change_trouble
+void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const int& der_iden, const double& dbeta_cap, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble, bool debugging);
+RcppExport SEXP _Colossus_Calc_Change_trouble(SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP der_idenSEXP, SEXP dbeta_capSEXP, SEXP dose_abs_maxSEXP, SEXP lrSEXP, SEXP abs_maxSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP dbetaSEXP, SEXP tformSEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP KeepConstant_troubleSEXP, SEXP debuggingSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type para_number(para_numberSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type der_iden(der_idenSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dbeta_cap(dbeta_capSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< const double& >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< const double& >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Ll(LlSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lld(LldSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type Lldd(LlddSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dint(dintSEXP);
+    Rcpp::traits::input_parameter< const double& >::type dslp(dslpSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant_trouble(KeepConstant_troubleSEXP);
+    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
+    Calc_Change_trouble(para_number, nthreads, totalnum, der_iden, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
+    return R_NilValue;
+END_RCPP
+}
 // Make_subterms
 void Make_subterms(const int& totalnum, const IntegerVector& Term_n, const StringVector& tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const VectorXd& beta_0, const MatrixXd& df0, const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Make_subterms(SEXP totalnumSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP nthreadsSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP) {
@@ -1809,10 +1809,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_LogLik_STRATA_BASIC_SINGLE", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA_BASIC_SINGLE, 13},
     {"_Colossus_Poisson_LogLik", (DL_FUNC) &_Colossus_Poisson_LogLik, 13},
     {"_Colossus_Poisson_LogLik_Single", (DL_FUNC) &_Colossus_Poisson_LogLik_Single, 6},
-    {"_Colossus_Intercept_Bound", (DL_FUNC) &_Colossus_Intercept_Bound, 9},
-    {"_Colossus_Calc_Change_Cons", (DL_FUNC) &_Colossus_Calc_Change_Cons, 19},
-    {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 18},
-    {"_Colossus_Calc_Change_Basic", (DL_FUNC) &_Colossus_Calc_Change_Basic, 14},
     {"_Colossus_Calculate_Null_Sides", (DL_FUNC) &_Colossus_Calculate_Null_Sides, 7},
     {"_Colossus_Calc_Null_LogLik", (DL_FUNC) &_Colossus_Calc_Null_LogLik, 9},
     {"_Colossus_Calculate_Null_Sides_STRATA", (DL_FUNC) &_Colossus_Calculate_Null_Sides_STRATA, 8},
@@ -1828,8 +1824,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Cox_Side_LL_Calc", (DL_FUNC) &_Colossus_Cox_Side_LL_Calc, 35},
     {"_Colossus_Pois_Term_Risk_Calc", (DL_FUNC) &_Colossus_Pois_Term_Risk_Calc, 36},
     {"_Colossus_Pois_Dev_LL_Calc", (DL_FUNC) &_Colossus_Pois_Dev_LL_Calc, 22},
-    {"_Colossus_Log_Bound", (DL_FUNC) &_Colossus_Log_Bound, 17},
-    {"_Colossus_Calc_Change_trouble", (DL_FUNC) &_Colossus_Calc_Change_trouble, 17},
     {"_Colossus_Simplified_Inform_Matrix", (DL_FUNC) &_Colossus_Simplified_Inform_Matrix, 20},
     {"_Colossus_Simplified_Inform_Matrix_STRATA", (DL_FUNC) &_Colossus_Simplified_Inform_Matrix_STRATA, 21},
     {"_Colossus_PLOT_SURV_STRATA", (DL_FUNC) &_Colossus_PLOT_SURV_STRATA, 10},
@@ -1847,6 +1841,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Gen_Strat_Weight", (DL_FUNC) &_Colossus_Gen_Strat_Weight, 8},
     {"_Colossus_OMP_Check", (DL_FUNC) &_Colossus_OMP_Check, 0},
     {"_Colossus_cox_ph_cox_ph_Omnibus_Bounds_transition", (DL_FUNC) &_Colossus_cox_ph_cox_ph_Omnibus_Bounds_transition, 17},
+    {"_Colossus_Intercept_Bound", (DL_FUNC) &_Colossus_Intercept_Bound, 9},
+    {"_Colossus_Calc_Change_Cons", (DL_FUNC) &_Colossus_Calc_Change_Cons, 19},
+    {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 18},
+    {"_Colossus_Calc_Change_Basic", (DL_FUNC) &_Colossus_Calc_Change_Basic, 14},
+    {"_Colossus_Log_Bound", (DL_FUNC) &_Colossus_Log_Bound, 17},
+    {"_Colossus_Calc_Change_trouble", (DL_FUNC) &_Colossus_Calc_Change_trouble, 17},
     {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
     {"_Colossus_Make_subterms_Single", (DL_FUNC) &_Colossus_Make_subterms_Single, 17},
     {"_Colossus_Make_subterms_Basic", (DL_FUNC) &_Colossus_Make_subterms_Basic, 7},
