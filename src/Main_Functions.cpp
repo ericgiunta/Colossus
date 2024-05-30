@@ -2220,6 +2220,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     //
     vector<double> limits(2,0.0);
     vector<bool>   limit_hit(2, FALSE);
+    vector<double> ll_final(2,0.0);
     List res_list;
     if (verbose){
         Rcout << "C++ Note: STARTING BOUNDS" << endl;
@@ -2339,6 +2340,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[1] = beta_0[para_number];
+        ll_final[1] = Ll[0];
     }
     //
     //
@@ -2471,9 +2473,10 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[0] = beta_0[para_number];
+        ll_final[0] = Ll[0];
     }
     //
-    res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit));
+    res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit), _["Likelihood_Boundary"]=wrap(ll_final), _["Likelihood_Goal"]=wrap(Lstar));
     // returns a list of results
     return res_list;
 }

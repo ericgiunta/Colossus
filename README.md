@@ -93,6 +93,9 @@ print(e)
 #> $Standard_Deviation
 #> [1]      NaN      NaN 177.9643   0.0000
 #> 
+#> $Alternate_Standard_Deviation
+#> [1]         NaN 3781272.348 3698136.197    2326.871
+#> 
 #> $AIC
 #> [1] 9.350729
 #> 

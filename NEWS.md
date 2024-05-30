@@ -43,3 +43,8 @@
 * ggplot2 no longer required, now optional
 * additional testing added for coverage
 * default Makevars added via bash script
+
+# Colossus 1.1.2
+
+* Log-likelihood bound functionality added
+* subject to usual convergence issues, undergoing testing

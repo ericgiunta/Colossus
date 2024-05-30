@@ -564,7 +564,7 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
                 }
             } else {
                 // there are no real solutions, needs a more conservative step?
-                // currently will just use the extrema
+                // currently will take a step to optimize with constant beta
                 trouble = true;
                 double s0 = -bs1/2/as2;
                 for (int ij=0;ij<totalnum;ij++){
@@ -582,7 +582,6 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
             }
             Rcout << " " << endl;
         }
-//        Rcout << as2 << ", " << bs1 << ", " << cs0 << endl;
     }
     return;
 }
