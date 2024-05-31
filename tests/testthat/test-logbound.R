@@ -35,19 +35,21 @@ test_that("Coxph strata_basic_single_CR log_bound", {
 
     verbose <- FALSE
 
-    for (i in c(TRUE,FALSE)){
-        for (j in c(TRUE,FALSE)){
-            for (k in c(TRUE,FALSE)){
-                for (l in c(TRUE,FALSE)){
-                    model_control=list('strata'=i, 'basic'=j, 'single'=k, 'CR'=l, 'Log_Bound'=TRUE)
-                    if (verbose){print(model_control)}
-                    a_n <- c(-0.1,-0.1)
-                    control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
-                    expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,Strat_Col="rand", model_control=model_control, cens_weight=cens_weight))
-                    a_n <- c(-0.1,-0.1)
-                    control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='efron','double_step'=0)
-                    expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,Strat_Col="rand", model_control=model_control, cens_weight=cens_weight))
-                    if (verbose){print("---------------")}
+    for (i in c(TRUE, FALSE)){
+        for (j in c(TRUE, FALSE)){
+            for (k in c(TRUE, FALSE)){
+                for (l in c(TRUE, FALSE)){
+                    for (m in c(TRUE, FALSE)){
+                        model_control=list('strata'=i, 'basic'=j, 'single'=k, 'CR'=l, 'Log_Bound'=TRUE, 'manual'=m)
+                        if (verbose){print(model_control)}
+                        a_n <- c(-0.1,-0.1)
+                        control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+                        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,Strat_Col="rand", model_control=model_control, cens_weight=cens_weight))
+                        a_n <- c(-0.1,-0.1)
+                        control=list("Ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='efron','double_step'=0)
+                        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, Term_n=Term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,Strat_Col="rand", model_control=model_control, cens_weight=cens_weight))
+                        if (verbose){print("---------------")}
+                    }
                 }
             }
         }

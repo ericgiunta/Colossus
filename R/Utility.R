@@ -677,6 +677,11 @@ Def_model_control <- function(control){
         } else {
             control["maxstep"] <- 10
         }
+        if ("manual" %in% names(control)){
+            #fine
+        } else {
+            control["manual"] <- FALSE
+        }
     }
     return (control)
 }
