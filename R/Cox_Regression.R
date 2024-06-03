@@ -146,61 +146,114 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         a_ns <- c(a_ns, i)
     }
     #
-    if ("maxiters" %in% names(control)){
-    	if (length(control$maxiters) == length(a_n)+1){
-    		#all good, it matches
-    	} else {
-    		if (control$verbose){
-                message(paste("Note: Initial starts:",length(a_n),
-                      ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
-            }
-            if (length(control$maxiters) < length(a_n)+1){
-		        additional <- length(a_n)+1 - length(control$maxiters)
-		        control$maxiters <- c(control$maxiters, rep(1, additional))
-	        } else {
-	        	additional <- length(a_n)+1
-	        	control$maxiters <- control$maxiters[1:additional]
-	        }
-    	}
-	    if ("guesses" %in% names(control)){
-	        #both are in
-	        if (control$guesses+1 == length(control$maxiters)){
-	            #all good, it matches
-	        } else {
-	            if (control$verbose){
-                    message(paste("Error: guesses:",control["guesses"],
-                          ", iterations per guess:",control["maxiters"],sep=" "))
-                }
-                stop()
-	        }
-	    } else {
-	        control$guesses = length(control$maxiters)-1
-	    }
-	} else {
-	    if ("guesses" %in% names(control)){
-	    	if (control$guesses == length(a_n)){
-	    		#both match, all good
-    		} else {
-    			control$guesses = length(a_n)
-    		}
-            control$maxiters = rep(1,control$guesses+1)
-        } else {
-            control$guesses = length(a_n)
-            control$maxiters = c(rep(1,length(a_n)),control$maxiter)
-        }
-    }
-    if (model_control$null){
-        a_ns <- matrix(a_ns)
-    } else {
-        a_ns <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
-    }
     #
     if (model_control$Log_Bound){
-        e <- cox_ph_cox_ph_Omnibus_Bounds_transition(Term_n,tform,a_ns[1,],dfc,x_all, fir,
+        if ("maxiters" %in% names(control)){
+        	if (length(control$maxiters) == length(a_n)+1){
+        		#all good, it matches
+        	} else {
+        		if (control$verbose){
+                    message(paste("Note: Initial starts:",length(a_n),
+                          ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                }
+                if (length(control$maxiters) < length(a_n)+1){
+		            additional <- length(a_n)+1 - length(control$maxiters)
+		            control$maxiters <- c(control$maxiters, rep(1, additional))
+	            } else {
+	            	additional <- length(a_n)+1
+	            	control$maxiters <- control$maxiters[1:additional]
+	            }
+        	}
+	        if ("guesses" %in% names(control)){
+	            #both are in
+	            if (control$guesses+1 == length(control$maxiters)){
+	                #all good, it matches
+	            } else if (length(control$maxiters)==2){
+	                iter0 <-control$maxiters[1]
+	                iter1 <-control$maxiters[2]
+	                applied_iter <- c(rep(iter0,control$guesses),iter1)
+	                control$maxiters <- applied_iter
+	            } else {
+	                if (control$verbose){
+                        message(paste("Error: guesses:",control["guesses"],
+                              ", iterations per guess:",control["maxiters"],sep=" "))
+                    }
+                    stop()
+	            }
+	        } else {
+	            control$guesses = length(control$maxiters)-1
+	        }
+	    } else {
+	        if ("guesses" %in% names(control)){
+	        	if (control$guesses == length(a_n)){
+	        		#both match, all good
+        		} else {
+        			control$guesses = length(a_n)
+        		}
+                control$maxiters = rep(1,control$guesses+1)
+            } else {
+                control$guesses = length(a_n)
+                control$maxiters = c(rep(1,length(a_n)),control$maxiter)
+            }
+        }
+        e <- cox_ph_cox_ph_Omnibus_Bounds_transition(Term_n,tform,a_ns,dfc,x_all, fir,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, cens_weight, model_control,
              Cons_Mat, Cons_Vec)
     } else {
+        if ("maxiters" %in% names(control)){
+        	if (length(control$maxiters) == length(a_n)+1){
+        		#all good, it matches
+        	} else {
+        		if (control$verbose){
+                    message(paste("Note: Initial starts:",length(a_n),
+                          ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                }
+                if (length(control$maxiters) < length(a_n)+1){
+		            additional <- length(a_n)+1 - length(control$maxiters)
+		            control$maxiters <- c(control$maxiters, rep(1, additional))
+	            } else {
+	            	additional <- length(a_n)+1
+	            	control$maxiters <- control$maxiters[1:additional]
+	            }
+        	}
+	        if ("guesses" %in% names(control)){
+	            #both are in
+	            if (control$guesses+1 == length(control$maxiters)){
+	                #all good, it matches
+	            } else if (length(control$maxiters)==2){
+	                iter0 <-control$maxiters[1]
+	                iter1 <-control$maxiters[2]
+	                applied_iter <- c(rep(iter0,control$guesses),iter1)
+	                control$maxiters <- applied_iter
+	            } else {
+	                if (control$verbose){
+                        message(paste("Error: guesses:",control["guesses"],
+                              ", iterations per guess:",control["maxiters"],sep=" "))
+                    }
+                    stop()
+	            }
+	        } else {
+	            control$guesses = length(control$maxiters)-1
+	        }
+	    } else {
+	        if ("guesses" %in% names(control)){
+	        	if (control$guesses == length(a_n)){
+	        		#both match, all good
+        		} else {
+        			control$guesses = length(a_n)
+        		}
+                control$maxiters = rep(1,control$guesses+1)
+            } else {
+                control$guesses = length(a_n)
+                control$maxiters = c(rep(1,length(a_n)),control$maxiter)
+            }
+        }
+        if (model_control$null){
+            a_ns <- matrix(a_ns)
+        } else {
+            a_ns <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
+        }
         e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, cens_weight, model_control,

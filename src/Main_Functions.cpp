@@ -2496,7 +2496,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     //
     List temp_list = List::create(_["Status"]="TEMP"); //used as a dummy return value for code checking
     if (verbose){
-        Rcout << "C++ Note: START_COX_BOUNDS" << endl;
+        Rcout << "C++ Note: START_COX_BOUNDS_SEARCH" << endl;
     }
     time_point<system_clock> start_point, end_point;
     start_point = system_clock::now();
@@ -2562,6 +2562,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     //
     // ------------------------------------------------------------------------- // initialize
     Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    VectorXd beta_max = beta_0;
     MatrixXd T0;
     MatrixXd Td0;
 	MatrixXd Tdd0;
@@ -2652,6 +2653,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     double dose_abs_max0 = dose_abs_max;
     //
     vector<double> dbeta(totalnum,0.0);
+    vector<double> dbeta_start(totalnum,0.0);
     //
     // --------------------------
     // always starts from initial guess
@@ -2725,6 +2727,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
 //    double qchi = 3.841459;
     double Lstar = Ll[0]-qchi;
+    double Lmax = Ll[0];
 //    int para_number = 0;
     bool upper = true;
     int half_check = 0;
@@ -2755,7 +2758,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     upper = true;
     // Now define the list of points to check
     trouble = false;
-    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta, beta_0, upper, trouble, verbose);
+    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
     NumericMatrix a_ns(guesses, totalnum);
     // now the dbeta holds the range to check
     // note that currently the guesses are not bounded
@@ -2763,7 +2766,16 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
         for (int j=0;j<totalnum;j++){
             // use dbeta to assign a_n guess i, parameter j
             // assign such that i=guesses-1 gives mult*dbeta
-            a_ns(i, j) = beta_0[j] + dbeta[j] * mult * ( i+1)/(guesses);
+            a_ns(i, j) = beta_0[j] + dbeta_start[j] * mult * ( i+1)/(guesses);
+        }
+    }
+    if (verbose){
+        for (int i=0;i<guesses;i++){
+            Rcout << "C++ Note: Initial guess " << i << ": ";
+            for (int j=0;j<totalnum;j++){
+                Rcout << a_ns(i, j) << " ";
+            }
+            Rcout << " " << endl;
         }
     }
     // now we have the points to test
@@ -2816,10 +2828,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
         }
         Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
         if (R.minCoeff()<=0){
-			Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-			Rcout << "C++ Warning: final failing values ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << beta_0[ijk] << " ";
+            if (verbose){
+			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+			    Rcout << "C++ Warning: final failing values ";
+			    for (int ijk=0;ijk<totalnum;ijk++){
+				    Rcout << beta_0[ijk] << " ";
+			    }
 			}
             iter_stop = 1;
             Ll[0] = 404; // note to consider this point too far
@@ -3004,139 +3018,687 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     iter_stop =0; //tracks if the iterations should be stopped for convergence
     iter_check=0; //signal to check for convergence
     //
-    int guess_max=guess_abs_best;
+//    int guess_max=guess_abs_best;
+    // next we need to figure out what point to start at
+    int best_guess = -1;
+    for (int guess=guesses-1; guess>-1;guess--){
+        // we want to find the closest point at which the loglikelihood is below lstar
+        if (LL_fin[guess] < Lstar){
+            best_guess = guess;
+        }
+    }
     if (verbose){
-        Rcout << "C++ Note: Guess Results" << endl;
-        Rcout << "Guess number, parameter values, Log-Likelihood" << endl;
+        Rcout << "C++ Note: Upper Guess Results" << endl;
+        Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
         for (int i=0; i<guesses; i++){
             beta_temp = wrap(beta_fin.row(i));
-            if (i==guess_max){
-                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] << "<-- Best Guess" << endl;
+            if (i==best_guess){
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
             } else {
-                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] << endl;
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
             }
         }
     }
+    NumericVector beta_temp;
+    NumericVector beta_temp0;
+    if (best_guess == 0){
+        beta_temp = wrap(beta_fin.row(best_guess)); // the first point was closest, no lower bound
+    } else if (best_guess == -1){
+        beta_temp = wrap(beta_fin.row(guesses-1)); // the last point was closest, no upper bound
+    } else {
+        beta_temp = wrap(beta_fin.row(best_guess));
+        beta_temp0 = wrap(beta_fin.row(best_guess-1));
+        for (int i=0;i<beta_temp.size();i++){
+            beta_temp[i] = beta_temp[i] + beta_temp0[i];
+            beta_temp[i] = beta_temp[i]/2;
+        }
+    }
+    if (verbose){
+        Rcout << "C++ Note: Initial Guess: ";
+        for (int i=0;i<beta_0.size();i++){
+            Rcout << beta_temp[i] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    for (int i=0;i<beta_0.size();i++){
+        a_n[i] = beta_temp[i];
+        beta_0[i] = a_n[i];
+        beta_c[i] = beta_0[i];
+    }
+    //
+    if (verbose){
+        Rcout << "C++ Note: starting subterms after in best guess" << endl;
+    }
+    //
+    // Calculates the subterm and term values
+    Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+    //
+    // -------------------------------------------------------------------------------------------
+    //
+    if (verbose){
+        Rcout << "C++ Note: Made Risk Side Lists" << endl;
+    }
+    // Calculates the side sum terms used
+    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
+        Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
+        if (ij==jk){
+            Lld_vecc[ij] = Lld[ij];
+        }
+    }
+    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+    Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+    Lld_vec = as<Map<VectorXd> >(Lld_vecc);
+    for (int step=1;step<maxstep;step++){
+         trouble = false;
+         Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+         if (trouble){
+             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
+         }
+         //
+         beta_p = beta_c;//
+         beta_a = beta_c;//
+
+         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+         //
+         for (int ijk=0;ijk<totalnum;ijk++){
+             if (KeepConstant[ijk]==0){
+                 int pjk_ind = ijk - sum(head(KeepConstant,ijk));
+                 //
+                 if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                     if (abs(dbeta[ijk])>dose_abs_max){
+                         dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                     }
+                 }else{
+                     if (abs(dbeta[ijk])>abs_max){
+                         dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                     }
+                 }
+             } else {
+                 dbeta[ijk]=0;
+             }
+         }
+         //
+ //        Rcout << "Change: ";
+         for (int ij=0;ij<totalnum;ij++){
+ //            Rcout << dbeta[ij] << " ";
+             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
+             beta_c[ij] = beta_0[ij];
+         }
+ //        Rcout << " " << endl;
+         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+         Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+         while (R.minCoeff()<=0){
+             half_check++;
+ //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+             if (half_check>half_max){
+                 limit_hit[1] = TRUE;
+                 break;
+             } else {
+ 	            #ifdef _OPENMP
+                 #pragma omp parallel for num_threads(nthreads)
+                 #endif
+                 for (int ijk=0;ijk<totalnum;ijk++){
+                     int tij = Term_n[ijk];
+                     if (TTerm.col(tij).minCoeff()<=0){
+                         dbeta[ijk] = dbeta[ijk] / 2.0;
+                     } else if (isinf(TTerm.col(tij).maxCoeff())){
+                         dbeta[ijk] = dbeta[ijk] / 2.0;
+                     }
+                 }
+                 for (int ij=0;ij<totalnum;ij++){
+                     beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
+                     beta_c[ij] = beta_0[ij];
+                 }
+                 Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+             }
+         }
+         if (limit_hit[1]){
+             break;
+         }
+         Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+         //
+         if (verbose){
+             end_point = system_clock::now();
+             ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+             Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Update_Calc" <<endl;//prints the time
+             gibtime = system_clock::to_time_t(system_clock::now());
+             Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
+             for (int ij=0;ij<reqrdnum;ij++){
+                 Rcout << Ll[ij] << " ";
+             }
+             Rcout << " " << endl;
+             Rcout << "C++ Note: df104 ";//prints parameter values
+             for (int ij=0;ij<totalnum;ij++){
+                 Rcout << beta_0[ij] << " ";
+             }
+             Rcout << " " << endl;
+         }
+         //
+         #ifdef _OPENMP
+         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+         #endif
+         for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+             int ij = 0;
+             int jk = ijk;
+             while (jk>ij){
+                 ij++;
+                 jk-=ij;
+             }
+             Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
+             Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
+             if (ij==jk){
+                 Lld_vecc[ij] = Lld[ij];
+             }
+         }
+         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+         Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+         limits[1] = beta_0[para_number];
+         ll_final[1] = Ll[0];
+     }
+    // Now refresh matrices back to the maximum point
+    //
+    // -------------------------------------------------------------------------------------------
+    //
+    beta_0 = beta_max;
+    Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+    //
+    if (verbose){
+        Rcout << "C++ Note: Made Risk Side Lists" << endl;
+    }
+    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
+        Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
+        if (ij==jk){
+            Lld_vecc[ij] = Lld[ij];
+        }
+    }
+    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+    Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+    Lld_vec = as<Map<VectorXd> >(Lld_vecc);
+    //
+    if (verbose){
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
+    upper = false;
+    // Now define the list of points to check
+    trouble = false;
+//    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta, beta_0, upper, trouble, verbose);
+    for (int i=0;i<guesses;i++){
+        for (int j=0;j<totalnum;j++){
+            // use dbeta to assign a_n guess i, parameter j
+            // assign such that i=guesses-1 gives mult*dbeta
+            a_ns(i, j) = beta_0[j] - dbeta_start[j] * mult * ( i+1)/(guesses);
+            Rcout << beta_0[j] << ", " << -1*dbeta_start[j] << ", " << mult << ", " << ( i+1)/(guesses) << endl;
+        }
+    }
+    if (verbose){
+        for (int i=0;i<guesses;i++){
+            Rcout << "C++ Note: Initial guess " << i << ": ";
+            for (int j=0;j<totalnum;j++){
+                Rcout << a_ns(i, j) << " ";
+            }
+            Rcout << " " << endl;
+        }
+    }
+    // now we have the points to test
+    halves = 0; //number of half-steps taken
+    ind0 = fir; //used for validations
+    iteration=0; //iteration number
+    maxiter=0;
+    Lld_worst = 0.0;
+    //
+    convgd = FALSE;
+    iter_stop =0; //tracks if the iterations should be stopped for convergence
+    iter_check=0; //signal to check for convergence
+    //
+    //
+    Ll_abs_best = 10;
+    // vector<double> beta_abs_best(totalnum,0.0);
+    guess_abs_best =-1;
+    for (int guess=0; guess <guesses; guess++){
+        Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+        Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
+        fill(Ll.begin(), Ll.end(), 0.0);
+        fill(Lld.begin(), Lld.end(), 0.0);
+        fill(Lldd.begin(), Lldd.end(), 0.0);
+        beta_p = beta_best;//
+        beta_a = beta_best;//
+        beta_c = beta_best;//
+        abs_max = abs_max0;
+        dose_abs_max = dose_abs_max0;
+        iter_stop = 0;
+        halves=0;
+        iteration=0;
+        halves = 0; //number of half-steps taken
+        ind0 = fir; //used for validations
+        iteration=0; //iteration number
+        //
+        convgd = FALSE;
+        iter_stop =0; //tracks if the iterations should be stopped for convergence
+        iter_check=0; //signal to check for convergence
+        //
+        maxiter = maxiters[guess];
+        a_n = a_ns.row(guess);
+        for (int i=0;i<beta_0.size();i++){
+            beta_0[i] = a_n[i];
+        }
+        if (verbose){
+            Rcout << "C++ Note: starting subterms " << term_tot << " in guess " << guess << endl;
+        }
+        Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+        if (R.minCoeff()<=0){
+            if (verbose){
+			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+			    Rcout << "C++ Warning: final failing values ";
+			    for (int ijk=0;ijk<totalnum;ijk++){
+				    Rcout << beta_0[ijk] << " ";
+			    }
+		    }
+            iter_stop = 1;
+            Ll[0] = 404; // note to consider this point too far
+		} else {
+            //
+            // -------------------------------------------------------------------------------------------
+            //
+            if (verbose){
+                Rcout << "C++ Note: Made Risk Side Lists" << endl;
+            }
+            Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+            //
+            for (int i=0;i<beta_0.size();i++){
+                beta_c[i] = beta_0[i];
+            }
+        }
+        while ((iteration < maxiter)&&(iter_stop==0)){
+            iteration++;
+            beta_p = beta_c;//
+            beta_a = beta_c;//
+            beta_best = beta_c;//
+            //
+            // calculates the initial change in parameter
+            Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
+            if (verbose){
+                Rcout << "C++ Note: Starting Halves" <<endl;//prints the final changes for validation
+            }
+            //
+            //
+            if ((Ll_abs_best>0)||(Ll_abs_best < Ll[ind0])){
+                Ll_abs_best = Ll[ind0];
+                beta_abs_best = beta_c;
+                guess_abs_best=guess;
+            }
+            //
+            if (verbose){
+                Rcout << "C++ Note: df501 " << Ll_abs_best << endl;
+                Rcout << "C++ Note: df504 ";//prints parameter values
+                for (int ij=0;ij<totalnum;ij++){
+                    Rcout << beta_abs_best[ij] << " ";
+                }
+                Rcout << " " << endl;
+            }
+            halves=0;
+            while ((Ll[ind0] <= Ll_abs_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
+                Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+                for (int ij=0;ij<totalnum;ij++){
+                    beta_0[ij] = beta_a[ij] + dbeta[ij];
+                    beta_c[ij] = beta_0[ij];
+                }
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+                Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+                if (R.minCoeff()<=0){
+                	#ifdef _OPENMP
+                    #pragma omp parallel for num_threads(nthreads)
+                    #endif
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        int tij = Term_n[ijk];
+                        if (TTerm.col(tij).minCoeff()<=0){
+                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                        } else if (isinf(TTerm.col(tij).maxCoeff())){
+                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                        }
+                    }
+                    if (verbose){
+                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
+                    }
+                    halves+=0.2;
+                } else {
+                    halves++;
+                    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+                    //
+                    if (Ll[0] > Lstar){
+                        // If it has gone beyond Lstar, then this isn't the point
+                        iter_stop = 1;
+                        halves = halfmax;
+                    } else {
+                    //
+                        if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
+                            #ifdef _OPENMP
+                            #pragma omp parallel for num_threads(nthreads)
+                            #endif
+                            for (int ijk=0;ijk<totalnum;ijk++){
+                                dbeta[ijk] = dbeta[ijk] * 0.5; //
+                            }
+                        } else{//If improved, updates the best vector
+                            #ifdef _OPENMP
+                            #pragma omp parallel for num_threads(nthreads)
+                            #endif
+                            for (int ijk=0;ijk<totalnum;ijk++){
+                                beta_best[ijk] = beta_c[ijk];
+                            }
+                        }
+                    }
+                    if (verbose){
+                        end_point = system_clock::now();
+                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
+                        gibtime = system_clock::to_time_t(system_clock::now());
+                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+                    }
+                    #ifdef _OPENMP
+                    #pragma omp parallel for num_threads(nthreads)
+                    #endif
+                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+                        beta_0[ijk] = beta_c[ijk];
+                    }
+                }
+            }
+            if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
+                if (verbose){
+                    Rcout << "C++ Note: Changing back to best" <<endl;
+                }
+                // If it goes through every half step without improvement, then the maximum change needs to be decreased
+                abs_max = abs_max*pow(0.5,halfmax); // reduces the step sizes
+                dose_abs_max = dose_abs_max*pow(0.5,halfmax);
+                iter_check = 1;
+                //
+                beta_p = beta_best;//
+                beta_a = beta_best;//
+                beta_c = beta_best;//
+                Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+                for (int ij=0;ij<totalnum;ij++){
+                    beta_0[ij] = beta_best[ij];
+                }
+                Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+            }
+            if ((iteration % (reqrdnum))||(iter_check==1)){//Checks every set number of iterations
+                iter_check=0;
+                if (abs_max < epsilon/10){//if the maximum change is too low, then it ends
+                    iter_stop = 1;
+                }
+            }
+        }
+        // -----------------------------------------------
+        // Performing Full Calculation to get full second derivative matrix
+        // -----------------------------------------------
+        fill(Ll.begin(), Ll.end(), 0.0);
+        if (!single_bool){
+            fill(Lld.begin(), Lld.end(), 0.0);
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+        Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+        //
+        a_n = beta_0;
+        if (verbose){
+            Rcout << "C++ Note: ending guess " << guess << endl;
+        }
+        //
+        beta_fin(guess, _) = a_n;
+        LL_fin[guess] = Ll[0];
+        //
+    }
+    if (verbose){
+        Rcout << "C++ Note: Refreshing matrices after all guesses" << endl;
+    }
+    //
+    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+    Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!single_bool){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        fill(Lldd.begin(), Lldd.end(), 0.0);
+    }
+    beta_p = beta_best;//
+    beta_a = beta_best;//
+    beta_c = beta_best;//
+    abs_max = abs_max0;
+    dose_abs_max = dose_abs_max0;
+    iter_stop = 0;
+    halves=0;
+    iteration=0;
+    halves = 0; //number of half-steps taken
+    ind0 = fir; //used for validations
+    iteration=0; //iteration number
+    //
+    convgd = FALSE;
+    iter_stop =0; //tracks if the iterations should be stopped for convergence
+    iter_check=0; //signal to check for convergence
+    //
+    int guess_max=guess_abs_best;
     // next we need to figure out what point to start at
-    int best_guess = 0;
+    best_guess = -1;
     for (int guess=guesses-1; guess>-1;guess--){
         // we want to find the closest point at which the loglikelihood is below lstar
-        ;
+        if (LL_fin[guess] < Lstar){
+            best_guess = guess;
+        }
     }
-//     for (int step=1;step<maxstep;step++){
-//         trouble = false;
-//         Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
-//         if (trouble){
-//             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
-//         }
-//         //
-//         beta_p = beta_c;//
-//         beta_a = beta_c;//
-
-//         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-//         //
-//         for (int ijk=0;ijk<totalnum;ijk++){
-//             if (KeepConstant[ijk]==0){
-//                 int pjk_ind = ijk - sum(head(KeepConstant,ijk));
-//                 //
-//                 if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
-//                     if (abs(dbeta[ijk])>dose_abs_max){
-//                         dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-//                     }
-//                 }else{
-//                     if (abs(dbeta[ijk])>abs_max){
-//                         dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-//                     }
-//                 }
-//             } else {
-//                 dbeta[ijk]=0;
-//             }
-//         }
-//         //
-// //        Rcout << "Change: ";
-//         for (int ij=0;ij<totalnum;ij++){
-// //            Rcout << dbeta[ij] << " ";
-//             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//             beta_c[ij] = beta_0[ij];
-//         }
-// //        Rcout << " " << endl;
-//         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-//         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-//         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-//         Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-//         while (R.minCoeff()<=0){
-//             half_check++;
-// //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//             if (half_check>half_max){
-//                 limit_hit[1] = TRUE;
-//                 break;
-//             } else {
-// 	            #ifdef _OPENMP
-//                 #pragma omp parallel for num_threads(nthreads)
-//                 #endif
-//                 for (int ijk=0;ijk<totalnum;ijk++){
-//                     int tij = Term_n[ijk];
-//                     if (TTerm.col(tij).minCoeff()<=0){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     }
-//                 }
-//                 for (int ij=0;ij<totalnum;ij++){
-//                     beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                     beta_c[ij] = beta_0[ij];
-//                 }
-//                 Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-//             }
-//         }
-//         if (limit_hit[1]){
-//             break;
-//         }
-//         Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
-//         //
-//         if (verbose){
-//             end_point = system_clock::now();
-//             ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//             Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Update_Calc" <<endl;//prints the time
-//             gibtime = system_clock::to_time_t(system_clock::now());
-//             Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
-//             for (int ij=0;ij<reqrdnum;ij++){
-//                 Rcout << Ll[ij] << " ";
-//             }
-//             Rcout << " " << endl;
-//             Rcout << "C++ Note: df104 ";//prints parameter values
-//             for (int ij=0;ij<totalnum;ij++){
-//                 Rcout << beta_0[ij] << " ";
-//             }
-//             Rcout << " " << endl;
-//         }
-//         //
-//         #ifdef _OPENMP
-//         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//         #endif
-//         for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-//             int ij = 0;
-//             int jk = ijk;
-//             while (jk>ij){
-//                 ij++;
-//                 jk-=ij;
-//             }
-//             Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
-//             Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
-//             if (ij==jk){
-//                 Lld_vecc[ij] = Lld[ij];
-//             }
-//         }
-//         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-//         Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-//         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
-//         limits[1] = beta_0[para_number];
-//         ll_final[1] = Ll[0];
-//     }
+    if (verbose){
+        Rcout << "C++ Note: Lower Guess Results" << endl;
+        Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
+        NumericVector beta_temp;
+        for (int i=0; i<guesses; i++){
+            beta_temp = wrap(beta_fin.row(i));
+            if (i==best_guess){
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
+            } else {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
+            }
+        }
+    }
+    if (best_guess == 0){
+        beta_temp = wrap(beta_fin.row(best_guess)); // the first point was closest, no lower bound
+    } else if (best_guess == -1){
+        beta_temp = wrap(beta_fin.row(guesses-1)); // the last point was closest, no upper bound
+    } else {
+        beta_temp = wrap(beta_fin.row(best_guess));
+        beta_temp0 = wrap(beta_fin.row(best_guess-1));
+        for (int i=0;i<beta_temp.size();i++){
+            beta_temp[i] = beta_temp[i] + beta_temp0[i];
+            beta_temp[i] = beta_temp[i]/2;
+        }
+    }
+    if (verbose){
+        Rcout << "C++ Note: Initial Guess: ";
+        for (int i=0;i<beta_0.size();i++){
+            Rcout << beta_temp[i] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    for (int i=0;i<beta_0.size();i++){
+        a_n[i] = beta_temp[i];
+        beta_0[i] = a_n[i];
+        beta_c[i] = beta_0[i];
+    }
     //
+    if (verbose){
+        Rcout << "C++ Note: starting subterms after in best guess" << endl;
+    }
+    //
+    // Calculates the subterm and term values
+    Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+    //
+    // -------------------------------------------------------------------------------------------
+    //
+    if (verbose){
+        Rcout << "C++ Note: Made Risk Side Lists" << endl;
+    }
+    // Calculates the side sum terms used
+    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+        int ij = 0;
+        int jk = ijk;
+        while (jk>ij){
+            ij++;
+            jk-=ij;
+        }
+        Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
+        Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
+        if (ij==jk){
+            Lld_vecc[ij] = Lld[ij];
+        }
+    }
+    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+    Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+    Lld_vec = as<Map<VectorXd> >(Lld_vecc);
+    for (int step=1;step<maxstep;step++){
+         trouble = false;
+         Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+         if (trouble){
+             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
+         }
+         //
+         beta_p = beta_c;//
+         beta_a = beta_c;//
+
+         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+         //
+         for (int ijk=0;ijk<totalnum;ijk++){
+             if (KeepConstant[ijk]==0){
+                 int pjk_ind = ijk - sum(head(KeepConstant,ijk));
+                 //
+                 if ((tform[ijk]=="lin_quad_int")||(tform[ijk]=="lin_exp_int")||(tform[ijk]=="step_int")||(tform[ijk]=="lin_int")){ //the threshold values use different maximum deviation values
+                     if (abs(dbeta[ijk])>dose_abs_max){
+                         dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                     }
+                 }else{
+                     if (abs(dbeta[ijk])>abs_max){
+                         dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                     }
+                 }
+             } else {
+                 dbeta[ijk]=0;
+             }
+         }
+         //
+ //        Rcout << "Change: ";
+         for (int ij=0;ij<totalnum;ij++){
+ //            Rcout << dbeta[ij] << " ";
+             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
+             beta_c[ij] = beta_0[ij];
+         }
+ //        Rcout << " " << endl;
+         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+         Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+         while (R.minCoeff()<=0){
+             half_check++;
+ //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+             if (half_check>half_max){
+                 limit_hit[1] = TRUE;
+                 break;
+             } else {
+ 	            #ifdef _OPENMP
+                 #pragma omp parallel for num_threads(nthreads)
+                 #endif
+                 for (int ijk=0;ijk<totalnum;ijk++){
+                     int tij = Term_n[ijk];
+                     if (TTerm.col(tij).minCoeff()<=0){
+                         dbeta[ijk] = dbeta[ijk] / 2.0;
+                     } else if (isinf(TTerm.col(tij).maxCoeff())){
+                         dbeta[ijk] = dbeta[ijk] / 2.0;
+                     }
+                 }
+                 for (int ij=0;ij<totalnum;ij++){
+                     beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
+                     beta_c[ij] = beta_0[ij];
+                 }
+                 Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+             }
+         }
+         if (limit_hit[1]){
+             break;
+         }
+         Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+         //
+         if (verbose){
+             end_point = system_clock::now();
+             ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+             Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " <<0<< ",Update_Calc" <<endl;//prints the time
+             gibtime = system_clock::to_time_t(system_clock::now());
+             Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
+             for (int ij=0;ij<reqrdnum;ij++){
+                 Rcout << Ll[ij] << " ";
+             }
+             Rcout << " " << endl;
+             Rcout << "C++ Note: df104 ";//prints parameter values
+             for (int ij=0;ij<totalnum;ij++){
+                 Rcout << beta_0[ij] << " ";
+             }
+             Rcout << " " << endl;
+         }
+         //
+         #ifdef _OPENMP
+         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+         #endif
+         for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+             int ij = 0;
+             int jk = ijk;
+             while (jk>ij){
+                 ij++;
+                 jk-=ij;
+             }
+             Lldd_vec[ij * reqrdnum + jk]=Lldd[ij*reqrdnum+jk];
+             Lldd_vec[jk * reqrdnum + ij]=Lldd_vec[ij * reqrdnum + jk];
+             if (ij==jk){
+                 Lld_vecc[ij] = Lld[ij];
+             }
+         }
+         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+         Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+         limits[0] = beta_0[para_number];
+         ll_final[0] = Ll[0];
+    }
     //
     //
     res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit), _["Likelihood_Boundary"]=wrap(ll_final), _["Likelihood_Goal"]=wrap(Lstar));
