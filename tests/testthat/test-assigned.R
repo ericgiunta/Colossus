@@ -77,7 +77,7 @@ test_that("Poisson Assigned Events, check results strata", {
                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
                       "c"=c(10,  11,  10,  11,  12,  9,   11),
                       "d"=c(0,   0,   0,   1,   1,   1,   1))
-
+    set.seed(3742)
     df$pyr <- df$Ending_Age - df$Starting_Age
     pyr <- 'pyr'
     event <- "Cancer_Status"

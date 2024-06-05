@@ -2,7 +2,7 @@ test_that("Coxph strata_basic_single_CR log_bound", {
     fname <- 'll_comp_0.csv'
     colTypes=c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
-
+    set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
 
     time1 <- "t0"

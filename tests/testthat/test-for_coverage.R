@@ -147,6 +147,7 @@ test_that("Pois various_fixes", {
     df$pyr <- df$t1-df$t0
 	pyr <- "pyr"
     event <- "lung"
+    set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
     names <- c("dose","rand","rand")
     Term_n <- c(2,1,0)
@@ -285,6 +286,7 @@ test_that("Coxph risk plotting above discrete step number limit", {
     a <- rep(c(0,1,2,3,4,5,6),20)
     b <- rep(c(1,2,3,4,5,6,7),20)
     c <- rep(c(1,0,1,0,1,0,0),20)
+    set.seed(3742)
     d <- runif(length(a))
     df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
     time1 <- "a"

@@ -1,3 +1,0 @@
-# sample regex patterns
-ignore:
-  - "**/RcppExport*"  # ignore all RcppExport files
