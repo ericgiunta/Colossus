@@ -71,7 +71,8 @@
 <span>  der_iden <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  Cons_Mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  Cons_Vec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  model_control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>para_number <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,6 +112,10 @@
 
 <dt>verbose</dt>
 <dd><p>boolean to control if additional information is printed to the console, also accepts 0/1 integer</p></dd>
+
+
+<dt>model_control</dt>
+<dd><p>controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details</p></dd>
 
 </dl></div>
     <div class="section level2">
