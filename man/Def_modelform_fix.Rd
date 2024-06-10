@@ -22,7 +22,7 @@ returns a filled list
 \code{Def_model_control} checks and assigns default values for modelform options
 }
 \examples{
-library(data.table)
+library(data.table)para_number
 control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
 control <- Def_Control(control)
 model_control <- list("single"=TRUE)

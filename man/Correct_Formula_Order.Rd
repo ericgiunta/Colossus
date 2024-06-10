@@ -13,7 +13,8 @@ Correct_Formula_Order(
   der_iden = 0,
   Cons_Mat = matrix(c(0)),
   Cons_Vec = c(0),
-  verbose = FALSE
+  verbose = FALSE,
+  model_control = list(para_number = 0)
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ Correct_Formula_Order(
 \item{Cons_Vec}{Vector containing constants for system of linear constraints, formatted as vector}
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
+
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 }
 \value{
 returns the corrected lists

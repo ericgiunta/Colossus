@@ -211,13 +211,18 @@ Gather_Guesses_CPP <- function(df, dfc, names, Term_n, tform, keep_constant, a_n
 #' der_iden <- val$der_iden
 #' names <- val$names
 #'
-Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0, Cons_Mat=matrix(c(0)),Cons_Vec=c(0),verbose=FALSE){
+Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_iden=0, Cons_Mat=matrix(c(0)),Cons_Vec=c(0),verbose=FALSE, model_control=list('para_number'=0)){
     #
     if (verbose %in% c(0,1,T,F)){
         verbose <- as.logical(verbose)
     } else {
         message("Error: verbosity arguement not valid")
         stop()
+    }
+    if ("para_number" %in% names(model_control)){
+        #pass
+    } else {
+        model_control["para_number"] = 0
     }
     if (der_iden %in% (seq_len(length(tform))-1)){
         #pass
@@ -333,8 +338,10 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         }
         #
         df <- data.table::data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
-                         "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)),"current_order"=seq_len(length(tform)),"constraint_order"=col_to_cons)
+                         "a_n"=a_n, "names"=names, "iden_const"=rep(0,length(names)), "para_num"=rep(0,length(names)),
+                         "current_order"=seq_len(length(tform)),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
+        df$para_num[[model_control[['para_number']]+1]] <- 1
         df$tform_order <- tform_iden
         keycol <-c("Term_n","names","tform_order")
         data.table::setorderv(df, keycol)
@@ -363,8 +370,10 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         }
         #
         df <- data.table::data.table("Term_n"=Term_n, "tform"=tform, "keep_constant"=keep_constant,
-                         "names"=names,"iden_const"=rep(0,length(names)),"current_order"=1:(length(tform)),"constraint_order"=col_to_cons)
+                         "names"=names,"iden_const"=rep(0,length(names)), "para_num"=rep(0,length(names)),
+                         "current_order"=1:(length(tform)),"constraint_order"=col_to_cons)
         df$iden_const[[der_iden+1]] <- 1
+        df$para_num[[model_control[['para_number']]+1]] <- 1
         for (i in seq_len(length(a_n))){
             df[[paste("a_",i,sep="")]] <- a_n[[i]]
         }
@@ -461,10 +470,12 @@ Correct_Formula_Order <- function(Term_n, tform, keep_constant, a_n, names,der_i
         }
     }
     a_temp <- df$iden_const
-    der_iden <- which(a_temp==1)
+    b_temp <- df$para_num
+    der_iden <- which(a_temp==1) - 1
+    para_num <- which(b_temp==1) - 1
     list("Term_n"=df$Term_n, "tform"=df$tform, "keep_constant"=df$keep_constant,
          "a_n"=a_n, "der_iden"=der_iden, "names"=df$names,"Permutation"=df$current_order,
-         "Cons_Mat"=unname(Cons_Mat),"Cons_Vec"=Cons_Vec)
+         "Cons_Mat"=unname(Cons_Mat),"Cons_Vec"=Cons_Vec, "para_num"=para_num)
 }
 
 #' Automatically assigns missing values in listed columns
@@ -575,7 +586,7 @@ Def_Control <- function(control){
 #' @return returns a filled list
 #' @export
 #' @examples
-#' library(data.table)
+#' library(data.table)para_number
 #' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
 #' control <- Def_Control(control)
 #' model_control <- list("single"=TRUE)
