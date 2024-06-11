@@ -586,7 +586,7 @@ Def_Control <- function(control){
 #' @return returns a filled list
 #' @export
 #' @examples
-#' library(data.table)para_number
+#' library(data.table)
 #' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
 #' control <- Def_Control(control)
 #' model_control <- list("single"=TRUE)
