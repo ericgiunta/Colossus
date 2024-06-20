@@ -2271,10 +2271,23 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
 //        Rcout << "Change: ";
         for (int ij=0;ij<totalnum;ij++){
 //            Rcout << dbeta[ij] << " ";
+            if (ij==para_number){
+                // we want to prevent two issues
+                // first prevent the parameter estimate from crossing the optimum
+                // issue is beta_0[para_number] <= beta_best[para_number]
+                if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr){
+                    dbeta[ij] = -0.5*dbeta[ij];
+                }
+                // second issue is making sure that the step is forced away from the optimum when possible
+                if (Ll[0] > Lstar){
+                    // If the log-likelihood is above the goal, then it must move away from the optimum point
+                    // for upper limit, the step is always positive
+                    dbeta[ij] = abs(dbeta[ij]);
+                }
+            }
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
         }
-//        Rcout << " " << endl;
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -2406,6 +2419,20 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
 //        Rcout << "Change: ";
         for (int ij=0;ij<totalnum;ij++){
 //            Rcout << dbeta[ij] << " ";
+            if (ij==para_number){
+                // we want to prevent two issues
+                // first prevent the parameter estimate from crossing the optimum
+                // issue is beta_0[para_number] <= beta_best[para_number]
+                if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr){
+                    dbeta[ij] = -0.5*dbeta[ij];
+                }
+                // second issue is making sure that the step is forced away from the optimum when possible
+                if (Ll[0] > Lstar){
+                    // If the log-likelihood is above the goal, then it must move away from the optimum point
+                    // for lower limit, the step is always positive
+                    dbeta[ij] = -1*abs(dbeta[ij]);
+                }
+            }
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
         }

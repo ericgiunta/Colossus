@@ -467,9 +467,9 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
         double h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0,0);
         h = pow(qchi/(-1*h),0.5);
         if (upper){
-            h = h/2;
+            h = abs(h)/2;
         } else {
-            h = h/-2;
+            h = abs(h)/-2;
         }
         // calculate first step
         int j=0;
