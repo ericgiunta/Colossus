@@ -1,5 +1,5 @@
 ---
-title: "Colossus_Description"
+title: "Colossus Description"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Colossus_Description}

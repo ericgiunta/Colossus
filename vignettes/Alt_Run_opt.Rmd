@@ -1,5 +1,5 @@
 ---
-title: "Alternative_Regression_Options"
+title: "Alternative Regression Options"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Alternative_Regression_Options}

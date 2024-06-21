@@ -1,5 +1,5 @@
 ---
-title: "Time_Dependent_Covariate_Use"
+title: "Time Dependent Covariate Use"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Time_Dependent_Covariate_Use}

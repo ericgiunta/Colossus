@@ -1,5 +1,5 @@
 ---
-title: "Distributed_Start_Framework"
+title: "Distributed Start Framework"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Distributed_Start_Framework}
