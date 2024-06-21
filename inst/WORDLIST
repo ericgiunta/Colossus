@@ -11,12 +11,14 @@ LogLik
 LogLinear
 MacOS
 Makevars
+Moolgavkar
 NL
 NSSC
 Ncores
 OMP
 OpenMP
 PAE
+Raphson
 RunCoxPlots
 RunCoxRegression
 RunPoissonRegression
@@ -24,6 +26,7 @@ STP
 Schoenfeld
 Subterm
 UserID
+Venzon
 breslow
 breslow's
 codecov
