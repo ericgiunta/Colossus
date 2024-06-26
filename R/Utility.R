@@ -645,7 +645,7 @@ Def_modelform_fix <- function(control,model_control,modelform,term_n){
 #'
 Def_model_control <- function(control){
     names(control) <- tolower(names(control))
-    control_def_names <- c('single','basic','null','cr','constraint','strata','surv','schoenfeld','risk','risk_subset','log_bound')
+    control_def_names <- c('single','basic','null','cr','constraint','strata','surv','schoenfeld','risk','risk_subset','log_bound','pearson','deviance')
     for (nm in control_def_names){
         if (nm %in% names(control)){
             #fine

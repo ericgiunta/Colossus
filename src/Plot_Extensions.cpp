@@ -698,3 +698,118 @@ List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector
     res_list = List::create(_["caused"]=wrap(caused),_["predict"]=wrap(predict));
     return res_list;
 }
+
+//' Primary plotting function.
+//'
+//' \code{Poisson_Residuals} Performs the calls to calculation functions
+//'
+//' @inheritParams CPP_template
+//'
+//' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+// [[Rcpp::export]]
+List Poisson_Residuals(MatrixXd PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, bool strata_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool){
+    ;
+    //
+    List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
+    if (verbose){
+        Rcout << "C++ Note: START_RESIDUAL" << endl;
+    }
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    //
+    auto gibtime = system_clock::to_time_t(system_clock::now());
+    if (verbose){
+        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+    }
+    //
+    // Time durations are measured from this point on in microseconds
+    //
+    // df0: covariate data
+    // ntime: number of event times for Cox PH
+    // totalnum: number of terms used
+    //
+    // ------------------------------------------------------------------------- // initialize
+    MatrixXd df0;
+    df0 = as<Map<MatrixXd> >(x_all);
+    int totalnum;
+    int reqrdnum;
+    bool single_bool = TRUE;
+    // ------------------------------------------------------------------------- // initialize
+	totalnum = Term_n.size();
+	reqrdnum = totalnum - sum(KeepConstant);
+	if (verbose){
+        Rcout << "C++ Note: Term checked ";
+        for (int ij=0;ij<totalnum;ij++){
+            Rcout << Term_n[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
+    //
+    // cout.precision: controls the number of significant digits printed
+    // nthreads: number of threads used for parallel operations
+    //
+    Rcout.precision(7); //forces higher precision numbers printed to terminal
+    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
+    //
+    // Lld_worst: stores the highest magnitude log-likelihood derivative
+    //
+    //
+    //
+    // ---------------------------------------------
+    // To Start, needs to seperate the derivative terms
+    // ---------------------------------------------
+    //
+    // ------------------------------------------------------------------------- // initialize
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
+    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
+    MatrixXd R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
+    //
+    MatrixXd Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
+    MatrixXd nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
+    MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
+    MatrixXd nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
+    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
+    MatrixXd TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
+    MatrixXd Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
+    MatrixXd Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
+    //
+    MatrixXd Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
+    MatrixXd Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
+    //
+	double dint; //The amount of change used to calculate derivatives in threshold paramters
+	double dslp;
+    ColXd RdR;
+	ColXd RddR;
+    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
+    dslp = abs_max;
+    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
+    VectorXd s_weights;
+    if (strata_bool){
+        s_weights = VectorXd::Zero(df0.rows());
+        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, Term_n, term_tot);
+    }
+	// ------------------------------------------------------------------------- // initialize
+	if (verbose){
+		end_point = system_clock::now();
+		ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		Rcout << "C++ Note: df99," << (ending-start) << ",Starting" <<endl;
+		gibtime = system_clock::to_time_t(system_clock::now());
+		Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
+	}
+	// ---------------------------------------------
+	// To Start, needs to seperate the derivative terms
+	// ---------------------------------------------
+	//
+    Pois_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
+	List res_list;
+	//
+    res_list = List::create(_["Risk"]=wrap(R.col(0)),_["Residual_Sum"]=wrap(R.col(0).sum()));//returns list of covariate values and risk
+    return res_list;
+}

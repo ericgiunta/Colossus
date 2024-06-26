@@ -104,6 +104,7 @@ Other Poisson Wrapper Functions:
 \code{\link{RunPoissonRegression_Guesses_CPP}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
+\code{\link{RunPoissonRegression_Residual}()},
 \code{\link{RunPoissonRegression_STRATA}()},
 \code{\link{RunPoissonRegression_Single}()}
 }

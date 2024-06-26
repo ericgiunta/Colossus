@@ -672,3 +672,37 @@ List cox_ph_cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector 
     return res;
 }
 
+//' Interface between R code and the poisson residual calculation function
+//'
+//' \code{pois_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
+//' @inheritParams CPP_template
+//'
+//' @return Poisson_Residuals output : list of residuals and sum
+//' @noRd
+//'
+// [[Rcpp::export]]
+List pois_Residual_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control){
+    //
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
+    //
+    bool verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    int nthreads = Control["ncores"];
+    //
+    double gmix_theta = model_control["gmix_theta"];
+	IntegerVector gmix_term = model_control["gmix_term"];
+	//
+	//
+	bool strata_bool = model_control["strata"];
+    bool Pearson_bool = model_control["pearson"];
+    bool Deviance_bool = model_control["deviance"];
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = Poisson_Residuals( PyrC, Term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, strata_bool, gmix_theta, gmix_term, Pearson_bool, Deviance_bool);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
