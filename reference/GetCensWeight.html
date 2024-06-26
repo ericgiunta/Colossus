@@ -69,7 +69,7 @@
 <span>  <span class="va">time2</span>,</span>
 <span>  <span class="va">event0</span>,</span>
 <span>  <span class="va">names</span>,</span>
-<span>  <span class="va">Term_n</span>,</span>
+<span>  <span class="va">term_n</span>,</span>
 <span>  <span class="va">tform</span>,</span>
 <span>  <span class="va">keep_constant</span>,</span>
 <span>  <span class="va">a_n</span>,</span>
@@ -78,7 +78,7 @@
 <span>  <span class="va">control</span>,</span>
 <span>  <span class="va">plot_options</span>,</span>
 <span>  model_control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  Strat_Col <span class="op">=</span> <span class="st">"e"</span></span>
+<span>  strat_col <span class="op">=</span> <span class="st">"e"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -104,8 +104,8 @@
 <dd><p>columns for elements of the model, used to identify data columns</p></dd>
 
 
-<dt>Term_n</dt>
-<dd><p>term numbers for each element of the model</p></dd>
+<dt>term_n</dt>
+<dd><p>term numbers</p></dd>
 
 
 <dt>tform</dt>
@@ -140,7 +140,7 @@
 <dd><p>controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details</p></dd>
 
 
-<dt>Strat_Col</dt>
+<dt>strat_col</dt>
 <dd><p>column to stratify by if needed</p></dd>
 
 </dl></div>
@@ -169,7 +169,7 @@
 <span class="r-in"><span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"Ending_Age"</span></span></span>
 <span class="r-in"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"Cancer_Status"</span></span></span>
 <span class="r-in"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a'</span>,<span class="st">'b'</span>,<span class="st">'c'</span>,<span class="st">'d'</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">Term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>,<span class="st">"lin"</span>,<span class="st">"lin"</span>,<span class="st">"plin"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span></span>
 <span class="r-in"><span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
@@ -179,13 +179,13 @@
 <span class="r-in"><span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span><span class="va">df</span><span class="op">$</span><span class="va">censor</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">Cancer_Status</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"censor"</span></span></span>
-<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">20</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">20</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>   <span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-6</span>,<span class="st">'dbeta_max'</span> <span class="op">=</span> <span class="fl">0.5</span>,<span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-6</span>,</span></span>
 <span class="r-in"><span>   <span class="st">'abs_max'</span><span class="op">=</span><span class="fl">1.0</span>,<span class="st">'change_all'</span><span class="op">=</span><span class="cn">TRUE</span>,<span class="st">'dose_abs_max'</span><span class="op">=</span><span class="fl">100.0</span>,<span class="st">'verbose'</span><span class="op">=</span><span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>   <span class="st">'ties'</span><span class="op">=</span><span class="st">'breslow'</span>,<span class="st">'double_step'</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"name"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"run_06"</span>,sep<span class="op">=</span><span class="st">""</span><span class="op">)</span>,<span class="st">"verbose"</span><span class="op">=</span><span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>                     <span class="st">"studyID"</span><span class="op">=</span><span class="st">"studyID"</span>,<span class="st">"age_unit"</span><span class="op">=</span><span class="st">"years"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">dft</span> <span class="op">&lt;-</span> <span class="fu">GetCensWeight</span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>,</span></span>
+<span class="r-in"><span><span class="va">dft</span> <span class="op">&lt;-</span> <span class="fu">GetCensWeight</span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>,</span></span>
 <span class="r-in"><span>                     <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">control</span>, <span class="va">plot_options</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Saving 6.67 x 6.67 in image</span>
 <span class="r-in"><span><span class="va">t_ref</span> <span class="op">&lt;-</span> <span class="va">dft</span><span class="op">$</span><span class="va">t</span></span></span>

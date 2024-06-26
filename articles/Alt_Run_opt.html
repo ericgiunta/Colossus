@@ -521,7 +521,7 @@ vectors.</p>
 <span><span class="co">#&gt; $names</span></span>
 <span><span class="co">#&gt; [1] "t0"     "t0"     "fac_e0" "fac_e1"</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Term_n</span></span>
+<span><span class="co">#&gt; $term_n</span></span>
 <span><span class="co">#&gt; [1] 0 0 0 0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $tform</span></span>
@@ -542,7 +542,7 @@ included.</p>
 <code class="sourceCode R"><span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
 <span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">10</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">10</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span>
 <span>   <span class="st">'dbeta_max'</span> <span class="op">=</span> <span class="fl">0.5</span>,<span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>, <span class="st">'abs_max'</span><span class="op">=</span><span class="fl">1.0</span>,<span class="st">'change_all'</span><span class="op">=</span><span class="cn">TRUE</span>,</span>
 <span>   <span class="st">'dose_abs_max'</span><span class="op">=</span><span class="fl">100.0</span>,<span class="st">'verbose'</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="st">'ties'</span><span class="op">=</span><span class="st">'breslow'</span>,<span class="st">'double_step'</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">guesses_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"maxiter"</span><span class="op">=</span><span class="fl">10</span>,<span class="st">"guesses"</span><span class="op">=</span><span class="fl">10</span>,<span class="st">"lin_min"</span><span class="op">=</span><span class="fl">0.001</span>,<span class="st">"lin_max"</span><span class="op">=</span><span class="fl">1</span>,</span>

@@ -74,7 +74,7 @@ Has additional options to starting with several initial guesses</p>
 <span>  pyr0 <span class="op">=</span> <span class="st">"pyr"</span>,</span>
 <span>  event0 <span class="op">=</span> <span class="st">"event"</span>,</span>
 <span>  names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CONST"</span><span class="op">)</span>,</span>
-<span>  Term_n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  term_n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  tform <span class="op">=</span> <span class="st">"loglin"</span>,</span>
 <span>  keep_constant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
@@ -82,7 +82,7 @@ Has additional options to starting with several initial guesses</p>
 <span>  fir <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  der_iden <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  Strat_Col <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  strat_col <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  model_control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  Cons_Mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  Cons_Vec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
@@ -107,8 +107,8 @@ Has additional options to starting with several initial guesses</p>
 <dd><p>columns for elements of the model, used to identify data columns</p></dd>
 
 
-<dt>Term_n</dt>
-<dd><p>term numbers for each element of the model</p></dd>
+<dt>term_n</dt>
+<dd><p>term numbers</p></dd>
 
 
 <dt>tform</dt>
@@ -139,7 +139,7 @@ Has additional options to starting with several initial guesses</p>
 <dd><p>list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")</p></dd>
 
 
-<dt>Strat_Col</dt>
+<dt>strat_col</dt>
 <dd><p>column to stratify by if needed</p></dd>
 
 
@@ -193,7 +193,7 @@ Has additional options to starting with several initial guesses</p>
 <span class="r-in"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"Cancer_Status"</span></span></span>
 <span class="r-in"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a'</span>,<span class="st">'b'</span>,<span class="st">'c'</span>,<span class="st">'d'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.1</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span><span class="op">)</span> <span class="co">#used to test at a specific point</span></span></span>
-<span class="r-in"><span><span class="va">Term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>,<span class="st">"lin"</span>,<span class="st">"lin"</span>,<span class="st">"plin"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span></span>
 <span class="r-in"><span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
@@ -201,15 +201,15 @@ Has additional options to starting with several initial guesses</p>
 <span class="r-in"><span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span></span>
+<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span></span>
 <span class="r-in"><span>   <span class="st">'dbeta_max'</span> <span class="op">=</span> <span class="fl">0.5</span>,<span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>, <span class="st">'abs_max'</span><span class="op">=</span><span class="fl">1.0</span>,<span class="st">'change_all'</span><span class="op">=</span><span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>   <span class="st">'dose_abs_max'</span><span class="op">=</span><span class="fl">100.0</span>,<span class="st">'verbose'</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="st">'ties'</span><span class="op">=</span><span class="st">'breslow'</span>,<span class="st">'double_step'</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">guesses_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"maxiter"</span><span class="op">=</span><span class="fl">10</span>,<span class="st">"guesses"</span><span class="op">=</span><span class="fl">10</span>,<span class="st">"lin_min"</span><span class="op">=</span><span class="fl">0.001</span>,<span class="st">"lin_max"</span><span class="op">=</span><span class="fl">1</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"loglin_min"</span><span class="op">=</span><span class="op">-</span><span class="fl">1</span>,<span class="st">"loglin_max"</span><span class="op">=</span><span class="fl">1</span>, <span class="st">"lin_method"</span><span class="op">=</span><span class="st">"uniform"</span>,<span class="st">"loglin_method"</span><span class="op">=</span><span class="st">"uniform"</span>,</span></span>
 <span class="r-in"><span>     strata<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">'e'</span></span></span>
-<span class="r-in"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">RunPoissonRegression_Omnibus</span><span class="op">(</span><span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span></span>
-<span class="r-in"><span>                                  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>,<span class="va">Strat_Col</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">strat_col</span> <span class="op">&lt;-</span> <span class="st">'e'</span></span></span>
+<span class="r-in"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">RunPoissonRegression_Omnibus</span><span class="op">(</span><span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span></span>
+<span class="r-in"><span>                                  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>,<span class="va">strat_col</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

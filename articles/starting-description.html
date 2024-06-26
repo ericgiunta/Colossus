@@ -546,7 +546,7 @@ regression or to calculate log-likelihoods on a grid changing only one
 parameter at a time</td>
 </tr>
 <tr class="odd">
-<td align="center">Ncores</td>
+<td align="center">ncores</td>
 <td align="center">Number of physical cores assigned, cannot be greater
 than the number of cores available</td>
 </tr>
@@ -584,7 +584,7 @@ true</td>
 <code class="sourceCode R"><span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span></span>
-<span><span class="va">control</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">100</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-9</span>,</span>
+<span><span class="va">control</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="fl">100</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-9</span>,</span>
 <span>             <span class="st">'dbeta_max'</span> <span class="op">=</span> <span class="fl">0.5</span>,<span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">'abs_max'</span><span class="op">=</span><span class="fl">1.0</span>,<span class="st">'change_all'</span><span class="op">=</span><span class="cn">TRUE</span>,</span>
 <span>             <span class="st">'dose_abs_max'</span><span class="op">=</span><span class="fl">100.0</span>,<span class="st">'verbose'</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="st">'ties'</span><span class="op">=</span><span class="st">'breslow'</span>,<span class="st">'double_step'</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>In this example, no parameters are held constant, 100 iterations with
