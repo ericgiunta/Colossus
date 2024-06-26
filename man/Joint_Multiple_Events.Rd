@@ -8,7 +8,7 @@ Joint_Multiple_Events(
   df,
   events,
   name_list,
-  Term_n_list = list(),
+  term_n_list = list(),
   tform_list = list(),
   keep_constant_list = list(),
   a_n_list = list()
@@ -21,7 +21,7 @@ Joint_Multiple_Events(
 
 \item{name_list}{list of vectors for columns for event specific or shared model elements, required}
 
-\item{Term_n_list}{list of vectors for term numbers for event specific or shared model elements, defaults to term 0}
+\item{term_n_list}{list of vectors for term numbers for event specific or shared model elements, defaults to term 0}
 
 \item{tform_list}{list of vectors for subterm types for event specific or shared model elements, defaults to loglinear}
 
@@ -51,9 +51,9 @@ events <- c('e0','e1')
 names_e0 <- c('fac')
 names_e1 <- c('fac')
 names_shared <- c('t0','t0')
-Term_n_e0 <- c(0)
-Term_n_e1 <- c(0)
-Term_n_shared <- c(0,0)
+term_n_e0 <- c(0)
+term_n_e1 <- c(0)
+term_n_shared <- c(0,0)
 tform_e0 <- c("loglin")
 tform_e1 <- c("loglin")
 tform_shared <- c("quad_slope","loglin_top")
@@ -64,12 +64,12 @@ a_n_e0 <- c(-0.1)
 a_n_e1 <- c(0.1)
 a_n_shared <- c(0.001, -0.02)
 name_list <- list('shared'=names_shared,'e0'=names_e0,'e1'=names_e1)
-Term_n_list <- list('shared'=Term_n_shared,'e0'=Term_n_e0,'e1'=Term_n_e1)
+term_n_list <- list('shared'=term_n_shared,'e0'=term_n_e0,'e1'=term_n_e1)
 tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
 keep_constant_list <- list('shared'=keep_constant_shared,
                            'e0'=keep_constant_e0,'e1'=keep_constant_e1)
 a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
-val <- Joint_Multiple_Events(df, events, name_list, Term_n_list,
+val <- Joint_Multiple_Events(df, events, name_list, term_n_list,
                              tform_list, keep_constant_list, a_n_list)
 
 }

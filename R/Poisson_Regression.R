@@ -27,7 +27,7 @@
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
 #' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -35,22 +35,22 @@
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
 #'      strata=FALSE)
-#' Strat_Col <- 'e'
-#' e <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
-#'                                   a_n, modelform, fir, der_iden, control,Strat_Col)
+#' strat_col <- 'e'
+#' e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant,
+#'                                   a_n, modelform, fir, der_iden, control,strat_col)
 #' @importFrom rlang .data
-RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
     df <- data.table(df)
     control <- Def_Control(control)
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
+    val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
                                  names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
-    Term_n <- val$Term_n
+    term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
@@ -68,7 +68,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
         }
     }
     model_control <- Def_model_control(model_control)
-    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
@@ -90,7 +90,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     }
     if (model_control$strata==TRUE){
         #
-        val <- factorize(df, Strat_Col)
+        val <- factorize(df, strat_col)
         df0 <- val$df
         df <- val$df
         #
@@ -122,7 +122,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     #
     dfc <- match(names,all_names)
 
-    term_tot <- max(Term_n)+1
+    term_tot <- max(term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr0,event0)
     #
@@ -175,7 +175,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     }
     #
     #
-    e <- pois_Omnibus_transition(as.matrix(df[,ce, with = FALSE]),Term_n,tform,
+    e <- pois_Omnibus_transition(as.matrix(df[,ce, with = FALSE]),term_n,tform,
                                  matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE),
                                  dfc,x_all, fir,der_iden, modelform, control,keep_constant,
                                  term_tot,as.matrix(df0[,val_cols, with=FALSE]),model_control,
@@ -199,7 +199,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #'
 #' @inheritParams R_template
 #' @param events vector of event column names
-#' @param Term_n_list list of vectors for term numbers for event specific or shared model elements, defaults to term 0
+#' @param term_n_list list of vectors for term numbers for event specific or shared model elements, defaults to term 0
 #' @param tform_list list of vectors for subterm types for event specific or shared model elements, defaults to loglinear
 #' @param keep_constant_list list of vectors for constant elements for event specific or shared model elements, defaults to free (0)
 #' @param a_n_list list of vectors for parameter values for event specific or shared model elements, defaults to term 0
@@ -227,9 +227,9 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' names_e0 <- c('fac')
 #' names_e1 <- c('fac')
 #' names_shared <- c('t0','t0')
-#' Term_n_e0 <- c(0)
-#' Term_n_e1 <- c(0)
-#' Term_n_shared <- c(0,0)
+#' term_n_e0 <- c(0)
+#' term_n_e1 <- c(0)
+#' term_n_shared <- c(0,0)
 #' tform_e0 <- c("loglin")
 #' tform_e1 <- c("loglin")
 #' tform_shared <- c("quad_slope","loglin_top")
@@ -240,7 +240,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' a_n_e1 <- c(0.1)
 #' a_n_shared <- c(0.001, -0.02)
 #' name_list <- list('shared'=names_shared,'e0'=names_e0,'e1'=names_e1)
-#' Term_n_list <- list('shared'=Term_n_shared,'e0'=Term_n_e0,'e1'=Term_n_e1)
+#' term_n_list <- list('shared'=term_n_shared,'e0'=term_n_e0,'e1'=term_n_e1)
 #' tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
 #' keep_constant_list <- list('shared'=keep_constant_shared,
 #'                            'e0'=keep_constant_e0,'e1'=keep_constant_e1)
@@ -249,30 +249,30 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' der_iden <- 0
 #' modelform <- "M"
 #' fir <- 0
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
 #'      strata=FALSE)
-#' Strat_Col <- 'f'
-#' e <- RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, Term_n_list,
+#' strat_col <- 'f'
+#' e <- RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, term_n_list,
 #'                                         tform_list, keep_constant_list, a_n_list,
-#'                                         modelform, fir, der_iden, control,Strat_Col)
+#'                                         modelform, fir, der_iden, control,strat_col)
 #' 
 #' @importFrom rlang .data
-RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, Term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list(), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list(), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
     df <- data.table(df)
-    val <- Joint_Multiple_Events(df, events, name_list, Term_n_list, tform_list, keep_constant_list, a_n_list)
+    val <- Joint_Multiple_Events(df, events, name_list, term_n_list, tform_list, keep_constant_list, a_n_list)
     df <- val$df
     names <- val$names
-    Term_n <- val$Term_n
+    term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     #
-    e <- RunPoissonRegression_Omnibus(df, pyr0, 'events', names, Term_n, tform, keep_constant,
-                                   a_n, modelform, fir, der_iden, control,Strat_Col)
+    e <- RunPoissonRegression_Omnibus(df, pyr0, 'events', names, term_n, tform, keep_constant,
+                                   a_n, modelform, fir, der_iden, control,strat_col)
     return (e)
 }
 
@@ -302,7 +302,7 @@ RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, Term_
 #' pyr <- 'pyr'
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -311,19 +311,19 @@ RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, Term_
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
 #' 
-#' e <- RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant,
+#' e <- RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant,
 #'                           a_n, modelform, fir, der_iden, control)
 #' @export
 #'
-RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+RunPoissonRegression <- function(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     control <- Def_Control(control)
     control$maxiters <- c(1,control$maxiter)
     control$guesses <- 1
-    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, Term_n, tform, keep_constant,
+    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant,
                                       a_n, modelform, fir, der_iden, control)
     #
     return (e)
@@ -353,7 +353,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #' pyr <- 'pyr'
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -362,24 +362,24 @@ RunPoissonRegression <- function(df, pyr0, event0, names, Term_n, tform, keep_co
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
 #' 
-#' e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant,
+#' e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant,
 #'                           a_n, modelform, fir, der_iden, control)
 #' @export
 #'
-RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,Strat_Col="null",model_control=list()){
+RunPoissonEventAssignment <- function(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col="null",model_control=list()){
     df <- data.table(df)
     control <- Def_Control(control)
     control$maxiters <- c(1,control$maxiter)
     control$guesses <- 1
     #
     control <- Def_Control(control)
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
+    val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
                                  names, der_iden, as.matrix(c(0)), c(0),control$verbose)
-    Term_n <- val$Term_n
+    term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
@@ -387,7 +387,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
     names <- val$names
 	df <- df[get(pyr0)>0,]
     model_control <- Def_model_control(model_control)
-    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
@@ -409,7 +409,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
     }
     if (model_control$strata==TRUE){
         #
-        val <- factorize(df, Strat_Col)
+        val <- factorize(df, strat_col)
         df0 <- val$df
         df <- val$df
         #
@@ -441,7 +441,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
     #
     dfc <- match(names,all_names)
 
-    term_tot <- max(Term_n)+1
+    term_tot <- max(term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(pyr0,event0)
     #
@@ -450,7 +450,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
         a_ns <- c(a_ns, i)
     }
     #
-    e <- Assigned_Event_Poisson_transition(as.matrix(df[,ce, with = FALSE]), as.matrix(df0), Term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, keep_constant, term_tot, model_control)
+    e <- Assigned_Event_Poisson_transition(as.matrix(df[,ce, with = FALSE]), as.matrix(df0), term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, keep_constant, term_tot, model_control)
     #
     return (e)
 }
@@ -482,7 +482,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
 #' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -490,38 +490,38 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, Term_n, tform, ke
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
 #'      strata=FALSE)
-#' Strat_Col <- 'e'
-#' e0 <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant,
-#'                                   a_n, modelform, fir, der_iden, control,Strat_Col)
+#' strat_col <- 'e'
+#' e0 <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant,
+#'                                   a_n, modelform, fir, der_iden, control,strat_col)
 #' 
 #' e <- RunPoissonEventAssignment_bound(df, pyr, event, e0, keep_constant,
 #'                           modelform, fir, der_iden, 4, 2, control)
 #' @export
 #'
-RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model, keep_constant, modelform, fir, der_iden, check_num=1, z=2, control=list(),Strat_Col="null",model_control=list()){
+RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model, keep_constant, modelform, fir, der_iden, check_num=1, z=2, control=list(),strat_col="null",model_control=list()){
     df <- data.table(df)
     #
     names <- alternative_model$Parameter_Lists$names
-    Term_n <- alternative_model$Parameter_Lists$Term_n
+    term_n <- alternative_model$Parameter_Lists$Term_n
     tform <- alternative_model$Parameter_Lists$tforms
     a_n <- alternative_model$beta_0
     stdev <- alternative_model$Standard_Deviation
     #
-    e_mid <- RunPoissonEventAssignment(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col, model_control)
+    e_mid <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
     #
     a_n <- alternative_model$beta_0
     a_n[check_num] <- a_n[check_num] - z* stdev[check_num] 
-    e_low <- RunPoissonEventAssignment(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col, model_control)
+    e_low <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
     #
     a_n <- alternative_model$beta_0
     a_n[check_num] <- a_n[check_num] + z* stdev[check_num] 
-    e_high <- RunPoissonEventAssignment(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col, model_control)
+    e_high <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
     #
     bound_results <- list("lower_limit"=e_low, "midpoint"=e_mid, "upper_limit"=e_high)
     return (bound_results)
@@ -551,7 +551,7 @@ RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model,
 #' pyr <- 'pyr'
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -559,19 +559,19 @@ RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model,
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'              'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
 #'              'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'              'verbose'=FALSE, 'double_step'=1)
 #' 
-#' e <- RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control)
+#' e <- RunPoissonRegression_Single(df, pyr, event, names, term_n, tform, a_n, modelform, fir, control)
 #' @export
 #'
-RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, a_n, modelform, fir, control,keep_constant=rep(0,length(names))){
+RunPoissonRegression_Single <- function(df, pyr0, event0, names, term_n, tform, a_n, modelform, fir, control,keep_constant=rep(0,length(names))){
     control <- Def_Control(control)
     control$maxiters <- c(1,control$maxiter)
     control$guesses <- 1
-    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, Term_n, tform, keep_constant,
+    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant,
                                       a_n, modelform, fir, 0, control,
                                       model_control=list("single"=TRUE))
     return (e)
@@ -603,7 +603,7 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, 
 #' pyr <- 'pyr'
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -612,20 +612,20 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, Term_n, tform, 
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'              'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
 #'              'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'              'verbose'=FALSE, 'double_step'=1)
-#' Strat_Col <- c("e")
-#' e <- RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant,
-#'      a_n, modelform, fir, der_iden, control, Strat_Col)
+#' strat_col <- c("e")
+#' e <- RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant,
+#'      a_n, modelform, fir, der_iden, control, strat_col)
 #'
-RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col){
+RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col){
     control <- Def_Control(control)
     control$maxiters <- c(1,control$maxiter)
     control$guesses <- 1
-    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n,
-                                      modelform, fir, der_iden, control,Strat_Col,
+    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n,
+                                      modelform, fir, der_iden, control,strat_col,
                                       model_control=list("strata"=TRUE))
     return (e)
 }
@@ -659,7 +659,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
 #' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -667,20 +667,20 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, Term_n, tform, 
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE,'double_step'=1)
-#' guesses_control <- list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+#' guesses_control <- list("iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'   "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform",
 #'   "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
-#' Strat_Col=c('e')
+#' strat_col=c('e')
 #' 
 #' e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
-#'      Term_n, tform, keep_constant, a_n, modelform,
-#'      fir, der_iden, control, guesses_control, Strat_Col)
+#'      term_n, tform, keep_constant, a_n, modelform,
+#'      fir, der_iden, control, guesses_control, strat_col)
 #'
 #' @importFrom rlang .data
-RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, Strat_Col){
+RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col){
     df <- data.table(df)
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
@@ -706,9 +706,9 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     guess_constant <- c()
     #
     for (i in seq_len(length(a_n))){
-        if (Term_n[i] %in% t_initial){
+        if (term_n[i] %in% t_initial){
             name_initial <- c(name_initial, names[i])
-            term_n_initial <- c(term_n_initial, Term_n[i])
+            term_n_initial <- c(term_n_initial, term_n[i])
             tform_initial <- c(tform_initial, tform[i])
             constant_initial <- c(constant_initial, keep_constant[i])
             a_n_initial <- c(a_n_initial, a_n[i])
@@ -721,7 +721,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     e <- RunPoissonRegression_Guesses_CPP(df, pyr0, event0, name_initial, term_n_initial,
                                           tform_initial, constant_initial, a_n_initial,
                                           modelform, fir, der_iden, control, guesses_control,
-                                          Strat_Col)
+                                          strat_col)
     if (guesses_control$verbose){
         message("Note: INITIAL TERM COMPLETE")
         message(e)
@@ -731,7 +731,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     guess_constant <- c()
     j <- 1
     for (i in seq_len(length(a_n))){
-        if (Term_n[i] %in% t_initial){
+        if (term_n[i] %in% t_initial){
             a_n[i] <- a_n_initial[j]
             j <- j+1
             guess_constant <- c(guess_constant, 1)
@@ -741,9 +741,9 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
     }
     guesses_control$guess_constant <- guess_constant
     guesses_control$guesses <- guess_second
-    e <- RunPoissonRegression_Guesses_CPP(df, pyr0, event0, names, Term_n, tform,
+    e <- RunPoissonRegression_Guesses_CPP(df, pyr0, event0, names, term_n, tform,
          keep_constant, a_n, modelform, fir, der_iden,
-         control, guesses_control, Strat_Col)
+         control, guesses_control, strat_col)
     #
     return(e)
 }
@@ -775,7 +775,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
 #' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -783,18 +783,18 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, Term_n, t
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=FALSE)
-#' Strat_Col <- 'e'
+#' strat_col <- 'e'
 #' 
-#' e <- RunPoissonRegression_Guesses_CPP(df, pyr, event, names, Term_n,
+#' e <- RunPoissonRegression_Guesses_CPP(df, pyr, event, names, term_n,
 #'                               tform, keep_constant, a_n, modelform, fir,
-#'                               der_iden, control,guesses_control,Strat_Col)
+#'                               der_iden, control,guesses_control,strat_col)
 #' @importFrom rlang .data
-RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col=c("null"),model_control=list()){
+RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col=c("null"),model_control=list()){
     df <- data.table(df)
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
@@ -816,7 +816,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, Term_n, tf
     }
     guesses_control <- Def_Control_Guess(guesses_control, a_n[[1]])
     model_control <- Def_model_control(model_control)
-    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
@@ -842,11 +842,11 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, Term_n, tf
     #
     dfc <- match(names,all_names)
 
-    term_tot <- max(Term_n)+1
+    term_tot <- max(term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     #
-    dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant, a_n,
+    dat_val <- Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n,
                                   x_all, a_n_default, modelform, fir, control, guesses_control)
     a_ns <- dat_val$a_ns
     maxiters <- dat_val$maxiters
@@ -857,9 +857,9 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, Term_n, tf
     #
     a_n_mat <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
     a_n <- lapply(seq_len(nrow(a_n_mat)), function(i) a_n_mat[i,])
-    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, Term_n, tform, keep_constant, a_n,
+    e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n,
                                       modelform, fir, der_iden, control,model_control=model_control,
-                                      Strat_Col=Strat_Col)
+                                      strat_col=strat_col)
     #fine
     return (e)
 }

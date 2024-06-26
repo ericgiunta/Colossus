@@ -7,15 +7,15 @@ test_that("Pois loglin_M Single", {
 	pyr <- "pyr"
     event <- "lung"
     names <- c("dose","fac")
-    Term_n <- c(0,0)
+    term_n <- c(0,0)
     tform <- c("loglin","loglin")
     keep_constant <- c(0,0)
     a_n <- c(0.01,0.1)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    e <-RunPoissonRegression_Single(df, pyr, event, names, Term_n, tform, a_n, modelform, fir, control)
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    e <-RunPoissonRegression_Single(df, pyr, event, names, term_n, tform, a_n, modelform, fir, control)
     expect_equal(e$AIC,2354.055,tolerance=1e-2)
 })
 test_that("Pois loglin_M Strata", {
@@ -27,15 +27,15 @@ test_that("Pois loglin_M Strata", {
 	pyr <- "pyr"
     event <- "lung"
     names <- c("dose")
-    Term_n <- c(0)
+    term_n <- c(0)
     tform <- c("loglin")
     keep_constant <- c(0)
     a_n <- c(0.01)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    e <-RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("fac"))
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    e <-RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("fac"))
     expect_equal(e$beta_0,c(0.05476188),tolerance=1e-1)
 })
 test_that("Pois STRATA with strata without event", {
@@ -48,15 +48,15 @@ test_that("Pois STRATA with strata without event", {
     pyr <- "b"
     event <- "c"
     names <- c("d")
-    Term_n <- c(0)
+    term_n <- c(0)
     tform <- c("loglin")
     keep_constant <- c(0)
     a_n <- c(-0.1)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    expect_no_error(RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("e")))
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    expect_no_error(RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("e")))
 })
 test_that("Pois STRATA with strata without person-years", {
     a <- c(0,1,2,3,4,5,6)
@@ -68,13 +68,13 @@ test_that("Pois STRATA with strata without person-years", {
     pyr <- "b"
     event <- "c"
     names <- c("d")
-    Term_n <- c(0)
+    term_n <- c(0)
     tform <- c("loglin")
     keep_constant <- c(0)
     a_n <- c(-0.1)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    expect_no_error(RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("e")))
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    expect_no_error(RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("e")))
 })

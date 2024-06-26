@@ -6,15 +6,15 @@ test_that("Coxph loglin_M Strata", {
     time2 <- "t1"
     event <- "lung"
     names <- c("dose")
-    Term_n <- c(0)
+    term_n <- c(0)
     tform <- c("loglin")
     keep_constant <- c(0)
     a_n <- c(0.01)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,"fac")
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    e <- RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,"fac")
     expect_equal(e$beta_0,c(-0.106),tolerance=1e-2)
 })
 test_that("Coxph loglin_M Single", {
@@ -25,15 +25,15 @@ test_that("Coxph loglin_M Single", {
     time2 <- "t1"
     event <- "lung"
     names <- c("dose","fac")
-    Term_n <- c(0,0)
+    term_n <- c(0,0)
     tform <- c("loglin","loglin")
     keep_constant <- c(0,0)
     a_n <- c(0.01,0.1)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control)
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    e <- RunCoxRegression_Single(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control)
     expect_equal(e$AIC,1056.299,tolerance=1e-2)
 })
 test_that("Coxph loglin_M Null", {
@@ -44,14 +44,14 @@ test_that("Coxph loglin_M Null", {
     time2 <- "t1"
     event <- "lung"
     names <- c("dose","fac")
-    Term_n <- c(0,0)
+    term_n <- c(0,0)
     tform <- c("loglin","loglin")
     keep_constant <- c(0,0)
     a_n <- c(0.01,0.1)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxNull(df, time1, time2, event, control)
     expect_equal(e$AIC,1052,tolerance=1e-2)
 })
@@ -64,15 +64,15 @@ test_that("Coxph loglin_M CENSOR", {
     time2 <- "t1"
     event <- "lung"
     names <- c("dose","fac")
-    Term_n <- c(0,0)
+    term_n <- c(0,0)
     tform <- c("loglin","loglin")
     keep_constant <- c(0,0)
     a_n <- c(0.01,0.1)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     expect_equal(e$beta_0,c(-1.19,0.08),tolerance=1e-2)
 })
 test_that("Coxph loglin_M CENSOR Adjusted", {
@@ -83,16 +83,16 @@ test_that("Coxph loglin_M CENSOR Adjusted", {
     time2 <- "t1"
     event <- "lung"
     names <- c("dose","fac")
-    Term_n <- c(0,0)
+    term_n <- c(0,0)
     tform <- c("loglin","loglin")
     keep_constant <- c(0,0)
     a_n <- c(-1.1169,-0.04558)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyID"="studyID","age_unit"="years")
-    dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyid"="studyid","age_unit"="years")
+    dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
     #
     expect_equal(sum(dft$ch),336410,tolerance=1e-2)
@@ -105,16 +105,16 @@ test_that("Coxph loglin_M CENSOR Default", {
     time2 <- "t1"
     event <- "lung"
     names <- c("dose","fac")
-    Term_n <- c(0,0)
+    term_n <- c(0,0)
     tform <- c("loglin","loglin")
     keep_constant <- c(0,0)
     a_n <- c(0,0)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-    plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyID"="studyID","age_unit"="years")
-    dft <- GetCensWeight(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
+    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyid"="studyid","age_unit"="years")
+    dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
     #
     expect_equal(sum(dft$ch),699,tolerance=1e-2)

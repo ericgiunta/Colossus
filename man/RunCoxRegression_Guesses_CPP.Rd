@@ -10,7 +10,7 @@ RunCoxRegression_Guesses_CPP(
   time2,
   event0,
   names,
-  Term_n,
+  term_n,
   tform,
   keep_constant,
   a_n,
@@ -19,7 +19,7 @@ RunCoxRegression_Guesses_CPP(
   der_iden,
   control,
   guesses_control,
-  Strat_Col,
+  strat_col,
   model_control = list(),
   cens_weight = c(0)
 )
@@ -35,7 +35,7 @@ RunCoxRegression_Guesses_CPP(
 
 \item{names}{columns for elements of the model, used to identify data columns}
 
-\item{Term_n}{term numbers for each element of the model}
+\item{term_n}{term numbers}
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
@@ -53,7 +53,7 @@ RunCoxRegression_Guesses_CPP(
 
 \item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Alt_Distrib_Starts")}
 
-\item{Strat_Col}{column to stratify by if needed}
+\item{strat_col}{column to stratify by if needed}
 
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 
@@ -84,7 +84,7 @@ time2 <- "Ending_Age"
 event <- "Cancer_Status"
 names <- c('a','b','c','d')
 a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-Term_n <- c(0,1,1,2)
+term_n <- c(0,1,1,2)
 tform <- c("loglin","lin","lin","plin")
 modelform <- "M"
 fir <- 0
@@ -92,16 +92,16 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 guesses_control=list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=FALSE)
-Strat_Col <- 'e'
+strat_col <- 'e'
 
-e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, Term_n,
+e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, term_n,
                               tform, keep_constant, a_n, modelform, fir,
-                              der_iden, control,guesses_control,Strat_Col)
+                              der_iden, control,guesses_control,strat_col)
 }
 \seealso{
 Other Cox Wrapper Functions: 

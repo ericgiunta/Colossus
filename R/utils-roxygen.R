@@ -1,8 +1,8 @@
 #' @param MSV  value to replace na with, same used for every column used
 #' @param Plot_Name  plot identifier, used in filename for saved plots
 #' @param Plot_Type  list of parameters controlling the plot options: surv, risk, schoenfeld
-#' @param Strat_Col  column to stratify by if needed
-#' @param Term_n  term numbers for each element of the model
+#' @param strat_col  column to stratify by if needed
+#' @param term_n  term numbers for each element of the model
 #' @param a0  linear slope
 #' @param a1_goal  exponential maximum desired
 #' @param a_n  list of initial parameter values, used to determine number of parameters
@@ -98,7 +98,7 @@ NULL
 #' @param Td0  Term by subterm derivative matrix
 #' @param Tdd0  Term by subterm second derivative matrix
 #' @param Te  temporary term storage matrix
-#' @param Term_n  Term numbers
+#' @param term_n  Term numbers
 #' @param a_er  Optimal value standard error
 #' @param a_n  starting values
 #' @param a_ns  matrix of starting values

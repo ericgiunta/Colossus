@@ -37,7 +37,7 @@ time1 <- "Starting_Age"
 time2 <- "Ending_Age"
 event <- "Cancer_Status"
 
-control <- list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+control <- list("ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
 e <- RunCoxNull(df, time1, time2, event, control)
 

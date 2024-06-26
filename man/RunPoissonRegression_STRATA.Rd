@@ -9,7 +9,7 @@ RunPoissonRegression_STRATA(
   pyr0,
   event0,
   names,
-  Term_n,
+  term_n,
   tform,
   keep_constant,
   a_n,
@@ -17,7 +17,7 @@ RunPoissonRegression_STRATA(
   fir,
   der_iden,
   control,
-  Strat_Col
+  strat_col
 )
 }
 \arguments{
@@ -29,7 +29,7 @@ RunPoissonRegression_STRATA(
 
 \item{names}{columns for elements of the model, used to identify data columns}
 
-\item{Term_n}{term numbers for each element of the model}
+\item{term_n}{term numbers}
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
@@ -45,7 +45,7 @@ RunPoissonRegression_STRATA(
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
-\item{Strat_Col}{column to stratify by if needed}
+\item{strat_col}{column to stratify by if needed}
 }
 \value{
 returns a list of the final results
@@ -71,7 +71,7 @@ df$pyr <- df$Ending_Age - df$Starting_Age
 pyr <- 'pyr'
 event <- "Cancer_Status"
 names <- c('a','b','c','d')
-Term_n <- c(0,1,1,2)
+term_n <- c(0,1,1,2)
 tform <- c("loglin","lin","lin","plin")
 modelform <- "M"
 fir <- 0
@@ -80,13 +80,13 @@ a_n <- c(0.1, 0.1, 0.1, 0.1)
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
              'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
              'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
              'verbose'=FALSE, 'double_step'=1)
-Strat_Col <- c("e")
-e <- RunPoissonRegression_STRATA(df, pyr, event, names, Term_n, tform, keep_constant,
-     a_n, modelform, fir, der_iden, control, Strat_Col)
+strat_col <- c("e")
+e <- RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant,
+     a_n, modelform, fir, der_iden, control, strat_col)
 
 }
 \seealso{

@@ -14,7 +14,7 @@ Makevars
 Moolgavkar
 NL
 NSSC
-Ncores
+ncores
 OMP
 OpenMP
 PAE

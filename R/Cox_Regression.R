@@ -31,7 +31,7 @@
 #' names <- c('a','b','c','d')
 #' a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4))
 #' #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -39,23 +39,23 @@
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
 #'    'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
 #'    'ties'='breslow','double_step'=1, "guesses"=2)
 #' 
 #' e <- RunCoxRegression_Omnibus(df, time1, time2, event,
-#'                               names, Term_n, tform, keep_constant,
+#'                               names, term_n, tform, keep_constant,
 #'                               a_n, modelform, fir, der_iden, control,
 #'                               model_control=list("single"=FALSE,
-#'                               "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
+#'                               "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), Term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),Strat_Col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
     df <- data.table(df)
     control <- Def_Control(control)
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n,
+    val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
                                  names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
-    Term_n <- val$Term_n
+    term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
@@ -72,7 +72,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         }
     }
     model_control <- Def_model_control(model_control)
-    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
@@ -93,28 +93,28 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     } else {
         #
         dfend <- df[get(event0)==1, ]
-        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]),
+        uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]),
                             use.names=FALSE))
         #
         for (i in seq_along(uniq)){
-            df0 <- dfend[get(Strat_Col)==uniq[i],]
+            df0 <- dfend[get(strat_col)==uniq[i],]
             tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
             if (length(tu0)==0){
                 if (control$verbose){
                     message(paste("Warning: no events for strata group:",
                                  uniq[i],sep=" "))
                 }
-                df <- df[get(Strat_Col)!=uniq[i],]
+                df <- df[get(strat_col)!=uniq[i],]
             }
         }
-        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]),
+        uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]),
                             use.names=FALSE))
         if (control$verbose){
             message(paste("Note:",length(uniq)," strata used",sep=" "))
         }
         #
-        data.table::setkeyv(df, c(time2, event0, Strat_Col))
-        ce <- c(time1,time2,event0,Strat_Col)
+        data.table::setkeyv(df, c(time2, event0, strat_col))
+        ce <- c(time1,time2,event0,strat_col)
     }
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
@@ -133,7 +133,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     #
     dfc <- match(names,all_names)
 
-    term_tot <- max(Term_n)+1
+    term_tot <- max(term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     #
@@ -147,7 +147,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     }
     #
     #
-    if (model_control$Log_Bound){
+    if (model_control$log_bound){
         if ("maxiters" %in% names(control)){
         	if (length(control$maxiters) == length(a_n)+1){
         		#all good, it matches
@@ -196,7 +196,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
                 control$maxiters = c(rep(1,length(a_n)),control$maxiter)
             }
         }
-        e <- cox_ph_cox_ph_Omnibus_Bounds_transition(Term_n,tform,a_ns,dfc,x_all, fir,
+        e <- cox_ph_cox_ph_Omnibus_Bounds_transition(term_n,tform,a_ns,dfc,x_all, fir,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, cens_weight, model_control,
              Cons_Mat, Cons_Vec)
@@ -254,7 +254,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         } else {
             a_ns <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
         }
-        e <- cox_ph_Omnibus_transition(Term_n,tform,a_ns,dfc,x_all, fir,der_iden,
+        e <- cox_ph_Omnibus_transition(term_n,tform,a_ns,dfc,x_all, fir,der_iden,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, cens_weight, model_control,
              Cons_Mat, Cons_Vec)
@@ -295,7 +295,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #' time2 <- "Ending_Age"
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -304,21 +304,21 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
-#' e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform,
+#' e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform,
 #'                      keep_constant, a_n, modelform, fir, der_iden, control)
 #' @importFrom rlang .data
 
-RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+RunCoxRegression <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
     #
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n,
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n,
                                   tform, keep_constant, a_n, modelform,
                                   fir, der_iden, control, model_control=list())
     #
@@ -350,7 +350,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #' time2 <- "Ending_Age"
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -358,18 +358,18 @@ RunCoxRegression <- function(df, time1, time2, event0, names, Term_n, tform, kee
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control <- list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' control <- list("ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
-#' e <- RunCoxRegression_Single(df, time1, time2, event, names, Term_n, tform,
+#' e <- RunCoxRegression_Single(df, time1, time2, event, names, term_n, tform,
 #'                              keep_constant, a_n, modelform, fir, control)
 #'
 #' @importFrom rlang .data
 
-RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control){
+RunCoxRegression_Single <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, control){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n,
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n,
          tform, keep_constant, a_n, modelform, fir, 0, control,
          model_control=list('single'=TRUE))
     #
@@ -406,7 +406,7 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, Term_n, tfo
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
 #'    'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
 #'    'ties'='breslow','double_step'=1)
@@ -457,7 +457,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
 #' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -465,23 +465,23 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' Strat_Col <- 'e'
+#' strat_col <- 'e'
 #' 
-#' e <- RunCoxRegression_STRATA(df, time1, time2, event, names, Term_n,
+#' e <- RunCoxRegression_STRATA(df, time1, time2, event, names, term_n,
 #'                              tform, keep_constant, a_n, modelform,
-#'                              fir, der_iden, control,Strat_Col)
+#'                              fir, der_iden, control,strat_col)
 #'
-RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, Strat_Col){
+RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n,
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n,
                                   tform, keep_constant, a_n, modelform, fir,
-                                  der_iden, control,Strat_Col=Strat_Col,
+                                  der_iden, control,strat_col=strat_col,
                                   model_control=list("strata"=TRUE))
     return (e)
 }
@@ -513,7 +513,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 #' time2 <- "Ending_Age"
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' fir <- 0
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
@@ -521,19 +521,19 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, Term_n, tf
 #' 
 #' keep_constant <- c(0,0,0,0)
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
-#' e <- Cox_Relative_Risk(df, time1, time2, event, names, Term_n, tform,
+#' e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform,
 #'      keep_constant, a_n, modelform, fir, control)
 #'
-Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, keep_constant, a_n, modelform, fir, control, model_control=list()){
+Cox_Relative_Risk <- function(df, time1, time2, event0,  names, term_n, tform, keep_constant, a_n, modelform, fir, control, model_control=list()){
     df <- data.table(df)
     control <- Def_Control(control)
     model_control <- Def_model_control(model_control)
-    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
@@ -548,8 +548,8 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
         }
     }
     #
-    val <- Correct_Formula_Order(Term_n, tform, keep_constant, a_n, names)
-    Term_n <- val$Term_n
+    val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n, names)
+    term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
@@ -559,11 +559,11 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
     all_names <- unique(names)
     dfc <- match(names,all_names)
 
-    term_tot <- max(Term_n)+1
+    term_tot <- max(term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     #
-    model_control$Risk_Subset <- TRUE
-    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir,
+    model_control$risk_subset <- TRUE
+    e <- Plot_Omnibus_transition(term_n, tform, a_n, dfc, x_all, fir,
                                  0, modelform, control, matrix(c(0)),
                                  c(1), keep_constant, term_tot, c(0),
                                  c(0), model_control)
@@ -592,7 +592,7 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, Term_n, tform, k
 #' time2 <- "Ending_Age"
 #' event <- "Cancer_Status"
 #' 
-#' control <- list("Ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#' control <- list("ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
 #' e <- RunCoxNull(df, time1, time2, event, control)
 #'
@@ -635,7 +635,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' time2 <- "Ending_Age"
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -644,23 +644,24 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #setting maxiter below 0 forces the function to calculate the score
 #' # and return
-#' plot_options=list("type"=c("SURV",paste(tempfile(),"run",sep="")), "studyID"="UserID",
+#' plot_options=list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID",
 #'                   'verbose'=FALSE)
 #' 
-#' RunCoxPlots(df, time1, time2, event, names, Term_n, tform, keep_constant,
+#' RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant,
 #'             a_n, modelform, fir, control, plot_options)
 #'
-RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list()){
+RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list()){
     if (system.file(package='ggplot2')==""){
         message("Error: ggplot2 is not detected, required to run plotting functions")
         return ("Passed")
     }
+    names(plot_options) <- tolower(names(plot_options))
     df <- data.table(df)
     control <- Def_Control(control)
     if (min(keep_constant)>0){
@@ -708,8 +709,8 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     }
     if ("strat_haz" %in% names(plot_options)){
         if (plot_options$strat_haz){
-            if ("Strat_Col" %in% names(plot_options)){
-                if (plot_options$Strat_Col %in% names(df)){
+            if ("strat_col" %in% names(plot_options)){
+                if (plot_options$strat_col %in% names(df)){
                     #fine
                 } else {
                     if (plot_options$verbose){
@@ -727,8 +728,8 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     } else {
         plot_options$strat_haz <- FALSE
     }
-    if ("Martingale" %in% names(plot_options)){
-        if (plot_options$Martingale){
+    if ("martingale" %in% names(plot_options)){
+        if (plot_options$martingale){
             if ("cov_cols" %in% names(plot_options)){
                 for (cov_i in seq_along(plot_options$cov_cols)){
                     dose_col <- unlist(plot_options$cov_cols,
@@ -751,12 +752,12 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             }
         }
     } else {
-        plot_options$Martingale <- FALSE
+        plot_options$martingale <- FALSE
     }
-    if ("KM" %in% names(plot_options)){
-        if (plot_options$KM){
-            if ("studyID" %in%  names(plot_options)){
-                if (plot_options$studyID%in% names(df)){
+    if ("km" %in% names(plot_options)){
+        if (plot_options$km){
+            if ("studyid" %in%  names(plot_options)){
+                if (plot_options$studyid%in% names(df)){
                     #fine
                 } else {
                     if (plot_options$verbose){
@@ -773,7 +774,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         }
     }
     model_control <- Def_model_control(model_control)
-    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (tolower(Plot_Type[1])=="surv"){
@@ -783,7 +784,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             plot_options$time_lims <- c(min(tu),max(tu))
         }
     }
-    for (iden_col in c("verbose","Martingale","surv_curv","strat_haz","KM")){
+    for (iden_col in c("verbose","martingale","surv_curv","strat_haz","km")){
         if (iden_col %in% names(plot_options)){
             #fine
         } else {
@@ -809,7 +810,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     #
     dfc <- match(names,all_names)
 
-    term_tot <- max(Term_n)+1
+    term_tot <- max(term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
     ce <- c(time1,time2,event0)
     #
@@ -824,7 +825,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
     #
     control$maxiters <- c(-1, -1)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n,
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n,
                                   tform, keep_constant, a_n, modelform, fir,
                                   der_iden, control, model_control)
     control$maxiter <- maxiterc
@@ -841,8 +842,8 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
         	if (verbose){
 		        message("Note: nonStratified survival curve calculation")
 		    }
-		    model_control$Surv <- TRUE
-		    e <- Plot_Omnibus_transition(Term_n, tform, a_n, dfc, x_all, fir,
+		    model_control$surv <- TRUE
+		    e <- Plot_Omnibus_transition(term_n, tform, a_n, dfc, x_all, fir,
 		                                 der_iden, modelform, control,
 		                                 as.matrix(df[,ce, with = FALSE]),tu,
 		                                 keep_constant, term_tot, c(0), c(0),
@@ -870,11 +871,11 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 		    }
 		    #
 		    age_unit <- plot_options$age_unit
-		    if (plot_options$Martingale==TRUE){
+		    if (plot_options$martingale==TRUE){
 		        #
 		        CoxMartingale(verbose, df, time1, time2, event0, e, t, ch,
 		                      plot_options$cov_cols,
-		                      Plot_Type[2], age_unit,plot_options$studyID)
+		                      Plot_Type[2], age_unit,plot_options$studyid)
 		        #
 		    }
 		    if (plot_options$surv_curv==TRUE){
@@ -889,25 +890,25 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
             if (plot_options$surv_curv==TRUE){
                 model_control$strata <- TRUE
                 CoxStratifiedSurvival(verbose, df, event0, time1, time2,
-                     all_names,Term_n, tform, a_n, er, fir, der_iden,
+                     all_names,term_n, tform, a_n, er, fir, der_iden,
                      modelform, control, keep_constant, Plot_Type,
-                     plot_options$Strat_Col, plot_options$time_lims,age_unit)
+                     plot_options$strat_col, plot_options$time_lims,age_unit)
             }
         }
-        if (plot_options$KM==TRUE){
+        if (plot_options$km==TRUE){
             #
-            CoxKaplanMeier(verbose, verbosec, plot_options$studyID,
-                           all_names,df,event0,time1, time2,tu,Term_n,
+            CoxKaplanMeier(verbose, verbosec, plot_options$studyid,
+                           all_names,df,event0,time1, time2,tu,term_n,
                            tform, a_n, er, fir, der_iden, modelform,
                            control,keep_constant, Plot_Type,age_unit)
         }
     } else if (tolower(Plot_Type[1])=="risk"){
-        CoxRisk(verbose, df, event0, time1, time2, names,Term_n, tform,
+        CoxRisk(verbose, df, event0, time1, time2, names,term_n, tform,
                 a_n, fir, der_iden, modelform, control,keep_constant,
                 Plot_Type, b, er)
     } else if (tolower(Plot_Type[1])=="schoenfeld"){
         age_unit <- plot_options$age_unit
-        PlotCox_Schoenfeld_Residual(df, time1, time2, event0, names, Term_n,
+        PlotCox_Schoenfeld_Residual(df, time1, time2, event0, names, term_n,
                                     tform, keep_constant, a_n, modelform, fir,
                                     der_iden, control,age_unit,Plot_Type[2])
     }
@@ -945,7 +946,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
 #' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -953,23 +954,23 @@ RunCoxPlots <- function(df, time1, time2, event0, names, Term_n, tform, keep_con
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' guesses_control=list("Iterations"=10,"guesses"=10,"lin_min"=0.001,
+#' guesses_control=list("iterations"=10,"guesses"=10,"lin_min"=0.001,
 #'    "lin_max"=1,"loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform",
 #'    "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
-#' Strat_Col <- 'e'
+#' strat_col <- 'e'
 #' 
 #' e <- RunCoxRegression_Tier_Guesses(df, time1, time2, event, names,
-#'                                    Term_n, tform, keep_constant,
+#'                                    term_n, tform, keep_constant,
 #'                                    a_n, modelform, fir, der_iden,
 #'                                    control,guesses_control,
-#'                                    Strat_Col)
+#'                                    strat_col)
 #'
 #' @importFrom rlang .data
-RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col,model_control=list(),cens_weight=c(0)){
+RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight=c(0)){
     df <- data.table(df)
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
@@ -1002,9 +1003,9 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     guess_constant <- c()
     #
     for (i in seq_along(a_n)){
-        if (Term_n[i] %in% t_initial){
+        if (term_n[i] %in% t_initial){
             name_initial <- c(name_initial, names[i])
-            term_n_initial <- c(term_n_initial, Term_n[i])
+            term_n_initial <- c(term_n_initial, term_n[i])
             tform_initial <- c(tform_initial, tform[i])
             constant_initial <- c(constant_initial, keep_constant[i])
             a_n_initial <- c(a_n_initial, a_n[i])
@@ -1018,7 +1019,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
                                       term_n_initial, tform_initial,
                                       constant_initial, a_n_initial,
                                       modelform, fir, der_iden, control,
-                                      guesses_control,Strat_Col)
+                                      guesses_control,strat_col)
     #
     if (guesses_control$verbose){
         message("Note: INITIAL TERM COMPLETE")
@@ -1029,7 +1030,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     guess_constant <- c()
     j <- 1
     for (i in seq_along(a_n)){
-        if (Term_n[i] %in% t_initial){
+        if (term_n[i] %in% t_initial){
             a_n[i] <- a_n_initial[j]
             j <- j+1
             guess_constant <- c(guess_constant, 1)
@@ -1040,8 +1041,8 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
     guesses_control$guess_constant <- guess_constant
     guesses_control$guesses <- guess_second
     e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event0, names,
-         Term_n, tform,keep_constant, a_n, modelform, fir, der_iden, control,
-         guesses_control,Strat_Col)
+         term_n, tform,keep_constant, a_n, modelform, fir, der_iden, control,
+         guesses_control,strat_col)
     #
     return(e)
 }
@@ -1073,7 +1074,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 #' time2 <- "Ending_Age"
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -1082,7 +1083,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #weights the probability that a row would continue to extend without censoring,
@@ -1090,17 +1091,17 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, Term_
 #' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
 #' #censoring weight is generated by the survival library finegray function, or by hand.
 #' #The ratio of weight at event end point to weight at row endpoint is used.
-#' e <- RunCoxRegression_CR(df, time1, time2, event, names, Term_n, tform,
+#' e <- RunCoxRegression_CR(df, time1, time2, event, names, term_n, tform,
 #'      keep_constant, a_n, modelform, fir, der_iden, control, cens_weight)
 #'
 #' @importFrom rlang .data
-RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
+RunCoxRegression_CR <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant,
                                   a_n, modelform, fir, der_iden, control,cens_weight=cens_weight,
-                                  model_control=list("CR"=TRUE))
+                                  model_control=list("cr"=TRUE))
     #
     return (e)
 }
@@ -1133,7 +1134,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #' event <- "Cancer_Status"
 #' names <- c('a','b','c','d')
 #' a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-#' Term_n <- c(0,1,1,2)
+#' term_n <- c(0,1,1,2)
 #' tform <- c("loglin","lin","lin","plin")
 #' modelform <- "M"
 #' fir <- 0
@@ -1141,18 +1142,18 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, Term_n, tform, 
 #' keep_constant <- c(0,0,0,0)
 #' der_iden <- 0
 #' 
-#' control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control=list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=FALSE)
-#' Strat_Col <- 'e'
+#' strat_col <- 'e'
 #' 
-#' e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, Term_n,
+#' e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, term_n,
 #'                               tform, keep_constant, a_n, modelform, fir,
-#'                               der_iden, control,guesses_control,Strat_Col)
+#'                               der_iden, control,guesses_control,strat_col)
 #' @importFrom rlang .data
-RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,Strat_Col,model_control=list(),cens_weight=c(0)){
+RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight=c(0)){
     df <- data.table(df)
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
@@ -1174,7 +1175,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
     }
     guesses_control <- Def_Control_Guess(guesses_control, a_n[[1]])
     model_control <- Def_model_control(model_control)
-    val <- Def_modelform_fix(control,model_control,modelform,Term_n)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
@@ -1211,31 +1212,31 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         #
         dfc <- match(names,all_names)
 
-        term_tot <- max(Term_n)+1
+        term_tot <- max(term_n)+1
         x_all <- as.matrix(df[,all_names, with = FALSE])
         ce <- c(time1,time2,event0)
         #
     } else {
         #
         dfend <- df[get(event0)==1, ]
-        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
         #
         for (i in seq_along(uniq)){
-            df0 <- dfend[get(Strat_Col)==uniq[i],]
+            df0 <- dfend[get(strat_col)==uniq[i],]
             tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
             if (length(tu0)==0){
                 if (control$verbose){
                     message(paste("Warning: no events for strata group:",uniq[i],sep=" "))
                 }
-                df <- df[get(Strat_Col)!=uniq[i],]
+                df <- df[get(strat_col)!=uniq[i],]
             }
         }
-        uniq <- sort(unlist(unique(df[,Strat_Col, with = FALSE]), use.names=FALSE))
+        uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
         if (control$verbose){
             message(paste("Note:",length(uniq)," strata used",sep=" "))
         }
         #
-        data.table::setkeyv(df, c(time2, event0, Strat_Col))
+        data.table::setkeyv(df, c(time2, event0, strat_col))
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
         if (length(tu)==0){
@@ -1253,16 +1254,16 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
         #
         dfc <- match(names,all_names)
 
-        term_tot <- max(Term_n)+1
+        term_tot <- max(term_n)+1
         x_all <- as.matrix(df[,all_names, with = FALSE])
-        ce <- c(time1,time2,event0,Strat_Col)
+        ce <- c(time1,time2,event0,strat_col)
         #
     }
     t_check <- Check_Trunc(df,ce)
     df <- t_check$df
     ce <- t_check$ce
     #
-    dat_val <- Gather_Guesses_CPP(df, dfc, names, Term_n, tform, keep_constant,
+    dat_val <- Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant,
                                   a_n, x_all, a_n_default, modelform, fir, control,
                                   guesses_control, model_control)
     a_ns <- dat_val$a_ns
@@ -1275,8 +1276,8 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, Term_n
     #fine
     a_n_mat <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
     a_n <- lapply(seq_len(nrow(a_n_mat)), function(i) a_n_mat[i,])
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, Term_n, tform, keep_constant,
-                                  a_n, modelform, fir, der_iden, control, Strat_Col=Strat_Col,
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant,
+                                  a_n, modelform, fir, der_iden, control, strat_col=strat_col,
                                   model_control=model_control,cens_weight=cens_weight)
     return (e)
 }

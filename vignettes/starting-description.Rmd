@@ -215,7 +215,7 @@ The additional information parameters currently supported are as follows:
 | :---------: | :----------: |
 | verbose | TRUE/FALSE flag to print updates on parameter value and which section of the code is active |
 | change_all | TRUE/FALSE flag to choose if the user wants a regression or to calculate log-likelihoods on a grid changing only one parameter at a time |
-| Ncores | Number of physical cores assigned, cannot be greater than the number of cores available |
+| ncores | Number of physical cores assigned, cannot be greater than the number of cores available |
 
 The previous options are all contained within a list of parameters, however there are additional standalone parameters which control the convergence and information. They are as follows:
 
@@ -229,7 +229,7 @@ Going back to our example, the code may look like the following:
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control=list("Ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,
+control=list("ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,
              'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
              'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 ```

@@ -10,7 +10,7 @@ RunCoxRegression_Omnibus(
   time2 = "end",
   event0 = "event",
   names = c("CONST"),
-  Term_n = c(0),
+  term_n = c(0),
   tform = "loglin",
   keep_constant = c(0),
   a_n = c(0),
@@ -18,7 +18,7 @@ RunCoxRegression_Omnibus(
   fir = 0,
   der_iden = 0,
   control = list(),
-  Strat_Col = "null",
+  strat_col = "null",
   cens_weight = c(1),
   model_control = list(),
   Cons_Mat = as.matrix(c(0)),
@@ -36,7 +36,7 @@ RunCoxRegression_Omnibus(
 
 \item{names}{columns for elements of the model, used to identify data columns}
 
-\item{Term_n}{term numbers for each element of the model}
+\item{term_n}{term numbers}
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
@@ -52,7 +52,7 @@ RunCoxRegression_Omnibus(
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
 
-\item{Strat_Col}{column to stratify by if needed}
+\item{strat_col}{column to stratify by if needed}
 
 \item{cens_weight}{list of weights for censoring rate}
 
@@ -92,7 +92,7 @@ event <- "Cancer_Status"
 names <- c('a','b','c','d')
 a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4))
 #used to test at a specific point
-Term_n <- c(0,1,1,2)
+term_n <- c(0,1,1,2)
 tform <- c("loglin","lin","lin","plin")
 modelform <- "M"
 fir <- 0
@@ -100,16 +100,16 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control <- list("Ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
+control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
    'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
    'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
    'ties'='breslow','double_step'=1, "guesses"=2)
 
 e <- RunCoxRegression_Omnibus(df, time1, time2, event,
-                              names, Term_n, tform, keep_constant,
+                              names, term_n, tform, keep_constant,
                               a_n, modelform, fir, der_iden, control,
                               model_control=list("single"=FALSE,
-                              "basic"=FALSE, "CR"=FALSE, 'null'=FALSE))
+                              "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
 }
 \seealso{
 Other Cox Wrapper Functions: 

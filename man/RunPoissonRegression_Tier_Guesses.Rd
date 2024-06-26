@@ -9,7 +9,7 @@ RunPoissonRegression_Tier_Guesses(
   pyr0,
   event0,
   names,
-  Term_n,
+  term_n,
   tform,
   keep_constant,
   a_n,
@@ -18,7 +18,7 @@ RunPoissonRegression_Tier_Guesses(
   der_iden,
   control,
   guesses_control,
-  Strat_Col
+  strat_col
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ RunPoissonRegression_Tier_Guesses(
 
 \item{names}{columns for elements of the model, used to identify data columns}
 
-\item{Term_n}{term numbers for each element of the model}
+\item{term_n}{term numbers}
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
@@ -48,7 +48,7 @@ RunPoissonRegression_Tier_Guesses(
 
 \item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Alt_Distrib_Starts")}
 
-\item{Strat_Col}{column to stratify by if needed}
+\item{strat_col}{column to stratify by if needed}
 }
 \value{
 returns a list of the final results
@@ -75,7 +75,7 @@ pyr <- 'pyr'
 event <- "Cancer_Status"
 names <- c('a','b','c','d')
 a_n <- c(1.1, -0.1, 0.2, 0.5) #used to test at a specific point
-Term_n <- c(0,1,1,2)
+term_n <- c(0,1,1,2)
 tform <- c("loglin","lin","lin","plin")
 modelform <- "M"
 fir <- 0
@@ -83,17 +83,17 @@ fir <- 0
 keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
-control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
+control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
    'dose_abs_max'=100.0,'verbose'=FALSE,'double_step'=1)
-guesses_control <- list("Iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+guesses_control <- list("iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
   "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform",
   "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
-Strat_Col=c('e')
+strat_col=c('e')
 
 e <- RunPoissonRegression_Tier_Guesses(df, pyr, event, names,
-     Term_n, tform, keep_constant, a_n, modelform,
-     fir, der_iden, control, guesses_control, Strat_Col)
+     term_n, tform, keep_constant, a_n, modelform,
+     fir, der_iden, control, guesses_control, strat_col)
 
 }
 \seealso{

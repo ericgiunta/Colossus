@@ -17,7 +17,7 @@ returns a filled list
 }
 \examples{
 library(data.table)
-control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
 control <- Def_Control(control)
 
 }

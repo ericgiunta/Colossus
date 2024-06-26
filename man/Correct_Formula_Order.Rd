@@ -5,7 +5,7 @@
 \title{Corrects the order of terms/formula/etc}
 \usage{
 Correct_Formula_Order(
-  Term_n,
+  term_n,
   tform,
   keep_constant,
   a_n,
@@ -18,7 +18,7 @@ Correct_Formula_Order(
 )
 }
 \arguments{
-\item{Term_n}{term numbers for each element of the model}
+\item{term_n}{term numbers}
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
@@ -48,15 +48,15 @@ returns the corrected lists
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
 
-Term_n <- c(0,1,1,0,0)
+term_n <- c(0,1,1,0,0)
 tform <- c("loglin",'quad_slope','lin', "lin_int", "lin_slope")
 keep_constant <- c(0,0,0,1,0)
 a_n <- c(1,2,3,4,5)
 names <- c("a","a","a","a","a")
-val <- Correct_Formula_Order(Term_n, tform, keep_constant,
+val <- Correct_Formula_Order(term_n, tform, keep_constant,
                              a_n, names, Cons_Mat=matrix(c(0)),
                              Cons_Vec=c(0))
-Term_n <- val$Term_n
+term_n <- val$term_n
 tform <- val$tform
 keep_constant <- val$keep_constant
 a_n <- val$a_n

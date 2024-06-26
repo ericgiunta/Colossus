@@ -71,7 +71,7 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
     double dose_abs_max = Control["dose_abs_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
+    int nthreads = Control["ncores"];
     //
 	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
 	double cens_thres = Control["cens_thres"];
@@ -84,7 +84,7 @@ List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, Numeric
 	bool strata_bool = model_control["strata"];
 	bool basic_bool  = model_control["basic"];
 	bool null_bool   = model_control["null"];
-	bool CR_bool     = model_control["CR"];
+	bool CR_bool     = model_control["cr"];
 	bool single_bool = model_control["single"];
 	bool constraint_bool = model_control["constraint"];
     //
@@ -122,7 +122,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
     double abs_max = Control["abs_max"];
     double dose_abs_max = Control["dose_abs_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
-    int nthreads = Control["Ncores"];
+    int nthreads = Control["ncores"];
     //
     double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
@@ -155,7 +155,7 @@ List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0,Inte
     bool debugging = FALSE;
     string ties_method =Control["ties"];
     bool strata_bool = model_control["strata"];
-    int nthreads = Control["Ncores"];
+    int nthreads = Control["ncores"];
     //
 	double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
@@ -186,7 +186,7 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
     double abs_max = Control["abs_max"];
     double dose_abs_max = Control["dose_abs_max"];
     string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
+    int nthreads = Control["ncores"];
     //
 	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
 	double cens_thres = Control["cens_thres"];
@@ -195,13 +195,13 @@ List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVe
 	//
 	bool strata_bool = model_control["strata"];
 	bool basic_bool  = model_control["basic"];
-	bool CR_bool     = model_control["CR"];
+	bool CR_bool     = model_control["cr"];
 	//
-	bool Surv_bool       = model_control["Surv"];
-	bool Schoenfeld_bool = model_control["Schoenfeld"];
-	bool Risk_bool       = model_control["Risk"];
-	bool Risk_Sub_bool   = model_control["Risk_Subset"];
-	int uniq_v           = model_control["Unique_Values"];
+	bool Surv_bool       = model_control["surv"];
+	bool Schoenfeld_bool = model_control["schoenfeld"];
+	bool Risk_bool       = model_control["risk"];
+	bool Risk_Sub_bool   = model_control["risk_subset"];
+	int uniq_v           = model_control["unique_values"];
     //
     // Performs regression
     List res;
@@ -470,7 +470,7 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot){
     bool verbose = Control["verbose"];
     bool debugging = FALSE;
-    int nthreads = Control["Ncores"];
+    int nthreads = Control["ncores"];
     double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
     //
@@ -636,7 +636,7 @@ List cox_ph_cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector 
     double dose_abs_max = Control["dose_abs_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
-    int nthreads = Control["Ncores"];
+    int nthreads = Control["ncores"];
     //
 	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
 	double cens_thres = Control["cens_thres"];
@@ -649,7 +649,7 @@ List cox_ph_cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector 
 	bool strata_bool = model_control["strata"];
 	bool basic_bool  = model_control["basic"];
 	bool null_bool   = model_control["null"];
-	bool CR_bool     = model_control["CR"];
+	bool CR_bool     = model_control["cr"];
 	bool single_bool = model_control["single"];
 	bool constraint_bool = model_control["constraint"];
 	//

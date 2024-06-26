@@ -15,7 +15,7 @@ test_that("Poisson Assigned Events, no error", {
 	pyr <- 'pyr'
 	event <- "Cancer_Status"
 	names <- c('a','b','c','d')
-	Term_n <- c(0,1,1,2)
+	term_n <- c(0,1,1,2)
 	tform <- c("loglin","lin","lin","plin")
 	modelform <- "M"
 	fir <- 0
@@ -24,11 +24,11 @@ test_that("Poisson Assigned Events, no error", {
 	keep_constant <- c(0,0,0,0)
 	der_iden <- 0
 
-	control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-3,
+	control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-3,
 	   'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 	   'dose_abs_max'=100.0,'verbose'=T, 'double_step'=1)
     #
-    expect_no_error(RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+    expect_no_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 })
 test_that("Poisson Assigned Events, check results", {
     df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
@@ -44,7 +44,7 @@ test_that("Poisson Assigned Events, check results", {
     pyr <- 'pyr'
     event <- "Cancer_Status"
     names <- c('a','b','c','d')
-    Term_n <- c(0,1,1,2)
+    term_n <- c(0,1,1,2)
     tform <- c("loglin","lin","lin","plin")
     modelform <- "M"
     fir <- 0
@@ -53,11 +53,11 @@ test_that("Poisson Assigned Events, check results", {
     keep_constant <- c(0,0,0,0)
     der_iden <- 0
 
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-3,
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-3,
        'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
        'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
     #
-    e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+    e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
 
     e0 <- e$predict
     e1 <- e$caused
@@ -82,7 +82,7 @@ test_that("Poisson Assigned Events, check results strata", {
     pyr <- 'pyr'
     event <- "Cancer_Status"
     names <- c('a','b','c')
-    Term_n <- c(0,1,2)
+    term_n <- c(0,1,2)
     tform <- c("loglin","loglin","loglin")
     modelform <- "M"
     fir <- 0
@@ -91,15 +91,15 @@ test_that("Poisson Assigned Events, check results strata", {
     keep_constant <- c(0,0,0)
     der_iden <- 0
 
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-3,
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-3,
        'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
        'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
     #
-    Term_n <- c(0,1,2)
+    term_n <- c(0,1,2)
     for (i in 1:10){
         a_n <- 2*runif(3)-1
         model_control <- list("strata"=FALSE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -107,7 +107,7 @@ test_that("Poisson Assigned Events, check results strata", {
         expect_equal(sum(e0[,1:2]),sum(e0[,3]),tolerance=1)
         expect_equal(sum(e1[,1:2]),sum(e1[,3]),tolerance=1)
         model_control <- list("strata"=TRUE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -115,11 +115,11 @@ test_that("Poisson Assigned Events, check results strata", {
         expect_equal(sum(e0[,1:2]),sum(e0[,3]),tolerance=1)
         expect_equal(sum(e1[,1:2]),sum(e1[,3]),tolerance=1)
     }
-    Term_n <- c(0,2,1)
+    term_n <- c(0,2,1)
     for (i in 1:10){
         a_n <- 2*runif(3)-1
         model_control <- list("strata"=FALSE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -127,7 +127,7 @@ test_that("Poisson Assigned Events, check results strata", {
         expect_equal(sum(e0[,1:2]),sum(e0[,3]),tolerance=1)
         expect_equal(sum(e1[,1:2]),sum(e1[,3]),tolerance=1)
         model_control <- list("strata"=TRUE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -135,11 +135,11 @@ test_that("Poisson Assigned Events, check results strata", {
         expect_equal(sum(e0[,1:2]),sum(e0[,3]),tolerance=1)
         expect_equal(sum(e1[,1:2]),sum(e1[,3]),tolerance=1)
     }
-    Term_n <- c(1,0,2)
+    term_n <- c(1,0,2)
     for (i in 1:10){
         a_n <- 2*runif(3)-1
         model_control <- list("strata"=FALSE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -147,7 +147,7 @@ test_that("Poisson Assigned Events, check results strata", {
         expect_equal(sum(e0[,1:2]),sum(e0[,3]),tolerance=1)
         expect_equal(sum(e1[,1:2]),sum(e1[,3]),tolerance=1)
         model_control <- list("strata"=TRUE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -155,11 +155,11 @@ test_that("Poisson Assigned Events, check results strata", {
         expect_equal(sum(e0[,1:2]),sum(e0[,3]),tolerance=1)
         expect_equal(sum(e1[,1:2]),sum(e1[,3]),tolerance=1)
     }
-    Term_n <- c(2,0,1)
+    term_n <- c(2,0,1)
     for (i in 1:10){
         a_n <- 2*runif(3)-1
         model_control <- list("strata"=FALSE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -167,7 +167,7 @@ test_that("Poisson Assigned Events, check results strata", {
         expect_equal(sum(e0[,1:2]),sum(e0[,3]),tolerance=1)
         expect_equal(sum(e1[,1:2]),sum(e1[,3]),tolerance=1)
         model_control <- list("strata"=TRUE)
-        e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
+        e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "d", model_control)
 
         e0 <- e$predict
         e1 <- e$caused
@@ -193,7 +193,7 @@ test_that("Poisson Assigned Events, combinations", {
 	pyr <- 'pyr'
 	event <- "Cancer_Status"
 	names <- c('a','b','c','d')
-	Term_n <- c(0,1,1,2)
+	term_n <- c(0,1,1,2)
 	tform <- c("loglin","lin","lin","plin")
 	modelform <- "M"
 	fir <- 0
@@ -202,20 +202,20 @@ test_that("Poisson Assigned Events, combinations", {
 	keep_constant <- c(0,0,0,0)
 	der_iden <- 0
 
-	control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,
+	control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,
 	   'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
 	   'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 	   'verbose'=T, 'ties'='breslow','double_step'=1)
     model_control <- list("strata"=TRUE)
-    expect_error(RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control))
+    expect_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control))
 	keep_constant <- c(1,1,1,1)
-	expect_error(RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+	expect_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 	names <- c('a','b','CONST','d')
 	keep_constant <- c(0,0,0,0)
-	expect_no_error(RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+	expect_no_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 	
 	df$Cancer_Status <- rep(0,nrow(df))
-	expect_error(RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+	expect_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 })
 
 test_that("Poisson Assigned Events bounds, check results", {
@@ -232,7 +232,7 @@ test_that("Poisson Assigned Events bounds, check results", {
     pyr <- 'pyr'
     event <- "Cancer_Status"
     names <- c('a','b','c','d')
-    Term_n <- c(0,1,1,2)
+    term_n <- c(0,1,1,2)
     tform <- c("loglin","lin","lin","plin")
     modelform <- "M"
     fir <- 0
@@ -241,12 +241,12 @@ test_that("Poisson Assigned Events bounds, check results", {
     keep_constant <- c(0,0,0,0)
     der_iden <- 0
 
-    control <- list("Ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-3,
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-3,
        'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
        'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
     #
 
-    e0 <- RunPoissonRegression_Omnibus(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+    e0 <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
 
     e <- RunPoissonEventAssignment_bound(df, pyr, event, e0, keep_constant, modelform, fir, der_iden, 4, 2, control)
 
