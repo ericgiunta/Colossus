@@ -456,11 +456,13 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
             Rcout << " " << endl;
         }
         //Initial step, calculate dom/dbet and h
-        VectorXd dOmdBeta = Lldd_mat.col(para_number);
+        MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
         removeRow(D0, para_number);
         removeColumn(D0, para_number);
+        removeRow(dOmdBeta, para_number);
         D0 = D0.inverse().matrix();
-        dOmdBeta = -1 * dOmdBeta * D0;
+//        Rcout << dOmdBeta.rows() << ", " << dOmdBeta.cols() << ", " << D0.rows() << ", " << D0.cols() << endl;
+        dOmdBeta = -1 * D0 * dOmdBeta;
         //
         MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
         removeColumn(dLdBdO, para_number);

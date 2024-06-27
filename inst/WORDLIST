@@ -39,6 +39,7 @@ deriv
 df
 dlimits
 efron
+frac
 func
 gcc
 ggplot
@@ -62,3 +63,4 @@ subterm
 subterms
 tform
 trunc
+vec

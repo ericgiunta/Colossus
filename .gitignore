@@ -10,3 +10,4 @@ src/*.so
 /doc/
 /Meta/
 src/Colossus.dll
+*.Rhistory

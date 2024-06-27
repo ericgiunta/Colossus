@@ -44,7 +44,7 @@ This gives a symmetric parameter confidence interval which is often accurate for
 
 ### Likelihood-Based Bound
 
-The more exact solution is to directly solve for the boundary. The basic premise is that the model can be optimized with a parameter ($\beta$) fixed. Each value of $\beta$ has a corresponding maximum log-likelihood. The confidence interval is the range of values of $\beta$ such that the maximum log-likelihood is above a threshold, taken from the asymptotic $\chi^2$ distribution of the generalised likelihood ratio test. Colossus uses the Venzon-Moolgavkar algorithm to iteratively solve for the interval endpoints.
+The more exact solution is to directly solve for the boundary. The basic premise is that the model can be optimized with a parameter ($\beta$) fixed. Each value of $\beta$ has a corresponding maximum log-likelihood. The confidence interval is the range of values of $\beta$ such that the maximum log-likelihood is above a threshold, taken from the asymptotic $\chi^2$ distribution of the generalized likelihood ratio test. Colossus uses the Venzon-Moolgavkar algorithm to iteratively solve for the interval endpoints.
 
 There is one main issues that can arise from this method. The algorithm uses a Newton-Raphson algorithm, which may solve for local solutions instead of the global solution. Similar to the general Colossus regressions, limitations can be placed on step size to limit these effects. However, there is no analogue to selecting multiple starting locations. This is the basis for ongoing work to code in an alternative that can more directly solve for the true optimum.
 

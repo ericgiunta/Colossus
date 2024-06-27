@@ -159,7 +159,24 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		if (R.minCoeff()<=0){
-		    ;
+		    if (verbose){
+		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+//                Rcout << "C++ Note: risk checked ";
+//			    for (int ijk=0;ijk<1;ijk++){
+//				    Rcout << R.col(0).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk1 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rd.col(ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk2 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+	        }
 		} else if (verbose){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
@@ -231,7 +248,24 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		if (R.minCoeff()<=0){
-		    ;
+		    if (verbose){
+		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+//                Rcout << "C++ Note: risk checked ";
+//			    for (int ijk=0;ijk<1;ijk++){
+//				    Rcout << R.col(0).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk1 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rd.col(ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk2 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+	        }
 		} else if (verbose){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
@@ -307,7 +341,24 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		if (R.minCoeff()<=0){
-		    ;
+		    if (verbose){
+		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+//                Rcout << "C++ Note: risk checked ";
+//			    for (int ijk=0;ijk<1;ijk++){
+//				    Rcout << R.col(0).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk1 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rd.col(ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk2 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+	        }
 		} else if (verbose){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
@@ -570,7 +621,24 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		//
 		//
 		if (R.minCoeff()<=0){
-		    ;
+		    if (verbose){
+		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+//                Rcout << "C++ Note: risk checked ";
+//			    for (int ijk=0;ijk<1;ijk++){
+//				    Rcout << R.col(0).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk1 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rd.col(ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk2 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+	        }
 		} else if (verbose){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
@@ -649,7 +717,24 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		//
 		//
 		if (R.minCoeff()<=0){
-		    ;
+		    if (verbose){
+		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+//                Rcout << "C++ Note: risk checked ";
+//			    for (int ijk=0;ijk<1;ijk++){
+//				    Rcout << R.col(0).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk1 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rd.col(ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+//			    Rcout << "C++ Note: risk2 checked ";
+//			    for (int ijk=0;ijk<reqrdnum;ijk++){
+//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+//			    }
+//			    Rcout << " " << endl;
+	        }
 		} else if (verbose){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
