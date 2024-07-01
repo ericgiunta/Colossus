@@ -650,7 +650,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #setting maxiter below 0 forces the function to calculate the score
 #' # and return
-#' plot_options=list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID",
+#' plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID",
 #'                   'verbose'=FALSE)
 #' 
 #' RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant,
@@ -958,7 +958,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 #'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' guesses_control=list("iterations"=10,"guesses"=10,"lin_min"=0.001,
+#' guesses_control <- list("iterations"=10,"guesses"=10,"lin_min"=0.001,
 #'    "lin_max"=1,"loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform",
 #'    "loglin_method"="uniform",strata=TRUE,term_initial = c(0,1))
 #' strat_col <- 'e'
@@ -1145,7 +1145,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, term_n, tform, 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
 #'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-#' guesses_control=list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
+#' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=FALSE)
 #' strat_col <- 'e'
 #' 

@@ -1,6 +1,6 @@
 test_that("Coxph strata_basic_single_CR log_bound", {
     fname <- 'll_comp_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
@@ -17,7 +17,7 @@ test_that("Coxph strata_basic_single_CR log_bound", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyid"="studyid","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
@@ -31,7 +31,7 @@ test_that("Coxph strata_basic_single_CR log_bound", {
     a_n <- c(-0.1,-0.1)
     keep_constant <- c(0,0)
 
-    control=list("ncores"=2,'lr' = 0.75,'maxiters' = c(-1,-1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(-1,-1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
     verbose <- FALSE
 
@@ -40,13 +40,13 @@ test_that("Coxph strata_basic_single_CR log_bound", {
             for (k in c(TRUE, FALSE)){
                 for (l in c(TRUE, FALSE)){
                     for (m in c(TRUE, FALSE)){
-                        model_control=list('strata'=i, 'basic'=j, 'single'=k, 'cr'=l, 'log_bound'=TRUE, 'manual'=m)
+                        model_control <- list('strata'=i, 'basic'=j, 'single'=k, 'cr'=l, 'log_bound'=TRUE, 'manual'=m)
                         if (verbose){print(model_control)}
                         a_n <- c(-0.1,-0.1)
-                        control=list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+                        control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
                         expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight=cens_weight))
                         a_n <- c(-0.1,-0.1)
-                        control=list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='efron','double_step'=0)
+                        control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='efron','double_step'=0)
                         expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight=cens_weight))
                         if (verbose){print("---------------")}
                     }
@@ -73,16 +73,16 @@ test_that("Coxph EPICURE validated answers, loglin", {
     #
 
     a_n <- c(-0.6067, 5.019)
-    model_control=list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=0.1)
-    control=list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    model_control <- list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=0.1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
     v_lower <- c(-0.6305960, -0.6572672, -0.6817293, -0.6929630, -0.7300938, -0.7537744, -0.7749381, -0.8001031, -0.8175117)
     v_upper <- c(-0.5828725, -0.5562505, -0.5318645, -0.5206756, -0.4837373, -0.4602148, -0.4392159, -0.4142752, -0.3970399)
 
     alphas <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-    for (alpha_i in 1:length(alphas)){
+    for (alpha_i in seq_along(alphas)){
         a_n <- c(-0.6067, 5.019)
-        model_control=list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=0)
+        model_control <- list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=0)
         e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
         a <- e$Parameter_Limits
         expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
@@ -91,9 +91,9 @@ test_that("Coxph EPICURE validated answers, loglin", {
 
     v_lower <- c(4.981497, 4.939337, 4.900838, 4.883211, 4.825191, 4.788380, 4.755608, 4.716794, 4.690041)
     v_upper <- c(5.057414, 5.100032, 5.139239, 5.157283, 5.217094, 5.255376, 5.289680, 5.330581, 5.358945)
-    for (alpha_i in 1:length(alphas)){
+    for (alpha_i in seq_along(alphas)){
         a_n <- c(-0.6067, 5.019)
-        model_control=list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=1)
+        model_control <- list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=1)
         e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
         a <- e$Parameter_Limits
         expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
@@ -119,16 +119,16 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
     #
 
     a_n <- c(-0.6067, 5.019)
-    model_control=list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=0.1)
-    control=list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    model_control <- list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=0.1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 
     v_lower <- c(-0.6305960, -0.6572672, -0.6817293, -0.6929630, -0.7300938, -0.7537744, -0.7749381, -0.8001031, -0.8175117)
     v_upper <- c(-0.5828725, -0.5562505, -0.5318645, -0.5206756, -0.4837373, -0.4602148, -0.4392159, -0.4142752, -0.3970399)
 
     alphas <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-    for (alpha_i in 1:length(alphas)){
+    for (alpha_i in seq_along(alphas)){
         a_n <- c(-0.6067, 5.019)
-        model_control=list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=0, 'manual'=TRUE)
+        model_control <- list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=0, 'manual'=TRUE)
         e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
         a <- e$Parameter_Limits
         expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
@@ -137,9 +137,9 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
 
     v_lower <- c(4.981497, 4.939337, 4.900838, 4.883211, 4.825191, 4.788380, 4.755608, 4.716794, 4.690041)
     v_upper <- c(5.057414, 5.100032, 5.139239, 5.157283, 5.217094, 5.255376, 5.289680, 5.330581, 5.358945)
-    for (alpha_i in 1:length(alphas)){
+    for (alpha_i in seq_along(alphas)){
         a_n <- c(-0.6067, 5.019)
-        model_control=list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=1, 'manual'=TRUE)
+        model_control <- list( 'basic'=TRUE, 'log_bound'=TRUE, 'alpha'=alphas[alpha_i], 'para_number'=1, 'manual'=TRUE)
         e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
         a <- e$Parameter_Limits
         expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
@@ -147,39 +147,46 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
     }
 })
 
-#test_that("Coxph EPICURE validated answers, lin both", {
-#    fname <- 'base_example.csv'
-#    df <- fread(fname)
-#
-#    time1 <- "entry"
-#    time2 <- "exit"
-#    event <- "event"
-#    names <- c("dose0","dose1","dose0")
-#    term_n <- c(0,0,1)
-#    tform <- c("loglin","loglin","lin")
-#    keep_constant <- c(0,0,0)
-#    #a_n <- c(0.2462, 5.020, -0.5909)
-#    a_n <- c(0.2462, 5.020,-0.7)
-#    modelform <- "M"
-#    fir <- 0
-#    der_iden <- 0
-#    #
-#    model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=FALSE, 'alpha'=0.1)
-#    control=list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1, 'guesses'=10)
-#
-#    alpha_list <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-#    #v_lower <- c(0.10224367838276, -0.0366388051905475, -0.219114008730643, -0.344171753035397, -1.95449016956737, -2.02344865739314, -2.08312767847433, -2.1518391834648, -2.19804353276631)
-#    #v_upper <- c(0.369809870835033, 0.458228372102368, 1.07214890234804, 0.575303932702712, 0.688777681184681, 0.756984966300005, 0.81554103308482, 0.882549146565759, 0.927406355126396)
-#    #for (alpha_i in 1:length(alpha_list)){
-#    #    alpha <- alpha_list[alpha_i]
-#    #    a_n <- c(0.2462, 5.020,-0.599)
-#    #    model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=0, 'manual'=FALSE)
-#    #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
-#    #    a <- e$Parameter_Limits
-#    #    expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
-#    #    expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
-#    #}
-#
+test_that("Coxph EPICURE validated answers, lin both", {
+   fname <- 'base_example.csv'
+   df <- fread(fname)
+
+   time1 <- "entry"
+   time2 <- "exit"
+   event <- "event"
+   names <- c("dose0","dose1","dose0")
+   term_n <- c(0,0,1)
+   tform <- c("loglin","loglin","lin")
+   keep_constant <- c(0,0,0)
+   #a_n <- c(0.2462, 5.020, -0.5909)
+   a_n <- c(0.2462, 5.020,-0.7)
+   modelform <- "M"
+   fir <- 0
+   der_iden <- 0
+   #
+   model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=FALSE, 'alpha'=0.1)
+   control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(10,10),'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1, 'guesses'=10)
+
+   alpha <- 0.005
+   a_n <- c(0.2462, 5.020,-0.599)
+   model_control <- list( 'basic'=FALSE, 'maxstep'=5, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=1, 'manual'=FALSE)
+   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control))
+   a_n <- c(0.2462, 5.020,-0.599)
+   model_control <- list( 'basic'=FALSE, 'maxstep'=5, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=1, 'manual'=TRUE)
+   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control))
+   alpha_list <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
+   #v_lower <- c(0.10224367838276, -0.0366388051905475, -0.219114008730643, -0.344171753035397, -1.95449016956737, -2.02344865739314, -2.08312767847433, -2.1518391834648, -2.19804353276631)
+   #v_upper <- c(0.369809870835033, 0.458228372102368, 1.07214890234804, 0.575303932702712, 0.688777681184681, 0.756984966300005, 0.81554103308482, 0.882549146565759, 0.927406355126396)
+   #for (alpha_i in 1:length(alpha_list)){
+   #    alpha <- alpha_list[alpha_i]
+   #    a_n <- c(0.2462, 5.020,-0.599)
+   #    model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=0, 'manual'=FALSE)
+   #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
+   #    a <- e$Parameter_Limits
+   #    expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
+   #    expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
+   #}
+
 #    v_lower <- c(4.97252283680023, 4.93499451084736, 4.8980471564778, 4.88084912217379, 4.89656496320952, 4.8436813543801, 4.802128281116, 4.75611040136942, 4.72560413563056)
 #    v_upper <- c(5.06762896556864, 5.10561529673742, 5.14327069553938, 5.16088604907152, 5.21982880779017, 5.25778604710117, 5.29187760189931, 5.33258757876175, 5.36084782860162)
 #    for (alpha_i in 1:length(alpha_list)){
@@ -203,7 +210,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
 #        expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
 #        expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
 #    }
-#    control=list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1, 'guesses'=10)
+#    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1, 'guesses'=10)
 #    #v_lower <- c(0.102243677961472, -0.0366388051711791, -0.219114008554502, -0.344171754216377, -1.95449016972488, -2.02344865755178, -2.08312767824572, -2.15183918342603, -2.19804353277016)
 #    #v_upper <- c(0.36980987063755, 0.458228372469313, .539265192368337, 0.575303932769727, 1.07110681914306, 0.756984966349814, 0.815541033177481, 0.88254914662706, .927406355056622)
 #    #for (alpha_i in 1:length(alpha_list)){
@@ -242,4 +249,4 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
 #        expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
 #        expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
 #    }
-#})
+})

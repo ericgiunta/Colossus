@@ -89,7 +89,7 @@ control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #setting maxiter below 0 forces the function to calculate the score
 # and return
-plot_options=list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID",
+plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID",
                   'verbose'=FALSE)
 
 RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant,

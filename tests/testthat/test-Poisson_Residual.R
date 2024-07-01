@@ -17,6 +17,6 @@ test_that("Poisson residual no error", {
     fir <- 0
     der_iden <- 0
     control <- list("ncores"=2,'lr' = 0.95,'maxiter' = -1,'halfmax' = 1,'epsilon' = 1e-9,'dbeta_max' = 1.0,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=1.0,'verbose'=TRUE, 'double_step'=1)
-    model_control=list('pearson'=F, 'deviance'=F)
+    model_control <- list('pearson'=F, 'deviance'=F)
     expect_no_error(RunPoissonRegression_Residual(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col='rand',model_control))
 })

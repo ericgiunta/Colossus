@@ -75,7 +75,7 @@ a_n_default <- a_n
 modelform <- "M"
 fir <- 0
 der_iden <- 0
-control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
+control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
             'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
             'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 guesses_control <- list()

@@ -2238,10 +2238,16 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
     }
     upper = true;
-    for (int step=0;step<maxstep;step++){
+    int step = 0;
+    bool iter_continue = true;
+    double max_change = 100;
+    double deriv_max = 100;
+    while ((step<maxstep)&&(iter_continue)){
+        step++;
+        //
         trouble = false;
         half_check = 0;
-        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
         if (trouble){
             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
         }
@@ -2271,6 +2277,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         }
         //
 //        Rcout << "Change: ";
+        max_change = abs(dbeta[0]);
         for (int ij=0;ij<totalnum;ij++){
             if (ij==para_number){
                 // we want to prevent two issues
@@ -2285,6 +2292,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
                     // for upper limit, the step is always positive
                     dbeta[ij] = abs(dbeta[ij]);
                 }
+            }
+            if (abs(dbeta[ij])>max_change){
+                max_change = abs(dbeta[ij]);
             }
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
@@ -2371,6 +2381,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[1] = beta_0[para_number];
         ll_final[1] = Ll[0];
+        if (max_change < epsilon){
+            iter_continue = false;
+        } else if (deriv_max < deriv_epsilon){
+            iter_continue = false;
+        }
     }
     //
     //
@@ -2418,10 +2433,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
     dose_abs_max = dose_abs_max0;
     //
     upper = false;
-    for (int step=0;step<maxstep;step++){
+    step = 0;
+    iter_continue = true;
+    while ((step<maxstep)&&(iter_continue)){
+        step++;
         trouble = false;
         half_check = 0;
-        Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
         if (trouble){
             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
         }
@@ -2450,6 +2468,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
             }
         }
         //
+        max_change = abs(dbeta[0]);
 //        Rcout << "Change: ";
         for (int ij=0;ij<totalnum;ij++){
 //            Rcout << dbeta[ij] << " ";
@@ -2466,6 +2485,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
                     // for lower limit, the step is always positive
                     dbeta[ij] = -1*abs(dbeta[ij]);
                 }
+            }
+            if (abs(dbeta[ij])>max_change){
+                max_change = abs(dbeta[ij]);
             }
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
@@ -2548,6 +2570,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[0] = beta_0[para_number];
         ll_final[0] = Ll[0];
+        if (max_change < epsilon){
+            iter_continue = false;
+        } else if (deriv_max < deriv_epsilon){
+            iter_continue = false;
+        }
     }
     //
     res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit), _["Likelihood_Boundary"]=wrap(ll_final), _["Likelihood_Goal"]=wrap(Lstar));
@@ -2808,6 +2835,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     bool upper = true;
     int half_check = 0;
     bool trouble = false;
+    double deriv_max = 100;
     //
     // int guesses = 5;
     int mult = 1.5;
@@ -2834,7 +2862,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     upper = true;
     // Now define the list of points to check
     trouble = false;
-    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
     NumericMatrix a_ns(guesses, totalnum);
     // now the dbeta holds the range to check
     // note that currently the guesses are not bounded
@@ -3179,9 +3207,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
     Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
     Lld_vec = as<Map<VectorXd> >(Lld_vecc);
-    for (int step=1;step<maxstep;step++){
+    int step = 1;
+    bool iter_continue = true;
+    double max_change = 100;
+    while ((step<maxstep)&&(iter_continue)){
+        step++;
          trouble = false;
-         Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
          if (trouble){
              Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
          }
@@ -3209,6 +3241,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
                  dbeta[ijk]=0;
              }
          }
+         max_change = abs(dbeta[0]);
          //
  //        Rcout << "Change: ";
          for (int ij=0;ij<totalnum;ij++){
@@ -3226,6 +3259,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
                     // for upper limit, the step is always positive
                     dbeta[ij] = abs(dbeta[ij]);
                 }
+            }
+            if (abs(dbeta[ij])>max_change){
+                max_change = abs(dbeta[ij]);
             }
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
@@ -3308,6 +3344,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
          Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
          limits[1] = beta_0[para_number];
          ll_final[1] = Ll[0];
+         if (max_change < epsilon){
+            iter_continue = false;
+        } else if (deriv_max < deriv_epsilon){
+            iter_continue = false;
+        }
      }
     // Now refresh matrices back to the maximum point
     //
@@ -3357,7 +3398,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     Lld_vec = as<Map<VectorXd> >(Lld_vecc);
     //
     trouble = false;
-    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
     // now the dbeta holds the range to check
     // note that currently the guesses are not bounded
     for (int i=0;i<guesses;i++){
@@ -3693,9 +3734,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
     Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
     Lld_vec = as<Map<VectorXd> >(Lld_vecc);
-    for (int step=1;step<maxstep;step++){
+    step = 1;
+    iter_continue = true;
+    max_change = 100;
+    while ((step<maxstep)&&(iter_continue)){
+         step++;
          trouble = false;
-         Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
          if (trouble){
              Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
          }
@@ -3724,6 +3769,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
              }
          }
          //
+         max_change = abs(dbeta[0]);
+
  //        Rcout << "Change: ";
          for (int ij=0;ij<totalnum;ij++){
 //            Rcout << dbeta[ij] << " ";
@@ -3740,6 +3787,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
                     // for lower limit, the step is always positive
                     dbeta[ij] = -1*abs(dbeta[ij]);
                 }
+            }
+            if (abs(dbeta[ij])>max_change){
+                max_change = abs(dbeta[ij]);
             }
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
@@ -3822,6 +3872,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
          Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
          limits[0] = beta_0[para_number];
          ll_final[0] = Ll[0];
+         if (max_change < epsilon){
+            iter_continue = false;
+        } else if (deriv_max < deriv_epsilon){
+            iter_continue = false;
+        }
      }
     //
     res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit), _["Likelihood_Boundary"]=wrap(ll_final), _["Likelihood_Goal"]=wrap(Lstar));

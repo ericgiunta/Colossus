@@ -158,19 +158,19 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
                 stop()
 	        }
 	    } else {
-	        control$guesses = length(control$maxiters)-1
+	        control$guesses <- length(control$maxiters)-1
 	    }
 	} else {
 	    if ("guesses" %in% names(control)){
 	    	if (control$guesses == length(a_n)){
 	    		#both match, all good
     		} else {
-    			control$guesses = length(a_n)
+    			control$guesses <- length(a_n)
     		}
-            control$maxiters = rep(1,control$guesses+1)
+            control$maxiters <- rep(1,control$guesses+1)
         } else {
-            control$guesses = length(a_n)
-            control$maxiters = c(rep(1,length(a_n)),control$maxiter)
+            control$guesses <- length(a_n)
+            control$maxiters <- c(rep(1,length(a_n)),control$maxiter)
         }
     }
     #

@@ -597,18 +597,12 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
     ce <- t_check$ce
     time1 <- ce[1]
     time2 <- ce[2]
-    #
-    #
-    #
     control$maxiter <- -1
-    #
     #
     e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant,
                                   a_n, modelform, fir, 0, control,strat_col=strat_col,
                                   model_control=model_control)
     control$maxiter <- maxiterc
-    #
-    #
     model_control$surv <- TRUE
     e <- Plot_Omnibus_transition(term_n, tform, a_n, dfc, x_all, fir, 0, modelform, control,
                                  as.matrix(df[,ce, with = FALSE]), tu, keep_constant, term_tot,

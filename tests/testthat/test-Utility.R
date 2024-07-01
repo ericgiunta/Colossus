@@ -10,15 +10,15 @@ test_that("System version", {
 ## ------------------------------------- ##
 
 test_that("Default control no error", {
-    control_def=list()
+    control_def<- list()
     expect_no_error(Def_Control(control_def))
 })
 test_that("Default control error", {
-    control_def=list("ncores"=detectCores()+100,"verbose"=T)
+    control_def<- list("ncores"=detectCores()+100,"verbose"=T)
     expect_error(Def_Control(control_def))
 })
 test_that("Default control no error", {
-    control_def=list("temp"=FALSE)
+    control_def <- list("temp"=FALSE)
     a_n <- c(1,2,3)
     expect_no_error(Def_Control_Guess(control_def,a_n))
 })
@@ -246,15 +246,15 @@ test_that("Iteract formula operation error", {
 ## Modelform Fixes
 #######################################
 
-test_that("Check no error", {
-    control <- list('verbose'=T,"ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
-    control <- Def_Control(control)
-    model_control <- list("single"=TRUE)
-    model_control <- Def_model_control(model_control)
-    term_n <- c(0,1,1)
-    modelform <- 'a'
-    expect_no_error(Def_modelform_fix(control,model_control,modelform,term_n))
-})
+# test_that("Check no error", {
+#     control <- list('verbose'=T,"ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
+#     control <- Def_Control(control)
+#     model_control <- list("single"=TRUE)
+#     model_control <- Def_model_control(model_control)
+#     term_n <- c(0,1,1)
+#     modelform <- 'a'
+#     expect_no_error(Def_modelform_fix(control,model_control,modelform,term_n))
+# })
 
 test_that("Modelform Fixes Additives", {
     control <- list('verbose'=T,"ncores"=2,'lr' = 0.75,'maxiter' = 5, 'ties'='breslow','double_step'=1)
@@ -386,9 +386,9 @@ test_that("Gen_time_dep time error", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a_bad"
-    event="c"
+    time1 <- "%trunc%"
+    time2 <- "a_bad"
+    event <- "c"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
@@ -404,9 +404,9 @@ test_that("Gen_time_dep event error", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a"
-    event="c_bad"
+    time1 <- "%trunc%"
+    time2 <- "a"
+    event <- "c_bad"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
@@ -422,9 +422,9 @@ test_that("Gen_time_dep function error", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a"
-    event="c_bad"
+    time1 <- "%trunc%"
+    time2 <- "a"
+    event <- "c_bad"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         stop()
@@ -441,9 +441,9 @@ test_that("Gen_time_dep functional form error", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a"
-    event="c"
+    time1 <- "%trunc%"
+    time2 <- "a"
+    event <- "c"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
@@ -460,9 +460,9 @@ test_that("Gen_time_dep no error lin cox", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a"
-    event="c"
+    time1 <- "%trunc%"
+    time2 <- "a"
+    event <- "c"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
@@ -478,9 +478,9 @@ test_that("Gen_time_dep no error step cox", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a"
-    event="c"
+    time1 <- "%trunc%"
+    time2 <- "a"
+    event <- "c"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
@@ -497,9 +497,9 @@ test_that("Gen_time_dep no error lin not cox", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a"
-    event="c"
+    time1 <- "%trunc%"
+    time2 <- "a"
+    event <- "c"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
@@ -515,9 +515,9 @@ test_that("Gen_time_dep no error step not cox", {
     c <- c(0,0,1,1,1)
     df <- data.table("a"=a,"b"=b,"c"=c)
     
-    time1="%trunc%"
-    time2="a"
-    event="c"
+    time1 <- "%trunc%"
+    time2 <- "a"
+    event <- "c"
     control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
@@ -575,21 +575,21 @@ test_that("linked exp no error", {
 })
 
 test_that("linked exp parameter low goal error", {
-    y=10
-    a0=1
-    a_goal=5
+    y <- 10
+    a0 <- 1
+    a_goal <- 5
     expect_error(Linked_Lin_Exp_Para(y,a0,a_goal,TRUE))
 })
 test_that("linked exp parameter negative slope error", {
-    y=10
-    a0=-0.1
-    a_goal=5
+    y <- 10
+    a0 <- -0.1
+    a_goal <- 5
     expect_error(Linked_Lin_Exp_Para(y,a0,a_goal,TRUE))
 })
 test_that("linked exp parameter no error", {
-    y=10
-    a0=0.1
-    a_goal=5
+    y <- 10
+    a0 <- 0.1
+    a_goal <- 5
     expect_no_error(Linked_Lin_Exp_Para(y,a0,a_goal,TRUE))
 })
 
@@ -638,16 +638,16 @@ test_that("Missing Value checked replaced 1", {
     expect_equal(c(sum(df0$a),sum(df0$b)),c(sum(df$a),3))
 })
 
-test_that("Check Date Shift", {
-    m0 <- c(1,1,2,2)
-    m1 <- c(2,2,3,3)
-    d0 <- c(1,2,3,4)
-    d1 <- c(6,7,8,9)
-    y0 <- c(1990,1991,1997,1998)
-    y1 <- c(2001,2003,2005,2006)
-    df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
-    expect_no_error(Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since"))
-})
+# test_that("Check Date Shift", {
+#     m0 <- c(1,1,2,2)
+#     m1 <- c(2,2,3,3)
+#     d0 <- c(1,2,3,4)
+#     d1 <- c(6,7,8,9)
+#     y0 <- c(1990,1991,1997,1998)
+#     y1 <- c(2001,2003,2005,2006)
+#     df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+#     expect_no_error(Date_Shift(df,c("m0","d0","y0"),c("m1","d1","y1"),"date_since"))
+# })
 test_that("Check Date Shift, exact value", {
     m0 <- c(1,1,2,2)
     m1 <- c(2,2,3,3)
@@ -660,17 +660,17 @@ test_that("Check Date Shift, exact value", {
     expect_equal(as.numeric(e$date_since), c(4054,4419,2955,2955))
 })
 
-test_that("Check Date Since", {
-    m0 <- c(1,1,2,2)
-    m1 <- c(2,2,3,3)
-    d0 <- c(1,2,3,4)
-    d1 <- c(6,7,8,9)
-    y0 <- c(1990,1991,1997,1998)
-    y1 <- c(2001,2003,2005,2006)
-    df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
-    tref <- strptime( "3-22-1997", format = "%m-%d-%Y",tz = 'UTC')
-    expect_no_error(Time_Since(df,c("m1","d1","y1"),tref,"date_since"))
-})
+# test_that("Check Date Since", {
+#     m0 <- c(1,1,2,2)
+#     m1 <- c(2,2,3,3)
+#     d0 <- c(1,2,3,4)
+#     d1 <- c(6,7,8,9)
+#     y0 <- c(1990,1991,1997,1998)
+#     y1 <- c(2001,2003,2005,2006)
+#     df <- data.table("m0"=m0,"m1"=m1,"d0"=d0,"d1"=d1,"y0"=y0,"y1"=y1)
+#     tref <- strptime( "3-22-1997", format = "%m-%d-%Y",tz = 'UTC')
+#     expect_no_error(Time_Since(df,c("m1","d1","y1"),tref,"date_since"))
+# })
 test_that("Check Date Since", {
     m0 <- c(1,1,2,2)
     m1 <- c(2,2,3,3)
@@ -1145,7 +1145,7 @@ test_that("Gather Guesses no error", {
     der_iden <- val$der_iden
     names <- val$names
     
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -1192,7 +1192,7 @@ test_that("Gather Guesses error, many a_n", {
     der_iden <- val$der_iden
     names <- val$names
     
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     a_n <- c(-0.1,6,-0.1,0.1,1,1,1)
@@ -1238,7 +1238,7 @@ test_that("Gather Guesses error, few term numbers", {
     der_iden <- val$der_iden
     names <- val$names
     
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -1283,7 +1283,7 @@ test_that("Gather Guesses error, many term numbers", {
     der_iden <- val$der_iden
     names <- val$names
     
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     term_n <- c(0,0,0,0,0,0,0,0)
@@ -1328,7 +1328,7 @@ test_that("Gather Guesses error, few term formula", {
     der_iden <- val$der_iden
     names <- val$names
     
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -1373,7 +1373,7 @@ test_that("Gather Guesses error, many term formula", {
     der_iden <- val$der_iden
     names <- val$names
     
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     tform <- c("loglin",'lin_exp_int','lin_exp_slope','lin_exp_exp_slope','lin')

@@ -742,8 +742,8 @@ Calc_Change_Basic <- function(double_step, nthreads, totalnum, der_iden, dbeta_c
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Log_Bound <- function(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose) {
-    invisible(.Call(`_Colossus_Log_Bound`, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose))
+Log_Bound <- function(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose) {
+    invisible(.Call(`_Colossus_Log_Bound`, deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose))
 }
 
 #' Utility function to calculate the change to make each iteration

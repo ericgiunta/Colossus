@@ -1,6 +1,6 @@
 test_that("Coxph loglin_M Basic", {
     fname <- 'll_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -13,14 +13,14 @@ test_that("Coxph loglin_M Basic", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant, a_n, der_iden, control)
     expect_equal(e$beta_0,c(-0.09962, -0.05698),tolerance=1e-2)
 })
 
 test_that("Coxph censoring weight", {
     fname <- 'll_comp_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -34,7 +34,7 @@ test_that("Coxph censoring weight", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=TRUE,"studyid"="studyid","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
@@ -43,7 +43,7 @@ test_that("Coxph censoring weight", {
     surv_ref <- dft$surv
     t_c <- df$t1
     cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
-    message(sum(cens_weight))
+    # message(sum(cens_weight))
     #
     event <- "lung"
     a_n <- c(-0.1,-0.1)

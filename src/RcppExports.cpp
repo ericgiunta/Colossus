@@ -1572,10 +1572,11 @@ BEGIN_RCPP
 END_RCPP
 }
 // Log_Bound
-void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose);
-RcppExport SEXP _Colossus_Log_Bound(SEXP Lldd_matSEXP, SEXP Lld_vecSEXP, SEXP LstarSEXP, SEXP qchiSEXP, SEXP L0SEXP, SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP reqrdnumSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP stepSEXP, SEXP dbetaSEXP, SEXP beta_0SEXP, SEXP upperSEXP, SEXP troubleSEXP, SEXP verboseSEXP) {
+void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose);
+RcppExport SEXP _Colossus_Log_Bound(SEXP deriv_maxSEXP, SEXP Lldd_matSEXP, SEXP Lld_vecSEXP, SEXP LstarSEXP, SEXP qchiSEXP, SEXP L0SEXP, SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP reqrdnumSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP stepSEXP, SEXP dbetaSEXP, SEXP beta_0SEXP, SEXP upperSEXP, SEXP troubleSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double& >::type deriv_max(deriv_maxSEXP);
     Rcpp::traits::input_parameter< const MatrixXd& >::type Lldd_mat(Lldd_matSEXP);
     Rcpp::traits::input_parameter< const VectorXd& >::type Lld_vec(Lld_vecSEXP);
     Rcpp::traits::input_parameter< const double& >::type Lstar(LstarSEXP);
@@ -1593,7 +1594,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type upper(upperSEXP);
     Rcpp::traits::input_parameter< bool& >::type trouble(troubleSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    Log_Bound(Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
     return R_NilValue;
 END_RCPP
 }
@@ -1902,7 +1903,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_Change_Cons", (DL_FUNC) &_Colossus_Calc_Change_Cons, 19},
     {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 18},
     {"_Colossus_Calc_Change_Basic", (DL_FUNC) &_Colossus_Calc_Change_Basic, 14},
-    {"_Colossus_Log_Bound", (DL_FUNC) &_Colossus_Log_Bound, 17},
+    {"_Colossus_Log_Bound", (DL_FUNC) &_Colossus_Log_Bound, 18},
     {"_Colossus_Calc_Change_trouble", (DL_FUNC) &_Colossus_Calc_Change_trouble, 16},
     {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
     {"_Colossus_Make_subterms_Single", (DL_FUNC) &_Colossus_Make_subterms_Single, 17},

@@ -1,6 +1,6 @@
 test_that("Coxph loglin_M Strata", {
     fname <- 'll_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -13,13 +13,13 @@ test_that("Coxph loglin_M Strata", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,"fac")
     expect_equal(e$beta_0,c(-0.106),tolerance=1e-2)
 })
 test_that("Coxph loglin_M Single", {
     fname <- 'll_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -32,13 +32,13 @@ test_that("Coxph loglin_M Single", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression_Single(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control)
     expect_equal(e$AIC,1056.299,tolerance=1e-2)
 })
 test_that("Coxph loglin_M Null", {
     fname <- 'll_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -51,14 +51,14 @@ test_that("Coxph loglin_M Null", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxNull(df, time1, time2, event, control)
     expect_equal(e$AIC,1052,tolerance=1e-2)
 })
 
 test_that("Coxph loglin_M CENSOR", {
     fname <- 'll_cens_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -71,13 +71,13 @@ test_that("Coxph loglin_M CENSOR", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     expect_equal(e$beta_0,c(-1.19,0.08),tolerance=1e-2)
 })
 test_that("Coxph loglin_M CENSOR Adjusted", {
     fname <- 'll_cens_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -90,7 +90,7 @@ test_that("Coxph loglin_M CENSOR Adjusted", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyid"="studyid","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
@@ -99,7 +99,7 @@ test_that("Coxph loglin_M CENSOR Adjusted", {
 })
 test_that("Coxph loglin_M CENSOR Default", {
     fname <- 'll_cens_0.csv'
-    colTypes=c("double","double","double","integer","integer")
+    colTypes <- c("double","double","double","integer","integer")
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -112,7 +112,7 @@ test_that("Coxph loglin_M CENSOR Default", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
     plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=FALSE,"studyid"="studyid","age_unit"="years")
     dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #

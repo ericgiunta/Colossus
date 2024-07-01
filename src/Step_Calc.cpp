@@ -442,10 +442,11 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose){
+void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose){
     // starts with solved likelihoods and derivatives
     // store the second derivative as D0
     MatrixXd D0 = Lldd_mat;
+    deriv_max = 100;
     if (step==0){
         if (verbose){
             Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
@@ -518,6 +519,12 @@ void Log_Bound(const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& 
             }
             Rcout << " " << endl;
             Rcout << "C++ Note: Second Derivative Determinant: " << G.determinant() << endl;
+        }
+        deriv_max = abs(v[0]);
+        for (int ij=0;ij<reqrdnum;ij++){
+            if (abs(v[ij])>deriv_max){
+                deriv_max = abs(v[ij]);
+            }
         }
         //
         if (abs(G.determinant()) < 1e-6){

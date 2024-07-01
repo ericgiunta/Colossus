@@ -28,7 +28,7 @@
 #' modelform <- "M"
 #' fir <- 0
 #' der_iden <- 0
-#' control=list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
 #'             'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
 #'             'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list()
@@ -222,7 +222,7 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
     if ("para_number" %in% names(model_control)){
         #pass
     } else {
-        model_control["para_number"] = 0
+        model_control["para_number"] <- 0
     }
     if (der_iden %in% (seq_len(length(tform))-1)){
         #pass
