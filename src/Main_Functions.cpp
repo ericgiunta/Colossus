@@ -2381,11 +2381,15 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[1] = beta_0[para_number];
         ll_final[1] = Ll[0];
-        if (max_change < epsilon){
-            iter_continue = false;
-        } else if (deriv_max < deriv_epsilon){
+        // if (max_change < epsilon){
+        //     iter_continue = false;
+        // } else if (deriv_max < deriv_epsilon){
+        //     iter_continue = false;
+        // }
+        if ((max_change < epsilon)&&(deriv_max < deriv_epsilon)){
             iter_continue = false;
         }
+        // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
     }
     //
     //
@@ -2570,11 +2574,15 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[0] = beta_0[para_number];
         ll_final[0] = Ll[0];
-        if (max_change < epsilon){
-            iter_continue = false;
-        } else if (deriv_max < deriv_epsilon){
+        // if (max_change < epsilon){
+        //     iter_continue = false;
+        // } else if (deriv_max < deriv_epsilon){
+        //     iter_continue = false;
+        // }
+        if ((max_change < epsilon)&&(deriv_max < deriv_epsilon)){
             iter_continue = false;
         }
+        // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
     }
     //
     res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit), _["Likelihood_Boundary"]=wrap(ll_final), _["Likelihood_Goal"]=wrap(Lstar));
@@ -3344,11 +3352,15 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
          Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
          limits[1] = beta_0[para_number];
          ll_final[1] = Ll[0];
-         if (max_change < epsilon){
+         if ((max_change < epsilon)&&(deriv_max < deriv_epsilon)){
             iter_continue = false;
-        } else if (deriv_max < deriv_epsilon){
-            iter_continue = false;
-        }
+         }
+         // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
+        //  if (max_change < epsilon){
+        //     iter_continue = false;
+        // } else if (deriv_max < deriv_epsilon){
+        //     iter_continue = false;
+        // }
      }
     // Now refresh matrices back to the maximum point
     //
@@ -3872,11 +3884,15 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
          Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
          limits[0] = beta_0[para_number];
          ll_final[0] = Ll[0];
-         if (max_change < epsilon){
-            iter_continue = false;
-        } else if (deriv_max < deriv_epsilon){
+         if ((max_change < epsilon)&&(deriv_max < deriv_epsilon)){
             iter_continue = false;
         }
+        // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
+        //  if (max_change < epsilon){
+        //     iter_continue = false;
+        // } else if (deriv_max < deriv_epsilon){
+        //     iter_continue = false;
+        // }
      }
     //
     res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit), _["Likelihood_Boundary"]=wrap(ll_final), _["Likelihood_Goal"]=wrap(Lstar));
