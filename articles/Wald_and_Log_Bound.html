@@ -5,70 +5,54 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Colossus">
 <title>Confidence Interval Selection • Colossus</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Confidence Interval Selection">
-<meta property="og:description" content="Colossus">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Confidence Interval Selection">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a>
-    <a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative Regression Options</a>
-    <a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose Response Formula Terms</a>
-    <a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for plotting and analysis</a>
-    <a class="dropdown-item" href="../articles/starting-description.html">Colossus Description</a>
-    <a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a>
-    <a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a>
-  </div>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
+    <li><a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative Regression Options</a></li>
+    <li><a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose Response Formula Terms</a></li>
+    <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for plotting and analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/starting-description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
+    <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
+  </ul>
 </li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/ericgiunta/Colossus/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/ericgiunta/Colossus/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-article">
 
@@ -77,10 +61,11 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>Confidence Interval Selection</h1>
+
+      <h1>Confidence Interval Selection</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/HEAD/vignettes/Wald_and_Log_Bound.Rmd" class="external-link"><code>vignettes/Wald_and_Log_Bound.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/main/vignettes/Wald_and_Log_Bound.Rmd" class="external-link"><code>vignettes/Wald_and_Log_Bound.Rmd</code></a></small>
       <div class="d-none name"><code>Wald_and_Log_Bound.Rmd</code></div>
     </div>
 
@@ -103,29 +88,28 @@ focused on the differences and what issues may arise.</p>
 estimates and standard errors. The simplest form of confidence interval
 is assuming a normal distribution with the parameter mean and deviation.
 The standard errors are calculated from the covariance matrix, which is
-calculated as the negative inverse of the information matrix (<span class="math inline">\(I\)</span>) which is equal to the second
-derivative of Log-Likelihood.</p>
-<p><span class="math display">\[\begin{gather}
+calculated as the negative inverse of the information matrix
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>)
+which is equal to the second derivative of Log-Likelihood.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi><mo>≈</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msup><mover><mi>β</mi><mo accent="true">→</mo></mover><mn>2</mn></msup></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{gather}
     I \approx \frac{\partial^2 LL}{\partial \vec{\beta}^2}
-\end{gather}\]</span></p>
-<p>For every row (<span class="math inline">\(i\)</span>) if there is an
-event (<span class="math inline">\(\delta_i=1\)</span>) the second
-derivative is a function of the relative risk and derivatives at the
-event row (<span class="math inline">\(A, B\)</span>) and the sum of
-relative risks and derivatives for every row at risk (<span class="math inline">\(C, D, E\)</span>) based on the rows in each risk
-group (<span class="math inline">\(l \in R_i\)</span>).</p>
-<p><span class="math display">\[\begin{gather}
-    \frac{\partial^2 LL}{\partial \vec{\beta}_j \partial \vec{\beta}_k}
-= \sum_{i=0}^N \left( \delta_i \left( (A_{i,j,k} - B_{i,j}*B_{i,k} ) -
-(C_{i,j,k} - D_{i,j}*D_{i,k} )  \right)\right)\\
-    A_{i,j,k} = \frac{\frac{\partial^2 r_i}{\partial \vec{\beta}_j
-\partial \vec{\beta}_k}}{r_i}, B_{i,j} = \frac{\frac{\partial
-r_i}{\partial \vec{\beta}_j}}{r_i}\\
-    C_{i,j,k} = \frac{\sum_{l \in R_i} \frac{\partial^2 r_l}{\partial
-\vec{\beta}_j \partial \vec{\beta}_k}}{E_i}, D_{i,j} = \frac{\sum_{l \in
-R_i} \frac{\partial r_l}{\partial \vec{\beta}_j}}{E_i}, E_{i} = \sum_{l
-\in R_i} r_l
-\end{gather}\]</span></p>
+\end{gather}</annotation></semantics></math></p>
+<p>For every row
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>)
+if there is an event
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta_i=1</annotation></semantics></math>)
+the second derivative is a function of the relative risk and derivatives
+at the event row
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>,</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">A, B</annotation></semantics></math>)
+and the sum of relative risks and derivatives for every row at risk
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>,</mo><mi>D</mi><mo>,</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">C, D, E</annotation></semantics></math>)
+based on the rows in each risk group
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">l \in R_i</annotation></semantics></math>).</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>k</mi></msub></mrow></mfrac><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>N</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>δ</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>−</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>*</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>k</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>−</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>*</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>k</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>=</mo><mfrac><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>k</mi></msub></mrow></mfrac><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo>,</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub></mrow></mfrac><msub><mi>r</mi><mi>i</mi></msub></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>k</mi></msub></mrow></mfrac></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>,</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub></mrow></mfrac></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>,</mo><msub><mi>E</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mi>l</mi></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{gather}
+    \frac{\partial^2 LL}{\partial \vec{\beta}_j \partial \vec{\beta}_k} = \sum_{i=0}^N \left( \delta_i \left( (A_{i,j,k} - B_{i,j}*B_{i,k} ) - (C_{i,j,k} - D_{i,j}*D_{i,k} )  \right)\right)\\
+    A_{i,j,k} = \frac{\frac{\partial^2 r_i}{\partial \vec{\beta}_j \partial \vec{\beta}_k}}{r_i}, B_{i,j} = \frac{\frac{\partial r_i}{\partial \vec{\beta}_j}}{r_i}\\
+    C_{i,j,k} = \frac{\sum_{l \in R_i} \frac{\partial^2 r_l}{\partial \vec{\beta}_j \partial \vec{\beta}_k}}{E_i}, D_{i,j} = \frac{\sum_{l \in R_i} \frac{\partial r_l}{\partial \vec{\beta}_j}}{E_i}, E_{i} = \sum_{l \in R_i} r_l
+\end{gather}</annotation></semantics></math></p>
 <p>This gives a symmetric parameter confidence interval which is often
 accurate for single term log-linear models. However this approximation
 is often inaccurate for models with linear effects, particularly if the
@@ -137,11 +121,19 @@ that the model is defined over the interval.</p>
 <h3 id="likelihood-based-bound">Likelihood-Based Bound<a class="anchor" aria-label="anchor" href="#likelihood-based-bound"></a>
 </h3>
 <p>The more exact solution is to directly solve for the boundary. The
-basic premise is that the model can be optimized with a parameter (<span class="math inline">\(\beta\)</span>) fixed. Each value of <span class="math inline">\(\beta\)</span> has a corresponding maximum
-log-likelihood. The confidence interval is the range of values of <span class="math inline">\(\beta\)</span> such that the maximum
-log-likelihood is above a threshold, taken from the asymptotic <span class="math inline">\(\chi^2\)</span> distribution of the generalized
-likelihood ratio test. Colossus uses the Venzon-Moolgavkar algorithm to
-iteratively solve for the interval endpoints.</p>
+basic premise is that the model can be optimized with a parameter
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>)
+fixed. Each value of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+has a corresponding maximum log-likelihood. The confidence interval is
+the range of values of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+such that the maximum log-likelihood is above a threshold, taken from
+the asymptotic
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
+distribution of the generalized likelihood ratio test. Colossus uses the
+Venzon-Moolgavkar algorithm to iteratively solve for the interval
+endpoints.</p>
 <p>There is one main issues that can arise from this method. The
 algorithm uses a Newton-Raphson algorithm, which may solve for local
 solutions instead of the global solution. Similar to the general
@@ -152,11 +144,12 @@ alternative that can more directly solve for the true optimum.</p>
 <p>This method directly solves for the confidence interval, which for
 linear cases may be non-symmetric or even not have upper or lower
 bounds. Linear models may be defined only above a parameter threshold.
-If the optimum value at that parameter threshold is above the <span class="math inline">\(\chi^2\)</span> threshold value, then the interval
-would not have a lower bound.</p>
+If the optimum value at that parameter threshold is above the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
+threshold value, then the interval would not have a lower bound.</p>
 </div>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 
@@ -167,15 +160,15 @@ would not have a lower bound.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>
