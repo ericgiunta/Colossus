@@ -378,6 +378,19 @@ LogLik_Cox_PH_Omnibus_Log_Bound_Search <- function(Term_n, tform, a_n, x_all, df
     .Call(`_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search`, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep)
 }
 
+#' Primary Poisson likelihood bounds calculation function.
+#'
+#' \code{LogLik_Poisson_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+LogLik_Poisson_Omnibus_Log_Bound <- function(PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep) {
+    .Call(`_Colossus_LogLik_Poisson_Omnibus_Log_Bound`, PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep)
+}
+
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
 #'
 #' \code{Cox_Refresh_R_TERM} Called to update matrices

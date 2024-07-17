@@ -47,4 +47,4 @@
 # Colossus 1.1.2
 
 * Log-likelihood bound functionality added
-* subject to usual convergence issues, undergoing testing
+* subject to usual convergence issues, manual search option

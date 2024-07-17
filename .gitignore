@@ -11,3 +11,5 @@ src/*.so
 /Meta/
 src/Colossus.dll
 *.Rhistory
+*.py
+*.txt

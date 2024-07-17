@@ -210,7 +210,7 @@ test_that("Coxph EPICURE validated answers, lin both", {
 #        expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
 #        expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
 #    }
-#    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1, 'guesses'=10)
+   control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1, 'guesses'=10)
 #    #v_lower <- c(0.102243677961472, -0.0366388051711791, -0.219114008554502, -0.344171754216377, -1.95449016972488, -2.02344865755178, -2.08312767824572, -2.15183918342603, -2.19804353277016)
 #    #v_upper <- c(0.36980987063755, 0.458228372469313, .539265192368337, 0.575303932769727, 1.07110681914306, 0.756984966349814, 0.815541033177481, 0.88254914662706, .927406355056622)
 #    #for (alpha_i in 1:length(alpha_list)){
@@ -226,27 +226,28 @@ test_that("Coxph EPICURE validated answers, lin both", {
 #    #    expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
 #    #}
 #
-#    v_lower <- c(4.97252283668956, 4.9349945105648, 4.89804715665926, 4.88084912208962, 4.82369762341988, 4.78721237571926, 4.7546530342797, 4.71603055250556, 4.68938287303871)
-#    v_upper <- c(5.06762896572498, 5.10561529697034, 5.14327069556976, 5.16088604918614, 5.21982880792394, 5.2577860471215, 5.29187760184654, 5.33258757872226, 5.36084782852899)
-#    for (alpha_i in 1:length(alpha_list)){
-#        alpha <- alpha_list[alpha_i]
-#        a_n <- c(0.2462, 5.020,-0.599)
-#        model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=1, 'manual'=TRUE)
-#        e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
-#        a <- e$Parameter_Limits
-#        expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
-#        expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
-#    }
-#
-#    v_lower <- c(-0.643365949558998, -0.677336655540846, -0.706075250211414, -0.718165409196492, -0.753647332793819, -0.773208334303991, -0.789018704115451, -0.806061085000755, -0.816875114954096)
-#    v_upper <- c(-0.521472203247917, -0.444964438813732, -0.327862977142017, -0.235044092073815, 2.91573713669059, 3.21014641617297, 3.48490803194128, 3.82648584413642, 4.07272009904963)
-#    for (alpha_i in 1:length(alpha_list)){
-#        alpha <- alpha_list[alpha_i]
-#        a_n <- c(0.2462, 5.020,-0.599)
-#        model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=2, 'manual'=TRUE)
-#        e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
-#        a <- e$Parameter_Limits
-#        expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
-#        expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
-#    }
+   control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(10,10),'halfmax' = 5,'epsilon' = 1e-4,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=F, 'ties'='breslow','double_step'=1, 'guesses'=10)
+   v_lower <- c(4.97252283668956, 4.9349945105648, 4.89804715665926, 4.88084912208962, 4.82369762341988, 4.78721237571926, 4.7546530342797, 4.71603055250556, 4.68938287303871)
+   v_upper <- c(5.06762896572498, 5.10561529697034, 5.14327069556976, 5.16088604918614, 5.21982880792394, 5.2577860471215, 5.29187760184654, 5.33258757872226, 5.36084782852899)
+   for (alpha_i in 1:length(alpha_list)){
+       alpha <- alpha_list[alpha_i]
+       a_n <- c(0.2462, 5.020,-0.599)
+       model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=1, 'manual'=TRUE)
+       e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
+       a <- e$Parameter_Limits
+       expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
+       expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
+   }
+
+   v_lower <- c(-0.643365949558998, -0.677336655540846, -0.706075250211414, -0.718165409196492, -0.753647332793819, -0.773208334303991, -0.789018704115451, -0.806061085000755, -0.816875114954096)
+   v_upper <- c(-0.521472203247917, -0.444964438813732, -0.327862977142017, -0.235044092073815, 2.91573713669059, 3.21014641617297, 3.48490803194128, 3.82648584413642, 4.07272009904963)
+   for (alpha_i in 1:length(alpha_list)){
+       alpha <- alpha_list[alpha_i]
+       a_n <- c(0.2462, 5.020,-0.599)
+       model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=2, 'manual'=TRUE)
+       e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
+       a <- e$Parameter_Limits
+       expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
+       expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
+   }
 })
