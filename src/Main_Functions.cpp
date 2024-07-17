@@ -3902,7 +3902,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
 
 //' Primary Poisson likelihood bounds calculation function.
 //'
-//' \code{LogLik_Poisson_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
+//' \code{LogLik_Poisson_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
 //' @inheritParams CPP_template
 //'
@@ -3910,7 +3910,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Poisson_Omnibus_Log_Bound( MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep){
+List LogLik_Poisson_Omnibus_Log_Bound( MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, bool verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep){
     ;
     //
     List temp_list = List::create(_["Status"]="TEMP"); //used as a dummy return value for code checking

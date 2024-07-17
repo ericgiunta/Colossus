@@ -130,64 +130,119 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     for (i in a_n){
         a_ns <- c(a_ns, i)
     }
-    if ("maxiters" %in% names(control)){
-    	if (length(control$maxiters) == length(a_n)+1){
-    		#all good, it matches
-    	} else {
-    		if (control$verbose){
-                message(paste("Note: Initial starts:",length(a_n),
-                      ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
-            }
-            if (length(control$maxiters) < length(a_n)+1){
-		        additional <- length(a_n)+1 - length(control$maxiters)
-		        control$maxiters <- c(control$maxiters, rep(1, additional))
-	        } else {
-	        	additional <- length(a_n)+1
-	        	control$maxiters <- control$maxiters[1:additional]
-	        }
-    	}
-	    if ("guesses" %in% names(control)){
-	        #both are in
-	        if (control$guesses+1 == length(control$maxiters)){
-	            #all good, it matches
-	        } else {
-	            if (control$verbose){
-                    message(paste("Error: guesses:",control["guesses"],
-                          ", iterations per guess:",control["maxiters"],sep=" "))
+    if (model_control$log_bound){
+        if ("maxiters" %in% names(control)){
+        	if (length(control$maxiters) == length(a_n)+1){
+        		#all good, it matches
+        	} else {
+        		if (control$verbose){
+                    message(paste("Note: Initial starts:",length(a_n),
+                          ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
-                stop()
+                if (length(control$maxiters) < length(a_n)+1){
+		            additional <- length(a_n)+1 - length(control$maxiters)
+		            control$maxiters <- c(control$maxiters, rep(1, additional))
+	            } else {
+	            	additional <- length(a_n)+1
+	            	control$maxiters <- control$maxiters[1:additional]
+	            }
+        	}
+	        if ("guesses" %in% names(control)){
+	            #both are in
+	            if (control$guesses+1 == length(control$maxiters)){
+	                #all good, it matches
+	            } else if (length(control$maxiters)==2){
+	                iter0 <-control$maxiters[1]
+	                iter1 <-control$maxiters[2]
+	                applied_iter <- c(rep(iter0,control$guesses),iter1)
+	                control$maxiters <- applied_iter
+	            } else {
+	                if (control$verbose){
+                        message(paste("Error: guesses:",control["guesses"],
+                              ", iterations per guess:",control["maxiters"],sep=" "))
+                    }
+                    stop()
+	            }
+	        } else {
+	            control$guesses = length(control$maxiters)-1
 	        }
 	    } else {
-	        control$guesses <- length(control$maxiters)-1
-	    }
-	} else {
-	    if ("guesses" %in% names(control)){
-	    	if (control$guesses == length(a_n)){
-	    		#both match, all good
-    		} else {
-    			control$guesses <- length(a_n)
-    		}
-            control$maxiters <- rep(1,control$guesses+1)
-        } else {
-            control$guesses <- length(a_n)
-            control$maxiters <- c(rep(1,length(a_n)),control$maxiter)
+	        if ("guesses" %in% names(control)){
+	        	if (control$guesses == length(a_n)){
+	        		#both match, all good
+        		} else {
+        			control$guesses = length(a_n)
+        		}
+                control$maxiters = rep(1,control$guesses+1)
+            } else {
+                control$guesses = length(a_n)
+                control$maxiters = c(rep(1,length(a_n)),control$maxiter)
+            }
         }
+        e <- pois_Omnibus_Bounds_transition(as.matrix(df[,ce, with = FALSE]),
+             term_n,tform,a_ns,dfc,x_all, fir, modelform, control,
+             keep_constant,term_tot,as.matrix(df0[,val_cols, with=FALSE]),
+             model_control, Cons_Mat, Cons_Vec)
+    } else {
+        if ("maxiters" %in% names(control)){
+            if (length(control$maxiters) == length(a_n)+1){
+                #all good, it matches
+            } else {
+                if (control$verbose){
+                    message(paste("Note: Initial starts:",length(a_n),
+                        ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                }
+                if (length(control$maxiters) < length(a_n)+1){
+                    additional <- length(a_n)+1 - length(control$maxiters)
+                    control$maxiters <- c(control$maxiters, rep(1, additional))
+                } else {
+                    additional <- length(a_n)+1
+                    control$maxiters <- control$maxiters[1:additional]
+                }
+            }
+            if ("guesses" %in% names(control)){
+                #both are in
+                if (control$guesses+1 == length(control$maxiters)){
+                    #all good, it matches
+                } else {
+                    if (control$verbose){
+                        message(paste("Error: guesses:",control["guesses"],
+                            ", iterations per guess:",control["maxiters"],sep=" "))
+                    }
+                    stop()
+                }
+            } else {
+                control$guesses <- length(control$maxiters)-1
+            }
+        } else {
+            if ("guesses" %in% names(control)){
+                if (control$guesses == length(a_n)){
+                    #both match, all good
+                } else {
+                    control$guesses <- length(a_n)
+                }
+                control$maxiters <- rep(1,control$guesses+1)
+            } else {
+                control$guesses <- length(a_n)
+                control$maxiters <- c(rep(1,length(a_n)),control$maxiter)
+            }
+        }
+        #
+        #
+        e <- pois_Omnibus_transition(as.matrix(df[,ce, with = FALSE]),term_n,tform,
+                                    matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE),
+                                    dfc,x_all, fir,der_iden, modelform, control,keep_constant,
+                                    term_tot,as.matrix(df0[,val_cols, with=FALSE]),model_control,
+                                    Cons_Mat, Cons_Vec)
+        e$Parameter_Lists$names <- names
+        if (is.nan(e$LogLik)){
+            if (control$verbose){
+                message("Invalid risk")
+            }
+            stop()
+        }
+        #fine
     }
-    #
-    #
-    e <- pois_Omnibus_transition(as.matrix(df[,ce, with = FALSE]),term_n,tform,
-                                 matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE),
-                                 dfc,x_all, fir,der_iden, modelform, control,keep_constant,
-                                 term_tot,as.matrix(df0[,val_cols, with=FALSE]),model_control,
-                                 Cons_Mat, Cons_Vec)
-    e$Parameter_Lists$names <- names
-	if (is.nan(e$LogLik)){
-		if (control$verbose){
-			message("Invalid risk")
-		}
-		stop()
-	}
-    #fine
     return (e)
 }
 

@@ -30,6 +30,20 @@ test_that("Coxph basic_single_null match", {
             }
         }
     }
+    model_control <- list('strata'=TRUE, 'basic'=FALSE, 'single'=FALSE, 'null'=FALSE)
+    e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=c("loglin"), keep_constant=keep_constant, a_n=a_n, modelform="M", fir=0, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control)
+    for (j in c(TRUE,FALSE)){
+        for (k in c(TRUE,FALSE)){
+            for (l in c(TRUE,FALSE)){
+                model_control <- list('strata'=TRUE, 'basic'=j, 'single'=k, 'null'=l)
+                if (verbose){print(model_control)}
+                a_n <- c(0.0)
+                e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=c("loglin"), keep_constant=keep_constant, a_n=a_n, modelform="M", fir=0, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control)
+                expect_equal(e0$LogLik,e1$LogLik,tolerance=1e-2)
+                if (verbose){print("---------------")}
+            }
+        }
+    }
 })
 test_that("Coxph strata_basic_single_CR", {
     fname <- 'll_comp_0.csv'
@@ -580,6 +594,44 @@ test_that("Coxph strata_basic_single_CR", {
                     if (verbose){print("---------------")}
                 }
             }
+        }
+    }
+})
+
+test_that("Pois double_step change_all calcs", {
+    fname <- 'll_0.csv'
+    colTypes <- c("double","double","double","integer","integer")
+    df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
+    time1 <- "t0"
+    df$pyr <- df$t1-df$t0
+	pyr <- "pyr"
+    event <- "lung"
+    set.seed(3742)
+    df$rand <- floor(runif(nrow(df), min=0, max=5))
+    names <- c("dose", "dose","dose","dose","dose","dose","dose","dose","dose","dose","dose","dose",  "rand","rand","rand","rand","rand","rand","rand","rand","rand","rand","rand")
+    term_n <- c(0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1)
+    tform <- c("loglin_slope", "loglin_top","lin_slope","lin_int","quad_slope","step_slope","step_int","lin_quad_slope","lin_quad_int","lin_exp_slope","lin_exp_int","lin_exp_exp_slope","loglin_top","lin_slope","lin_int","quad_slope","step_slope","step_int","lin_quad_slope","lin_quad_int","lin_exp_slope","lin_exp_int","lin_exp_exp_slope")
+    keep_constant <- c(0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+    a_n <-   c(1, -0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1, -0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1)
+
+    modelform <- "PAE"
+    fir <- 0
+    der_iden <- 0
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=0)
+    strat_col <- "fac"
+    
+    verbose <- FALSE
+    j_iterate <- 1
+    LL_comp <- c(-496.7366, -475.4213, -461.9726, -461.1227, -4497.178, -3577.953, -2561.685, -2339.961)
+    for (i in c(0,1)){
+        for (j in seq_len(length(term_n))){
+            model_control <- list('strata'=F, 'single'=F)
+            if (verbose){print(model_control)}
+            a_n <-   c(1, -0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1, -0.1          ,-0.1       ,1        ,-0.1        ,1           ,2         ,0.3             ,1.5           ,0.2            ,0.7          ,1)
+            modelform <- "PAE"
+            control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=F,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=i)
+            expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, j-1, control,strat_col,model_control))
+            if (verbose){print("---------------")}
         }
     }
 })

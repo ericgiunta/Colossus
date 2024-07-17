@@ -211,6 +211,30 @@ test_that("Coxph plot Survival ID col not given", {
     }
 })
 
+test_that("Coxph risk too few unique values", {
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(1,2,3,4,5,6,7)
+    c <- c(1,0,1,0,1,0,0)
+    d <- c(3,3,3,3,3,3,3)
+    df <- data.table("a"=a,"b"=b,"c"=c,"d"=d)
+    time1 <- "a"
+    time2 <- "b"
+    event <- "c"
+    names <- c("d")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(-0.1)
+    modelform <- "M"
+    fir <- 0
+    der_iden <- 0
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    plot_options <- list("type"=c("RISK",paste(tempfile(),"run",sep="")),"studyid"="a",'verbose'=TRUE)
+    if (system.file(package='ggplot2')!=""){
+        expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
+    }
+})
+
 test_that("Coxph plot no error", {
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)

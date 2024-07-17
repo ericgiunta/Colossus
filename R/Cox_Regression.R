@@ -196,7 +196,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
                 control$maxiters = c(rep(1,length(a_n)),control$maxiter)
             }
         }
-        e <- cox_ph_cox_ph_Omnibus_Bounds_transition(term_n,tform,a_ns,dfc,x_all, fir,
+        e <- cox_ph_Omnibus_Bounds_transition(term_n,tform,a_ns,dfc,x_all, fir,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, cens_weight, model_control,
              Cons_Mat, Cons_Vec)

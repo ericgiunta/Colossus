@@ -380,15 +380,15 @@ LogLik_Cox_PH_Omnibus_Log_Bound_Search <- function(Term_n, tform, a_n, x_all, df
 
 #' Primary Poisson likelihood bounds calculation function.
 #'
-#' \code{LogLik_Poisson_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
+#' \code{LogLik_Poisson_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
 #' @inheritParams CPP_template
 #'
 #' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-LogLik_Poisson_Omnibus_Log_Bound <- function(PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep) {
-    .Call(`_Colossus_LogLik_Poisson_Omnibus_Log_Bound`, PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep)
+LogLik_Poisson_Omnibus_Log_Bound <- function(PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep) {
+    .Call(`_Colossus_LogLik_Poisson_Omnibus_Log_Bound`, PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
@@ -681,8 +681,20 @@ OMP_Check <- function() {
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-cox_ph_cox_ph_Omnibus_Bounds_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_cox_ph_cox_ph_Omnibus_Bounds_transition`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+cox_ph_Omnibus_Bounds_transition <- function(Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_cox_ph_Omnibus_Bounds_transition`, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, STRATA_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Interface between R code and the poisson omnibus bounds regression function
+#'
+#' \code{pois_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+pois_Omnibus_Bounds_transition <- function(dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_pois_Omnibus_Bounds_transition`, dfe, Term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
 }
 
 #' Interface between R code and the poisson residual calculation function

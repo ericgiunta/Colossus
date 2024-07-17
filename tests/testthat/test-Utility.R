@@ -522,7 +522,7 @@ test_that("Gen_time_dep no error step not cox", {
     grt_f <- function(df,time_col){
         return ((df[,"b"] * df[,get(time_col)])[[1]])
     }
-    func_form <- c("step?0g?7l?12a?18b?")
+    func_form <- c("step?0g?7l?10u?12a?18b?")
     
     
     expect_no_error(gen_time_dep(df,time1,time2,event,FALSE,0.01,c("grt"),c(),c(grt_f),paste(tempfile(),"test","_new.csv",sep=""), func_form,2))

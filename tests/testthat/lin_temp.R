@@ -4,23 +4,28 @@ library(Colossus)
 
 fname <- 'base_example.csv'
 df <- fread(fname)
+df$pyr <- df$exit - df$entry
 # 
 time1 <- "entry"
 time2 <- "exit"
+pyr <- "pyr"
 event <- "event"
-names <- c("dose0","dose1","dose0")
-term_n <- c(0,0,1)
-tform <- c("loglin","loglin","lin")
+names <- c("dose0","dose1", "exit")
+term_n <- c(0,0,0)
+tform <- c("loglin","loglin","loglin")
 keep_constant <- c(0,0,0)
 #a_n <- c(0.2462, 5.020, -0.5909)
-a_n <- c(0.2462, 5.020,-0.7)
+a_n <- c(-0.6067272,  5.0193899, -4.6564575)
 modelform <- "M"
 fir <- 0
 der_iden <- 0
 #
 model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=FALSE, 'alpha'=0.1)
-control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(10,10),'halfmax' = 5,'epsilon' = 0,'dbeta_max' = 0.5,'deriv_epsilon' =0, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=F, 'ties'='breslow','double_step'=1, 'guesses'=10)
+control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(50,50),'halfmax' = 5,'epsilon' = 0,'dbeta_max' = 0.5,'deriv_epsilon' =0, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
 # 
+e <- RunPoissonRegression_Omnibus(df,pyr, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
+print(e)
+stop()
 sink(file="out.txt")
 alpha_list <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
 #alpha_list <- c( 0.005)
