@@ -21,7 +21,7 @@ fir <- 0
 der_iden <- 0
 #
 model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=FALSE, 'alpha'=0.1)
-control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(50,50),'halfmax' = 5,'epsilon' = 0,'dbeta_max' = 0.5,'deriv_epsilon' =0, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(50,50),'halfmax' = 5,'epsilon' = 0,'dbeta_max' = 0.5,'deriv_epsilon' =0, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
 # 
 e <- RunPoissonRegression_Omnibus(df,pyr, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
 print(e)
@@ -78,7 +78,7 @@ alpha_list <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
 # }
 # sink(NULL)
 # stop()
-control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(10,10),'halfmax' = 5,'epsilon' = 1e-4,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=F, 'ties'='breslow','double_step'=1, 'guesses'=10)
+control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(10,10),'halfmax' = 5,'epsilon' = 1e-4,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1, 'guesses'=10)
 #v_lower <- c(0.102243677961472, -0.0366388051711791, -0.219114008554502, -0.344171754216377, -1.95449016972488, -2.02344865755178, -2.08312767824572, -2.15183918342603, -2.19804353277016)
 #v_upper <- c(0.36980987063755, 0.458228372469313, .539265192368337, 0.575303932769727, 1.07110681914306, 0.756984966349814, 0.815541033177481, 0.88254914662706, .927406355056622)
 #for (alpha_i in 1:length(alpha_list)){

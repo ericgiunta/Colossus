@@ -14,7 +14,7 @@ test_that("Pois loglin_M Single", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
     e <-RunPoissonRegression_Single(df, pyr, event, names, term_n, tform, a_n, modelform, fir, control)
     expect_equal(e$AIC,2354.055,tolerance=1e-2)
 })
@@ -34,7 +34,7 @@ test_that("Pois loglin_M Strata", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
     e <-RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("fac"))
     expect_equal(e$beta_0,c(0.05476188),tolerance=1e-1)
 })
@@ -55,7 +55,7 @@ test_that("Pois loglin_M Strata", {
 #     modelform <- "M"
 #     fir <- 0
 #     der_iden <- 0
-#     control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#     control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
 #     expect_no_error(RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("e")))
 # })
 # test_that("Pois STRATA with strata without person-years", {
@@ -75,6 +75,6 @@ test_that("Pois loglin_M Strata", {
 #     modelform <- "M"
 #     fir <- 0
 #     der_iden <- 0
-#     control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+#     control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
 #     expect_no_error(RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c("e")))
 # })

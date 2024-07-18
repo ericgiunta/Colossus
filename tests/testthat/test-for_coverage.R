@@ -18,7 +18,7 @@ test_that("Gather Guesses list, incorrect keep_constant length and rmin/rmax not
     der_iden <- 0
     #
     #
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -60,7 +60,7 @@ test_that("Gather Guesses list, bad tform", {
     der_iden <- 0
     #
     #
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -157,7 +157,7 @@ test_that("Pois various_fixes", {
     modelform <- "PAE"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=0)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=0)
     strat_col <- "fac"
     
     verbose <- FALSE
@@ -194,7 +194,7 @@ test_that("Pois_tier_guess various_fixes", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     guesses_control <- list("iterations"=2,"guesses"=2,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1, "loglin_max"=1,"lin_method"="uniform", "loglin_method"="uniform",'strata'=TRUE,'term_initial' = c(0,1),'verbose'=TRUE)
     strat_col <- c('b')
 
@@ -217,7 +217,7 @@ test_that("Poisson_basic_guess_cpp various_fixes", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     guesses_control <- list("iterations"=1,"guesses"=1,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1, "loglin_max"=1,"lin_method"="uniform", "loglin_method"="uniform",'strata'=FALSE,'term_initial' = c(0,1),'verbose'=T)
     expect_no_error(RunPoissonRegression_Guesses_CPP(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col))
     model_control <- list('strata'=T)
@@ -250,7 +250,7 @@ test_that("Coxph martingale no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")),"martingale"=TRUE,"cov_cols"="d","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In",'verbose'=TRUE)
     if (system.file(package='ggplot2')!=""){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
@@ -272,7 +272,7 @@ test_that("Coxph loglin_M CENSOR Default various_fixes", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=T,"studyid"="studyid","age_unit"="years")
     expect_no_error(GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     keep_constant <- c(1,1)
@@ -300,7 +300,7 @@ test_that("Coxph risk plotting above discrete step number limit", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     plot_options <- list("type"=c("RISK",paste(tempfile(),"run",sep="")),"studyid"="a",'verbose'=TRUE)
     if (system.file(package='ggplot2')!=""){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
@@ -340,7 +340,7 @@ test_that("Various CoxRegressionOmnibus options", {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     keep_constant <- c(0,0,0)
     #
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     keep_constant <- c(1,1,1)
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
@@ -350,18 +350,18 @@ test_that("Various CoxRegressionOmnibus options", {
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     df$lung <- lung_temp
     #
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1,1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1,1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     a_n <- list(c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781))
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
-#    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1,"guesses"=50)
+#    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1,"guesses"=50)
 #    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     #
-    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1,"guesses"=1)
+    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1,"guesses"=1)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
-    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1,"guesses"=10)
+    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1,"guesses"=10)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     #
     names <- c("rand","fac","dose")
@@ -406,7 +406,7 @@ test_that("Various RunPoissonRegression_Omnibus options", {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     keep_constant <- c(0,0,0)
     #
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     strat_col="fac"
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     keep_constant <- c(1,1,1)
@@ -417,18 +417,18 @@ test_that("Various RunPoissonRegression_Omnibus options", {
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     df$lung <- lung_temp
     #
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1,1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1,1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     a_n <- list(c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781))
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1,"guesses"=50)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1,"guesses"=50)
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     #
-    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1,"guesses"=1)
+    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1,"guesses"=1)
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
-    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1,"guesses"=10)
+    control <- list("ncores"=2,'lr' = 0.75,'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1,"guesses"=10)
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     #
     names <- c("rand","fac","dose")
@@ -455,7 +455,7 @@ test_that("Coxph relative risk combinations", {
     a_n <- c(-0.1)
     modelform <- "M"
     fir <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     keep_constant <- c(1)
     expect_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control))
     keep_constant <- c(0)
@@ -485,7 +485,7 @@ test_that("Coxph martingale combinations", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")),"martingale"=TRUE,"cov_cols"="d","surv_curv"=FALSE,"strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In",'verbose'=TRUE)
     keep_constant <- c(1)
     if (system.file(package='ggplot2')!=""){
@@ -519,7 +519,7 @@ test_that("Cox_tier_guess combinations", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     guesses_control <- list("iterations"=1,"guesses"=1,"lin_min"=0.001, "lin_max"=1,"loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform",strata=FALSE,term_initial = c(0))
     strat_col <- 'a'
 	keep_constant <- c(1,1)
@@ -546,7 +546,7 @@ test_that("Cox_basic_guess_cpp combinations", {
     fir <- 0
     der_iden <- 0
     strat_col <- 'a'
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=T, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     guesses_control <- list("iterations"=2,"guesses"=2,"lin_min"=0.001,"lin_max"=1,"loglin_min"=-1, "loglin_max"=1,"lin_method"="uniform", "loglin_method"="uniform",'strata'=FALSE,'term_initial' = c(0,1),'verbose'=T)
     model_control <- list('strata'=T)
     expect_error(RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col,model_control))
@@ -583,7 +583,7 @@ test_that("Gather Guesses list combinations", {
     der_iden <- 0
     #
     #
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=TRUE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=4, 'ties'='breslow','double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -659,7 +659,7 @@ test_that("gmix omnibus use", {
     df$censor <- (df$lung==0)
     #
     event <- "lung"
-    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
 
     verbose <- FALSE
 
@@ -696,7 +696,7 @@ test_that("gmix omnibus use", {
                     a_n <- df_order$a_n
                     names <- df_order$names
                     #
-                    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+                    control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
                     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight=cens_weight))
                 }
             }
@@ -712,7 +712,7 @@ test_that("gmix omnibus use", {
                 a_n <- df_order$a_n
                 names <- df_order$names
                 #
-                control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+                control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(1,1),'halfmax' = 2,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
                 expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight=cens_weight))
             }
         }
@@ -739,7 +739,7 @@ test_that("dose nondose combinations", {
     modelform <- "A"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 1,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
     expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
     
     for (model in c("A", "PAE")){
