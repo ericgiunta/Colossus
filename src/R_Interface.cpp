@@ -59,7 +59,7 @@ void visit_lambda(const Mat& m, const Func& f)
 List cox_ph_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericMatrix a_ns,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     bool change_all = Control["change_all"];
     int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
     NumericVector maxiters = Control["maxiters"];
@@ -111,7 +111,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
     //
     bool change_all = Control["change_all"];
     int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
     NumericVector maxiters = Control["maxiters"];
@@ -151,7 +151,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector Term_n, StringVect
 //'
 // [[Rcpp::export]]
 List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0,IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control){
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     string ties_method =Control["ties"];
     bool strata_bool = model_control["strata"];
@@ -181,7 +181,7 @@ List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0,Inte
 //'
 // [[Rcpp::export]]
 List Plot_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control){
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     double abs_max = Control["abs_max"];
     double dose_abs_max = Control["dose_abs_max"];
@@ -468,7 +468,7 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 //'
 // [[Rcpp::export]]
 bool risk_check_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir,string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot){
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     int nthreads = Control["ncores"];
     double gmix_theta = model_control["gmix_theta"];
@@ -624,7 +624,7 @@ bool OMP_Check(){
 List cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
     // bool change_all = Control["change_all"];
     // int double_step = Control["double_step"];
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
     NumericVector maxiters = Control["maxiters"];
@@ -687,7 +687,7 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector Term_n, Str
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
     //
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
     NumericVector maxiters = Control["maxiters"];
@@ -744,7 +744,7 @@ List pois_Residual_transition(NumericMatrix dfe, IntegerVector Term_n, StringVec
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
     //
-    bool verbose = Control["verbose"];
+    int verbose = Control["verbose"];
     bool debugging = FALSE;
     double abs_max = Control["abs_max"];
     double dose_abs_max = Control["dose_abs_max"];

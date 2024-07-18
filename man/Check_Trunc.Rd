@@ -4,7 +4,7 @@
 \alias{Check_Trunc}
 \title{Applies time duration truncation limits to create columns for Cox model}
 \usage{
-Check_Trunc(df, ce, verbose = FALSE)
+Check_Trunc(df, ce, verbose = 0)
 }
 \arguments{
 \item{df}{a data.table containing the columns of interest}

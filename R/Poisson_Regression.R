@@ -62,7 +62,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
         a_n <- list(a_n)
     }
 	df <- df[get(pyr0)>0,]
-    if (control$verbose){
+    if (control$verbose>=2){
         if (any(val$Permutation != seq_along(tform))){
             message("Warning: model covariate order changed")
         }
@@ -76,7 +76,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
         stop()
     }
     if (sum(df[,event0, with = FALSE])==0){
-        if (control$verbose){
+        if (control$verbose>=1){
             message("Error: no events")
         }
         stop()
@@ -99,7 +99,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
             dftemp <- df[get(col)==1,]
             temp <- sum(dftemp[,get(event0)])
             if (temp==0){
-                if (control$verbose){
+                if (control$verbose>=2){
                     message(paste("Warning: no events for strata group:",col,sep=" "))
                 }
                 df <- df[get(col)!=1,]
@@ -135,7 +135,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
         	if (length(control$maxiters) == length(a_n)+1){
         		#all good, it matches
         	} else {
-        		if (control$verbose){
+        		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
                           ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
@@ -157,7 +157,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 	                applied_iter <- c(rep(iter0,control$guesses),iter1)
 	                control$maxiters <- applied_iter
 	            } else {
-	                if (control$verbose){
+	                if (control$verbose>=1){
                         message(paste("Error: guesses:",control["guesses"],
                               ", iterations per guess:",control["maxiters"],sep=" "))
                     }
@@ -188,7 +188,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
             if (length(control$maxiters) == length(a_n)+1){
                 #all good, it matches
             } else {
-                if (control$verbose){
+                if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
                         ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
@@ -205,7 +205,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
                 if (control$guesses+1 == length(control$maxiters)){
                     #all good, it matches
                 } else {
-                    if (control$verbose){
+                    if (control$verbose>=1){
                         message(paste("Error: guesses:",control["guesses"],
                             ", iterations per guess:",control["maxiters"],sep=" "))
                     }
@@ -236,8 +236,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
                                     Cons_Mat, Cons_Vec)
         e$Parameter_Lists$names <- names
         if (is.nan(e$LogLik)){
-            if (control$verbose){
-                message("Invalid risk")
+            if (control$verbose>=1){
+                message("Error: Invalid risk")
             }
             stop()
         }
@@ -450,7 +450,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, term_n, tform, ke
         stop()
     }
     if (sum(df[,event0, with = FALSE])==0){
-        if (control$verbose){
+        if (control$verbose>=1){
             message("Error: no events")
         }
         stop()
@@ -473,7 +473,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, term_n, tform, ke
             dftemp <- df[get(col)==1,]
             temp <- sum(dftemp[,get(event0)])
             if (temp==0){
-                if (control$verbose){
+                if (control$verbose>=2){
                     message(paste("Warning: no events for strata group:",col,sep=" "))
                 }
                 df <- df[get(col)!=1,]
@@ -748,7 +748,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, term_n, t
     rmin <- guesses_control$rmin
     rmax <- guesses_control$rmax
     if (length(rmin)!=length(rmax)){
-        if (control$verbose){
+        if (control$verbose>=2){
             message("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
         }
     }
@@ -777,7 +777,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, term_n, t
                                           tform_initial, constant_initial, a_n_initial,
                                           modelform, fir, der_iden, control, guesses_control,
                                           strat_col)
-    if (guesses_control$verbose){
+    if (guesses_control$verbose>=3){
         message("Note: INITIAL TERM COMPLETE")
         message(e)
     }
@@ -858,7 +858,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, term_n, tf
     if ("strata" %in% names(guesses_control)){
         if ("strata" %in% names(model_control)){
             if (guesses_control$strata != model_control$strata){
-                if (guesses_control$verbose){
+                if (guesses_control$verbose>=1){
                     message("Error: guesses_control and model_control have different strata options")
                 }
                 stop()
@@ -984,7 +984,7 @@ RunPoissonRegression_Residual <- function(df, pyr0="pyr", event0="event", names=
         a_n <- list(a_n)
     }
 	df <- df[get(pyr0)>0,]
-    if (control$verbose){
+    if (control$verbose>=2){
         if (any(val$Permutation != seq_along(tform))){
             message("Warning: model covariate order changed")
         }
@@ -998,7 +998,7 @@ RunPoissonRegression_Residual <- function(df, pyr0="pyr", event0="event", names=
         stop()
     }
     if (sum(df[,event0, with = FALSE])==0){
-        if (control$verbose){
+        if (control$verbose>=1){
             message("Error: no events")
         }
         stop()
@@ -1021,7 +1021,7 @@ RunPoissonRegression_Residual <- function(df, pyr0="pyr", event0="event", names=
             dftemp <- df[get(col)==1,]
             temp <- sum(dftemp[,get(event0)])
             if (temp==0){
-                if (control$verbose){
+                if (control$verbose>=2){
                     message(paste("Warning: no events for strata group:",col,sep=" "))
                 }
                 df <- df[get(col)!=1,]

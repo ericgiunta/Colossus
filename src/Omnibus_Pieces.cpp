@@ -129,7 +129,7 @@ void Cox_Refresh_R_SIDES( const int& reqrdnum, const int& ntime, MatrixXd& Rls1,
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool basic_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
+void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, int verbose, bool basic_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
     int reqrdnum = totalnum - sum(KeepConstant);
     if (basic_bool){
 		// Calculates the subterm and term values
@@ -138,7 +138,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// Prints off a series of calculations to check at what point values are changing
 		// ---------------------------------------------------------
 		//
-		if (verbose){
+		if (verbose>=4){
 			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
@@ -159,7 +159,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		if (R.minCoeff()<=0){
-		    if (verbose){
+		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
 //                Rcout << "C++ Note: risk checked ";
 //			    for (int ijk=0;ijk<1;ijk++){
@@ -177,7 +177,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //			    }
 //			    Rcout << " " << endl;
 	        }
-		} else if (verbose){
+		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
@@ -202,7 +202,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// Prints off a series of calculations to check at what point values are changing
 		// ---------------------------------------------------------
 		//
-		if (verbose){
+		if (verbose>=4){
 			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
@@ -248,7 +248,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		if (R.minCoeff()<=0){
-		    if (verbose){
+		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
 //                Rcout << "C++ Note: risk checked ";
 //			    for (int ijk=0;ijk<1;ijk++){
@@ -266,7 +266,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //			    }
 //			    Rcout << " " << endl;
 	        }
-		} else if (verbose){
+		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
@@ -283,7 +283,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// ---------------------------------------------------------
 		//
 		//
-		if (verbose){
+		if (verbose>=4){
 			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
@@ -341,7 +341,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		if (R.minCoeff()<=0){
-		    if (verbose){
+		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
 //                Rcout << "C++ Note: risk checked ";
 //			    for (int ijk=0;ijk<1;ijk++){
@@ -359,7 +359,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //			    }
 //			    Rcout << " " << endl;
 	        }
-		} else if (verbose){
+		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
@@ -390,7 +390,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd,  MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& STRATA_vals, VectorXd beta_0 , MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant,string ties_method, bool verbose,bool strata_bool, bool CR_bool, bool basic_bool, bool single_bool, int start, int iter_stop){
+void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd,  MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& STRATA_vals, VectorXd beta_0 , MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant,string ties_method, int verbose,bool strata_bool, bool CR_bool, bool basic_bool, bool single_bool, int start, int iter_stop){
     // Calculates the side sum terms used
     if (strata_bool){
         if (CR_bool){
@@ -418,7 +418,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     }
     //
     if (strata_bool){
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: riskr checked ";
             for (int ijk=0;ijk<STRATA_vals.size();ijk++){
                 Rcout << Rls1.col(ijk).sum() << " ";
@@ -432,7 +432,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
             Rcout << " " << endl;
         }
     } else {
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: riskr checked ";
             for (int ijk=0;ijk<1;ijk++){
                 Rcout << Rls1.col(0).sum() << " ";
@@ -506,7 +506,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     //
     if (single_bool){
         iter_stop=1;
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
@@ -519,7 +519,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
             Rcout << " " << endl;
         }
     } else {
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
@@ -563,7 +563,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool strata_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
+void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, int verbose, bool strata_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
     int reqrdnum = totalnum - sum(KeepConstant);
     if (single_bool){
 		// Calculates the subterm and term values
@@ -572,7 +572,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		// Prints off a series of calculations to check at what point values are changing
 		// ---------------------------------------------------------
 		//
-		if (verbose){
+		if (verbose>=4){
 			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
@@ -621,7 +621,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		//
 		//
 		if (R.minCoeff()<=0){
-		    if (verbose){
+		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
 //                Rcout << "C++ Note: risk checked ";
 //			    for (int ijk=0;ijk<1;ijk++){
@@ -639,7 +639,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 //			    }
 //			    Rcout << " " << endl;
 	        }
-		} else if (verbose){
+		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
@@ -657,7 +657,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		// ---------------------------------------------------------
 		//
 		//
-		if (verbose){
+		if (verbose>=4){
 			Rcout << "C++ Note: values checked ";
 			for (int ijk=0;ijk<totalnum;ijk++){
 				Rcout << beta_0[ijk] << " ";
@@ -717,7 +717,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		//
 		//
 		if (R.minCoeff()<=0){
-		    if (verbose){
+		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
 //                Rcout << "C++ Note: risk checked ";
 //			    for (int ijk=0;ijk<1;ijk++){
@@ -735,7 +735,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 //			    }
 //			    Rcout << " " << endl;
 	        }
-		} else if (verbose){
+		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
 			for (int ijk=0;ijk<1;ijk++){
 				Rcout << R.col(0).sum() << " ";
@@ -769,7 +769,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, VectorXd beta_0 , MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const MatrixXd& PyrC, MatrixXd& dev_temp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, bool verbose, bool single_bool, int start, int iter_stop, double& dev){
+void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, VectorXd beta_0 , MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const MatrixXd& PyrC, MatrixXd& dev_temp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, int verbose, bool single_bool, int start, int iter_stop, double& dev){
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!single_bool){
         fill(Lld.begin(), Lld.end(), 0.0);
@@ -797,7 +797,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
     //
     if (single_bool){
         iter_stop=1;
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";
@@ -811,7 +811,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
             Rcout << "C++ Note: Checking Deviance " << dev << endl;
         }
     } else {
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: df101 ";//prints the log-likelihoods
             for (int ij=0;ij<reqrdnum;ij++){
                 Rcout << Ll[ij] << " ";

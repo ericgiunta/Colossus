@@ -4,7 +4,7 @@
 \alias{Check_Dupe_Columns}
 \title{checks for duplicated column names}
 \usage{
-Check_Dupe_Columns(df, cols, term_n, verbose = FALSE, factor_check = FALSE)
+Check_Dupe_Columns(df, cols, term_n, verbose = 0, factor_check = FALSE)
 }
 \arguments{
 \item{df}{a data.table containing the columns of interest}

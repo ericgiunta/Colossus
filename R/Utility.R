@@ -109,7 +109,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
         rmin <- guesses_control$rmin
         rmax <- guesses_control$rmax
         if (length(rmin)!=length(rmax)){
-            if (control$verbose){
+            if (control$verbose >= 2){
                 message("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
             }
         }
@@ -129,7 +129,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
     #
     #
     while (length(maxiters) - length(a_n) < guesses_control$guesses-1){
-        if (guesses_control$verbose){
+        if (guesses_control$verbose >= 3){
             message(paste("Note: ",length(maxiters)," valid guesses",sep=""))
         }
         if (length(rmin)!=length(rmax)){
@@ -213,8 +213,14 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
 #'
 Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_iden=0, Cons_Mat=matrix(c(0)),Cons_Vec=c(0),verbose=FALSE, model_control=list('para_number'=0)){
     #
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
@@ -234,7 +240,7 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
         #pass
     } else {
         Cons_Mat <- as.matrix(Cons_Mat)
-        if (verbose){
+        if (verbose >= 2){
             message("Warning: Constraint Matrix was not a matrix, converted")
         }
     }
@@ -496,14 +502,20 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
 #' df <- Replace_Missing(df, c("Starting_Age","Ending_Age"), 70)
 Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
     }
     if (is.na(MSV)){
-        if (verbose){
+        if (verbose >= 1){
             message("Error: The missing-value replacement is also NA")
         }
         stop()
@@ -513,7 +525,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
         if (j %in% names(df)){
             #fine
         } else {
-            if (verbose){
+            if (verbose >= 1){
                 message("Error: ",paste(j," missing from column names",sep=""))
             }
             stop()
@@ -521,7 +533,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
         #
         if (sum(is.na(df[[j]]))){
             data.table::set(df,which(is.na(df[[j]])),j,MSV)
-            if (verbose){
+            if (verbose >= 3){
                 message(paste("Note: Column ",j," had replaced values",sep=""))
             }
         }
@@ -544,7 +556,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
 #' control <- Def_Control(control)
 #'
 Def_Control <- function(control){
-    control_def <- list('verbose'=FALSE,'lr' = 0.75,'maxiter' = 20,
+    control_def <- list('verbose'=0,'lr' = 0.75,'maxiter' = 20,
         'halfmax' = 5,'epsilon' = 1e-9, 'dbeta_max' = 0.5,
         'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
         'ties'='breslow','double_step'=1,"keep_strata"=FALSE,
@@ -557,15 +569,21 @@ Def_Control <- function(control){
         if (nm %in% names(control)){
             if (nm=="ncores"){
                 if (control$ncores>control_def$ncores){
-                    if (control$verbose){
+                    if (control$verbose >= 1){
                         message(paste("Error: Cores Requested:",control["ncores"],
                               ", Cores Available:",control_def["ncores"],sep=" "))
                     }
                     stop()
                 }
             } else if (nm=="verbose"){
-                if (control$verbose %in% c(0,1,T,F)){
-                    control$verbose <- as.logical(control$verbose)
+                if (control$verbose %in% c(0,1,2,3,4)){
+                    #pass
+                } else if (control$verbose %in% c(T,F)){
+                    if (control$verbose){
+                        control$verbose <- 3
+                    } else {
+                        control$verbose <- 0
+                    }
                 } else {
                     message("Error: verbosity arguement not valid")
                     stop()
@@ -613,7 +631,7 @@ Def_modelform_fix <- function(control,model_control,modelform,term_n){
             modelform <- "GMIX"
         }
     } else {
-        if (control$verbose){
+        if (control$verbose >= 1){
             message(paste("Error: Model formula ",modelform," not in acceptable list",sep=""))
         }
         stop()
@@ -621,7 +639,7 @@ Def_modelform_fix <- function(control,model_control,modelform,term_n){
     if (modelform == "GMIX"){
         gmix_term <- model_control$gmix_term
         if (length(gmix_term) != term_tot){
-            if (control$verbose){
+            if (control$verbose >= 1){
                 message(paste("Error: Terms used:",term_tot,", Terms with gmix types available:",length(gmix_term),sep=" "))
             }
             stop()
@@ -717,14 +735,20 @@ Def_model_control <- function(control){
 Def_Control_Guess <- function(guesses_control, a_n){
     names(guesses_control) <- tolower(names(guesses_control))
     if ("verbose" %in% names(guesses_control)){ #determines extra printing
-        if (guesses_control$verbose %in% c(0,1,T,F)){
-            guesses_control$verbose <- as.logical(guesses_control$verbose)
+        if (guesses_control$verbose %in% c(0,1,2,3,4)){
+            #pass
+        } else if (guesses_control$verbose %in% c(T,F)){
+            if (guesses_control$verbose){
+                guesses_control$verbose <- 3
+            } else {
+                guesses_control$verbose <- 0
+            }
         } else {
             message("Error: verbosity arguement not valid")
             stop()
         }
     } else {
-        guesses_control$verbose <- FALSE
+        guesses_control$verbose <- 0
     }
     if ("maxiter" %in% names(guesses_control)){ #determines the iterations for each guess
         #fine
@@ -833,9 +857,15 @@ Def_Control_Guess <- function(guesses_control, a_n){
 #' paras <- list("cov_0"=c(1,3.45), "cov_1"=c(1.2, 4.5, 0.1))
 #' full_paras <- Linked_Dose_Formula(tforms, paras)
 #'
-Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+Linked_Dose_Formula <- function(tforms,paras,verbose=0){
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
@@ -847,7 +877,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             a0 <- plist[1]
             y <- plist[2]
             if (a0 < 0 ){
-                if (verbose){
+                if (verbose>=1){
                     message("Error: a0 arguement was negative")
                 }
                 stop()
@@ -855,7 +885,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             if (is.numeric(a0)){
                 #fine
             } else {
-                if (verbose){
+                if (verbose>=1){
                     message("Error: a0 arguement was not a number")
                 }
                 stop()
@@ -863,7 +893,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             if (is.numeric(y)){
                 #fine
             } else {
-                if (verbose){
+                if (verbose>=1){
                     message("Error: threshold arguement was not a number")
                 }
                 stop()
@@ -877,7 +907,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             y <- plist[2]
             b1 <-plist[3]
             if (a0 < 0 ){
-                if (verbose){
+                if (verbose>=1){
                     message("Error: a0 arguement was negative")
                 }
                 stop()
@@ -885,7 +915,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             if (is.numeric(a0)){
                 #fine
             } else {
-                if (verbose){
+                if (verbose>=1){
                     message("Error: a0 arguement was not a number")
                 }
                 stop()
@@ -893,7 +923,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             if (is.numeric(y)){
                 #fine
             } else {
-                if (verbose){
+                if (verbose>=1){
                     message("Error: threshold arguement was not a number")
                 }
                 stop()
@@ -901,7 +931,7 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
             if (is.numeric(b1)){
                 #fine
             } else {
-                if (verbose){
+                if (verbose>=1){
                     message("Error: exponential arguement was not a number")
                 }
                 stop()
@@ -929,9 +959,15 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=FALSE){
 #' a1_goal <- 15
 #' full_paras <- Linked_Lin_Exp_Para(y,a0,a1_goal)
 #'
-Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=0){
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
@@ -939,7 +975,7 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
     b1 <- 10
     lr <- 1.0
     if (a0 < 0 ){
-        if (verbose){
+        if (verbose>=1){
             message("Error: a0 arguement was negative")
         }
         stop()
@@ -947,7 +983,7 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
     if (a1_goal > y*a0){
         #fine
     } else {
-        if (verbose){
+        if (verbose>=1){
             message("Error: goal is too low")
         }
         stop()
@@ -991,9 +1027,15 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=FALSE){
 #' df <- val$df
 #' new_col <- val$cols
 #'
-factorize <-function(df,col_list,verbose=FALSE){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+factorize <-function(df,col_list,verbose=0){
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
@@ -1015,7 +1057,7 @@ factorize <-function(df,col_list,verbose=FALSE){
     cols <- setdiff(names(df), col0)
     #
     cols <- Check_Dupe_Columns(df,cols,rep(0,length(cols)),verbose,TRUE)
-    if (verbose){
+    if (verbose>=3){
         message(paste("Note: Number of factors:",length(cols),sep=""))
     }
     list('df'=df, 'cols'=cols)
@@ -1042,9 +1084,15 @@ factorize <-function(df,col_list,verbose=FALSE){
 #' df <- val$df
 #' new_col <- val$cols
 #'
-factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCores())){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+factorize_par <-function(df,col_list,verbose=0, nthreads=as.numeric(detectCores())){
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
@@ -1099,9 +1147,15 @@ factorize_par <-function(df,col_list,verbose=FALSE, nthreads=as.numeric(detectCo
 #' df <- vals$df
 #' new_col <- vals$cols
 #' 
-interact_them <- function(df,interactions,new_names,verbose=FALSE){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+interact_them <- function(df,interactions,new_names,verbose=0){
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
@@ -1111,7 +1165,7 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
         interac <- interactions[i]
         formula <- unlist(strsplit(interac,"[?]"),use.names=FALSE)
         if (length(formula)!=3){
-            if (verbose){
+            if (verbose>=1){
                 message(paste("Error: Iteration:",interac,"has incorrect length of",
                       length(formula),"but should be 3."))
             }
@@ -1124,11 +1178,11 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
         col1 <- formula[1]
         col2 <- formula[3]
         if (paste(formula[1],"?",formula[2],"?",formula[3],sep="") %in% interactions[i+seq_len(length(interactions))]){
-            if (verbose){
+            if (verbose>=2){
                 message(paste("Warning: interation ", i, "is duplicated"))
             }
         } else if (paste(formula[3],"?",formula[2],"?",formula[1],sep="") %in% interactions[i+seq_len(length(interactions))]){
-            if (verbose){
+            if (verbose>=2){
                 message(paste("Warning: the reverse of interation ", i, "is duplicated"))
             }
         } else {
@@ -1139,7 +1193,7 @@ interact_them <- function(df,interactions,new_names,verbose=FALSE){
                 df[, newcol] <- df[,col1, with = FALSE] * df[,col2, with = FALSE]
                 cols <- c(cols, newcol)
             } else {
-                if (verbose){
+                if (verbose>=1){
                     message(paste("Error: Incorrect operation of",formula[2]))
                 }
                 stop()
@@ -1193,9 +1247,15 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model){
 #' term_n <- c(0,0,1)
 #' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 #'
-Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+Check_Dupe_Columns <- function(df,cols,term_n,verbose=0, factor_check=FALSE){
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
@@ -1212,13 +1272,13 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
             f1 <- pair[1]
             f2 <- pair[2]
             if (!(f1 %in% names(df))){
-                if (verbose){
+                if (verbose>=1){
                     message(paste("Error: ",f1," not in data.table",sep=""))
                 }
                 stop()
             }
             if (!(f2 %in% names(df))){
-                if (verbose){
+                if (verbose>=1){
                     message(paste("Error: ",f2," not in data.table",sep=""))
                 }
                 stop()
@@ -1241,7 +1301,7 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
                 df[,get(f2)]
                 if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
                     if (all(df[[f1]] == df[[f2]])) { # test for duplicates
-                        if (verbose){
+                        if (verbose>=2){
                             message(paste("Warning: ",f1, " and ", f2, " are equal",sep=""))
                         }
                         toRemove <- c(toRemove, f2) # build the list of duplicates
@@ -1266,7 +1326,7 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
     } else if (length(cols)==1){
         f1 <- cols[1]
         if (!(f1 %in% names(df))){
-            if (verbose){
+            if (verbose>=1){
                 message(paste("Error: ",f1," not in data.table",sep=""))
             }
             stop()
@@ -1309,16 +1369,22 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=FALSE, factor_check=FALSE)
 #' df <- val$df
 #' ce <- val$ce
 #'
-Check_Trunc <- function(df,ce,verbose=FALSE){
-    if (verbose %in% c(0,1,T,F)){
-        verbose <- as.logical(verbose)
+Check_Trunc <- function(df,ce,verbose=0){
+    if (verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (verbose %in% c(T,F)){
+        if (verbose){
+            verbose <- 3
+        } else {
+            verbose <- 0
+        }
     } else {
         message("Error: verbosity arguement not valid")
         stop()
     }
     if (ce[1]=="%trunc%"){
         if (ce[2]=="%trunc%"){
-            if (verbose){
+            if (verbose>=1){
                 message("Error: Both endpoints are truncated, not acceptable")
             }
             stop()

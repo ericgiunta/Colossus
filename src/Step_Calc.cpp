@@ -442,13 +442,13 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, bool verbose){
+void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose){
     // starts with solved likelihoods and derivatives
     // store the second derivative as D0
     MatrixXd D0 = Lldd_mat;
     deriv_max = 100;
     if (step==0){
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
             Rcout << "C++ Note: df204 ";//prints parameter values
             for (int ij=0;ij<totalnum;ij++){
@@ -501,7 +501,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
             }
         }
         // At this point, we have the standard newton-raphson equation defined
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
             Rcout << "C++ Note: df202 ";//prints the first derivatives
             for (int ij=0;ij<reqrdnum;ij++){
@@ -584,7 +584,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 }
             }
         }
-        if (verbose){
+        if (verbose>=4){
             Rcout << "C++ Note: df205 ";//prints parameter values
             for (int ij=0;ij<totalnum;ij++){
                 Rcout << dbeta[ij] << " ";

@@ -4,7 +4,7 @@
 \alias{interact_them}
 \title{Defines Interactions}
 \usage{
-interact_them(df, interactions, new_names, verbose = FALSE)
+interact_them(df, interactions, new_names, verbose = 0)
 }
 \arguments{
 \item{df}{a data.table containing the columns of interest}

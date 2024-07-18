@@ -1068,11 +1068,14 @@ test_that("Checking verbose", {
     Cons_Vec <- c(1,0,-1)
 
     expect_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=-1))
-    expect_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=2))
-    expect_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose="TRUE"))
+    expect_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=5))
+    expect_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose="bad"))
     
     expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=T))
     expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=F))
+    expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=4))
+    expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=3))
+    expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=2))
     expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=1))
     expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,0, Cons_Mat, Cons_Vec,verbose=0))
 })

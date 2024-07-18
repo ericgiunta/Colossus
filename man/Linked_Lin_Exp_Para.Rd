@@ -4,7 +4,7 @@
 \alias{Linked_Lin_Exp_Para}
 \title{Calculates The Additional Parameter For a linear-exponential formula with known maximum}
 \usage{
-Linked_Lin_Exp_Para(y, a0, a1_goal, verbose = FALSE)
+Linked_Lin_Exp_Para(y, a0, a1_goal, verbose = 0)
 }
 \arguments{
 \item{y}{point formula switch}

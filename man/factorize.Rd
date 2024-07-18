@@ -4,7 +4,7 @@
 \alias{factorize}
 \title{Splits a parameter into factors}
 \usage{
-factorize(df, col_list, verbose = FALSE)
+factorize(df, col_list, verbose = 0)
 }
 \arguments{
 \item{df}{a data.table containing the columns of interest}

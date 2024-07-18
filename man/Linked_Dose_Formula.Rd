@@ -4,7 +4,7 @@
 \alias{Linked_Dose_Formula}
 \title{Calculates Full Parameter list for Special Dose Formula}
 \usage{
-Linked_Dose_Formula(tforms, paras, verbose = FALSE)
+Linked_Dose_Formula(tforms, paras, verbose = 0)
 }
 \arguments{
 \item{tforms}{list of formula types}

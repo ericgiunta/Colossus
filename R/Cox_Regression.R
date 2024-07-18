@@ -66,7 +66,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
-    if (control$verbose){
+    if (control$verbose>=2){
         if (any(val$Permutation != seq_along(tform))){
             message("Warning: model covariate order changed")
         }
@@ -76,7 +76,9 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
+        if (control$verbose>=1){
+            message("Error: Atleast one parameter must be free")
+        }
         stop()
     }
     if ("CONST" %in% names){
@@ -100,7 +102,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
             df0 <- dfend[get(strat_col)==uniq[i],]
             tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
             if (length(tu0)==0){
-                if (control$verbose){
+                if (control$verbose>=2){
                     message(paste("Warning: no events for strata group:",
                                  uniq[i],sep=" "))
                 }
@@ -109,7 +111,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         }
         uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]),
                             use.names=FALSE))
-        if (control$verbose){
+        if (control$verbose>=3){
             message(paste("Note:",length(uniq)," strata used",sep=" "))
         }
         #
@@ -119,12 +121,12 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
-        if (control$verbose){
+        if (control$verbose>=1){
             message("Error: no events")
         }
         stop()
     }
-    if (control$verbose){
+    if (control$verbose>=3){
         message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     all_names <- unique(names)
@@ -152,7 +154,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         	if (length(control$maxiters) == length(a_n)+1){
         		#all good, it matches
         	} else {
-        		if (control$verbose){
+        		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
                           ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
@@ -174,7 +176,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 	                applied_iter <- c(rep(iter0,control$guesses),iter1)
 	                control$maxiters <- applied_iter
 	            } else {
-	                if (control$verbose){
+	                if (control$verbose>=1){
                         message(paste("Error: guesses:",control["guesses"],
                               ", iterations per guess:",control["maxiters"],sep=" "))
                     }
@@ -205,7 +207,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         	if (length(control$maxiters) == length(a_n)+1){
         		#all good, it matches
         	} else {
-        		if (control$verbose){
+        		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
                           ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
@@ -227,7 +229,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 	                applied_iter <- c(rep(iter0,control$guesses),iter1)
 	                control$maxiters <- applied_iter
 	            } else {
-	                if (control$verbose){
+	                if (control$verbose>=1){
                         message(paste("Error: guesses:",control["guesses"],
                               ", iterations per guess:",control["maxiters"],sep=" "))
                     }
@@ -259,7 +261,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
              keep_constant,term_tot, uniq, cens_weight, model_control,
              Cons_Mat, Cons_Vec)
 	    if (is.nan(e$LogLik)){
-		    if (control$verbose){message("Invalid risk")}
+		    if (control$verbose>=1){message("Error: Invalid risk")}
 		    stop()
 	    }
         e$Parameter_Lists$names <- names
@@ -668,7 +670,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
         message("Error: Atleast one parameter must be free")
         stop()
     }
-    if (plot_options$verbose){
+    if (plot_options$verbose>=3){
         message("Note: Starting Plot Function")
     }
     if ("CONST" %in% names){
@@ -682,7 +684,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     base  <- NULL
     der_iden <- 0
     Plot_Type <- plot_options$type
-    if (plot_options$verbose){
+    if (plot_options$verbose>=3){
         message("Note: Getting Plot Info")
     }
     dfend <- df[get(event0)==1, ]
@@ -691,13 +693,13 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
         message("Error: no events")
         stop()
     }
-    if (plot_options$verbose){
+    if (plot_options$verbose>=3){
         message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     if ("type" %in% names(plot_options)){
         #fine
     } else {
-        if (plot_options$verbose){
+        if (plot_options$verbose>=1){
             message("Error: Plot type not given")
         }
         stop()
@@ -713,13 +715,13 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
                 if (plot_options$strat_col %in% names(df)){
                     #fine
                 } else {
-                    if (plot_options$verbose){
+                    if (plot_options$verbose>=1){
                         message("Error: Stratification Column not in dataframe")
                     }
                     stop()
                 }
             } else {
-                if (plot_options$verbose){
+                if (plot_options$verbose>=1){
                     message("Error: Stratification Column not given")
                 }
                 stop()
@@ -737,7 +739,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
                     if (dose_col%in% names(df)){
                         #fine
                     } else {
-                        if (plot_options$verbose){
+                        if (plot_options$verbose>=1){
                             message("Error: Covariate column "+
                                    dose_col+" is not in the dataframe")
                         }
@@ -745,7 +747,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
                     }
                 }
             } else {
-                if (plot_options$verbose){
+                if (plot_options$verbose>=1){
                     message("Error: dose column not given")
                 }
                 stop()
@@ -760,13 +762,13 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
                 if (plot_options$studyid%in% names(df)){
                     #fine
                 } else {
-                    if (plot_options$verbose){
+                    if (plot_options$verbose>=1){
                         message("Error: ID column is not in the dataframe")
                     }
                     stop()
                 }
             } else {
-                if (plot_options$verbose){
+                if (plot_options$verbose>=1){
                     message("Error: ID column not given")
                 }
                 stop()
@@ -791,6 +793,20 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
             plot_options[iden_col] <- FALSE
         }
     }
+    #
+    if (plot_options$verbose %in% c(0,1,2,3,4)){
+        #pass
+    } else if (plot_options$verbose %in% c(T,F)){
+        if (plot_options$verbose){
+            plot_options$verbose <- 3
+        } else {
+            plot_options$verbose <- 0
+        }
+    } else {
+        message("Error: plotting verbosity arguement not valid")
+        stop()
+    }
+    #
     control <- Def_Control(control)
     verbose <- data.table::copy(plot_options$verbose)
     verbosec <- data.table::copy(control$verbose)
@@ -798,7 +814,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
-        if (control$verbose){
+        if (control$verbose>=1){
             message("Error: no events")
         }
         stop()
@@ -834,12 +850,12 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     #
     #
     if (tolower(Plot_Type[1])=="surv"){
-        if (verbose){
+        if (verbose>=3){
             message("Note: starting ph_plot")
         }
         #
         if (plot_options$strat_haz==FALSE){
-        	if (verbose){
+        	if (verbose>=3){
 		        message("Note: nonStratified survival curve calculation")
 		    }
 		    model_control$surv <- TRUE
@@ -853,7 +869,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 		    h <- c()
 		    ch <- c()
 		    surv <- c()
-		    if (verbose){
+		    if (verbose>=3){
 		        message("Note: writing survival data")
 		    }
 		    dft <- data.table::data.table("time"=tu,"base"=e$baseline,
@@ -884,7 +900,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
             }
         } else {
         	age_unit <- plot_options$age_unit
-        	if (verbose){
+        	if (verbose>=3){
 		        message("Note: Stratified survival curve calculation")
 		    }
             if (plot_options$surv_curv==TRUE){
@@ -990,7 +1006,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
     rmin <- guesses_control$rmin
     rmax <- guesses_control$rmax
     if (length(rmin)!=length(rmax)){
-        if (control$verbose){
+        if (control$verbose>=2){
             message("Warning: rmin/rmax not equal size, lin/loglin min/max used")
         }
     }
@@ -1021,7 +1037,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
                                       modelform, fir, der_iden, control,
                                       guesses_control,strat_col)
     #
-    if (guesses_control$verbose){
+    if (guesses_control$verbose>=3){
         message("Note: INITIAL TERM COMPLETE")
         message(e)
     }
@@ -1162,7 +1178,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
     if ("strata" %in% names(guesses_control)){
         if ("strata" %in% names(model_control)){
             if (guesses_control$strata != model_control$strata){
-                if (guesses_control$verbose){
+                if (guesses_control$verbose>=1){
                     message("Error: guesses_control and model_control have different strata options")
                 }
                 stop()
@@ -1179,7 +1195,9 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
+        if (control$verbose>=1){
+            message("Error: Atleast one parameter must be free")
+        }
         stop()
     }
     if ("CONST" %in% names){
@@ -1198,12 +1216,12 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
         if (length(tu)==0){
-            if (guesses_control$verbose){
+            if (guesses_control$verbose>=1){
                 message("Error: no events")
             }
             stop()
         }
-        if (guesses_control$verbose){
+        if (guesses_control$verbose>=3){
             message(paste("Note: ",length(tu)," risk groups",sep=""))
         }
         all_names <- unique(names)
@@ -1225,14 +1243,14 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
             df0 <- dfend[get(strat_col)==uniq[i],]
             tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
             if (length(tu0)==0){
-                if (control$verbose){
+                if (control$verbose>=2){
                     message(paste("Warning: no events for strata group:",uniq[i],sep=" "))
                 }
                 df <- df[get(strat_col)!=uniq[i],]
             }
         }
         uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
-        if (control$verbose){
+        if (control$verbose>=3){
             message(paste("Note:",length(uniq)," strata used",sep=" "))
         }
         #
@@ -1240,12 +1258,12 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
         if (length(tu)==0){
-            if (guesses_control$verbose){
+            if (guesses_control$verbose>=1){
                 message("Error: no events")
             }
             stop()
         }
-        if (guesses_control$verbose){
+        if (guesses_control$verbose>=3){
             message(paste("Note: ",length(tu)," risk groups",sep=""))
         }
         all_names <- unique(names)

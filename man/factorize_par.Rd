@@ -4,12 +4,7 @@
 \alias{factorize_par}
 \title{Splits a parameter into factors in parallel}
 \usage{
-factorize_par(
-  df,
-  col_list,
-  verbose = FALSE,
-  nthreads = as.numeric(detectCores())
-)
+factorize_par(df, col_list, verbose = 0, nthreads = as.numeric(detectCores()))
 }
 \arguments{
 \item{df}{a data.table containing the columns of interest}

@@ -8,8 +8,7 @@
 #' @noRd
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Plot_Name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
-    verbose <- as.logical(verbose)
-    if (verbose){
+    if (verbose>=3){
         message("Note: Plotting Martingale Residuals")
     }
     #
@@ -22,7 +21,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
     e_i <- df[,get(event0)]
     for (cov_i in seq_len(length(dnames))){
         dname <- dnames[cov_i]
-        if (verbose){
+        if (verbose>=3){
             message(paste("Note: Martingale Plot: ",dname,sep=""))
         }
         if (studyID %in% names(df)){
@@ -124,8 +123,8 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, Pl
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
-    verbose <- as.logical(verbose)
-    if (verbose){
+    # verbose <- as.logical(verbose)
+    if (verbose>=3){
         message("Note: Plotting Survival Curves")
     }
     #
@@ -173,8 +172,8 @@ CoxSurvival <- function(t,h,ch,surv,Plot_Name,verbose,time_lims, age_unit){
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time2,tu,term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, age_unit, model_control=list()){
-    verbose <- as.logical(verbose)
-    if (verbose){
+    # verbose <- as.logical(verbose)
+    if (verbose>=3){
         message("Note: Plotting Kaplan-Meier Curve")
     }
     model_control <- Def_model_control(model_control)
@@ -236,7 +235,7 @@ CoxKaplanMeier <- function(verbose, verbosec, studyID,names,df,event0,time1,time
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, Plot_Type, b, er, model_control=list()){
-    verbose <- as.logical(verbose)
+    # verbose <- as.logical(verbose)
     fir_KM <- 0
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,term_n)
@@ -302,7 +301,7 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, Plot_Type, strat_col,time_lims, age_unit, model_control=list()){
-    verbose <- as.logical(verbose)
+    # verbose <- as.logical(verbose)
     dfend <- df[get(event0)==1, ]
     uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
     #
@@ -310,14 +309,14 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
         df0 <- dfend[get(strat_col)==uniq[i],]
         tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
         if (length(tu0)==0){
-            if (control$verbose){
+            if (control$verbose>=2){
                 message(paste("Warning: no events for strata group:",uniq[i],sep=" "))
             }
             df <- df[get(strat_col)!=uniq[i],]
         }
     }
     uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
-    if (control$verbose){
+    if (control$verbose>=3){
         message(paste("Note:",length(uniq)," strata used",sep=" "))
     }
     #
@@ -350,7 +349,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
     tsurv <- c()
     categ <- c()
     
-    if (verbose){
+    if (verbose>=3){
         message(paste("Note: Starting Stratification: Calculation"))
     }
     model_control$surv <- TRUE
@@ -359,7 +358,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
                                  modelform, control, as.matrix(df[,ce, with = FALSE]),
                                  tu, keep_constant, term_tot, uniq, c(0), model_control)
 	for (col_i in seq_along(uniq)){
-        if (verbose){
+        if (verbose>=3){
             message(paste("Note: Starting Stratification calculation ",col_i))
         }
         col_u <- uniq[col_i]
@@ -423,12 +422,12 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
-        if (control$verbose){
+        if (control$verbose>=1){
             message("Error: no events")
         }
         stop()
     }
-    if (control$verbose){
+    if (control$verbose>=3){
         message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n, names, der_iden)
@@ -540,7 +539,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
 #'
 GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list(),strat_col="e"){
     df <- data.table(df)
-    if (plot_options$verbose){
+    if (plot_options$verbose>=3){
         message("Note: Starting Censoring weight Plot Function")
     }
     if (min(keep_constant)>0){
@@ -557,12 +556,12 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
-        if (plot_options$verbose){
+        if (plot_options$verbose>=1){
             message("Error: no events")
         }
         stop()
     }
-    if (plot_options$verbose){
+    if (plot_options$verbose>=3){
         message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     #
@@ -575,7 +574,7 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
         if (iden_col %in% names(plot_options)){
             #fine
         } else {
-            plot_options[iden_col] <- FALSE
+            plot_options[iden_col] <- 0
         }
     }
     #
