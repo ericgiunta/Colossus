@@ -45,6 +45,8 @@
 #' @param paras  list of formula parameters
 #' @param plot_options  list of parameters controlling the plot options, see RunCoxPlots() for different options
 #' @param pyr0  column used for person-years per row
+#' @param realization_columns  used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization
+#' @param realization_index  used for multi-realization regressions. Vector of column names, one for each column with realizations. each name should be used in the "names" variable in the equation definition
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
 #' @param t  event times

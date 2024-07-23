@@ -1299,3 +1299,191 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
                                   model_control=model_control,cens_weight=cens_weight)
     return (e)
 }
+
+#' Performs Cox Proportional Hazards regression using the omnibus function with multiple column realizations
+#'
+#' \code{RunCoxRegression_Omnibus_Multidose} uses user provided data, time/event columns,
+#'       vectors specifying the model, and options to control the convergence
+#'       and starting positions. Used for 2DMC column uncertainty methods.
+#'       Returns optimized parameters, log-likelihood, and standard deviation for each realization. 
+#'       Has additional options for using stratification,
+#'       multiplicative loglinear 1-term,
+#'       competing risks, and calculation without derivatives
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results for each realization
+#' @export
+#' @family Cox Wrapper Functions
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' 
+#' df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
+#'            "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
+#'              "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
+#'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
+#'                       "a"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
+#'                       "c"=c(10,  11,  10,  11,  12,  9,   11),
+#'                       "d"=c(0,   0,   0,   1,   1,   1,   1),
+#'                       "e"=c(0,   0,   1,   0,   0,   0,   1),
+#'                       "a0"=c(0,   1,   1,   0,   1,   0,   1),
+#'                       "a1"=c(0,   1,   1,   0,   1,   0,   1))
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c('a','b','c','d')
+#' a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4))
+#' #used to test at a specific point
+#' term_n <- c(0,1,1,2)
+#' tform <- c("loglin","lin","lin","plin")
+#' modelform <- "M"
+#' fir <- 0
+#' 
+#' keep_constant <- c(0,0,0,0)
+#' der_iden <- 0
+#' realization_columns = matrix(c("a0","a1"),nrow=1)
+#' realization_index=c("a")
+#' 
+#' control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
+#'    'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
+#'    'ties'='breslow','double_step'=1, "guesses"=2)
+#' 
+#' #e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
+#' #                              names, term_n, tform, keep_constant,
+#' #                              a_n, modelform, fir, der_iden,
+#' #                              realization_columns, realization_index,control,
+#' #                              model_control=list("single"=FALSE,
+#' #                              "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
+#' @importFrom rlang .data
+RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, realization_columns = matrix(c("temp00","temp01","temp10","temp11"),nrow=2), realization_index=c("temp0","temp1"), control=list(),strat_col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+    df <- data.table(df)
+    control <- Def_Control(control)
+    val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
+                                 names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
+    term_n <- val$term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n <- val$a_n
+    der_iden <- val$der_iden
+    names <- val$names
+    Cons_Mat <- as.matrix(val$Cons_Mat)
+    Cons_Vec <- val$Cons_Vec
+    if (control$verbose>=2){
+        if (any(val$Permutation != seq_along(tform))){
+            message("Warning: model covariate order changed")
+        }
+    }
+    model_control <- Def_model_control(model_control)
+    val <- Def_modelform_fix(control,model_control,modelform,term_n)
+    modelform <- val$modelform
+    model_control <- val$model_control
+    if (min(keep_constant)>0){
+        if (control$verbose>=1){
+            message("Error: Atleast one parameter must be free")
+        }
+        stop()
+    }
+    if ("CONST" %in% names){
+        if ("CONST" %in% names(df)){
+            #fine
+        } else {
+            df$CONST <- 1
+        }
+    }
+    if (model_control$strata==FALSE){
+        data.table::setkeyv(df, c(time2, event0))
+        uniq <- c(0)
+        ce <- c(time1,time2,event0)
+    } else {
+        #
+        dfend <- df[get(event0)==1, ]
+        uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]),
+                            use.names=FALSE))
+        #
+        for (i in seq_along(uniq)){
+            df0 <- dfend[get(strat_col)==uniq[i],]
+            tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
+            if (length(tu0)==0){
+                if (control$verbose>=2){
+                    message(paste("Warning: no events for strata group:",
+                                 uniq[i],sep=" "))
+                }
+                df <- df[get(strat_col)!=uniq[i],]
+            }
+        }
+        uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]),
+                            use.names=FALSE))
+        if (control$verbose>=3){
+            message(paste("Note:",length(uniq)," strata used",sep=" "))
+        }
+        #
+        data.table::setkeyv(df, c(time2, event0, strat_col))
+        ce <- c(time1,time2,event0,strat_col)
+    }
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
+    if (length(tu)==0){
+        if (control$verbose>=1){
+            message("Error: no events")
+        }
+        stop()
+    }
+    if (control$verbose>=3){
+        print("is this just not showing?")
+        message(paste("Note: ",length(tu)," risk groups",sep=""))
+    }
+    all_names <- unique(names)
+    # print(all_names)
+    #
+    df <- Replace_Missing(df,all_names,0.0,control$verbose)
+    # replace_missing equivalent for the realization columns
+    #
+    if (length(realization_index)==length(realization_columns[,1])){
+        #pass
+    } else {
+        #the number of columns per realization does not match the number of indexes provided
+        if (control$verbose>=1){
+            message(paste("Error:",length(realization_index)," column indexes provided, but ",length(realization_columns[,1])," rows of realizations columns provided",sep=" "))
+        }
+        stop()
+    }
+    if (all(realization_index %in% all_names)){
+        #pass
+    } else {
+        if (control$verbose>=1){
+            message(paste("Error: Atleast one realization column provided was not used in the model",sep=" "))
+        }
+        stop()
+    }
+    all_names <- unique(c(all_names, as.vector(realization_columns)))
+    # print(all_names)
+    #
+    dfc <- match(names,all_names)
+    dose_cols <- matrix(match(realization_columns, all_names), nrow=nrow(realization_columns))
+    dose_index <- match(realization_index, all_names)
+    # print(dfc)
+    # print(dose_cols)
+    # print(dose_index)
+
+    term_tot <- max(term_n)+1
+    x_all <- as.matrix(df[,all_names, with = FALSE])
+    #
+    #
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    #
+    print("c++ start")
+    e <- cox_ph_multidose_Omnibus_transition(term_n, tform, a_n,
+            as.matrix(dose_cols, with=FALSE), dose_index,dfc,x_all,
+            fir, der_iden, modelform, control,
+            as.matrix(df[,ce, with = FALSE]),tu,
+            keep_constant,term_tot, uniq, cens_weight, model_control,
+            Cons_Mat, Cons_Vec)
+    e$Parameter_Lists$names <- names
+    return (e)
+}

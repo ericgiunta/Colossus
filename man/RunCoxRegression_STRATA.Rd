@@ -104,6 +104,7 @@ Other Cox Wrapper Functions:
 \code{\link{RunCoxRegression_CR}()},
 \code{\link{RunCoxRegression_Guesses_CPP}()},
 \code{\link{RunCoxRegression_Omnibus}()},
+\code{\link{RunCoxRegression_Omnibus_Multidose}()},
 \code{\link{RunCoxRegression_Single}()},
 \code{\link{RunCoxRegression_Tier_Guesses}()}
 }
