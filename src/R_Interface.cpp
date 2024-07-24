@@ -775,14 +775,13 @@ List pois_Residual_transition(NumericMatrix dfe, IntegerVector Term_n, StringVec
 //'
 // [[Rcpp::export]]
 List cox_ph_multidose_Omnibus_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index,IntegerVector dfc,NumericMatrix x_all, int fir, int der_iden,string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
-    Rcout << "interface start" << endl;
     bool change_all = Control["change_all"];
     int double_step = Control["double_step"];
     int verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
     int maxiter = Control["maxiter"];
-    int guesses = Control["guesses"];
+    // int guesses = Control["guesses"];
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     double dbeta_cap = Control["dbeta_max"];
@@ -792,17 +791,14 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector Term_n, StringVector tfor
     string ties_method =Control["ties"];
     int nthreads = Control["ncores"];
     //
-    Rcout << "interface 0" << endl;
 	const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
 	double cens_thres = Control["cens_thres"];
 	double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
 	//
-    Rcout << "interface 1" << endl;
 	const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
 	const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
 	//
-    Rcout << "interface 2" << endl;
 	bool strata_bool = model_control["strata"];
 	bool basic_bool  = model_control["basic"];
 	bool null_bool   = model_control["null"];
@@ -812,8 +808,6 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector Term_n, StringVector tfor
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    Rcout << "interface 3" << endl;
-    Rcout << verbose << endl;
     List res = LogLik_Cox_PH_Multidose_Omnibus(Term_n, tform, a_n, x_all, dose_cols, dose_index, dfc,fir, der_iden,modelform, lr, maxiter, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all,verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;

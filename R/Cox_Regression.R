@@ -1433,7 +1433,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         stop()
     }
     if (control$verbose>=3){
-        print("is this just not showing?")
         message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     all_names <- unique(names)
@@ -1460,6 +1459,14 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         stop()
     }
     all_names <- unique(c(all_names, as.vector(realization_columns)))
+    if (all(all_names %in% names(df))){
+        #pass
+    } else {
+        if (control$verbose>=1){
+            message(paste("Error: Atleast one realization column provided was not in the data.table",sep=" "))
+        }
+        stop()
+    }
     # print(all_names)
     #
     dfc <- match(names,all_names)
@@ -1477,7 +1484,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
     df <- t_check$df
     ce <- t_check$ce
     #
-    print("c++ start")
+    #
     e <- cox_ph_multidose_Omnibus_transition(term_n, tform, a_n,
             as.matrix(dose_cols, with=FALSE), dose_index,dfc,x_all,
             fir, der_iden, modelform, control,
