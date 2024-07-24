@@ -45,19 +45,19 @@
 #' e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant,
 #'                                   a_n, modelform, fir, der_iden, control,strat_col)
 #' @importFrom rlang .data
-RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null",model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
     df <- data.table(df)
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
-                                 names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
+                                 names, der_iden, cons_mat, cons_vec,control$verbose)
     term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    Cons_Mat <- as.matrix(val$Cons_Mat)
-    Cons_Vec <- val$Cons_Vec
+    cons_mat <- as.matrix(val$cons_mat)
+    cons_vec <- val$cons_vec
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
@@ -137,7 +137,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
         	} else {
         		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
-                          ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                          ", Number of iterations provided:",length(control$maxiters),
+                          ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
                 if (length(control$maxiters) < length(a_n)+1){
 		            additional <- length(a_n)+1 - length(control$maxiters)
@@ -182,7 +183,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
         e <- pois_Omnibus_Bounds_transition(as.matrix(df[,ce, with = FALSE]),
              term_n,tform,a_ns,dfc,x_all, fir, modelform, control,
              keep_constant,term_tot,as.matrix(df0[,val_cols, with=FALSE]),
-             model_control, Cons_Mat, Cons_Vec)
+             model_control, cons_mat, cons_vec)
     } else {
         if ("maxiters" %in% names(control)){
             if (length(control$maxiters) == length(a_n)+1){
@@ -190,7 +191,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
             } else {
                 if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
-                        ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                        ", Number of iterations provided:",length(control$maxiters),
+                        ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
                 if (length(control$maxiters) < length(a_n)+1){
                     additional <- length(a_n)+1 - length(control$maxiters)
@@ -233,7 +235,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
                                     matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE),
                                     dfc,x_all, fir,der_iden, modelform, control,keep_constant,
                                     term_tot,as.matrix(df0[,val_cols, with=FALSE]),model_control,
-                                    Cons_Mat, Cons_Vec)
+                                    cons_mat, cons_vec)
         e$Parameter_Lists$names <- names
         if (is.nan(e$LogLik)){
             if (control$verbose>=1){
@@ -316,7 +318,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #'                                         modelform, fir, der_iden, control,strat_col)
 #' 
 #' @importFrom rlang .data
-RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list(), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null",model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, term_n_list=list(), tform_list=list(), keep_constant_list=list(), a_n_list=list(), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null",model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
     df <- data.table(df)
     val <- Joint_Multiple_Events(df, events, name_list, term_n_list, tform_list, keep_constant_list, a_n_list)
     df <- val$df
@@ -505,7 +507,9 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, term_n, tform, ke
         a_ns <- c(a_ns, i)
     }
     #
-    e <- Assigned_Event_Poisson_transition(as.matrix(df[,ce, with = FALSE]), as.matrix(df0), term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, control, keep_constant, term_tot, model_control)
+    e <- Assigned_Event_Poisson_transition(as.matrix(df[,ce, with = FALSE]), as.matrix(df0), term_n, tform,
+                                           a_n, dfc, x_all, fir, der_iden, modelform, control, keep_constant,
+                                           term_tot, model_control)
     #
     return (e)
 }
@@ -568,15 +572,18 @@ RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model,
     a_n <- alternative_model$beta_0
     stdev <- alternative_model$Standard_Deviation
     #
-    e_mid <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+    e_mid <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform,
+                                       fir, der_iden, control, strat_col, model_control)
     #
     a_n <- alternative_model$beta_0
     a_n[check_num] <- a_n[check_num] - z* stdev[check_num] 
-    e_low <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+    e_low <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform,
+                                       fir, der_iden, control, strat_col, model_control)
     #
     a_n <- alternative_model$beta_0
     a_n[check_num] <- a_n[check_num] + z* stdev[check_num] 
-    e_high <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+    e_high <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform,
+                                        fir, der_iden, control, strat_col, model_control)
     #
     bound_results <- list("lower_limit"=e_low, "midpoint"=e_mid, "upper_limit"=e_high)
     return (bound_results)
@@ -967,19 +974,19 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, term_n, tf
 #' @importFrom rlang .data
 RunPoissonRegression_Residual <- function(df, pyr0="pyr", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null",model_control=list()){
     df <- data.table(df)
-    Cons_Mat=as.matrix(c(0))
-    Cons_Vec=c(0)
+    cons_mat=as.matrix(c(0))
+    cons_vec=c(0)
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
-                                 names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
+                                 names, der_iden, cons_mat, cons_vec,control$verbose)
     term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    Cons_Mat <- as.matrix(val$Cons_Mat)
-    Cons_Vec <- val$Cons_Vec
+    cons_mat <- as.matrix(val$cons_mat)
+    cons_vec <- val$cons_vec
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }

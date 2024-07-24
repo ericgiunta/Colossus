@@ -28,7 +28,7 @@ RunPoissonRegression(
 
 \item{names}{columns for elements of the model, used to identify data columns}
 
-\item{term_n}{term numbers}
+\item{term_n}{term numbers for each element of the model}
 
 \item{tform}{list of string function identifiers, used for linear/step}
 

@@ -4,14 +4,14 @@
 \alias{Replace_Missing}
 \title{Automatically assigns missing values in listed columns}
 \usage{
-Replace_Missing(df, name_list, MSV, verbose = FALSE)
+Replace_Missing(df, name_list, msv, verbose = FALSE)
 }
 \arguments{
 \item{df}{a data.table containing the columns of interest}
 
 \item{name_list}{vector of string column names to check}
 
-\item{MSV}{value to replace na with, same used for every column used}
+\item{msv}{value to replace na with, same used for every column used}
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 }

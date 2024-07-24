@@ -50,19 +50,19 @@
 #'                               model_control=list("single"=FALSE,
 #'                               "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null", cens_weight=c(1), model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
     df <- data.table(df)
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
-                                 names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
+                                 names, der_iden, cons_mat, cons_vec,control$verbose)
     term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    Cons_Mat <- as.matrix(val$Cons_Mat)
-    Cons_Vec <- val$Cons_Vec
+    cons_mat <- as.matrix(val$cons_mat)
+    cons_vec <- val$cons_vec
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
@@ -156,7 +156,8 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         	} else {
         		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
-                          ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                          ", Number of iterations provided:",length(control$maxiters),
+                          ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
                 if (length(control$maxiters) < length(a_n)+1){
 		            additional <- length(a_n)+1 - length(control$maxiters)
@@ -201,7 +202,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         e <- cox_ph_Omnibus_Bounds_transition(term_n,tform,a_ns,dfc,x_all, fir,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, cens_weight, model_control,
-             Cons_Mat, Cons_Vec)
+             cons_mat, cons_vec)
     } else {
         if ("maxiters" %in% names(control)){
         	if (length(control$maxiters) == length(a_n)+1){
@@ -209,7 +210,8 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         	} else {
         		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
-                          ", Number of iterations provided:",length(control$maxiters),". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                          ", Number of iterations provided:",length(control$maxiters),
+                          ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
                 }
                 if (length(control$maxiters) < length(a_n)+1){
 		            additional <- length(a_n)+1 - length(control$maxiters)
@@ -259,7 +261,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         e <- cox_ph_Omnibus_transition(term_n,tform,a_ns,dfc,x_all, fir,der_iden,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, cens_weight, model_control,
-             Cons_Mat, Cons_Vec)
+             cons_mat, cons_vec)
 	    if (is.nan(e$LogLik)){
 		    if (control$verbose>=1){message("Error: Invalid risk")}
 		    stop()
@@ -683,7 +685,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     data.table::setkeyv(df, c(time2, event0))
     base  <- NULL
     der_iden <- 0
-    Plot_Type <- plot_options$type
+    plot_type <- plot_options$type
     if (plot_options$verbose>=3){
         message("Note: Getting Plot Info")
     }
@@ -779,7 +781,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
-    if (tolower(Plot_Type[1])=="surv"){
+    if (tolower(plot_type[1])=="surv"){
         if ("time_lims" %in% names(plot_options)){
             #fine
         } else {
@@ -809,7 +811,6 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     #
     control <- Def_Control(control)
     verbose <- data.table::copy(plot_options$verbose)
-    verbosec <- data.table::copy(control$verbose)
     maxiterc <- data.table::copy(control$maxiter)
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
@@ -849,7 +850,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     er <- e$Standard_Deviation
     #
     #
-    if (tolower(Plot_Type[1])=="surv"){
+    if (tolower(plot_type[1])=="surv"){
         if (verbose>=3){
             message("Note: starting ph_plot")
         }
@@ -891,11 +892,11 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 		        #
 		        CoxMartingale(verbose, df, time1, time2, event0, e, t, ch,
 		                      plot_options$cov_cols,
-		                      Plot_Type[2], age_unit,plot_options$studyid)
+		                      plot_type[2], age_unit,plot_options$studyid)
 		        #
 		    }
 		    if (plot_options$surv_curv==TRUE){
-		        CoxSurvival(t,h,ch,surv,Plot_Type[2],verbose,
+		        CoxSurvival(t,h,ch,surv,plot_type[2],verbose,
 		                    plot_options$time_lims, age_unit)
             }
         } else {
@@ -907,26 +908,26 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
                 model_control$strata <- TRUE
                 CoxStratifiedSurvival(verbose, df, event0, time1, time2,
                      all_names,term_n, tform, a_n, er, fir, der_iden,
-                     modelform, control, keep_constant, Plot_Type,
+                     modelform, control, keep_constant, plot_type,
                      plot_options$strat_col, plot_options$time_lims,age_unit)
             }
         }
         if (plot_options$km==TRUE){
             #
-            CoxKaplanMeier(verbose, verbosec, plot_options$studyid,
+            CoxKaplanMeier(verbose, plot_options$studyid,
                            all_names,df,event0,time1, time2,tu,term_n,
                            tform, a_n, er, fir, der_iden, modelform,
-                           control,keep_constant, Plot_Type,age_unit)
+                           control,keep_constant, plot_type,age_unit)
         }
-    } else if (tolower(Plot_Type[1])=="risk"){
+    } else if (tolower(plot_type[1])=="risk"){
         CoxRisk(verbose, df, event0, time1, time2, names,term_n, tform,
                 a_n, fir, der_iden, modelform, control,keep_constant,
-                Plot_Type, b, er)
-    } else if (tolower(Plot_Type[1])=="schoenfeld"){
+                plot_type, b, er)
+    } else if (tolower(plot_type[1])=="schoenfeld"){
         age_unit <- plot_options$age_unit
         PlotCox_Schoenfeld_Residual(df, time1, time2, event0, names, term_n,
                                     tform, keep_constant, a_n, modelform, fir,
-                                    der_iden, control,age_unit,Plot_Type[2])
+                                    der_iden, control,age_unit,plot_type[2])
     }
     return ("Passed")
 }
@@ -1359,19 +1360,19 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
 #' #                              model_control=list("single"=FALSE,
 #' #                              "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, realization_columns = matrix(c("temp00","temp01","temp10","temp11"),nrow=2), realization_index=c("temp0","temp1"), control=list(),strat_col="null", cens_weight=c(1), model_control=list(),Cons_Mat=as.matrix(c(0)),Cons_Vec=c(0)){
+RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, realization_columns = matrix(c("temp00","temp01","temp10","temp11"),nrow=2), realization_index=c("temp0","temp1"), control=list(),strat_col="null", cens_weight=c(1), model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
     df <- data.table(df)
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
-                                 names, der_iden, Cons_Mat, Cons_Vec,control$verbose)
+                                 names, der_iden, cons_mat, cons_vec,control$verbose)
     term_n <- val$term_n
     tform <- val$tform
     keep_constant <- val$keep_constant
     a_n <- val$a_n
     der_iden <- val$der_iden
     names <- val$names
-    Cons_Mat <- as.matrix(val$Cons_Mat)
-    Cons_Vec <- val$Cons_Vec
+    cons_mat <- as.matrix(val$cons_mat)
+    cons_vec <- val$cons_vec
     if (control$verbose>=2){
         if (any(val$Permutation != seq_along(tform))){
             message("Warning: model covariate order changed")
@@ -1436,7 +1437,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         message(paste("Note: ",length(tu)," risk groups",sep=""))
     }
     all_names <- unique(names)
-    # print(all_names)
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     # replace_missing equivalent for the realization columns
@@ -1446,7 +1446,8 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
     } else {
         #the number of columns per realization does not match the number of indexes provided
         if (control$verbose>=1){
-            message(paste("Error:",length(realization_index)," column indexes provided, but ",length(realization_columns[,1])," rows of realizations columns provided",sep=" "))
+            message(paste("Error:",length(realization_index)," column indexes provided, but ",
+                          length(realization_columns[,1])," rows of realizations columns provided",sep=" "))
         }
         stop()
     }
@@ -1467,14 +1468,10 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         }
         stop()
     }
-    # print(all_names)
     #
     dfc <- match(names,all_names)
     dose_cols <- matrix(match(realization_columns, all_names), nrow=nrow(realization_columns))
     dose_index <- match(realization_index, all_names)
-    # print(dfc)
-    # print(dose_cols)
-    # print(dose_index)
 
     term_tot <- max(term_n)+1
     x_all <- as.matrix(df[,all_names, with = FALSE])
@@ -1490,7 +1487,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
             fir, der_iden, modelform, control,
             as.matrix(df[,ce, with = FALSE]),tu,
             keep_constant,term_tot, uniq, cens_weight, model_control,
-            Cons_Mat, Cons_Vec)
+            cons_mat, cons_vec)
     e$Parameter_Lists$names <- names
     return (e)
 }

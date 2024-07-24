@@ -1,41 +1,41 @@
-test_that("Coxph loglin_M Basic", {
+test_that( "Coxph loglin_M Basic", {
     fname <- 'll_0.csv'
-    colTypes <- c("double","double","double","integer","integer")
+    colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     event <- "lung"
-    names <- c("dose","fac")
+    names <- c( "dose", "fac" )
     term_n <- c(0,0)
-    tform <- c("loglin","loglin")
+    tform <- c( "loglin", "loglin" )
     keep_constant <- c(0,0)
     a_n <- c(0.01,0.1)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 20, 'halfmax' = 5, 'epsilon' = 1e-6, 'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant, a_n, der_iden, control)
     expect_equal(e$beta_0,c(-0.09962, -0.05698),tolerance=1e-2)
 })
 
-test_that("Coxph censoring weight", {
+test_that( "Coxph censoring weight", {
     fname <- 'll_comp_0.csv'
-    colTypes <- c("double","double","double","integer","integer")
+    colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
     df$censor <- (df$lung==0)
     event <- "censor"
-    names <- c("dose","fac")
+    names <- c( "dose", "fac" )
     term_n <- c(0,0)
-    tform <- c("loglin","loglin")
+    tform <- c( "loglin", "loglin" )
     keep_constant <- c(1,0)
     a_n <- c(0,0)
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = -1,'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=0, 'ties'='breslow','double_step'=1)
-    plot_options <- list("name"=paste(tempfile(),"run",sep=""),"verbose"=TRUE,"studyid"="studyid","age_unit"="years")
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = -1, 'epsilon' = 1e-6, 'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "name"=paste(tempfile(), "run",sep="" ), "verbose"=TRUE, "studyid"="studyid", "age_unit"="years" )
     dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #
     #

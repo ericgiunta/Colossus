@@ -13,7 +13,7 @@ state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![codecov](https://codecov.io/gh/ericgiunta/Colossus/graph/badge.svg?token=NMH5R502W8)](https://codecov.io/gh/ericgiunta/Colossus)
 [![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
-[![OS\_Checks](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml/badge.svg?branch=main)](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml)
+[![OS_Checks](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml/badge.svg?branch=main)](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml)
 <!-- badges: end -->
 
 The goal of Colossus is to provide an open-source means of performing
@@ -39,6 +39,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(data.table)
+#> Warning: package 'data.table' was built under R version 4.3.3
 library(parallel)
 library(Colossus)
 ## basic example code reproduced from the starting-description vignette
@@ -92,9 +93,6 @@ print(e)
 #> 
 #> $Standard_Deviation
 #> [1]      NaN      NaN 177.9643   0.0000
-#> 
-#> $Alternate_Standard_Deviation
-#> [1]         NaN 3781272.348 3698136.197    2326.871
 #> 
 #> $AIC
 #> [1] 9.350729

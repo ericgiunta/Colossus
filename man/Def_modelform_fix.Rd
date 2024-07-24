@@ -13,7 +13,7 @@ Def_modelform_fix(control, model_control, modelform, term_n)
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{term_n}{term numbers}
+\item{term_n}{term numbers for each element of the model}
 }
 \value{
 returns a filled list

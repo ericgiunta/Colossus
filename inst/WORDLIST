@@ -65,4 +65,5 @@ subterm
 subterms
 tform
 trunc
+unshared
 vec

@@ -229,11 +229,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
     const Map<MatrixXd> df_dep(as<Map<MatrixXd> >(df0_dep));
     const Map<MatrixXd> df_const(as<Map<MatrixXd> >(df0_const));
     Rcout.precision(10); //forces higher precision numbers printed to terminal
-//    int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
-    // if (df_dep.cols() % 2 !=0 ){
-    //     Rcout << "C++ Error: Odd number of linear dependent columns, starting and end values should be given" << endl;
-    //     return;
-    // }
     int tot_covs = ceil(2 + df_dep.cols()/2 + df_const.cols() + 1);
     int max_rows = 0;
     if (iscox){
@@ -622,8 +617,6 @@ bool OMP_Check(){
 //'
 // [[Rcpp::export]]
 List cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector STRATA_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
-    // bool change_all = Control["change_all"];
-    // int double_step = Control["double_step"];
     int verbose = Control["verbose"];
     bool debugging = FALSE;
     double lr = Control["lr"];
@@ -667,7 +660,6 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector tform, 
     } else {
         res = LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
     }
-//    res = LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -682,8 +674,6 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector tform, 
 //'
 // [[Rcpp::export]]
 List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector Term_n, StringVector tform, NumericVector a_n,IntegerVector dfc,NumericMatrix x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec){
-    // bool change_all = Control["change_all"];
-    // int double_step = Control["double_step"];
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
     //
@@ -778,6 +768,7 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector Term_n, StringVector tfor
     bool change_all = Control["change_all"];
     int double_step = Control["double_step"];
     int verbose = Control["verbose"];
+    Rcout << verbose << endl;
     bool debugging = FALSE;
     double lr = Control["lr"];
     int maxiter = Control["maxiter"];

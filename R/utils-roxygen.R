@@ -1,8 +1,3 @@
-#' @param MSV  value to replace na with, same used for every column used
-#' @param Plot_Name  plot identifier, used in filename for saved plots
-#' @param Plot_Type  list of parameters controlling the plot options: surv, risk, schoenfeld
-#' @param strat_col  column to stratify by if needed
-#' @param term_n  term numbers for each element of the model
 #' @param a0  linear slope
 #' @param a1_goal  exponential maximum desired
 #' @param a_n  list of initial parameter values, used to determine number of parameters
@@ -16,8 +11,8 @@
 #' @param col_name  vector of new column names
 #' @param cols  columns to check
 #' @param control  list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")
-#' @param Cons_Mat Matrix containing coefficients for system of linear constraints, formatted as matrix
-#' @param Cons_Vec Vector containing constants for system of linear constraints, formatted as vector
+#' @param cons_mat Matrix containing coefficients for system of linear constraints, formatted as matrix
+#' @param cons_vec Vector containing constants for system of linear constraints, formatted as vector
 #' @param dep_cols  columns that are not needed in the new dataframe
 #' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters
 #' @param df  a data.table containing the columns of interest
@@ -37,20 +32,24 @@
 #' @param keep_constant  binary values to denote which parameters to change
 #' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
+#' @param msv  value to replace na with, same used for every column used
 #' @param name_list  vector of string column names to check
 #' @param names  columns for elements of the model, used to identify data columns
 #' @param new_names  list of new names to use instead of default, default used if entry is ''
 #' @param nthreads  number of threads to use, do not use more threads than available on your machine
 #' @param null_model  a model to compare against, in list form
 #' @param paras  list of formula parameters
+#' @param plot_name  plot identifier, used in filename for saved plots
 #' @param plot_options  list of parameters controlling the plot options, see RunCoxPlots() for different options
+#' @param plot_type  list of parameters controlling the plot options: surv, risk, schoenfeld
 #' @param pyr0  column used for person-years per row
 #' @param realization_columns  used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization
 #' @param realization_index  used for multi-realization regressions. Vector of column names, one for each column with realizations. each name should be used in the "names" variable in the equation definition
+#' @param strat_col  column to stratify by if needed
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
 #' @param t  event times
-#' @param term_n  term numbers
+#' @param term_n  term numbers for each element of the model
 #' @param tform  list of string function identifiers, used for linear/step
 #' @param tforms  list of formula types
 #' @param time1  column used for time period starts
@@ -60,7 +59,6 @@
 #' @param tu  unique event times
 #' @param units  time unit to use
 #' @param verbose  boolean to control if additional information is printed to the console, also accepts 0/1 integer
-#' @param verbosec  boolean identifying if extra regression information should be written to the console, also accepts 0/1 integer
 #' @param y  point formula switch
 #'
 #' @name R_template
@@ -115,8 +113,8 @@ NULL
 #' @param colToRemove  column index to remove
 #' @param cols  list of column identifiers, single continuous list
 #' @param constraint_bool  boolean for system of linear equality constraints used
-#' @param Cons_Mat Matrix containing coefficients for system of linear constraints
-#' @param Cons_Vec Vector containing constants for system of linear constraints
+#' @param cons_mat Matrix containing coefficients for system of linear constraints
+#' @param cons_vec Vector containing constants for system of linear constraints
 #' @param dbeta  parameter change vector
 #' @param dbeta_cap  learning rate for newton step toward 0 log-likelihood
 #' @param debugging  additional boolean for verbosity in testing

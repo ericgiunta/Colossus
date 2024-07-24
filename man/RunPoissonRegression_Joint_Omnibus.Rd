@@ -19,8 +19,8 @@ RunPoissonRegression_Joint_Omnibus(
   control = list(),
   strat_col = "null",
   model_control = list(),
-  Cons_Mat = as.matrix(c(0)),
-  Cons_Vec = c(0)
+  cons_mat = as.matrix(c(0)),
+  cons_vec = c(0)
 )
 }
 \arguments{
@@ -52,9 +52,9 @@ RunPoissonRegression_Joint_Omnibus(
 
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
 
-\item{Cons_Mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
+\item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
 
-\item{Cons_Vec}{Vector containing constants for system of linear constraints, formatted as vector}
+\item{cons_vec}{Vector containing constants for system of linear constraints, formatted as vector}
 }
 \value{
 returns a list of the final results

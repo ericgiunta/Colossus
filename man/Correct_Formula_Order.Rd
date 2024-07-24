@@ -11,14 +11,14 @@ Correct_Formula_Order(
   a_n,
   names,
   der_iden = 0,
-  Cons_Mat = matrix(c(0)),
-  Cons_Vec = c(0),
+  cons_mat = matrix(c(0)),
+  cons_vec = c(0),
   verbose = FALSE,
   model_control = list(para_number = 0)
 )
 }
 \arguments{
-\item{term_n}{term numbers}
+\item{term_n}{term numbers for each element of the model}
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
@@ -30,9 +30,9 @@ Correct_Formula_Order(
 
 \item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
 
-\item{Cons_Mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
+\item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
 
-\item{Cons_Vec}{Vector containing constants for system of linear constraints, formatted as vector}
+\item{cons_vec}{Vector containing constants for system of linear constraints, formatted as vector}
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
@@ -54,8 +54,8 @@ keep_constant <- c(0,0,0,1,0)
 a_n <- c(1,2,3,4,5)
 names <- c("a","a","a","a","a")
 val <- Correct_Formula_Order(term_n, tform, keep_constant,
-                             a_n, names, Cons_Mat=matrix(c(0)),
-                             Cons_Vec=c(0))
+                             a_n, names, cons_mat=matrix(c(0)),
+                             cons_vec=c(0))
 term_n <- val$term_n
 tform <- val$tform
 keep_constant <- val$keep_constant

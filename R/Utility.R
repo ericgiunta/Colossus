@@ -202,8 +202,8 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
 #' a_n <- c(1,2,3,4,5)
 #' names <- c("a","a","a","a","a")
 #' val <- Correct_Formula_Order(term_n, tform, keep_constant,
-#'                              a_n, names, Cons_Mat=matrix(c(0)),
-#'                              Cons_Vec=c(0))
+#'                              a_n, names, cons_mat=matrix(c(0)),
+#'                              cons_vec=c(0))
 #' term_n <- val$term_n
 #' tform <- val$tform
 #' keep_constant <- val$keep_constant
@@ -211,7 +211,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
 #' der_iden <- val$der_iden
 #' names <- val$names
 #'
-Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_iden=0, Cons_Mat=matrix(c(0)),Cons_Vec=c(0),verbose=FALSE, model_control=list('para_number'=0)){
+Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_iden=0, cons_mat=matrix(c(0)),cons_vec=c(0),verbose=FALSE, model_control=list('para_number'=0)){
     #
     if (verbose %in% c(0,1,2,3,4)){
         #pass
@@ -236,10 +236,10 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
         message("Error: der_iden should be within 0:(length(tform)-1)")
         stop()
     }
-    if (is.matrix(Cons_Mat)){
+    if (is.matrix(cons_mat)){
         #pass
     } else {
-        Cons_Mat <- as.matrix(Cons_Mat)
+        cons_mat <- as.matrix(cons_mat)
         if (verbose >= 2){
             message("Warning: Constraint Matrix was not a matrix, converted")
         }
@@ -262,11 +262,14 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
         stop()
     }
     if (min(term_n)!=0){
-        message(paste("Warning: term_n expects nonnegative integer values and a minimum of 0, minimum value was ",min(term_n),". Minimum value set to 0, others shifted by ",-1*min(term_n),sep=""))
+        message(paste("Warning: term_n expects nonnegative integer values and a minimum of 0, minimum value was ",
+                      min(term_n),". Minimum value set to 0, others shifted by ",-1*min(term_n),sep=""))
         term_n <- term_n - min(term_n)
     }
     if (length(sort(unique(term_n))) != length(min(term_n):max(term_n))){
-        message(paste("Error: term_n expects no missing integer values. Term numbers range from ",min(term_n)," to ",max(term_n)," but term_n has ", length(unique(term_n)), " unique values instead of ",length(min(term_n):max(term_n)),sep=""))
+        message(paste("Error: term_n expects no missing integer values. Term numbers range from ",min(term_n),
+                      " to ",max(term_n)," but term_n has ", length(unique(term_n)), " unique values instead of ",
+                      length(min(term_n):max(term_n)),sep=""))
         stop()
     }
     if (length(keep_constant)<length(names)){
@@ -304,12 +307,12 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
         }
     }
     #
-    if (ncol(Cons_Mat)>1){
-        if (ncol(Cons_Mat)!=(length(keep_constant)-sum(keep_constant))){
+    if (ncol(cons_mat)>1){
+        if (ncol(cons_mat)!=(length(keep_constant)-sum(keep_constant))){
             message("Error: Constraint matrix has incorrect number of columns")
             stop()
         }
-        if (nrow(Cons_Mat)!=length(Cons_Vec)){
+        if (nrow(cons_mat)!=length(cons_vec)){
             message("Error: Constraint rows and constant lengths do not match")
             stop()
         }
@@ -461,15 +464,15 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
             cons_order <- c(cons_order,i)
         }
     }
-    if (ncol(Cons_Mat)>1){
-        colnames(Cons_Mat) <- seq_len(ncol(Cons_Mat))
-        r0 <- nrow(Cons_Mat)
-        c0 <- ncol(Cons_Mat)
-        Cons_Mat <- as.matrix(Cons_Mat[,cons_order])
-        if ((nrow(Cons_Mat)==r0)&& (ncol(Cons_Mat)==c0)){
+    if (ncol(cons_mat)>1){
+        colnames(cons_mat) <- seq_len(ncol(cons_mat))
+        r0 <- nrow(cons_mat)
+        c0 <- ncol(cons_mat)
+        cons_mat <- as.matrix(cons_mat[,cons_order])
+        if ((nrow(cons_mat)==r0)&& (ncol(cons_mat)==c0)){
             #all good
-        }else if ((nrow(Cons_Mat)==c0)&& (ncol(Cons_Mat)==r0)){
-            Cons_Mat <- t(Cons_Mat)
+        }else if ((nrow(cons_mat)==c0)&& (ncol(cons_mat)==r0)){
+            cons_mat <- t(cons_mat)
         } else {
             message("matrix reordering failed")
             stop()
@@ -481,7 +484,7 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
     para_num <- which(b_temp==1) - 1
     list("term_n"=df$term_n, "tform"=df$tform, "keep_constant"=df$keep_constant,
          "a_n"=a_n, "der_iden"=der_iden, "names"=df$names,"Permutation"=df$current_order,
-         "Cons_Mat"=unname(Cons_Mat),"Cons_Vec"=Cons_Vec, "para_num"=para_num)
+         "cons_mat"=unname(cons_mat),"cons_vec"=cons_vec, "para_num"=para_num)
 }
 
 #' Automatically assigns missing values in listed columns
@@ -501,7 +504,7 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
 #'              "Ending_Age"=c(30,  45,  NA,  47,  36,  NA,  55),
 #'           "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
 #' df <- Replace_Missing(df, c("Starting_Age","Ending_Age"), 70)
-Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
+Replace_Missing <- function(df,name_list,msv,verbose=FALSE){
     if (verbose %in% c(0,1,2,3,4)){
         #pass
     } else if (verbose %in% c(T,F)){
@@ -514,7 +517,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
         message("Error: verbosity arguement not valid")
         stop()
     }
-    if (is.na(MSV)){
+    if (is.na(msv)){
         if (verbose >= 1){
             message("Error: The missing-value replacement is also NA")
         }
@@ -532,7 +535,7 @@ Replace_Missing <- function(df,name_list,MSV,verbose=FALSE){
         }
         #
         if (sum(is.na(df[[j]]))){
-            data.table::set(df,which(is.na(df[[j]])),j,MSV)
+            data.table::set(df,which(is.na(df[[j]])),j,msv)
             if (verbose >= 3){
                 message(paste("Note: Column ",j," had replaced values",sep=""))
             }
@@ -640,7 +643,8 @@ Def_modelform_fix <- function(control,model_control,modelform,term_n){
         gmix_term <- model_control$gmix_term
         if (length(gmix_term) != term_tot){
             if (control$verbose >= 1){
-                message(paste("Error: Terms used:",term_tot,", Terms with gmix types available:",length(gmix_term),sep=" "))
+                message(paste("Error: Terms used:",term_tot,", Terms with gmix types available:",
+                              length(gmix_term),sep=" "))
             }
             stop()
         }
@@ -663,7 +667,8 @@ Def_modelform_fix <- function(control,model_control,modelform,term_n){
 #'
 Def_model_control <- function(control){
     names(control) <- tolower(names(control))
-    control_def_names <- c('single','basic','null','cr','constraint','strata','surv','schoenfeld','risk','risk_subset','log_bound','pearson','deviance')
+    control_def_names <- c('single','basic','null','cr','constraint','strata','surv','schoenfeld','risk',
+                           'risk_subset','log_bound','pearson','deviance')
     for (nm in control_def_names){
         if (nm %in% names(control)){
             #fine
@@ -1637,7 +1642,8 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(term_n_list)){
             temp1 <- unlist(term_n_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in term_n_list has ",length(temp1),
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in term_n_list has ",
+                              length(temp1),
                               " items. Omit entry in term_n_list to set to default of term 0 or add missing values",sep=""))
                 stop()
             }
@@ -1649,7 +1655,8 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(tform_list)){
             temp1 <- unlist(tform_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in tform_list has ",length(temp1),
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in tform_list has ",
+                              length(temp1),
                               " items. Omit entry in tform_list to set to default of 'loglin' or add missing values",sep=""))
                 stop()
             }
@@ -1661,7 +1668,8 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(keep_constant_list)){
             temp1 <- unlist(keep_constant_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in keep_constant_list has ",length(temp1),
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in keep_constant_list has ",
+                              length(temp1),
                               " items. Omit entry in tform_list to set to default of 0 or add missing values",sep=""))
                 stop()
             }
@@ -1673,7 +1681,8 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(a_n_list)){
             temp1 <- unlist(a_n_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in a_n_list has ",length(temp1),
+                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in a_n_list has ",
+                              length(temp1),
                               " items. Omit entry in a_n_list to set to default of 0 or add missing values",sep=""))
                 stop()
             }

@@ -378,16 +378,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
-    // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
-    //
-    // Lld_worst: stores the highest magnitude log-likelihood derivative
-    //
-    //
-    //
     // ---------------------------------------------
-    // To Start, needs to seperate the derivative terms
-    // ---------------------------------------------
-    //
     // ------------------------------------------------------------------------- // initialize
     Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
@@ -684,8 +675,6 @@ List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector
     MatrixXd caused = MatrixXd::Zero(PyrC.rows(),3);
     MatrixXd predict = MatrixXd::Zero(PyrC.rows(),3);
     //
-//    caused.col(0) = (TTerm.col(fir).array() / R.col(0).array() * PyrC.col(1).array()).array().sum();
-//    caused.col(1) = PyrC.col(1).array().sum() - caused[0];
     //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
     predict.col(1) = (R.col(0).array() * PyrC.col(0).array()).array() - predict.col(0).array();

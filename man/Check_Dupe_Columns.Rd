@@ -11,7 +11,7 @@ Check_Dupe_Columns(df, cols, term_n, verbose = 0, factor_check = FALSE)
 
 \item{cols}{columns to check}
 
-\item{term_n}{term numbers}
+\item{term_n}{term numbers for each element of the model}
 
 \item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
 
