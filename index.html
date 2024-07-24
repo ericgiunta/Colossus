@@ -38,6 +38,7 @@
 <li><a class="dropdown-item" href="articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
     <li><a class="dropdown-item" href="articles/Alt_Run_opt.html">Alternative Regression Options</a></li>
     <li><a class="dropdown-item" href="articles/dose_formula_inputs.html">Dose Response Formula Terms</a></li>
+    <li><a class="dropdown-item" href="articles/Multi_Realization.html">Multiple Realization Methods</a></li>
     <li><a class="dropdown-item" href="articles/Plotting_And_Analysis.html">Functions for plotting and analysis</a></li>
     <li><a class="dropdown-item" href="articles/starting-description.html">Colossus Description</a></li>
     <li><a class="dropdown-item" href="articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
@@ -71,6 +72,7 @@
 <p>This is a basic example which shows you how to solve a common problem:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: package 'data.table' was built under R version 4.3.3</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="co">## basic example code reproduced from the starting-description vignette</span></span>
@@ -124,9 +126,6 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Standard_Deviation</span></span>
 <span><span class="co">#&gt; [1]      NaN      NaN 177.9643   0.0000</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Alternate_Standard_Deviation</span></span>
-<span><span class="co">#&gt; [1]         NaN 3781272.348 3698136.197    2326.871</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $AIC</span></span>
 <span><span class="co">#&gt; [1] 9.350729</span></span>
