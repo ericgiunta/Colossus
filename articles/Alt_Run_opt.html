@@ -181,7 +181,7 @@ regression.</p>
 <div class="section level3">
 <h3 id="poisson-regression">Poisson Regression<a class="anchor" aria-label="anchor" href="#poisson-regression"></a>
 </h3>
-<p>Poisson regression doesn’t have risk groups to account for, but the
+<p>Poisson regression does not have risk groups to account for, but the
 theory is the same. To remove the influence of stratification covariate
 a new term is added to account for their effects. In Colossus, this is a
 Log-Linear term. So the following may be the model used without
@@ -267,7 +267,7 @@ instead, or they are assumed to never experience the event of interest.
 However there are methods to find a more realistic alternative. Colossus
 applies the Fine-Gray model for competing risks, which instead weights
 the contribution of competing event intervals in future intervals by the
-probability they wouldn’t have been censored.</p>
+probability they would not have been censored.</p>
 <p>As previously established, the risk groups are formed to measure the
 probability that an individual survived up to the time and experienced
 the event of interest, given that they did not experience an event up to
