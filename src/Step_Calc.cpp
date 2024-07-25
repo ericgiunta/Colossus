@@ -442,7 +442,7 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose){
+void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose, double mult){
     // starts with solved likelihoods and derivatives
     // store the second derivative as D0
     MatrixXd D0 = Lldd_mat;
@@ -468,7 +468,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
         MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
         removeColumn(dLdBdO, para_number);
         double h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0,0);
-        h = pow(qchi/(-1*h),0.5);
+        h = mult * pow(qchi/(-1*h),0.5);
         if (upper){
             h = abs(h)/2;
         } else {

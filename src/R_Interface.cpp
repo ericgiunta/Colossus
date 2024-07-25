@@ -635,6 +635,7 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector tform, 
 	double cens_thres = Control["cens_thres"];
 	double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
+	double mult = model_control["search_mult"];
 	//
 	const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
 	const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
@@ -656,9 +657,9 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector Term_n, StringVector tform, 
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     if (manual){
-        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
+        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult);
     } else {
-        res = LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
+        res = LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult);
     }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -693,6 +694,7 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector Term_n, Str
 	double cens_thres = Control["cens_thres"];
 	double gmix_theta = model_control["gmix_theta"];
 	IntegerVector gmix_term = model_control["gmix_term"];
+	double mult = model_control["search_mult"];
 	//
 	const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
 	const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
@@ -711,9 +713,9 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector Term_n, Str
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     if (manual){
-        res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
+        res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult);
     } else {
-        res = LogLik_Poisson_Omnibus_Log_Bound(       PyrC, dfs, Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
+        res = LogLik_Poisson_Omnibus_Log_Bound(       PyrC, dfs, Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult);
     }
     // res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, Term_n, tform, a_n, x_all, dfc,fir,modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max,dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep);
     //----------------------------------------------------------------------------------------------------------------//

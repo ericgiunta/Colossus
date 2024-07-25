@@ -1948,7 +1948,7 @@ List LogLik_Pois_Omnibus(MatrixXd PyrC, IntegerVector Term_n, StringVector tform
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep){
+List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult){
     ;
     //
     List temp_list = List::create(_["Status"]="TEMP"); //used as a dummy return value for code checking
@@ -2214,7 +2214,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         //
         trouble = false;
         half_check = 0;
-        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble){
             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
         }
@@ -2410,7 +2410,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
         step++;
         trouble = false;
         half_check = 0;
-        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble){
             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
         }
@@ -2567,7 +2567,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector Term_n, StringVector tform, 
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep){
+List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult){
     ;
     //
     List temp_list = List::create(_["Status"]="TEMP"); //used as a dummy return value for code checking
@@ -2813,7 +2813,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     double deriv_max = 100;
     //
     // int guesses = 5;
-    int mult = 1.5;
+//    double mult = 1.5;
 //    int guess_inters = 10;
     //
     IntegerVector KeepConstant_trouble (totalnum);
@@ -2837,7 +2837,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     upper = true;
     // Now define the list of points to check
     trouble = false;
-    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose, mult);
     NumericMatrix a_ns(guesses, totalnum);
     // now the dbeta holds the range to check
     // note that currently the guesses are not bounded
@@ -2845,7 +2845,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
         for (int j=0;j<totalnum;j++){
             // use dbeta to assign a_n guess i, parameter j
             // assign such that i=guesses-1 gives mult*dbeta
-            a_ns(i, j) = beta_0[j] + dbeta_start[j] * mult * ( i+1)/(guesses);
+            a_ns(i, j) = beta_0[j] + dbeta_start[j] * ( i+1)/(guesses);
         }
     }
     if (verbose>=4){
@@ -3188,7 +3188,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     while ((step<maxstep)&&(iter_continue)){
         step++;
          trouble = false;
-         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
          if (trouble){
              Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
          }
@@ -3377,14 +3377,14 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     Lld_vec = as<Map<VectorXd> >(Lld_vecc);
     //
     trouble = false;
-    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose, mult);
     // now the dbeta holds the range to check
     // note that currently the guesses are not bounded
     for (int i=0;i<guesses;i++){
         for (int j=0;j<totalnum;j++){
             // use dbeta to assign a_n guess i, parameter j
             // assign such that i=guesses-1 gives mult*dbeta
-            a_ns(i, j) = beta_0[j] + dbeta_start[j] * mult * ( i+1)/(guesses);
+            a_ns(i, j) = beta_0[j] + dbeta_start[j] * ( i+1)/(guesses);
         }
     }
     if (verbose>=4){
@@ -3719,7 +3719,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
     while ((step<maxstep)&&(iter_continue)){
          step++;
          trouble = false;
-         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
          if (trouble){
              Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
          }
@@ -3877,7 +3877,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector Term_n, StringVector 
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Poisson_Omnibus_Log_Bound( MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep){
+List LogLik_Poisson_Omnibus_Log_Bound( MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult){
     ;
     //
     List temp_list = List::create(_["Status"]="TEMP"); //used as a dummy return value for code checking
@@ -4115,7 +4115,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( MatrixXd PyrC, const MatrixXd& dfs, Integ
         //
         trouble = false;
         half_check = 0;
-        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble){
             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
         }
@@ -4336,7 +4336,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( MatrixXd PyrC, const MatrixXd& dfs, Integ
         step++;
         trouble = false;
         half_check = 0;
-        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble){
             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
         }
@@ -4510,7 +4510,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( MatrixXd PyrC, const MatrixXd& dfs, Integ
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep){
+List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all,IntegerVector dfc,int fir,string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max,double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult){
     ;
     //
     List temp_list = List::create(_["Status"]="TEMP"); //used as a dummy return value for code checking
@@ -4733,7 +4733,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs,
     double deriv_max = 100;
     //
     // int guesses = 5;
-    int mult = 1.5;
+//    double mult = 1.5;
 //    int guess_inters = 10;
     //
     IntegerVector KeepConstant_trouble (totalnum);
@@ -4757,7 +4757,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs,
     upper = true;
     // Now define the list of points to check
     trouble = false;
-    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose, mult);
     NumericMatrix a_ns(guesses, totalnum);
     // now the dbeta holds the range to check
     // note that currently the guesses are not bounded
@@ -4765,7 +4765,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs,
         for (int j=0;j<totalnum;j++){
             // use dbeta to assign a_n guess i, parameter j
             // assign such that i=guesses-1 gives mult*dbeta
-            a_ns(i, j) = beta_0[j] + dbeta_start[j] * mult * ( i+1)/(guesses);
+            a_ns(i, j) = beta_0[j] + dbeta_start[j] * ( i+1)/(guesses);
         }
     }
     if (verbose>=4){
@@ -5219,7 +5219,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs,
     while ((step<maxstep)&&(iter_continue)){
         step++;
         trouble = false;
-        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+        Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble){
             Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
         }
@@ -5474,14 +5474,14 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs,
     Lld_vec = as<Map<VectorXd> >(Lld_vecc);
     //
     trouble = false;
-    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose, mult);
     // now the dbeta holds the range to check
     // note that currently the guesses are not bounded
     for (int i=0;i<guesses;i++){
         for (int j=0;j<totalnum;j++){
             // use dbeta to assign a_n guess i, parameter j
             // assign such that i=guesses-1 gives mult*dbeta
-            a_ns(i, j) = beta_0[j] + dbeta_start[j] * mult * ( i+1)/(guesses);
+            a_ns(i, j) = beta_0[j] + dbeta_start[j] * ( i+1)/(guesses);
         }
     }
     if (verbose>=4){
@@ -5904,7 +5904,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs,
     while ((step<maxstep)&&(iter_continue)){
          step++;
          trouble = false;
-         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
          if (trouble){
              Calc_Change_trouble( para_number, nthreads, totalnum, dbeta_cap, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble, debugging);
          }

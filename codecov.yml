@@ -1,3 +1,11 @@
 # sample regex patterns
 ignore:
   - "**/RcppExport*"  # ignore all RcppExport files
+coverage:
+  status:
+    project:
+      default:
+        target: 90%
+        paths:
+          - "src"
+          - "R"

@@ -718,6 +718,11 @@ Def_model_control <- function(control){
         } else {
             control["manual"] <- FALSE
         }
+        if ("search_mult" %in% names(control)){
+            #fine
+        } else {
+            control["search_mult"] <- 1.0
+        } 
     }
     return (control)
 }

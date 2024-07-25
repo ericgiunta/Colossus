@@ -35,7 +35,7 @@ There is one special case of large multi-dimensional spaces that has been given 
 
 ### Infeasible Parameter Spaces
 
-The risks calculated for Cox Proportional Hazards and Poisson regressions are generally assumed to be strictly positive values. The use of log-likelihoods as a scoring metric wouldn't be possible without this assumption. However it is possible that, during a regression, the risk may be calculated with a set of parameters that would give a negative probability of an event. To illustrate consider the following poisson model.
+The risks calculated for Cox Proportional Hazards and Poisson regressions are generally assumed to be strictly positive values. The use of log-likelihoods as a scoring metric would not be possible without this assumption. However it is possible that, during a regression, the risk may be calculated with a set of parameters that would give a negative probability of an event. To illustrate consider the following poisson model.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -95,7 +95,7 @@ All of which use the same parameters the respective Cox Proportional Hazards and
 | maxiter | Iterations run for every random starting point |
 | guesses | Number of starting points to test |
 | guesses_start | Number of starting points tested for Tiered or Strata First regressions |
-| guess_constant | Binary values to denote if any parameter values shouldn't be randomized |
+| guess_constant | Binary values to denote if any parameter values should not be randomized |
 | exp_min | minimum exponential parameter change |
 | exp_max | maximum exponential parameter change |
 | intercept_min | minimum intercept parameter change |

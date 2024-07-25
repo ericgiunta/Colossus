@@ -699,8 +699,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // LogLik_Cox_PH_Omnibus_Log_Bound
-List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep);
-RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus_Log_Bound(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP STRATA_valsSEXP, SEXP cens_weightSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP basic_boolSEXP, SEXP null_boolSEXP, SEXP CR_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP) {
+List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult);
+RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus_Log_Bound(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP STRATA_valsSEXP, SEXP cens_weightSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP basic_boolSEXP, SEXP null_boolSEXP, SEXP CR_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP, SEXP multSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -745,13 +745,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type para_number(para_numberSEXP);
     Rcpp::traits::input_parameter< int >::type half_max(half_maxSEXP);
     Rcpp::traits::input_parameter< int >::type maxstep(maxstepSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep));
+    Rcpp::traits::input_parameter< double >::type mult(multSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Omnibus_Log_Bound(Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult));
     return rcpp_result_gen;
 END_RCPP
 }
 // LogLik_Cox_PH_Omnibus_Log_Bound_Search
-List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep);
-RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP STRATA_valsSEXP, SEXP cens_weightSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP basic_boolSEXP, SEXP null_boolSEXP, SEXP CR_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP) {
+List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd cens_weight, const double cens_thres, bool strata_bool, bool basic_bool, bool null_bool, bool CR_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult);
+RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search(SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP STRATA_valsSEXP, SEXP cens_weightSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP basic_boolSEXP, SEXP null_boolSEXP, SEXP CR_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP, SEXP multSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -796,13 +797,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type para_number(para_numberSEXP);
     Rcpp::traits::input_parameter< int >::type half_max(half_maxSEXP);
     Rcpp::traits::input_parameter< int >::type maxstep(maxstepSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Omnibus_Log_Bound_Search(Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep));
+    Rcpp::traits::input_parameter< double >::type mult(multSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Omnibus_Log_Bound_Search(Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, cens_thres, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult));
     return rcpp_result_gen;
 END_RCPP
 }
 // LogLik_Poisson_Omnibus_Log_Bound
-List LogLik_Poisson_Omnibus_Log_Bound(MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep);
-RcppExport SEXP _Colossus_LogLik_Poisson_Omnibus_Log_Bound(SEXP PyrCSEXP, SEXP dfsSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP) {
+List LogLik_Poisson_Omnibus_Log_Bound(MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult);
+RcppExport SEXP _Colossus_LogLik_Poisson_Omnibus_Log_Bound(SEXP PyrCSEXP, SEXP dfsSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP, SEXP multSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -841,13 +843,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type para_number(para_numberSEXP);
     Rcpp::traits::input_parameter< int >::type half_max(half_maxSEXP);
     Rcpp::traits::input_parameter< int >::type maxstep(maxstepSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep));
+    Rcpp::traits::input_parameter< double >::type mult(multSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult));
     return rcpp_result_gen;
 END_RCPP
 }
 // LogLik_Poisson_Omnibus_Log_Bound_Search
-List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep);
-RcppExport SEXP _Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search(SEXP PyrCSEXP, SEXP dfsSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP) {
+List LogLik_Poisson_Omnibus_Log_Bound_Search(MatrixXd PyrC, const MatrixXd& dfs, IntegerVector Term_n, StringVector tform, NumericVector a_n, NumericMatrix x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double dbeta_cap, double abs_max, double dose_abs_max, double deriv_epsilon, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double cens_thres, bool strata_bool, bool single_bool, bool constraint_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int half_max, int maxstep, double mult);
+RcppExport SEXP _Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search(SEXP PyrCSEXP, SEXP dfsSEXP, SEXP Term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP dbeta_capSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP cens_thresSEXP, SEXP strata_boolSEXP, SEXP single_boolSEXP, SEXP constraint_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP half_maxSEXP, SEXP maxstepSEXP, SEXP multSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -886,7 +889,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type para_number(para_numberSEXP);
     Rcpp::traits::input_parameter< int >::type half_max(half_maxSEXP);
     Rcpp::traits::input_parameter< int >::type maxstep(maxstepSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep));
+    Rcpp::traits::input_parameter< double >::type mult(multSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, Term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, dbeta_cap, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, cens_thres, strata_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, half_max, maxstep, mult));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1709,8 +1713,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Log_Bound
-void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose);
-RcppExport SEXP _Colossus_Log_Bound(SEXP deriv_maxSEXP, SEXP Lldd_matSEXP, SEXP Lld_vecSEXP, SEXP LstarSEXP, SEXP qchiSEXP, SEXP L0SEXP, SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP reqrdnumSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP stepSEXP, SEXP dbetaSEXP, SEXP beta_0SEXP, SEXP upperSEXP, SEXP troubleSEXP, SEXP verboseSEXP) {
+void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose, double mult);
+RcppExport SEXP _Colossus_Log_Bound(SEXP deriv_maxSEXP, SEXP Lldd_matSEXP, SEXP Lld_vecSEXP, SEXP LstarSEXP, SEXP qchiSEXP, SEXP L0SEXP, SEXP para_numberSEXP, SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP reqrdnumSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP stepSEXP, SEXP dbetaSEXP, SEXP beta_0SEXP, SEXP upperSEXP, SEXP troubleSEXP, SEXP verboseSEXP, SEXP multSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< double& >::type deriv_max(deriv_maxSEXP);
@@ -1731,7 +1735,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type upper(upperSEXP);
     Rcpp::traits::input_parameter< bool& >::type trouble(troubleSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose);
+    Rcpp::traits::input_parameter< double >::type mult(multSEXP);
+    Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
     return R_NilValue;
 END_RCPP
 }
@@ -2009,10 +2014,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Check_Risk", (DL_FUNC) &_Colossus_Check_Risk, 14},
     {"_Colossus_LogLik_Cox_PH_Omnibus", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus, 40},
     {"_Colossus_LogLik_Pois_Omnibus", (DL_FUNC) &_Colossus_LogLik_Pois_Omnibus, 33},
-    {"_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound, 41},
-    {"_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search, 41},
-    {"_Colossus_LogLik_Poisson_Omnibus_Log_Bound", (DL_FUNC) &_Colossus_LogLik_Poisson_Omnibus_Log_Bound, 35},
-    {"_Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search", (DL_FUNC) &_Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search, 35},
+    {"_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound, 42},
+    {"_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search, 42},
+    {"_Colossus_LogLik_Poisson_Omnibus_Log_Bound", (DL_FUNC) &_Colossus_LogLik_Poisson_Omnibus_Log_Bound, 36},
+    {"_Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search", (DL_FUNC) &_Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search, 36},
     {"_Colossus_LogLik_Cox_PH_Multidose_Omnibus", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Multidose_Omnibus, 41},
     {"_Colossus_Cox_Refresh_R_TERM", (DL_FUNC) &_Colossus_Cox_Refresh_R_TERM, 25},
     {"_Colossus_Cox_Refresh_R_SIDES", (DL_FUNC) &_Colossus_Cox_Refresh_R_SIDES, 11},
@@ -2043,7 +2048,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_Change_Cons", (DL_FUNC) &_Colossus_Calc_Change_Cons, 19},
     {"_Colossus_Calc_Change", (DL_FUNC) &_Colossus_Calc_Change, 18},
     {"_Colossus_Calc_Change_Basic", (DL_FUNC) &_Colossus_Calc_Change_Basic, 14},
-    {"_Colossus_Log_Bound", (DL_FUNC) &_Colossus_Log_Bound, 18},
+    {"_Colossus_Log_Bound", (DL_FUNC) &_Colossus_Log_Bound, 19},
     {"_Colossus_Calc_Change_trouble", (DL_FUNC) &_Colossus_Calc_Change_trouble, 16},
     {"_Colossus_Make_subterms", (DL_FUNC) &_Colossus_Make_subterms, 21},
     {"_Colossus_Make_subterms_Single", (DL_FUNC) &_Colossus_Make_subterms_Single, 17},
