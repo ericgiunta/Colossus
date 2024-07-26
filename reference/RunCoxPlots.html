@@ -21,11 +21,12 @@ vectors specifying the model, and options to choose and save plots"></head><body
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative Regression Options</a></li>
-    <li><a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose Response Formula Terms</a></li>
+    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+    <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
+    <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
-    <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for plotting and analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/starting-description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul></li>
@@ -108,7 +109,7 @@ vectors specifying the model, and options to choose and save plots</p>
 
 
 <dt id="arg-a-n">a_n<a class="anchor" aria-label="anchor" href="#arg-a-n"></a></dt>
-<dd><p>list of initial parameter values, used to determine number of parameters</p></dd>
+<dd><p>list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.</p></dd>
 
 
 <dt id="arg-modelform">modelform<a class="anchor" aria-label="anchor" href="#arg-modelform"></a></dt>
@@ -120,7 +121,7 @@ vectors specifying the model, and options to choose and save plots</p>
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
-<dd><p>list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")</p></dd>
+<dd><p>list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")</p></dd>
 
 
 <dt id="arg-plot-options">plot_options<a class="anchor" aria-label="anchor" href="#arg-plot-options"></a></dt>
@@ -128,7 +129,7 @@ vectors specifying the model, and options to choose and save plots</p>
 
 
 <dt id="arg-model-control">model_control<a class="anchor" aria-label="anchor" href="#arg-model-control"></a></dt>
-<dd><p>controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details</p></dd>
+<dd><p>controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -169,7 +170,7 @@ vectors specifying the model, and options to choose and save plots</p>
 <span class="r-in"><span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"ncores"</span><span class="op">=</span><span class="fl">2</span>,<span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>   <span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,<span class="st">'dbeta_max'</span> <span class="op">=</span> <span class="fl">0.5</span>,<span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span></span>
+<span class="r-in"><span>   <span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,<span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span></span>
 <span class="r-in"><span>   <span class="st">'abs_max'</span><span class="op">=</span><span class="fl">1.0</span>,<span class="st">'change_all'</span><span class="op">=</span><span class="cn">TRUE</span>,<span class="st">'dose_abs_max'</span><span class="op">=</span><span class="fl">100.0</span>,</span></span>
 <span class="r-in"><span>   <span class="st">'verbose'</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="st">'ties'</span><span class="op">=</span><span class="st">'breslow'</span>,<span class="st">'double_step'</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">#setting maxiter below 0 forces the function to calculate the score</span></span></span>

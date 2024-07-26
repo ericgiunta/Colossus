@@ -19,11 +19,12 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative Regression Options</a></li>
-    <li><a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose Response Formula Terms</a></li>
+    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+    <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
+    <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
-    <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for plotting and analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/starting-description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul></li>
@@ -87,7 +88,7 @@
 
 
 <dt id="arg-iscox">iscox<a class="anchor" aria-label="anchor" href="#arg-iscox"></a></dt>
-<dd><p>boolean if rows not at event times should be kept, rows are removed if true</p></dd>
+<dd><p>boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times</p></dd>
 
 
 <dt id="arg-dt">dt<a class="anchor" aria-label="anchor" href="#arg-dt"></a></dt>
@@ -152,7 +153,7 @@
 <span class="r-in"><span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span></span>
 <span class="r-in"><span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"a"</span></span></span>
 <span class="r-in"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"c"</span></span></span>
-<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-9</span>,<span class="st">'dbeta_max'</span> <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
+<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'lr'</span> <span class="op">=</span> <span class="fl">0.75</span>,<span class="st">'maxiter'</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,<span class="st">'halfmax'</span> <span class="op">=</span> <span class="fl">5</span>,<span class="st">'epsilon'</span> <span class="op">=</span> <span class="fl">1e-9</span>,</span></span>
 <span class="r-in"><span>           <span class="st">'deriv_epsilon'</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">'abs_max'</span><span class="op">=</span><span class="fl">1.0</span>,<span class="st">'change_all'</span><span class="op">=</span><span class="cn">TRUE</span>,<span class="st">'dose_abs_max'</span><span class="op">=</span><span class="fl">100.0</span>,</span></span>
 <span class="r-in"><span>           <span class="st">'verbose'</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="st">'ties'</span><span class="op">=</span><span class="st">'breslow'</span>,<span class="st">'double_step'</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">grt_f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">df</span>,<span class="va">time_col</span><span class="op">)</span><span class="op">{</span></span></span>

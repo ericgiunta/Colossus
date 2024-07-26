@@ -19,11 +19,12 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_opt.html">Alternative Regression Options</a></li>
-    <li><a class="dropdown-item" href="../articles/dose_formula_inputs.html">Dose Response Formula Terms</a></li>
+    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+    <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
+    <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
-    <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for plotting and analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/starting-description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul></li>
@@ -70,7 +71,7 @@
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>boolean to control if additional information is printed to the console, also accepts 0/1 integer</p></dd>
+<dd><p>integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.</p></dd>
 
 </dl></div>
     <div class="section level2">
