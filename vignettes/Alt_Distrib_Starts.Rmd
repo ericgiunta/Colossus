@@ -2,7 +2,7 @@
 title: "Distributed Start Framework"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Distributed_Start_Framework}
+  %\VignetteIndexEntry{Distributed Start Framework}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -108,7 +108,7 @@ All of which use the same parameters the respective Cox Proportional Hazards and
 | term_initial | List of term numbers to run first if Tiered guessing is used |
 | rmin | list of minimum change for each parameter |
 | rmax | list of maximum change for each parameter |
-| verbose | True/False if a csv of random start results is saved to "last_guess.csv" |
+| verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
 
 If "rmin" and "rmax" are not used, then the remaining "_min" and "_max" values are used instead. the "guess_constant" values take priority over the "rmin" and "rmax" values.
 

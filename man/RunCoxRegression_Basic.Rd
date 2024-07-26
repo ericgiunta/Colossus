@@ -29,11 +29,11 @@ RunCoxRegression_Basic(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters}
+\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 }
 \value{
 returns a list of the final results
@@ -64,7 +64,7 @@ keep_constant <- c(0,0,0,0)
 der_iden <- 0
 
 control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-   'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
+   'epsilon' = 1e-3,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
    'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
    'ties'='breslow','double_step'=1)
 

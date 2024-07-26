@@ -39,17 +39,17 @@ GetCensWeight(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters}
+\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 
 \item{plot_options}{list of parameters controlling the plot options, see RunCoxPlots() for different options}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 
 \item{strat_col}{column to stratify by if needed}
 }
@@ -87,7 +87,7 @@ der_iden <- 0
 df$censor <- (df$Cancer_Status==0)
 event <- "censor"
 control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,
-   'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6,
+   'epsilon' = 1e-6,'deriv_epsilon' = 1e-6,
    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
    'ties'='breslow','double_step'=1)
 plot_options <- list("name"=paste(tempfile(),"run_06",sep=""),"verbose"=FALSE,

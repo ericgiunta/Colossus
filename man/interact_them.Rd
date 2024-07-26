@@ -13,7 +13,7 @@ interact_them(df, interactions, new_names, verbose = 0)
 
 \item{new_names}{list of new names to use instead of default, default used if entry is ''}
 
-\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
+\item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 }
 \value{
 returns a list with two named fields. df for the updated dataframe, and cols for the new column names

@@ -2,7 +2,7 @@
 title: "Alternative Regression Options"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Alternative_Regression_Options}
+  %\VignetteIndexEntry{Alternative Regression Options}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

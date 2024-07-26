@@ -16,7 +16,7 @@ test_that( "Poisson time column missing", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9, 'dbeta_max' = 1.0, 'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
     expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 })
 test_that( "Poisson no events", {
@@ -37,7 +37,7 @@ test_that( "Poisson no events", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9, 'dbeta_max' = 1.0, 'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
     expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 })
 test_that( "Poisson no events", {
@@ -58,7 +58,7 @@ test_that( "Poisson no events", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9, 'dbeta_max' = 1.0, 'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
     expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 })
 # test_that( "Poisson no error", {
@@ -79,6 +79,6 @@ test_that( "Poisson no events", {
 #     modelform <- "M"
 #     fir <- 0
 #     der_iden <- 0
-#     control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9, 'dbeta_max' = 1.0, 'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
+#     control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
 #     expect_no_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 # })

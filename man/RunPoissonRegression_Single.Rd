@@ -31,13 +31,13 @@ RunPoissonRegression_Single(
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters}
+\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 }
@@ -73,7 +73,7 @@ a_n <- c(0.1, 0.1, 0.1, 0.1)
 keep_constant <- c(0,0,0,0)
 
 control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-             'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
+             'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
              'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
              'verbose'=FALSE, 'double_step'=1)
 

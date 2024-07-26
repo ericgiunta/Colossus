@@ -13,7 +13,7 @@ test_that( "Coxph loglin_M Basic", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 20, 'halfmax' = 5, 'epsilon' = 1e-6, 'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 20, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     e <- RunCoxRegression_Basic(df, time1, time2, event, names, keep_constant, a_n, der_iden, control)
     expect_equal(e$beta_0,c(-0.09962, -0.05698),tolerance=1e-2)
 })
@@ -34,7 +34,7 @@ test_that( "Coxph censoring weight", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = -1, 'epsilon' = 1e-6, 'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = -1, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     plot_options <- list( "name"=paste(tempfile(), "run",sep="" ), "verbose"=TRUE, "studyid"="studyid", "age_unit"="years" )
     dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
     #

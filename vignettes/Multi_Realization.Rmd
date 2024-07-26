@@ -2,7 +2,7 @@
 title: "Multiple Realization Methods"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Multi_Realization}
+  %\VignetteIndexEntry{Multiple Realization Methods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

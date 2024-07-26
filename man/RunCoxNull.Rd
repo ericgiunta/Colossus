@@ -15,7 +15,7 @@ RunCoxNull(df, time1, time2, event0, control)
 
 \item{event0}{column used for event status}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 }
 \value{
 returns a list of the final results

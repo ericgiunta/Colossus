@@ -2,7 +2,7 @@
 title: "Colossus Description"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Colossus_Description}
+  %\VignetteIndexEntry{Colossus Description}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -36,7 +36,7 @@
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
@@ -307,7 +307,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 #' modelform <- "M"
 #' fir <- 0
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
@@ -369,7 +369,7 @@ RunPoissonRegression_Joint_Omnibus <- function(df,pyr0, events, name_list, term_
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
 #' 
 #' e <- RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant,
@@ -420,7 +420,7 @@ RunPoissonRegression <- function(df, pyr0, event0, names, term_n, tform, keep_co
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'double_step'=1)
 #' 
 #' e <- RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant,
@@ -550,7 +550,7 @@ RunPoissonEventAssignment <- function(df, pyr0, event0, names, term_n, tform, ke
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
@@ -622,7 +622,7 @@ RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model,
 #' keep_constant <- c(0,0,0,0)
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'              'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
+#'              'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
 #'              'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'              'verbose'=FALSE, 'double_step'=1)
 #' 
@@ -675,7 +675,7 @@ RunPoissonRegression_Single <- function(df, pyr0, event0, names, term_n, tform, 
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'              'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
+#'              'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
 #'              'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'              'verbose'=FALSE, 'double_step'=1)
 #' strat_col <- c("e")
@@ -730,7 +730,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0, event0, names, term_n, tform, 
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE,'double_step'=1)
 #' guesses_control <- list("iterations"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'   "loglin_min"=-1,"loglin_max"=1,"lin_method"="uniform",
@@ -846,7 +846,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0, event0, names, term_n, t
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=FALSE)
@@ -963,7 +963,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0, event0, names, term_n, tf
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",

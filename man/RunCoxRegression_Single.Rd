@@ -36,13 +36,13 @@ RunCoxRegression_Single(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters}
+\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")}
+\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 }
 \value{
 returns a list of the final results

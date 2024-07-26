@@ -24,19 +24,19 @@ Correct_Formula_Order(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters}
+\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{names}{columns for elements of the model, used to identify data columns}
 
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters}
+\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0}
 
 \item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
 
 \item{cons_vec}{Vector containing constants for system of linear constraints, formatted as vector}
 
-\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
+\item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details}
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 }
 \value{
 returns the corrected lists

@@ -40,7 +40,7 @@
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
-#'    'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'halfmax' = 5,'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
 #'    'ties'='breslow','double_step'=1, "guesses"=2)
 #' 
@@ -309,7 +309,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'    'epsilon' = 1e-3,'dbeta_max' = 0.5, 'deriv_epsilon' = 1e-3,
+#'    'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
@@ -411,7 +411,7 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, term_n, tfo
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
+#'    'epsilon' = 1e-3,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,
 #'    'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
 #'    'ties'='breslow','double_step'=1)
 #' 
@@ -470,7 +470,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'epsilon' = 1e-3,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' strat_col <- 'e'
@@ -527,7 +527,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, term_n, tf
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
 #'    'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' 
 #' e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform,
@@ -649,7 +649,7 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,
-#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'epsilon' = 1e-3,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #setting maxiter below 0 forces the function to calculate the score
@@ -972,7 +972,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,
-#'    'epsilon' = 1e-3,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'epsilon' = 1e-3,'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'    'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("iterations"=10,"guesses"=10,"lin_min"=0.001,
@@ -1101,7 +1101,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #weights the probability that a row would continue to extend without censoring,
 #' #    for risk group calculation 
@@ -1160,7 +1160,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, term_n, tform, 
 #' der_iden <- 0
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 5,'halfmax' = 5,'epsilon' = 1e-3,
-#'    'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
+#'    'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
 #'     "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",strata=FALSE)
@@ -1349,7 +1349,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
 #' realization_index=c("a")
 #' 
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
-#'    'halfmax' = 5,'epsilon' = 1e-3, 'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3,
+#'    'halfmax' = 5,'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
 #'    'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
 #'    'ties'='breslow','double_step'=1, "guesses"=2)
 #' 

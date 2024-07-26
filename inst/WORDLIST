@@ -32,6 +32,7 @@ breslow
 breslow's
 codecov
 config
+cr
 csv
 datatable
 dbeta
@@ -44,6 +45,7 @@ frac
 func
 gcc
 ggplot
+gmix
 halfmax
 iden
 infty
@@ -54,15 +56,21 @@ loglin
 lr
 maxiter
 maxiters
+maxstep
 modelform
+mult
 na
 omp
+pearson
 pkgdown
 poisson
+qchi
 rmax
 rmin
+schoenfeld
 subterm
 subterms
+surv
 tform
 trunc
 unshared

@@ -11,7 +11,7 @@ Linked_Dose_Formula(tforms, paras, verbose = 0)
 
 \item{paras}{list of formula parameters}
 
-\item{verbose}{boolean to control if additional information is printed to the console, also accepts 0/1 integer}
+\item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 }
 \value{
 returns list of full parameters

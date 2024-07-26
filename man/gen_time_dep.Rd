@@ -28,7 +28,7 @@ gen_time_dep(
 
 \item{event0}{column used for event status}
 
-\item{iscox}{boolean if rows not at event times should be kept, rows are removed if true}
+\item{iscox}{boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times}
 
 \item{dt}{spacing in time for new rows}
 
@@ -60,7 +60,7 @@ df <- data.table::data.table("a"=a,"b"=b,"c"=c)
 time1 <- "\%trunc\%"
 time2 <- "a"
 event <- "c"
-control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,
+control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
            'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
            'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 grt_f <- function(df,time_col){

@@ -2,7 +2,7 @@
 title: "Time Dependent Covariate Use"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Time_Dependent_Covariate_Use}
+  %\VignetteIndexEntry{Time Dependent Covariate Use}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

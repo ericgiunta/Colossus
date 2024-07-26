@@ -1,6 +1,6 @@
 #' @param a0  linear slope
 #' @param a1_goal  exponential maximum desired
-#' @param a_n  list of initial parameter values, used to determine number of parameters
+#' @param a_n  list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.
 #' @param age_unit  age unit
 #' @param alternative_model  the new model of interest in list form, output from a poisson regression
 #' @param b  optimum parameter values used
@@ -10,11 +10,11 @@
 #' @param col_list  an array of column names that should have factor terms defined
 #' @param col_name  vector of new column names
 #' @param cols  columns to check
-#' @param control  list of parameters controlling the convergence, see Def_Control() for options or vignette("starting_description")
+#' @param control  list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")
 #' @param cons_mat Matrix containing coefficients for system of linear constraints, formatted as matrix
 #' @param cons_vec Vector containing constants for system of linear constraints, formatted as vector
 #' @param dep_cols  columns that are not needed in the new dataframe
-#' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters
+#' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0
 #' @param df  a data.table containing the columns of interest
 #' @param dnames  list of covariate columns to plot by
 #' @param dt  spacing in time for new rows
@@ -25,12 +25,12 @@
 #' @param fir  term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param fname  filename used for new dataframe
 #' @param func_form  vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
-#' @param guesses_control  list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Alt_Distrib_Starts")
+#' @param guesses_control  list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Control_Options")
 #' @param h  hazards of baseline
 #' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits
-#' @param iscox  boolean if rows not at event times should be kept, rows are removed if true
+#' @param iscox  boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times
 #' @param keep_constant  binary values to denote which parameters to change
-#' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Alt_Run_opt") for further details
+#' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
 #' @param msv  value to replace na with, same used for every column used
 #' @param name_list  vector of string column names to check
@@ -58,7 +58,7 @@
 #' @param tref  reference time in date format
 #' @param tu  unique event times
 #' @param units  time unit to use
-#' @param verbose  boolean to control if additional information is printed to the console, also accepts 0/1 integer
+#' @param verbose  integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.
 #' @param y  point formula switch
 #'
 #' @name R_template

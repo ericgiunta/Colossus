@@ -29,7 +29,7 @@
 #' fir <- 0
 #' der_iden <- 0
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
-#'             'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
+#'             'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
 #'             'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' guesses_control <- list()
 #' model_control <- list()
@@ -560,10 +560,10 @@ Replace_Missing <- function(df,name_list,msv,verbose=FALSE){
 #'
 Def_Control <- function(control){
     control_def <- list('verbose'=0,'lr' = 0.75,'maxiter' = 20,
-        'halfmax' = 5,'epsilon' = 1e-9, 'dbeta_max' = 0.5,
+        'halfmax' = 5,'epsilon' = 1e-9,
         'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
-        'ties'='breslow','double_step'=1,"keep_strata"=FALSE,
-        "ncores"=as.numeric(detectCores()), "cens_thres"=0)
+        'ties'='breslow','double_step'=1,
+        "ncores"=as.numeric(detectCores()))
     names(control) <- tolower(names(control))
 	if ((identical(Sys.getenv("TESTTHAT"), "true"))||(identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))){
 		control_def$ncores <- 2
@@ -692,21 +692,20 @@ Def_model_control <- function(control){
         control["gmix_term"] <- c(0)
     }
     if (control[['log_bound']]){
-        if ("alpha" %in% names(control)){
-            control['qchi'] <- qchisq(1-control[['alpha']], df=1)/2
+        if ("qchi" %in% names(control)){
+            #fine
         } else {
-            control["alpha"] <- 0.05
-            control['qchi'] <- qchisq(1-control[['alpha']], df=1)/2
+            if ("alpha" %in% names(control)){
+                control['qchi'] <- qchisq(1-control[['alpha']], df=1)/2
+            } else {
+                control["alpha"] <- 0.05
+                control['qchi'] <- qchisq(1-control[['alpha']], df=1)/2
+            }
         }
         if ("para_number" %in% names(control)){
             #fine
         } else {
             control["para_number"] <- 0
-        }
-        if ("half_max" %in% names(control)){
-            #fine
-        } else {
-            control["half_max"] <- 5
         }
         if ("maxstep" %in% names(control)){
             #fine
@@ -1434,7 +1433,7 @@ Check_Trunc <- function(df,ce,verbose=0){
 #' time1 <- "%trunc%"
 #' time2 <- "a"
 #' event <- "c"
-#' control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,'dbeta_max' = 0.5,
+#' control <- list('lr' = 0.75,'maxiter' = -1,'halfmax' = 5,'epsilon' = 1e-9,
 #'            'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,
 #'            'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' grt_f <- function(df,time_col){

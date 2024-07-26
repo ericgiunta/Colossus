@@ -525,7 +525,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
 #' df$censor <- (df$Cancer_Status==0)
 #' event <- "censor"
 #' control <- list("ncores"=2,'lr' = 0.75,'maxiter' = 20,'halfmax' = 5,
-#'    'epsilon' = 1e-6,'dbeta_max' = 0.5,'deriv_epsilon' = 1e-6,
+#'    'epsilon' = 1e-6,'deriv_epsilon' = 1e-6,
 #'    'abs_max'=1.0,'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
 #'    'ties'='breslow','double_step'=1)
 #' plot_options <- list("name"=paste(tempfile(),"run_06",sep=""),"verbose"=FALSE,

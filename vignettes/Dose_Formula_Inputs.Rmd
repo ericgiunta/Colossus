@@ -2,7 +2,7 @@
 title: "Dose Response Formula Terms"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Dose_Response_Formula_Terms}
+  %\VignetteIndexEntry{Dose Response Formula Terms}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

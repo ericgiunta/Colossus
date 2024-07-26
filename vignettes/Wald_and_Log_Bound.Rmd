@@ -2,7 +2,7 @@
 title: "Confidence Interval Selection"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Wald_and_Log_Bound}
+  %\VignetteIndexEntry{Confidence Interval Selection}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

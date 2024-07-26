@@ -1,8 +1,8 @@
 ---
-title: "Functions for plotting and analysis"
+title: "Functions for Plotting and Analysis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Plotting_And_Analysis}
+  %\VignetteIndexEntry{Functions for Plotting and Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
