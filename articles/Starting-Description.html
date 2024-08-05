@@ -271,13 +271,13 @@ producing an error.</p>
 <p>The final table is also equivalent to the following code</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a'</span>,<span class="st">'b'</span>,<span class="st">'c'</span>,<span class="st">'d'</span><span class="op">)</span></span>
-<span><span class="va">Term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>,<span class="st">"lin"</span>,<span class="st">"lin"</span>,<span class="st">"plin"</span><span class="op">)</span></span>
 <span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
 <span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
-<p><em>names</em> denotes the column names used, <em>Term_n</em> denotes
+<p><em>names</em> denotes the column names used, <em>term_n</em> denotes
 the term numbers, <em>tform</em> denotes the subterm formula,
 <em>modelform</em> denotes the term formula, <em>fir</em> denotes the
 “first” term indexed from zero which defaults to 0, and <em>a_n</em>
@@ -605,7 +605,7 @@ as follows:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># assuming the table of covariates is stored in a data.table "df"</span></span>
 <span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
 <span>                      <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $LogLik</span></span>
@@ -634,7 +634,7 @@ as follows:</p>
 <span><span class="co">#&gt; [1] 9.134369</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Parameter_Lists</span></span>
-<span><span class="co">#&gt; $Parameter_Lists$Term_n</span></span>
+<span><span class="co">#&gt; $Parameter_Lists$term_n</span></span>
 <span><span class="co">#&gt; [1] 0 1 1 2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Parameter_Lists$tforms</span></span>
@@ -660,7 +660,7 @@ as follows:</p>
 <span></span>
 <span><span class="co">#or a poisson regression</span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span> <span class="co">#a_n is updated when either regression is called</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression.html">RunPoissonRegression</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">Term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression.html">RunPoissonRegression</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
 <span>                          <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $LogLik</span></span>
@@ -692,7 +692,7 @@ as follows:</p>
 <span><span class="co">#&gt; [1] 85.47964</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Parameter_Lists</span></span>
-<span><span class="co">#&gt; $Parameter_Lists$Term_n</span></span>
+<span><span class="co">#&gt; $Parameter_Lists$term_n</span></span>
 <span><span class="co">#&gt; [1] 0 1 1 2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Parameter_Lists$tforms</span></span>
