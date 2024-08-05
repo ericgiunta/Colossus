@@ -304,6 +304,13 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 				Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
+			//
+			Rcout << "C++ Note: ALL second derivs checked ";
+			for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+				Rcout << Tdd0.col(ijk).sum() << " ";
+			}
+			Rcout << " " << endl;
+			//
 			Rcout << "C++ Note: dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << Dose.col(ijk).array().sum() << " ";
@@ -373,6 +380,12 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 			Rcout << "C++ Note: risk2 checked ";
 			for (int ijk=0;ijk<reqrdnum;ijk++){
 				Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+			}
+			Rcout << " " << endl;
+			//
+			Rcout << "C++ Note: ALL risk2 checked ";
+			for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+				Rcout << Rdd.col(ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
 			//

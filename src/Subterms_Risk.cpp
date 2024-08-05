@@ -266,7 +266,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
                     Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
                     //
                     Tdd0.col((jk+1)*(jk+2)/2+jk) = (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
-                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
+                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-2.0*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
                     //
                     T0.col(ij) = Dose.col(tn);
                     T0.col(ij+1) = Dose.col(tn);
