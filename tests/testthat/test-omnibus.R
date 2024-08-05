@@ -219,7 +219,7 @@ test_that( "Pois strata_single expanded", {
     
     verbose <- FALSE
     j_iterate <- 1
-    LL_comp <- c(-496.7366, -475.4213, -461.9726, -461.1227, -4497.178, -3577.953, -2561.685, -2339.961)
+    LL_comp <- c(-496.7366, -475.4213, -461.7039, -461.1227, -4497.178, -3577.953, -2602.516, -2373.399)
     for (i in c(TRUE,FALSE)){
         for (j in c(TRUE,FALSE)){
             model_control <- list( 'strata'=i, 'single'=j)

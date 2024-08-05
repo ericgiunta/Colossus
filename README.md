@@ -57,7 +57,7 @@ time2 <- "Ending_Age"
 event <- "Cancer_Status"
 
 names <- c('a','b','c','d')
-Term_n <- c(0,1,1,2)
+term_n <- c(0,1,1,2)
 tform <- c("loglin","lin","lin","plin")
 modelform <- "M"
 fir <- 0
@@ -72,7 +72,7 @@ control=list('lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,
              'change_all'=TRUE,'dose_abs_max'=100.0,'verbose'=FALSE,
              'ties'='breslow','double_step'=1)
 
-e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
 print(e)
 #> $LogLik
 #> [1] -0.6753644
@@ -100,7 +100,7 @@ print(e)
 #> [1] 9.134369
 #> 
 #> $Parameter_Lists
-#> $Parameter_Lists$Term_n
+#> $Parameter_Lists$term_n
 #> [1] 0 1 1 2
 #> 
 #> $Parameter_Lists$tforms

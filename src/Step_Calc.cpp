@@ -211,6 +211,16 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
             }
         }
         //
+//        Rcout << "calc change lld ";
+//        for (int ijk=0;ijk<kept_covs;ijk++){
+//            Rcout << Lld_vec[ijk] << " ";
+//        }
+//        Rcout << " " << endl;
+//        Rcout << "calc change lldd ";
+//        for (int ijk=0;ijk<kept_covs*kept_covs;ijk++){
+//            Rcout << Lldd_vec[ijk] << " ";
+//        }
+//        Rcout << " " << endl;
         //
         Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
         const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));

@@ -298,7 +298,7 @@ List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  M
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix& x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd& cens_weight,  int uniq_v, bool strata_bool, bool basic_bool, bool CR_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term){
+List Plot_Omnibus( IntegerVector term_n, StringVector tform, NumericVector a_n,NumericMatrix& x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd& cens_weight,  int uniq_v, bool strata_bool, bool basic_bool, bool CR_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -364,12 +364,12 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
         single_bool = FALSE;
     }
     // ------------------------------------------------------------------------- // initialize
-	totalnum = Term_n.size();
+	totalnum = term_n.size();
 	reqrdnum = totalnum - sum(KeepConstant);
 	if (verbose>=4){
         Rcout << "C++ Note: Term checked ";
         for (int ij=0;ij<totalnum;ij++){
-            Rcout << Term_n[ij] << " ";
+            Rcout << term_n[ij] << " ";
         }
         Rcout << " " << endl;
     }
@@ -427,7 +427,7 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
 	vector<double> Lldd(pow(reqrdnum,2),0.0);//The second derivative matrix has room for every combination, but only the lower triangle is calculated initially
     // ------------------------------------------------------------------------- // initialize
 	Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
-    Cox_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start,gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start,gmix_theta, gmix_term);
 	//
 	List res_list;
 	//
@@ -547,10 +547,10 @@ List Plot_Omnibus( IntegerVector Term_n, StringVector tform, NumericVector a_n,N
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix& x_all,IntegerVector dfc,const MatrixXd& PyrC, const MatrixXd& dfs,int fir,string modelform, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, const bool strata_bool){
+List Assign_Events_Pois( IntegerVector term_n, StringVector tform, NumericVector a_n,NumericMatrix& x_all,IntegerVector dfc,const MatrixXd& PyrC, const MatrixXd& dfs,int fir,string modelform, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, const bool strata_bool){
     ;
     //
-    int totalnum = Term_n.size();
+    int totalnum = term_n.size();
     List res_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
     if (verbose>=4){
         Rcout << "C++ Note: START_RISK_CHECK" << endl;
@@ -572,7 +572,7 @@ List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector
     if (verbose>=4){
         Rcout << "C++ Note: Term checked ";
         for (int ij=0;ij<totalnum;ij++){
-            Rcout << Term_n[ij] << " ";
+            Rcout << term_n[ij] << " ";
         }
         Rcout << " " << endl;
     }
@@ -609,7 +609,7 @@ List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector
         Rcout << "C++ Note: starting subterms " << term_tot << endl;
     }
     // Calculates the subterm and term values
-    Make_subterms_Single( totalnum, Term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
+    Make_subterms_Single( totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
@@ -666,10 +666,10 @@ List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector
     VectorXd s_weights;
     if (strata_bool){
         s_weights = VectorXd::Zero(df0.rows());
-        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, Term_n, term_tot);
-        Make_Risks_Weighted_Single(modelform, tform, Term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
+        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
+        Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
     } else {
-        Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
+        Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
     }
     //
     MatrixXd caused = MatrixXd::Zero(PyrC.rows(),3);
@@ -698,7 +698,7 @@ List Assign_Events_Pois( IntegerVector Term_n, StringVector tform, NumericVector
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector Term_n, StringVector tform, NumericVector a_n,NumericMatrix& x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, bool strata_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool){
+List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n,NumericMatrix& x_all,IntegerVector dfc,int fir, int der_iden,string modelform, double abs_max,double dose_abs_max, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, bool strata_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool){
     ;
     //
     List temp_list = List::create(_["Status"]="FAILED"); //used as a dummy return value for code checking
@@ -729,12 +729,12 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector Term_n, StringVector 
     int reqrdnum;
     bool single_bool = TRUE;
     // ------------------------------------------------------------------------- // initialize
-	totalnum = Term_n.size();
+	totalnum = term_n.size();
 	reqrdnum = totalnum - sum(KeepConstant);
 	if (verbose>=4){
         Rcout << "C++ Note: Term checked ";
         for (int ij=0;ij<totalnum;ij++){
-            Rcout << Term_n[ij] << " ";
+            Rcout << term_n[ij] << " ";
         }
         Rcout << " " << endl;
     }
@@ -782,7 +782,7 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector Term_n, StringVector 
     VectorXd s_weights;
     if (strata_bool){
         s_weights = VectorXd::Zero(df0.rows());
-        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, Term_n, term_tot);
+        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
     }
 	// ------------------------------------------------------------------------- // initialize
 	if (verbose>=4){
@@ -796,7 +796,7 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector Term_n, StringVector 
 	// To Start, needs to seperate the derivative terms
 	// ---------------------------------------------
 	//
-    Pois_Term_Risk_Calc(modelform, tform, Term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
+    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
 	List res_list;
 	//
     res_list = List::create(_["Risk"]=wrap(R.col(0)),_["Residual_Sum"]=wrap(R.col(0).sum()));//returns list of covariate values and risk

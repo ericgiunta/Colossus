@@ -35,7 +35,7 @@ using Rcpp::as;
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
 // [[Rcpp::export]]
-void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
+void Make_subterms(const int& totalnum, const IntegerVector& term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0,const double& dint, const double& dslp, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     // Calculates the sub term values
     //
@@ -52,7 +52,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
-        int tn = Term_n[ij];
+        int tn = term_n[ij];
         if (as< string>(tform[ij])=="loglin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
             T0.col(ij) = T0.col(ij).array().exp();;
@@ -180,7 +180,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
     #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
-        int tn = Term_n[ij];
+        int tn = term_n[ij];
         if (KeepConstant[ij]==0){
             int jk = ij - sum(head(KeepConstant,ij));
             if (as< string>(tform[ij])=="loglin") {
@@ -238,7 +238,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
                     Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
                     //
                     Tdd0.col((jk+1)*(jk+2)/2+jk)   = (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
-                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-dint*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
+                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-2*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
                     //
                     T0.col(ij)   = Dose.col(tn);
                     T0.col(ij+1) = Dose.col(tn);
@@ -598,8 +598,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
             ij++;
             jk-=ij;
         }
-        int tij = Term_n[ij];
-        int tjk = Term_n[jk];
+        int tij = term_n[ij];
+        int tjk = term_n[jk];
         int df0_ij = dfc[ij]-1;
         int df0_jk = dfc[jk]-1;
         //
@@ -628,7 +628,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& Term_n,const String
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
 // [[Rcpp::export]]
-void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
+void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     // Calculates the sub term values
     //
@@ -644,7 +644,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
-        int tn = Term_n[ij];
+        int tn = term_n[ij];
         if (as< string>(tform[ij])=="loglin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
             T0.col(ij) = T0.col(ij).array().exp();;
@@ -771,7 +771,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& Term_n,const
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ij=0;ij<(totalnum);ij++){
-        int tn = Term_n[ij];
+        int tn = term_n[ij];
         if (as< string>(tform[ij])=="loglin") {
             T0.col(ij) = nonDose_LOGLIN.col(tn);
         } else if (as< string>(tform[ij])=="lin") {
@@ -855,7 +855,7 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
 // [[Rcpp::export]]
-void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
+void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     set<string> Dose_Iden; //List of dose subterms
     Dose_Iden.insert("loglin_top");
     Dose_Iden.insert("loglin_slope");
@@ -890,8 +890,8 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                     ij++;
                     jk-=ij;
                 }
-                int tij = Term_n[ij];
-                int tjk = Term_n[jk];
+                int tij = term_n[ij];
+                int tjk = term_n[jk];
                 if (KeepConstant[ij]+KeepConstant[jk]==0){
                     //
                     ij = ij - sum(head(KeepConstant,ij));
@@ -975,8 +975,8 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                     ij++;
                     jk-=ij;
                 }
-                int tij = Term_n[ij];
-                int tjk = Term_n[jk];
+                int tij = term_n[ij];
+                int tjk = term_n[jk];
                 if (KeepConstant[ij]+KeepConstant[jk]==0){
                     //
                     ij = ij - sum(head(KeepConstant,ij));
@@ -1173,7 +1173,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ij=0;ij<totalnum;ij++){
-            int tij = Term_n[ij];
+            int tij = term_n[ij];
             if (KeepConstant[ij]==0){
                 int ijk = ij - sum(head(KeepConstant,ij));
                 if (tij != fir){
@@ -1205,8 +1205,8 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                 ij++;
                 jk-=ij;
             }
-            int tij = Term_n[ij];
-            int tjk = Term_n[jk];
+            int tij = term_n[ij];
+            int tjk = term_n[jk];
             if (KeepConstant[ij]+KeepConstant[jk]==0){
                 //
                 ij = ij - sum(head(KeepConstant,ij));
@@ -1241,7 +1241,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ij=0;ij<totalnum;ij++){
-            int tij = Term_n[ij];
+            int tij = term_n[ij];
             if (KeepConstant[ij]==0){
                 int ijk = ij - sum(head(KeepConstant,ij));
                 if (tij != fir){
@@ -1262,8 +1262,8 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                 ij++;
                 jk-=ij;
             }
-            int tij = Term_n[ij];
-            int tjk = Term_n[jk];
+            int tij = term_n[ij];
+            int tjk = term_n[jk];
             if (KeepConstant[ij]+KeepConstant[jk]==0){
                 //
                 ij = ij - sum(head(KeepConstant,ij));
@@ -1320,9 +1320,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
 // [[Rcpp::export]]
-void Make_Risks_Weighted(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
+void Make_Risks_Weighted(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     //
-    Make_Risks(modelform, tform, Term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
+    Make_Risks(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
     //
     int reqrdnum = totalnum - sum(KeepConstant);
     R = R.array() * s_weights.array();
@@ -1357,9 +1357,9 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
 // [[Rcpp::export]]
-void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
+void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     //
-    Make_Risks_Single(modelform, tform, Term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
+    Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
     //
     R = R.array() * s_weights.array();
     //
@@ -1376,7 +1376,7 @@ void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, con
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
 // [[Rcpp::export]]
-void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& Term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
+void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term){
     set<string> Dose_Iden; //List of dose subterms
     Dose_Iden.insert("loglin_top");
     Dose_Iden.insert("loglin_slope");

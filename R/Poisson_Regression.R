@@ -567,7 +567,7 @@ RunPoissonEventAssignment_bound <- function(df, pyr0, event0, alternative_model,
     df <- data.table(df)
     #
     names <- alternative_model$Parameter_Lists$names
-    term_n <- alternative_model$Parameter_Lists$Term_n
+    term_n <- alternative_model$Parameter_Lists$term_n
     tform <- alternative_model$Parameter_Lists$tforms
     a_n <- alternative_model$beta_0
     stdev <- alternative_model$Standard_Deviation

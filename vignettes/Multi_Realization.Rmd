@@ -38,7 +38,7 @@ $$
 
 ```{r}
 names <- c('a','r','s')
-Term_n <- c(0,0,0)
+term_n <- c(0,0,0)
 tform <- c("loglin","loglin","loglin")
 modelform <- "M"
 fir <- 0

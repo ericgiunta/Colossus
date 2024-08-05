@@ -119,7 +119,7 @@ The final table is also equivalent to the following code
 
 ```{r}
 names <- c('a','b','c','d')
-Term_n <- c(0,1,1,2)
+term_n <- c(0,1,1,2)
 tform <- c("loglin","lin","lin","plin")
 modelform <- "M"
 fir <- 0
@@ -127,7 +127,7 @@ fir <- 0
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 ```
 
-*names* denotes the column names used, *Term_n* denotes the term numbers, *tform* denotes the subterm formula, *modelform* denotes the term formula, *fir* denotes the "first" term indexed from zero which defaults to 0, and *a_n* denotes the initial guesses for the parameter values. All of which are assumed to be in the same order. A function is called prior to regression that reorders the inputs in order of terms, subterm types, etc.
+*names* denotes the column names used, *term_n* denotes the term numbers, *tform* denotes the subterm formula, *modelform* denotes the term formula, *fir* denotes the "first" term indexed from zero which defaults to 0, and *a_n* denotes the initial guesses for the parameter values. All of which are assumed to be in the same order. A function is called prior to regression that reorders the inputs in order of terms, subterm types, etc.
 
 ## Survival Time and Event Data
 
@@ -243,13 +243,13 @@ Finally the user calls the regression function they need. The names used through
 ```{r}
 # assuming the table of covariates is stored in a data.table "df"
 
-e <- RunCoxRegression(df, time1, time2, event, names, Term_n, tform, keep_constant,
+e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant,
                       a_n, modelform, fir, der_iden, control)
 print(e)
 
 #or a poisson regression
 a_n <- c(0.1, 0.1, 0.1, 0.1) #a_n is updated when either regression is called
-e <- RunPoissonRegression(df, pyr, event, names, Term_n, tform, keep_constant, a_n,
+e <- RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n,
                           modelform, fir, der_iden, control)
 print(e)
 ```
