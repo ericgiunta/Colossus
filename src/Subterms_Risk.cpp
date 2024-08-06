@@ -138,15 +138,14 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
             if (beta_0[ij]<0){
                 c1 = log(-1*beta_0[ij]/beta_0[ij+2]) + beta_0[ij+1] * beta_0[ij+2];
                 a1 = -1*beta_0[ij] * beta_0[ij+1] + exp(c1 - beta_0[ij+2] * beta_0[ij+1]);
-                T0.col(ij+1) = (df0.col(df0_c).array() * beta_0[ij]);
                 T0.col(ij+2) = -1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             } else {
                 c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij+1] * beta_0[ij+2];
                 a1 = beta_0[ij] * beta_0[ij+1] + exp(c1 - beta_0[ij+2] * beta_0[ij+1]);
-                T0.col(ij+1) = (df0.col(df0_c).array() * beta_0[ij]);
                 T0.col(ij+2) = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             }
             //
+            T0.col(ij+1) = (df0.col(df0_c).array() * beta_0[ij]);
             T0.col(ij) = (T0.col(ij).array() < 0).select(T0.col(ij+1), T0.col(ij+2));
             //
             T0.col(ij+1) = T0.col(ij);
@@ -235,10 +234,10 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
                     T0.col(ij)   = (T0.col(ij).array()   < 0).select(0, T0.col(ij));
                     T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0, T0.col(ij+1));
                     //
-                    Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
+                    Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array())/2.0/dint;
                     //
-                    Tdd0.col((jk+1)*(jk+2)/2+jk)   = (T0.col(ij+1).array()-T0.col(ij).array())/2/dint;
-                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-2*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
+                    Tdd0.col((jk+1)*(jk+2)/2+jk)   = (T0.col(ij+1).array()-T0.col(ij).array())/2.0/dint;
+                    Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-2.0*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
                     //
                     T0.col(ij)   = Dose.col(tn);
                     T0.col(ij+1) = Dose.col(tn);
@@ -263,9 +262,9 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
                     T0.col(ij)   = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
                     T0.col(ij+1) = (T0.col(ij+1).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(),1).array()+1.0);
                     //
-                    Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
+                    Td0.col(jk+1) = beta_0[ij] * (T0.col(ij+1).array()-T0.col(ij).array()) / 2.0/dint;
                     //
-                    Tdd0.col((jk+1)*(jk+2)/2+jk) = (T0.col(ij+1).array()-T0.col(ij).array()) / 2/dint;
+                    Tdd0.col((jk+1)*(jk+2)/2+jk) = (T0.col(ij+1).array()-T0.col(ij).array()) / 2.0/dint;
                     Tdd0.col((jk+1)*(jk+2)/2+jk+1) = beta_0[ij] * (T0.col(ij+1).array()-2.0*Td0.col(jk).array()+T0.col(ij).array()) / pow(dint,2);
                     //
                     T0.col(ij) = Dose.col(tn);
@@ -286,31 +285,31 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
                 double b1 = 0;
                 //
                 temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
-                a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij+1]-dint);
-                b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij+1]-dint);
+                a1 = (beta_0[ij] - dslp) /2.0 / (beta_0[ij+1]-dint);
+                b1 = (beta_0[ij] - dslp) /2.0 * (beta_0[ij+1]-dint);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
                 temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
                 //
                 T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
                 //
                 temp = (df0.col(df0_c).array() - beta_0[ij+1]-dint);
-                a1 = (beta_0[ij]+dslp) /2 / (beta_0[ij+1]+dint);
-                b1 = (beta_0[ij]+dslp) /2 * (beta_0[ij+1]+dint);
+                a1 = (beta_0[ij]+dslp) /2.0 / (beta_0[ij+1]+dint);
+                b1 = (beta_0[ij]+dslp) /2.0 * (beta_0[ij+1]+dint);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
                 temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
                 //
                 T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
                 //
                 temp = (df0.col(df0_c).array() - beta_0[ij+1]);
-                a1 = (beta_0[ij]) /2 / (beta_0[ij+1]);
-                b1 = (beta_0[ij]) /2 * (beta_0[ij+1]);
+                a1 = (beta_0[ij]) /2.0 / (beta_0[ij+1]);
+                b1 = (beta_0[ij]) /2.0 * (beta_0[ij+1]);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
                 temp1 = (df0.col(df0_c).array().pow(2).array() * a1 + b1);
                 //
                 ArrayXd temp11 = (temp.array() < 0).select(temp0, temp1);
                 //
 
-                Tdd0.col((jk+1)*(jk+2)/2+jk+0) = (T0.col(ij+1).array()-2*temp11.array()+T0.col(ij).array()) / (pow(dint,2)+pow(dslp,2));
+                Tdd0.col((jk+1)*(jk+2)/2+jk+0) = (T0.col(ij+1).array()-2.0*temp11.array()+T0.col(ij).array()) / (pow(dint,2)+pow(dslp,2));
 
 
                 //

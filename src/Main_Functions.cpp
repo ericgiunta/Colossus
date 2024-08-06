@@ -179,7 +179,7 @@ bool Check_Risk( IntegerVector term_n, StringVector tform, NumericVector a_n,Num
     //
     // Removes infinite values
     //
-    if (R.minCoeff()<=0){
+    if ((R.minCoeff()<=0)||(R.hasNaN())){
         if (verbose>=4){
             Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
             Rcout << "C++ Warning: final failing values ";
@@ -479,7 +479,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
             Rcout << "C++ Note: starting subterms " << term_tot << " in guess " << guess << endl;
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-        if (R.minCoeff()<=0){
+        if ((R.minCoeff()<=0)||(R.hasNaN())){
             if (verbose>=1){
 			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 			    Rcout << "C++ Warning: final failing values ";
@@ -551,7 +551,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-                if (R.minCoeff()<=0){
+                if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
                     #pragma omp parallel for num_threads(nthreads)
                     #endif
@@ -787,7 +787,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
             Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-            if (R.minCoeff()<=0){
+            if ((R.minCoeff()<=0)||(R.hasNaN())){
             	#ifdef _OPENMP
                 #pragma omp parallel for num_threads(nthreads)
                 #endif
@@ -1189,7 +1189,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         //
         //
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-        if (R.minCoeff()<=0){
+        if ((R.minCoeff()<=0)||(R.hasNaN())){
             if (verbose>=1){
 			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 			    Rcout << "C++ Warning: final failing values ";
@@ -1284,7 +1284,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-                if (R.minCoeff()<=0){
+                if ((R.minCoeff()<=0)||(R.hasNaN())){
                     #ifdef _OPENMP
 		            #pragma omp parallel for num_threads(nthreads)
 		            #endif
@@ -1669,7 +1669,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
             // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
             Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-            if (R.minCoeff()<=0){
+            if ((R.minCoeff()<=0)||(R.hasNaN())){
                 #ifdef _OPENMP
                 #pragma omp parallel for num_threads(nthreads)
                 #endif
@@ -1771,7 +1771,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 beta_0[ij] = beta_best[ij];
             }
             Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-            if (R.minCoeff()<=0){
+            if ((R.minCoeff()<=0)||(R.hasNaN())){
                 if (verbose>=1){
 	                Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 	                Rcout << "C++ Warning: final failing values ";
@@ -2273,7 +2273,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-        while (R.minCoeff()<=0){
+        while ((R.minCoeff()<=0)||(R.hasNaN())){
             half_check++;
 //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
             if (half_check>halfmax){
@@ -2469,7 +2469,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-        while (R.minCoeff()<=0){
+        while ((R.minCoeff()<=0)||(R.hasNaN())){
             half_check++;
 //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
             if (half_check>halfmax){
@@ -2906,7 +2906,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
             Rcout << "C++ Note: starting subterms " << term_tot << " in guess " << guess << endl;
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-        if (R.minCoeff()<=0){
+        if ((R.minCoeff()<=0)||(R.hasNaN())){
             if (verbose>=4){
 			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 			    Rcout << "C++ Warning: final failing values ";
@@ -2969,7 +2969,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-                if (R.minCoeff()<=0){
+                if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
                     #pragma omp parallel for num_threads(nthreads)
                     #endif
@@ -3247,7 +3247,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
          // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
          Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-         while (R.minCoeff()<=0){
+         while ((R.minCoeff()<=0)||(R.hasNaN())){
              half_check++;
  //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
              if (half_check>halfmax){
@@ -3442,7 +3442,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
             Rcout << "C++ Note: starting subterms " << term_tot << " in guess " << guess << endl;
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-        if (R.minCoeff()<=0){
+        if ((R.minCoeff()<=0)||(R.hasNaN())){
             if (verbose>=4){
 			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 			    Rcout << "C++ Warning: final failing values ";
@@ -3505,7 +3505,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-                if (R.minCoeff()<=0){
+                if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
                     #pragma omp parallel for num_threads(nthreads)
                     #endif
@@ -3779,7 +3779,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
          // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
          Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-         while (R.minCoeff()<=0){
+         while ((R.minCoeff()<=0)||(R.hasNaN())){
              half_check++;
  //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
              if (half_check>halfmax){
@@ -4182,7 +4182,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-        while (R.minCoeff()<=0){
+        while ((R.minCoeff()<=0)||(R.hasNaN())){
             half_check++;
 //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
             if (half_check>halfmax){
@@ -4403,7 +4403,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-        while (R.minCoeff()<=0){
+        while ((R.minCoeff()<=0)||(R.hasNaN())){
             half_check++;
 //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
             if (half_check>halfmax){
@@ -4849,7 +4849,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             Rcout << "C++ Note: starting subterms " << term_tot << " in guess " << guess << endl;
         }
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-        if (R.minCoeff()<=0){
+        if ((R.minCoeff()<=0)||(R.hasNaN())){
             if (verbose>=4){
 			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 			    Rcout << "C++ Warning: final failing values ";
@@ -4933,7 +4933,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-                if (R.minCoeff()<=0){
+                if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
                     #pragma omp parallel for num_threads(nthreads)
                     #endif
@@ -5300,7 +5300,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
          Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-         while (R.minCoeff()<=0){
+         while ((R.minCoeff()<=0)||(R.hasNaN())){
              half_check++;
  //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
              if (half_check>halfmax){
@@ -5562,7 +5562,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             Rcout << "C++ Note: starting subterms " << term_tot << " in guess " << guess << endl;
         }
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-        if (R.minCoeff()<=0){
+        if ((R.minCoeff()<=0)||(R.hasNaN())){
             if (verbose>=4){
 			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 			    Rcout << "C++ Warning: final failing values ";
@@ -5646,7 +5646,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-                if (R.minCoeff()<=0){
+                if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
                     #pragma omp parallel for num_threads(nthreads)
                     #endif
@@ -5987,7 +5987,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
          Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-         while (R.minCoeff()<=0){
+         while ((R.minCoeff()<=0)||(R.hasNaN())){
              half_check++;
  //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
              if (half_check>halfmax){
@@ -6340,7 +6340,7 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
             Rcout << "C++ Note: starting subterms " << term_tot << " in guess " << guess << endl;
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-        if (R.minCoeff()<=0){
+        if ((R.minCoeff()<=0)||(R.hasNaN())){
             if (verbose>=1){
 			    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
 			    Rcout << "C++ Warning: final failing values ";
@@ -6412,7 +6412,7 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-                if (R.minCoeff()<=0){
+                if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
                     #pragma omp parallel for num_threads(nthreads)
                     #endif

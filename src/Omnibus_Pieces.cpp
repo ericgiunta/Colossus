@@ -194,6 +194,12 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 			}
 			Rcout << " " << endl;
 			//
+			Rcout << "C++ Note: ALL risk2 checked ";
+			for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+				Rcout << Rdd.col(ijk).sum() << " ";
+			}
+			Rcout << " " << endl;
+			//
 		}
 	} else if (single_bool){
 		// Calculates the subterm and term values
@@ -462,6 +468,13 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
                     Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
                 }
                 Rcout << " " << endl;
+                //
+			    Rcout << "C++ Note: ALL risk2r checked ";
+			    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+				    Rcout << Rls3.col(ijk).sum() << " ";
+			    }
+			    Rcout << " " << endl;
+			    //
             }
             //
             Rcout << "C++ Note: riskl checked ";
@@ -480,6 +493,13 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
                     Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
                 }
                 Rcout << " " << endl;
+                //
+			    Rcout << "C++ Note: ALL risk2l checked ";
+			    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+				    Rcout << Lls3.col(ijk).sum() << " ";
+			    }
+			    Rcout << " " << endl;
+			    //
             }
         }
     }
@@ -553,16 +573,16 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
                 Rcout << beta_0[ij] << " ";
             }
             Rcout << " " << endl;
-            Rcout << "C++ Note: df105 ";
-            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-                Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df106 ";
-            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-                Rcout << Ll[ij]/Lld[ij] << " ";
-            }
-            Rcout << " " << endl;
+//            Rcout << "C++ Note: df105 ";
+//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
+//                Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
+//            }
+//            Rcout << " " << endl;
+//            Rcout << "C++ Note: df106 ";
+//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
+//                Rcout << Ll[ij]/Lld[ij] << " ";
+//            }
+//            Rcout << " " << endl;
         }
     }
 }
@@ -691,6 +711,13 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 				Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
 			}
 			Rcout << " " << endl;
+			//
+		    Rcout << "C++ Note: ALL second derivs checked ";
+		    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+			    Rcout << Tdd0.col(ijk).sum() << " ";
+		    }
+		    Rcout << " " << endl;
+		    //
 			Rcout << "C++ Note: dose checked ";
 			for (int ijk=0;ijk<term_tot;ijk++){
 				Rcout << Dose.col(ijk).array().sum() << " ";
@@ -765,6 +792,12 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 			}
 			Rcout << " " << endl;
 			//
+		    Rcout << "C++ Note: ALL risk2 checked ";
+		    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+			    Rcout << Rdd.col(ijk).sum() << " ";
+		    }
+		    Rcout << " " << endl;
+		    //
 		}
 	}
 	return;
@@ -846,16 +879,16 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
             }
             Rcout << " " << endl;
             Rcout << "C++ Note: Checking Deviance " << dev << endl;
-            Rcout << "C++ Note: df105 ";
-            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-                Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df106 ";
-            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-                Rcout << Ll[ij]/Lld[ij] << " ";
-            }
-            Rcout << " " << endl;
+//            Rcout << "C++ Note: df105 ";
+//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
+//                Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
+//            }
+//            Rcout << " " << endl;
+//            Rcout << "C++ Note: df106 ";
+//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
+//                Rcout << Ll[ij]/Lld[ij] << " ";
+//            }
+//            Rcout << " " << endl;
         }
     }
     return;
