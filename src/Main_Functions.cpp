@@ -1461,16 +1461,16 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     }
                     Rcout << " " << endl;
                     Rcout << "C++ Note: Checking Deviance " << dev << endl;
-                    Rcout << "C++ Note: df105 ";
-                    for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-                        Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-                    }
-                    Rcout << " " << endl;
-                    Rcout << "C++ Note: df106 ";
-                    for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-                        Rcout << Ll[ij]/Lld[ij] << " ";
-                    }
-                    Rcout << " " << endl;
+                    // Rcout << "C++ Note: df105 ";
+                    // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
+                    //     Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
+                    // }
+                    // Rcout << " " << endl;
+                    // Rcout << "C++ Note: df106 ";
+                    // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
+                    //     Rcout << Ll[ij]/Lld[ij] << " ";
+                    // }
+                    // Rcout << " " << endl;
                 }
             }
         }
@@ -1864,16 +1864,16 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 }
                 Rcout << " " << endl;
                 Rcout << "C++ Note: Checking Deviance " << dev << endl;
-                Rcout << "C++ Note: df105 ";
-                for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-                    Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "C++ Note: df106 ";
-                for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-                    Rcout << Ll[ij]/Lld[ij] << " ";
-                }
-                Rcout << " " << endl;
+                // Rcout << "C++ Note: df105 ";
+                // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
+                //     Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
+                // }
+                // Rcout << " " << endl;
+                // Rcout << "C++ Note: df106 ";
+                // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
+                //     Rcout << Ll[ij]/Lld[ij] << " ";
+                // }
+                // Rcout << " " << endl;
             }
         }
     }

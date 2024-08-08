@@ -950,7 +950,10 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                             }
                         } else if (tform[jk]=="lin") {
                             if (tform[ij]=="plin") {
-                                Rdd.col(p_ijk) = TTerm.col(tij).array() * nonDose_LIN.col(tjk).array().pow(-1).array() * Td0.col(jk).array() * nonDose_PLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
+                                Rdd.col(p_ijk) = (nonDose_LIN.col(tjk).array() * nonDose_PLIN.col(tij).array()).array().pow(-1.0).array();
+                                Rdd.col(p_ijk) = TTerm.col(tij).array() * Rdd.col(p_ijk).array();
+                                Rdd.col(p_ijk) = Rdd.col(p_ijk).array() * Td0.col(jk).array() *  Td0.col(ij).array();
+//                                Rdd.col(p_ijk) = TTerm.col(tij).array() * nonDose_LIN.col(tjk).array().pow(-1).array() * Td0.col(jk).array() * nonDose_PLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
                             }
                         } else {
                             ;
