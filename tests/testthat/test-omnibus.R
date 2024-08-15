@@ -173,7 +173,7 @@ test_that( "Pois comb_forms", {
 	verbose <- FALSE
 	modelforms <- c( "A", "PAE", "M", "PA" )
 	j_iterate <- 1
-	LL_comp <- c(-820.709, -471.0312, -471.0312, -463.1375, -707.56, -678.2228, -678.2228, -471.4805)
+	LL_comp <- c(-790.3591, -471.0312, -471.0312, -463.1375, -707.56, -678.2228, -678.2228, -471.4805)
 	for (modelform in modelforms){
 		model_control <- list( 'strata'=FALSE, 'single'=FALSE)
 		if (verbose){print(model_control)}
