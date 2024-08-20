@@ -175,7 +175,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
     TTerm << Dose.array() * nonDose.array();
     //
     #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(1)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ij=0;ij<(totalnum);ij++){
         int df0_c = dfc[ij]-1;
@@ -882,7 +882,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             R << Te.array();
             //
             #ifdef _OPENMP
-            #pragma omp parallel for schedule(dynamic) num_threads(1)
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             #endif
             for (int ijk=0;ijk<totalnum*(totalnum+1)/2;ijk++){
                 int ij = 0;
