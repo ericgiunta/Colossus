@@ -43,18 +43,18 @@ test_that( "Coxph censoring weight", {
     surv_ref <- dft$surv
     t_c <- df$t1
     cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
+    df$weighting <- cens_weight
     # message(sum(cens_weight))
     #
     event <- "lung"
     a_n <- c(-0.1,-0.1)
     keep_constant <- c(0,0)
-    e0 <- RunCoxRegression_CR(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight)
-
+    e0 <- RunCoxRegression_CR(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,"weighting")
     a_n <- c(-0.1,-0.1)
     keep_constant <- c(0,0)
     e1 <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     #
-    expect_equal(e0$LogLik - e1$LogLik,8.680511,tolerance=1e-2)
+    expect_equal(e0$LogLik - e1$LogLik,-2.909427,tolerance=1e-2)
 })
 
 

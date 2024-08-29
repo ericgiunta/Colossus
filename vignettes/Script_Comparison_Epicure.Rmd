@@ -22,7 +22,7 @@ library(parallel)
 
 ## Introduction to Colossus
 
-Colossus was developped in the context of radiation epidemiologists wanting to use new methods and more data. At the time of development, 32-bit Epicure was a popular software for running radiation epidemiological analysis. This vignette was written with that in mind to help any transitioning users see how the two are similar and different, in addition to providing guidance for converting between the two. The script provided will discuss both Colossus-specific differences as well as general R capabilities that differ from Epicure.
+Colossus was developed in the context of radiation epidemiologists wanting to use new methods and more data. At the time of development, 32-bit Epicure was a popular software for running radiation epidemiological analysis. This vignette was written with that in mind to help any transitioning users see how the two are similar and different, in addition to providing guidance for converting between the two. The script provided will discuss both Colossus-specific differences as well as general R capabilities that differ from Epicure.
 
 ### Example Epicure Analysis
 The following peanuts script was used as part of validation efforts for Colossus. The script runs three regressions. A linear excess relative risk model, a log-linear hazard ratio model for dose overall, and a log-linear hazard ratio model for categorical bins of dose.
@@ -108,9 +108,13 @@ tform <- c("plin",rep('loglin',length(names)-1))
 control <- list("Ncores"=8, 'maxiter'=50, 'verbose'=F)
 ```
 
+Finally the regression is run, and a list of the results is returned to a variable "e".
+
 ```{r, eval=FALSE}
 e <- RunCoxRegression(df_Dose, t0, t1, event, names, tform=tform, control = control)
 ```
+
+A similar process is run for the two hazard ratio regressions.
 
 ```{r, eval=FALSE}
 # HR

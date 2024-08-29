@@ -22,7 +22,7 @@ RunCoxRegression_Tier_Guesses(
   guesses_control,
   strat_col,
   model_control = list(),
-  cens_weight = c(0)
+  cens_weight = "null"
 )
 }
 \arguments{
@@ -58,7 +58,7 @@ RunCoxRegression_Tier_Guesses(
 
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 
-\item{cens_weight}{list of weights for censoring rate}
+\item{cens_weight}{column containing the row weights}
 }
 \value{
 returns a list of the final results

@@ -19,7 +19,7 @@ RunCoxRegression_Omnibus(
   der_iden = 0,
   control = list(),
   strat_col = "null",
-  cens_weight = c(1),
+  cens_weight = "null",
   model_control = list(),
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0)
@@ -54,7 +54,7 @@ RunCoxRegression_Omnibus(
 
 \item{strat_col}{column to stratify by if needed}
 
-\item{cens_weight}{list of weights for censoring rate}
+\item{cens_weight}{column containing the row weights}
 
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 

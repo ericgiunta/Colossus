@@ -5,7 +5,7 @@
 #' @param alternative_model  the new model of interest in list form, output from a poisson regression
 #' @param b  optimum parameter values used
 #' @param ce  columns to check for truncation, (t0, t1, event)
-#' @param cens_weight  list of weights for censoring rate
+#' @param cens_weight  column containing the row weights
 #' @param ch  cumulative hazards of baseline
 #' @param col_list  an array of column names that should have factor terms defined
 #' @param col_name  vector of new column names

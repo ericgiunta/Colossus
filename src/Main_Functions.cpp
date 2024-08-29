@@ -312,6 +312,11 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
     vector<string>  RiskGroup;
     IntegerMatrix RiskFail;
     const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    // FOR BENCHMARKING PURPOSES
+    time_point<system_clock> comp_point;
+    comp_point = system_clock::now();
+    auto comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+    //
     // ------------------------------------------------------------------------- // initialize
     if (strata_bool){
         RiskGroup_Strata = StringMatrix(ntime,STRATA_vals.size()); //vector of strings detailing the rows
@@ -340,6 +345,11 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
             Make_Groups( ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging);
         }
     }
+    // FOR BENCHMARKING PURPOSES
+    end_point = system_clock::now();
+    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "C++ Note: duration time " << (ending-comp) << " " << ntime << " " << df0.rows() << " " << nthreads <<endl;
+    //
     if (verbose>=4){
         end_point = system_clock::now();
         ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();

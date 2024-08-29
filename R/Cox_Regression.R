@@ -50,8 +50,24 @@
 #'                               model_control=list("single"=FALSE,
 #'                               "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null", cens_weight=c(1), model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
+RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(),strat_col="null", cens_weight="null", model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
     df <- data.table(df)
+    ##
+    ce <- c(time1,time2,event0)
+    t_check <- Check_Trunc(df,ce)
+    df <- t_check$df
+    ce <- t_check$ce
+    ## Cox regression only uses intervals which contain an event time
+    time1 <- ce[1]
+    time2 <- ce[2]
+    dfend <- df[get(event0)==1, ]
+    tu <- sort(unlist(unique(dfend[,time2,with=FALSE]), use.names=FALSE))
+    # remove rows that end before first event
+    df <- df[get(time2)>= tu[1],]
+    # remove rows that start after the last event
+    df <- df[get(time1)<= tu[length(tu)],]
+#    print(df)
+    ##
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
                                  names, der_iden, cons_mat, cons_vec,control$verbose)
@@ -63,6 +79,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     names <- val$names
     cons_mat <- as.matrix(val$cons_mat)
     cons_vec <- val$cons_vec
+    #
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
     }
@@ -75,18 +92,45 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
-    if (min(keep_constant)>0){
-        if (control$verbose>=1){
-            message("Error: Atleast one parameter must be free")
-        }
-        stop()
-    }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
             #fine
         } else {
             df$CONST <- 1
         }
+    }
+    ##
+    # make sure any constant 0 columns are constant
+#    for (i in 1:length(keep_constant)){
+#        if (keep_constant[i]==0){
+#            if (names[i] != 'CONST'){
+#                if (min(df[[names[i]]])==max(df[[names[i]]])){
+#                    keep_constant[i] <- 1
+#                    if (control$verbose>=2){
+#                        message(paste("Warning: element ",i," with column name ",names[i]," was set constant",sep=""))
+#                    }
+#                }
+#            }
+#        }
+#    }
+    if (min(keep_constant)>0){
+        if (control$verbose>=1){
+            message("Error: Atleast one parameter must be free")
+        }
+        stop()
+    }
+    ##
+    if (model_control$cr==TRUE){
+        if (cens_weight %in% names(df)){
+            # good
+        } else if (length(cens_weight)<nrow(df)){
+            if (control$verbose>=1){
+                message("Error: censoring weight column not in the dataframe.")
+            }
+            stop()
+        }
+    } else {
+        df[[cens_weight]] <- 1
     }
     if (model_control$strata==FALSE){
         data.table::setkeyv(df, c(time2, event0))
@@ -139,16 +183,10 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     #
-    t_check <- Check_Trunc(df,ce)
-    df <- t_check$df
-    ce <- t_check$ce
-    #
     a_ns <- c()
     for (i in a_n){
         a_ns <- c(a_ns, i)
     }
-    #
-    #
     if (model_control$log_bound){
         if ("maxiters" %in% names(control)){
         	if (length(control$maxiters) == length(a_n)+1){
@@ -201,7 +239,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         }
         e <- cox_ph_Omnibus_Bounds_transition(term_n,tform,a_ns,dfc,x_all, fir,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
-             keep_constant,term_tot, uniq, cens_weight, model_control,
+             keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
              cons_mat, cons_vec)
     } else {
         if ("maxiters" %in% names(control)){
@@ -260,7 +298,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         }
         e <- cox_ph_Omnibus_transition(term_n,tform,a_ns,dfc,x_all, fir,der_iden,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
-             keep_constant,term_tot, uniq, cens_weight, model_control,
+             keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
              cons_mat, cons_vec)
 	    if (is.nan(e$LogLik)){
 		    if (control$verbose>=1){message("Error: Invalid risk")}
@@ -987,7 +1025,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 #'                                    strat_col)
 #'
 #' @importFrom rlang .data
-RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight=c(0)){
+RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight="null"){
     df <- data.table(df)
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
@@ -1036,7 +1074,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
                                       term_n_initial, tform_initial,
                                       constant_initial, a_n_initial,
                                       modelform, fir, der_iden, control,
-                                      guesses_control,strat_col)
+                                      guesses_control,strat_col,cens_weight=cens_weight)
     #
     if (guesses_control$verbose>=3){
         message("Note: INITIAL TERM COMPLETE")
@@ -1059,7 +1097,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
     guesses_control$guesses <- guess_second
     e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event0, names,
          term_n, tform,keep_constant, a_n, modelform, fir, der_iden, control,
-         guesses_control,strat_col)
+         guesses_control,strat_col,cens_weight=cens_weight)
     #
     return(e)
 }
@@ -1105,11 +1143,11 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
 #'    'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
 #' #weights the probability that a row would continue to extend without censoring,
 #' #    for risk group calculation 
-#' cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
+#' df$cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
 #' #censoring weight is generated by the survival library finegray function, or by hand.
 #' #The ratio of weight at event end point to weight at row endpoint is used.
 #' e <- RunCoxRegression_CR(df, time1, time2, event, names, term_n, tform,
-#'      keep_constant, a_n, modelform, fir, der_iden, control, cens_weight)
+#'      keep_constant, a_n, modelform, fir, der_iden, control, 'cens_weight')
 #'
 #' @importFrom rlang .data
 RunCoxRegression_CR <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
@@ -1170,7 +1208,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, term_n, tform, 
 #'                               tform, keep_constant, a_n, modelform, fir,
 #'                               der_iden, control,guesses_control,strat_col)
 #' @importFrom rlang .data
-RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight=c(0)){
+RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight="null"){
     df <- data.table(df)
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)
@@ -1360,8 +1398,16 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
 #' #                              model_control=list("single"=FALSE,
 #' #                              "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, realization_columns = matrix(c("temp00","temp01","temp10","temp11"),nrow=2), realization_index=c("temp0","temp1"), control=list(),strat_col="null", cens_weight=c(1), model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
+RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, realization_columns = matrix(c("temp00","temp01","temp10","temp11"),nrow=2), realization_index=c("temp0","temp1"), control=list(),strat_col="null", cens_weight="null", model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
     df <- data.table(df)
+    ##
+    ##
+    if (length(cens_weight)>nrow(df)){
+        if (control$verbose>=2){
+            message("Warning: censoring weight list has more entries that the dataframe has rows. Ignoring extra entries")
+        }
+    }
+    ##
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
                                  names, der_iden, cons_mat, cons_vec,control$verbose)
@@ -1394,6 +1440,18 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         } else {
             df$CONST <- 1
         }
+    }
+    if (model_control$cr==TRUE){
+        if (cens_weight %in% names(df)){
+            # good
+        } else if (length(cens_weight)<nrow(df)){
+            if (control$verbose>=1){
+                message("Error: censoring weight column not in the dataframe.")
+            }
+            stop()
+        }
+    } else {
+        df[[cens_weight]] <- 1
     }
     if (model_control$strata==FALSE){
         data.table::setkeyv(df, c(time2, event0))
@@ -1486,7 +1544,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
             as.matrix(dose_cols, with=FALSE), dose_index,dfc,x_all,
             fir, der_iden, modelform, control,
             as.matrix(df[,ce, with = FALSE]),tu,
-            keep_constant,term_tot, uniq, cens_weight, model_control,
+            keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
             cons_mat, cons_vec)
     e$Parameter_Lists$names <- names
     return (e)

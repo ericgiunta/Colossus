@@ -26,6 +26,7 @@ test_that( "Coxph strata_basic_single_CR log_bound", {
     surv_ref <- dft$surv
     t_c <- df$t1
     cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
+    df$weighting <- cens_weight
     #
     event <- "lung"
     a_n <- c(-0.1,-0.1)
@@ -44,10 +45,10 @@ test_that( "Coxph strata_basic_single_CR log_bound", {
                         if (verbose){print(model_control)}
                         a_n <- c(-0.1,-0.1)
                         control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-                        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight=cens_weight))
+                        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
                         a_n <- c(-0.1,-0.1)
                         control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='efron', 'double_step'=0)
-                        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight=cens_weight))
+                        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
                         if (verbose){print( "---------------" )}
                     }
                 }
