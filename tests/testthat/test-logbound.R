@@ -1,4 +1,6 @@
 test_that( "Coxph strata_basic_single_CR log_bound", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -55,8 +57,12 @@ test_that( "Coxph strata_basic_single_CR log_bound", {
             }
         }
     }
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Poisson strata_single log_bound", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -97,6 +103,8 @@ test_that( "Poisson strata_single log_bound", {
             }
         }
     }
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Coxph EPICURE validated answers, loglin", {
     fname <- 'base_example.csv'

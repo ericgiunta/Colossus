@@ -539,6 +539,8 @@ test_that( "check Linear Constraints", {
 })
 
 test_that( "Pois double_step change_all calcs", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'll_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -574,4 +576,6 @@ test_that( "Pois double_step change_all calcs", {
             if (verbose){print( "---------------" )}
         }
     }
+    sink(NULL)
+    close(tfile)
 })

@@ -1,4 +1,6 @@
 test_that( "Gather Guesses list, incorrect keep_constant length and rmin/rmax not used", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,1,0,0,0,1,0)
@@ -39,6 +41,8 @@ test_that( "Gather Guesses list, incorrect keep_constant length and rmin/rmax no
     guesses_control$rmin <- c(-0.1,-1,-0.1,0)
     guesses_control$rmax <- c(0.1, 1, 0.1, 0.1)
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Gather Guesses list, bad tform", {
     a <- c(0,1,2,3,4,5,6)
@@ -140,6 +144,8 @@ test_that( "Missing Value verbose error", {
 })
 
 test_that( "Pois various_fixes", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'll_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -177,8 +183,12 @@ test_that( "Pois various_fixes", {
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     control$guesses <- 100
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Pois_tier_guess various_fixes", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -201,8 +211,12 @@ test_that( "Pois_tier_guess various_fixes", {
     expect_no_error(RunPoissonRegression_Tier_Guesses(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
     keep_constant <- c(1,1)
     expect_error(RunPoissonRegression_Tier_Guesses(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Poisson_basic_guess_cpp various_fixes", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -230,6 +244,8 @@ test_that( "Poisson_basic_guess_cpp various_fixes", {
     keep_constant <- c(0,0)
     names <- c( "a", "CONST" )
     expect_no_error(RunPoissonRegression_Guesses_CPP(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col,model_control))
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Coxph martingale no error", {
@@ -648,6 +664,8 @@ test_that( "Iteract formula operation error", {
 })
 
 test_that( "gmix omnibus use", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -717,9 +735,13 @@ test_that( "gmix omnibus use", {
             }
         }
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "dose nondose combinations", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'dose.csv'
     colTypes <- c( "double", "double", "double", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -766,4 +788,6 @@ test_that( "dose nondose combinations", {
         modelform <- model
         expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
     }
+    sink(NULL)
+    close(tfile)
 })

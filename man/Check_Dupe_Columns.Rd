@@ -37,6 +37,7 @@ unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Trunc}()},
+\code{\link{Check_Verbose}()},
 \code{\link{Correct_Formula_Order}()},
 \code{\link{Date_Shift}()},
 \code{\link{Def_Control}()},

@@ -236,6 +236,8 @@ test_that( "Coxph risk too few unique values", {
 })
 
 test_that( "Coxph plot no error", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(1,0,1,0,1,0,0)
@@ -257,8 +259,12 @@ test_that( "Coxph plot no error", {
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Coxph plot stratafied no error", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a <- c(0,0,0,0,0,0,1)
 	b <- c(2,3,4,2,3,2,4)
 	c <- c(1,0,1,0,1,1,0)
@@ -281,9 +287,13 @@ test_that( "Coxph plot stratafied no error", {
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Coxph risk no error", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(1,0,1,0,1,0,0)
@@ -305,9 +315,13 @@ test_that( "Coxph risk no error", {
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Coxph schoenfeld no error", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -327,8 +341,12 @@ test_that( "Coxph schoenfeld no error", {
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Coxph martingale no error", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,1,0,0,0,1,0)
@@ -351,8 +369,12 @@ test_that( "Coxph martingale no error", {
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Coxph km no error", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(1,0,1,0,1,0,0)
@@ -374,4 +396,6 @@ test_that( "Coxph km no error", {
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })

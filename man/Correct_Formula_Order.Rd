@@ -68,6 +68,7 @@ names <- val$names
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
+\code{\link{Check_Verbose}()},
 \code{\link{Date_Shift}()},
 \code{\link{Def_Control}()},
 \code{\link{Def_Control_Guess}()},

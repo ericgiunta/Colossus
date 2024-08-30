@@ -102,7 +102,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     if (model_control$cr==TRUE){
         if (cens_weight %in% names(df)){
             # good
-        } else if (length(cens_weight)<nrow(df)){
+        } else {
             if (control$verbose>=1){
                 message("Error: censoring weight column not in the dataframe.")
             }
@@ -834,18 +834,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
         }
     }
     #
-    if (plot_options$verbose %in% c(0,1,2,3,4)){
-        #pass
-    } else if (plot_options$verbose %in% c(T,F)){
-        if (plot_options$verbose){
-            plot_options$verbose <- 3
-        } else {
-            plot_options$verbose <- 0
-        }
-    } else {
-        message("Error: plotting verbosity arguement not valid")
-        stop()
-    }
+    plot_options$verbose <- Check_Verbose(plot_options$verbose)
     #
     control <- Def_Control(control)
     verbose <- data.table::copy(plot_options$verbose)
@@ -1400,13 +1389,6 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, realization_columns = matrix(c("temp00","temp01","temp10","temp11"),nrow=2), realization_index=c("temp0","temp1"), control=list(),strat_col="null", cens_weight="null", model_control=list(),cons_mat=as.matrix(c(0)),cons_vec=c(0)){
     df <- data.table(df)
-    ##
-    ##
-    if (length(cens_weight)>nrow(df)){
-        if (control$verbose>=2){
-            message("Warning: censoring weight list has more entries that the dataframe has rows. Ignoring extra entries")
-        }
-    }
     ##
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
