@@ -99,27 +99,6 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
             df$CONST <- 1
         }
     }
-    ##
-    # make sure any constant 0 columns are constant
-#    for (i in 1:length(keep_constant)){
-#        if (keep_constant[i]==0){
-#            if (names[i] != 'CONST'){
-#                if (min(df[[names[i]]])==max(df[[names[i]]])){
-#                    keep_constant[i] <- 1
-#                    if (control$verbose>=2){
-#                        message(paste("Warning: element ",i," with column name ",names[i]," was set constant",sep=""))
-#                    }
-#                }
-#            }
-#        }
-#    }
-    if (min(keep_constant)>0){
-        if (control$verbose>=1){
-            message("Error: Atleast one parameter must be free")
-        }
-        stop()
-    }
-    ##
     if (model_control$cr==TRUE){
         if (cens_weight %in% names(df)){
             # good
@@ -177,6 +156,27 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     #
     df <- Replace_Missing(df,all_names,0.0,control$verbose)
     #
+    ##
+    # make sure any constant 0 columns are constant
+   for (i in 1:length(keep_constant)){
+       if ((keep_constant[i]==0)&&(names[i] %in% names(df))){
+           if (names[i] != 'CONST'){
+               if (min(df[[names[i]]])==max(df[[names[i]]])){
+                   keep_constant[i] <- 1
+                   if (control$verbose>=2){
+                       message(paste("Warning: element ",i," with column name ",names[i]," was set constant",sep=""))
+                   }
+               }
+           }
+       }
+   }
+    if (min(keep_constant)>0){
+        if (control$verbose>=1){
+            message("Error: Atleast one parameter must be free")
+        }
+        stop()
+    }
+    ##
     dfc <- match(names,all_names)
 
     term_tot <- max(term_n)+1
