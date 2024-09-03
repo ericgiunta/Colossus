@@ -45,6 +45,8 @@ test_that( "Gather Guesses list, incorrect keep_constant length and rmin/rmax no
     close(tfile)
 })
 test_that( "Gather Guesses list, bad tform", {
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,1,0,0,0,1,0)
@@ -83,6 +85,8 @@ test_that( "Gather Guesses list, bad tform", {
     guesses_control$rmin <- c(-0.1,-1,-0.1,0)
     guesses_control$rmax <- c(0.1, 1, 0.1, 0.1,0,0,0)
     expect_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
+    sink(NULL)
+    close(tfile)
 })
 
 
@@ -268,14 +272,20 @@ test_that( "Coxph martingale no error", {
     der_iden <- 0
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
     plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=TRUE)
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Coxph loglin_M CENSOR Default various_fixes", {
     fname <- 'll_cens_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -296,6 +306,8 @@ test_that( "Coxph loglin_M CENSOR Default various_fixes", {
     keep_constant <- c(0,0)
     df$lung <- rep(0,nrow(df))
     expect_error(GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
+    sink(NULL)
+    close(tfile)
     #
 })
 test_that( "Coxph risk plotting above discrete step number limit", {
@@ -318,14 +330,20 @@ test_that( "Coxph risk plotting above discrete step number limit", {
     der_iden <- 0
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
     plot_options <- list( "type"=c( "RISK",paste(tempfile(), "run",sep="" )), "studyid"="a", 'verbose'=TRUE)
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Various CoxRegressionOmnibus options", {
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
@@ -372,8 +390,6 @@ test_that( "Various CoxRegressionOmnibus options", {
     a_n <- list(c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781))
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
-#    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1, "guesses"=50)
-#    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     #
     control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1, "guesses"=1)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
@@ -386,11 +402,15 @@ test_that( "Various CoxRegressionOmnibus options", {
     keep_constant <- c(0,0,0)
     a_n <- c(-0.1,-0.1,0.2)
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Various RunPoissonRegression_Omnibus options", {
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
@@ -453,6 +473,8 @@ test_that( "Various RunPoissonRegression_Omnibus options", {
     keep_constant <- c(0,0,0)
     a_n <- c(-0.1,-0.1,0.2)
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Coxph relative risk combinations", {
@@ -473,6 +495,8 @@ test_that( "Coxph relative risk combinations", {
     fir <- 0
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
     keep_constant <- c(1)
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     expect_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control))
     keep_constant <- c(0)
     names <- c( "d", "CONST" )
@@ -481,6 +505,8 @@ test_that( "Coxph relative risk combinations", {
     keep_constant <- c(0,0)
     a_n <- c(-0.1,0.1)
     expect_no_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control))
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Coxph martingale combinations", {
@@ -504,6 +530,8 @@ test_that( "Coxph martingale combinations", {
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
     plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=TRUE)
     keep_constant <- c(1)
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
         names <- c( "d", "CONST" )
@@ -518,11 +546,15 @@ test_that( "Coxph martingale combinations", {
         df$c <- rep(0,nrow(df))
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Cox_tier_guess combinations", {
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -544,11 +576,15 @@ test_that( "Cox_tier_guess combinations", {
     keep_constant <- c(0,0)
     guesses_control <- list( "iterations"=1, "guesses"=1, "lin_min"=0.001, "lin_max"=1, "loglin_min"=-1, "loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform",strata=FALSE,term_initial = c(0),rmin=c(1,1,1,1),rmax=c(1,1))
     expect_no_error(RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col))
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Cox_basic_guess_cpp combinations", {
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -577,6 +613,8 @@ test_that( "Cox_basic_guess_cpp combinations", {
     df$lung <- rep(0,nrow(df))
     expect_error(RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col,model_control))
     model_control <- list( 'strata'=T)
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Gather Guesses list combinations", {
@@ -599,6 +637,8 @@ test_that( "Gather Guesses list combinations", {
     der_iden <- 0
     #
     #
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list()
     model_control <- list()
@@ -627,16 +667,22 @@ test_that( "Gather Guesses list combinations", {
     term_n <- c(0,0,0,0)
     tform <- c( "loglin", 'loglin', 'loglin', 'loglin' )
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Default control guess combinations", {
     control_def<- list( "verbose"=T)
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     a_n <- c(1,2,3)
     expect_no_error(Def_Control_Guess(control_def,a_n))
     control_def<- list( "verbose"="p" )
     expect_error(Def_Control_Guess(control_def,a_n))
     control_def<- list( "verbose"=T, "guess_constant"=c(1))
     expect_no_error(Def_Control_Guess(control_def,a_n))
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "linked formula combinations", {

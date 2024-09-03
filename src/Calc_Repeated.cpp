@@ -1118,7 +1118,7 @@ void Calc_LogLik(const int& nthreads,const IntegerMatrix& RiskFail, const vector
     }
     fill(Ll.begin(), Ll.end(), LogLik);
     #ifdef _OPENMP
-    #pragma omp parallel for num_threads(nthreads)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
@@ -1220,7 +1220,7 @@ void Calc_LogLik_Basic(const int& nthreads,const IntegerMatrix& RiskFail, const 
     }
     fill(Ll.begin(), Ll.end(), LogLik);
     #ifdef _OPENMP
-    #pragma omp parallel for num_threads(nthreads)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
@@ -1426,7 +1426,7 @@ void Calc_LogLik_STRATA(const int& nthreads,const IntegerMatrix& RiskFail, const
     }
     fill(Ll.begin(), Ll.end(), LogLik);
     #ifdef _OPENMP
-    #pragma omp parallel for num_threads(nthreads)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;
@@ -1585,7 +1585,7 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads,const IntegerMatrix& RiskFail,
     }
     fill(Ll.begin(), Ll.end(), LogLik);
     #ifdef _OPENMP
-    #pragma omp parallel for num_threads(nthreads)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
         int ij = 0;

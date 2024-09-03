@@ -1,6 +1,8 @@
 test_that( "Coxph basic_single_null match", {
     fname <- 'll_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -44,10 +46,14 @@ test_that( "Coxph basic_single_null match", {
             }
         }
     }
+    sink(NULL)
+    close(tfile)
 })
 test_that( "Coxph strata_basic_single_CR", {
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
@@ -105,11 +111,15 @@ test_that( "Coxph strata_basic_single_CR", {
             }
         }
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Pois strata_single", {
     fname <- 'll_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     df$pyr <- df$t1-df$t0
@@ -148,6 +158,8 @@ test_that( "Pois strata_single", {
             if (verbose){print( "---------------" )}
         }
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "Pois comb_forms", {
@@ -199,6 +211,8 @@ test_that( "Pois comb_forms", {
 test_that( "Pois strata_single expanded", {
     fname <- 'll_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
+    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     df$pyr <- df$t1-df$t0
@@ -238,6 +252,8 @@ test_that( "Pois strata_single expanded", {
             if (verbose){print( "---------------" )}
         }
     }
+    sink(NULL)
+    close(tfile)
 })
 
 test_that( "risk check omnibus plain", {

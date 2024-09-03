@@ -348,7 +348,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
     // FOR BENCHMARKING PURPOSES
     end_point = system_clock::now();
     ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//    Rcout << "C++ Note: duration time " << (ending-comp) << " " << ntime << " " << df0.rows() << " " << nthreads <<endl;
+    Rcout << "C++ Note: duration time " << (ending-comp) << " " << ntime << " " << df0.rows() << " " << nthreads <<endl;
     //
     if (verbose>=4){
         end_point = system_clock::now();
@@ -508,7 +508,12 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
         if (verbose>=4){
             Rcout << "C++ Note: Made Risk Side Lists" << endl;
         }
+        comp_point = system_clock::now();
+        comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
         Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+        end_point = system_clock::now();
+        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        Rcout << "C++ Note: side and log-lik time " << (ending-comp) << " " << ntime << " " << df0.rows() << " " << reqrdnum << " " << nthreads <<endl;
         //
         for (int i=0;i<beta_0.size();i++){
             beta_c[i] = beta_0[i];
@@ -563,7 +568,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         int tij = term_n[ijk];
@@ -584,14 +589,14 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                     if (change_all){ //If every covariate is to be changed
                         if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
                         	#ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 dbeta[ijk] = dbeta[ijk] * 0.5; //
                             }
                         } else{//If improved, updates the best vector
                         	#ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 beta_best[ijk] = beta_c[ijk];
@@ -600,7 +605,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                     } else {//For validation, the step is always carried over
                         //used if a single parameter is being changed to trick program
                     	#ifdef _OPENMP
-                        #pragma omp parallel for num_threads(nthreads)
+                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                         #endif
                         for (int ijk=0;ijk<totalnum;ijk++){
                             beta_best[ijk] = beta_c[ijk];
@@ -614,7 +619,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                         Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                     }
                     #ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                         beta_0[ijk] = beta_c[ijk];
@@ -799,7 +804,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
             Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
             if ((R.minCoeff()<=0)||(R.hasNaN())){
             	#ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = term_n[ijk];
@@ -820,14 +825,14 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                 if (change_all){ //If every covariate is to be changed
                     if (Ll[ind0] <= Ll_abs_best){//takes a half-step if needed
                         #ifdef _OPENMP
-				        #pragma omp parallel for num_threads(nthreads)
+				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 				        #endif
                         for (int ijk=0;ijk<totalnum;ijk++){
                             dbeta[ijk] = dbeta[ijk] * 0.5; //
                         }
                     } else{//If improved, updates the best vector
                         #ifdef _OPENMP
-				        #pragma omp parallel for num_threads(nthreads)
+				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 				        #endif
                         for (int ijk=0;ijk<totalnum;ijk++){
                             beta_best[ijk] = beta_c[ijk];
@@ -836,7 +841,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                 } else {//For validation, the step is always carried over
                     //used if a single parameter is being changed
                     #ifdef _OPENMP
-		            #pragma omp parallel for num_threads(nthreads)
+		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 		            #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         beta_best[ijk] = beta_c[ijk];
@@ -850,7 +855,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                 }
                 #ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                     beta_0[ijk] = beta_c[ijk];
@@ -1296,7 +1301,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
                 if ((R.minCoeff()<=0)||(R.hasNaN())){
                     #ifdef _OPENMP
-		            #pragma omp parallel for num_threads(nthreads)
+		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 		            #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         int tij = term_n[ijk];
@@ -1318,14 +1323,14 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     if (change_all){ //If every covariate is to be changed
                         if (Ll[ind0] <= Ll_abs_best){//takes a half-step if needed
                             #ifdef _OPENMP
-						    #pragma omp parallel for num_threads(nthreads)
+						    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 						    #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 dbeta[ijk] = dbeta[ijk] * 0.5; //
                             }
                         } else{//If improved, updates the best vector
                             #ifdef _OPENMP
-							#pragma omp parallel for num_threads(nthreads)
+							#pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 							#endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 beta_best[ijk] = beta_c[ijk];
@@ -1334,7 +1339,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     } else {//For validation, the step is always carried over
                         //used if a single parameter is being changed
                         #ifdef _OPENMP
-				        #pragma omp parallel for num_threads(nthreads)
+				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 				        #endif
                         for (int ijk=0;ijk<totalnum;ijk++){
                             beta_best[ijk] = beta_c[ijk];
@@ -1348,7 +1353,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                         Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                     }
                     #ifdef _OPENMP
-		            #pragma omp parallel for num_threads(nthreads)
+		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 		            #endif
                     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                         beta_0[ijk] = beta_c[ijk];
@@ -1681,7 +1686,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
             Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
             if ((R.minCoeff()<=0)||(R.hasNaN())){
                 #ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = term_n[ijk];
@@ -1703,14 +1708,14 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 if (change_all){ //If every covariate is to be changed
                     if (Ll[ind0] <= Ll_abs_best){//takes a half-step if needed
                         #ifdef _OPENMP
-				        #pragma omp parallel for num_threads(nthreads)
+				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 				        #endif
                         for (int ijk=0;ijk<totalnum;ijk++){
                             dbeta[ijk] = dbeta[ijk] * 0.5; //
                         }
                     } else{//If improved, updates the best vector
                         #ifdef _OPENMP
-				        #pragma omp parallel for num_threads(nthreads)
+				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 				        #endif
                         for (int ijk=0;ijk<totalnum;ijk++){
                             beta_best[ijk] = beta_c[ijk];
@@ -1719,7 +1724,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 } else {//For validation, the step is always carried over
                     //used if a single parameter is being changed
                     #ifdef _OPENMP
-		            #pragma omp parallel for num_threads(nthreads)
+		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 		            #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         beta_best[ijk] = beta_c[ijk];
@@ -1733,7 +1738,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                 }
                 #ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                     beta_0[ijk] = beta_c[ijk];
@@ -2291,7 +2296,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
                 break;
             } else {
 	            #ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = term_n[ijk];
@@ -2487,7 +2492,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
                 break;
             } else {
 	            #ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = term_n[ijk];
@@ -2981,7 +2986,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         int tij = term_n[ijk];
@@ -3007,14 +3012,14 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                     //
                         if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 dbeta[ijk] = dbeta[ijk] * 0.5; //
                             }
                         } else{//If improved, updates the best vector
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 beta_best[ijk] = beta_c[ijk];
@@ -3029,7 +3034,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                         Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                     }
                     #ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                         beta_0[ijk] = beta_c[ijk];
@@ -3265,7 +3270,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                  break;
              } else {
  	            #ifdef _OPENMP
-                 #pragma omp parallel for num_threads(nthreads)
+                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                  #endif
                  for (int ijk=0;ijk<totalnum;ijk++){
                      int tij = term_n[ijk];
@@ -3517,7 +3522,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         int tij = term_n[ijk];
@@ -3543,14 +3548,14 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                     //
                         if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 dbeta[ijk] = dbeta[ijk] * 0.5; //
                             }
                         } else{//If improved, updates the best vector
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 beta_best[ijk] = beta_c[ijk];
@@ -3565,7 +3570,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                         Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                     }
                     #ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                         beta_0[ijk] = beta_c[ijk];
@@ -3797,7 +3802,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
                  break;
              } else {
  	            #ifdef _OPENMP
-                 #pragma omp parallel for num_threads(nthreads)
+                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                  #endif
                  for (int ijk=0;ijk<totalnum;ijk++){
                      int tij = term_n[ijk];
@@ -4200,7 +4205,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
                 break;
             } else {
 	            #ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = term_n[ijk];
@@ -4421,7 +4426,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
                 break;
             } else {
 	            #ifdef _OPENMP
-                #pragma omp parallel for num_threads(nthreads)
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                 #endif
                 for (int ijk=0;ijk<totalnum;ijk++){
                     int tij = term_n[ijk];
@@ -4945,7 +4950,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
                 if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         int tij = term_n[ijk];
@@ -4971,14 +4976,14 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                     //
                         if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 dbeta[ijk] = dbeta[ijk] * 0.5; //
                             }
                         } else{//If improved, updates the best vector
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 beta_best[ijk] = beta_c[ijk];
@@ -4993,7 +4998,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                         Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                     }
                     #ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                         beta_0[ijk] = beta_c[ijk];
@@ -5318,7 +5323,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                  break;
              } else {
  	            #ifdef _OPENMP
-                 #pragma omp parallel for num_threads(nthreads)
+                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                  #endif
                  for (int ijk=0;ijk<totalnum;ijk++){
                      int tij = term_n[ijk];
@@ -5658,7 +5663,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
                 if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         int tij = term_n[ijk];
@@ -5684,14 +5689,14 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                     //
                         if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 dbeta[ijk] = dbeta[ijk] * 0.5; //
                             }
                         } else{//If improved, updates the best vector
                             #ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 beta_best[ijk] = beta_c[ijk];
@@ -5706,7 +5711,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                         Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                     }
                     #ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                         beta_0[ijk] = beta_c[ijk];
@@ -6005,7 +6010,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                  break;
              } else {
  	            #ifdef _OPENMP
-                 #pragma omp parallel for num_threads(nthreads)
+                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                  #endif
                  for (int ijk=0;ijk<totalnum;ijk++){
                      int tij = term_n[ijk];
@@ -6117,7 +6122,6 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
     ;
     //
     List temp_list = List::create(_["Status"]="TEMP"); //used as a dummy return value for code checking
-    Rcout << verbose << endl;
     if (verbose>=4){
         Rcout << "C++ Note: START_COX_GUESS" << endl;
     }
@@ -6424,7 +6428,7 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 if ((R.minCoeff()<=0)||(R.hasNaN())){
                 	#ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){
                         int tij = term_n[ijk];
@@ -6445,14 +6449,14 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
                     if (change_all){ //If every covariate is to be changed
                         if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
                         	#ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 dbeta[ijk] = dbeta[ijk] * 0.5; //
                             }
                         } else{//If improved, updates the best vector
                         	#ifdef _OPENMP
-                            #pragma omp parallel for num_threads(nthreads)
+                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                             #endif
                             for (int ijk=0;ijk<totalnum;ijk++){
                                 beta_best[ijk] = beta_c[ijk];
@@ -6461,7 +6465,7 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
                     } else {//For validation, the step is always carried over
                         //used if a single parameter is being changed to trick program
                     	#ifdef _OPENMP
-                        #pragma omp parallel for num_threads(nthreads)
+                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                         #endif
                         for (int ijk=0;ijk<totalnum;ijk++){
                             beta_best[ijk] = beta_c[ijk];
@@ -6475,7 +6479,7 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
                         Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
                     }
                     #ifdef _OPENMP
-                    #pragma omp parallel for num_threads(nthreads)
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
                     for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
                         beta_0[ijk] = beta_c[ijk];

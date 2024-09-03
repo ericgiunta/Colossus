@@ -984,7 +984,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 //         }
 //     }
 //     #ifdef _OPENMP
-//     #pragma omp parallel for num_threads(nthreads)
+//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 //     #endif
 //     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
 //         int ij = 0;
@@ -1082,7 +1082,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 //         }
 //     }
 //     #ifdef _OPENMP
-//     #pragma omp parallel for num_threads(nthreads)
+//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
 //     #endif
 //     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){//fills second-derivative matrix
 //         int ij = 0;
