@@ -39,6 +39,11 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
     //
     // Calculates the sub term values
     //
+    // reset the subterm counts
+    Dose = MatrixXd::Constant(T0.rows(),Dose.cols(),0.0); //Matrix of the total dose term values
+	nonDose_LIN = MatrixXd::Constant(T0.rows(),Dose.cols(),0.0); //matrix of Linear subterm values
+	nonDose_PLIN = MatrixXd::Constant(T0.rows(),Dose.cols(),1.0); //matrix of Loglinear subterm values
+	nonDose_LOGLIN = MatrixXd::Constant(T0.rows(),Dose.cols(),1.0); //matrix of Product linear subterm values
     //
     vector<int> lin_count(nonDose.cols(),0);
     vector<int> dose_count(nonDose.cols(),0);
@@ -632,6 +637,12 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
 void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n,const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose,  MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN,const  VectorXd& beta_0,const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant){
     //
     // Calculates the sub term values
+    //
+    // reset the subterm counts
+    Dose = MatrixXd::Constant(T0.rows(),Dose.cols(),0.0); //Matrix of the total dose term values
+	nonDose_LIN = MatrixXd::Constant(T0.rows(),Dose.cols(),0.0); //matrix of Linear subterm values
+	nonDose_PLIN = MatrixXd::Constant(T0.rows(),Dose.cols(),1.0); //matrix of Loglinear subterm values
+	nonDose_LOGLIN = MatrixXd::Constant(T0.rows(),Dose.cols(),1.0); //matrix of Product linear subterm values
     //
     vector<int> lin_count(nonDose.cols(),0);
     vector<int> dose_count(nonDose.cols(),0);

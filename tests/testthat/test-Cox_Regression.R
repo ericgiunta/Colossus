@@ -229,7 +229,7 @@ test_that( "Coxph dose list", {
     der_iden <- 0
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 20, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-    expect_equal(e$beta_0,c(-0.08132377, -0.27985319, 2.26796941, 0.34862773, 0.60433821, 2.92837890, -0.26029412, 4.01138722, 0.20097912, 2.56179538, 0.99810562),tolerance=1e-2)
+    expect_equal(e$beta_0,c(-0.09980398, -0.1002441, 1.019586, -0.09975586, 0.9997559, 1.990482, 0.2997559, 1.513631, 0.1999979, 0.6959304, 1.000009),tolerance=1e-2)
 })
 
 test_that( "Coxph fixed intercept", {
