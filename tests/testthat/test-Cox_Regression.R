@@ -210,7 +210,7 @@ test_that( "Coxph loglin_plin_A", {
     e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     expect_equal(e$beta_0,c(0.11, 1.01),tolerance=1e-2)
 })
-
+#
 test_that( "Coxph dose list", {
     fname <- 'dose.csv'
     colTypes <- c( "double", "double", "double", "integer" )
@@ -229,7 +229,7 @@ test_that( "Coxph dose list", {
     der_iden <- 0
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 20, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-    expect_equal(e$beta_0,c(-0.09980398, -0.1002441, 1.019586, -0.09975586, 0.9997559, 1.990482, 0.2997559, 1.513631, 0.1999979, 0.6959304, 1.000009),tolerance=1e-2)
+    expect_equal(e$beta_0,c(-0.10396225, -0.09955731,  1.00377389, -0.10537894,  1.01629097,  2.15102759, 0.29434874,  1.57836844,  0.20994531,  0.87551440,  1.00908073),tolerance=1e-2)
 })
 
 test_that( "Coxph fixed intercept", {

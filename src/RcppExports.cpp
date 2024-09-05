@@ -1144,6 +1144,123 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// Cox_Pois_Check_Continue
+void Cox_Pois_Check_Continue(const bool basic_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, const bool change_all, const bool cox_bool, const bool CR_bool, vector<double>& dbeta, const bool debugging, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const bool log_bound_bool, const double& Lstar, const int& nthreads, const int& ntime, const MatrixXd& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const StringMatrix& RiskGroup_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, const bool single_bool, int start, const bool strata_bool, NumericVector& STRATA_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose);
+RcppExport SEXP _Colossus_Cox_Pois_Check_Continue(SEXP basic_boolSEXP, SEXP beta_0SEXP, SEXP beta_bestSEXP, SEXP beta_cSEXP, SEXP cens_weightSEXP, SEXP change_allSEXP, SEXP cox_boolSEXP, SEXP CR_boolSEXP, SEXP dbetaSEXP, SEXP debuggingSEXP, SEXP devSEXP, SEXP dev_tempSEXP, SEXP firSEXP, SEXP halfmaxSEXP, SEXP halvesSEXP, SEXP ind0SEXP, SEXP iter_stopSEXP, SEXP KeepConstantSEXP, SEXP LlSEXP, SEXP Ll_abs_bestSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP log_bound_boolSEXP, SEXP LstarSEXP, SEXP nthreadsSEXP, SEXP ntimeSEXP, SEXP PyrCSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RddRSEXP, SEXP RdRSEXP, SEXP reqrdnumSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP RiskGroup_StrataSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP single_boolSEXP, SEXP startSEXP, SEXP strata_boolSEXP, SEXP STRATA_valsSEXP, SEXP term_nSEXP, SEXP ties_methodSEXP, SEXP totalnumSEXP, SEXP TTermSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const bool >::type basic_bool(basic_boolSEXP);
+    Rcpp::traits::input_parameter< VectorXd >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type beta_best(beta_bestSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type beta_c(beta_cSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
+    Rcpp::traits::input_parameter< const bool >::type change_all(change_allSEXP);
+    Rcpp::traits::input_parameter< const bool >::type cox_bool(cox_boolSEXP);
+    Rcpp::traits::input_parameter< const bool >::type CR_bool(CR_boolSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< double& >::type dev(devSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type dev_temp(dev_tempSEXP);
+    Rcpp::traits::input_parameter< const int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< const int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< double& >::type halves(halvesSEXP);
+    Rcpp::traits::input_parameter< int& >::type ind0(ind0SEXP);
+    Rcpp::traits::input_parameter< int& >::type iter_stop(iter_stopSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Ll(LlSEXP);
+    Rcpp::traits::input_parameter< double& >::type Ll_abs_best(Ll_abs_bestSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Lld(LldSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Lldd(LlddSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Lls1(Lls1SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Lls2(Lls2SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Lls3(Lls3SEXP);
+    Rcpp::traits::input_parameter< const bool >::type log_bound_bool(log_bound_boolSEXP);
+    Rcpp::traits::input_parameter< const double& >::type Lstar(LstarSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type PyrC(PyrCSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RddR(RddRSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< const int& >::type reqrdnum(reqrdnumSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
+    Rcpp::traits::input_parameter< const vector<string>& >::type RiskGroup(RiskGroupSEXP);
+    Rcpp::traits::input_parameter< const StringMatrix& >::type RiskGroup_Strata(RiskGroup_StrataSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rls1(Rls1SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rls2(Rls2SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rls3(Rls3SEXP);
+    Rcpp::traits::input_parameter< const bool >::type single_bool(single_boolSEXP);
+    Rcpp::traits::input_parameter< int >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const bool >::type strata_bool(strata_boolSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< const string >::type ties_method(ties_methodSEXP);
+    Rcpp::traits::input_parameter< const int >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< const int >::type verbose(verboseSEXP);
+    Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
+    return R_NilValue;
+END_RCPP
+}
+// Cox_Pois_Log_Loop
+void Cox_Pois_Log_Loop(double& abs_max, const bool basic_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, const bool cox_bool, vector<double>& dbeta, const bool debugging, const MatrixXd& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& dose_abs_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check, const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, VectorXd& s_weights, const bool single_bool, int start, const bool strata_bool, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose);
+RcppExport SEXP _Colossus_Cox_Pois_Log_Loop(SEXP abs_maxSEXP, SEXP basic_boolSEXP, SEXP beta_0SEXP, SEXP beta_aSEXP, SEXP beta_cSEXP, SEXP bound_valSEXP, SEXP cox_boolSEXP, SEXP dbetaSEXP, SEXP debuggingSEXP, SEXP df0SEXP, SEXP dfcSEXP, SEXP dintSEXP, SEXP DoseSEXP, SEXP dose_abs_maxSEXP, SEXP dslpSEXP, SEXP firSEXP, SEXP gmix_termSEXP, SEXP gmix_thetaSEXP, SEXP half_checkSEXP, SEXP halfmaxSEXP, SEXP KeepConstantSEXP, SEXP limit_hitSEXP, SEXP lrSEXP, SEXP modelformSEXP, SEXP nonDoseSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_LOGLINSEXP, SEXP nonDose_PLINSEXP, SEXP nthreadsSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RddRSEXP, SEXP RdRSEXP, SEXP s_weightsSEXP, SEXP single_boolSEXP, SEXP startSEXP, SEXP strata_boolSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP TeSEXP, SEXP term_nSEXP, SEXP term_totSEXP, SEXP tformSEXP, SEXP totalnumSEXP, SEXP TTermSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double& >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< const bool >::type basic_bool(basic_boolSEXP);
+    Rcpp::traits::input_parameter< VectorXd >::type beta_0(beta_0SEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type beta_a(beta_aSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type beta_c(beta_cSEXP);
+    Rcpp::traits::input_parameter< int& >::type bound_val(bound_valSEXP);
+    Rcpp::traits::input_parameter< const bool >::type cox_bool(cox_boolSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type dbeta(dbetaSEXP);
+    Rcpp::traits::input_parameter< const bool >::type debugging(debuggingSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< double& >::type dint(dintSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Dose(DoseSEXP);
+    Rcpp::traits::input_parameter< double& >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< double& >::type dslp(dslpSEXP);
+    Rcpp::traits::input_parameter< const int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type gmix_term(gmix_termSEXP);
+    Rcpp::traits::input_parameter< const double& >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< int& >::type half_check(half_checkSEXP);
+    Rcpp::traits::input_parameter< const int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< vector<bool>& >::type limit_hit(limit_hitSEXP);
+    Rcpp::traits::input_parameter< double& >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< string& >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose(nonDoseSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LIN(nonDose_LINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_LOGLIN(nonDose_LOGLINSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type nonDose_PLIN(nonDose_PLINSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RddR(RddRSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< VectorXd& >::type s_weights(s_weightsSEXP);
+    Rcpp::traits::input_parameter< const bool >::type single_bool(single_boolSEXP);
+    Rcpp::traits::input_parameter< int >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const bool >::type strata_bool(strata_boolSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type T0(T0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Td0(Td0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Tdd0(Tdd0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Te(TeSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< int& >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< const int >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type TTerm(TTermSEXP);
+    Rcpp::traits::input_parameter< const int >::type verbose(verboseSEXP);
+    Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+    return R_NilValue;
+END_RCPP
+}
 // PLOT_SURV_STRATA
 List PLOT_SURV_STRATA(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, NumericMatrix& df_groups, NumericVector& tu, NumericVector& STRATA_vals, int verbose, bool debugging, int nthreads);
 RcppExport SEXP _Colossus_PLOT_SURV_STRATA(SEXP reqrdnumSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP a_erSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP STRATA_valsSEXP, SEXP verboseSEXP, SEXP debuggingSEXP, SEXP nthreadsSEXP) {
@@ -2001,6 +2118,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Cox_Side_LL_Calc", (DL_FUNC) &_Colossus_Cox_Side_LL_Calc, 35},
     {"_Colossus_Pois_Term_Risk_Calc", (DL_FUNC) &_Colossus_Pois_Term_Risk_Calc, 36},
     {"_Colossus_Pois_Dev_LL_Calc", (DL_FUNC) &_Colossus_Pois_Dev_LL_Calc, 22},
+    {"_Colossus_Cox_Pois_Check_Continue", (DL_FUNC) &_Colossus_Cox_Pois_Check_Continue, 51},
+    {"_Colossus_Cox_Pois_Log_Loop", (DL_FUNC) &_Colossus_Cox_Pois_Log_Loop, 48},
     {"_Colossus_PLOT_SURV_STRATA", (DL_FUNC) &_Colossus_PLOT_SURV_STRATA, 10},
     {"_Colossus_PLOT_SURV", (DL_FUNC) &_Colossus_PLOT_SURV, 9},
     {"_Colossus_Schoenfeld_Calc", (DL_FUNC) &_Colossus_Schoenfeld_Calc, 13},

@@ -242,6 +242,12 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
              cons_mat, cons_vec)
+         if ("Status" %in% names(e)){
+            if (e$Status=="FAILED"){
+	            if (control$verbose>=1){message("Error: Invalid model")}
+	            stop()
+            }
+        }
     } else {
         if ("maxiters" %in% names(control)){
         	if (length(control$maxiters) == length(a_n)+1){
@@ -1531,6 +1537,12 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
             as.matrix(df[,ce, with = FALSE]),tu,
             keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
             cons_mat, cons_vec)
+    if ("Status" %in% names(e)){
+        if (e$Status=="FAILED"){
+	        if (control$verbose>=1){message("Error: Invalid model")}
+	        stop()
+        }
+    }
     e$Parameter_Lists$names <- names
     return (e)
 }

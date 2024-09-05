@@ -1311,6 +1311,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     R =   (R.array().isFinite()).select(R,-1);
     Rd =  (Rd.array().isFinite()).select(Rd,0);
     Rdd = (Rdd.array().isFinite()).select(Rdd,0);
+//    TTerm = (TTerm.array().isFinite()).select(TTerm,-1);
     //
     for (int ijk=0;ijk<(reqrdnum*(reqrdnum+1)/2);ijk++){//Calculates ratios
         int ij = 0;

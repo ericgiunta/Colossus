@@ -184,6 +184,12 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
              term_n,tform,a_ns,dfc,x_all, fir, modelform, control,
              keep_constant,term_tot,as.matrix(df0[,val_cols, with=FALSE]),
              model_control, cons_mat, cons_vec)
+        if ("Status" %in% names(e)){
+            if (e$Status=="FAILED"){
+	            if (control$verbose>=1){message("Error: Invalid model")}
+	            stop()
+            }
+        }
     } else {
         if ("maxiters" %in% names(control)){
             if (length(control$maxiters) == length(a_n)+1){

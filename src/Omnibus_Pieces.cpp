@@ -927,6 +927,145 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 }
 
 
+
+//' Utility function to check if risk is valid, and if so continue
+//'
+//' \code{Cox_Pois_Check_Continue} Called to perform repeated risk checks
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: risk, scores, etc storage matrices
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Cox_Pois_Check_Continue(const bool basic_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, const bool change_all, const bool cox_bool, const bool CR_bool, vector<double>& dbeta, const bool debugging, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const bool log_bound_bool, const double& Lstar, const int& nthreads, const int& ntime, const MatrixXd& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const StringMatrix& RiskGroup_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, const bool single_bool, int start, const bool strata_bool, NumericVector& STRATA_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose){
+    if ((R.minCoeff()<=0)||(R.hasNaN())){
+	    #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk=0;ijk<totalnum;ijk++){
+            int tij = term_n[ijk];
+            if (TTerm.col(tij).minCoeff()<=0){
+                dbeta[ijk] = dbeta[ijk] / 2.0;
+            } else if (isinf(TTerm.col(tij).maxCoeff())){
+                dbeta[ijk] = dbeta[ijk] / 2.0;
+            } else if (isnan(TTerm.col(tij).minCoeff())){
+                dbeta[ijk] = dbeta[ijk] / 2.0;
+            }
+        }
+        if (verbose>=4){
+            Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
+        }
+        halves+=0.2;
+    } else {
+        halves++;
+        if (cox_bool){
+            Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
+        } else {
+            Pois_Dev_LL_Calc( reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0 ,  RdR,  RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev);
+        }
+        //
+        if (log_bound_bool){
+            if (Ll[0] > Lstar){
+                // If it has gone beyond Lstar, then this isn't the point
+                iter_stop = 1;
+                halves = halfmax;
+            } else {
+            //
+                if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
+                    #ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        dbeta[ijk] = dbeta[ijk] * 0.5; //
+                    }
+                } else{//If improved, updates the best vector
+                    #ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        beta_best[ijk] = beta_c[ijk];
+                    }
+                }
+            }
+        } else {
+            if (change_all){ //If every covariate is to be changed
+                if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
+                	#ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        dbeta[ijk] = dbeta[ijk] * 0.5; //
+                    }
+                } else{//If improved, updates the best vector
+                	#ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk=0;ijk<totalnum;ijk++){
+                        beta_best[ijk] = beta_c[ijk];
+                    }
+                }
+            } else {//For validation, the step is always carried over
+                //used if a single parameter is being changed to trick program
+            	#ifdef _OPENMP
+                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                #endif
+                for (int ijk=0;ijk<totalnum;ijk++){
+                    beta_best[ijk] = beta_c[ijk];
+                }
+            }
+        }
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
+            beta_0[ijk] = beta_c[ijk];
+        }
+    }
+    return;
+}
+
+//' Utility function to check if risk is valid, and if so continue
+//'
+//' \code{Cox_Pois_Check_Continue} Called to perform repeated risk checks
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: risk, scores, etc storage matrices
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Cox_Pois_Log_Loop(double& abs_max, const bool basic_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, const bool cox_bool, vector<double>& dbeta, const bool debugging, const MatrixXd& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& dose_abs_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check,const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, VectorXd& s_weights, const bool single_bool, int start, const bool strata_bool, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose){
+    while ((R.minCoeff()<=0)||(R.hasNaN())){
+        half_check++;
+        if (half_check>halfmax){
+            limit_hit[bound_val] = TRUE;
+            break;
+        } else {
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ijk=0;ijk<totalnum;ijk++){
+                int tij = term_n[ijk];
+                if (TTerm.col(tij).minCoeff()<=0){
+                    dbeta[ijk] = dbeta[ijk] / 2.0;
+                } else if (isinf(TTerm.col(tij).maxCoeff())){
+                    dbeta[ijk] = dbeta[ijk] / 2.0;
+                }
+            }
+            for (int ij=0;ij<totalnum;ij++){
+                beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
+                beta_c[ij] = beta_0[ij];
+            }
+            if (cox_bool){
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
+            } else {
+                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
+            }
+        }
+    }
+    return;
+}
+
+
 // //' Utility function to calculate Cox Log-Likelihood and derivatives
 // //'
 // //' \code{Simplified_Inform_Matrix} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time

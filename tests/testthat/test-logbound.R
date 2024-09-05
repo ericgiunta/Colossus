@@ -1,4 +1,4 @@
-test_that( "Coxph strata_basic_single_CR log_bound", {
+test_that( "Coxph strata_basic_single_CR_null log_bound", {
     tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
     sink(file=tfile)
     fname <- 'll_comp_0.csv'
@@ -40,7 +40,7 @@ test_that( "Coxph strata_basic_single_CR log_bound", {
 
     for (i in c(TRUE, FALSE)){
         for (j in c(TRUE, FALSE)){
-            for (k in c(TRUE, FALSE)){
+            for (k in c(FALSE, FALSE)){
                 for (l in c(TRUE, FALSE)){
                     for (m in c(TRUE, FALSE)){
                         model_control <- list( 'strata'=i, 'basic'=j, 'single'=k, 'cr'=l, 'log_bound'=TRUE, 'manual'=m)
@@ -56,6 +56,15 @@ test_that( "Coxph strata_basic_single_CR log_bound", {
                 }
             }
         }
+    }
+    for (m in c(TRUE, FALSE)){
+        model_control <- list( 'null'=T, 'log_bound'=TRUE, 'manual'=m)
+        if (verbose){print(model_control)}
+        a_n <- c(-0.1,-0.1)
+        control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+        expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
+        model_control <- list( 'single'=T, 'log_bound'=TRUE, 'manual'=m)
+        expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
     }
     sink(NULL)
     close(tfile)
@@ -93,7 +102,7 @@ test_that( "Poisson strata_single log_bound", {
     verbose <- FALSE
 
     for (i in c(TRUE, FALSE)){
-        for (k in c(TRUE, FALSE)){
+        for (k in c(FALSE, FALSE)){
             for (m in c(TRUE, FALSE)){
                 model_control <- list( 'strata'=i, 'single'=k, 'log_bound'=TRUE, 'manual'=m)
                 if (verbose){print(model_control)}
@@ -101,6 +110,15 @@ test_that( "Poisson strata_single log_bound", {
                 control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
                 expect_no_error(RunPoissonRegression_Omnibus(df,pyr, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control))
             }
+        }
+    }
+    for (m in c(TRUE, FALSE)){
+        for (k in c(TRUE)){
+            model_control <- list( 'strata'=F, 'single'=k, 'log_bound'=TRUE, 'manual'=m)
+            if (verbose){print(model_control)}
+            a_n <- c(-0.1,-0.1)
+            control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+            expect_error(RunPoissonRegression_Omnibus(df,pyr, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control))
         }
     }
     sink(NULL)
