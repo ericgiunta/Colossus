@@ -166,21 +166,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		if (R.minCoeff()<=0){
 		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-//                Rcout << "C++ Note: risk checked ";
-//			    for (int ijk=0;ijk<1;ijk++){
-//				    Rcout << R.col(0).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk1 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rd.col(ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk2 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
 	        }
 		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
@@ -261,21 +246,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		if (R.minCoeff()<=0){
 		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-//                Rcout << "C++ Note: risk checked ";
-//			    for (int ijk=0;ijk<1;ijk++){
-//				    Rcout << R.col(0).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk1 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rd.col(ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk2 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
 	        }
 		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
@@ -371,21 +341,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		if (R.minCoeff()<=0){
 		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-//                Rcout << "C++ Note: risk checked ";
-//			    for (int ijk=0;ijk<1;ijk++){
-//				    Rcout << R.col(0).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk1 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rd.col(ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk2 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
 	        }
 		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
@@ -605,16 +560,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
                 Rcout << beta_0[ij] << " ";
             }
             Rcout << " " << endl;
-//            Rcout << "C++ Note: df105 ";
-//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-//                Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: df106 ";
-//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-//                Rcout << Ll[ij]/Lld[ij] << " ";
-//            }
-//            Rcout << " " << endl;
         }
     }
 }
@@ -688,21 +633,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		if (R.minCoeff()<=0){
 		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-//                Rcout << "C++ Note: risk checked ";
-//			    for (int ijk=0;ijk<1;ijk++){
-//				    Rcout << R.col(0).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk1 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rd.col(ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk2 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
 	        }
 		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
@@ -791,21 +721,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		if (R.minCoeff()<=0){
 		    if (verbose>=4){
 		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-//                Rcout << "C++ Note: risk checked ";
-//			    for (int ijk=0;ijk<1;ijk++){
-//				    Rcout << R.col(0).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk1 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rd.col(ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
-//			    Rcout << "C++ Note: risk2 checked ";
-//			    for (int ijk=0;ijk<reqrdnum;ijk++){
-//				    Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-//			    }
-//			    Rcout << " " << endl;
 	        }
 		} else if (verbose>=4){
 			Rcout << "C++ Note: risk checked ";
@@ -911,16 +826,6 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
             }
             Rcout << " " << endl;
             Rcout << "C++ Note: Checking Deviance " << dev << endl;
-//            Rcout << "C++ Note: df105 ";
-//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-//                Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: df106 ";
-//            for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-//                Rcout << Ll[ij]/Lld[ij] << " ";
-//            }
-//            Rcout << " " << endl;
         }
     }
     return;
@@ -1048,6 +953,8 @@ void Cox_Pois_Log_Loop(double& abs_max, const bool basic_bool, VectorXd beta_0, 
                 if (TTerm.col(tij).minCoeff()<=0){
                     dbeta[ijk] = dbeta[ijk] / 2.0;
                 } else if (isinf(TTerm.col(tij).maxCoeff())){
+                    dbeta[ijk] = dbeta[ijk] / 2.0;
+                } else if (isnan(TTerm.col(tij).minCoeff())){
                     dbeta[ijk] = dbeta[ijk] / 2.0;
                 }
             }

@@ -301,7 +301,6 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
 #' @noRd
 #' @return saves the plots in the current directory and returns a string that it passed
 CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, plot_type, strat_col,time_lims, age_unit, model_control=list()){
-    # verbose <- as.logical(verbose)
     dfend <- df[get(event0)==1, ]
     uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
     #

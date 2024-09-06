@@ -261,7 +261,6 @@ List Schoenfeld_Calc( int ntime, int totalnum, const  VectorXd& beta_0, const  M
                 double t_sum =0;
                 double x_expect =0;
                 //
-                //
                 // calculates the total term value
                 //
                 for (vector<double>::size_type i = 0; i < InGroup.size()-1; i=i+2){
@@ -744,11 +743,7 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     //
     Rcout.precision(7); //forces higher precision numbers printed to terminal
     // int nthreads = Eigen::nbThreads()-1; //stores how many threads are allocated
-    //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    //
-    //
-    //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------

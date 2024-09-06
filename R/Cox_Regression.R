@@ -67,7 +67,6 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     df <- df[get(time2)>= tu[1],]
     # remove rows that start after the last event
     df <- df[get(time1)<= tu[length(tu)],]
-#    print(df)
     ##
     control <- Def_Control(control)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n,
@@ -304,7 +303,6 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
             a_ns <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
         }
         Rend <- Sys.time()
-#        message(paste("R section ",difftime(Rend, Rstart, units="secs")[[1]],sep=""))
         e <- cox_ph_Omnibus_transition(term_n,tform,a_ns,dfc,x_all, fir,der_iden,
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
@@ -1326,8 +1324,6 @@ RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n
     #
     control$maxiters <- c(maxiters,control$maxiter)
     control$guesses <- length(maxiters)
-    #
-    #
     #fine
     a_n_mat <- matrix(a_ns,nrow=length(control$maxiters)-1,byrow=TRUE)
     a_n <- lapply(seq_len(nrow(a_n_mat)), function(i) a_n_mat[i,])

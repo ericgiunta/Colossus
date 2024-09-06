@@ -211,17 +211,6 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
             }
         }
         //
-//        Rcout << "calc change lld ";
-//        for (int ijk=0;ijk<kept_covs;ijk++){
-//            Rcout << Lld_vec[ijk] << " ";
-//        }
-//        Rcout << " " << endl;
-//        Rcout << "calc change lldd ";
-//        for (int ijk=0;ijk<kept_covs*kept_covs;ijk++){
-//            Rcout << Lldd_vec[ijk] << " ";
-//        }
-//        Rcout << " " << endl;
-        //
         Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
         const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
@@ -472,7 +461,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
         removeColumn(D0, para_number);
         removeRow(dOmdBeta, para_number);
         D0 = D0.inverse().matrix();
-//        Rcout << dOmdBeta.rows() << ", " << dOmdBeta.cols() << ", " << D0.rows() << ", " << D0.cols() << endl;
         dOmdBeta = -1 * D0 * dOmdBeta;
         //
         MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
@@ -497,7 +485,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 }
             }
         }
-//        Rcout << "finished step 0" << endl;
     } else {
         //Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);
         MatrixXd G = MatrixXd::Zero(reqrdnum, reqrdnum);

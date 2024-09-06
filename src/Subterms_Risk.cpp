@@ -547,7 +547,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
                 Tdd0.col((jk+2)*(jk+3)/2+jk+0) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij+1).array()) / (pow(dslp,2)+pow(eeslp,2));
                 temp = (df0.col(df0_c).array() - beta_0[ij+1]+dint);
                 //
-//                Rcout << beta_0[ij] << ", " << beta_0[ij+1] << ", " << beta_0[ij+2] << endl;
                 if (beta_0[ij]<0){
                     c1 = log(-1*(beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij+1]-dint) * (beta_0[ij+2]-eeslp);
                     a1 = -1*(beta_0[ij]) * (beta_0[ij+1]-dint) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij+1]-dint));
@@ -578,7 +577,6 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n,const String
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
                 Tdd0.col((jk+2)*(jk+3)/2+jk+1) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij+1).array()) / (pow(dint,2)+pow(eeslp,2));
-//                Rcout << "TDD0 CHECK " << T0.col(ij+2).sum() << " " << T0.col(ij+1).sum() << " "  << T0.col(ij).sum() << " " << dint << " " << eeslp << endl;
                 //
                 T0.col(ij)   = Dose.col(tn);
                 T0.col(ij+1) = Dose.col(tn);
@@ -966,7 +964,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                                 Rdd.col(p_ijk) = nonDose_LOGLIN.col(tij).array() * Dose.col(tij).array();
                                 Rdd.col(p_ijk) = TTerm.col(tij).array() * Rdd.col(p_ijk).array();
                                 Rdd.col(p_ijk) = Rdd.col(p_ijk).array() * Td0.col(jk).array() *  Td0.col(ij).array();
-//                                Rdd.col(p_ijk) = TTerm.col(tij).array() * nonDose_LIN.col(tjk).array().pow(-1).array() * Td0.col(jk).array() * nonDose_PLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
                             }
                         } else {
                             ;
@@ -1120,7 +1117,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                                         Rdd.col(p_ijk) = TTerm.col(fir).array() * nonDose_LOGLIN.col(tij).array() * Dose.col(tij).array() * Td0.col(jk).array() * Td0.col(ij).array();
                                     }
                                 } else {
-                                    ;//Rdd.col(p_ijk) = TTerm.col(fir).array() * TTerm.col(tij).array() * nonDose_PLIN.col(tjk).array().pow(-1).array() * Td0.col(jk).array() * nonDose_PLIN.col(tij).array().pow(-1).array() * Td0.col(ij).array();
+                                    ;
                                 }
                             }  
                         } else if ((tij==fir)||(tjk==fir)){
@@ -1311,7 +1308,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     R =   (R.array().isFinite()).select(R,-1);
     Rd =  (Rd.array().isFinite()).select(Rd,0);
     Rdd = (Rdd.array().isFinite()).select(Rdd,0);
-//    TTerm = (TTerm.array().isFinite()).select(TTerm,-1);
     //
     for (int ijk=0;ijk<(reqrdnum*(reqrdnum+1)/2);ijk++){//Calculates ratios
         int ij = 0;

@@ -598,66 +598,6 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 //
                 Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//                if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                	#ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        int tij = term_n[ijk];
-//                        if (TTerm.col(tij).minCoeff()<=0){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                    }
-//                    halves+=0.2;
-//                    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-//                } else {
-//                    halves++;
-//                    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
-//                    //
-//                    if (change_all){ //If every covariate is to be changed
-//                        if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
-//                        	#ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                            }
-//                        } else{//If improved, updates the best vector
-//                        	#ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                beta_best[ijk] = beta_c[ijk];
-//                            }
-//                        }
-//                    } else {//For validation, the step is always carried over
-//                        //used if a single parameter is being changed to trick program
-//                    	#ifdef _OPENMP
-//                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                        #endif
-//                        for (int ijk=0;ijk<totalnum;ijk++){
-//                            beta_best[ijk] = beta_c[ijk];
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        end_point = system_clock::now();
-//                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                        gibtime = system_clock::to_time_t(system_clock::now());
-//                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                    }
-//                    #ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                        beta_0[ijk] = beta_c[ijk];
-//                    }
-//                }
             }
             if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
                 if (verbose>=4){
@@ -836,66 +776,6 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
 
             Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
             Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//            if ((R.minCoeff()<=0)||(R.hasNaN())){
-//            	#ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){
-//                    int tij = term_n[ijk];
-//                    if (TTerm.col(tij).minCoeff()<=0){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    }
-//                }
-//                if (verbose>=4){
-//                    Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                }
-//                halves+=0.2;
-//                Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-//            } else {
-//                halves++;
-//                Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
-//                //
-//                if (change_all){ //If every covariate is to be changed
-//                    if (Ll[ind0] <= Ll_abs_best){//takes a half-step if needed
-//                        #ifdef _OPENMP
-//				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//				        #endif
-//                        for (int ijk=0;ijk<totalnum;ijk++){
-//                            dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                        }
-//                    } else{//If improved, updates the best vector
-//                        #ifdef _OPENMP
-//				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//				        #endif
-//                        for (int ijk=0;ijk<totalnum;ijk++){
-//                            beta_best[ijk] = beta_c[ijk];
-//                        }
-//                    }
-//                } else {//For validation, the step is always carried over
-//                    //used if a single parameter is being changed
-//                    #ifdef _OPENMP
-//		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//		            #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        beta_best[ijk] = beta_c[ijk];
-//                    }
-//                }
-//                if (verbose>=4){
-//                    end_point = system_clock::now();
-//                    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                    Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                    gibtime = system_clock::to_time_t(system_clock::now());
-//                    Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                }
-//                #ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                    beta_0[ijk] = beta_c[ijk];
-//                }
-//            }
         }
         if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
             if (verbose>=4){
@@ -1201,31 +1081,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     string ties_method = "temp";
     ///
     for (int guess=0; guess <guesses; guess++){
-//        T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//        Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		//
-//		Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//		if (single_bool){
-//			//
-//			;
-//        } else {
-//			Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//			Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//			//
-//			Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//			Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//			//
-//			dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//			dslp = abs_max;
-//            RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//			RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//        }
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!single_bool){
             fill(Lld.begin(), Lld.end(), 0.0);
@@ -1321,31 +1176,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
             }
             halves=0;
             while ((Ll[ind0] <= Ll_abs_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		        //
-//		        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//		        if (single_bool){
-//			        //
-//			        ;
-//                } else {
-//			        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//			        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//			        //
-//			        Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//			        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//			        //
-//			        dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//			        dslp = abs_max;
-//                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//			        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//                }
                 for (int ij=0;ij<totalnum;ij++){
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
@@ -1355,66 +1185,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//                if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                    #ifdef _OPENMP
-//		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//		            #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        int tij = term_n[ijk];
-//                        if (TTerm.col(tij).minCoeff()<=0){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                    }
-//                    halves+=0.2;
-//                } else {
-//                    halves++;
-//                    // Calculates log-likelihood
-//                    Pois_Dev_LL_Calc( reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0 ,  RdR,  RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev);
-//                    //
-//                    if (change_all){ //If every covariate is to be changed
-//                        if (Ll[ind0] <= Ll_abs_best){//takes a half-step if needed
-//                            #ifdef _OPENMP
-//						    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//						    #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                            }
-//                        } else{//If improved, updates the best vector
-//                            #ifdef _OPENMP
-//							#pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//							#endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                beta_best[ijk] = beta_c[ijk];
-//                            }
-//                        }
-//                    } else {//For validation, the step is always carried over
-//                        //used if a single parameter is being changed
-//                        #ifdef _OPENMP
-//				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//				        #endif
-//                        for (int ijk=0;ijk<totalnum;ijk++){
-//                            beta_best[ijk] = beta_c[ijk];
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        end_point = system_clock::now();
-//                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                        gibtime = system_clock::to_time_t(system_clock::now());
-//                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                    }
-//                    #ifdef _OPENMP
-//		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//		            #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                        beta_0[ijk] = beta_c[ijk];
-//                    }
-//                }
             }
             if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
                 if (verbose>=4){
@@ -1428,31 +1198,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 beta_p = beta_best;//
                 beta_a = beta_best;//
                 beta_c = beta_best;//
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		        //
-//		        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//		        if (single_bool){
-//			        //
-//			        ;
-//                } else {
-//			        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//			        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//			        //
-//			        Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//			        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//			        //
-//			        dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//			        dslp = abs_max;
-//                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//			        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//                }
                 for (int ij=0;ij<totalnum;ij++){
                     beta_0[ij] = beta_best[ij];
                 }
@@ -1532,16 +1277,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     }
                     Rcout << " " << endl;
                     Rcout << "C++ Note: Checking Deviance " << dev << endl;
-                    // Rcout << "C++ Note: df105 ";
-                    // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-                    //     Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-                    // }
-                    // Rcout << " " << endl;
-                    // Rcout << "C++ Note: df106 ";
-                    // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-                    //     Rcout << Ll[ij]/Lld[ij] << " ";
-                    // }
-                    // Rcout << " " << endl;
                 }
             }
         }
@@ -1582,31 +1317,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         Rcout << "C++ Note: Refreshing matrices after all guesses" << endl;
     }
     //
-//    T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//    Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//	R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//	//
-//	Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//	nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//	nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//	nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//	nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//	TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//	if (single_bool){
-//		//
-//		;
-//    } else {
-//		Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//		Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//		//
-//		Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//		Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//		//
-//		dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//		dslp = abs_max;
-//        RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//		RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//    }
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!single_bool){
         fill(Lld.begin(), Lld.end(), 0.0);
@@ -1706,31 +1416,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         }
         halves=0;
         while ((Ll[ind0] <= Ll_abs_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-//            T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//            Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		    R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		    //
-//		    Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		    nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		    nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		    nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		    TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//		    if (single_bool){
-//			    //
-//			    ;
-//            } else {
-//			    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//			    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//			    //
-//			    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//			    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//			    //
-//			    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//			    dslp = abs_max;
-//                RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//			    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//            }
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_a[ij] + dbeta[ij];
                 beta_c[ij] = beta_0[ij];
@@ -1741,66 +1426,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
 
             Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
             Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//            if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                #ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){
-//                    int tij = term_n[ijk];
-//                    if (TTerm.col(tij).minCoeff()<=0){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    }
-//                }
-//                if (verbose>=4){
-//                    Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                }
-//                halves+=0.2;
-//            } else {
-//                halves++;
-//                // Calculates log-likelihood
-//                Pois_Dev_LL_Calc( reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0 ,  RdR,  RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev);
-//                //
-//                if (change_all){ //If every covariate is to be changed
-//                    if (Ll[ind0] <= Ll_abs_best){//takes a half-step if needed
-//                        #ifdef _OPENMP
-//				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//				        #endif
-//                        for (int ijk=0;ijk<totalnum;ijk++){
-//                            dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                        }
-//                    } else{//If improved, updates the best vector
-//                        #ifdef _OPENMP
-//				        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//				        #endif
-//                        for (int ijk=0;ijk<totalnum;ijk++){
-//                            beta_best[ijk] = beta_c[ijk];
-//                        }
-//                    }
-//                } else {//For validation, the step is always carried over
-//                    //used if a single parameter is being changed
-//                    #ifdef _OPENMP
-//		            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//		            #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        beta_best[ijk] = beta_c[ijk];
-//                    }
-//                }
-//                if (verbose>=4){
-//                    end_point = system_clock::now();
-//                    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                    Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                    gibtime = system_clock::to_time_t(system_clock::now());
-//                    Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                }
-//                #ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                    beta_0[ijk] = beta_c[ijk];
-//                }
-//            }
         }
         if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
             if (verbose>=4){
@@ -1814,31 +1439,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
             beta_p = beta_best;//
             beta_a = beta_best;//
             beta_c = beta_best;//
-//            T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//            Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		    R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		    //
-//		    Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		    nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		    nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		    nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		    TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//		    if (single_bool){
-//			    //
-//			    ;
-//            } else {
-//			    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//			    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//			    //
-//			    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//			    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//			    //
-//			    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//			    dslp = abs_max;
-//                RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//			    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//            }
             for (int ij=0;ij<totalnum;ij++){
                 beta_0[ij] = beta_best[ij];
             }
@@ -1918,16 +1518,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 }
                 Rcout << " " << endl;
                 Rcout << "C++ Note: Checking Deviance " << dev << endl;
-                // Rcout << "C++ Note: df105 ";
-                // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero derivative
-                //     Rcout << Lld[ij]/Lldd[ij*reqrdnum+ij] << " ";
-                // }
-                // Rcout << " " << endl;
-                // Rcout << "C++ Note: df106 ";
-                // for (int ij=0;ij<reqrdnum;ij++){//prints the newton step value for zero log-likelihood
-                //     Rcout << Ll[ij]/Lld[ij] << " ";
-                // }
-                // Rcout << " " << endl;
             }
         }
     }
@@ -2188,7 +1778,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
     vector<double> beta_abs_best(totalnum,0.0);
     // int guess_abs_best =-1;
     //
-//    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
@@ -2283,7 +1872,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
         beta_p = beta_c;//
         beta_a = beta_c;//
 
-//        Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
         //
         for (int ijk=0;ijk<totalnum;ijk++){
@@ -2336,35 +1924,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
         bound_val = 1;
         Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//        while ((R.minCoeff()<=0)||(R.hasNaN())){
-//            half_check++;
-//            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//            if (half_check>halfmax){
-//                limit_hit[1] = TRUE;
-//                break;
-//            } else {
-//	            #ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){
-//                    int tij = term_n[ijk];
-//                    if (TTerm.col(tij).minCoeff()<=0){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    }
-//                }
-//                Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-//                Rcout << "Check change: ";
-//                for (int ij=0;ij<totalnum;ij++){
-//                    Rcout << dbeta[ij] << " ";
-//                    beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                    beta_c[ij] = beta_0[ij];
-//                }
-//                Rcout << " " << endl;
-//                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-//            }
-//        }
         if (limit_hit[1]){
             limits[1] = 0;
             ll_final[1] = 0;
@@ -2534,32 +2093,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
         bound_val = 0;
         Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//        while ((R.minCoeff()<=0)||(R.hasNaN())){
-//            half_check++;
-//            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//            if (half_check>halfmax){
-//                limit_hit[0] = TRUE;
-//                break;
-//            } else {
-//	            #ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){
-//                    int tij = term_n[ijk];
-//                    if (TTerm.col(tij).minCoeff()<=0){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    }
-//                }
-//                Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-//                for (int ij=0;ij<totalnum;ij++){
-//                    beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                    beta_c[ij] = beta_0[ij];
-//                }
-//                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-//            }
-//        }
         if (limit_hit[0]){
             limits[0] = 0;
             ll_final[0] = 0;
@@ -3042,62 +2575,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//                if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                	#ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        int tij = term_n[ijk];
-//                        if (TTerm.col(tij).minCoeff()<=0){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                    }
-//                    halves+=0.2;
-//                } else {
-//                    halves++;
-//                    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
-//                    //
-//                    if (Ll[0] > Lstar){
-//                        // If it has gone beyond Lstar, then this isn't the point
-//                        iter_stop = 1;
-//                        halves = halfmax;
-//                    } else {
-//                    //
-//                        if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                            }
-//                        } else{//If improved, updates the best vector
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                beta_best[ijk] = beta_c[ijk];
-//                            }
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        end_point = system_clock::now();
-//                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                        gibtime = system_clock::to_time_t(system_clock::now());
-//                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                    }
-//                    #ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                        beta_0[ijk] = beta_c[ijk];
-//                    }
-//                }
             }
             if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
                 if (verbose>=4){
@@ -3328,32 +2805,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
          Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
          bound_val = 1;
          Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//         while ((R.minCoeff()<=0)||(R.hasNaN())){
-//             half_check++;
-// //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//             if (half_check>halfmax){
-//                 limit_hit[1] = TRUE;
-//                 break;
-//             } else {
-// 	            #ifdef _OPENMP
-//                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                 #endif
-//                 for (int ijk=0;ijk<totalnum;ijk++){
-//                     int tij = term_n[ijk];
-//                     if (TTerm.col(tij).minCoeff()<=0){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     }
-//                 }
-//                 Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-//                 for (int ij=0;ij<totalnum;ij++){
-//                     beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                     beta_c[ij] = beta_0[ij];
-//                 }
-//                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-//             }
-//         }
          if (limit_hit[1]){
              limits[1] = 0;
              ll_final[1] = 0;
@@ -3403,12 +2854,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
          if ((max_change < epsilon)&&(deriv_max < deriv_epsilon)){
             iter_continue = false;
          }
-         // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
-        //  if (max_change < epsilon){
-        //     iter_continue = false;
-        // } else if (deriv_max < deriv_epsilon){
-        //     iter_continue = false;
-        // }
      }
     // Now refresh matrices back to the maximum point
     //
@@ -3587,62 +3032,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//                if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                	#ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        int tij = term_n[ijk];
-//                        if (TTerm.col(tij).minCoeff()<=0){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                    }
-//                    halves+=0.2;
-//                } else {
-//                    halves++;
-//                    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
-//                    //
-//                    if (Ll[0] > Lstar){
-//                        // If it has gone beyond Lstar, then this isn't the point
-//                        iter_stop = 1;
-//                        halves = halfmax;
-//                    } else {
-//                    //
-//                        if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                            }
-//                        } else{//If improved, updates the best vector
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                beta_best[ijk] = beta_c[ijk];
-//                            }
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        end_point = system_clock::now();
-//                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                        gibtime = system_clock::to_time_t(system_clock::now());
-//                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                    }
-//                    #ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                        beta_0[ijk] = beta_c[ijk];
-//                    }
-//                }
             }
             if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
                 if (verbose>=4){
@@ -3863,32 +3252,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
          Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
          bound_val = 0;
          Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//         while ((R.minCoeff()<=0)||(R.hasNaN())){
-//             half_check++;
-// //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//             if (half_check>halfmax){
-//                 limit_hit[1] = TRUE;
-//                 break;
-//             } else {
-// 	            #ifdef _OPENMP
-//                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                 #endif
-//                 for (int ijk=0;ijk<totalnum;ijk++){
-//                     int tij = term_n[ijk];
-//                     if (TTerm.col(tij).minCoeff()<=0){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     }
-//                 }
-//                 Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-//                 for (int ij=0;ij<totalnum;ij++){
-//                     beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                     beta_c[ij] = beta_0[ij];
-//                 }
-//                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
-//             }
-//         }
          if (limit_hit[0]){
              limits[0] = 0;
              ll_final[0] = 0;
@@ -3938,12 +3301,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
          if ((max_change < epsilon)&&(deriv_max < deriv_epsilon)){
             iter_continue = false;
         }
-        // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
-        //  if (max_change < epsilon){
-        //     iter_continue = false;
-        // } else if (deriv_max < deriv_epsilon){
-        //     iter_continue = false;
-        // }
      }
     //
     res_list = List::create(_["Parameter_Limits"]=wrap(limits), _["Negative_Limit_Found"]=wrap(limit_hit), _["Likelihood_Boundary"]=wrap(ll_final), _["Likelihood_Goal"]=wrap(Lstar), _["Status"]="PASSED");
@@ -4214,16 +3571,6 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
         beta_p = beta_c;//
         beta_a = beta_c;//
 
-//        T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//		Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		//
-//		Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
         //
         for (int ijk=0;ijk<totalnum;ijk++){
             if (KeepConstant[ijk]==0){
@@ -4275,44 +3622,6 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
         bound_val = 1;
         Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//        while ((R.minCoeff()<=0)||(R.hasNaN())){
-//            half_check++;
-//            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//            if (half_check>halfmax){
-//                limit_hit[1] = TRUE;
-//                break;
-//            } else {
-//	            #ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){
-//                    int tij = term_n[ijk];
-//                    if (TTerm.col(tij).minCoeff()<=0){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    }
-//                }
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		        //
-//		        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//                Rcout << "Check change: ";
-//                for (int ij=0;ij<totalnum;ij++){
-//                    Rcout << dbeta[ij] << " ";
-//                    beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                    beta_c[ij] = beta_0[ij];
-//                }
-//                Rcout << " " << endl;
-//                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-//            }
-//        }
         if (limit_hit[1]){
             limits[1] = 0;
             ll_final[1] = 0;
@@ -4380,16 +3689,6 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
     for (int ij=0;ij<totalnum;ij++){
         beta_0[ij] = beta_a[ij];
     }
-//    T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//	Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//	R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//	//
-//	Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//	nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//	nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//	nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//	nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//	TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
     //
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
     //
@@ -4436,17 +3735,6 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
         //
         beta_p = beta_c;//
         beta_a = beta_c;//
-
-//        T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//		Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		//
-//		Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
         //
         for (int ijk=0;ijk<totalnum;ijk++){
             if (KeepConstant[ijk]==0){
@@ -4498,41 +3786,6 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
         bound_val = 0;
         Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//        while ((R.minCoeff()<=0)||(R.hasNaN())){
-//            half_check++;
-//            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//            if (half_check>halfmax){
-//                limit_hit[0] = TRUE;
-//                break;
-//            } else {
-//	            #ifdef _OPENMP
-//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                #endif
-//                for (int ijk=0;ijk<totalnum;ijk++){
-//                    int tij = term_n[ijk];
-//                    if (TTerm.col(tij).minCoeff()<=0){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                        dbeta[ijk] = dbeta[ijk] / 2.0;
-//                    }
-//                }
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//		        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//		        //
-//		        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//		        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//		        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//		        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//		        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//		        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//                for (int ij=0;ij<totalnum;ij++){
-//                    beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                    beta_c[ij] = beta_0[ij];
-//                }
-//                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-//            }
-//        }
         if (limit_hit[0]){
             limits[0] = 0;
             ll_final[0] = 0;
@@ -4910,31 +4163,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     string ties_method = "temp";
     ///
     for (int guess=0; guess <guesses; guess++){
-//        T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//        Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//        //
-//        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-        if (single_bool){
-            //
-            ;
-        } else {
-            Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-            Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-            //
-            Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-            Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-            //
-            dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-            dslp = abs_max;
-            RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-            RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-        }
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
@@ -5013,31 +4241,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
             halves=0;
             while ((Ll[ind0] <= Ll_abs_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//                R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//                //
-//                Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//                nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//                nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//                nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//                nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//                TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-                if (single_bool){
-                    //
-                    ;
-                } else {
-                    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-                    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-                    //
-                    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-                    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-                    //
-                    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-                    dslp = abs_max;
-                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-                    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-                }
                 for (int ij=0;ij<totalnum;ij++){
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
@@ -5048,62 +4251,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
 
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//                if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                	#ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        int tij = term_n[ijk];
-//                        if (TTerm.col(tij).minCoeff()<=0){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                    }
-//                    halves+=0.2;
-//                } else {
-//                    halves++;
-//                    Pois_Dev_LL_Calc( reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0 ,  RdR,  RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev);
-//                    //
-//                    if (Ll[0] > Lstar){
-//                        // If it has gone beyond Lstar, then this isn't the point
-//                        iter_stop = 1;
-//                        halves = halfmax;
-//                    } else {
-//                    //
-//                        if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                            }
-//                        } else{//If improved, updates the best vector
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                beta_best[ijk] = beta_c[ijk];
-//                            }
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        end_point = system_clock::now();
-//                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                        gibtime = system_clock::to_time_t(system_clock::now());
-//                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                    }
-//                    #ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                        beta_0[ijk] = beta_c[ijk];
-//                    }
-//                }
             }
             if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
                 if (verbose>=4){
@@ -5117,31 +4264,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 beta_p = beta_best;//
                 beta_a = beta_best;//
                 beta_c = beta_best;//
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//                R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//                //
-//                Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//                nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//                nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//                nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//                nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//                TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-                if (single_bool){
-                    //
-                    ;
-                } else {
-                    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-                    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-                    //
-                    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-                    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-                    //
-                    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-                    dslp = abs_max;
-                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-                    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-                }
                 for (int ij=0;ij<totalnum;ij++){
                     beta_0[ij] = beta_best[ij];
                 }
@@ -5177,31 +4299,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         Rcout << "C++ Note: Refreshing matrices after all guesses" << endl;
     }
     //
-//    T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//    Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//	R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//	//
-//	Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//	nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//	nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//	nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//	nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//	TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-	if (single_bool){
-		//
-		;
-    } else {
-		Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-		Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-		//
-		Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-		Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-		//
-		dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-		dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-		RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-    }
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!single_bool){
         fill(Lld.begin(), Lld.end(), 0.0);
@@ -5276,31 +4373,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         Rcout << "C++ Note: starting subterms after in best guess" << endl;
     }
     //
-//    T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//    Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//	R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//	//
-//	Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//	nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//	nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//	nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//	nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//	TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-	if (single_bool){
-		//
-		;
-    } else {
-		Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-		Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-		//
-		Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-		Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-		//
-		dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-		dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-		RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-    }
     // Calculates the subterm and term values
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
     //
@@ -5346,31 +4418,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         //
         beta_p = beta_c;//
         beta_a = beta_c;//
-//        T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//        Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//        //
-//        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-        if (single_bool){
-            //
-            ;
-        } else {
-            Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-            Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-            //
-            Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-            Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-            //
-            dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-            dslp = abs_max;
-            RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-            RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-        }
          //
          for (int ijk=0;ijk<totalnum;ijk++){
              if (KeepConstant[ijk]==0){
@@ -5422,56 +4469,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
          bound_val = 1;
          Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//         while ((R.minCoeff()<=0)||(R.hasNaN())){
-//             half_check++;
-// //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//             if (half_check>halfmax){
-//                 limit_hit[1] = TRUE;
-//                 break;
-//             } else {
-// 	            #ifdef _OPENMP
-//                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                 #endif
-//                 for (int ijk=0;ijk<totalnum;ijk++){
-//                     int tij = term_n[ijk];
-//                     if (TTerm.col(tij).minCoeff()<=0){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     }
-//                 }
-//                 T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//                R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//                //
-//                Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//                nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//                nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//                nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//                nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//                TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//                if (single_bool){
-//                    //
-//                    ;
-//                } else {
-//                    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//                    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//                    //
-//                    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//                    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//                    //
-//                    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//                    dslp = abs_max;
-//                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//                    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//                }
-//                 for (int ij=0;ij<totalnum;ij++){
-//                     beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                     beta_c[ij] = beta_0[ij];
-//                 }
-//                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-//             }
-//         }
          if (limit_hit[1]){
              limits[1] = 0;
              ll_final[1] = 0;
@@ -5521,12 +4518,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          if ((max_change < epsilon)&&(deriv_max < deriv_epsilon)){
             iter_continue = false;
          }
-         // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
-        //  if (max_change < epsilon){
-        //     iter_continue = false;
-        // } else if (deriv_max < deriv_epsilon){
-        //     iter_continue = false;
-        // }
      }
     // Now refresh matrices back to the maximum point
     //
@@ -5542,31 +4533,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     dose_abs_max = dose_abs_max0;
     for (int ij=0;ij<totalnum;ij++){
         beta_0[ij] = beta_a[ij];
-    }
-//    T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//    Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//	R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//	//
-//	Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//	nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//	nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//	nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//	nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//	TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-	if (single_bool){
-		//
-		;
-    } else {
-		Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-		Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-		//
-		Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-		Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-		//
-		dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-		dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-		RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
     }
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
     //
@@ -5631,31 +4597,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     guess_abs_best =-1;
 
     for (int guess=0; guess <guesses; guess++){
-//        T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//        Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//        //
-//        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-        if (single_bool){
-            //
-            ;
-        } else {
-            Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-            Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-            //
-            Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-            Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-            //
-            dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-            dslp = abs_max;
-            RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-            RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-        }
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
@@ -5734,31 +4675,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
             halves=0;
             while ((Ll[ind0] <= Ll_abs_best)&&(halves<halfmax)){ //repeats until half-steps maxed or an improvement
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//                R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//                //
-//                Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//                nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//                nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//                nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//                nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//                TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-                if (single_bool){
-                    //
-                    ;
-                } else {
-                    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-                    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-                    //
-                    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-                    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-                    //
-                    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-                    dslp = abs_max;
-                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-                    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-                }
                 for (int ij=0;ij<totalnum;ij++){
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
@@ -5769,62 +4685,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
 
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//                if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                	#ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        int tij = term_n[ijk];
-//                        if (TTerm.col(tij).minCoeff()<=0){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                    }
-//                    halves+=0.2;
-//                } else {
-//                    halves++;
-//                    Pois_Dev_LL_Calc( reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0 ,  RdR,  RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev);
-//                    //
-//                    if (Ll[0] > Lstar){
-//                        // If it has gone beyond Lstar, then this isn't the point
-//                        iter_stop = 1;
-//                        halves = halfmax;
-//                    } else {
-//                    //
-//                        if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                            }
-//                        } else{//If improved, updates the best vector
-//                            #ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                beta_best[ijk] = beta_c[ijk];
-//                            }
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        end_point = system_clock::now();
-//                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                        gibtime = system_clock::to_time_t(system_clock::now());
-//                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                    }
-//                    #ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                        beta_0[ijk] = beta_c[ijk];
-//                    }
-//                }
             }
             if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
                 if (verbose>=4){
@@ -5838,31 +4698,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 beta_p = beta_best;//
                 beta_a = beta_best;//
                 beta_c = beta_best;//
-//                T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//                R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//                //
-//                Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//                nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//                nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//                nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//                nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//                TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-                if (single_bool){
-                    //
-                    ;
-                } else {
-                    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-                    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-                    //
-                    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-                    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-                    //
-                    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-                    dslp = abs_max;
-                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-                    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-                }
                 for (int ij=0;ij<totalnum;ij++){
                     beta_0[ij] = beta_best[ij];
                 }
@@ -5898,31 +4733,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         Rcout << "C++ Note: Refreshing matrices after all guesses" << endl;
     }
     //
-//    T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//    Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//	R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//	//
-//	Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//	nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//	nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//	nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//	nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//	TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//	if (single_bool){
-//		//
-//		;
-//    } else {
-//		Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//		Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//		//
-//		Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//		Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//		//
-//		dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//		dslp = abs_max;
-//        RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//		RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//    }
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!single_bool){
         fill(Lld.begin(), Lld.end(), 0.0);
@@ -6034,32 +4844,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          //
          beta_p = beta_c;//
          beta_a = beta_c;//
-
-//         T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//        Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//        R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//        //
-//        Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//        nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//        nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//        nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//        TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//        if (single_bool){
-//            //
-//            ;
-//        } else {
-//            Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//            Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//            //
-//            Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//            Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//            //
-//            dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//            dslp = abs_max;
-//            RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//            RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//        }
          //
          for (int ijk=0;ijk<totalnum;ijk++){
              if (KeepConstant[ijk]==0){
@@ -6112,56 +4896,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
          bound_val = 0;
          Cox_Pois_Log_Loop(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
-//         while ((R.minCoeff()<=0)||(R.hasNaN())){
-//             half_check++;
-// //            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-//             if (half_check>halfmax){
-//                 limit_hit[0] = TRUE;
-//                 break;
-//             } else {
-// 	            #ifdef _OPENMP
-//                 #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                 #endif
-//                 for (int ijk=0;ijk<totalnum;ijk++){
-//                     int tij = term_n[ijk];
-//                     if (TTerm.col(tij).minCoeff()<=0){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                         dbeta[ijk] = dbeta[ijk] / 2.0;
-//                     }
-//                 }
-//                 T0 = MatrixXd::Zero(df0.rows(), totalnum); //preallocates matrix for Term column
-//                Te = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for column terms used for temporary storage
-//                R = MatrixXd::Zero(df0.rows(), 1); //preallocates matrix for Risks
-//                //
-//                Dose = MatrixXd::Constant(df0.rows(),term_tot,0.0); //Matrix of the total dose term values
-//                nonDose = MatrixXd::Constant(df0.rows(),term_tot,1.0); //Matrix of the total non-dose term values
-//                nonDose_LIN = MatrixXd::Constant(df0.rows(),term_tot,0.0); //matrix of Linear subterm values
-//                nonDose_PLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Loglinear subterm values
-//                nonDose_LOGLIN = MatrixXd::Constant(df0.rows(),term_tot,1.0); //matrix of Product linear subterm values
-//                TTerm = MatrixXd::Zero(Dose.rows(),Dose.cols()); //matrix of term values
-//                if (single_bool){
-//                    //
-//                    ;
-//                } else {
-//                    Td0 = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Term derivative columns
-//                    Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Term second derivative columns
-//                    //
-//                    Rd = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk derivatives
-//                    Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk second derivatives
-//                    //
-//                    dint = dose_abs_max; //The amount of change used to calculate derivatives in threshold paramters
-//                    dslp = abs_max;
-//                    RdR = MatrixXd::Zero(df0.rows(), reqrdnum); //preallocates matrix for Risk to derivative ratios
-//                    RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum+1)/2); //preallocates matrix for Risk to second derivative ratios
-//                }
-//                 for (int ij=0;ij<totalnum;ij++){
-//                     beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
-//                     beta_c[ij] = beta_0[ij];
-//                 }
-//                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint,  dslp,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights,  nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term);
-//             }
-//         }
          if (limit_hit[0]){
              limits[0] = 0;
              ll_final[0] = 0;
@@ -6545,65 +5279,6 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max,  abs_max,  TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR,  nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose);
-//                if ((R.minCoeff()<=0)||(R.hasNaN())){
-//                	#ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){
-//                        int tij = term_n[ijk];
-//                        if (TTerm.col(tij).minCoeff()<=0){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        } else if (isinf(TTerm.col(tij).maxCoeff())){
-//                            dbeta[ijk] = dbeta[ijk] / 2.0;
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-//                    }
-//                    halves+=0.2;
-//                } else {
-//                    halves++;
-//                    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup,  totalnum, fir, R, Rd, Rdd,  Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0 , RdR, RddR, Ll, Lld,  Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop);
-//                    //
-//                    if (change_all){ //If every covariate is to be changed
-//                        if (Ll[ind0] <= Ll_abs_best){//if a better point wasn't found, takes a half-step
-//                        	#ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                dbeta[ijk] = dbeta[ijk] * 0.5; //
-//                            }
-//                        } else{//If improved, updates the best vector
-//                        	#ifdef _OPENMP
-//                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                            #endif
-//                            for (int ijk=0;ijk<totalnum;ijk++){
-//                                beta_best[ijk] = beta_c[ijk];
-//                            }
-//                        }
-//                    } else {//For validation, the step is always carried over
-//                        //used if a single parameter is being changed to trick program
-//                    	#ifdef _OPENMP
-//                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                        #endif
-//                        for (int ijk=0;ijk<totalnum;ijk++){
-//                            beta_best[ijk] = beta_c[ijk];
-//                        }
-//                    }
-//                    if (verbose>=4){
-//                        end_point = system_clock::now();
-//                        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//                        Rcout << "C++ Note: df100 " << (ending-start) << " " <<halves<< " " <<iteration<< " " <<ind0<< ",Update_calc" <<endl;
-//                        gibtime = system_clock::to_time_t(system_clock::now());
-//                        Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-//                    }
-//                    #ifdef _OPENMP
-//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//                    #endif
-//                    for (int ijk=0;ijk<totalnum;ijk++){//totalnum*(totalnum+1)/2
-//                        beta_0[ijk] = beta_c[ijk];
-//                    }
-//                }
             }
             if (beta_best!=beta_c){//if the risk matrices aren't the optimal values, then they must be recalculated
                 if (verbose>=4){
