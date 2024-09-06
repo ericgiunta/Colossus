@@ -25,7 +25,7 @@ library(parallel)
 
 ## Model Structure
 
-At its full potential, Colossus is able to analyze a vast number of possible risk/rate models. Specifically Colossus is designed to allow for a combination of linear and non-linear models to estimate cox proportional hazard ratios, Poisson model rates, and Fine-Grey Competing risks ratios. The simplest of which is a exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
+At its full potential, Colossus is able to analyze a vast number of possible risk/rate models. Specifically Colossus is designed to allow for a combination of linear and non-linear models to estimate cox proportional hazard ratios, Poisson model rates, and Fine-Grey Competing risks ratios. The simplest of which is an exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -35,7 +35,7 @@ $$
 $$
 </p>
 
-In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
+In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In Poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
 
 There are currently five types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), multiplicative excess model ($R_M$), or the geometric mixture model with relative risks or excess risks ($R_{GMIX}$).
 
@@ -52,7 +52,7 @@ $$
 $$
 </p>
 
-Each term is composed of a combination of 4 types of subterms. Every covariate is part of a log-linear subterm, a linear subterm, a product-linear subterm, or a general non-linear term. The log-linear subterm ($S_{ll}$) is the exponential of a linear combination of covariates. The linear subterm ($S_l$) is a linear combination of covariates. The product-linear subterm ($S_{PL}$) is one plus a linear combination of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms ($F_{LT}$), step function terms ($F_{STP}$), linear-quadratic terms ($F_{LQ}$), and linear-exponential terms ($F_{LEXP}$). Each term is the product of the non-empty subterms.
+Each term is composed of a combination of 4 types of subterms. Every covariate is part of a log-linear subterm, a linear subterm, a product-linear subterm, or a general non-linear term. The log-linear subterm ($S_{LL}$) is the exponential of a linear combination of covariates. The linear subterm ($S_L$) is a linear combination of covariates. The product-linear subterm ($S_{PL}$) is one plus a linear combination of covariates. The general non-linear term ($S_{NL}$) is the sum of exponential terms, quadratic terms, linear-threshold terms ($F_{LT}$), step function terms ($F_{STP}$), linear-quadratic terms ($F_{LQ}$), and linear-exponential terms ($F_{LEXP}$). Each term is the product of the non-empty subterms.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -131,7 +131,7 @@ a_n <- c(0.1, 0.1, 0.1, 0.1)
 
 ## Survival Time and Event Data
 
-Colossus performs survival analysis via either a Cox Proportional Hazards regression or a Poisson regression. In both cases the user specifies which columns contain time duration and events of interest. For the Poisson regression these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression the user identifies which columns provide starting and ending times, and what column gives the event status. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. Colossus supports left censored data, right censored data, and interval censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times. For Poisson regression the user only provides columns for the person-years per row and number of events. Poisson regression supports any non-negative number of events.
+Colossus performs survival analysis via either a Cox Proportional Hazards or a Poisson model regression. In both cases the user specifies which columns contain time duration and events of interest. For the Poisson model regression these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression the user identifies which columns provide starting and ending times, and what column gives the event status. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. Colossus supports left censored data, right censored data, and interval censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times. For Poisson model regression the user only provides columns for the person-years per row and number of events. Poisson model regression supports any non-negative number of events.
 
 On the user side, the names of columns containing the time and events need to be given. Lets assume we have a dataframe organized as follows:
 
@@ -171,7 +171,7 @@ time1 <- "Starting_Age"
 time2 <- "Ending_Age"
 ```
 
-Suppose instead we were interested in a Poisson regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. In this case we need to define a new column, but that may not be the case in general. Suppose we are now working with the following table:
+Suppose instead we were interested in a Poisson model regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. In this case we need to define a new column, but that may not be the case in general. Suppose we are now working with the following table:
 
 | UserID | Starting_Age | Ending_Age | Person_Years | Cancer_Status |
 | :---------: | :----------: | :-------: | :-------: |  :-------: |
@@ -213,7 +213,7 @@ The additional information parameters currently supported are as follows:
 
 | Parameter | Description |
 | :---------: | :----------: |
-| verbose | TRUE/FALSE flag to print updates on parameter value and which section of the code is active |
+| verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
 | change_all | TRUE/FALSE flag to choose if the user wants a regression or to calculate log-likelihoods on a grid changing only one parameter at a time |
 | ncores | Number of physical cores assigned, cannot be greater than the number of cores available |
 
@@ -238,7 +238,7 @@ In this example, no parameters are held constant, 100 iterations with 5 half-ste
 
 ## Running the Regression and Output
 
-Finally the user calls the regression function they need. The names used throughout this vignette are the defaults assumed. Both the Cox PH regression and Poisson regression are called directly and return a list of results. Colossus contains a suite of additional checks it runs on the inputs prior to starting and calculations, which are designed to output explicit details on any issues. Printing error details may require the verbose option to be TRUE. In code the functions are called as follows:
+Finally the user calls the regression function they need. The names used throughout this vignette are the defaults assumed. Both the Cox PH regression and Poisson model regression are called directly and return a list of results. Colossus contains a suite of additional checks it runs on the inputs prior to starting and calculations, which are designed to output explicit details on any issues. Printing error details may require the verbose option to be TRUE. In code the functions are called as follows:
 
 ```{r}
 # assuming the table of covariates is stored in a data.table "df"
@@ -247,7 +247,7 @@ e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_consta
                       a_n, modelform, fir, der_iden, control)
 print(e)
 
-#or a poisson regression
+#or a Poisson model regression
 a_n <- c(0.1, 0.1, 0.1, 0.1) #a_n is updated when either regression is called
 e <- RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n,
                           modelform, fir, der_iden, control)
@@ -269,7 +269,7 @@ The following are output:
 | Control_List | a list containing the number of iterations, the maximum step at the final iteration, and the highest first derivative magnitude |
 |Converged | TRUE/FALSE if the regression converged |
 
-For both cases, the regressions did not converge. Given that the examples were arbitrary this is not unexpected. The Cox PH ran out of iterations and did not decrease the step limit, so if it were restarted at the new optimal guess it would be expected to continue converging. The Poisson regression exited due to the step limit being below the threshold, which means that it hit some local optimum. To find a better solution the user would likely have to either change the model equation or provide a new starting guess. This is an example of how to interpret the results of a Colossus run.
+For both cases, the regressions did not converge. Given that the examples were arbitrary this is not unexpected. The Cox PH ran out of iterations and did not decrease the step limit, so if it were restarted at the new optimal guess it would be expected to continue converging. The Poisson model regression exited due to the step limit being below the threshold, which means that it hit some local optimum. To find a better solution the user would likely have to either change the model equation or provide a new starting guess. This is an example of how to interpret the results of a Colossus run.
 
 There are additional variants of these functions which will be described outside of this section. They return a similar list of results.
 

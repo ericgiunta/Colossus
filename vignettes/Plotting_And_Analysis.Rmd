@@ -47,7 +47,7 @@ Once the instantaneous hazard is approximated, the cumulative hazard can be appr
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \Lambda(t) = \int_0^t (\lambda(x) dx\\
+    \Lambda(t) = \int_0^t (\lambda(x) dx)\\
     S(t) = \exp{(-\Lambda(t))}
 \end{aligned}
 $$

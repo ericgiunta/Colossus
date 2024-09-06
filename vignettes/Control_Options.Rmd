@@ -33,6 +33,7 @@ This is the "control" variable used by every regression function. This list focu
 | ncores  | Number of cores used for parallel operations. The user can't assign more cores than available. Defaults to the number of detected cores |
 | lr | Learning rate used. Every step is multiplied by the learning rate. Default is 0.75. |
 | maxiter  | Maximum iterations run for a single initial position. Defaults to 20.  |
+| maxiters | Used for multiple starting positions. List of maximum number of iterations per starting point and maximum number of iterations for final guess. Assumes N values for N guesses and 1 value for final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
 | halfmax  | Maximum number of half-steps taken per iteration. Defaults to 5.  |
 | epsilon  | Minimum step size before convergence is assumed. Defaults to 1e-9  |
 | deriv_epsilon  | Smallest maximum first derivative before convergence is assumed. Defaults to 1e-9. |
@@ -50,7 +51,7 @@ This is the "model_control" variable used primarily by the omnibus functions. Th
 | single  | Boolean used by both Cox and Poisson functions to calculate score without derivatives. This method can be used to quickly test multiple starting points. Defaults to FALSE.  |
 | basic  | Boolean used by Cox functions to use the single-term log-linear model. This method can apply simplifications which reduce the time and memory requirements. Defaults to FALSE.  |
 | null  | Boolean used by Cox functions to calculate the null model, which assumes a constant hazard ratio. Defaults to FALSE.   |
-| cr  | Boolean used by Cox functions to apply competing risks model options to use a Grey-Fine model. Defaults to FALSE.  |
+| cr  | Boolean used by Cox functions to apply competing risks model options to use a Fine-Grey model. Defaults to FALSE.  |
 | constraint  | Boolean used by both Cox and Poisson function to apply a system of linear constraints. Defaults to FALSE. |
 | strata  | Boolean used by both Cox and Poisson functions to apply stratification. Cox functions use stratified risk groups and Poisson functions apply an average event rate per strata. Defaults to FALSE.  |
 | surv  | Boolean used by Cox plotting function to choose survival curve plotting. Defaults to FALSE  |
