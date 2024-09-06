@@ -23,6 +23,7 @@ knitr::opts_chunk$set(
 [![codecov](https://codecov.io/gh/ericgiunta/Colossus/graph/badge.svg?token=NMH5R502W8)](https://codecov.io/gh/ericgiunta/Colossus)
 [![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
 [![OS_Checks](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml/badge.svg?branch=main)](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml)
+[![](https://cranlogs.r-pkg.org/badges/Colossus)](https://cran.rstudio.com/web/packages/Colossus/index.html)
 <!-- badges: end -->
 
 The goal of Colossus is to provide an open-source means of performing survival analysis on big data with complex risk formula. Colossus is designed to perform Cox Proportional Hazard regressions and Poisson regressions on datasets loaded as data.tables or data.frames. The risk models allowed are sums or products of linear, log-linear, or several other radiation dose response formula highlighted in the vignettes. Additional plotting capabilities are available.

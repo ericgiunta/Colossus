@@ -14,6 +14,7 @@ developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.re
 [![codecov](https://codecov.io/gh/ericgiunta/Colossus/graph/badge.svg?token=NMH5R502W8)](https://codecov.io/gh/ericgiunta/Colossus)
 [![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
 [![OS\_Checks](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml/badge.svg?branch=main)](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml)
+[![](https://cranlogs.r-pkg.org/badges/Colossus)](https://cran.rstudio.com/web/packages/Colossus/index.html)
 <!-- badges: end -->
 
 The goal of Colossus is to provide an open-source means of performing
@@ -97,7 +98,7 @@ print(e)
 #> [1] 9.350729
 #> 
 #> $BIC
-#> [1] 9.134369
+#> [1] 8.517767
 #> 
 #> $Parameter_Lists
 #> $Parameter_Lists$term_n
