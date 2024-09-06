@@ -108,6 +108,11 @@ lr | Learning rate used. Every step is multiplied by the learning rate.
 Default is 0.75. |<br>
 maxiter | Maximum iterations run for a single initial position. Defaults
 to 20. |<br>
+maxiters | Used for multiple starting positions. List of maximum number
+of iterations per starting point and maximum number of iterations for
+final guess. Assumes N values for N guesses and 1 value for final
+solution. Defaults to c(1,maxiter), running 1 iteration per provided
+guess.<br>
 halfmax | Maximum number of half-steps taken per iteration. Defaults to
 5. |<br>
 epsilon | Minimum step size before convergence is assumed. Defaults to
@@ -144,7 +149,7 @@ memory requirements. Defaults to FALSE. |<br>
 null | Boolean used by Cox functions to calculate the null model, which
 assumes a constant hazard ratio. Defaults to FALSE. |<br>
 cr | Boolean used by Cox functions to apply competing risks model
-options to use a Grey-Fine model. Defaults to FALSE. |<br>
+options to use a Fine-Grey model. Defaults to FALSE. |<br>
 constraint | Boolean used by both Cox and Poisson function to apply a
 system of linear constraints. Defaults to FALSE. |<br>
 strata | Boolean used by both Cox and Poisson functions to apply
