@@ -769,7 +769,6 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     bool change_all = Control["change_all"];
     int double_step = Control["double_step"];
     int verbose = Control["verbose"];
-    Rcout << verbose << endl;
     bool debugging = FALSE;
     double lr = Control["lr"];
     int maxiter = Control["maxiter"];
