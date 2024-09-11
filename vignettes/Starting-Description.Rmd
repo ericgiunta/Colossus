@@ -106,7 +106,7 @@ If the user wanted to update the model to include a new term with a product-line
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \exp{(\beta_{a} \cdot x_{a})} \times (1 + (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c}) \times (1 + \beta_{d} \cdot x_{d}))
+    R = \exp{(\beta_{a} \cdot x_{a})} \times (1 + (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})) \times (2 + \beta_{d} \cdot x_{d})
 \end{aligned}
 $$
 </p>

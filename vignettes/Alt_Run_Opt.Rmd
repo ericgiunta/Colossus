@@ -26,7 +26,7 @@ Both Cox proportional hazards and Poisson model regressions have additional func
 | Option | Description | Cox PH | Poisson |
 | :---------: | :----------: | :----------: | :-------: |
 | Stratification | In Cox PH, the stratification is applied in the risks groups to compare only like rows. In Poisson model regression the stratification is an additional term in the model to account for the effects of stratified covariates | x | x |
-| Simplified Model | For a multiplicative Log-Linear model, there are simplifications that can be made to the code. These give a faster version. | x | x |
+| Simplified Model | For a multiplicative Log-Linear model, there are simplifications that can be made to the code. These give a faster version. | x |  |
 | Non-Derivative Calculation | If a single iteration is needed without derivatives, there is time and memory that can be saved | x | x |
 | Competing Risks | If there is a competing event, rows are weighted by an estimate of censoring rate to approximate a dataset without the effect of a competing event | x |  |
 | Joint Analysis | A Poisson method which allows a model to solve for multiple outcomes, by creating multiple copies of rows with multiple events and using a factor variable to add covariates for specific outcomes |  | x |
