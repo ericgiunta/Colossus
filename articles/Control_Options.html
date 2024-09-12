@@ -289,23 +289,57 @@ Defaults to c(0), should be provided if used.</td>
 </tbody>
 </table>
 <p>If the log_bound method is used, there are several additional control
-options used: | Option | Description | | :———: | :———-: | | alpha |
-Confidence level to use, valued 0-1. Defaults to 0.05. | | qchi | Two
-tailed Chi-squared value at one degree of freedom and the provided
-alpha. Defaults to the value corresponding to alpha. | | para_number |
-Parameter number to solve the boundary for. Indexed starting at 0.
-Defaults to 0. | | manual | Boolean which selects if the standard
+options used:</p>
+<table class="table">
+<colgroup>
+<col width="47%">
+<col width="52%">
+</colgroup>
+<thead><tr class="header">
+<th align="center">Option</th>
+<th align="center">Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">alpha</td>
+<td align="center">Confidence level to use, valued 0-1. Defaults to
+0.05.</td>
+</tr>
+<tr class="even">
+<td align="center">qchi</td>
+<td align="center">Two tailed Chi-squared value at one degree of freedom
+and the provided alpha. Defaults to the value corresponding to
+alpha.</td>
+</tr>
+<tr class="odd">
+<td align="center">para_number</td>
+<td align="center">Parameter number to solve the boundary for. Indexed
+starting at 0. Defaults to 0.</td>
+</tr>
+<tr class="even">
+<td align="center">manual</td>
+<td align="center">Boolean which selects if the standard
 Venzon-Moolgavkar algorithm (FALSE) or if a modified version is used
 which starts by optimizing multiple points (TRUE). The manual mode is
 beneficial for problems with linear terms, which may have issues with
-local optimums. Defaults to FALSE. | | maxstep | Integer used by the
-manual search option, splits the initial step into maxstep points. Then
-each point is optimized with a constant boundary parameter. This is done
-to find the closest estimate for the boundary point. Defaults to 10. | |
-search_mult | Double used by manual search option, scales the initial
-step by that amount. This can be done to widen or narrow the scope of
-the search if the initial quadratic assumption made by the
-Venzon-Moolgavkar algorithm is incorrect. |</p>
+local optimums. Defaults to FALSE.</td>
+</tr>
+<tr class="odd">
+<td align="center">maxstep</td>
+<td align="center">Integer used by the manual search option, splits the
+initial step into maxstep points. Then each point is optimized with a
+constant boundary parameter. This is done to find the closest estimate
+for the boundary point. Defaults to 10.</td>
+</tr>
+<tr class="even">
+<td align="center">search_mult</td>
+<td align="center">Double used by manual search option, scales the
+initial step by that amount. This can be done to widen or narrow the
+scope of the search if the initial quadratic assumption made by the
+Venzon-Moolgavkar algorithm is incorrect.</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="guess-control-list">Guess Control List<a class="anchor" aria-label="anchor" href="#guess-control-list"></a>
