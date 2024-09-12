@@ -99,11 +99,17 @@ test_that( "Coxph strata_basic_single_CR", {
                     a_n <- c(-0.1,-0.1)
                     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
                     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting")
+                    if (abs(e$LogLik - LL_comp[j_iterate]) > 10){
+                        message(j_iterate)
+                    }
                     expect_equal(e$LogLik,LL_comp[j_iterate],tolerance=1e-2)
                     j_iterate <- j_iterate + 1
                     a_n <- c(-0.1,-0.1)
                     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='efron', 'double_step'=0)
                     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting")
+                    if (abs(e$LogLik - LL_comp[j_iterate]) > 10){
+                        message(j_iterate)
+                    }
                     expect_equal(e$LogLik,LL_comp[j_iterate],tolerance=1e-2)
                     j_iterate <- j_iterate + 1
                     if (verbose){print( "---------------" )}

@@ -68,6 +68,7 @@ This is the "model_control" variable used primarily by the omnibus functions. Th
 | gmix_term | Integer vector indicating if each term in the geometric mixture model is a relative risk (0) or excess risk (1). Defaults to c(0), should be provided if used. |
 
 If the log_bound method is used, there are several additional control options used:
+
 | Option | Description |
 | :---------: | :----------: |
 | alpha | Confidence level to use, valued 0-1. Defaults to 0.05. |
