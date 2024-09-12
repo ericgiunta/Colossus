@@ -69,6 +69,7 @@ This is the "model_control" variable used primarily by the omnibus functions. Th
 
 If the log_bound method is used, there are several additional control options used:
 | Option | Description |
+| :---------: | :----------: |
 | alpha | Confidence level to use, valued 0-1. Defaults to 0.05. |
 | qchi | Two tailed Chi-squared value at one degree of freedom and the provided alpha. Defaults to the value corresponding to alpha. |
 | para_number | Parameter number to solve the boundary for. Indexed starting at 0. Defaults to 0. |
