@@ -6,19 +6,19 @@
 \usage{
 RunCoxRegression_CR(
   df,
-  time1,
-  time2,
-  event0,
-  names,
-  term_n,
-  tform,
-  keep_constant,
-  a_n,
-  modelform,
-  fir,
-  der_iden,
-  control,
-  cens_weight
+  time1 = "start",
+  time2 = "end",
+  event0 = "event",
+  names = c("CONST"),
+  term_n = c(0),
+  tform = "loglin",
+  keep_constant = c(0),
+  a_n = c(0),
+  modelform = "M",
+  fir = 0,
+  der_iden = 0,
+  control = list(),
+  cens_weight = "null"
 )
 }
 \arguments{

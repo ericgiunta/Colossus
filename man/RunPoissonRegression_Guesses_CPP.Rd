@@ -6,19 +6,19 @@
 \usage{
 RunPoissonRegression_Guesses_CPP(
   df,
-  pyr0,
-  event0,
-  names,
-  term_n,
-  tform,
-  keep_constant,
-  a_n,
-  modelform,
-  fir,
-  der_iden,
-  control,
-  guesses_control,
-  strat_col = c("null"),
+  pyr0 = "pyr",
+  event0 = "event",
+  names = c("CONST"),
+  term_n = c(0),
+  tform = "loglin",
+  keep_constant = c(0),
+  a_n = c(0),
+  modelform = "M",
+  fir = 0,
+  der_iden = 0,
+  control = list(),
+  guesses_control = list(),
+  strat_col = "null",
   model_control = list()
 )
 }

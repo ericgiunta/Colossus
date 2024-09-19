@@ -17,8 +17,39 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(Colossus)
 library(data.table)
+library(survival)
 
 ```
+
+## Example Setup
+
+We will use analysis of the lung dataset in the survival package to visualize the different plotting methods available in Colossus.
+
+```{r, eval=TRUE}
+data(cancer, package="survival")
+
+df <- cancer
+df$UserID <- 1:nrow(df)
+
+df$status <- df$status - 1
+df$sex <- df$sex - 1
+
+t0 <- "%trunc%"
+t1 <- "time"
+event <- "status"
+
+names <- c('age',"sex")
+tform <- c("loglin", "loglin")
+control <- list("Ncores"=2, 'maxiter'=2, 'verbose'=3)
+
+a_n <- c(0.01701289, -0.51256478)
+term_n <- c(0,0)
+keep_constant <- c(0,0)
+modelform <- 'M'
+fir <- 0
+
+```
+
 ## Survival Function Approximation
 
 After fitting a Cox proportional hazards model, one may be interested in what the baseline survival rate is. One method of doing so is by weighting the number of events at each event time by the total risk. In the absence of excess risk the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one, so this assumption holds for the case with negligible excess risk.
@@ -54,38 +85,29 @@ $$
 </p>
 
 ```{r, eval=TRUE}
-t <- c(1,2,5,6,7)
-r <- c(4,3,5,4,2)
-d <- c(1,2,3,2,1)
 
-lambda  <- c()
-Lambda <- c(0)
-S      <- c(1)
-T      <- c(0)
+plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID", 'verbose'=4, "surv_curv"=T, 'martingale'=F,'strat_haz'=F,'km'=F) #for this example, the plots are sent to a temporary folder
 
-for (i in 1:5){
-	lambda <- c(lambda, d[i]/r[i])
-	Lambda <- c(Lambda, Lambda[i] + lambda[i])
-	S     <- c(S, exp(-1*Lambda[i+1]))
-	T     <- c(T, t[i])
-}
+e <- RunCoxPlots(df, t0, t1, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
 
-dft <- data.table("x"=t,"y"=lambda)
-g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + 
+norm_surv <- e[['standard']]
+
+g <- ggplot2::ggplot(norm_surv,ggplot2::aes(x=.data$t, y=.data$h)) + 
      ggplot2::geom_point(color="black") +
      ggplot2::labs(x="age", y="Instantaneous Hazard")
 g
 
-dft <- data.table("x"=T,"y"=Lambda, "z"=S)
-g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) + 
+g <- ggplot2::ggplot(norm_surv,ggplot2::aes(x=.data$t, y=.data$ch)) + 
      ggplot2::geom_line(color="black",alpha=1) + 
      ggplot2::labs(x="age", y="Cumulative Hazard")
 g
 
-g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$z)) + 
+g <- ggplot2::ggplot(norm_surv,ggplot2::aes(x=.data$t, y=.data$surv)) + 
      ggplot2::geom_line(color="black",alpha=1) + 
      ggplot2::labs(x="age", y="Surviving Fraction")
 g
+
+plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID", 'verbose'=4, "surv_curv"=F, 'martingale'=F,'strat_haz'=F,'km'=T)
 ```
 
 ## Cox Proportional Hazards model assumptions
@@ -104,6 +126,10 @@ $$
 $$
 </p>
 
+```{r, eval=TRUE}
+plot_options <- list("type"=c("schoenfeld",paste(tempfile(),"run",sep="")), "studyid"="UserID", 'verbose'=4)
+```
+
 ### Martingale Residuals
 
 Martingale residuals compare the event status and cumulative hazard for each subject. The residual is bound in the open interval $(-\infty, 1)$. Negative residuals correspond with subjects that survive despite high cumulative hazard and residuals near unity correspond with subject that experienced an event despite low cumulative hazard. The distribution of residuals with event time can indicate if the model is over-predicting or under-predicting dependent on time.
@@ -116,4 +142,14 @@ $$
 $$
 </p>
 
+```{r, eval=TRUE}
+plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID", 'verbose'=4, "surv_curv"=F, 'martingale'=T,'strat_haz'=F,'km'=F,'cov_cols'=c('age','sex'))
+e <- RunCoxPlots(df, t0, t1, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
+```
+
+## General Evaluation of Risk
+
+```{r, eval=TRUE}
+plot_options <- list("type"=c("risk",paste(tempfile(),"run",sep="")), "studyid"="UserID", 'verbose'=4)
+```
 

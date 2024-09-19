@@ -4,7 +4,7 @@
 #'
 #' @inheritParams R_template
 #' @family Plotting Functions
-#' @return saves the plots in the current directory and returns a string that it passed
+#' @return saves the plots in the current directory and returns a list of data-tables plotted
 #' @noRd
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, plot_name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
@@ -19,6 +19,9 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
     ch_s <- ch_fun(time_s)
     #
     e_i <- df[,get(event0)]
+    #
+    table_out <- list()
+    #
     for (cov_i in seq_len(length(dnames))){
         dname <- dnames[cov_i]
         if (verbose>=3){
@@ -64,12 +67,15 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
         #
         ##
         dft <- data.table::data.table("cov_max"=times$cov,"time_max"=times$time,"res_sum"=Martingale_Error$res)
+        table_out[[dname]] <- dft
         ##
-        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$cov_max, y=.data$res_sum)) +
-             ggplot2::geom_point(color="black") +
-             ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
-        ggplot2::ggsave(paste(plot_name,"_",dname,'_martin_plot.jpeg',sep=""),
-                        device="jpeg",dpi="retina")
+        if (system.file(package='ggplot2')!=""){
+            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$cov_max, y=.data$res_sum)) +
+                 ggplot2::geom_point(color="black") +
+                 ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
+            ggplot2::ggsave(paste(plot_name,"_",dname,'_martin_plot.jpeg',sep=""),
+                            device="jpeg",dpi="retina")
+        }
         ##
     }
     #
@@ -105,13 +111,16 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
         times <- dfr
     }
     dft <- data.table::data.table("time_max"=times$time,"res_sum"=Martingale_Error$res)
+    table_out[['survival_time']] <- dft
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) +
-        ggplot2::geom_point(color="black") +
-        ggplot2::labs(x=paste("Max Age",sep=" "), y="Martingale Residuals")
-    ggplot2::ggsave(paste(plot_name,'_martin_plot.jpeg',sep=''),device="jpeg",dpi="retina")
+    if (system.file(package='ggplot2')!=""){
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) +
+            ggplot2::geom_point(color="black") +
+            ggplot2::labs(x=paste("Max Age",sep=" "), y="Martingale Residuals")
+        ggplot2::ggsave(paste(plot_name,'_martin_plot.jpeg',sep=''),device="jpeg",dpi="retina")
+    }
     ##
-    return ("passed")
+    return (table_out)
 }
 
 #' calculates and plots survival plots of the estimated baseline
@@ -121,31 +130,37 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
 #' @inheritParams R_template
 #' @family Plotting Functions
 #' @noRd
-#' @return saves the plots in the current directory and returns a string that it passed
+#' @return saves the plots in the current directory and returns a list of data-tables plotted
 CoxSurvival <- function(t,h,ch,surv,plot_name,verbose,time_lims, age_unit){
     # verbose <- as.logical(verbose)
     if (verbose>=3){
         message("Note: Plotting Survival Curves")
     }
     #
+    table_out <- list()
+    #
     dft <- data.table::data.table("t"=t,"h"=h,"ch"=ch,"surv"=surv)
     data.table::setkeyv(dft,"t")
     dft <- dft[(t>=time_lims[1])&(t<=time_lims[2]),]
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) +
-        ggplot2::geom_point(color="black") +
-        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
-    ggplot2::ggsave(paste(plot_name,"_ch_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+    table_out[['standard']] <- dft
     #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) +
-        ggplot2::geom_point(color="black")  +
-        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-    ggplot2::ggsave(paste(plot_name,"_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina")
-    #
-    g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) +
-        ggplot2::geom_point(color="black")
-        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
-    ggplot2::ggsave(paste(plot_name,"_H_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+    if (system.file(package='ggplot2')!=""){
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) +
+            ggplot2::geom_point(color="black") +
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
+        ggplot2::ggsave(paste(plot_name,"_ch_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+        #
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) +
+            ggplot2::geom_point(color="black")  +
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+        ggplot2::ggsave(paste(plot_name,"_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+        #
+        g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) +
+            ggplot2::geom_point(color="black")
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
+        ggplot2::ggsave(paste(plot_name,"_H_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+    }
     #
     Ls <- log(surv)
     Lls_u <- log(-Ls)
@@ -154,13 +169,15 @@ CoxSurvival <- function(t,h,ch,surv,plot_name,verbose,time_lims, age_unit){
     #
     #
     dft <- data.table::data.table("t"=Lt_u,"s"=Lls_u)
+    table_out[['log']] <- dft
     #
-
-    g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s)) +
-         ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
-    ggplot2::ggsave(paste(plot_name,"_log_log_surv_plot.jpeg",sep=""),
-                    device="jpeg",dpi="retina")
-    return ("passed")
+    if (system.file(package='ggplot2')!=""){
+        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s)) +
+             ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
+        ggplot2::ggsave(paste(plot_name,"_log_log_surv_plot.jpeg",sep=""),
+                        device="jpeg",dpi="retina")
+    }
+    return (table_out)
 }
 
 #' calculates and plots Kaplan-Meier survival plots
@@ -170,7 +187,7 @@ CoxSurvival <- function(t,h,ch,surv,plot_name,verbose,time_lims, age_unit){
 #' @inheritParams R_template
 #' @family Plotting Functions
 #' @noRd
-#' @return saves the plots in the current directory and returns a string that it passed
+#' @return saves the plots in the current directory and returns a list of data-tables plotted
 CoxKaplanMeier <- function(verbose, studyID,names,df,event0,time1,time2,tu,term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, plot_type, age_unit, model_control=list()){
     # verbose <- as.logical(verbose)
     if (verbose>=3){
@@ -216,13 +233,18 @@ CoxKaplanMeier <- function(verbose, studyID,names,df,event0,time1,time2,tu,term_
         }
     }
     #
+    table_out <- list()
+    #
     dft <- data.table::data.table("t_t"=t_t,"n_t"=n_t)
+    table_out[['kaplin-meier']] <- dft
     #
-    g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_t, y=.data$n_t)) + ggplot2::geom_line() +
-        ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-    ggplot2::ggsave(paste(plot_type[2],"_KM.jpeg",sep=""),device="jpeg",dpi="retina")
+    if (system.file(package='ggplot2')!=""){
+        g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_t, y=.data$n_t)) + ggplot2::geom_line() +
+            ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
+        ggplot2::ggsave(paste(plot_type[2],"_KM.jpeg",sep=""),device="jpeg",dpi="retina")
+    }
     #
-    return ("passed")
+    return (table_out)
 }
 
 
@@ -233,7 +255,7 @@ CoxKaplanMeier <- function(verbose, studyID,names,df,event0,time1,time2,tu,term_
 #' @inheritParams R_template
 #' @family Plotting Functions
 #' @noRd
-#' @return saves the plots in the current directory and returns a string that it passed
+#' @return saves the plots in the current directory and returns a list of data-tables plotted
 CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, fir, der_iden, modelform, control,keep_constant, plot_type, b, er, model_control=list()){
     # verbose <- as.logical(verbose)
     fir_KM <- 0
@@ -251,6 +273,9 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
     x_all <- as.matrix(df[,all_names, with = FALSE])
     #
     tu <- unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE)
+    #
+    table_out <- list()
+    #
     for (fir_KM in seq_len(length(names))){
         lfir <- c(names[fir_KM])
         uniq <- unlist(unique(df[,lfir, with = FALSE]), use.names=FALSE)
@@ -270,25 +295,28 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
         y <- e$y
         #
         dft <- data.table::data.table("x"=x,"y"=y)
-        if (length(uniq)>=10){
-            #
-            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
-                 ggplot2::geom_line(color="black") +
-                 ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-            ggplot2::ggsave(paste(plot_type[2],"_risk_plot_",fir_KM,".jpeg",sep=""),
-                            device="jpeg",dpi="retina")
-            #
-        } else {
-            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
-                 ggplot2::geom_point(color="black") +
-                 ggplot2::labs(x=names[fir_KM], y="Relative Risk")
-            ggplot2::ggsave(paste(plot_type[2],"_risk_plot_",fir_KM,".jpeg",sep=""),
-                            device="jpeg",dpi="retina")
-            #
+        table_out[[names[fir_KM]]] <- dft
+        if (system.file(package='ggplot2')!=""){
+            if (length(uniq)>=10){
+                #
+                g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
+                     ggplot2::geom_line(color="black") +
+                     ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+                ggplot2::ggsave(paste(plot_type[2],"_risk_plot_",fir_KM,".jpeg",sep=""),
+                                device="jpeg",dpi="retina")
+                #
+            } else {
+                g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
+                     ggplot2::geom_point(color="black") +
+                     ggplot2::labs(x=names[fir_KM], y="Relative Risk")
+                ggplot2::ggsave(paste(plot_type[2],"_risk_plot_",fir_KM,".jpeg",sep=""),
+                                device="jpeg",dpi="retina")
+                #
+            }
         }
         #
     }
-    return ("passed")
+    return (table_out)
 }
 
 
@@ -299,7 +327,7 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
 #' @inheritParams R_template
 #' @family Plotting Functions
 #' @noRd
-#' @return saves the plots in the current directory and returns a string that it passed
+#' @return saves the plots in the current directory and returns a list of data-tables plotted
 CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, plot_type, strat_col,time_lims, age_unit, model_control=list()){
     dfend <- df[get(event0)==1, ]
     uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
@@ -391,13 +419,19 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
         sbreaks <- c(sbreaks, paste(uniq[i]))
         slabels <- c(slabels, paste("For ",strat_col,"=",uniq[i],sep=""))
     }
-    g <- ggplot2::ggplot() + ggplot2::geom_point(data=dft,
-         ggplot2::aes(x=.data$t, y=.data$surv,group=.data$cat_group,color=.data$cat_group))
-    g <- g + ggplot2::scale_colour_discrete(breaks=sbreaks, labels=slabels)
-    g <- g + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival") + ggplot2::ylim(0,1)
-    ggplot2::ggsave(paste(plot_name,'_strat_surv_plot_',strat_col,'.jpeg',sep=""),
-                    device="jpeg",dpi="retina")
-    return ("passed")
+    #
+    table_out <- list()
+    #
+    table_out[['stratified_survival']] <- dft
+    if (system.file(package='ggplot2')!=""){
+        g <- ggplot2::ggplot() + ggplot2::geom_point(data=dft,
+             ggplot2::aes(x=.data$t, y=.data$surv,group=.data$cat_group,color=.data$cat_group))
+        g <- g + ggplot2::scale_colour_discrete(breaks=sbreaks, labels=slabels)
+        g <- g + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival") + ggplot2::ylim(0,1)
+        ggplot2::ggsave(paste(plot_name,'_strat_surv_plot_',strat_col,'.jpeg',sep=""),
+                        device="jpeg",dpi="retina")
+    }
+    return (table_out)
 }
         
         
@@ -407,7 +441,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
 #'
 #' @inheritParams R_template
 #'
-#' @return saves the plots in the current directory and returns a string that it passed
+#' @return saves the plots in the current directory and returns a list of data-tables plotted
 #' @family Plotting Functions
 #' @noRd
 #' @importFrom rlang .data
@@ -458,6 +492,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
     res        <- res_list$residual
     res_scaled <- res_list$scaled
     #
+    table_out <- list()
     #
     for (cov in seq_len(length(a_n))){
         if (keep_constant[cov]==0){
@@ -467,24 +502,27 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
             #
             dft <- data.table::data.table("time"=tu,"y"=y)
             dft$y_scale <- y_scale
+            table_out[[names[cov]]] <- dft
             #
-            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) +
-                ggplot2::geom_point(color="black") +
-                ggplot2::labs(x=paste("age (",age_unit,")",sep=""),
-                y=paste("Schoenfeld Residual (",names[cov], tform[cov],")",sep=" "))
-            ggplot2::ggsave(paste(plot_name,"_schoenfeld_",cov_res,".jpeg",sep=""),
-                            device="jpeg",dpi="retina")
-            #
-            g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) +
-                ggplot2::geom_point(color="black") +
-                ggplot2::labs(x=paste("age (",age_unit,")",sep=""),
-                y=paste("Schoenfeld Residual Scaled (",names[cov], tform[cov],")",sep=" "))
-            ggplot2::ggsave(paste(plot_name,"_schoenfeld_scaled_",cov_res,".jpeg",sep=""),
-                            device="jpeg",dpi="retina")
+            if (system.file(package='ggplot2')!=""){
+                g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y)) +
+                    ggplot2::geom_point(color="black") +
+                    ggplot2::labs(x=paste("age (",age_unit,")",sep=""),
+                    y=paste("Schoenfeld Residual (",names[cov], tform[cov],")",sep=" "))
+                ggplot2::ggsave(paste(plot_name,"_schoenfeld_",cov_res,".jpeg",sep=""),
+                                device="jpeg",dpi="retina")
+                #
+                g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) +
+                    ggplot2::geom_point(color="black") +
+                    ggplot2::labs(x=paste("age (",age_unit,")",sep=""),
+                    y=paste("Schoenfeld Residual Scaled (",names[cov], tform[cov],")",sep=" "))
+                ggplot2::ggsave(paste(plot_name,"_schoenfeld_scaled_",cov_res,".jpeg",sep=""),
+                                device="jpeg",dpi="retina")
+            }
             #
         }
     }
-    return ("Passed")
+    return (table_out)
 }
           
         

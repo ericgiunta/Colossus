@@ -6,15 +6,15 @@
 \usage{
 RunPoissonRegression_Single(
   df,
-  pyr0,
-  event0,
-  names,
-  term_n,
-  tform,
-  a_n,
-  modelform,
-  fir,
-  control,
+  pyr0 = "pyr",
+  event0 = "event",
+  names = c("CONST"),
+  term_n = c(0),
+  tform = "loglin",
+  a_n = c(0),
+  modelform = "M",
+  fir = 0,
+  control = list(),
   keep_constant = rep(0, length(names))
 )
 }

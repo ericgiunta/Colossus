@@ -362,7 +362,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 #'                      keep_constant, a_n, modelform, fir, der_iden, control)
 #' @importFrom rlang .data
 
-RunCoxRegression <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control){
+RunCoxRegression <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list()){
     #
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
@@ -414,7 +414,7 @@ RunCoxRegression <- function(df, time1, time2, event0, names, term_n, tform, kee
 #'
 #' @importFrom rlang .data
 
-RunCoxRegression_Single <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, control){
+RunCoxRegression_Single <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, control=list()){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
@@ -465,7 +465,7 @@ RunCoxRegression_Single <- function(df, time1, time2, event0, names, term_n, tfo
 #'
 #' @importFrom rlang .data
 
-RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constant, a_n, der_iden, control){
+RunCoxRegression_Basic <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), keep_constant=c(0), a_n=c(0), der_iden=0, control=list()){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
@@ -524,7 +524,7 @@ RunCoxRegression_Basic <- function(df, time1, time2, event0, names, keep_constan
 #'                              tform, keep_constant, a_n, modelform,
 #'                              fir, der_iden, control,strat_col)
 #'
-RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col){
+RunCoxRegression_STRATA <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(), strat_col="null"){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
@@ -578,7 +578,7 @@ RunCoxRegression_STRATA <- function(df, time1, time2, event0,  names, term_n, tf
 #' e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform,
 #'      keep_constant, a_n, modelform, fir, control)
 #'
-Cox_Relative_Risk <- function(df, time1, time2, event0,  names, term_n, tform, keep_constant, a_n, modelform, fir, control, model_control=list()){
+Cox_Relative_Risk <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, control=list(), model_control=list()){
     df <- data.table(df)
     control <- Def_Control(control)
     model_control <- Def_model_control(model_control)
@@ -645,7 +645,7 @@ Cox_Relative_Risk <- function(df, time1, time2, event0,  names, term_n, tform, k
 #' 
 #' e <- RunCoxNull(df, time1, time2, event, control)
 #'
-RunCoxNull <- function(df, time1, time2, event0,control){
+RunCoxNull <- function(df, time1="start", time2="end", event0="event",control=list()){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
@@ -705,14 +705,15 @@ RunCoxNull <- function(df, time1, time2, event0,control){
 #' RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant,
 #'             a_n, modelform, fir, control, plot_options)
 #'
-RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control=list()){
-    if (system.file(package='ggplot2')==""){
-        message("Error: ggplot2 is not detected, required to run plotting functions")
-        return ("Passed")
-    }
+RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, control=list(), plot_options=list(), model_control=list()){
+#    if (system.file(package='ggplot2')==""){
+#        message("Error: ggplot2 is not detected, required to run plotting functions")
+#        return ("Passed")
+#    }
     names(plot_options) <- tolower(names(plot_options))
     df <- data.table(df)
     control <- Def_Control(control)
+    plot_options$verbose <- Check_Verbose(plot_options$verbose)
     if (min(keep_constant)>0){
         message("Error: Atleast one parameter must be free")
         stop()
@@ -883,6 +884,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
     b <- e$beta_0
     er <- e$Standard_Deviation
     #
+    plot_table <- list()
     #
     if (tolower(plot_type[1])=="surv"){
         if (verbose>=3){
@@ -924,13 +926,13 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 		    age_unit <- plot_options$age_unit
 		    if (plot_options$martingale==TRUE){
 		        #
-		        CoxMartingale(verbose, df, time1, time2, event0, e, t, ch,
+		        plot_table <- CoxMartingale(verbose, df, time1, time2, event0, e, t, ch,
 		                      plot_options$cov_cols,
 		                      plot_type[2], age_unit,plot_options$studyid)
 		        #
 		    }
 		    if (plot_options$surv_curv==TRUE){
-		        CoxSurvival(t,h,ch,surv,plot_type[2],verbose,
+		        plot_table <- CoxSurvival(t,h,ch,surv,plot_type[2],verbose,
 		                    plot_options$time_lims, age_unit)
             }
         } else {
@@ -940,7 +942,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 		    }
             if (plot_options$surv_curv==TRUE){
                 model_control$strata <- TRUE
-                CoxStratifiedSurvival(verbose, df, event0, time1, time2,
+                plot_table <- CoxStratifiedSurvival(verbose, df, event0, time1, time2,
                      all_names,term_n, tform, a_n, er, fir, der_iden,
                      modelform, control, keep_constant, plot_type,
                      plot_options$strat_col, plot_options$time_lims,age_unit)
@@ -948,22 +950,22 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
         }
         if (plot_options$km==TRUE){
             #
-            CoxKaplanMeier(verbose, plot_options$studyid,
+            plot_table <- CoxKaplanMeier(verbose, plot_options$studyid,
                            all_names,df,event0,time1, time2,tu,term_n,
                            tform, a_n, er, fir, der_iden, modelform,
                            control,keep_constant, plot_type,age_unit)
         }
     } else if (tolower(plot_type[1])=="risk"){
-        CoxRisk(verbose, df, event0, time1, time2, names,term_n, tform,
+        plot_table <- CoxRisk(verbose, df, event0, time1, time2, names,term_n, tform,
                 a_n, fir, der_iden, modelform, control,keep_constant,
                 plot_type, b, er)
     } else if (tolower(plot_type[1])=="schoenfeld"){
         age_unit <- plot_options$age_unit
-        PlotCox_Schoenfeld_Residual(df, time1, time2, event0, names, term_n,
+        plot_table <- PlotCox_Schoenfeld_Residual(df, time1, time2, event0, names, term_n,
                                     tform, keep_constant, a_n, modelform, fir,
                                     der_iden, control,age_unit,plot_type[2])
     }
-    return ("Passed")
+    return (plot_table)
 }
 
 #' Performs basic cox regression, with multiple guesses, starts with
@@ -1021,7 +1023,7 @@ RunCoxPlots <- function(df, time1, time2, event0, names, term_n, tform, keep_con
 #'                                    strat_col)
 #'
 #' @importFrom rlang .data
-RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight="null"){
+RunCoxRegression_Tier_Guesses <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(), guesses_control=list(),strat_col="null",model_control=list(),cens_weight="null"){
     df <- data.table(df)
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
@@ -1070,7 +1072,8 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
                                       term_n_initial, tform_initial,
                                       constant_initial, a_n_initial,
                                       modelform, fir, der_iden, control,
-                                      guesses_control,strat_col,cens_weight=cens_weight)
+                                      guesses_control,strat_col,cens_weight=cens_weight,
+                                      model_control=model_control)
     #
     if (guesses_control$verbose>=3){
         message("Note: INITIAL TERM COMPLETE")
@@ -1093,7 +1096,8 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
     guesses_control$guesses <- guess_second
     e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event0, names,
          term_n, tform,keep_constant, a_n, modelform, fir, der_iden, control,
-         guesses_control,strat_col,cens_weight=cens_weight)
+         guesses_control,strat_col,cens_weight=cens_weight,
+         model_control=model_control)
     #
     return(e)
 }
@@ -1146,7 +1150,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1, time2, event0, names, term_
 #'      keep_constant, a_n, modelform, fir, der_iden, control, 'cens_weight')
 #'
 #' @importFrom rlang .data
-RunCoxRegression_CR <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,cens_weight){
+RunCoxRegression_CR <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(), cens_weight="null"){
     control <- Def_Control(control)
     control$maxiters <- c(1, control$maxiter)
     control$guesses <- 1
@@ -1204,7 +1208,7 @@ RunCoxRegression_CR <- function(df, time1, time2, event0, names, term_n, tform, 
 #'                               tform, keep_constant, a_n, modelform, fir,
 #'                               der_iden, control,guesses_control,strat_col)
 #' @importFrom rlang .data
-RunCoxRegression_Guesses_CPP <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control,strat_col,model_control=list(),cens_weight="null"){
+RunCoxRegression_Guesses_CPP <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, der_iden=0, control=list(), guesses_control=list(),strat_col="null",model_control=list(),cens_weight="null"){
     df <- data.table(df)
     if (typeof(a_n)!="list"){
         a_n <- list(a_n)

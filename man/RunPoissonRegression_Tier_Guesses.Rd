@@ -6,19 +6,20 @@
 \usage{
 RunPoissonRegression_Tier_Guesses(
   df,
-  pyr0,
-  event0,
-  names,
-  term_n,
-  tform,
-  keep_constant,
-  a_n,
-  modelform,
-  fir,
-  der_iden,
-  control,
-  guesses_control,
-  strat_col
+  pyr0 = "pyr",
+  event0 = "event",
+  names = c("CONST"),
+  term_n = c(0),
+  tform = "loglin",
+  keep_constant = c(0),
+  a_n = c(0),
+  modelform = "M",
+  fir = 0,
+  der_iden = 0,
+  control = list(),
+  guesses_control = list(),
+  strat_col = "null",
+  model_control = list()
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ RunPoissonRegression_Tier_Guesses(
 \item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Control_Options")}
 
 \item{strat_col}{column to stratify by if needed}
+
+\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 }
 \value{
 returns a list of the final results

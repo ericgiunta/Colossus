@@ -6,14 +6,14 @@
 \usage{
 RunCoxRegression_Basic(
   df,
-  time1,
-  time2,
-  event0,
-  names,
-  keep_constant,
-  a_n,
-  der_iden,
-  control
+  time1 = "start",
+  time2 = "end",
+  event0 = "event",
+  names = c("CONST"),
+  keep_constant = c(0),
+  a_n = c(0),
+  der_iden = 0,
+  control = list()
 )
 }
 \arguments{

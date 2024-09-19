@@ -4,7 +4,13 @@
 \alias{RunCoxNull}
 \title{Performs basic Cox Proportional Hazards regression with the null model}
 \usage{
-RunCoxNull(df, time1, time2, event0, control)
+RunCoxNull(
+  df,
+  time1 = "start",
+  time2 = "end",
+  event0 = "event",
+  control = list()
+)
 }
 \arguments{
 \item{df}{a data.table containing the columns of interest}
