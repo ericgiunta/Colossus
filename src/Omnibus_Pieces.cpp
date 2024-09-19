@@ -130,11 +130,11 @@ void Cox_Refresh_R_SIDES( const int& reqrdnum, const int& ntime, MatrixXd& Rls1,
 //'
 // [[Rcpp::export]]
 void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0,const  MatrixXd& df0,const double& dint, const double& dslp,  MatrixXd& TTerm,  MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, int verbose, bool basic_bool, bool single_bool, int start, const double gmix_theta, const IntegerVector& gmix_term){
-    time_point<system_clock> comp_point, end_point;
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    comp_point = system_clock::now();
-    auto comp = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    // time_point<system_clock> comp_point, end_point;
+    // end_point = system_clock::now();
+    // auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    // comp_point = system_clock::now();
+    // auto comp = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
     int reqrdnum = totalnum - sum(KeepConstant);
     if (basic_bool){
 		// Calculates the subterm and term values
@@ -258,11 +258,11 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		// Calculates the subterm and term values
 		//
-		comp_point = system_clock::now();
-        comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+		// comp_point = system_clock::now();
+        // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
 		Make_subterms( totalnum, term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,dint,dslp,nthreads, debugging,KeepConstant);
-		end_point = system_clock::now();
-        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		// end_point = system_clock::now();
+        // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //        Rcout << "C++ Note: subterm " << (ending-comp) * 1e-6  <<endl;
 		// ---------------------------------------------------------
 		// Prints off a series of calculations to check at what point values are changing
@@ -326,11 +326,11 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		//
 		//
 		// Calculates the risk for each row
-		comp_point = system_clock::now();
-        comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+		// comp_point = system_clock::now();
+        // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
         Make_Risks(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
-        end_point = system_clock::now();
-        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        // end_point = system_clock::now();
+        // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //        Rcout << "C++ Note: risk " << (ending-comp) * 1e-6  <<endl;
 		//
 		// Removes infinite values
@@ -382,14 +382,14 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd,  MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& STRATA_vals, VectorXd beta_0 , MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant,string ties_method, int verbose,bool strata_bool, bool CR_bool, bool basic_bool, bool single_bool, int start, int iter_stop){
     // Calculates the side sum terms used
     //
-    time_point<system_clock> comp_point, end_point;
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    comp_point = system_clock::now();
-    auto comp = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    //
-    comp_point = system_clock::now();
-    comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+    // time_point<system_clock> comp_point, end_point;
+    // end_point = system_clock::now();
+    // auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    // comp_point = system_clock::now();
+    // auto comp = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
+    // //
+    // comp_point = system_clock::now();
+    // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
     if (strata_bool){
         if (CR_bool){
             ;//strata_CR or strata_CR_single
@@ -414,8 +414,8 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     } else {
         Calculate_Sides( RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3,nthreads, debugging,KeepConstant);
     }
-    end_point = system_clock::now();
-    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "C++ Note: sides " << (ending-comp) * 1e-6  <<endl;
     //
     if (strata_bool){
@@ -491,8 +491,8 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    comp_point = system_clock::now();
-    comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+    // comp_point = system_clock::now();
+    // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
     if (strata_bool){
         if (basic_bool){
             if (single_bool){
@@ -520,8 +520,8 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
             }
         }
     }
-    end_point = system_clock::now();
-    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+    // end_point = system_clock::now();
+    // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "C++ Note: log-lik " << (ending-comp) * 1e-6  <<endl;
     //
     if (single_bool){

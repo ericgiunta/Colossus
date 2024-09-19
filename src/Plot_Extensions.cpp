@@ -323,7 +323,7 @@ List Plot_Omnibus( IntegerVector term_n, StringVector tform, NumericVector a_n,N
     //
     // ------------------------------------------------------------------------- // initialize
     MatrixXd df0;
-    int ijk_risk;
+    int ijk_risk=0;
     vector<float> vv; //stores the covariate values
     if (Risk_bool){
         const Map<MatrixXd> df1(as<Map<MatrixXd> >(x_all));

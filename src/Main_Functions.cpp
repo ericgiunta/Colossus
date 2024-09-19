@@ -216,13 +216,13 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
     if (verbose>=4){
         Rcout << "C++ Note: START_COX_GUESS" << endl;
     }
-    time_point<system_clock> start_point, end_point, comp_point;
+    time_point<system_clock> start_point, end_point;//, comp_point;
     start_point = system_clock::now();
     auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     end_point = system_clock::now();
     auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count(); //The time duration is tracked
-    comp_point = system_clock::now();
-    auto comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+    // comp_point = system_clock::now();
+    // auto comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
     //
     auto gibtime = system_clock::to_time_t(system_clock::now());
     if (verbose>=4){
@@ -305,11 +305,11 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
 		// To Start, needs to seperate the derivative terms
 		// ---------------------------------------------
 		//
-		comp_point = system_clock::now();
-        comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+		// comp_point = system_clock::now();
+        // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
 		Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-		end_point = system_clock::now();
-        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+		// end_point = system_clock::now();
+        // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //        Rcout << "C++ Note: refresh term " << (ending-comp) * 1e-6  <<endl;
     } else {
         R = MatrixXd::Constant(df0.rows(),1,1.0);
@@ -320,8 +320,8 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
     IntegerMatrix RiskFail;
     const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     // FOR BENCHMARKING PURPOSES
-    comp_point = system_clock::now();
-    comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+    // comp_point = system_clock::now();
+    // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
     //
     // ------------------------------------------------------------------------- // initialize
     if (strata_bool){
@@ -427,11 +427,11 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
 		// returns a list of results
 		return res_list;
 	}
-	comp_point = system_clock::now();
-    comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+	// comp_point = system_clock::now();
+    // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
 	Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
-	end_point = system_clock::now();
-    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+	// end_point = system_clock::now();
+    // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "C++ Note: refresh sides " << (ending-comp) * 1e-6  <<endl;
     //The log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2,Ll[0]); //vector to compare values
@@ -477,17 +477,17 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
     ///
     //
     for (int guess=0; guess <guesses; guess++){
-        comp_point = system_clock::now();
-        comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+        // comp_point = system_clock::now();
+        // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
 //        Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
-        end_point = system_clock::now();
-        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        // end_point = system_clock::now();
+        // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //        Rcout << "C++ Note: refresh term " << (ending-comp) * 1e-6  <<endl;
-        comp_point = system_clock::now();
-        comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+        // comp_point = system_clock::now();
+        // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
-        end_point = system_clock::now();
-        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+        // end_point = system_clock::now();
+        // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //        Rcout << "C++ Note: refresh sides " << (ending-comp) * 1e-6  <<endl;
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!single_bool){
@@ -550,8 +550,8 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
             beta_best = beta_c;//
             //
             // calculates the initial change in parameter
-            comp_point = system_clock::now();
-            comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
+            // comp_point = system_clock::now();
+            // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
             if (basic_bool){
                 Calc_Change_Basic( double_step, nthreads, totalnum, der_iden, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
             } else {
@@ -562,8 +562,8 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
                 }
                 Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
             }
-            end_point = system_clock::now();
-            ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+            // end_point = system_clock::now();
+            // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //            Rcout << "C++ Note: step " << (ending-comp) * 1e-6  <<endl;
             if (verbose>=4){
                 Rcout << "C++ Note: Starting Halves" <<endl;//prints the final changes for validation
