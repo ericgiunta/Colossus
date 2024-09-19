@@ -66,7 +66,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
         }
         #
         ##
-        dft <- data.table::data.table("cov_max"=times$cov,"time_max"=times$time,"res_sum"=Martingale_Error$res)
+        dft <- data.table::data.table("cov_max"=times$cov,"time_max"=times$time,"res_sum"=Martingale_Error$res, "event"=Martingale_Error$e)
         table_out[[dname]] <- dft
         ##
         if (system.file(package='ggplot2')!=""){
@@ -107,10 +107,9 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
         #
         dfr$res <- dfr$e - (dfr$ch_e) * dfr$Risks
         #
-        Martingale_Error <- dfr
-        times <- dfr
     }
-    dft <- data.table::data.table("time_max"=times$time,"res_sum"=Martingale_Error$res)
+    dft <- data.table::data.table("time_max"=dfr$time,"res_sum"=dfr$res, "event"=dfr$e)
+#    print(dft)
     table_out[['survival_time']] <- dft
     #
     if (system.file(package='ggplot2')!=""){
