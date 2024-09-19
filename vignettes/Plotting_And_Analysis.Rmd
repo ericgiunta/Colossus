@@ -144,24 +144,24 @@ res_age <- res_all[['age']]
 
 g <- ggplot2::ggplot(res_age,ggplot2::aes(x=.data$time, y=.data$y)) +
     ggplot2::geom_point(color="black") +
-    ggplot2::labs(x=paste("age",sep=""),
+    ggplot2::labs(x=paste("Survival Time",sep=""),
     y=paste("Schoenfeld Residual (age)",sep=" "))
 g
 g <- ggplot2::ggplot(res_age,ggplot2::aes(x=.data$time, y=.data$y_scale)) +
     ggplot2::geom_point(color="black") +
-    ggplot2::labs(x=paste("age",sep=""),
+    ggplot2::labs(x=paste("Survival Time",sep=""),
     y=paste("Schoenfeld Residual Scaled (age)",sep=" "))
 g
 res_sex <- res_all[['sex']]
 
 g <- ggplot2::ggplot(res_sex,ggplot2::aes(x=.data$time, y=.data$y)) +
     ggplot2::geom_point(color="black") +
-    ggplot2::labs(x=paste("sex",sep=""),
+    ggplot2::labs(x=paste("Survival Time",sep=""),
     y=paste("Schoenfeld Residual (sex)",sep=" "))
 g
 g <- ggplot2::ggplot(res_sex,ggplot2::aes(x=.data$time, y=.data$y_scale)) +
     ggplot2::geom_point(color="black") +
-    ggplot2::labs(x=paste("sex",sep=""),
+    ggplot2::labs(x=paste("Survival Time",sep=""),
     y=paste("Schoenfeld Residual Scaled (sex)",sep=" "))
 g
 ```
