@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +98,7 @@ visualize the different plotting methods available in Colossus.</p>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>,<span class="st">"sex"</span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span><span class="op">=</span><span class="fl">2</span>, <span class="st">'maxiter'</span><span class="op">=</span><span class="fl">2</span>, <span class="st">'verbose'</span><span class="op">=</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span><span class="op">=</span><span class="fl">2</span>, <span class="st">'maxiter'</span><span class="op">=</span><span class="fl">2</span>, <span class="st">'verbose'</span><span class="op">=</span><span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01701289</span>, <span class="op">-</span><span class="fl">0.51256478</span><span class="op">)</span></span>
 <span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span></span>
@@ -149,25 +149,10 @@ time.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"type"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"run"</span>,sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span><span class="op">=</span><span class="st">"UserID"</span>, </span>
-<span>                     <span class="st">'verbose'</span><span class="op">=</span><span class="fl">3</span>, <span class="st">"surv_curv"</span><span class="op">=</span><span class="cn">T</span>, <span class="st">'martingale'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'strat_haz'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'km'</span><span class="op">=</span><span class="cn">F</span><span class="op">)</span></span>
+<span>                     <span class="st">'verbose'</span><span class="op">=</span><span class="fl">0</span>, <span class="st">"surv_curv"</span><span class="op">=</span><span class="cn">T</span>, <span class="st">'martingale'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'strat_haz'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'km'</span><span class="op">=</span><span class="cn">F</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
 <span>                 <span class="va">fir</span>, <span class="va">control</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Note: Starting Plot Function</span></span>
-<span><span class="co">#&gt; Note: Getting Plot Info</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; C++ Note: Guess Results</span></span>
-<span><span class="co">#&gt; Guess number, parameter values, Log-Likelihood</span></span>
-<span><span class="co">#&gt; 0, 0.01701289 -0.5125648, -743.0797&lt;-- Best Guess</span></span>
-<span><span class="co">#&gt; Note: starting ph_plot</span></span>
-<span><span class="co">#&gt; Note: nonStratified survival curve calculation</span></span>
-<span><span class="co">#&gt; Note: writing survival data</span></span>
-<span><span class="co">#&gt; Note: Plotting Survival Curves</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
 <span></span>
 <span><span class="va">norm_surv</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">'standard'</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -190,22 +175,10 @@ time.</p>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-3.png" width="700"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"type"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"run"</span>,sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span><span class="op">=</span><span class="st">"UserID"</span>,</span>
-<span>                     <span class="st">'verbose'</span><span class="op">=</span><span class="fl">3</span>, <span class="st">"surv_curv"</span><span class="op">=</span><span class="cn">F</span>, <span class="st">'martingale'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'strat_haz'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'km'</span><span class="op">=</span><span class="cn">T</span><span class="op">)</span></span>
+<span>                     <span class="st">'verbose'</span><span class="op">=</span><span class="fl">0</span>, <span class="st">"surv_curv"</span><span class="op">=</span><span class="cn">F</span>, <span class="st">'martingale'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'strat_haz'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'km'</span><span class="op">=</span><span class="cn">T</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
 <span>                 <span class="va">fir</span>, <span class="va">control</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Note: Starting Plot Function</span></span>
-<span><span class="co">#&gt; Note: Getting Plot Info</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; C++ Note: Guess Results</span></span>
-<span><span class="co">#&gt; Guess number, parameter values, Log-Likelihood</span></span>
-<span><span class="co">#&gt; 0, 0.01701289 -0.5125648, -743.0797&lt;-- Best Guess</span></span>
-<span><span class="co">#&gt; Note: starting ph_plot</span></span>
-<span><span class="co">#&gt; Note: nonStratified survival curve calculation</span></span>
-<span><span class="co">#&gt; Note: writing survival data</span></span>
-<span><span class="co">#&gt; Note: Plotting Kaplan-Meier Curve</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
 <span><span class="va">km</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">'kaplin-meier'</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">km</span>,<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">.data</span><span class="op">$</span><span class="va">t_t</span>, y<span class="op">=</span><span class="va">.data</span><span class="op">$</span><span class="va">n_t</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>     <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color<span class="op">=</span><span class="st">"black"</span>,alpha<span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -241,22 +214,10 @@ standard-deviation.</p>
 </annotation></semantics></math></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"type"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"schoenfeld"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"run"</span>,sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                     <span class="st">"studyid"</span><span class="op">=</span><span class="st">"UserID"</span>, <span class="st">'verbose'</span><span class="op">=</span><span class="fl">3</span><span class="op">)</span></span>
+<span>                     <span class="st">"studyid"</span><span class="op">=</span><span class="st">"UserID"</span>, <span class="st">'verbose'</span><span class="op">=</span><span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
 <span>                       <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">control</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Note: Starting Plot Function</span></span>
-<span><span class="co">#&gt; Note: Getting Plot Info</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; C++ Note: Guess Results</span></span>
-<span><span class="co">#&gt; Guess number, parameter values, Log-Likelihood</span></span>
-<span><span class="co">#&gt; 0, 0.01701289 -0.5125648, -743.0797&lt;-- Best Guess</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">'age'</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -309,27 +270,10 @@ or under-predicting dependent on time.</p>
 </annotation></semantics></math></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"type"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"run"</span>,sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                     <span class="st">"studyid"</span><span class="op">=</span><span class="st">"UserID"</span>, <span class="st">'verbose'</span><span class="op">=</span><span class="fl">3</span>, <span class="st">"surv_curv"</span><span class="op">=</span><span class="cn">F</span>,</span>
+<span>                     <span class="st">"studyid"</span><span class="op">=</span><span class="st">"UserID"</span>, <span class="st">'verbose'</span><span class="op">=</span><span class="fl">0</span>, <span class="st">"surv_curv"</span><span class="op">=</span><span class="cn">F</span>,</span>
 <span>                     <span class="st">'martingale'</span><span class="op">=</span><span class="cn">T</span>,<span class="st">'strat_haz'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'km'</span><span class="op">=</span><span class="cn">F</span>,<span class="st">'cov_cols'</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>,<span class="st">'sex'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
 <span>                       <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">control</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Note: Starting Plot Function</span></span>
-<span><span class="co">#&gt; Note: Getting Plot Info</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; C++ Note: Guess Results</span></span>
-<span><span class="co">#&gt; Guess number, parameter values, Log-Likelihood</span></span>
-<span><span class="co">#&gt; 0, 0.01701289 -0.5125648, -743.0797&lt;-- Best Guess</span></span>
-<span><span class="co">#&gt; Note: starting ph_plot</span></span>
-<span><span class="co">#&gt; Note: nonStratified survival curve calculation</span></span>
-<span><span class="co">#&gt; Note: writing survival data</span></span>
-<span><span class="co">#&gt; Note: Plotting Martingale Residuals</span></span>
-<span><span class="co">#&gt; Note: Martingale Plot: age</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Note: Martingale Plot: sex</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">'age'</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -363,18 +307,9 @@ constant. Any parameter with more than 10 values is assumed to be
 constant.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"type"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"risk"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"run"</span>,sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span><span class="op">=</span><span class="st">"UserID"</span>,</span>
-<span>                     <span class="st">'verbose'</span><span class="op">=</span><span class="fl">3</span><span class="op">)</span></span>
+<span>                     <span class="st">'verbose'</span><span class="op">=</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
 <span>                       <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">control</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Note: Starting Plot Function</span></span>
-<span><span class="co">#&gt; Note: Getting Plot Info</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; Note: 139 risk groups</span></span>
-<span><span class="co">#&gt; C++ Note: Guess Results</span></span>
-<span><span class="co">#&gt; Guess number, parameter values, Log-Likelihood</span></span>
-<span><span class="co">#&gt; 0, 0.01701289 -0.5125648, -743.0797&lt;-- Best Guess</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
-<span><span class="co">#&gt; Saving 7.29 x 4.51 in image</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">'age'</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
