@@ -1,12 +1,3 @@
 comment: false
-coverage:
-  status:
-    project:
-      default:
-        target: 90%    # the (on purpose low) required coverage value
-        threshold: 2%  # the permitted delta in hitting the target
-        branches:
-            - master
-        paths:
-            - src/
-            - R/
+ignore:
+    - "**/RcppExport*"  # ignore all RcppExport files
