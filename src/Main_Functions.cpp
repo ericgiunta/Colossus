@@ -529,7 +529,7 @@ List LogLik_Cox_PH_Omnibus( IntegerVector term_n, StringVector tform, NumericMat
 			    Rcout << " " << endl;
 		    }
 			//
-			temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED",_["LogLik"]=R_NaN);
+			temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED_WITH_NEGATIVE_RISK",_["LogLik"]=R_NaN);
 			return temp_list;
 		}
         //
@@ -1129,7 +1129,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
 			    }
 			    Rcout << " " << endl;
 		    }
-			temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED",_["LogLik"]=R_NaN);
+			temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED_WITH_NEGATIVE_RISK",_["LogLik"]=R_NaN);
 			return temp_list;
 		}
         //
@@ -1629,14 +1629,14 @@ List LogLik_Cox_PH_Omnibus_Log_Bound( IntegerVector term_n, StringVector tform, 
         if (verbose>=1){
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_BAD_MODEL_NULL",_["LogLik"]=R_NaN);
         return temp_list;
     }
     if (single_bool){
         if (verbose>=1){
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_WITH_BAD_MODEL_SINGLE",_["LogLik"]=R_NaN);
         return temp_list;
     }
 	totalnum = term_n.size();
@@ -2202,14 +2202,14 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search( IntegerVector term_n, StringVector 
         if (verbose>=1){
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_WITH_BAD_MODEL_NULL",_["LogLik"]=R_NaN);
         return temp_list;
     }
     if (single_bool){
         if (verbose>=1){
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_WITH_BAD_MODEL_SINGLE",_["LogLik"]=R_NaN);
         return temp_list;
     }
 	totalnum = term_n.size();
@@ -3353,7 +3353,7 @@ List LogLik_Poisson_Omnibus_Log_Bound( const MatrixXd& PyrC, const MatrixXd& dfs
         if (verbose>=1){
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_WITH_BAD_MODEL_SINGLE",_["LogLik"]=R_NaN);
         return temp_list;
     }
 	totalnum = term_n.size();
@@ -3894,7 +3894,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         if (verbose>=1){
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_WITH_BAD_MODEL_SINGLE",_["LogLik"]=R_NaN);
         return temp_list;
     }
 	totalnum = term_n.size();
@@ -4998,14 +4998,14 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
         if (verbose>=1){
             Rcout << "null model is not compatable with multi-realization method" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_WITH_BAD_MODEL_NULL",_["LogLik"]=R_NaN);
         return temp_list;
     }
     if (single_bool){
         if (verbose>=1){
             Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
         }
-        temp_list = List::create(_["Status"]="FAILED",_["LogLik"]=R_NaN);
+        temp_list = List::create(_["Status"]="FAILED_WITH_BAD_MODEL_SINGLE",_["LogLik"]=R_NaN);
         return temp_list;
     }
     totalnum = term_n.size();
@@ -5218,7 +5218,7 @@ List LogLik_Cox_PH_Multidose_Omnibus( IntegerVector term_n, StringVector tform, 
 			    Rcout << " " << endl;
 		    }
 			//
-			temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED",_["LogLik"]=R_NaN);
+			temp_list = List::create(_["beta_0"]=wrap(beta_0) ,_["Deviation"]=R_NaN,_["Status"]="FAILED_WITH_NEGATIVE_RISK",_["LogLik"]=R_NaN);
 			return temp_list;
 		}
         //

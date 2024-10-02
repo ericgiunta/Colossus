@@ -121,7 +121,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
     #
     while (length(maxiters) - length(a_n) < guesses_control$guesses-1){
         if (guesses_control$verbose >= 3){
-            message(paste("Note: ",length(maxiters)," valid guesses",sep=""))
+            message(paste("Note: ",length(maxiters)," valid guesses",sep=""))# nocov
         }
         if (length(rmin)!=length(rmax)){
             for (i in seq_along(tform)){
@@ -291,8 +291,6 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
                      "lin_exp_int", "lin_exp_exp_slope")
     tform_iden <- match(tform,tform_order)
     if (any(is.na(tform_iden))){
-#        message("Error: Missing tform items:")
-#        message(paste("missing ", tform[is.na(tform_iden)]," ",sep=""))
         stop(paste("Missing tform option ", tform[is.na(tform_iden)],", ",sep=""))
     }
     if (((typeof(a_n)=="list")&&(length(a_n)==1))||(typeof(a_n)!="list")){
@@ -471,9 +469,6 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names,der_i
 Replace_Missing <- function(df,name_list,msv,verbose=FALSE){
     verbose <- Check_Verbose(verbose)
     if (is.na(msv)){
-#        if (verbose >= 1){
-#            message("Error: The missing-value replacement is also NA")
-#        }
         stop("Error: The missing-value replacement is also NA")
     }
     for (j in name_list){
@@ -481,16 +476,13 @@ Replace_Missing <- function(df,name_list,msv,verbose=FALSE){
         if (j %in% names(df)){
             #fine
         } else {
-#            if (verbose >= 1){
-#                message("Error: ",paste(j," missing from column names",sep=""))
-#            }
             stop(paste("Error: ",j," missing from column names",sep=""))
         }
         #
         if (sum(is.na(df[[j]]))){
             data.table::set(df,which(is.na(df[[j]])),j,msv)
             if (verbose >= 3){
-                message(paste("Note: Column ",j," had replaced values",sep=""))
+                message(paste("Note: Column ",j," had replaced values",sep=""))# nocov
             }
         }
     }
@@ -525,10 +517,6 @@ Def_Control <- function(control){
         if (nm %in% names(control)){
             if (nm=="ncores"){
                 if (control$ncores>control_def$ncores){
-#                    if (control$verbose >= 1){
-#                        message(paste("Error: Cores Requested:",control["ncores"],
-#                              ", Cores Available:",control_def["ncores"],sep=" "))
-#                    }
                     stop(paste("Error: Cores Requested:",control["ncores"],
                               ", Cores Available:",control_def["ncores"],sep=" "))
                 }
@@ -577,18 +565,11 @@ Def_modelform_fix <- function(control,model_control,modelform,term_n){
             modelform <- "GMIX"
         }
     } else {
-#        if (control$verbose >= 1){
-#            message(paste("Error: Model formula ",modelform," not in acceptable list",sep=""))
-#        }
         stop(paste("Error: Model formula ",modelform," not in acceptable list",sep=""))
     }
     if (modelform == "GMIX"){
         gmix_term <- model_control$gmix_term
         if (length(gmix_term) != term_tot){
-#            if (control$verbose >= 1){
-#                message(paste("Error: Terms used:",term_tot,", Terms with gmix types available:",
-#                              length(gmix_term),sep=" "))
-#            }
             stop(paste("Error: Terms used:",term_tot,", Terms with gmix types available:",
                               length(gmix_term),sep=" "))
         }
@@ -808,25 +789,16 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=0){
             a0 <- plist[1]
             y <- plist[2]
             if (a0 < 0 ){
-#                if (verbose>=1){
-#                    message("Error: a0 arguement was negative")
-#                }
                 stop("Error: a0 arguement was negative")
             }
             if (is.numeric(a0)){
                 #fine
             } else {
-#                if (verbose>=1){
-#                    message("Error: a0 arguement was not a number")
-#                }
                 stop("Error: a0 arguement was not a number")
             }
             if (is.numeric(y)){
                 #fine
             } else {
-#                if (verbose>=1){
-#                    message("Error: threshold arguement was not a number")
-#                }
                 stop("Error: threshold arguement was not a number")
             }
             a1 <- a0/2/y
@@ -838,33 +810,21 @@ Linked_Dose_Formula <- function(tforms,paras,verbose=0){
             y <- plist[2]
             b1 <-plist[3]
             if (a0 < 0 ){
-#                if (verbose>=1){
-#                    message("Error: a0 arguement was negative")
-#                }
                 stop("Error: a0 arguement was negative")
             }
             if (is.numeric(a0)){
                 #fine
             } else {
-#                if (verbose>=1){
-#                    message("Error: a0 arguement was not a number")
-#                }
                 stop("Error: a0 arguement was not a number")
             }
             if (is.numeric(y)){
                 #fine
             } else {
-#                if (verbose>=1){
-#                    message("Error: threshold arguement was not a number")
-#                }
                 stop("Error: threshold arguement was not a number")
             }
             if (is.numeric(b1)){
                 #fine
             } else {
-#                if (verbose>=1){
-#                    message("Error: exponential arguement was not a number")
-#                }
                 stop("Error: exponential arguement was not a number")
             }
             c1 <- log(a0)-log(b1)+b1*y
@@ -895,17 +855,11 @@ Linked_Lin_Exp_Para <- function(y,a0,a1_goal,verbose=0){
     b1 <- 10
     lr <- 1.0
     if (a0 < 0 ){
-#        if (verbose>=1){
-#            message("Error: a0 arguement was negative")
-#        }
         stop("Error: a0 arguement was negative")
     }
     if (a1_goal > y*a0){
         #fine
     } else {
-#        if (verbose>=1){
-#            message("Error: goal is too low")
-#        }
         stop("Error: goal is too low")
     }
     iter_i <- 0
@@ -967,7 +921,7 @@ factorize <-function(df,col_list,verbose=0){
     #
     cols <- Check_Dupe_Columns(df,cols,rep(0,length(cols)),verbose,TRUE)
     if (verbose>=3){
-        message(paste("Note: Number of factors:",length(cols),sep=""))
+        message(paste("Note: Number of factors:",length(cols),sep=""))# nocov
     }
     list('df'=df, 'cols'=cols)
 }
@@ -1052,10 +1006,6 @@ interact_them <- function(df,interactions,new_names,verbose=0){
         interac <- interactions[i]
         formula <- unlist(strsplit(interac,"[?]"),use.names=FALSE)
         if (length(formula)!=3){
-#            if (verbose>=1){
-#                message(paste("Error: Iteration:",interac,"has incorrect length of",
-#                      length(formula),"but should be 3."))
-#            }
             stop(paste("Error: Iteration:",interac,"has incorrect length of",
                       length(formula),"but should be 3."))
         }
@@ -1081,9 +1031,6 @@ interact_them <- function(df,interactions,new_names,verbose=0){
                 df[, newcol] <- df[,col1, with = FALSE] * df[,col2, with = FALSE]
                 cols <- c(cols, newcol)
             } else {
-#                if (verbose>=1){
-#                    message(paste("Error: Incorrect operation of",formula[2]))
-#                }
                 stop(paste("Error: Incorrect operation of",formula[2]))
             }
         }
@@ -1149,15 +1096,9 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=0, factor_check=FALSE){
             f1 <- pair[1]
             f2 <- pair[2]
             if (!(f1 %in% names(df))){
-#                if (verbose>=1){
-#                    message(paste("Error: ",f1," not in data.table",sep=""))
-#                }
                 stop(paste("Error: ",f1," not in data.table",sep=""))
             }
             if (!(f2 %in% names(df))){
-#                if (verbose>=1){
-#                    message(paste("Error: ",f2," not in data.table",sep=""))
-#                }
                 stop(paste("Error: ",f2," not in data.table",sep=""))
             }
             t1 <- term[1]
@@ -1201,9 +1142,6 @@ Check_Dupe_Columns <- function(df,cols,term_n,verbose=0, factor_check=FALSE){
     } else if (length(cols)==1){
         f1 <- cols[1]
         if (!(f1 %in% names(df))){
-#            if (verbose>=1){
-#                message(paste("Error: ",f1," not in data.table",sep=""))
-#            }
             stop(paste("Error: ",f1," not in data.table",sep=""))
         }
         if (min(df[,cols, with = FALSE])==max(df[,cols, with = FALSE])){
@@ -1248,9 +1186,6 @@ Check_Trunc <- function(df,ce,verbose=0){
     verbose <- Check_Verbose(verbose)
     if (ce[1]=="%trunc%"){
         if (ce[2]=="%trunc%"){
-#            if (verbose>=1){
-#                message("Error: Both endpoints are truncated, not acceptable")
-#            }
             stop("Error: Both endpoints are truncated, not acceptable")
         }
         tname <- ce[2]
@@ -1319,11 +1254,9 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     }
     #
 	if (length(new_names)!=length(func_form)){
-#		message(paste("Error: new_names vector should be the same size as the list of functions applied",sep=""))
 		stop(paste("Error: new_names vector should be the same size as the list of functions applied",sep=""))
 	}
 	if (length(new_names)!=length(tform)){
-#		message(paste("Error: new_names vector should be the same size as the list of interpolation method used",sep=""))
 		stop(paste("Error: new_names vector should be the same size as the list of interpolation method used",sep=""))
 	}
 	for (i in seq_len(length(tform))){
@@ -1331,7 +1264,6 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 		if (temp!='lin'){
 			a <- substr(temp, 1, 5)
 			if (a!="step?"){
-#				message(paste("Error: Interpolation method not recognized: ", temp, sep=""))
 				stop(paste("Error: Interpolation method not recognized: ", temp, sep=""))
 			}
 		}
@@ -1501,9 +1433,6 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(term_n_list)){
             temp1 <- unlist(term_n_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-#                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in term_n_list has ",
-#                              length(temp1),
-#                              " items. Omit entry in term_n_list to set to default of term 0 or add missing values",sep=""))
                 stop(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in term_n_list has ",
                               length(temp1),
                               " items. Omit entry in term_n_list to set to default of term 0 or add missing values",sep=""))
@@ -1516,9 +1445,6 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(tform_list)){
             temp1 <- unlist(tform_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-#                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in tform_list has ",
-#                              length(temp1),
-#                              " items. Omit entry in tform_list to set to default of 'loglin' or add missing values",sep=""))
                 stop(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in tform_list has ",
                               length(temp1),
                               " items. Omit entry in tform_list to set to default of 'loglin' or add missing values",sep=""))
@@ -1531,9 +1457,6 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(keep_constant_list)){
             temp1 <- unlist(keep_constant_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-#                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in keep_constant_list has ",
-#                              length(temp1),
-#                              " items. Omit entry in tform_list to set to default of 0 or add missing values",sep=""))
                 stop(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in keep_constant_list has ",
                               length(temp1),
                               " items. Omit entry in tform_list to set to default of 0 or add missing values",sep=""))
@@ -1546,9 +1469,6 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list=list(), tfo
         if (i %in% names(a_n_list)){
             temp1 <- unlist(a_n_list[i],use.names=F)
             if (length(temp0)!=length(temp1)){
-#                message(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in a_n_list has ",
-#                              length(temp1),
-#                              " items. Omit entry in a_n_list to set to default of 0 or add missing values",sep=""))
                 stop(paste('Error: item ',i," in name_list has ",length(temp0)," items, but same item in a_n_list has ",
                               length(temp1),
                               " items. Omit entry in a_n_list to set to default of 0 or add missing values",sep=""))
@@ -1736,7 +1656,6 @@ Check_Verbose <- function(verbose){
             verbose <- 0
         }
     } else {
-#        message("Error: verbosity arguement not valid")
         stop("Error: verbosity arguement not valid")
     }
     verbose

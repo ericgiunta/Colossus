@@ -101,9 +101,6 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         if (cens_weight %in% names(df)){
             # good
         } else {
-#            if (control$verbose>=1){
-#                message("Error: censoring weight column not in the dataframe.")
-#            }
             stop("Error: censoring weight column not in the dataframe.")
         }
     } else {
@@ -131,7 +128,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]),
                             use.names=FALSE))
         if (control$verbose>=3){
-            message(paste("Note:",length(uniq)," strata used",sep=" "))
+            message(paste("Note:",length(uniq)," strata used",sep=" "))# nocov
         }
         #
         data.table::setkeyv(df, c(time2, event0, strat_col))
@@ -140,13 +137,10 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
-#        if (control$verbose>=1){
-#            message("Error: no events")
-#        }
         stop("Error: no events")
     }
     if (control$verbose>=3){
-        message(paste("Note: ",length(tu)," risk groups",sep=""))
+        message(paste("Note: ",length(tu)," risk groups",sep=""))# nocov
     }
     all_names <- unique(names)
     #
@@ -165,9 +159,6 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
        }
    }
     if (min(keep_constant)>0){
-#        if (control$verbose>=1){
-#            message("Error: Atleast one parameter must be free")
-#        }
         stop("Error: Atleast one parameter must be free")
     }
     ##
@@ -189,7 +180,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
                           ", Number of iterations provided:",length(control$maxiters),
-                          ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                          ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))# nocov
                 }
                 if (length(control$maxiters) < length(a_n)+1){
 		            additional <- length(a_n)+1 - length(control$maxiters)
@@ -209,10 +200,6 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 	                applied_iter <- c(rep(iter0,control$guesses),iter1)
 	                control$maxiters <- applied_iter
 	            } else {
-#	                if (control$verbose>=1){
-#                        message(paste("Error: guesses:",control["guesses"],
-#                              ", iterations per guess:",control["maxiters"],sep=" "))
-#                    }
                     stop(paste("Error: guesses:",control["guesses"],
                               ", iterations per guess:",control["maxiters"],sep=" "))
 	            }
@@ -237,9 +224,8 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
              keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
              cons_mat, cons_vec)
          if ("Status" %in% names(e)){
-            if (e$Status=="FAILED"){
-#	            if (control$verbose>=1){message("Error: Invalid model")}
-	            stop("Error: Invalid model")
+            if ("FAILED" %in% e$Status){
+	            stop(e$Status)
             }
         }
     } else {
@@ -250,7 +236,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
         		if (control$verbose>=3){
                     message(paste("Note: Initial starts:",length(a_n),
                           ", Number of iterations provided:",length(control$maxiters),
-                          ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))
+                          ". Colossus requires one more iteration counts than number of guesses (for best guess)",sep=" "))# nocov
                 }
                 if (length(control$maxiters) < length(a_n)+1){
 		            additional <- length(a_n)+1 - length(control$maxiters)
@@ -270,10 +256,6 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
 	                applied_iter <- c(rep(iter0,control$guesses),iter1)
 	                control$maxiters <- applied_iter
 	            } else {
-#	                if (control$verbose>=1){
-#                        message(paste("Error: guesses:",control["guesses"],
-#                              ", iterations per guess:",control["maxiters"],sep=" "))
-#                    }
                     stop(paste("Error: guesses:",control["guesses"],
                               ", iterations per guess:",control["maxiters"],sep=" "))
 	            }
@@ -304,8 +286,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
              keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
              cons_mat, cons_vec)
 	    if (is.nan(e$LogLik)){
-#		    if (control$verbose>=1){message("Error: Invalid risk")}
-		    stop("Error: Invalid risk")
+		    stop(e$Status)
 	    }
         e$Parameter_Lists$names <- names
     }
@@ -582,7 +563,6 @@ Cox_Relative_Risk <- function(df, time1="start", time2="end", event0="event", na
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-#        message("Error: Atleast one parameter must be free")
         stop("Error: Atleast one parameter must be free")
     }
     if ("CONST" %in% names){
@@ -702,10 +682,6 @@ RunCoxNull <- function(df, time1="start", time2="end", event0="event",control=li
 #'             a_n, modelform, fir, control, plot_options)
 #'
 RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c("CONST"), term_n=c(0), tform="loglin", keep_constant=c(0), a_n=c(0), modelform="M", fir=0, control=list(), plot_options=list(), model_control=list()){
-#    if (system.file(package='ggplot2')==""){
-#        message("Error: ggplot2 is not detected, required to run plotting functions")
-#        return ("Passed")
-#    }
     names(plot_options) <- tolower(names(plot_options))
     df <- data.table(df)
     control <- Def_Control(control)
@@ -715,7 +691,7 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
         stop("Error: Atleast one parameter must be free")
     }
     if (plot_options$verbose>=3){
-        message("Note: Starting Plot Function")
+        message("Note: Starting Plot Function")# nocov
     }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
@@ -729,23 +705,19 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
     der_iden <- 0
     plot_type <- plot_options$type
     if (plot_options$verbose>=3){
-        message("Note: Getting Plot Info")
+        message("Note: Getting Plot Info")# nocov
     }
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
-#        message("Error: no events")
         stop("Error: no events")
     }
     if (plot_options$verbose>=3){
-        message(paste("Note: ",length(tu)," risk groups",sep=""))
+        message(paste("Note: ",length(tu)," risk groups",sep=""))# nocov
     }
     if ("type" %in% names(plot_options)){
         #fine
     } else {
-#        if (plot_options$verbose>=1){
-#            message("Error: Plot type not given")
-#        }
         stop("Error: Plot type not given")
     }
     if ("age_unit" %in% names(plot_options)){
@@ -759,15 +731,9 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
                 if (plot_options$strat_col %in% names(df)){
                     #fine
                 } else {
-#                    if (plot_options$verbose>=1){
-#                        message("Error: Stratification Column not in dataframe")
-#                    }
                     stop("Error: Stratification Column not in dataframe")
                 }
             } else {
-#                if (plot_options$verbose>=1){
-#                    message("Error: Stratification Column not given")
-#                }
                 stop("Error: Stratification Column not given")
             }
         }
@@ -783,18 +749,11 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
                     if (dose_col%in% names(df)){
                         #fine
                     } else {
-#                        if (plot_options$verbose>=1){
-#                            message("Error: Covariate column "+
-#                                   dose_col+" is not in the dataframe")
-#                        }
                         stop("Error: Covariate column "+
                                    dose_col+" is not in the dataframe")
                     }
                 }
             } else {
-#                if (plot_options$verbose>=1){
-#                    message("Error: dose column not given")
-#                }
                 stop("Error: dose column not given")
             }
         }
@@ -807,15 +766,9 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
                 if (plot_options$studyid%in% names(df)){
                     #fine
                 } else {
-#                    if (plot_options$verbose>=1){
-#                        message("Error: ID column is not in the dataframe")
-#                    }
                     stop("Error: ID column is not in the dataframe")
                 }
             } else {
-#                if (plot_options$verbose>=1){
-#                    message("Error: ID column not given")
-#                }
                 stop("Error: ID column not given")
             }
         }
@@ -847,9 +800,6 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
-#        if (control$verbose>=1){
-#            message("Error: no events")
-#        }
         stop("Error: no events")
     }
     all_names <- unique(names)
@@ -885,12 +835,12 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
     #
     if (tolower(plot_type[1])=="surv"){
         if (verbose>=3){
-            message("Note: starting ph_plot")
+            message("Note: starting ph_plot")# nocov
         }
         #
         if (plot_options$strat_haz==FALSE){
         	if (verbose>=3){
-		        message("Note: nonStratified survival curve calculation")
+		        message("Note: nonStratified survival curve calculation")# nocov
 		    }
 		    model_control$surv <- TRUE
 		    e <- Plot_Omnibus_transition(term_n, tform, a_n, dfc, x_all, fir,
@@ -904,7 +854,7 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
 		    ch <- c()
 		    surv <- c()
 		    if (verbose>=3){
-		        message("Note: writing survival data")
+		        message("Note: writing survival data")# nocov
 		    }
 		    dft <- data.table::data.table("time"=tu,"base"=e$baseline,
 		                      "basehaz"=e$standard_error)
@@ -935,7 +885,7 @@ RunCoxPlots <- function(df, time1="start", time2="end", event0="event", names=c(
         } else {
         	age_unit <- plot_options$age_unit
         	if (verbose>=3){
-		        message("Note: Stratified survival curve calculation")
+		        message("Note: Stratified survival curve calculation")# nocov
 		    }
             if (plot_options$surv_curv==TRUE){
                 model_control$strata <- TRUE
@@ -1025,7 +975,6 @@ RunCoxRegression_Tier_Guesses <- function(df, time1="start", time2="end", event0
     control <- Def_Control(control)
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     if (min(keep_constant)>0){
-#        message("Error: Atleast one parameter must be free")
         stop("Error: Atleast one parameter must be free")
     }
     if ("CONST" %in% names){
@@ -1071,8 +1020,8 @@ RunCoxRegression_Tier_Guesses <- function(df, time1="start", time2="end", event0
                                       model_control=model_control)
     #
     if (guesses_control$verbose>=3){
-        message("Note: INITIAL TERM COMPLETE")
-        message(e)
+        message("Note: INITIAL TERM COMPLETE")# nocov
+        message(e)# nocov
     }
     #
     a_n_initial <- e$beta_0
@@ -1212,9 +1161,6 @@ RunCoxRegression_Guesses_CPP <- function(df, time1="start", time2="end", event0=
     if ("strata" %in% names(guesses_control)){
         if ("strata" %in% names(model_control)){
             if (guesses_control$strata != model_control$strata){
-#                if (guesses_control$verbose>=1){
-#                    message("Error: guesses_control and model_control have different strata options")
-#                }
                 stop("Error: guesses_control and model_control have different strata options")
             }
         } else {
@@ -1229,9 +1175,6 @@ RunCoxRegression_Guesses_CPP <- function(df, time1="start", time2="end", event0=
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-#        if (control$verbose>=1){
-#            message("Error: Atleast one parameter must be free")
-#        }
         stop("Error: Atleast one parameter must be free")
     }
     if ("CONST" %in% names){
@@ -1250,13 +1193,10 @@ RunCoxRegression_Guesses_CPP <- function(df, time1="start", time2="end", event0=
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
         if (length(tu)==0){
-#            if (guesses_control$verbose>=1){
-#                message("Error: no events")
-#            }
             stop("Error: no events")
         }
         if (guesses_control$verbose>=3){
-            message(paste("Note: ",length(tu)," risk groups",sep=""))
+            message(paste("Note: ",length(tu)," risk groups",sep=""))# nocov
         }
         all_names <- unique(names)
         #
@@ -1283,20 +1223,17 @@ RunCoxRegression_Guesses_CPP <- function(df, time1="start", time2="end", event0=
         }
         uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
         if (control$verbose>=3){
-            message(paste("Note:",length(uniq)," strata used",sep=" "))
+            message(paste("Note:",length(uniq)," strata used",sep=" "))# nocov
         }
         #
         data.table::setkeyv(df, c(time2, event0, strat_col))
         dfend <- df[get(event0)==1, ]
         tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
         if (length(tu)==0){
-#            if (guesses_control$verbose>=1){
-#                message("Error: no events")
-#            }
             stop("Error: no events")
         }
         if (guesses_control$verbose>=3){
-            message(paste("Note: ",length(tu)," risk groups",sep=""))
+            message(paste("Note: ",length(tu)," risk groups",sep=""))# nocov
         }
         all_names <- unique(names)
         #
@@ -1413,9 +1350,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-#        if (control$verbose>=1){
-#            message("Error: Atleast one parameter must be free")
-#        }
         stop("Error: Atleast one parameter must be free")
     }
     if ("CONST" %in% names){
@@ -1429,9 +1363,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         if (cens_weight %in% names(df)){
             # good
         } else if (length(cens_weight)<nrow(df)){
-#            if (control$verbose>=1){
-#                message("Error: censoring weight column not in the dataframe.")
-#            }
             stop("Error: censoring weight column not in the dataframe.")
         }
     } else {
@@ -1459,7 +1390,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]),
                             use.names=FALSE))
         if (control$verbose>=3){
-            message(paste("Note:",length(uniq)," strata used",sep=" "))
+            message(paste("Note:",length(uniq)," strata used",sep=" "))# nocov
         }
         #
         data.table::setkeyv(df, c(time2, event0, strat_col))
@@ -1468,13 +1399,10 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
-#        if (control$verbose>=1){
-#            message("Error: no events")
-#        }
         stop("Error: no events")
     }
     if (control$verbose>=3){
-        message(paste("Note: ",length(tu)," risk groups",sep=""))
+        message(paste("Note: ",length(tu)," risk groups",sep=""))# nocov
     }
     all_names <- unique(names)
     #
@@ -1485,28 +1413,18 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
         #pass
     } else {
         #the number of columns per realization does not match the number of indexes provided
-#        if (control$verbose>=1){
-#            message(paste("Error:",length(realization_index)," column indexes provided, but ",
-#                          length(realization_columns[,1])," rows of realizations columns provided",sep=" "))
-#        }
         stop(paste("Error:",length(realization_index)," column indexes provided, but ",
                           length(realization_columns[,1])," rows of realizations columns provided",sep=" "))
     }
     if (all(realization_index %in% all_names)){
         #pass
     } else {
-#        if (control$verbose>=1){
-#            message(paste("Error: Atleast one realization column provided was not used in the model",sep=" "))
-#        }
         stop(paste("Error: Atleast one realization column provided was not used in the model",sep=" "))
     }
     all_names <- unique(c(all_names, as.vector(realization_columns)))
     if (all(all_names %in% names(df))){
         #pass
     } else {
-#        if (control$verbose>=1){
-#            message(paste("Error: Atleast one realization column provided was not in the data.table",sep=" "))
-#        }
         stop(paste("Error: Atleast one realization column provided was not in the data.table",sep=" "))
     }
     #
@@ -1530,9 +1448,8 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
             keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
             cons_mat, cons_vec)
     if ("Status" %in% names(e)){
-        if (e$Status=="FAILED"){
-#	        if (control$verbose>=1){message("Error: Invalid model")}
-	        stop("Error: Invalid model")
+        if ("FAILED" %in% e$Status){
+	        stop(e$Status)
         }
     }
     e$Parameter_Lists$names <- names

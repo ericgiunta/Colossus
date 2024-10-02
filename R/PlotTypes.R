@@ -9,7 +9,7 @@
 CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, plot_name, age_unit, studyID){
     IDS <- base <- res <- doses <- NULL
     if (verbose>=3){
-        message("Note: Plotting Martingale Residuals")
+        message("Note: Plotting Martingale Residuals")# nocov
     }
     #
     time_s <- df[,get(time1)]
@@ -25,7 +25,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
     for (cov_i in seq_len(length(dnames))){
         dname <- dnames[cov_i]
         if (verbose>=3){
-            message(paste("Note: Martingale Plot: ",dname,sep=""))
+            message(paste("Note: Martingale Plot: ",dname,sep=""))# nocov
         }
         if (studyID %in% names(df)){
             dfr <- data.table::data.table("Risks"=e$Risks,"ch_e"=ch_e,"ch_s"=ch_s,"e"=e_i,
@@ -133,7 +133,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
 CoxSurvival <- function(t,h,ch,surv,plot_name,verbose,time_lims, age_unit){
     # verbose <- as.logical(verbose)
     if (verbose>=3){
-        message("Note: Plotting Survival Curves")
+        message("Note: Plotting Survival Curves")# nocov
     }
     #
     table_out <- list()
@@ -190,7 +190,7 @@ CoxSurvival <- function(t,h,ch,surv,plot_name,verbose,time_lims, age_unit){
 CoxKaplanMeier <- function(verbose, studyID,names,df,event0,time1,time2,tu,term_n, tform, a_n, er, fir, der_iden, modelform, control,keep_constant, plot_type, age_unit, model_control=list()){
     # verbose <- as.logical(verbose)
     if (verbose>=3){
-        message("Note: Plotting Kaplan-Meier Curve")
+        message("Note: Plotting Kaplan-Meier Curve")# nocov
     }
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,term_n)
@@ -286,8 +286,6 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
                                      control, as.matrix(df[,ce, with = FALSE]),tu,
                                      keep_constant, term_tot, c(0), c(0), model_control)
         if ("Failure" %in% names(e)){
-#            message("Error: ")
-#            message(e)
             stop(e)
         }
         x <- e$x
@@ -341,7 +339,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
     }
     uniq <- sort(unlist(unique(df[,strat_col, with = FALSE]), use.names=FALSE))
     if (control$verbose>=3){
-        message(paste("Note:",length(uniq)," strata used",sep=" "))
+        message(paste("Note:",length(uniq)," strata used",sep=" "))# nocov
     }
     #
     data.table::setkeyv(df, c(time2, event0, strat_col))
@@ -374,7 +372,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
     categ <- c()
     
     if (verbose>=3){
-        message(paste("Note: Starting Stratification: Calculation"))
+        message(paste("Note: Starting Stratification: Calculation"))# nocov
     }
     model_control$surv <- TRUE
     model_control$strata <- TRUE
@@ -383,7 +381,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
                                  tu, keep_constant, term_tot, uniq, c(0), model_control)
 	for (col_i in seq_along(uniq)){
         if (verbose>=3){
-            message(paste("Note: Starting Stratification calculation ",col_i))
+            message(paste("Note: Starting Stratification calculation ",col_i))# nocov
         }
         col_u <- uniq[col_i]
 #        #
@@ -452,13 +450,10 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
-#        if (control$verbose>=1){
-#            message("Error: no events")
-#        }
         stop("Error: no events")
     }
     if (control$verbose>=3){
-        message(paste("Note: ",length(tu)," risk groups",sep=""))
+        message(paste("Note: ",length(tu)," risk groups",sep=""))# nocov
     }
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n, names, der_iden)
     term_n <- val$term_n
@@ -576,11 +571,10 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
     ##
     ##
     if (plot_options$verbose>=3){
-        message("Note: Starting Censoring weight Plot Function")
+        message("Note: Starting Censoring weight Plot Function")# nocov
     }
     if (min(keep_constant)>0){
-#        message("Error: Atleast one parameter must be free")
-        stop("Error: Atleast one parameter must be free")
+        stop("Error: Atleast one parameter must be free")# nocov
     }
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,term_n)
@@ -592,13 +586,10 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
-#        if (plot_options$verbose>=1){
-#            message("Error: no events")
-#        }
         stop("Error: no events")
     }
     if (plot_options$verbose>=3){
-        message(paste("Note: ",length(tu)," risk groups",sep=""))
+        message(paste("Note: ",length(tu)," risk groups",sep=""))# nocov
     }
     #
     if ("age_unit" %in% names(plot_options)){
