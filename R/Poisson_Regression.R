@@ -176,7 +176,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
              keep_constant,term_tot,as.matrix(df0[,val_cols, with=FALSE]),
              model_control, cons_mat, cons_vec)
         if ("Status" %in% names(e)){
-            if ("FAILED" %in% e$Status){
+            if (e$Status != "PASSED"){
 	            stop(e$Status)
             }
         }

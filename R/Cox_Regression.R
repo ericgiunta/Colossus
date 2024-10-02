@@ -224,7 +224,7 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
              keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
              cons_mat, cons_vec)
          if ("Status" %in% names(e)){
-            if ("FAILED" %in% e$Status){
+            if (e$Status != "PASSED"){
 	            stop(e$Status)
             }
         }
@@ -285,9 +285,11 @@ RunCoxRegression_Omnibus <- function(df, time1="start", time2="end", event0="eve
              modelform, control, as.matrix(df[,ce, with = FALSE]),tu,
              keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
              cons_mat, cons_vec)
-	    if (is.nan(e$LogLik)){
-		    stop(e$Status)
-	    }
+	    if ("Status" %in% names(e)){
+            if (is.nan(e$LogLik)){
+	            stop(e$Status)
+            }
+        }
         e$Parameter_Lists$names <- names
     }
     return (e)
@@ -1448,7 +1450,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1="start", time2="end", e
             keep_constant,term_tot, uniq, df[[cens_weight]], model_control,
             cons_mat, cons_vec)
     if ("Status" %in% names(e)){
-        if ("FAILED" %in% e$Status){
+        if (e$Status != "PASSED"){
 	        stop(e$Status)
         }
     }
