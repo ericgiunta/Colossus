@@ -6,10 +6,8 @@ src/*.o
 src/*.so
 *.Rcheck
 .Rproj.user/
-*.o
 /doc/
 /Meta/
 src/Colossus.dll
 *.Rhistory
-*.py
 *.txt

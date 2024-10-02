@@ -5,6 +5,8 @@ coverage:
       default:
         target: 90%    # the (on purpose low) required coverage value
         threshold: 2%  # the permitted delta in hitting the target
-ignore:
-- (?s:.*/RcppExport[^\/]*)\Z
-
+        branches:
+            - master
+        paths:
+            - src/
+            - R/

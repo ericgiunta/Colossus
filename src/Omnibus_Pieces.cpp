@@ -143,18 +143,18 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// Prints off a series of calculations to check at what point values are changing
 		// ---------------------------------------------------------
 		//
-		if (verbose>=4){
-			Rcout << "C++ Note: values checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << beta_0[ijk] << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: sums checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << T0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-		}
+		// if (verbose>=4){
+		// 	Rcout << "C++ Note: values checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << beta_0[ijk] << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: sums checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << T0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// }
 		//
 		// Calculates the risk for each row
 		Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging,df0,dfc,KeepConstant);
@@ -163,34 +163,34 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		RdR = (RdR.array().isFinite()).select(RdR,0);
 		//
 		//
-		if (R.minCoeff()<=0){
-		    if (verbose>=4){
-		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-	        }
-		} else if (verbose>=4){
-			Rcout << "C++ Note: risk checked ";
-			for (int ijk=0;ijk<1;ijk++){
-				Rcout << R.col(0).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: risk1 checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Rd.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: risk2 checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-			Rcout << "C++ Note: ALL risk2 checked ";
-			for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-				Rcout << Rdd.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-		}
+		// if (R.minCoeff()<=0){
+		//     if (verbose>=4){
+		//         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+	    //     }
+		// } else if (verbose>=4){
+		// 	Rcout << "C++ Note: risk checked ";
+		// 	for (int ijk=0;ijk<1;ijk++){
+		// 		Rcout << R.col(0).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: risk1 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Rd.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: risk2 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		// 	Rcout << "C++ Note: ALL risk2 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+		// 		Rcout << Rdd.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		// }
 	} else if (single_bool){
 		// Calculates the subterm and term values
 		Make_subterms_Single( totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm,  nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN ,beta_0, df0,nthreads, debugging,KeepConstant);
@@ -198,43 +198,43 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// Prints off a series of calculations to check at what point values are changing
 		// ---------------------------------------------------------
 		//
-		if (verbose>=4){
-			Rcout << "C++ Note: values checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << beta_0[ijk] << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: sums checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << T0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << Dose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: PLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LOGLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-		}
+		// if (verbose>=4){
+		// 	Rcout << "C++ Note: values checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << beta_0[ijk] << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: sums checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << T0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << Dose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: PLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LOGLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// }
 		//
 		//
 		// Calculates the risk for each row
@@ -243,17 +243,17 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// Removes infinite values
 		//
 		//
-		if (R.minCoeff()<=0){
-		    if (verbose>=4){
-		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-	        }
-		} else if (verbose>=4){
-			Rcout << "C++ Note: risk checked ";
-			for (int ijk=0;ijk<1;ijk++){
-				Rcout << R.col(0).sum() << " ";
-			}
-			Rcout << " " << endl;
-		}
+		// if (R.minCoeff()<=0){
+		//     if (verbose>=4){
+		//         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+	    //     }
+		// } else if (verbose>=4){
+		// 	Rcout << "C++ Note: risk checked ";
+		// 	for (int ijk=0;ijk<1;ijk++){
+		// 		Rcout << R.col(0).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// }
 	} else {
 		//
 		// Calculates the subterm and term values
@@ -269,60 +269,60 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		// ---------------------------------------------------------
 		//
 		//
-		if (verbose>=4){
-			Rcout << "C++ Note: values checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << beta_0[ijk] << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: sums checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << T0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: derivs checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Td0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: second derivs checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-			Rcout << "C++ Note: ALL second derivs checked ";
-			for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-				Rcout << Tdd0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-			Rcout << "C++ Note: dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << Dose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: PLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LOGLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-		}
+		// if (verbose>=4){
+		// 	Rcout << "C++ Note: values checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << beta_0[ijk] << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: sums checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << T0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: derivs checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Td0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: second derivs checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		// 	Rcout << "C++ Note: ALL second derivs checked ";
+		// 	for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+		// 		Rcout << Tdd0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		// 	Rcout << "C++ Note: dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << Dose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: PLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LOGLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// }
 		//
 		//
 		// Calculates the risk for each row
@@ -338,34 +338,34 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 		RddR = (RddR.array().isFinite()).select(RddR,0);
 		//
 		//
-		if (R.minCoeff()<=0){
-		    if (verbose>=4){
-		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-	        }
-		} else if (verbose>=4){
-			Rcout << "C++ Note: risk checked ";
-			for (int ijk=0;ijk<1;ijk++){
-				Rcout << R.col(0).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: risk1 checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Rd.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: risk2 checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-			Rcout << "C++ Note: ALL risk2 checked ";
-			for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-				Rcout << Rdd.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-		}
+		// if (R.minCoeff()<=0){
+		//     if (verbose>=4){
+		//         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+	    //     }
+		// } else if (verbose>=4){
+		// 	Rcout << "C++ Note: risk checked ";
+		// 	for (int ijk=0;ijk<1;ijk++){
+		// 		Rcout << R.col(0).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: risk1 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Rd.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: risk2 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		// 	Rcout << "C++ Note: ALL risk2 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+		// 		Rcout << Rdd.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		// }
 	}
 	return;
 }
@@ -418,73 +418,73 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
 //    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "C++ Note: sides " << (ending-comp) * 1e-6  <<endl;
     //
-    if (strata_bool){
-        if (verbose>=4){
-            Rcout << "C++ Note: riskr checked ";
-            for (int ijk=0;ijk<STRATA_vals.size();ijk++){
-                Rcout << Rls1.col(ijk).sum() << " ";
-            }
-            Rcout << " " << endl;
-            //
-            Rcout << "C++ Note: riskl checked ";
-            for (int ijk=0;ijk<STRATA_vals.size();ijk++){
-                Rcout << Lls1.col(ijk).sum() << " ";
-            }
-            Rcout << " " << endl;
-        }
-    } else {
-        if (verbose>=4){
-            Rcout << "C++ Note: riskr checked ";
-            for (int ijk=0;ijk<1;ijk++){
-                Rcout << Rls1.col(0).sum() << " ";
-            }
-            Rcout << " " << endl;
-            if (!single_bool){
-                Rcout << "C++ Note: risk1r checked ";
-                for (int ijk=0;ijk<reqrdnum;ijk++){
-                    Rcout << Rls2.col(ijk).sum() << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "C++ Note: risk2r checked ";
-                for (int ijk=0;ijk<reqrdnum;ijk++){
-                    Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-                }
-                Rcout << " " << endl;
-                //
-			    Rcout << "C++ Note: ALL risk2r checked ";
-			    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-				    Rcout << Rls3.col(ijk).sum() << " ";
-			    }
-			    Rcout << " " << endl;
-			    //
-            }
-            //
-            Rcout << "C++ Note: riskl checked ";
-            for (int ijk=0;ijk<1;ijk++){
-                Rcout << Lls1.col(0).sum() << " ";
-            }
-            Rcout << " " << endl;
-            if (!single_bool){
-                Rcout << "C++ Note: risk1l checked ";
-                for (int ijk=0;ijk<reqrdnum;ijk++){
-                    Rcout << Lls2.col(ijk).sum() << " ";
-                }
-                Rcout << " " << endl;
-                Rcout << "C++ Note: risk2l checked ";
-                for (int ijk=0;ijk<reqrdnum;ijk++){
-                    Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-                }
-                Rcout << " " << endl;
-                //
-			    Rcout << "C++ Note: ALL risk2l checked ";
-			    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-				    Rcout << Lls3.col(ijk).sum() << " ";
-			    }
-			    Rcout << " " << endl;
-			    //
-            }
-        }
-    }
+    // if (strata_bool){
+    //     if (verbose>=4){
+    //         Rcout << "C++ Note: riskr checked ";
+    //         for (int ijk=0;ijk<STRATA_vals.size();ijk++){
+    //             Rcout << Rls1.col(ijk).sum() << " ";
+    //         }
+    //         Rcout << " " << endl;
+    //         //
+    //         Rcout << "C++ Note: riskl checked ";
+    //         for (int ijk=0;ijk<STRATA_vals.size();ijk++){
+    //             Rcout << Lls1.col(ijk).sum() << " ";
+    //         }
+    //         Rcout << " " << endl;
+    //     }
+    // } else {
+    //     if (verbose>=4){
+    //         Rcout << "C++ Note: riskr checked ";
+    //         for (int ijk=0;ijk<1;ijk++){
+    //             Rcout << Rls1.col(0).sum() << " ";
+    //         }
+    //         Rcout << " " << endl;
+    //         if (!single_bool){
+    //             Rcout << "C++ Note: risk1r checked ";
+    //             for (int ijk=0;ijk<reqrdnum;ijk++){
+    //                 Rcout << Rls2.col(ijk).sum() << " ";
+    //             }
+    //             Rcout << " " << endl;
+    //             Rcout << "C++ Note: risk2r checked ";
+    //             for (int ijk=0;ijk<reqrdnum;ijk++){
+    //                 Rcout << Rls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+    //             }
+    //             Rcout << " " << endl;
+    //             //
+	// 		    Rcout << "C++ Note: ALL risk2r checked ";
+	// 		    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+	// 			    Rcout << Rls3.col(ijk).sum() << " ";
+	// 		    }
+	// 		    Rcout << " " << endl;
+	// 		    //
+    //         }
+    //         //
+    //         Rcout << "C++ Note: riskl checked ";
+    //         for (int ijk=0;ijk<1;ijk++){
+    //             Rcout << Lls1.col(0).sum() << " ";
+    //         }
+    //         Rcout << " " << endl;
+    //         if (!single_bool){
+    //             Rcout << "C++ Note: risk1l checked ";
+    //             for (int ijk=0;ijk<reqrdnum;ijk++){
+    //                 Rcout << Lls2.col(ijk).sum() << " ";
+    //             }
+    //             Rcout << " " << endl;
+    //             Rcout << "C++ Note: risk2l checked ";
+    //             for (int ijk=0;ijk<reqrdnum;ijk++){
+    //                 Rcout << Lls3.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+    //             }
+    //             Rcout << " " << endl;
+    //             //
+	// 		    Rcout << "C++ Note: ALL risk2l checked ";
+	// 		    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+	// 			    Rcout << Lls3.col(ijk).sum() << " ";
+	// 		    }
+	// 		    Rcout << " " << endl;
+	// 		    //
+    //         }
+    //     }
+    // }
     // Calculates log-likelihood
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!single_bool){
@@ -526,41 +526,42 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     //
     if (single_bool){
         iter_stop=1;
-        if (verbose>=4){
-            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Ll[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df104 ";//prints parameter values
-            for (int ij=0;ij<totalnum;ij++){
-                Rcout << beta_0[ij] << " ";
-            }
-            Rcout << " " << endl;
-        }
+        // if (verbose>=4){
+        //     Rcout << "C++ Note: df101 ";//prints the log-likelihoods
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Ll[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df104 ";//prints parameter values
+        //     for (int ij=0;ij<totalnum;ij++){
+        //         Rcout << beta_0[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        // }
     } else {
-        if (verbose>=4){
-            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Ll[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df102 ";//prints the first derivatives
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Lld[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df103 ";//prints the second derivatives
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Lldd[ij*reqrdnum+ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df104 ";//prints parameter values
-            for (int ij=0;ij<totalnum;ij++){
-                Rcout << beta_0[ij] << " ";
-            }
-            Rcout << " " << endl;
-        }
+		;
+        // if (verbose>=4){
+        //     Rcout << "C++ Note: df101 ";//prints the log-likelihoods
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Ll[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df102 ";//prints the first derivatives
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Lld[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df103 ";//prints the second derivatives
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Lldd[ij*reqrdnum+ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df104 ";//prints parameter values
+        //     for (int ij=0;ij<totalnum;ij++){
+        //         Rcout << beta_0[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        // }
     }
 }
 
@@ -582,43 +583,43 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		// Prints off a series of calculations to check at what point values are changing
 		// ---------------------------------------------------------
 		//
-		if (verbose>=4){
-			Rcout << "C++ Note: values checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << beta_0[ijk] << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: sums checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << T0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << Dose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: PLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LOGLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-		}
+		// if (verbose>=4){
+		// 	Rcout << "C++ Note: values checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << beta_0[ijk] << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: sums checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << T0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << Dose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: PLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LOGLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// }
 		//
 		// Calculates the risk for each row
 		if (strata_bool){
@@ -630,18 +631,18 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		// Removes infinite values
 		//
 		//
-		if (R.minCoeff()<=0){
-		    if (verbose>=4){
-		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-	        }
-		} else if (verbose>=4){
-			Rcout << "C++ Note: risk checked ";
-			for (int ijk=0;ijk<1;ijk++){
-				Rcout << R.col(0).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-		}
+		// if (R.minCoeff()<=0){
+		//     if (verbose>=4){
+		//         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+	    //     }
+		// } else if (verbose>=4){
+		// 	Rcout << "C++ Note: risk checked ";
+		// 	for (int ijk=0;ijk<1;ijk++){
+		// 		Rcout << R.col(0).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		// }
 	} else {
 		//
 		// Calculates the subterm and term values
@@ -652,60 +653,60 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		// ---------------------------------------------------------
 		//
 		//
-		if (verbose>=4){
-			Rcout << "C++ Note: values checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << beta_0[ijk] << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: sums checked ";
-			for (int ijk=0;ijk<totalnum;ijk++){
-				Rcout << T0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: derivs checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Td0.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: second derivs checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-		    Rcout << "C++ Note: ALL second derivs checked ";
-		    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-			    Rcout << Tdd0.col(ijk).sum() << " ";
-		    }
-		    Rcout << " " << endl;
-		    //
-			Rcout << "C++ Note: dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << Dose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: PLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: LOGLIN_non-dose checked ";
-			for (int ijk=0;ijk<term_tot;ijk++){
-				Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-			}
-			Rcout << " " << endl;
-		}
+		// if (verbose>=4){
+		// 	Rcout << "C++ Note: values checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << beta_0[ijk] << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: sums checked ";
+		// 	for (int ijk=0;ijk<totalnum;ijk++){
+		// 		Rcout << T0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: derivs checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Td0.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: second derivs checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Tdd0.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		//     Rcout << "C++ Note: ALL second derivs checked ";
+		//     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+		// 	    Rcout << Tdd0.col(ijk).sum() << " ";
+		//     }
+		//     Rcout << " " << endl;
+		//     //
+		// 	Rcout << "C++ Note: dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << Dose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: PLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: LOGLIN_non-dose checked ";
+		// 	for (int ijk=0;ijk<term_tot;ijk++){
+		// 		Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// }
 		// Calculates the risk for each row
 		if (strata_bool){
             Make_Risks_Weighted(modelform, tform, term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging,KeepConstant,gmix_theta, gmix_term);
@@ -718,34 +719,34 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 		RddR = (RddR.array().isFinite()).select(RddR,0);
 		//
 		//
-		if (R.minCoeff()<=0){
-		    if (verbose>=4){
-		        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-	        }
-		} else if (verbose>=4){
-			Rcout << "C++ Note: risk checked ";
-			for (int ijk=0;ijk<1;ijk++){
-				Rcout << R.col(0).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: risk1 checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Rd.col(ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			Rcout << "C++ Note: risk2 checked ";
-			for (int ijk=0;ijk<reqrdnum;ijk++){
-				Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
-			}
-			Rcout << " " << endl;
-			//
-		    Rcout << "C++ Note: ALL risk2 checked ";
-		    for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
-			    Rcout << Rdd.col(ijk).sum() << " ";
-		    }
-		    Rcout << " " << endl;
-		    //
-		}
+		// if (R.minCoeff()<=0){
+		//     if (verbose>=4){
+		//         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+	    //     }
+		// } else if (verbose>=4){
+		// 	Rcout << "C++ Note: risk checked ";
+		// 	for (int ijk=0;ijk<1;ijk++){
+		// 		Rcout << R.col(0).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: risk1 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Rd.col(ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	Rcout << "C++ Note: risk2 checked ";
+		// 	for (int ijk=0;ijk<reqrdnum;ijk++){
+		// 		Rcout << Rdd.col(ijk*(ijk+1)/2+ijk).sum() << " ";
+		// 	}
+		// 	Rcout << " " << endl;
+		// 	//
+		//     Rcout << "C++ Note: ALL risk2 checked ";
+		//     for (int ijk=0;ijk<reqrdnum*(reqrdnum+1)/2;ijk++){
+		// 	    Rcout << Rdd.col(ijk).sum() << " ";
+		//     }
+		//     Rcout << " " << endl;
+		//     //
+		// }
 	}
 	return;
 }
@@ -790,43 +791,44 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
     //
     if (single_bool){
         iter_stop=1;
-        if (verbose>=4){
-            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Ll[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df104 ";//prints parameter values
-            for (int ij=0;ij<totalnum;ij++){
-                Rcout << beta_0[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: Checking Deviance " << dev << endl;
-        }
+        // if (verbose>=4){
+        //     Rcout << "C++ Note: df101 ";//prints the log-likelihoods
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Ll[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df104 ";//prints parameter values
+        //     for (int ij=0;ij<totalnum;ij++){
+        //         Rcout << beta_0[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: Checking Deviance " << dev << endl;
+        // }
     } else {
-        if (verbose>=4){
-            Rcout << "C++ Note: df101 ";//prints the log-likelihoods
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Ll[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df102 ";//prints the first derivatives
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Lld[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df103 ";//prints the second derivatives
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << Lldd[ij*reqrdnum+ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df104 ";//prints parameter values
-            for (int ij=0;ij<totalnum;ij++){
-                Rcout << beta_0[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: Checking Deviance " << dev << endl;
-        }
+		;
+        // if (verbose>=4){
+        //     Rcout << "C++ Note: df101 ";//prints the log-likelihoods
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Ll[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df102 ";//prints the first derivatives
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Lld[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df103 ";//prints the second derivatives
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << Lldd[ij*reqrdnum+ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df104 ";//prints parameter values
+        //     for (int ij=0;ij<totalnum;ij++){
+        //         Rcout << beta_0[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: Checking Deviance " << dev << endl;
+        // }
     }
     return;
 }
@@ -857,9 +859,9 @@ void Cox_Pois_Check_Continue(const bool basic_bool, VectorXd beta_0, vector<doub
                 dbeta[ijk] = dbeta[ijk] / 2.0;
             }
         }
-        if (verbose>=4){
-            Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-        }
+        // if (verbose>=4){
+        //     Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
+        // }
         halves+=0.2;
     } else {
         halves++;

@@ -447,14 +447,14 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
     MatrixXd D0 = Lldd_mat;
     deriv_max = 100;
     if (step==0){
-        if (verbose>=4){
-            Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
-            Rcout << "C++ Note: df204 ";//prints parameter values
-            for (int ij=0;ij<totalnum;ij++){
-                Rcout << beta_0[ij] << " ";
-            }
-            Rcout << " " << endl;
-        }
+        // if (verbose>=4){
+        //     Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
+        //     Rcout << "C++ Note: df204 ";//prints parameter values
+        //     for (int ij=0;ij<totalnum;ij++){
+        //         Rcout << beta_0[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        // }
         //Initial step, calculate dom/dbet and h
         MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
         removeRow(D0, para_number);
@@ -498,25 +498,25 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
             }
         }
         // At this point, we have the standard newton-raphson equation defined
-        if (verbose>=4){
-            Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
-            Rcout << "C++ Note: df202 ";//prints the first derivatives
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << v[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df203 ";//prints the second derivatives
-            for (int ij=0;ij<reqrdnum;ij++){
-                Rcout << G(ij, ij) << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df204 ";//prints parameter values
-            for (int ij=0;ij<totalnum;ij++){
-                Rcout << beta_0[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: Second Derivative Determinant: " << G.determinant() << endl;
-        }
+        // if (verbose>=4){
+        //     Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
+        //     Rcout << "C++ Note: df202 ";//prints the first derivatives
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << v[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df203 ";//prints the second derivatives
+        //     for (int ij=0;ij<reqrdnum;ij++){
+        //         Rcout << G(ij, ij) << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: df204 ";//prints parameter values
+        //     for (int ij=0;ij<totalnum;ij++){
+        //         Rcout << beta_0[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        //     Rcout << "C++ Note: Second Derivative Determinant: " << G.determinant() << endl;
+        // }
         deriv_max = abs(v[0]);
         for (int ij=0;ij<reqrdnum;ij++){
             if (abs(v[ij])>deriv_max){
@@ -581,13 +581,13 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 }
             }
         }
-        if (verbose>=4){
-            Rcout << "C++ Note: df205 ";//prints parameter values
-            for (int ij=0;ij<totalnum;ij++){
-                Rcout << dbeta[ij] << " ";
-            }
-            Rcout << " " << endl;
-        }
+        // if (verbose>=4){
+        //     Rcout << "C++ Note: df205 ";//prints parameter values
+        //     for (int ij=0;ij<totalnum;ij++){
+        //         Rcout << dbeta[ij] << " ";
+        //     }
+        //     Rcout << " " << endl;
+        // }
     }
     return;
 }
