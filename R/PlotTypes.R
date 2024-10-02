@@ -74,7 +74,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
                  ggplot2::geom_point(color="black") +
                  ggplot2::labs(x=paste("Max",dname,sep=" "), y="Martingale Residuals")
             ggplot2::ggsave(paste(plot_name,"_",dname,'_martin_plot.jpeg',sep=""),
-                            device="jpeg",dpi="retina")
+                            device="jpeg",dpi="retina",width=7, height=7)
         }
         ##
     }
@@ -116,7 +116,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0,e, t, ch, dnames, pl
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time_max, y=.data$res_sum)) +
             ggplot2::geom_point(color="black") +
             ggplot2::labs(x=paste("Max Age",sep=" "), y="Martingale Residuals")
-        ggplot2::ggsave(paste(plot_name,'_martin_plot.jpeg',sep=''),device="jpeg",dpi="retina")
+        ggplot2::ggsave(paste(plot_name,'_martin_plot.jpeg',sep=''),device="jpeg",dpi="retina",width=7, height=7)
     }
     ##
     return (table_out)
@@ -148,17 +148,17 @@ CoxSurvival <- function(t,h,ch,surv,plot_name,verbose,time_lims, age_unit){
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$ch)) +
             ggplot2::geom_point(color="black") +
             ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Cumulative Hazard")
-        ggplot2::ggsave(paste(plot_name,"_ch_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+        ggplot2::ggsave(paste(plot_name,"_ch_plot.jpeg",sep=""),device="jpeg",dpi="retina",width=7, height=7)
         #
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) +
             ggplot2::geom_point(color="black")  +
             ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-        ggplot2::ggsave(paste(plot_name,"_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+        ggplot2::ggsave(paste(plot_name,"_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina",width=7, height=7)
         #
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$h)) +
             ggplot2::geom_point(color="black")
             ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Hazard Estimate")
-        ggplot2::ggsave(paste(plot_name,"_H_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+        ggplot2::ggsave(paste(plot_name,"_H_plot.jpeg",sep=""),device="jpeg",dpi="retina",width=7, height=7)
     }
     #
     Ls <- log(surv)
@@ -174,7 +174,7 @@ CoxSurvival <- function(t,h,ch,surv,plot_name,verbose,time_lims, age_unit){
         g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t, y=.data$s)) +
              ggplot2::geom_line() + ggplot2::labs(x="Log-Age", y="Log of Log Survival")
         ggplot2::ggsave(paste(plot_name,"_log_log_surv_plot.jpeg",sep=""),
-                        device="jpeg",dpi="retina")
+                        device="jpeg",dpi="retina",width=7, height=7)
     }
     return (table_out)
 }
@@ -240,7 +240,7 @@ CoxKaplanMeier <- function(verbose, studyID,names,df,event0,time1,time2,tu,term_
     if (system.file(package='ggplot2')!=""){
         g <- ggplot2::ggplot(data=dft,ggplot2::aes(x=.data$t_t, y=.data$n_t)) + ggplot2::geom_line() +
             ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-        ggplot2::ggsave(paste(plot_type[2],"_KM.jpeg",sep=""),device="jpeg",dpi="retina")
+        ggplot2::ggsave(paste(plot_type[2],"_KM.jpeg",sep=""),device="jpeg",dpi="retina",width=7, height=7)
     }
     #
     return (table_out)
@@ -286,9 +286,9 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
                                      control, as.matrix(df[,ce, with = FALSE]),tu,
                                      keep_constant, term_tot, c(0), c(0), model_control)
         if ("Failure" %in% names(e)){
-            message("Error: ")
-            message(e)
-            stop()
+#            message("Error: ")
+#            message(e)
+            stop(e)
         }
         x <- e$x
         y <- e$y
@@ -302,14 +302,14 @@ CoxRisk <- function(verbose,df, event0, time1, time2, names,term_n, tform, a_n, 
                      ggplot2::geom_line(color="black") +
                      ggplot2::labs(x=names[fir_KM], y="Relative Risk")
                 ggplot2::ggsave(paste(plot_type[2],"_risk_plot_",fir_KM,".jpeg",sep=""),
-                                device="jpeg",dpi="retina")
+                                device="jpeg",dpi="retina",width=7, height=7)
                 #
             } else {
                 g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$x, y=.data$y)) +
                      ggplot2::geom_point(color="black") +
                      ggplot2::labs(x=names[fir_KM], y="Relative Risk")
                 ggplot2::ggsave(paste(plot_type[2],"_risk_plot_",fir_KM,".jpeg",sep=""),
-                                device="jpeg",dpi="retina")
+                                device="jpeg",dpi="retina",width=7, height=7)
                 #
             }
         }
@@ -335,9 +335,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
         df0 <- dfend[get(strat_col)==uniq[i],]
         tu0 <- unlist(unique(df0[,time2,with=FALSE]), use.names=FALSE)
         if (length(tu0)==0){
-            if (control$verbose>=2){
-                message(paste("Warning: no events for strata group:",uniq[i],sep=" "))
-            }
+            warning(paste("Warning: no events for strata group:",uniq[i],sep=" "))
             df <- df[get(strat_col)!=uniq[i],]
         }
     }
@@ -428,7 +426,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names,term_
         g <- g + ggplot2::scale_colour_discrete(breaks=sbreaks, labels=slabels)
         g <- g + ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival") + ggplot2::ylim(0,1)
         ggplot2::ggsave(paste(plot_name,'_strat_surv_plot_',strat_col,'.jpeg',sep=""),
-                        device="jpeg",dpi="retina")
+                        device="jpeg",dpi="retina",width=7, height=7)
     }
     return (table_out)
 }
@@ -454,10 +452,10 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]),use.names=FALSE))
     if (length(tu)==0){
-        if (control$verbose>=1){
-            message("Error: no events")
-        }
-        stop()
+#        if (control$verbose>=1){
+#            message("Error: no events")
+#        }
+        stop("Error: no events")
     }
     if (control$verbose>=3){
         message(paste("Note: ",length(tu)," risk groups",sep=""))
@@ -509,14 +507,14 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
                     ggplot2::labs(x=paste("age (",age_unit,")",sep=""),
                     y=paste("Schoenfeld Residual (",names[cov], tform[cov],")",sep=" "))
                 ggplot2::ggsave(paste(plot_name,"_schoenfeld_",cov_res,".jpeg",sep=""),
-                                device="jpeg",dpi="retina")
+                                device="jpeg",dpi="retina",width=7, height=7)
                 #
                 g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$time, y=.data$y_scale)) +
                     ggplot2::geom_point(color="black") +
                     ggplot2::labs(x=paste("age (",age_unit,")",sep=""),
                     y=paste("Schoenfeld Residual Scaled (",names[cov], tform[cov],")",sep=" "))
                 ggplot2::ggsave(paste(plot_name,"_schoenfeld_scaled_",cov_res,".jpeg",sep=""),
-                                device="jpeg",dpi="retina")
+                                device="jpeg",dpi="retina",width=7, height=7)
             }
             #
         }
@@ -581,8 +579,8 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
         message("Note: Starting Censoring weight Plot Function")
     }
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
-        stop()
+#        message("Error: Atleast one parameter must be free")
+        stop("Error: Atleast one parameter must be free")
     }
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,term_n)
@@ -594,10 +592,10 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
     dfend <- df[get(event0)==1, ]
     tu <- sort(unlist(unique(dfend[,time2, with = FALSE]), use.names=FALSE))
     if (length(tu)==0){
-        if (plot_options$verbose>=1){
-            message("Error: no events")
-        }
-        stop()
+#        if (plot_options$verbose>=1){
+#            message("Error: no events")
+#        }
+        stop("Error: no events")
     }
     if (plot_options$verbose>=3){
         message(paste("Note: ",length(tu)," risk groups",sep=""))
@@ -670,7 +668,7 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
         g <- ggplot2::ggplot(dft,ggplot2::aes(x=.data$t, y=.data$surv)) +
             ggplot2::geom_point(color="black") +
             ggplot2::labs(x=paste("age (",age_unit,")",sep=""), y="Survival")
-        ggplot2::ggsave(paste(plot_name,"_weight_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina")
+        ggplot2::ggsave(paste(plot_name,"_weight_surv_plot.jpeg",sep=""),device="jpeg",dpi="retina",width=7, height=7)
     }
     #
     return (dft)

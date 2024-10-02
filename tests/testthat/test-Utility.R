@@ -98,6 +98,7 @@ test_that( "One duplicate column", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table( "a"=a, "b"=b, "c"=c, "d"=d, "e"=a)
+    options(warn=-1)
     expect_equal(Check_Dupe_Columns(df,c( "a", "b", "c", "d", "e" ),c(0,0,0,0,0),TRUE), c( "a", "b", "c", "d" ))
 })
 test_that( "One duplicate column, different term", {
@@ -114,6 +115,7 @@ test_that( "Multiple duplicate columns", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table( "a"=a, "b"=b, "c"=c, "d"=d, "e"=a, "f"=b)
+    options(warn=-1)
     expect_equal(Check_Dupe_Columns(df,c( "a", "b", "c", "e", "f" ),c(0,0,0,0,0),TRUE), c( "a", "b", "c" ))
 })
 test_that( "All duplicate columns, different terms", {
@@ -130,6 +132,7 @@ test_that( "Repeated duplicate columns", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table( "a"=a, "b"=b, "c"=c, "d"=a, "e"=a, "f"=a)
+    options(warn=-1)
     expect_equal(Check_Dupe_Columns(df,c( "a", "b", "c", "d", "f" ),c(0,0,0,0,0),TRUE), c( "a", "b", "c" ))
 })
 test_that( "All but one duplicate column with varying", {
@@ -138,6 +141,7 @@ test_that( "All but one duplicate column with varying", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table( "a"=a, "b"=a, "c"=a)
+    options(warn=-1)
     expect_equal(Check_Dupe_Columns(df,c( "a", "b", "c" ),c(0,0,0),TRUE), c( "a" ))
 })
 test_that( "All but one duplicate column with constant", {
@@ -146,6 +150,7 @@ test_that( "All but one duplicate column with constant", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table( "a"=c, "b"=c, "c"=c)
+    options(warn=-1)
     expect_equal(Check_Dupe_Columns(df,c( "a", "b", "c" ),c(0,0,0),TRUE), c())
 })
 test_that( "Duplicate with column not in df error", {
@@ -154,6 +159,7 @@ test_that( "Duplicate with column not in df error", {
     c <- c(1,1,1,1,1,1,1)
     d <- c(3,4,5,6,7,8,9)
     df <- data.table( "a"=c, "b"=c, "c"=c)
+    options(warn=-1)
     expect_error(Check_Dupe_Columns(df,c( "a", "b", "c", "e" ),c(0,0,0,0),TRUE))
     expect_error(Check_Dupe_Columns(df,c( "a", "e", "c", "c" ),c(0,0,0,0),TRUE))
 })
@@ -247,7 +253,7 @@ test_that( "Iteract formula operation error", {
 #######################################
 
 # test_that( "Check no error", {
-#     control <- list( 'verbose'=4, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
+#     control <- list( 'verbose'=0, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
 #     control <- Def_Control(control)
 #     model_control <- list( "single"=TRUE)
 #     model_control <- Def_model_control(model_control)
@@ -257,7 +263,7 @@ test_that( "Iteract formula operation error", {
 # })
 
 test_that( "Modelform Fixes Additives", {
-    control <- list( 'verbose'=4, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
+    control <- list( 'verbose'=0, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
     control <- Def_Control(control)
     model_control <- list( "single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -270,7 +276,7 @@ test_that( "Modelform Fixes Additives", {
     expect_equal(Def_modelform_fix(control,model_control,modelform,term_n)$modelform, 'PAE' )
 })
 test_that( "Modelform Fixes Additives", {
-    control <- list( 'verbose'=4, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
+    control <- list( 'verbose'=0, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
     control <- Def_Control(control)
     model_control <- list( "single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -281,7 +287,7 @@ test_that( "Modelform Fixes Additives", {
     expect_equal(Def_modelform_fix(control,model_control,modelform,term_n)$modelform, 'M' )
 })
 test_that( "Modelform Fixes gmix", {
-    control <- list( 'verbose'=4, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1, 'verbose'=TRUE)
+    control <- list( 'verbose'=0, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1, 'verbose'=0)
     control <- Def_Control(control)
     model_control <- list( "single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -296,7 +302,7 @@ test_that( "Modelform Fixes gmix", {
 })
 
 test_that( "gmix error", {
-    control <- list( 'verbose'=4, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
+    control <- list( 'verbose'=0, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
     control <- Def_Control(control)
     model_control <- list( "single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -306,7 +312,7 @@ test_that( "gmix error", {
 })
 
 test_that( "unused model formula error", {
-    control <- list( 'verbose'=4, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
+    control <- list( 'verbose'=0, "ncores"=2, 'lr' = 0.75, 'maxiter' = 5, 'ties'='breslow', 'double_step'=1)
     control <- Def_Control(control)
     model_control <- list( "single"=TRUE)
     model_control <- Def_model_control(model_control)
@@ -795,6 +801,7 @@ test_that( "formula order, too few parameters", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- c(1,2,3,4)
     names <- c( "a", "a", "a", "a", "a" )
+    options(warn=-1)
     expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,T))
 })
 test_that( "formula order, no free", {
@@ -998,6 +1005,7 @@ test_that( "formula order, too few parameters, list double", {
     keep_constant <- c(0,0,0,1,0)
     a_n <- list(c(1,2,3,4),c(2,3,4,5))
     names <- c( "a", "a", "a", "a", "a" )
+    options(warn=-1)
     expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,T))
 })
 test_that( "formula order, too many parameters, list double", {
@@ -1099,6 +1107,7 @@ test_that( "Checking term_n limits", {
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c( "a", "a", "a", "a", "a" )
     term_n <- c(0,0,0,-1,0)
+    options(warn=-1)
     expect_no_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,T))
     term_n <- c(0,0,0,1,0.5)
     expect_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,T))
@@ -1112,6 +1121,7 @@ test_that( "Checking tform values", {
     a_n <- list(c(1,2,3,4,5),c(2,3,4,5,6))
     names <- c( "a", "a", "a", "a", "a" )
     term_n <- c(0,0,0,-1,0)
+    options(warn=-1)
     tform <- c( "loglin", 'fake', 'loglin', "loglin", "loglin" )
     expect_error(Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,T))
     tform <- c( "loglin", 'fake', 'bad', "loglin", "loglin" )
@@ -1139,7 +1149,7 @@ test_that( "Gather Guesses no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    
+    options(warn=-1)
     val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n, names,T)
     term_n <- val$term_n
     tform <- val$tform

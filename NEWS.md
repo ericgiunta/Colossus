@@ -54,3 +54,15 @@
 * Cox regression now removes rows that end before first event and start after last event
 * Cox regression now sets constant rows to be constant, helps with aliasing
 * Tests now use sink() to avoid printing as much excessive output to console. Tests now consolidated further.
+
+# Colossus 1.1.4.1
+
+* Cox plotting functions now return the tables used for plots (only last plot table returned)
+* Plotting vignette updated to include more details and plots
+* survival package listed as suggested for plotting vignette
+
+# Colossus 1.1.4.2
+
+* R errors and warnings sent to stop() and warning()
+* ggsave defaults to width/height = 7
+* Updates started to fix possible OpenMP issues with fedora 36 running clang 18

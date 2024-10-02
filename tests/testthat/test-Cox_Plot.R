@@ -20,8 +20,8 @@ test_that( "Coxph plot time column missing", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=FALSE, "surv_curv"=FALSE, "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=FALSE, "surv_curv"=FALSE, "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -43,8 +43,8 @@ test_that( "Coxph plot no events", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -66,8 +66,8 @@ test_that( "Coxph plot no type", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "martingale"=FALSE, "surv_curv"=FALSE, "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "martingale"=FALSE, "surv_curv"=FALSE, "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -89,8 +89,8 @@ test_that( "Coxph plot strata col not in data", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=TRUE, "strat_col"="e", "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=TRUE, "strat_col"="e", "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -112,8 +112,8 @@ test_that( "Coxph plot strata col not given", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=TRUE, "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=TRUE, "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -135,8 +135,8 @@ test_that( "Coxph plot martingale dose col not in data", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=TRUE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=TRUE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -158,8 +158,8 @@ test_that( "Coxph plot martingale dose col not given", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=TRUE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=TRUE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -181,8 +181,8 @@ test_that( "Coxph plot Survival ID col not in data", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="f", 'verbose'=4, "km"=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="f", 'verbose'=0, "km"=TRUE)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -204,8 +204,8 @@ test_that( "Coxph plot Survival ID col not given", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, 'verbose'=4, "km"=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv", "run" ), "martingale"=FALSE, "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, 'verbose'=0, "km"=TRUE)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
@@ -228,16 +228,15 @@ test_that( "Coxph risk too few unique values", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "RISK",paste(tempfile(), "run",sep="" )), "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "RISK",paste(tempfile(), "run",sep="" )), "studyid"="a", 'verbose'=0)
+    options(warn=-1)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
 })
 
 test_that( "Coxph plot no error", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(1,0,1,0,1,0,0)
@@ -254,17 +253,13 @@ test_that( "Coxph plot no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "surv_curv"=TRUE, "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "surv_curv"=TRUE, "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Coxph plot stratafied no error", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,0,0,0,0,0,1)
 	b <- c(2,3,4,2,3,2,4)
 	c <- c(1,0,1,0,1,1,0)
@@ -282,18 +277,14 @@ test_that( "Coxph plot stratafied no error", {
 	modelform <- "M"
 	fir <- 0
 	der_iden <- 0
-	control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-	plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "surv_curv"=TRUE, "strat_haz"=TRUE, "strat_col"="e", "studyid"="a", 'verbose'=TRUE)
+	control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+	plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "surv_curv"=TRUE, "strat_haz"=TRUE, "strat_col"="e", "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Coxph risk no error", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(1,0,1,0,1,0,0)
@@ -310,18 +301,14 @@ test_that( "Coxph risk no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "RISK",paste(tempfile(), "run",sep="" )), "studyid"="a", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "RISK",paste(tempfile(), "run",sep="" )), "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Coxph schoenfeld no error", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -336,17 +323,13 @@ test_that( "Coxph schoenfeld no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "SCHOENFELD",paste(tempfile(), "run",sep="" )), "studyid"="t0", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "SCHOENFELD",paste(tempfile(), "run",sep="" )), "studyid"="t0", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Coxph martingale no error", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,1,0,0,0,1,0)
@@ -364,17 +347,13 @@ test_that( "Coxph martingale no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="e", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="e", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Coxph km no error", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(1,0,1,0,1,0,0)
@@ -391,11 +370,9 @@ test_that( "Coxph km no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "surv_curv"=TRUE, "studyid"="a", 'verbose'=4, "km"=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "surv_curv"=TRUE, "studyid"="a", 'verbose'=0, "km"=TRUE)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })

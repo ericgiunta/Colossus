@@ -1,6 +1,4 @@
 test_that( "Gather Guesses list, incorrect keep_constant length and rmin/rmax not used", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,1,0,0,0,1,0)
@@ -20,7 +18,7 @@ test_that( "Gather Guesses list, incorrect keep_constant length and rmin/rmax no
     der_iden <- 0
     #
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -36,17 +34,14 @@ test_that( "Gather Guesses list, incorrect keep_constant length and rmin/rmax no
     guesses_control$verbose <- TRUE
     model_control <- Def_model_control(model_control)
     #
+    options(warn=-1)
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
     keep_constant <- c(1,0,0,0,0,0,0)
     guesses_control$rmin <- c(-0.1,-1,-0.1,0)
     guesses_control$rmax <- c(0.1, 1, 0.1, 0.1)
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Gather Guesses list, negative risk found", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,1,0,0,0,1,0)
@@ -66,7 +61,7 @@ test_that( "Gather Guesses list, negative risk found", {
     der_iden <- 0
     #
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -82,13 +77,10 @@ test_that( "Gather Guesses list, negative risk found", {
     guesses_control$verbose <- TRUE
     model_control <- Def_model_control(model_control)
     #
+    options(warn=-1)
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Gather Guesses list, bad tform", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a <- c(0,1,2,3,4,5,6)
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,1,0,0,0,1,0)
@@ -108,7 +100,7 @@ test_that( "Gather Guesses list, bad tform", {
     der_iden <- 0
     #
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -127,8 +119,6 @@ test_that( "Gather Guesses list, bad tform", {
     guesses_control$rmin <- c(-0.1,-1,-0.1,0)
     guesses_control$rmax <- c(0.1, 1, 0.1, 0.1,0,0,0)
     expect_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
-    sink(NULL)
-    close(tfile)
 })
 
 
@@ -190,8 +180,6 @@ test_that( "Missing Value verbose error", {
 })
 
 test_that( "Pois various_fixes", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'll_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -209,7 +197,7 @@ test_that( "Pois various_fixes", {
     modelform <- "PAE"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=0)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=0)
     strat_col <- "fac"
     
     verbose <- FALSE
@@ -229,12 +217,8 @@ test_that( "Pois various_fixes", {
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     control$guesses <- 100
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Pois_tier_guess various_fixes", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -250,19 +234,15 @@ test_that( "Pois_tier_guess various_fixes", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    guesses_control <- list( "iterations"=2, "guesses"=2, "lin_min"=0.001, "lin_max"=1, "loglin_min"=-1, "loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform", 'strata'=TRUE, 'term_initial' = c(0,1), 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    guesses_control <- list( "iterations"=2, "guesses"=2, "lin_min"=0.001, "lin_max"=1, "loglin_min"=-1, "loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform", 'strata'=TRUE, 'term_initial' = c(0,1), 'verbose'=0)
     strat_col <- c( 'b' )
-
+    options(warn=-1)
     expect_no_error(RunPoissonRegression_Tier_Guesses(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
     keep_constant <- c(1,1)
     expect_error(RunPoissonRegression_Tier_Guesses(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Poisson_basic_guess_cpp various_fixes", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -277,7 +257,7 @@ test_that( "Poisson_basic_guess_cpp various_fixes", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list( "iterations"=1, "guesses"=1, "lin_min"=0.001, "lin_max"=1, "loglin_min"=-1, "loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform", 'strata'=FALSE, 'term_initial' = c(0,1), 'verbose'=T)
     expect_no_error(RunPoissonRegression_Guesses_CPP(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col))
     model_control <- list( 'strata'=T)
@@ -290,8 +270,6 @@ test_that( "Poisson_basic_guess_cpp various_fixes", {
     keep_constant <- c(0,0)
     names <- c( "a", "CONST" )
     expect_no_error(RunPoissonRegression_Guesses_CPP(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col,model_control))
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Coxph martingale no error", {
@@ -312,22 +290,16 @@ test_that( "Coxph martingale no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=TRUE)
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Coxph loglin_M CENSOR Default various_fixes", {
     fname <- 'll_cens_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -340,7 +312,7 @@ test_that( "Coxph loglin_M CENSOR Default various_fixes", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = -1, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = -1, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     plot_options <- list( "name"=paste(tempfile(), "run",sep="" ), "verbose"=T, "studyid"="studyid", "age_unit"="years" )
     expect_no_error(GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     keep_constant <- c(1,1)
@@ -348,8 +320,6 @@ test_that( "Coxph loglin_M CENSOR Default various_fixes", {
     keep_constant <- c(0,0)
     df$lung <- rep(0,nrow(df))
     expect_error(GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-    sink(NULL)
-    close(tfile)
     #
 })
 test_that( "Coxph risk plotting above discrete step number limit", {
@@ -370,22 +340,16 @@ test_that( "Coxph risk plotting above discrete step number limit", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "RISK",paste(tempfile(), "run",sep="" )), "studyid"="a", 'verbose'=TRUE)
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "RISK",paste(tempfile(), "run",sep="" )), "studyid"="a", 'verbose'=0)
     if (system.file(package='ggplot2' )!="" ){
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Various CoxRegressionOmnibus options", {
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
@@ -410,13 +374,13 @@ test_that( "Various CoxRegressionOmnibus options", {
     verbose <- FALSE
 
     devs <- c()
-
+    options(warn=-1)
     modelform <- "M"
     model_control <- list( 'strata'=FALSE, 'basic'=FALSE, 'single'=FALSE, 'cr'=FALSE)
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     keep_constant <- c(0,0,0)
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     keep_constant <- c(1,1,1)
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
@@ -426,16 +390,16 @@ test_that( "Various CoxRegressionOmnibus options", {
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     df$lung <- lung_temp
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1,1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1,1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     a_n <- list(c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781))
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1, "guesses"=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, "guesses"=1)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
-    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1, "guesses"=10)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, "guesses"=10)
     expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
     #
     names <- c( "rand", "fac", "dose" )
@@ -444,15 +408,11 @@ test_that( "Various CoxRegressionOmnibus options", {
     keep_constant <- c(0,0,0)
     a_n <- c(-0.1,-0.1,0.2)
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="fac", model_control=model_control))
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Various RunPoissonRegression_Omnibus options", {
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     set.seed(3742)
     df$rand <- floor(runif(nrow(df), min=0, max=5))
@@ -484,7 +444,7 @@ test_that( "Various RunPoissonRegression_Omnibus options", {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     keep_constant <- c(0,0,0)
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     strat_col="fac"
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     keep_constant <- c(1,1,1)
@@ -495,18 +455,18 @@ test_that( "Various RunPoissonRegression_Omnibus options", {
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     df$lung <- lung_temp
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1,1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1,1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     a_n <- list(c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781),c(0.6465390, 0.4260961, 0.1572781))
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1, "guesses"=50)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, "guesses"=50)
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     #
-    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1, "guesses"=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, "guesses"=1)
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
-    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1, "guesses"=10)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, "guesses"=10)
     expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
     #
     names <- c( "rand", "fac", "dose" )
@@ -515,8 +475,6 @@ test_that( "Various RunPoissonRegression_Omnibus options", {
     keep_constant <- c(0,0,0)
     a_n <- c(-0.1,-0.1,0.2)
     expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col,model_control))
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Coxph relative risk combinations", {
@@ -535,10 +493,8 @@ test_that( "Coxph relative risk combinations", {
     a_n <- c(-0.1)
     modelform <- "M"
     fir <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     keep_constant <- c(1)
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     expect_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control))
     keep_constant <- c(0)
     names <- c( "d", "CONST" )
@@ -547,8 +503,6 @@ test_that( "Coxph relative risk combinations", {
     keep_constant <- c(0,0)
     a_n <- c(-0.1,0.1)
     expect_no_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control))
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Coxph martingale combinations", {
@@ -569,11 +523,10 @@ test_that( "Coxph martingale combinations", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
-    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=TRUE)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=0)
     keep_constant <- c(1)
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
+    options(warn=-1)
     if (system.file(package='ggplot2' )!="" ){
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
         names <- c( "d", "CONST" )
@@ -582,21 +535,17 @@ test_that( "Coxph martingale combinations", {
         keep_constant <- c(0,0)
         a_n <- c(-0.1,0.1)
         expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-        plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="Not_In", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=TRUE)
+        plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="Not_In", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=0)
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
-        plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=TRUE)
+        plot_options <- list( "type"=c( "surv",paste(tempfile(), "run",sep="" )), "martingale"=TRUE, "cov_cols"="d", "surv_curv"=FALSE, "strat_haz"=FALSE, "smooth_haz"=FALSE, "studyid"="Not_In", 'verbose'=0)
         df$c <- rep(0,nrow(df))
         expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options))
     }
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Cox_tier_guess combinations", {
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -609,24 +558,21 @@ test_that( "Cox_tier_guess combinations", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list( "iterations"=1, "guesses"=1, "lin_min"=0.001, "lin_max"=1, "loglin_min"=-1, "loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform",strata=FALSE,term_initial = c(0))
     strat_col <- 'a'
 	keep_constant <- c(1,1)
+	options(warn=-1)
     expect_error(RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col))
     names <- c( "a", "CONST" )
     keep_constant <- c(0,0)
     guesses_control <- list( "iterations"=1, "guesses"=1, "lin_min"=0.001, "lin_max"=1, "loglin_min"=-1, "loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform",strata=FALSE,term_initial = c(0),rmin=c(1,1,1,1),rmax=c(1,1))
     expect_no_error(RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col))
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Cox_basic_guess_cpp combinations", {
     fname <- 'MULTI_COV.csv'
     colTypes <- c( "double", "double", "integer", "integer", "integer" )
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
     time1 <- "t0"
     time2 <- "t1"
@@ -640,7 +586,7 @@ test_that( "Cox_basic_guess_cpp combinations", {
     fir <- 0
     der_iden <- 0
     strat_col <- 'a'
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 20, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 20, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list( "iterations"=2, "guesses"=2, "lin_min"=0.001, "lin_max"=1, "loglin_min"=-1, "loglin_max"=1, "lin_method"="uniform", "loglin_method"="uniform", 'strata'=FALSE, 'term_initial' = c(0,1), 'verbose'=T)
     model_control <- list( 'strata'=T)
     expect_error(RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col,model_control))
@@ -655,8 +601,6 @@ test_that( "Cox_basic_guess_cpp combinations", {
     df$lung <- rep(0,nrow(df))
     expect_error(RunCoxRegression_Guesses_CPP(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,guesses_control,strat_col,model_control))
     model_control <- list( 'strata'=T)
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Gather Guesses list combinations", {
@@ -679,9 +623,7 @@ test_that( "Gather Guesses list combinations", {
     der_iden <- 0
     #
     #
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
-    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+    control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     guesses_control <- list()
     model_control <- list()
     
@@ -697,6 +639,7 @@ test_that( "Gather Guesses list combinations", {
     guesses_control$verbose <- TRUE
     model_control <- Def_model_control(model_control)
     #
+    options(warn=-1)
     names <- c( "d", "d", "d", "d", "d", "d" )
     expect_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
     names <- c( "d", "d", "d", "d" )
@@ -709,22 +652,16 @@ test_that( "Gather Guesses list combinations", {
     term_n <- c(0,0,0,0)
     tform <- c( "loglin", 'loglin', 'loglin', 'loglin' )
     expect_no_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "Default control guess combinations", {
     control_def<- list( "verbose"=T)
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     a_n <- c(1,2,3)
     expect_no_error(Def_Control_Guess(control_def,a_n))
     control_def<- list( "verbose"="p" )
     expect_error(Def_Control_Guess(control_def,a_n))
     control_def<- list( "verbose"=T, "guess_constant"=c(1))
     expect_no_error(Def_Control_Guess(control_def,a_n))
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "linked formula combinations", {
@@ -752,8 +689,6 @@ test_that( "Iteract formula operation error", {
 })
 
 test_that( "gmix omnibus use", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -776,7 +711,7 @@ test_that( "gmix omnibus use", {
     keep_constant <- c(0,0,0,0,0)
     a_n <- c(-0.1,0.1,0.2,0.3,-0.5)
     df_order <- data.table( "term_n"=term_n, "tform"=tform, "keep_constant"=keep_constant, "a_n"=a_n, "names"=names, "order"=1:5)
-
+    options(warn=-1)
     count <- 0
     der_iden <- 0
     cens_weight <- c(0)
@@ -823,13 +758,9 @@ test_that( "gmix omnibus use", {
             }
         }
     }
-    sink(NULL)
-    close(tfile)
 })
 
 test_that( "dose nondose combinations", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'dose.csv'
     colTypes <- c( "double", "double", "double", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -850,6 +781,7 @@ test_that( "dose nondose combinations", {
     fir <- 0
     der_iden <- 0
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+    options(warn=-1)
     expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
     
     for (model in c( "A", "PAE" )){
@@ -876,6 +808,4 @@ test_that( "dose nondose combinations", {
         modelform <- model
         expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
     }
-    sink(NULL)
-    close(tfile)
 })

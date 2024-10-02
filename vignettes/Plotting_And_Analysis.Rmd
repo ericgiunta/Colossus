@@ -40,7 +40,7 @@ event <- "status"
 
 names <- c('age',"sex")
 tform <- c("loglin", "loglin")
-control <- list("Ncores"=2, 'maxiter'=2, 'verbose'=3)
+control <- list("Ncores"=2, 'maxiter'=2, 'verbose'=0)
 
 a_n <- c(0.01701289, -0.51256478)
 term_n <- c(0,0)
@@ -86,7 +86,7 @@ $$
 ```{r, eval=TRUE}
 
 plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID", 
-                     'verbose'=3, "surv_curv"=T, 'martingale'=F,'strat_haz'=F,'km'=F)
+                     'verbose'=0, "surv_curv"=T, 'martingale'=F,'strat_haz'=F,'km'=F)
 
 e <- RunCoxPlots(df, t0, t1, event, names, term_n, tform, keep_constant, a_n, modelform,
                  fir, control, plot_options)
@@ -106,7 +106,7 @@ g <- ggplot2::ggplot(norm_surv,ggplot2::aes(x=.data$t, y=.data$surv)) +
      ggplot2::labs(x="age", y="Surviving Fraction")
 g
 plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")), "studyid"="UserID",
-                     'verbose'=3, "surv_curv"=F, 'martingale'=F,'strat_haz'=F,'km'=T)
+                     'verbose'=0, "surv_curv"=F, 'martingale'=F,'strat_haz'=F,'km'=T)
 
 e <- RunCoxPlots(df, t0, t1, event, names, term_n, tform, keep_constant, a_n, modelform,
                  fir, control, plot_options)
@@ -135,7 +135,7 @@ $$
 
 ```{r, eval=TRUE}
 plot_options <- list("type"=c("schoenfeld",paste(tempfile(),"run",sep="")),
-                     "studyid"="UserID", 'verbose'=3)
+                     "studyid"="UserID", 'verbose'=0)
 
 res_all <- RunCoxPlots(df, t0, t1, event, names, term_n, tform, keep_constant, a_n,
                        modelform, fir, control, plot_options)
@@ -180,7 +180,7 @@ $$
 
 ```{r, eval=TRUE}
 plot_options <- list("type"=c("surv",paste(tempfile(),"run",sep="")),
-                     "studyid"="UserID", 'verbose'=3, "surv_curv"=F,
+                     "studyid"="UserID", 'verbose'=0, "surv_curv"=F,
                      'martingale'=T,'strat_haz'=F,'km'=F,'cov_cols'=c('age','sex'))
 res_all <- RunCoxPlots(df, t0, t1, event, names, term_n, tform, keep_constant, a_n,
                        modelform, fir, control, plot_options)
@@ -209,7 +209,7 @@ Colossus also offers scripts that plot the relative risk by parameter value for 
 
 ```{r, eval=TRUE}
 plot_options <- list("type"=c("risk",paste(tempfile(),"run",sep="")), "studyid"="UserID",
-                     'verbose'=3)
+                     'verbose'=0)
 res_all <- RunCoxPlots(df, t0, t1, event, names, term_n, tform, keep_constant, a_n,
                        modelform, fir, control, plot_options)
 

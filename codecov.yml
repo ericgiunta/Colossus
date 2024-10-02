@@ -1,11 +1,10 @@
-# sample regex patterns
-ignore:
-  - "**/RcppExport*"  # ignore all RcppExport files
+comment: false
 coverage:
   status:
     project:
       default:
-        target: 90%
-        paths:
-          - "src"
-          - "R"
+        target: 90%    # the (on purpose low) required coverage value
+        threshold: 2%  # the permitted delta in hitting the target
+ignore:
+- (?s:.*/RcppExport[^\/]*)\Z
+

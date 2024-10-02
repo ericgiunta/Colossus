@@ -494,26 +494,27 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     //
     s_weights = dfs * weight.matrix();
     //
-    vector<double> plin_count(term_tot,0);
-    vector<double> loglin_count(term_tot,0);
-    vector<double> dose_count(term_tot,0);
-    #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:dose_count,plin_count,loglin_count)
-    #endif
+//    vector<int> plin_count(term_tot,0);
+    vector<int> lin_count(term_tot,0);
+//    vector<int> loglin_count(term_tot,0);
+    vector<int> dose_count(term_tot,0);
+//    #ifdef _OPENMP
+//    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
+//            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+//            initializer(omp_priv = omp_orig)
+//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_int_plus:dose_count,lin_count)
+//    #endif
     for (int ij=0;ij<(term_n.size());ij++){
         int tn = term_n[ij];
-        if (as< string>(tform[ij])=="loglin") {
-            loglin_count[tn]=loglin_count[tn]+1.0;
-        } else if (as< string>(tform[ij])=="lin") {
-            ;
-        } else if (as< string>(tform[ij])=="plin") {
-            plin_count[tn]=plin_count[tn]+1.0;
-        } else if (as< string>(tform[ij])=="loglin_slope"){
-            dose_count[tn]=dose_count[tn]+1.0; 
-        } else if (as< string>(tform[ij])=="loglin_top"){
+        if (as< string>(tform[ij])=="loglin") { // setting parameters to zero makes the subterm 1
+            ;//loglin_count[tn]=loglin_count[tn]+1.0;
+        } else if (as< string>(tform[ij])=="lin") { // setting parameters to zero makes the subterm 0
+            lin_count[tn]=lin_count[tn]+1.0;
+        } else if (as< string>(tform[ij])=="plin") { // setting parameters to zero makes the subterm 1
+            ;//plin_count[tn]=plin_count[tn]+1.0;
+        } else if (as< string>(tform[ij])=="loglin_slope"){ // the slope paremeter sets the element to 0
+            ;//dose_count[tn]=dose_count[tn]+1.0; 
+        } else if (as< string>(tform[ij])=="loglin_top"){ // the top parameter sets the element to 1
             if (ij==0){
                 dose_count[tn]=dose_count[tn]+1.0;
             } else if (tform[ij-1]!="loglin_slope"){
@@ -522,7 +523,7 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
             } else {
                 ;
             }
-        } else if (as< string>(tform[ij])=="lin_slope"){
+        } else if (as< string>(tform[ij])=="lin_slope"){ // every other dose term sets the elements to 0
             ;
         } else if (as< string>(tform[ij])=="lin_int") {
             ;
@@ -548,17 +549,15 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     }
     //
     vector<double> term_val(term_tot,0);
-    for (int ijk=0; ijk<term_tot;ijk++){ //combines non-dose terms into a single term
-        if (dose_count[ijk]==0){
+    for (int ijk=0; ijk<term_tot;ijk++){
+        if (dose_count[ijk]==0){// If the dose term isn't used, then the default value is 1
             dose_count[ijk] = 1.0;
         }
-        if (plin_count[ijk]==0){
-            plin_count[ijk] = 1.0;
+        if (lin_count[ijk]==0){ // if the linear term isn't used, the entire term is 1 times the dose term value
+            term_val[ijk] = dose_count[ijk];
+        } else { // if the linear term is used, the entire term is 0
+            term_val[ijk] = 0;
         }
-        if (loglin_count[ijk]==0){
-            loglin_count[ijk] = 1.0;;//replaces missing data with 1
-        }
-        term_val[ijk] = dose_count[ijk] * plin_count[ijk] * loglin_count[ijk];
     }
     double default_val=0;
     if (modelform=="A"){

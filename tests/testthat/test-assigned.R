@@ -26,7 +26,7 @@
 
 # 	control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5, 'epsilon' = 1e-3,
 # 	    'deriv_epsilon' = 1e-3, 'abs_max'=1.0, 'change_all'=TRUE,
-# 	   'dose_abs_max'=100.0, 'verbose'=4, 'double_step'=1)
+# 	   'dose_abs_max'=100.0, 'verbose'=0, 'double_step'=1)
 #     #
 #     expect_no_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
 # })
@@ -205,10 +205,8 @@ test_that( "Poisson Assigned Events, combinations", {
 	control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1, 'halfmax' = 5,
 	   'epsilon' = 1e-3,  'deriv_epsilon' = 1e-3,
 	   'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0,
-	   'verbose'=4, 'ties'='breslow', 'double_step'=1)
+	   'verbose'=0, 'ties'='breslow', 'double_step'=1)
     model_control <- list( "strata"=TRUE)
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     expect_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "null", model_control))
 	keep_constant <- c(1,1,1,1)
 	expect_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
@@ -218,8 +216,6 @@ test_that( "Poisson Assigned Events, combinations", {
 	
 	df$Cancer_Status <- rep(0,nrow(df))
 	expect_error(RunPoissonEventAssignment(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
-	sink(NULL)
-    close(tfile)
 })
 
 test_that( "Poisson Assigned Events bounds, check results", {

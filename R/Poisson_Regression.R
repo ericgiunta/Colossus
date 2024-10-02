@@ -64,7 +64,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 	df <- df[get(pyr0)>0,]
     if (control$verbose>=2){
         if (any(val$Permutation != seq_along(tform))){
-            message("Warning: model covariate order changed")
+            warning("Warning: model covariate order changed")
         }
     }
     model_control <- Def_model_control(model_control)
@@ -72,14 +72,13 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
-        stop()
+        stop("Error: Atleast one parameter must be free")
     }
     if (sum(df[,event0, with = FALSE])==0){
-        if (control$verbose>=1){
-            message("Error: no events")
-        }
-        stop()
+#        if (control$verbose>=1){
+#            message("Error: no events")
+#        }
+        stop("Error: no events")
     }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
@@ -99,9 +98,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
             dftemp <- df[get(col)==1,]
             temp <- sum(dftemp[,get(event0)])
             if (temp==0){
-                if (control$verbose>=2){
-                    message(paste("Warning: no events for strata group:",col,sep=" "))
-                }
+                warning(paste("Warning: no events for strata group:",col,sep=" "))
                 df <- df[get(col)!=1,]
                 df0 <- df0[get(col)!=1,]
             } else {
@@ -158,11 +155,12 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
 	                applied_iter <- c(rep(iter0,control$guesses),iter1)
 	                control$maxiters <- applied_iter
 	            } else {
-	                if (control$verbose>=1){
-                        message(paste("Error: guesses:",control["guesses"],
+#	                if (control$verbose>=1){
+#                        message(paste("Error: guesses:",control["guesses"],
+#                              ", iterations per guess:",control["maxiters"],sep=" "))
+#                    }
+                    stop(paste("Error: guesses:",control["guesses"],
                               ", iterations per guess:",control["maxiters"],sep=" "))
-                    }
-                    stop()
 	            }
 	        } else {
 	            control$guesses = length(control$maxiters)-1
@@ -186,8 +184,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
              model_control, cons_mat, cons_vec)
         if ("Status" %in% names(e)){
             if (e$Status=="FAILED"){
-	            if (control$verbose>=1){message("Error: Invalid model")}
-	            stop()
+#	            if (control$verbose>=1){message("Error: Invalid model")}
+	            stop("Error: Invalid model")
             }
         }
     } else {
@@ -213,11 +211,12 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
                 if (control$guesses+1 == length(control$maxiters)){
                     #all good, it matches
                 } else {
-                    if (control$verbose>=1){
-                        message(paste("Error: guesses:",control["guesses"],
+#                    if (control$verbose>=1){
+#                        message(paste("Error: guesses:",control["guesses"],
+#                            ", iterations per guess:",control["maxiters"],sep=" "))
+#                    }
+                    stop(paste("Error: guesses:",control["guesses"],
                             ", iterations per guess:",control["maxiters"],sep=" "))
-                    }
-                    stop()
                 }
             } else {
                 control$guesses <- length(control$maxiters)-1
@@ -244,10 +243,10 @@ RunPoissonRegression_Omnibus <- function(df, pyr0="pyr", event0="event", names=c
                                     cons_mat, cons_vec)
         e$Parameter_Lists$names <- names
         if (is.nan(e$LogLik)){
-            if (control$verbose>=1){
-                message("Error: Invalid risk")
-            }
-            stop()
+#            if (control$verbose>=1){
+#                message("Error: Invalid risk")
+#            }
+            stop("Error: Invalid risk")
         }
         #fine
     }
@@ -454,14 +453,14 @@ RunPoissonEventAssignment <- function(df, pyr0="pyr", event0="event", names=c("C
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
-        stop()
+#        message("Error: Atleast one parameter must be free")
+        stop("Error: Atleast one parameter must be free")
     }
     if (sum(df[,event0, with = FALSE])==0){
-        if (control$verbose>=1){
-            message("Error: no events")
-        }
-        stop()
+#        if (control$verbose>=1){
+#            message("Error: no events")
+#        }
+        stop("Error: no events")
     }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
@@ -481,9 +480,7 @@ RunPoissonEventAssignment <- function(df, pyr0="pyr", event0="event", names=c("C
             dftemp <- df[get(col)==1,]
             temp <- sum(dftemp[,get(event0)])
             if (temp==0){
-                if (control$verbose>=2){
-                    message(paste("Warning: no events for strata group:",col,sep=" "))
-                }
+                warning(paste("Warning: no events for strata group:",col,sep=" "))
                 df <- df[get(col)!=1,]
                 df0 <- df0[get(col)!=1,]
             } else {
@@ -754,16 +751,14 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0="pyr", event0="event", na
     guesses_control <- Def_Control_Guess(guesses_control, a_n)
     t_initial <- guesses_control$term_initial
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
-        stop()
+#        message("Error: Atleast one parameter must be free")
+        stop("Error: Atleast one parameter must be free")
     }
     #
     rmin <- guesses_control$rmin
     rmax <- guesses_control$rmax
     if (length(rmin)!=length(rmax)){
-        if (control$verbose>=2){
-            message("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
-        }
+        warning("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
     }
     #
     name_initial <- c()
@@ -871,10 +866,10 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0="pyr", event0="event", nam
     if ("strata" %in% names(guesses_control)){
         if ("strata" %in% names(model_control)){
             if (guesses_control$strata != model_control$strata){
-                if (guesses_control$verbose>=1){
-                    message("Error: guesses_control and model_control have different strata options")
-                }
-                stop()
+#                if (guesses_control$verbose>=1){
+#                    message("Error: guesses_control and model_control have different strata options")
+#                }
+                stop("Error: guesses_control and model_control have different strata options")
             }
         } else {
             model_control$strata <- guesses_control$strata
@@ -888,8 +883,8 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0="pyr", event0="event", nam
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
-        stop()
+#        message("Error: Atleast one parameter must be free")
+        stop("Error: Atleast one parameter must be free")
     }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
@@ -997,24 +992,22 @@ RunPoissonRegression_Residual <- function(df, pyr0="pyr", event0="event", names=
         a_n <- list(a_n)
     }
 	df <- df[get(pyr0)>0,]
-    if (control$verbose>=2){
-        if (any(val$Permutation != seq_along(tform))){
-            message("Warning: model covariate order changed")
-        }
+    if (any(val$Permutation != seq_along(tform))){
+        warning("Warning: model covariate order changed")
     }
     model_control <- Def_model_control(model_control)
     val <- Def_modelform_fix(control,model_control,modelform,term_n)
     modelform <- val$modelform
     model_control <- val$model_control
     if (min(keep_constant)>0){
-        message("Error: Atleast one parameter must be free")
-        stop()
+#        message("Error: Atleast one parameter must be free")
+        stop("Error: Atleast one parameter must be free")
     }
     if (sum(df[,event0, with = FALSE])==0){
-        if (control$verbose>=1){
-            message("Error: no events")
-        }
-        stop()
+#        if (control$verbose>=1){
+#            message("Error: no events")
+#        }
+        stop("Error: no events")
     }
     if ("CONST" %in% names){
         if ("CONST" %in% names(df)){
@@ -1034,9 +1027,7 @@ RunPoissonRegression_Residual <- function(df, pyr0="pyr", event0="event", names=
             dftemp <- df[get(col)==1,]
             temp <- sum(dftemp[,get(event0)])
             if (temp==0){
-                if (control$verbose>=2){
-                    message(paste("Warning: no events for strata group:",col,sep=" "))
-                }
+                warning(paste("Warning: no events for strata group:",col,sep=" "))
                 df <- df[get(col)!=1,]
                 df0 <- df0[get(col)!=1,]
             } else {

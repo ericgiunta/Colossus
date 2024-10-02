@@ -17,9 +17,9 @@ test_that( "Poisson residual no error", {
     modelform <- "M"
     fir <- 0
     der_iden <- 0
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
-    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=4, 'double_step'=1)
+    #tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
+    #sink(file=tfile)
+    control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
     model_control <- list( 'pearson'=F, 'deviance'=F)
     expect_no_error(RunPoissonRegression_Residual(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col='rand',model_control))
     model_control <- list( 'pearson'=T, 'deviance'=F)
@@ -29,6 +29,6 @@ test_that( "Poisson residual no error", {
     #
     model_control <- list( 'pearson'=F, 'deviance'=F, 'strata'=T)
     expect_no_error(RunPoissonRegression_Residual(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col='e',model_control))
-    sink(NULL)
-    close(tfile)
+    #sink(NULL)
+    #close(tfile)
 })

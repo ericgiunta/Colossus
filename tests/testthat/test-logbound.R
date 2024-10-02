@@ -1,6 +1,4 @@
 test_that( "Coxph strata_basic_single_CR_null log_bound", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -46,10 +44,10 @@ test_that( "Coxph strata_basic_single_CR_null log_bound", {
                         model_control <- list( 'strata'=i, 'basic'=j, 'single'=k, 'cr'=l, 'log_bound'=TRUE, 'manual'=m)
                         if (verbose){print(model_control)}
                         a_n <- c(-0.1,-0.1)
-                        control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+                        control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
                         expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
                         a_n <- c(-0.1,-0.1)
-                        control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='efron', 'double_step'=0)
+                        control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='efron', 'double_step'=0)
                         expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
                         if (verbose){print( "---------------" )}
                     }
@@ -61,17 +59,13 @@ test_that( "Coxph strata_basic_single_CR_null log_bound", {
         model_control <- list( 'null'=T, 'log_bound'=TRUE, 'manual'=m)
         if (verbose){print(model_control)}
         a_n <- c(-0.1,-0.1)
-        control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+        control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
         expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
         model_control <- list( 'single'=T, 'log_bound'=TRUE, 'manual'=m)
         expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control, cens_weight="weighting"))
     }
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Poisson strata_single log_bound", {
-    tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
-    sink(file=tfile)
     fname <- 'll_comp_0.csv'
     colTypes <- c( "double", "double", "double", "integer", "integer" )
     df <- fread(fname,nThread=min(c(detectCores(),2)),data.table=TRUE,header=TRUE,colClasses=colTypes,verbose=FALSE,fill=TRUE)
@@ -107,7 +101,7 @@ test_that( "Poisson strata_single log_bound", {
                 model_control <- list( 'strata'=i, 'single'=k, 'log_bound'=TRUE, 'manual'=m)
                 if (verbose){print(model_control)}
                 a_n <- c(-0.1,-0.1)
-                control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+                control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
                 expect_no_error(RunPoissonRegression_Omnibus(df,pyr, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control))
             }
         }
@@ -117,12 +111,10 @@ test_that( "Poisson strata_single log_bound", {
             model_control <- list( 'strata'=F, 'single'=k, 'log_bound'=TRUE, 'manual'=m)
             if (verbose){print(model_control)}
             a_n <- c(-0.1,-0.1)
-            control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=4, 'ties'='breslow', 'double_step'=1)
+            control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
             expect_error(RunPoissonRegression_Omnibus(df,pyr, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="rand", model_control=model_control))
         }
     }
-    sink(NULL)
-    close(tfile)
 })
 test_that( "Coxph EPICURE validated answers, loglin", {
     fname <- 'base_example.csv'
@@ -234,7 +226,7 @@ test_that( "Coxph, lin both", {
    der_iden <- 0
    #
    model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=FALSE, 'alpha'=0.1)
-   control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(10,10), 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=3, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
+   control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(10,10), 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
 
    alpha <- 0.005
    a_n <- c(0.2462, 5.020,-0.599)
@@ -287,7 +279,7 @@ test_that( "Poisson, lin both", {
    der_iden <- 0
    #
    model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=FALSE, 'alpha'=0.1)
-   control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(10,10), 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=3, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
+   control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(10,10), 'halfmax' = 5, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
 
    alpha <- 0.005
    a_n <- c(-2.917, 0.06526)
