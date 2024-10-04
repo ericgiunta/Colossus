@@ -561,16 +561,16 @@ Def_Control <- function(control) {
     R_compiler <- sys_config[['R Compiler']]
     #
     if (!OpenMP) {
-        control_def$ncores <- 1
+        control$ncores <- 1
     }
     if (Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") {
         if (os == "linux") {
             if (cpp_compiler == "gcc") {
                 if (R_compiler != "gcc") {
-                    control_def$ncores <- 1
+                    control$ncores <- 1
                 }
             } else if (cpp_compiler == 'clang') {
-                control_def$ncores <- 1
+                control$ncores <- 1
             }
         }
     }
