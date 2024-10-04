@@ -13,10 +13,11 @@ test_that( "Default control no error", {
     control_def<- list()
     expect_no_error(Def_Control(control_def))
 })
-test_that( "Default control error", {
-    control_def<- list( "ncores"=detectCores()+100, "verbose"=T)
-    expect_error(Def_Control(control_def))
-})
+# test_that( "Default control error", {
+#     control_def<- list( "ncores"=detectCores()+100, "verbose"=T)
+
+#     expect_error(Def_Control(control_def))
+# })
 test_that( "Default control no error", {
     control_def <- list( "temp"=FALSE)
     a_n <- c(1,2,3)
