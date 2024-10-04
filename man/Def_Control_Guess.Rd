@@ -19,9 +19,9 @@ returns a filled list
 }
 \examples{
 library(data.table)
-guesses_control <- list("maxiter"=10,"guesses"=10,
-    "loglin_min"=-1,"loglin_max"=1,"loglin_method"="uniform")
-a_n <- c(0.1,2,1.3)
+guesses_control <- list("maxiter"=10, "guesses"=10,
+    "loglin_min"=-1, "loglin_max"=1, "loglin_method"="uniform")
+a_n <- c(0.1, 2, 1.3)
 guesses_control <- Def_Control_Guess(guesses_control, a_n)
 
 }

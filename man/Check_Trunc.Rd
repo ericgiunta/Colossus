@@ -21,15 +21,14 @@ returns the updated data and time period columns
 }
 \examples{
 library(data.table)
-
-df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
-           "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
-             "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
-          "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
+df <- data.table::data.table("UserID" = c(112, 114, 213, 214, 115, 116, 117),
+           "Starting_Age" = c(18,  20,  18,  19,  21,  20,  18),
+             "Ending_Age" = c(30,  45,  57,  47,  36,  60,  55),
+          "Cancer_Status" = c(0,   0,   1,   0,   1,   0,   0))
 # For the interval case
 time1 <- "Starting_Age"
 time2 <- "Ending_Age"
-ce <- c("\%trunc\%","Ending_Age")
+ce <- c("\%trunc\%", "Ending_Age")
 val <- Check_Trunc(df, ce)
 df <- val$df
 ce <- val$ce

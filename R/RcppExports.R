@@ -751,7 +751,6 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
 #'
 #' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
 #' @inheritParams CPP_template
-#' 
 #' @return Updates vector in place: parameter vector
 #' @noRd
 #'

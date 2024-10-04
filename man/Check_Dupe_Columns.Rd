@@ -25,12 +25,12 @@ returns the usable columns
 }
 \examples{
 library(data.table)
-a <- c(0,1,2,3,4,5,6)
-b <- c(1,2,3,4,5,6,7)
-c <- c(0,1,2,1,0,1,0)
-df <- data.table::data.table("a"=a,"b"=b,"c"=c)
-cols <- c("a","b","c")
-term_n <- c(0,0,1)
+a <- c(0, 1, 2, 3, 4, 5, 6)
+b <- c(1, 2, 3, 4, 5, 6, 7)
+c <- c(0, 1, 2, 1, 0, 1, 0)
+df <- data.table::data.table("a"=a, "b"=b, "c" = c)
+cols <- c("a", "b", "c")
+term_n <- c(0, 0, 1)
 unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 
 }

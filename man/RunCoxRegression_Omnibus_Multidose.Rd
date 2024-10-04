@@ -83,46 +83,45 @@ competing risks, and calculation without derivatives
 \examples{
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
-
-df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
-           "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
-             "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
-          "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
-                      "a"=c(0,   1,   1,   0,   1,   0,   1),
-                      "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
-                      "c"=c(10,  11,  10,  11,  12,  9,   11),
-                      "d"=c(0,   0,   0,   1,   1,   1,   1),
-                      "e"=c(0,   0,   1,   0,   0,   0,   1),
-                      "a0"=c(0,   1,   1,   0,   1,   0,   1),
-                      "a1"=c(0,   1,   1,   0,   1,   0,   1))
-# For the interval case
-time1 <- "Starting_Age"
-time2 <- "Ending_Age"
-event <- "Cancer_Status"
-names <- c('a','b','c','d')
-a_n <- list(c(1.1, -0.1, 0.2, 0.5),c(1.6, -0.12, 0.3, 0.4))
-#used to test at a specific point
-term_n <- c(0,1,1,2)
-tform <- c("loglin","lin","lin","plin")
+df <- data.table::data.table("UserID" = c(112, 114, 213, 214, 115, 116, 117),
+           "t0" = c(18,  20,  18,  19,  21,  20,  18),
+           "t1" = c(30,  45,  57,  47,  36,  60,  55),
+          "lung" = c(0,   0,   1,   0,   1,   0,   0),
+          "dose" = c(0,   1,   1,   0,   1,   0,   1))
+set.seed(3742)
+df$rand <- floor(runif(nrow(df), min=0, max=5))
+df$rand0 <- floor(runif(nrow(df), min=0, max=5))
+df$rand1 <- floor(runif(nrow(df), min=0, max=5))
+df$rand2 <- floor(runif(nrow(df), min=0, max=5))
+time1 <- "t0"
+time2 <- "t1"
+names <- c( "dose", "rand" )
+term_n <- c(0,0)
+tform <- c( "loglin", "loglin" )
+realization_columns = matrix(c( "rand0", "rand1", "rand2" ),nrow=1)
+realization_index=c( "rand" )
+keep_constant <- c(1,0)
+a_n <- c(0,0)
 modelform <- "M"
 fir <- 0
-
-keep_constant <- c(0,0,0,0)
 der_iden <- 0
-realization_columns = matrix(c("a0","a1"),nrow=1)
-realization_index=c("a")
-
-control <- list("ncores"=2,'lr' = 0.75,'maxiters' = c(5,5,5),
-   'halfmax' = 5,'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
-   'abs_max'=1.0,'change_all'=TRUE, 'dose_abs_max'=100.0,'verbose'=FALSE,
-   'ties'='breslow','double_step'=1, "guesses"=2)
-
-#e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
-#                              names, term_n, tform, keep_constant,
-#                              a_n, modelform, fir, der_iden,
-#                              realization_columns, realization_index,control,
-#                              model_control=list("single"=FALSE,
-#                              "basic"=FALSE, "cr"=FALSE, 'null'=FALSE))
+cens_weight <- c(0)
+event <- "lung"
+a_n <- c(-0.1,-0.1)
+keep_constant <- c(0,0)
+control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = 1,
+                 'halfmax' = 2, 'epsilon' = 1e-6,
+                 'deriv_epsilon' = 1e-6, 'abs_max'=1.0,
+                 'change_all'=TRUE, 'dose_abs_max'=100.0,
+                 'verbose'=0, 'ties'='breslow', 'double_step'=1)
+e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
+                       names, term_n=term_n, tform=tform,
+                       keep_constant=keep_constant, a_n=a_n,
+                       modelform=modelform, fir=fir, der_iden=der_iden,
+                       realization_columns=realization_columns,
+                       realization_index=realization_index,
+                       control=control,strat_col="fac",
+                       model_control=list(), cens_weight="null")
 }
 \seealso{
 Other Cox Wrapper Functions: 

@@ -33,18 +33,16 @@ to calculate the log-likelihood with constant hazard ratio
 \examples{
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
-
-df <- data.table::data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
-           "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
-             "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
-          "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0))
+df <- data.table::data.table("UserID" = c(112, 114, 213, 214, 115, 116, 117),
+           "Starting_Age" = c(18,  20,  18,  19,  21,  20,  18),
+             "Ending_Age" = c(30,  45,  57,  47,  36,  60,  55),
+          "Cancer_Status" = c(0,   0,   1,   0,   1,   0,   0))
 # For the interval case
 time1 <- "Starting_Age"
 time2 <- "Ending_Age"
 event <- "Cancer_Status"
-
-control <- list("ncores"=2,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-
+control <- list("ncores" = 2, 'verbose' = FALSE, 'ties' = 'breslow',
+                'double_step' = 1)
 e <- RunCoxNull(df, time1, time2, event, control)
 
 }

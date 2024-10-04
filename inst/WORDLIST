@@ -46,6 +46,7 @@ frac
 func
 gcc
 ggplot
+ggsave
 gmix
 halfmax
 iden

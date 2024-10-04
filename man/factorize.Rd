@@ -22,12 +22,12 @@ Not for interaction terms
 }
 \examples{
 library(data.table)
-a <- c(0,1,2,3,4,5,6)
-b <- c(1,2,3,4,5,6,7)
-c <- c(0,1,2,1,0,1,0)
-df <- data.table::data.table("a"=a,"b"=b,"c"=c)
+a <- c(0, 1, 2, 3, 4, 5, 6)
+b <- c(1, 2, 3, 4, 5, 6, 7)
+c <- c(0, 1, 2, 1, 0, 1, 0)
+df <- data.table::data.table("a"=a, "b"=b, "c" = c)
 col_list <- c("c")
-val <- factorize(df,col_list)
+val <- factorize(df, col_list)
 df <- val$df
 new_col <- val$cols
 
