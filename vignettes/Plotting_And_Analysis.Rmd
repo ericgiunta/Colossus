@@ -40,7 +40,7 @@ event <- "status"
 
 names <- c('age',"sex")
 tform <- c("loglin", "loglin")
-control <- list("Ncores"=2, 'maxiter'=2, 'verbose'=0)
+control <- list("Ncores"=1, 'maxiter'=2, 'verbose'=0)
 
 a_n <- c(0.01701289, -0.51256478)
 term_n <- c(0,0)

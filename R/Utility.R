@@ -551,7 +551,7 @@ Def_Control <- function(control) {
         "ncores" = as.numeric(detectCores()))
     names(control) <- tolower(names(control))
 	if ((identical(Sys.getenv("TESTTHAT"), "true"))||(identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-		control_def$ncores <- 2
+		control_def$ncores <- min(c(2,as.numeric(detectCores())))
 	}
 	#
 	sys_config <- System_Version()
