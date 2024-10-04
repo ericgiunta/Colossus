@@ -513,6 +513,29 @@ Def_Control <- function(control){
 	if ((identical(Sys.getenv("TESTTHAT"), "true"))||(identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))){
 		control_def$ncores <- 2
 	}
+	#
+	sys_config <- System_Version()
+	OpenMP <- sys_config[['OpenMP Enabled']]
+	os <- sys_config[['Operating System']]
+    cpp_compiler <- sys_config[['Default c++']]
+    R_compiler <- sys_config[['R Compiler']]
+    #
+    if (Sys.getenv("R_COLOSSUS_NOT_CRAN")==""){
+        if (!OpenMP){
+            control_def$ncores <- 1
+        } else {
+            if (os=="linux"){
+	            if (cpp_compiler=="gcc"){
+	                if (R_compiler!="gcc"){
+                        control_def$ncores <- 1
+	                }
+	            } else if (cpp_compiler=='clang'){
+                    control_def$ncores <- 1
+	            }
+            }
+        }
+    }
+	#R_COLOSSUS_NOT_CRAN
     for (nm in names(control_def)){
         if (nm %in% names(control)){
             if (nm=="ncores"){
