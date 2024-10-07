@@ -32,7 +32,7 @@ jobs:
         run: |
           install.packages("ggplot2")
           covr::codecov(
-            type = 'all'
+            type = 'all',
             quiet = FALSE,
             clean = FALSE,
             install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package")
