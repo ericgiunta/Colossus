@@ -3,8 +3,30 @@
 ## ------------------------------------- ##
 test_that( "System version", {
     expect_no_error(System_Version())
+    expect_no_error(Rcpp_version())
 })
 
+## ------------------------------------- ##
+## Verify verbosity code
+## ------------------------------------- ##
+test_that( "Check verbose, T/F", {
+    expect_no_error(Check_Verbose(T))
+    expect_no_error(Check_Verbose(F))
+    expect_no_error(Check_Verbose('TRUE'))
+})
+test_that( "Check verbose, 0/1/2/3/4", {
+    expect_no_error(Check_Verbose(0))
+    expect_no_error(Check_Verbose(1))
+    expect_no_error(Check_Verbose(2))
+    expect_no_error(Check_Verbose(3))
+    expect_no_error(Check_Verbose(4))
+    expect_no_error(Check_Verbose('1'))
+})
+test_that( "Check verbose, Fails", {
+    expect_error(Check_Verbose(-1))
+    expect_error(Check_Verbose(5))
+    expect_error(Check_Verbose('true'))
+})
 ## ------------------------------------- ##
 ## Default control
 ## ------------------------------------- ##

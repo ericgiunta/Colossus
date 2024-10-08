@@ -125,7 +125,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
         uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
                             use.names = FALSE))
         if (control$verbose >= 3) {
-            message(paste("Note:", length(uniq), " strata used", sep = " "))
+            message(paste("Note:", length(uniq), " strata used", sep = " "))# nocov
         }
         #
         data.table::setkeyv(df, c(time2, event0, strat_col))
@@ -673,7 +673,6 @@ RunCoxPlots <- function(df, time1 = "start", time2 = "end", event0 = "event", na
     control <- Def_Control(control)
     plot_options$verbose <- Check_Verbose(plot_options$verbose)
     if (min(keep_constant) > 0) {
-#        message("Error: Atleast one parameter must be free")
         stop("Error: Atleast one parameter must be free")
     }
     if (plot_options$verbose >= 3) {

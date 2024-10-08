@@ -561,27 +561,26 @@ Def_Control <- function(control) {
     R_compiler <- sys_config[['R Compiler']]
     #
     if (!OpenMP) {
-        control$ncores <- 1
+        control$ncores <- 1# nocov
     }
     if (Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") {
         if (os == "linux") {
             if (cpp_compiler == "gcc") {
-                if (R_compiler != "gcc") {
-                    control$ncores <- 1
+                if (R_compiler != "gcc") {# nocov
+                    control$ncores <- 1# nocov
                 }
-            } else if (cpp_compiler == 'clang') {
-                control$ncores <- 1
+            } else if (cpp_compiler == 'clang') {# nocov
+                control$ncores <- 1# nocov
             }
         }
     }
-	#R_COLOSSUS_NOT_CRAN
     for (nm in names(control_def)) {
         if (nm %in% names(control)) {
             if (nm == "ncores") {
                 if (control$ncores>control_def$ncores) {
                     stop(paste("Error: Cores Requested:", control["ncores"],
                               ", Cores Available:", control_def["ncores"],
-                              sep = " "))
+                              sep = " "))# nocov
                 }
             } else if (nm == "verbose") {
                 control$verbose <- Check_Verbose(control$verbose)
@@ -1133,7 +1132,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
         return (2*(unlist(alternative_model["LogLik"], use.names = FALSE) - unlist(null_model["LogLik"], use.names = FALSE)))
     }
     stop("Error: models input did not contain LogLik values")
-    return (NULL)
+    return (NULL)# nocov
 }
 
 
@@ -1648,14 +1647,17 @@ get_os <- function() {
   sysinf <- Sys.info()
   if (!is.null(sysinf)) {
     os <- sysinf['sysname']
-    if (os == 'Darwin')
-      os <- "osx"
+    if (os == 'Darwin'){
+      os <- "osx"# nocov
+    }
   } else { ## mystery machine
-    os <- .Platform$OS.type
-    if (grepl("^darwin", R.version$os))
-      os <- "osx"
-    if (grepl("linux-gnu", R.version$os))
-      os <- "linux"
+    os <- .Platform$OS.type# nocov
+    if (grepl("^darwin", R.version$os)){# nocov
+      os <- "osx"# nocov
+    }
+    if (grepl("linux-gnu", R.version$os)){# nocov
+      os <- "linux"# nocov
+    }
   }
   tolower(os)
 }
@@ -1672,11 +1674,11 @@ gcc_version <- function() {
   if (!is.na(out0)) {
   	out <- "gcc"
   } else {
-    out0 <- str_match(out$stdout, "clang version")[1]
-    if (!is.na(out0)) {
-      out <- "clang"
+    out0 <- str_match(out$stdout, "clang version")[1]# nocov
+    if (!is.na(out0)) {# nocov
+      out <- "clang"# nocov
     } else {
-      out <- out$stdout
+      out <- out$stdout# nocov
     }
   }
   out
@@ -1691,13 +1693,13 @@ Rcomp_version <- function() {
   out <- rcmd("config", "CC")
   out0 <- str_match(out$stdout, "clang")[1]
   if (!is.na(out0)) {
-  	out <- "clang"
+  	out <- "clang"# nocov
   } else {
     out0 <- str_match(out$stdout, "gcc")[1]
     if (!is.na(out0)) {
       out <- "gcc"
     } else {
-      out <- out$stdout
+      out <- out$stdout# nocov
     }
   }
   out
@@ -1713,13 +1715,13 @@ Rcpp_version <- function() {
                   error = function(cnd) list(stdout = ""))
   out0 <- str_match(out$stdout, "clang")[1]
   if (!is.na(out0)) {
-  	out <- "clang"
+  	out <- "clang"# nocov
   } else {
     out0 <- str_match(out$stdout, "gcc")[1]
     if (!is.na(out0)) {
       out <- "gcc"
     } else {
-      out <- out$stdout
+      out <- out$stdout# nocov
     }
   }
   out
@@ -1750,7 +1752,7 @@ System_Version <- function() {
 #'
 Check_Verbose <- function(verbose) {
     if (verbose %in% c(0, 1, 2, 3, 4)) {
-        #pass
+        verbose = as.integer(verbose)
     } else if (verbose %in% c(T, F)) {
         if (verbose) {
             verbose <- 3
