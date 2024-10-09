@@ -23,6 +23,7 @@ PAE
 Raphson
 RunCoxPlots
 RunCoxRegression
+RunPoissonEventAssignment
 RunPoissonRegression
 STP
 Schoenfeld

@@ -59,6 +59,9 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     time2 <- ce[2]
     dfend <- df[get(event0) == 1, ]
     tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+    if (length(tu) == 0) {
+        stop("Error: no events")
+    }
     # remove rows that end before first event
     df <- df[get(time2) >= tu[1], ]
     # remove rows that start after the last event
@@ -133,9 +136,6 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     }
     dfend <- df[get(event0) == 1, ]
     tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
-    if (length(tu) == 0) {
-        stop("Error: no events")
-    }
     if (control$verbose >= 3) {
         message(paste("Note: ", length(tu), " risk groups", sep = ""))# nocov
     }
@@ -173,23 +173,6 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     }
     if (model_control$log_bound) {
         if ("maxiters" %in% names(control)) {
-        	if (length(control$maxiters) == length(a_n) + 1) {
-        		#all good, it matches
-        	} else {
-        		if (control$verbose >= 3) {
-                    message(paste("Note: Initial starts:", length(a_n),
-                          ", Number of iterations provided:",
-                          length(control$maxiters),
-                          ". Colossus requires one more iteration counts than number of guesses (for best guess)", sep = " "))# nocov
-                }
-                if (length(control$maxiters) < length(a_n) + 1) {
-		            additional <- length(a_n) + 1 - length(control$maxiters)
-		            control$maxiters <- c(control$maxiters, rep(1, additional))
-	            } else {
-	            	additional <- length(a_n) + 1
-	            	control$maxiters <- control$maxiters[1:additional]
-	            }
-        	}
 	        if ("guesses" %in% names(control)) {
 	            #both are in
 	            if (control$guesses+1 == length(control$maxiters)) {
@@ -209,15 +192,10 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
 	        }
 	    } else {
 	        if ("guesses" %in% names(control)) {
-	        	if (control$guesses == length(a_n)) {
-	        		#both match, all good
-        		} else {
-        			control$guesses = length(a_n)
-        		}
                 control$maxiters = rep(1, control$guesses+1)
             } else {
-                control$guesses = length(a_n)
-                control$maxiters = c(rep(1, length(a_n)), control$maxiter)
+                control$guesses = 1
+                control$maxiters = c(control$maxiter)
             }
         }
         e <- cox_ph_Omnibus_Bounds_transition(term_n, tform, a_ns,
@@ -284,7 +262,6 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
         } else {
             a_ns <- matrix(a_ns, nrow=length(control$maxiters)-1, byrow=TRUE)
         }
-        Rend <- Sys.time()
         e <- cox_ph_Omnibus_transition(term_n, tform, a_ns, dfc, x_all,
              fir, der_iden,
              modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
@@ -1177,71 +1154,18 @@ RunCoxRegression_Guesses_CPP <- function(df, time1 = "start", time2 = "end", eve
         a_n_default[i] <- a_n[[1]][i]
     }
     if (guesses_control$strata == FALSE) {
-        data.table::setkeyv(df, c(time2, event0))
-        dfend <- df[get(event0) == 1, ]
-        tu <- sort(unlist(unique(dfend[, time2, with = FALSE]),
-                          use.names = FALSE))
-        if (length(tu) == 0) {
-            stop("Error: no events")
-        }
-        if (guesses_control$verbose >= 3) {
-            message(paste("Note: ", length(tu),
-                          " risk groups", sep = ""))# nocov
-        }
-        all_names <- unique(names)
-        #
-        df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-        #
-        dfc <- match(names, all_names)
-
-        term_tot <- max(term_n) + 1
-        x_all <- as.matrix(df[, all_names, with = FALSE])
         ce <- c(time1, time2, event0)
-        #
     } else {
-        #
-        dfend <- df[get(event0) == 1, ]
-        uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
-                            use.names = FALSE))
-        #
-        for (i in seq_along(uniq)) {
-            df0 <- dfend[get(strat_col) == uniq[i], ]
-            tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-            if (length(tu0) == 0) {
-                warning(paste("Warning: no events for strata group:",
-                              uniq[i], sep = " "))
-                df <- df[get(strat_col) != uniq[i], ]
-            }
-        }
-        uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
-                            use.names = FALSE))
-        if (control$verbose >= 3) {
-            message(paste("Note:", length(uniq),
-                          " strata used", sep = " "))# nocov
-        }
-        #
-        data.table::setkeyv(df, c(time2, event0, strat_col))
-        dfend <- df[get(event0) == 1, ]
-        tu <- sort(unlist(unique(dfend[, time2, with = FALSE]),
-                          use.names = FALSE))
-        if (length(tu) == 0) {
-            stop("Error: no events")
-        }
-        if (guesses_control$verbose >= 3) {
-            message(paste("Note: ", length(tu), " risk groups",
-                          sep = ""))# nocov
-        }
-        all_names <- unique(names)
-        #
-        df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-        #
-        dfc <- match(names, all_names)
-
-        term_tot <- max(term_n) + 1
-        x_all <- as.matrix(df[, all_names, with = FALSE])
         ce <- c(time1, time2, event0, strat_col)
-        #
     }
+    all_names <- unique(names)
+    #
+    df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+    #
+    dfc <- match(names, all_names)
+    term_tot <- max(term_n) + 1
+    x_all <- as.matrix(df[, all_names, with = FALSE])
+    #
     t_check <- Check_Trunc(df, ce)
     df <- t_check$df
     ce <- t_check$ce

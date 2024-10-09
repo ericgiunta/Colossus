@@ -2,7 +2,7 @@
 title: "List of Control Options"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Control Options}
+  %\VignetteIndexEntry{List of Control Options}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,6 @@ knitr::opts_chunk$set(
 library(Colossus)
 library(data.table)
 library(ggplot2)
-
 ```
 ## General Use
 

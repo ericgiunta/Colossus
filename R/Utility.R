@@ -58,6 +58,14 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
     modelform <- val$modelform
     model_control <- val$model_control
     #
+    val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n_default,
+                                 names)
+    term_n <- val$term_n
+    tform <- val$tform
+    keep_constant <- val$keep_constant
+    a_n_default <- val$a_n
+    names <- val$names
+    #
     if (length(a_n_default) != length(names)) {
         stop(paste("Error: Default Parameters used: ", length(a_n_default),
                    ", Covariates used: ", length(names),
@@ -222,7 +230,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
 #' der_iden <- val$der_iden
 #' names <- val$names
 #'
-Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_iden = 0, cons_mat=matrix(c(0)), cons_vec = c(0), verbose = FALSE, model_control = list('para_number'=0)) {
+Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_iden = 0, cons_mat=matrix(c(0)), cons_vec = c(0), verbose = FALSE, model_control = list()) {
     #
     verbose <- Check_Verbose(verbose)
     if ("para_number" %in% names(model_control)) {
@@ -473,7 +481,7 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
         }else if ((nrow(cons_mat) == c0) &&  (ncol(cons_mat) == r0)) {
             cons_mat <- t(cons_mat)
         } else {
-            stop("Matrix reordering failed")
+            stop("Matrix reordering failed")# nocov
         }
     }
     a_temp <- df$iden_const
@@ -866,7 +874,7 @@ Linked_Dose_Formula <- function(tforms, paras, verbose=0) {
             if (is.numeric(y)) {
                 #fine
             } else {
-                stop("Error: threshold arguement was not a number")
+                stop("Error: threshold arguement was not a number")# nocov
             }
             a1 <- a0/2/y
             b1 <- a0*y/2
@@ -882,17 +890,17 @@ Linked_Dose_Formula <- function(tforms, paras, verbose=0) {
             if (is.numeric(a0)) {
                 #fine
             } else {
-                stop("Error: a0 arguement was not a number")
+                stop("Error: a0 arguement was not a number")# nocov
             }
             if (is.numeric(y)) {
                 #fine
             } else {
-                stop("Error: threshold arguement was not a number")
+                stop("Error: threshold arguement was not a number")# nocov
             }
             if (is.numeric(b1)) {
                 #fine
             } else {
-                stop("Error: exponential arguement was not a number")
+                stop("Error: exponential arguement was not a number")# nocov
             }
             c1 <- log(a0)-log(b1) + b1*y
             a1 <- a0*y+exp(c1-b1*y)
@@ -1086,14 +1094,10 @@ interact_them <- function(df, interactions, new_names, verbose=0) {
         col1 <- formula[1]
         col2 <- formula[3]
         if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i+seq_len(length(interactions))]) {
-            if (verbose >= 2) {
-                warning(paste("Warning: interation ", i, "is duplicated"))
-            }
+            warning(paste("Warning: interation ", i, "is duplicated"))# nocov
         } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i+seq_len(length(interactions))]) {
-            if (verbose >= 2) {
-                warning(paste("Warning: the reverse of interation ", i,
-                              "is duplicated"))
-            }
+            warning(paste("Warning: the reverse of interation ", i,
+                            "is duplicated"))# nocov
         } else {
             if (formula[2] == "+") {
                 df[, newcol] <- df[, col1, with = FALSE] +
@@ -1169,10 +1173,10 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose=0, factor_check = FALSE
             f1 <- pair[1]
             f2 <- pair[2]
             if (!(f1 %in% names(df))) {
-                stop(paste("Error: ", f1, " not in data.table", sep = ""))
+                stop(paste("Error: ", f1, " not in data.table", sep = ""))# nocov
             }
             if (!(f2 %in% names(df))) {
-                stop(paste("Error: ", f2, " not in data.table", sep = ""))
+                stop(paste("Error: ", f2, " not in data.table", sep = ""))# nocov
             }
             t1 <- term[1]
             t2 <- term[2]
@@ -1184,12 +1188,12 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose=0, factor_check = FALSE
                         checked_factor <- FALSE
                     }
                 } else if (is.numeric(df[[f1]]) !=is.numeric(df[[f2]])) {
-                    checked_factor <- FALSE
+                    checked_factor <- FALSE# nocov
                 }
             }
             if ((t1 == t2)&(checked_factor)) {
-                df[, get(f1)]
-                df[, get(f2)]
+                # df[, get(f1)]
+                # df[, get(f2)]
                 if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
                     if (all(df[[f1]] == df[[f2]])) { # test for duplicates
                         warning(paste("Warning: ", f1, " and ", f2,
@@ -1207,7 +1211,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose=0, factor_check = FALSE
         newcol <- setdiff(cols, toRemove)
         if (length(newcol) == 1) {
             if (min(df[, newcol, with = FALSE]) == max(df[, newcol, with = FALSE])) {
-                return(c())
+                return(c())# nocov
             } else {
                 return(newcol)
             }
@@ -1230,7 +1234,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose=0, factor_check = FALSE
     } else {
         return(c())
     }
-    return(c())
+    return(c())# nocov
 }
 
 #' Applies time duration truncation limits to create columns for Cox model
@@ -1719,7 +1723,7 @@ Rcpp_version <- function() {
   } else {
     out0 <- str_match(out$stdout, "gcc")[1]
     if (!is.na(out0)) {
-      out <- "gcc"
+      out <- "gcc"# nocov
     } else {
       out <- out$stdout# nocov
     }
@@ -1755,9 +1759,9 @@ Check_Verbose <- function(verbose) {
         verbose = as.integer(verbose)
     } else if (verbose %in% c(T, F)) {
         if (verbose) {
-            verbose <- 3
+            verbose <- 3# nocov
         } else {
-            verbose <- 0
+            verbose <- 0# nocov
         }
     } else {
         stop("Error: verbosity arguement not valid")

@@ -45,6 +45,7 @@ test_that( "Poisson no events", {
     b <- c(1,2,3,4,5,6,7)
     c <- c(0,0,0,0,0,0,0)
     d <- c(3,4,5,6,7,8,9)
+    fac<-c(0,0,0,0,1,0,0)
     df <- data.table( "a"=a, "b"=b, "c"=c, "d"=d)
     time1 <- "a"
     time2 <- "b"
@@ -60,6 +61,14 @@ test_that( "Poisson no events", {
     der_iden <- 0
     control <- list( "ncores"=2, 'lr' = 0.95, 'maxiter' = -1, 'halfmax' = 1, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=1.0, 'verbose'=0, 'double_step'=1)
     expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+    #
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(1,2,3,4,5,6,7)
+    c <- c(0,1,1,1,0,0,1)
+    d <- c(3,4,5,6,7,8,9)
+    fac<-c(0,0,0,0,1,0,0)
+    df <- data.table( "a"=a, "b"=b, "c"=c, "d"=d, "fac"=fac)
+    expect_no_error(RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,c( "fac" )))
 })
 
 test_that( "Pois loglin_M", {

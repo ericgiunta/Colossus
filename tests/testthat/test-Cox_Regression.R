@@ -82,6 +82,14 @@ test_that( "Coxph_strata no events", {
     der_iden <- 0
     control <- list( "ncores"=2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5, 'epsilon' = 1e-9,  'deriv_epsilon' = 1e-9, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1)
     expect_error(RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col))
+    #
+    a <- c(0,1,2,3,4,5,6)
+    b <- c(1,2,3,4,5,6,7)
+    c <- c(1,0,0,0,0,0,0)
+    d <- c(3,4,5,6,7,8,9)
+    e <- c(1,1,0,0,1,0,1)
+    df <- data.table( "a"=a, "b"=b, "c"=c, "d"=d, "e"=e)
+    expect_no_error(RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,strat_col))
 })
 test_that( "Coxph_strata no strata", {
     a <- c(0,1,2,3,4,5,6)
@@ -430,4 +438,6 @@ test_that( "Coxph censoring weight", {
     e1 <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
     #
     expect_equal(e0$LogLik - e1$LogLik,-2.909427,tolerance=1e-2)
+    #
+    expect_error(RunCoxRegression_CR(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control,"bad_weighting"))
 })

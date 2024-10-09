@@ -2,7 +2,7 @@
 title: "Script comparisons with 32-bit Epicure"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Script Comparison Epicure}
+  %\VignetteIndexEntry{Script comparisons with 32-bit Epicure}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

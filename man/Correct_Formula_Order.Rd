@@ -14,7 +14,7 @@ Correct_Formula_Order(
   cons_mat = matrix(c(0)),
   cons_vec = c(0),
   verbose = FALSE,
-  model_control = list(para_number = 0)
+  model_control = list()
 )
 }
 \arguments{
