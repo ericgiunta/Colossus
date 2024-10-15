@@ -23,13 +23,15 @@ returns a filled list
 }
 \examples{
 library(data.table)
-control <- list("ncores" = 2, 'lr' = 0.75, 'maxiter' = 5,
-                'ties' = 'breslow', 'double_step' = 1)
+control <- list(
+  "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
+  "ties" = "breslow", "double_step" = 1
+)
 control <- Def_Control(control)
-model_control <- list("single"=TRUE)
+model_control <- list("single" = TRUE)
 model_control <- Def_model_control(model_control)
 term_n <- c(0, 1, 1)
-modelform <- 'a'
+modelform <- "a"
 val <- Def_modelform_fix(control, model_control, modelform, term_n)
 model_control <- val$model_control
 modelform <- val$modelform

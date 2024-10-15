@@ -17,7 +17,6 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(Colossus)
 library(data.table)
-
 ```
 ## General Options
 
@@ -55,8 +54,10 @@ In code this is done by adding in an additional parameter for the stratification
 
 ```{r, eval=FALSE}
 Strat_Col <- "e"
-e <- RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant,
-                             a_n, modelform, fir, der_iden, control,Strat_Col)
+e <- RunCoxRegression_STRATA(
+  df, time1, time2, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, der_iden, control, Strat_Col
+)
 ```
 
 ### Poisson Regression
@@ -87,8 +88,10 @@ In code this is done by adding in a list of stratification columns and using a d
 
 ```{r, eval=FALSE}
 Strat_Col <- c("e")
-e <-RunPoissonRegression_STRATA(df, pyr, event, names, term_n, tform, keep_constant,
-                                a_n, modelform, fir, der_iden, control,Strat_Col)
+e <- RunPoissonRegression_STRATA(
+  df, pyr, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, der_iden, control, Strat_Col
+)
 ```
 
 ## Simplified Model
@@ -98,8 +101,10 @@ The inclusion of linear subterms, additive models, and multiple terms means that
 Assuming the same general parameters in the other vignettes, the code is as follows:
 
 ```{r, eval=FALSE}
-e <- RunCoxRegression_Basic(df, time1, time2, event, names,
-                            keep_constant, a_n, der_iden, control)
+e <- RunCoxRegression_Basic(
+  df, time1, time2, event, names,
+  keep_constant, a_n, der_iden, control
+)
 ```
 
 ## Non-Derivative Calculation
@@ -108,11 +113,15 @@ Colossus uses Newton's method to perform the regression, which can become comput
 
 The code is similar to previous examples:
 ```{r, eval=FALSE}
-e <- RunCoxRegression_Single(df, time1, time2, event, names, term_n, tform,
-                             a_n, modelform, fir, control)
+e <- RunCoxRegression_Single(
+  df, time1, time2, event, names, term_n, tform,
+  a_n, modelform, fir, control
+)
 
-e <- RunPoissonRegression_Single(df, pyr, event, names, term_n, tform,
-                                 a_n, modelform, fir, control)
+e <- RunPoissonRegression_Single(
+  df, pyr, event, names, term_n, tform,
+  a_n, modelform, fir, control
+)
 ```
 
 ## Competing Risks
@@ -157,22 +166,26 @@ At any given event time, every competing event interval will have a right interv
 In code, the call is similar to the standard function. The process for finding a weighting is included below. In this example we assume the event column, lung, to contain a 0 for no events, 1 for the primary event, and 2 for the competing event. A ID column is used to determine which individuals have events and which are censored.
 
 ```{r, eval=FALSE}
-df$censor <- (df$lung==0) #censoring column made
-event <- "censor" #event type switched to censoring
+df$censor <- (df$lung == 0) # censoring column made
+event <- "censor" # event type switched to censoring
 
-plot_options <- list("name"="run_2","verbose"=FALSE,"studyID"="studyID","age_unit"="years")
-#modified plotting function used to get censoring weights
-dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant,
-                     a_n, modelform, fir, control, plot_options) #generates a survival curve
+plot_options <- list("name" = "run_2", "verbose" = FALSE, "studyID" = "studyID", "age_unit" = "years")
+# modified plotting function used to get censoring weights
+dft <- GetCensWeight(
+  df, time1, time2, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, control, plot_options
+) # generates a survival curve
 t_ref <- dft$t
 surv_ref <- dft$surv
 t_c <- df$t1
-cens_weight <- approx(t_ref, surv_ref, t_c,rule=2)$y
-#the surviving proportions used as censoring weight
-event <- "lung" #event switched back
+cens_weight <- approx(t_ref, surv_ref, t_c, rule = 2)$y
+# the surviving proportions used as censoring weight
+event <- "lung" # event switched back
 
-e <- RunCoxRegression_CR(df, time1, time2, event, names, term_n, tform, keep_constant,
-                         a_n, modelform, fir, der_iden, control,cens_weight)
+e <- RunCoxRegression_CR(
+  df, time1, time2, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, der_iden, control, cens_weight
+)
 ```
 
 ### Poisson Joint Analysis
@@ -217,47 +230,51 @@ $$
 Colossus includes several functions which apply this method, a function that produces input for a joint analysis regression and functions which additionally run the regressions. The most general converts a table and lists of model parameters into the input for a regression.
 
 ```{r, eval=TRUE}
-a <- c(0,0,0,1,1,1)
-b <- c(1,1,1,2,2,2)
-c <- c(0,1,2,2,1,0)
-d <- c(1,1,0,0,1,1)
-e <- c(0,1,1,1,0,0)
-df <- data.table('t0'=a,'t1'=b,'e0'=c,'e1'=d,'fac'=e)
+a <- c(0, 0, 0, 1, 1, 1)
+b <- c(1, 1, 1, 2, 2, 2)
+c <- c(0, 1, 2, 2, 1, 0)
+d <- c(1, 1, 0, 0, 1, 1)
+e <- c(0, 1, 1, 1, 0, 0)
+df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
 time1 <- "t0"
 time2 <- "t1"
 df$pyr <- df$t1 - df$t0
 pyr <- "pyr"
-events <- c('e0','e1')
+events <- c("e0", "e1")
 ```
 Colossus generally accepts a series of vectors to describe the elements of model. For a joint analysis, Colossus instead expects lists. Each list is expected to contain vectors for shared elements and elements specific to each event. Colossus expects the list names to be either "shared" or the event column names.
 
 ```{r, eval=TRUE}
-names_e0 <- c('fac')
-names_e1 <- c('fac')
-names_shared <- c('t0','t0')
+names_e0 <- c("fac")
+names_e1 <- c("fac")
+names_shared <- c("t0", "t0")
 term_n_e0 <- c(0)
 term_n_e1 <- c(0)
-term_n_shared <- c(0,0)
+term_n_shared <- c(0, 0)
 tform_e0 <- c("loglin")
 tform_e1 <- c("loglin")
-tform_shared <- c("quad_slope","loglin_top")
+tform_shared <- c("quad_slope", "loglin_top")
 keep_constant_e0 <- c(0)
 keep_constant_e1 <- c(0)
-keep_constant_shared <- c(0,0)
+keep_constant_shared <- c(0, 0)
 a_n_e0 <- c(-0.1)
 a_n_e1 <- c(0.1)
 a_n_shared <- c(0.001, -0.02)
-name_list <- list('shared'=names_shared,'e0'=names_e0,'e1'=names_e1)
-term_n_list <- list('shared'=term_n_shared,'e0'=term_n_e0,'e1'=term_n_e1)
-tform_list <- list('shared'=tform_shared,'e0'=tform_e0,'e1'=tform_e1)
-keep_constant_list <- list('shared'=keep_constant_shared,
-                           'e0'=keep_constant_e0,'e1'=keep_constant_e1)
-a_n_list <- list('shared'=a_n_shared,'e0'=a_n_e0,'e1'=a_n_e1)
+name_list <- list("shared" = names_shared, "e0" = names_e0, "e1" = names_e1)
+term_n_list <- list("shared" = term_n_shared, "e0" = term_n_e0, "e1" = term_n_e1)
+tform_list <- list("shared" = tform_shared, "e0" = tform_e0, "e1" = tform_e1)
+keep_constant_list <- list(
+  "shared" = keep_constant_shared,
+  "e0" = keep_constant_e0, "e1" = keep_constant_e1
+)
+a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
 ```
 The function returns a list which contains the combined table and vectors.
 ```{r, eval=TRUE}
-Joint_Multiple_Events(df, events, name_list, term_n_list,
-                      tform_list, keep_constant_list, a_n_list)
+Joint_Multiple_Events(
+  df, events, name_list, term_n_list,
+  tform_list, keep_constant_list, a_n_list
+)
 ```
 
 These results could be then used as input for any of the available regression functions. Colossus also includes a wrapper functions to directly call the Poisson model regression function. This method could applied to a Cox model assuming every event has the same baseline hazard. However this is not the intended use, so a wrapper function was not included.
@@ -265,16 +282,22 @@ These results could be then used as input for any of the available regression fu
 der_iden <- 0
 modelform <- "M"
 fir <- 0
-control <- list("ncores"=1,'lr' = 0.75,'maxiter' = 10,'halfmax' = 5,'epsilon' = 1e-3,
-   'dbeta_max' = 0.5,'deriv_epsilon' = 1e-3, 'abs_max'=1.0,'change_all'=TRUE,
-   'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
-guesses_control <- list("maxiter"=10,"guesses"=10,"lin_min"=0.001,"lin_max"=1,
-    "loglin_min"=-1,"loglin_max"=1, "lin_method"="uniform","loglin_method"="uniform",
-     strata=FALSE)
-Strat_Col <- 'f'
-RunPoissonRegression_Joint_Omnibus(df, pyr, events, name_list, term_n_list,
-                                        tform_list, keep_constant_list, a_n_list,
-                                        modelform, fir, der_iden, control,Strat_Col)
+control <- list(
+  "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-3,
+  "dbeta_max" = 0.5, "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
+  "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
+)
+guesses_control <- list(
+  "maxiter" = 10, "guesses" = 10, "lin_min" = 0.001, "lin_max" = 1,
+  "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform", "loglin_method" = "uniform",
+  strata = FALSE
+)
+Strat_Col <- "f"
+RunPoissonRegression_Joint_Omnibus(
+  df, pyr, events, name_list, term_n_list,
+  tform_list, keep_constant_list, a_n_list,
+  modelform, fir, der_iden, control, Strat_Col
+)
 ```
 
 
@@ -284,16 +307,17 @@ The distributed start framework is built into both Cox proportional hazards and 
 
 
 ```{r, eval=FALSE}
-
-a_n <- list(c(1,1,1),c(1,2,1),c(1,2,2),c(2,1,1))
+a_n <- list(c(1, 1, 1), c(1, 2, 1), c(1, 2, 2), c(2, 1, 1))
 
 control$maxiter <- 5 # runs each (4) starts 1 iteration, and then runs the best 5 iterations
-control$maxiters <- c(1,1,1,1,5) # runs each (4) starts 1 iteration, and then runs the best 5 iterations
-control$maxiters <- c(5,5,5,5,5) # runs each (4) starts 5 iterations, and then runs the best 5 iterations
+control$maxiters <- c(1, 1, 1, 1, 5) # runs each (4) starts 1 iteration, and then runs the best 5 iterations
+control$maxiters <- c(5, 5, 5, 5, 5) # runs each (4) starts 5 iterations, and then runs the best 5 iterations
 
 e <- RunCoxRegression_Omnibus(df, time1, time2, event,
-                              names, term_n, tform, keep_constant,
-                              a_n, modelform,control=control)
+  names, term_n, tform, keep_constant,
+  a_n, modelform,
+  control = control
+)
 ```
 
 

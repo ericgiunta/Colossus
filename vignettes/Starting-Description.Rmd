@@ -118,9 +118,9 @@ The specific model options are passed to the code as separate variables. The mod
 The final table is also equivalent to the following code
 
 ```{r}
-names <- c('a','b','c','d')
-term_n <- c(0,1,1,2)
-tform <- c("loglin","lin","lin","plin")
+names <- c("a", "b", "c", "d")
+term_n <- c(0, 1, 1, 2)
+tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
 fir <- 0
 
@@ -145,14 +145,16 @@ On the user side, the names of columns containing the time and events need to be
 For a Cox Proportional Hazard we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example we have interval data, however that may not always be the case. Colossus is designed to allow for the user to input "%trunc%" in-place of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. So in code these variables would look like this:
 
 ```{r}
-df <- data.table("UserID"=c(112, 114, 213, 214, 115, 116, 117),
-           "Starting_Age"=c(18,  20,  18,  19,  21,  20,  18),
-             "Ending_Age"=c(30,  45,  57,  47,  36,  60,  55),
-          "Cancer_Status"=c(0,   0,   1,   0,   1,   0,   0),
-                      "a"=c(0,   1,   1,   0,   1,   0,   1),
-                      "b"=c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
-                      "c"=c(10,  11,  10,  11,  12,  9,   11),
-                      "d"=c(0,   0,   0,   1,   1,   1,   1))
+df <- data.table(
+  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
+  "a" = c(0, 1, 1, 0, 1, 0, 1),
+  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+  "c" = c(10, 11, 10, 11, 12, 9, 11),
+  "d" = c(0, 0, 0, 1, 1, 1, 1)
+)
 # For the interval case
 time1 <- "Starting_Age"
 time2 <- "Ending_Age"
@@ -166,7 +168,7 @@ time2 <- "%trunc%"
 time1 <- "%trunc%"
 time2 <- "Ending_Age"
 
-#setting back to normal
+# setting back to normal
 time1 <- "Starting_Age"
 time2 <- "Ending_Age"
 ```
@@ -183,7 +185,7 @@ Suppose instead we were interested in a Poisson model regression, the only diffe
 we would just provide the duration column and event column, or "Person_Years" and "Cancer_Status". Which in code looks like the following:
 
 ```{r}
-df$Person_Years <- df$Ending_Age -df$Starting_Age
+df$Person_Years <- df$Ending_Age - df$Starting_Age
 pyr <- "Person_Years"
 event <- "Cancer_Status"
 ```
@@ -226,12 +228,14 @@ The previous options are all contained within a list of parameters, however ther
 
 Going back to our example, the code may look like the following:
 ```{r}
-keep_constant <- c(0,0,0,0)
+keep_constant <- c(0, 0, 0, 0)
 der_iden <- 0
 
-control <- list("ncores"=1,'lr' = 0.75,'maxiter' = 100,'halfmax' = 5,'epsilon' = 1e-9,
-             'dbeta_max' = 0.5,'deriv_epsilon' = 1e-9, 'abs_max'=1.0,'change_all'=TRUE,
-             'dose_abs_max'=100.0,'verbose'=FALSE, 'ties'='breslow','double_step'=1)
+control <- list(
+  "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,
+  "dbeta_max" = 0.5, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE,
+  "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
+)
 ```
 
 In this example, no parameters are held constant, 100 iterations with 5 half-steps are used, a regression is performed with matrix step solutions, and breslow's method for tied event times is used. There are no errors for unused control parameters being used, they will simply be ignored. Every commonly required control parameter has a default value which is automatically used if not declared. This includes an optional list of model control options. These are used for nonstandard model options not covered in this vignette.
@@ -243,14 +247,18 @@ Finally the user calls the regression function they need. The names used through
 ```{r}
 # assuming the table of covariates is stored in a data.table "df"
 
-e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant,
-                      a_n, modelform, fir, der_iden, control)
+e <- RunCoxRegression(
+  df, time1, time2, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, der_iden, control
+)
 print(e)
 
-#or a Poisson model regression
-a_n <- c(0.1, 0.1, 0.1, 0.1) #a_n is updated when either regression is called
-e <- RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n,
-                          modelform, fir, der_iden, control)
+# or a Poisson model regression
+a_n <- c(0.1, 0.1, 0.1, 0.1) # a_n is updated when either regression is called
+e <- RunPoissonRegression(
+  df, pyr, event, names, term_n, tform, keep_constant, a_n,
+  modelform, fir, der_iden, control
+)
 print(e)
 ```
 

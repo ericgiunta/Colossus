@@ -3,7 +3,7 @@
 
 #' Utility function to define risk groups
 #'
-#' \code{Make_Groups} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
+#' \code{Make_Groups} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
@@ -15,7 +15,7 @@ Make_Groups <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debuggin
 
 #' Utility function to define risk groups with competing risks
 #'
-#' \code{Make_Groups_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event=2 past the event time    
+#' \code{Make_Groups_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds rows with event = 2 past the event time
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
@@ -27,7 +27,7 @@ Make_Groups_CR <- function(ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, nt
 
 #' Utility function to define risk groups with STRATA
 #'
-#' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group    
+#' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
@@ -39,7 +39,7 @@ Make_Groups_STRATA <- function(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, d
 
 #' Utility function to define risk groups with STRATA and competing risks
 #'
-#' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group , adds competing risks  
+#' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds competing risks
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
@@ -449,8 +449,8 @@ Cox_Refresh_R_SIDES <- function(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, L
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Cox_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term) {
-    invisible(.Call(`_Colossus_Cox_Term_Risk_Calc`, modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, start, gmix_theta, gmix_term))
+Cox_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Cox_Term_Risk_Calc`, modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, gmix_theta, gmix_term))
 }
 
 #' Utility function to perform calculation of Repeated Calculations and Log-Likelihood for Cox Omnibus
@@ -461,8 +461,8 @@ Cox_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, ter
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Cox_Side_LL_Calc <- function(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop) {
-    invisible(.Call(`_Colossus_Cox_Side_LL_Calc`, reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, start, iter_stop))
+Cox_Side_LL_Calc <- function(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, iter_stop) {
+    invisible(.Call(`_Colossus_Cox_Side_LL_Calc`, reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, single_bool, iter_stop))
 }
 
 #' Utility function to perform calculation of terms and risks for Poisson Omnibus
@@ -473,8 +473,8 @@ Cox_Side_LL_Calc <- function(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGr
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Pois_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term) {
-    invisible(.Call(`_Colossus_Pois_Term_Risk_Calc`, modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, start, gmix_theta, gmix_term))
+Pois_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, gmix_theta, gmix_term) {
+    invisible(.Call(`_Colossus_Pois_Term_Risk_Calc`, modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, strata_bool, single_bool, gmix_theta, gmix_term))
 }
 
 #' Utility function to perform calculation of Log-Likelihood and Deviation for Poisson Omnibus
@@ -487,8 +487,8 @@ Pois_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, te
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev) {
-    invisible(.Call(`_Colossus_Pois_Dev_LL_Calc`, reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, start, iter_stop, dev))
+Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, iter_stop, dev) {
+    invisible(.Call(`_Colossus_Pois_Dev_LL_Calc`, reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, iter_stop, dev))
 }
 
 #' Utility function to check if risk is valid, and if so continue
@@ -499,8 +499,8 @@ Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, R
 #' @return Updates matrices in place: risk, scores, etc storage matrices
 #' @noRd
 #'
-Cox_Pois_Check_Continue <- function(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose) {
-    invisible(.Call(`_Colossus_Cox_Pois_Check_Continue`, basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, start, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose))
+Cox_Pois_Check_Continue <- function(basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose) {
+    invisible(.Call(`_Colossus_Cox_Pois_Check_Continue`, basic_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose))
 }
 
 #' Utility function to check if risk is valid, and if so continue
@@ -511,8 +511,8 @@ Cox_Pois_Check_Continue <- function(basic_bool, beta_0, beta_best, beta_c, cens_
 #' @return Updates matrices in place: risk, scores, etc storage matrices
 #' @noRd
 #'
-Cox_Pois_Log_Loop <- function(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose) {
-    invisible(.Call(`_Colossus_Cox_Pois_Log_Loop`, abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, start, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose))
+Cox_Pois_Log_Loop <- function(abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose) {
+    invisible(.Call(`_Colossus_Cox_Pois_Log_Loop`, abs_max, basic_bool, beta_0, beta_a, beta_c, bound_val, cox_bool, dbeta, debugging, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, single_bool, strata_bool, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose))
 }
 
 #' Primary Cox PH baseline hazard function with stratification
@@ -751,6 +751,7 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
 #'
 #' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
 #' @inheritParams CPP_template
+#'
 #' @return Updates vector in place: parameter vector
 #' @noRd
 #'
@@ -760,7 +761,7 @@ Intercept_Bound <- function(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepCon
 
 #' Utility function to calculate the change to make each iteration, applying linear constraints
 #'
-#' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints    
+#' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix
@@ -772,7 +773,7 @@ Calc_Change_Cons <- function(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_i
 
 #' Utility function to calculate the change to make each iteration
 #'
-#' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+#' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix
@@ -784,7 +785,7 @@ Calc_Change <- function(double_step, nthreads, totalnum, der_iden, dose_abs_max,
 
 #' Utility function to calculate the change to make each iteration, with basic model
 #'
-#' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+#' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix
@@ -810,7 +811,7 @@ Log_Bound <- function(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number
 
 #' Utility function to calculate the change to make each iteration
 #'
-#' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations    
+#' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix
@@ -855,7 +856,7 @@ Make_subterms_Basic <- function(totalnum, dfc, T0, beta_0, df0, nthreads, debugg
 
 #' Utility function to calculate the risk and risk ratios
 #'
-#' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
+#' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
@@ -866,7 +867,7 @@ Make_Risks <- function(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, T
 
 #' Utility function to calculate the risk and risk ratios with a weighting applied
 #'
-#' \code{Make_Risks_Weighted} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
+#' \code{Make_Risks_Weighted} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
@@ -877,7 +878,7 @@ Make_Risks_Weighted <- function(modelform, tform, term_n, totalnum, fir, s_weigh
 
 #' Utility function to calculate the risk with a weighting applied and no derivatives calculated
 #'
-#' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas  
+#' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
@@ -888,7 +889,7 @@ Make_Risks_Weighted_Single <- function(modelform, tform, term_n, totalnum, fir, 
 
 #' Utility function to calculate the risk, but not derivatives
 #'
-#' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form   
+#' \code{Make_Risks_Single} Called to update risk matrices, Splits into cases based on model form
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios
@@ -899,7 +900,7 @@ Make_Risks_Single <- function(modelform, tform, term_n, totalnum, fir, T0, Te, R
 
 #' Utility function to calculate the risk and risk ratios for the basic model
 #'
-#' \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas    
+#' \code{Make_Risks_Basic} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios

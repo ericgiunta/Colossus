@@ -19,10 +19,10 @@ returns the score statistic
 }
 \examples{
 library(data.table)
-#In an actual example, one would run two seperate RunCoxRegression regressions,
+# In an actual example, one would run two seperate RunCoxRegression regressions,
 #    assigning the results to e0 and e1
-e0 <- list("name"="First Model", "LogLik"=-120)
-e1 <- list("name"="New Model", "LogLik"=-100)
+e0 <- list("name" = "First Model", "LogLik" = -120)
+e1 <- list("name" = "New Model", "LogLik" = -100)
 score <- Likelihood_Ratio_Test(e1, e0)
 
 }

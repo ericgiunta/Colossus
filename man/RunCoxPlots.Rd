@@ -60,19 +60,21 @@ vectors specifying the model, and options to choose and save plots
 \examples{
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
-df <- data.table::data.table("UserID" = c(112, 114, 213, 214, 115, 116, 117),
-           "Starting_Age" = c(18,  20,  18,  19,  21,  20,  18),
-             "Ending_Age" = c(30,  45,  57,  47,  36,  60,  55),
-          "Cancer_Status" = c(0,   0,   1,   0,   1,   0,   0),
-                      "a" = c(0,   1,   1,   0,   1,   0,   1),
-                      "b" = c(1,   1.1, 2.1, 2,   0.1, 1,   0.2),
-                      "c" = c(10,  11,  10,  11,  12,  9,   11),
-                      "d" = c(0,   0,   0,   1,   1,   1,   1))
+df <- data.table::data.table(
+  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
+  "a" = c(0, 1, 1, 0, 1, 0, 1),
+  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+  "c" = c(10, 11, 10, 11, 12, 9, 11),
+  "d" = c(0, 0, 0, 1, 1, 1, 1)
+)
 # For the interval case
 time1 <- "Starting_Age"
 time2 <- "Ending_Age"
 event <- "Cancer_Status"
-names <- c('a', 'b', 'c', 'd')
+names <- c("a", "b", "c", "d")
 term_n <- c(0, 1, 1, 2)
 tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
@@ -80,17 +82,25 @@ fir <- 0
 a_n <- c(-0.1, 0.5, 1.1, -0.3)
 keep_constant <- c(0, 0, 0, 0)
 der_iden <- 0
-control <- list("ncores" = 2, 'lr' = 0.75, 'maxiter' = -1, 'halfmax' = 5,
-   'epsilon' = 1e-3, 'deriv_epsilon' = 1e-3,
-   'abs_max' = 1.0, 'change_all'=TRUE, 'dose_abs_max' = 100.0,
-   'verbose' = FALSE, 'ties' = 'breslow', 'double_step' = 1)
-#setting maxiter below 0 forces the function to calculate the score
+control <- list(
+  "ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5,
+  "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
+  "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0,
+  "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
+)
+# setting maxiter below 0 forces the function to calculate the score
 # and return
-plot_options <- list("type" = c("surv", paste(tempfile(),
-                     "run", sep = "")), "studyid"="UserID",
-                  'verbose' = FALSE)
-RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant,
-            a_n, modelform, fir, control, plot_options)
+plot_options <- list(
+  "type" = c("surv", paste(tempfile(),
+    "run",
+    sep = ""
+  )), "studyid" = "UserID",
+  "verbose" = FALSE
+)
+RunCoxPlots(
+  df, time1, time2, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, control, plot_options
+)
 
 }
 \seealso{

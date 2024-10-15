@@ -147,7 +147,7 @@ NULL
 #' @param Lin_Res Vector containing constants for system of linear constraints
 #' @param Lin_Sys Matrix containing coefficients for system of linear constraints
 #' @param lr  learning rate for newton step toward 0 derivative
-#' @param matrix_modify matrix to remove rows or columns from 
+#' @param matrix_modify matrix to remove rows or columns from
 #' @param maxiter   integer of maximum number of iterations
 #' @param maxiters  list of maximum number of iterations
 #' @param model_control  controls which alternative model options are used
@@ -195,6 +195,3 @@ NULL
 #' @importFrom callr rcmd
 #' @useDynLib Colossus, .registration = TRUE
 NULL
-
-
-
