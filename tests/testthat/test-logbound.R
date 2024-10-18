@@ -35,7 +35,7 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
 
   verbose <- FALSE
-
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       for (k in c(FALSE, FALSE)) {
@@ -100,7 +100,7 @@ test_that("Poisson strata_single log_bound", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
 
   verbose <- FALSE
-
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
   for (i in c(TRUE, FALSE)) {
     for (k in c(FALSE, FALSE)) {
       for (m in c(TRUE, FALSE)) {
@@ -146,7 +146,7 @@ test_that("Coxph EPICURE validated answers, loglin", {
   a_n <- c(-0.6067, 5.019)
   model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = 0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
   v_lower <- c(-0.6305960, -0.6572672, -0.6817293, -0.6929630, -0.7300938, -0.7537744, -0.7749381, -0.8001031, -0.8175117)
   v_upper <- c(-0.5828725, -0.5562505, -0.5318645, -0.5206756, -0.4837373, -0.4602148, -0.4392159, -0.4142752, -0.3970399)
 
@@ -195,7 +195,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
 
   v_lower <- c(-0.6305960, -0.6572672, -0.6817293, -0.6929630, -0.7300938, -0.7537744, -0.7749381, -0.8001031, -0.8175117)
   v_upper <- c(-0.5828725, -0.5562505, -0.5318645, -0.5206756, -0.4837373, -0.4602148, -0.4392159, -0.4142752, -0.3970399)
-
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
   alphas <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   for (alpha_i in seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
@@ -245,6 +245,7 @@ test_that("Coxph, lin both", {
   a_n <- c(0.2462, 5.020, -0.599)
   model_control <- list("basic" = FALSE, "maxstep" = 5, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control))
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
   alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
@@ -298,6 +299,7 @@ test_that("Poisson, lin both", {
   a_n <- c(-2.917, 0.06526)
   model_control <- list("basic" = FALSE, "maxstep" = 5, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
+  # if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
   # alpha_list <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   # control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
   # control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(10,10), 'halfmax' = 5, 'epsilon' = 1e-4,  'deriv_epsilon' = 1e-3, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
