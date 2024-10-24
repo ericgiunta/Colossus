@@ -837,6 +837,42 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
     return;
 }
 
+//' Utility function to calculate the term and subterm values
+//'
+//' \code{Make_subterms_Linear_ERR} Called to update subterms for Linear ERR simplification
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: subterm matrices, Term matrices
+//' @noRd
+// [[Rcpp::export]]
+void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, const IntegerVector& dfc, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+    //
+    // Calculates the sub term values
+    //
+    // reset the subterm counts
+    nonDose_PLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Loglinear subterm values
+    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Product linear subterm values
+    #ifdef _OPENMP
+    #pragma omp declare reduction (eig_plus: MatrixXd: omp_out=omp_out.array() + omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 0.0))
+    #pragma omp declare reduction (eig_mult: MatrixXd: omp_out=omp_out.array() * omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 1.0))
+    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+            initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN)
+    #endif
+    for (int ij = 0; ij < totalnum; ij++) {
+        int df0_c = dfc[ij] - 1;
+        if (as< string>(tform[ij]) == "loglin") {
+            nonDose_LOGLIN.col(0) = nonDose_LOGLIN.col(0).array() * (df0.col(df0_c).array() * beta_0[ij]).array().exp();;
+        } else if (as< string>(tform[ij]) == "plin") {
+            nonDose_PLIN.col(0) = nonDose_PLIN.col(0).array() + (df0.col(df0_c).array() * beta_0[ij]).array();
+        } else {
+            throw invalid_argument("incorrect subterm type");
+        }
+    }
+    return;
+}
+
 //' Utility function to calculate the risk and risk ratios
 //'
 //' \code{Make_Risks} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
@@ -1203,7 +1239,21 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                 int p_ijk = ij*(ij + 1)/2 + jk;
                 //
                 if (tij == tjk) {
-                    Rdd.col(p_ijk) = R.col(0).array() * Tterm_ratio.col(ij).array() * Tdd0.array().col(p_ijk).array();
+                    if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()) {
+                        if (Dose_Iden.find(as< string>(tform[jk])) != Dose_Iden.end()) {
+                            Rdd.col(p_ijk) = R.col(0).array()  * Tterm_ratio.col(ij).array() * Tdd0.col(p_ijk).array(); // both are dose
+                        } else {
+                            Rdd.col(p_ijk) = R.col(0).array() *  Tterm_ratio.col(ij).array() * Td0.col(ij).array() * Tterm_ratio.col(jk).array() * Td0.col(jk).array(); // two different tform
+                        }
+                    } else if (Dose_Iden.find(as< string>(tform[jk])) != Dose_Iden.end()) {
+                        Rdd.col(p_ijk) = R.col(0).array() *  Tterm_ratio.col(ij).array() * Td0.col(ij).array() * Tterm_ratio.col(jk).array() * Td0.col(jk).array(); // two different tform
+                    } else {
+                        if (tform[jk] != tform[ij]) {
+                            Rdd.col(p_ijk) = R.col(0).array() *  Tterm_ratio.col(ij).array() * Td0.col(ij).array() * Tterm_ratio.col(jk).array() * Td0.col(jk).array(); // two different tform
+                        } else {
+                            Rdd.col(p_ijk) = R.col(0).array() *  Tterm_ratio.col(ij).array() * Tdd0.col(p_ijk).array(); // both are the same subterm
+                        }
+                    }
                 } else {
                     Rdd.col(p_ijk) = R.col(0).array() * Tterm_ratio.col(ij).array() * Tterm_ratio.col(jk).array() * Td0.array().col(ij).array() * Td0.array().col(jk).array();
                     //
@@ -1476,6 +1526,81 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
         if (KeepConstant[ij] == 0) {
             RdR.col(ij) = df0.col(df0_ij).array();
         }
+    }
+    return;
+}
+
+//' Utility function to calculate the risk and risk ratios
+//'
+//' \code{Make_Risks_Linear_ERR} Called to update risk matrices, uses the Linear ERR simplification
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Risk, Risk ratios
+//' @noRd
+// [[Rcpp::export]]
+void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, const  MatrixXd& df0, const int& totalnum, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+    //
+    int reqrdnum = totalnum - sum(KeepConstant);
+    //
+    R = nonDose_PLIN.array() * nonDose_LOGLIN.array();
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ij = 0; ij < totalnum; ij++) {
+        if (KeepConstant[ij] == 0) {
+            int df0_c = dfc[ij] - 1;
+            int ijk = ij - sum(head(KeepConstant, ij));
+            if (tform[ij] == "loglin") {
+                Rd.col(ijk) = df0.col(df0_c).array() * R.array();
+            } else {
+                Rd.col(ijk) = df0.col(df0_c).array() * nonDose_LOGLIN.array();
+            }
+        }
+    }
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < totalnum*(totalnum + 1)/2; ijk++) {
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+            //
+            ij = ij - sum(head(KeepConstant, ij));
+            jk = jk - sum(head(KeepConstant, jk));
+            int p_ijk = ij*(ij + 1)/2 + jk;
+            //
+            int df0_ij = dfc[ij] - 1;
+            int df0_jk = dfc[jk] - 1;
+            if (tform[ij] != tform[jk]){
+                Rdd.col(p_ijk) = nonDose_LOGLIN.array() * df0.col(df0_ij).array() * df0.col(df0_jk).array();
+            } else {
+                if (tform[ij] == "loglin"){
+                    Rdd.col(p_ijk) = R.array() * df0.col(df0_ij).array() * df0.col(df0_jk).array();
+                } else {}
+            }
+        }
+    }
+    //
+    R =  (R.array().isFinite()).select(R,  - 1);
+    Rd = (Rd.array().isFinite()).select(Rd, 0);
+    Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
+    //
+    for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {  // calculates ratios
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        if (ij == jk) {
+            RdR.col(ij) = R.col(0).array().pow(- 1).array() * Rd.col(jk).array();
+        }
+        RddR.col(ijk) = R.col(0).array().pow(- 1).array() * Rdd.col(ijk).array();
     }
     return;
 }

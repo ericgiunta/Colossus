@@ -296,7 +296,7 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  Ma
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double abs_max, double dose_abs_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd& cens_weight, int uniq_v, bool strata_bool, bool basic_bool, bool CR_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double abs_max, double dose_abs_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& STRATA_vals, const VectorXd& cens_weight, int uniq_v, bool strata_bool, bool basic_bool, bool linerr_bool, bool CR_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  // used as a dummy return value for code checking
     // if (verbose >= 4) {
@@ -409,7 +409,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     // ---------------------------------------------
     //
     T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
-    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, single_bool);
+    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool,  linerr_bool, single_bool);
     // ------------------------------------------------------------------------- // initialize
     // ------------------------------------------------------------------------- // initialize
     MatrixXd Rls1;
@@ -423,7 +423,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  // the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
     // ------------------------------------------------------------------------- // initialize
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool);
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool, single_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, basic_bool,  linerr_bool, single_bool, gmix_theta, gmix_term);
     //
     List res_list;
     //
@@ -485,7 +485,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
     // Calculates the side sum terms used
-    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, FALSE, 0);
+    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, linerr_bool, FALSE, 0);
     int kept_covs = totalnum - sum(KeepConstant);  // does !base the standard deviation off of constant parameters
     NumericVector Lldd_vec(kept_covs * kept_covs);
     #ifdef _OPENMP

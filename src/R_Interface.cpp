@@ -82,6 +82,7 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
     //
     bool strata_bool = model_control["strata"];
     bool basic_bool = model_control["basic"];
+    bool linerr_bool = model_control["linear_err"];
     bool null_bool  = model_control["null"];
     bool CR_bool    = model_control["cr"];
     bool single_bool = model_control["single"];
@@ -89,7 +90,7 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, linerr_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -194,6 +195,7 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
     //
     bool strata_bool = model_control["strata"];
     bool basic_bool = model_control["basic"];
+    bool linerr_bool = model_control["linear_err"];
     bool CR_bool    = model_control["cr"];
     //
     bool Surv_bool      = model_control["surv"];
@@ -209,7 +211,7 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
         return res;
     }
     //----------------------------------------------------------------------------------------------------------------//
-    res = Plot_Omnibus(term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, uniq_v, strata_bool, basic_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
+    res = Plot_Omnibus(term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, uniq_v, strata_bool, basic_bool, linerr_bool, CR_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -627,6 +629,7 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
     //
     bool strata_bool = model_control["strata"];
     bool basic_bool = model_control["basic"];
+    bool linerr_bool = model_control["linear_err"];
     bool null_bool  = model_control["null"];
     bool CR_bool    = model_control["cr"];
     bool single_bool = model_control["single"];
@@ -642,9 +645,9 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     if (manual) {
-        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, linerr_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     } else {
-        res = LogLik_Cox_PH_Omnibus_Log_Bound(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+        res = LogLik_Cox_PH_Omnibus_Log_Bound(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, linerr_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -776,6 +779,7 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     //
     bool strata_bool = model_control["strata"];
     bool basic_bool = model_control["basic"];
+    bool linerr_bool = model_control["linear_err"];
     bool null_bool  = model_control["null"];
     bool CR_bool    = model_control["cr"];
     bool single_bool = model_control["single"];
@@ -783,7 +787,7 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Multidose_Omnibus(term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_Cox_PH_Multidose_Omnibus(term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, STRATA_vals, cens_weight, strata_bool, basic_bool, linerr_bool, null_bool, CR_bool, single_bool, constraint_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
