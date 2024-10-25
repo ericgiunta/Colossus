@@ -11,6 +11,7 @@
 <url><loc>/articles/Starting-Description.html</loc></url>
 <url><loc>/articles/Time_Dep_Cov.html</loc></url>
 <url><loc>/articles/Wald_and_Log_Bound.html</loc></url>
+<url><loc>/articles/count_time_tables.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
@@ -25,6 +26,8 @@
 <url><loc>/reference/Def_Control_Guess.html</loc></url>
 <url><loc>/reference/Def_model_control.html</loc></url>
 <url><loc>/reference/Def_modelform_fix.html</loc></url>
+<url><loc>/reference/Event_Count_Gen.html</loc></url>
+<url><loc>/reference/Event_Time_Gen.html</loc></url>
 <url><loc>/reference/Gather_Guesses_CPP.html</loc></url>
 <url><loc>/reference/GetCensWeight.html</loc></url>
 <url><loc>/reference/Joint_Multiple_Events.html</loc></url>

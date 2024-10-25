@@ -5,6 +5,7 @@ articles:
   Alt_Distrib_Starts: Alt_Distrib_Starts.html
   Alt_Run_Opt: Alt_Run_Opt.html
   Control_Options: Control_Options.html
+  count_time_tables: count_time_tables.html
   Dose_Formula_Inputs: Dose_Formula_Inputs.html
   Excess_and_Predicted_Cases: Excess_and_Predicted_Cases.html
   Multi_Realization: Multi_Realization.html
@@ -13,4 +14,4 @@ articles:
   Starting-Description: Starting-Description.html
   Time_Dep_Cov: Time_Dep_Cov.html
   Wald_and_Log_Bound: Wald_and_Log_Bound.html
-last_built: 2024-10-24T20:31Z
+last_built: 2024-10-25T20:04Z
