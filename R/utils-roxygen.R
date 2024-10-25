@@ -184,7 +184,7 @@ NULL
 #' @importFrom Rcpp evalCpp
 #' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD
 #' @importFrom parallel detectCores
-#' @importFrom stats runif
+#' @importFrom stats runif weighted.mean
 #' @importFrom utils combn head
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom graphics legend lines smoothScatter
@@ -193,5 +193,8 @@ NULL
 #' @importFrom processx run
 #' @importFrom stringr str_match
 #' @importFrom callr rcmd
+#' @importFrom tibble as_tibble tibble
+#' @importFrom dplyr mutate case_when group_by summarize n slice bind_rows across all_of
+#' @importFrom lubridate make_date interval as.duration
 #' @useDynLib Colossus, .registration = TRUE
 NULL

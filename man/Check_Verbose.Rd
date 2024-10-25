@@ -25,6 +25,8 @@ Other Data Cleaning Functions:
 \code{\link{Def_Control_Guess}()},
 \code{\link{Def_model_control}()},
 \code{\link{Def_modelform_fix}()},
+\code{\link{Event_Count_Gen}()},
+\code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Replace_Missing}()},
 \code{\link{Time_Since}()},

@@ -28,7 +28,11 @@ Imports:
     rlang,
     callr,
     stringr,
-    processx
+    processx,
+    dtplyr,
+    dplyr,
+    tibble,
+    lubridate
 LinkingTo: Rcpp, RcppEigen, testthat
 SystemRequirements: make
 RoxygenNote: 7.3.2
