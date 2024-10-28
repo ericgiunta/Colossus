@@ -54,7 +54,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Event_Time_Gen</span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summaries</span>, <span class="va">events</span>, <span class="va">verbose</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Event_Time_Gen</span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summaries</span>, <span class="va">events</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -137,15 +137,15 @@
 <span class="r-in"><span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>entry<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year<span class="op">=</span><span class="st">"f"</span>, month<span class="op">=</span><span class="st">"e"</span>, day<span class="op">=</span><span class="st">"d"</span><span class="op">)</span>, exit<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year<span class="op">=</span><span class="st">"i"</span>, month<span class="op">=</span><span class="st">"h"</span>, day<span class="op">=</span><span class="st">"g"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">Event_Time_Gen</span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $df</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    a_category b_category   time AT_RISK   PYR cases     a     b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;char&gt;     &lt;char&gt; &lt;char&gt;   &lt;int&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:          1        low   1901       1     1     1     0     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:          1        low   1902       1     2     2     1     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          1     medium   1903       2     6     6     2     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:          2     medium   1904       2     8     8     3     4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:          2     medium   1905       2    10    10     4     5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:          3       high   1906       2    12    12     5     6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:          3       high   1907       2    14    14     6     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    a_category b_category   time AT_RISK       PYR cases     a        b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;char&gt;     &lt;char&gt; &lt;char&gt;   &lt;int&gt;     &lt;num&gt; &lt;num&gt; &lt;num&gt;    &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:          1        low      1       2 2.9979466     1   0.5 1.666667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:          1     medium      1       1 2.7460643     0   2.0 3.000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          1     medium      2       1 0.2518823     0   2.0 3.000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:          2     medium      1       2 5.2347707     0   3.5 4.491632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:          2     medium      2       2 3.7645448     0   3.5 4.644364</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:          3       high      1       2 4.8898015     0   5.5 6.491041</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:          3       high      2       2 8.1067762     1   5.5 6.567038</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $bounds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $bounds$a_category</span>
