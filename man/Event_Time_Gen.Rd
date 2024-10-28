@@ -4,7 +4,7 @@
 \alias{Event_Time_Gen}
 \title{uses a table, list of categories, list of summaries, list of events, and person-year information to generate person-time tables}
 \usage{
-Event_Time_Gen(table, pyr, categ, summaries, events, verbose)
+Event_Time_Gen(table, pyr, categ, summaries, events, verbose = FALSE)
 }
 \arguments{
 \item{table}{dataframe with every category/event column needed}

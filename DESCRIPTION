@@ -29,7 +29,6 @@ Imports:
     callr,
     stringr,
     processx,
-    dtplyr,
     dplyr,
     tibble,
     lubridate

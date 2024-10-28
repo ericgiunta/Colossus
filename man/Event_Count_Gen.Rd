@@ -4,7 +4,7 @@
 \alias{Event_Count_Gen}
 \title{uses a table, list of categories, and list of event summaries to generate person-count tables}
 \usage{
-Event_Count_Gen(table, categ, events, verbose)
+Event_Count_Gen(table, categ, events, verbose = FALSE)
 }
 \arguments{
 \item{table}{dataframe with every category/event column needed}
