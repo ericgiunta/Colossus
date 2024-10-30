@@ -101,14 +101,16 @@ have a dataset tracking the number of apples and oranges people bought,
 the number of hands they used to carry their bag, and if the bag ripped
 or not.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">apples</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">apples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">oranges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">rip</span>     <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">hands</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="st">"apples"</span> <span class="op">=</span> <span class="va">apples</span>,</span>
-<span>                                <span class="st">"oranges"</span> <span class="op">=</span> <span class="va">oranges</span>,</span>
-<span>                                <span class="st">"rip"</span> <span class="op">=</span> <span class="va">rip</span>,</span>
-<span>                                <span class="st">"hands"</span> <span class="op">=</span> <span class="va">hands</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">rip</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">hands</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span>  <span class="st">"apples"</span> <span class="op">=</span> <span class="va">apples</span>,</span>
+<span>  <span class="st">"oranges"</span> <span class="op">=</span> <span class="va">oranges</span>,</span>
+<span>  <span class="st">"rip"</span> <span class="op">=</span> <span class="va">rip</span>,</span>
+<span>  <span class="st">"hands"</span> <span class="op">=</span> <span class="va">hands</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Suppose we want to split our dataset up by the number of each fruit,
 count the number of ripped bags in each category, and figure out the
 average number of hands used. We would start out by defining how we want
@@ -135,12 +137,16 @@ into the intervals: [-1,3), [3,6), [6,10) with the labels: few, good,
 and excessive. That would look like the following code. This splits each
 category into 3 levels, and in total 9 combinations.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">apple_category</span> <span class="op">&lt;-</span> <span class="st">'0/3/5]7'</span></span>
-<span><span class="va">orange_category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lower<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>,</span>
-<span>                        upper<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
-<span>                        name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'few'</span>,<span class="st">'good'</span>,<span class="st">'excessive'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"apples"</span><span class="op">=</span><span class="va">apple_category</span>,</span>
-<span>              <span class="st">"oranges"</span><span class="op">=</span><span class="va">orange_category</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">apple_category</span> <span class="op">&lt;-</span> <span class="st">"0/3/5]7"</span></span>
+<span><span class="va">orange_category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"few"</span>, <span class="st">"good"</span>, <span class="st">"excessive"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"apples"</span> <span class="op">=</span> <span class="va">apple_category</span>,</span>
+<span>  <span class="st">"oranges"</span> <span class="op">=</span> <span class="va">orange_category</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Now we define what summary variables we want. Once again, we define a
 list. Every item in the list is named with the column it is applied to
 and contains a string specifying what summary method to use. There are
@@ -151,7 +157,7 @@ grouped table will use the original column name for the summary column
 name. So lets suppose we wanted to take the sum of ripped bags and name
 it “dropped” and take the mean of the hands column.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"rip"</span><span class="op">=</span><span class="st">"count AS dropped"</span>, <span class="st">"hands"</span><span class="op">=</span><span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"rip"</span> <span class="op">=</span> <span class="st">"count AS dropped"</span>, <span class="st">"hands"</span> <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
 <p>The final step is to run the function. The function returns two
 items, the grouped data and a summary of the category intervals. The
 category intervals should be checked to verify that the intervals match
@@ -189,7 +195,8 @@ currently only supports day/month/year information which are combined
 into complete dates. The Event_Time_Gen function uses a list to input
 the time columns. This list should have entry and exit items if needed,
 each list should have a column name for the year, month, and day columns
-if needed. The dates will default to 1/1/1900 if not provided.</p>
+if needed. The dates will default to 1/1/1900 if not provided. The
+person-year list can also contain a unit, defaulted to years.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span>
@@ -197,15 +204,27 @@ if needed. The dates will default to 1/1/1900 if not provided.</p>
 <span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>,<span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>,<span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span><span class="op">)</span></span>
+<span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>,</span>
+<span>  <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span>, <span class="fl">1900</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">6</span> ,<span class="fl">4</span> ,<span class="fl">4</span> ,<span class="fl">4</span> ,<span class="fl">4</span><span class="op">)</span></span>
-<span><span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1901</span>, <span class="fl">1902</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1905</span>, <span class="fl">1906</span>, <span class="fl">1907</span>,<span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1910</span>,<span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1910</span><span class="op">)</span></span>
-<span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="st">"a"</span> <span class="op">=</span> <span class="va">a</span>, <span class="st">"b"</span> <span class="op">=</span> <span class="va">b</span>, <span class="st">"c"</span> <span class="op">=</span> <span class="va">c</span>,</span>
-<span>                                <span class="st">"d"</span> <span class="op">=</span> <span class="va">d</span>, <span class="st">"e"</span> <span class="op">=</span> <span class="va">e</span>, <span class="st">"f"</span> <span class="op">=</span> <span class="va">f</span>,</span>
-<span>                                <span class="st">"g"</span> <span class="op">=</span> <span class="va">g</span>, <span class="st">"h"</span> <span class="op">=</span> <span class="va">h</span>, <span class="st">"i"</span> <span class="op">=</span> <span class="va">i</span><span class="op">)</span></span>
+<span><span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="fl">1901</span>, <span class="fl">1902</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1905</span>, <span class="fl">1906</span>, <span class="fl">1907</span>, <span class="fl">1903</span>, <span class="fl">1904</span>,</span>
+<span>  <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1910</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1910</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span>  <span class="st">"a"</span> <span class="op">=</span> <span class="va">a</span>, <span class="st">"b"</span> <span class="op">=</span> <span class="va">b</span>, <span class="st">"c"</span> <span class="op">=</span> <span class="va">c</span>,</span>
+<span>  <span class="st">"d"</span> <span class="op">=</span> <span class="va">d</span>, <span class="st">"e"</span> <span class="op">=</span> <span class="va">e</span>, <span class="st">"f"</span> <span class="op">=</span> <span class="va">f</span>,</span>
+<span>  <span class="st">"g"</span> <span class="op">=</span> <span class="va">g</span>, <span class="st">"h"</span> <span class="op">=</span> <span class="va">h</span>, <span class="st">"i"</span> <span class="op">=</span> <span class="va">i</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>entry<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year<span class="op">=</span><span class="st">"f"</span>, month<span class="op">=</span><span class="st">"e"</span>, day<span class="op">=</span><span class="st">"d"</span><span class="op">)</span>, exit<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year<span class="op">=</span><span class="st">"i"</span>, month<span class="op">=</span><span class="st">"h"</span>, day<span class="op">=</span><span class="st">"g"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
+<span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
+<span>  unit <span class="op">=</span> <span class="st">"years"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The second major difference is the possible use of time categories.
 Time categories are set by a vectors of of day, month, and year of each
 interval splitting point. So intervals changing every 2 days could be
@@ -216,13 +235,18 @@ partially in each time interval. If a time category is not provided,
 then the full duration of each row is used for person-year
 calculations.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"a"</span><span class="op">=</span><span class="st">'-1/3/5]7'</span>,</span>
-<span>              <span class="st">"b"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lower<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>,upper<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
-<span>                       name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'low'</span>,<span class="st">'medium'</span>,<span class="st">'high'</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>             <span class="st">"time AS time_bin"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"day"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>,</span>
-<span>                                 <span class="st">"month"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>,</span>
-<span>                                 <span class="st">"year"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1899</span>,<span class="fl">1903</span>,<span class="fl">1910</span><span class="op">)</span><span class="op">)</span></span>
-<span>              <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"a"</span> <span class="op">=</span> <span class="st">"-1/3/5]7"</span>,</span>
+<span>  <span class="st">"b"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>    name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  <span class="st">"time AS time_bin"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="st">"day"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    <span class="st">"month"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    <span class="st">"year"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1899</span>, <span class="fl">1903</span>, <span class="fl">1910</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The final difference is that person-time tables make a distinction
 between events and summaries. The summary list is nearly identical to
 the event list in the person-count function. The only difference is that
@@ -234,32 +258,107 @@ can be part of multiple time categories. However, the event is only
 assigned to the time category containing the endpoint of the row
 interval.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">=</span><span class="st">"count AS cases"</span>, <span class="st">"a"</span><span class="op">=</span><span class="st">"mean"</span>, <span class="st">"b"</span><span class="op">=</span><span class="st">"weighted_mean"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"c"</span> <span class="op">=</span> <span class="st">"count AS cases"</span>, <span class="st">"b"</span> <span class="op">=</span> <span class="st">"weighted_mean AS b_weighted"</span><span class="op">)</span></span>
 <span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">)</span></span></code></pre></div>
 <p>Finally the function is run. Similar to the person-count table
 function, the function returns the grouped table and list of category
 boundaries.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
+<span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
+<span>  unit <span class="op">=</span> <span class="st">"years"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR cases        a        b</span></span>
-<span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt;      &lt;num&gt; &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:          1       high        1       1  2.9952088     0 2.000000 6.000000</span></span>
-<span><span class="co">#&gt;  2:          1       high        2       1  0.2600958     0 2.000000 6.000000</span></span>
-<span><span class="co">#&gt;  3:          1        low        1       5 12.4791239     1 1.200000 1.413339</span></span>
-<span><span class="co">#&gt;  4:          1        low        2       3 14.4257358     0 1.666667 1.485291</span></span>
-<span><span class="co">#&gt;  5:          1     medium        1       2  5.9876797     0 2.000000 3.999543</span></span>
-<span><span class="co">#&gt;  6:          1     medium        2       2  1.5167693     1 2.000000 4.664260</span></span>
-<span><span class="co">#&gt;  7:          2        low        1       1  2.9979466     0 4.000000 2.000000</span></span>
-<span><span class="co">#&gt;  8:          2        low        2       1  1.2566735     0 4.000000 2.000000</span></span>
-<span><span class="co">#&gt;  9:          2     medium        1       4 11.8083504     0 3.500000 3.993276</span></span>
-<span><span class="co">#&gt; 10:          2     medium        2       4  5.7056810     3 3.500000 4.175144</span></span>
-<span><span class="co">#&gt; 11:          3       high        1       2  5.8234086     0 5.500000 6.499765</span></span>
-<span><span class="co">#&gt; 12:          3       high        2       2  7.6824093     2 5.500000 6.554170</span></span>
-<span><span class="co">#&gt; 13:          3        low        1       1  2.9130732     0 6.000000 2.000000</span></span>
-<span><span class="co">#&gt; 14:          3        low        2       1  0.2546201     1 6.000000 2.000000</span></span>
-<span><span class="co">#&gt; 15:          3     medium        1       1  2.9103354     0 5.000000 3.000000</span></span>
-<span><span class="co">#&gt; 16:          3     medium        2       1  1.2566735     0 5.000000 3.000000</span></span>
+<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR cases b_weighted</span></span>
+<span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt;      &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:          1       high        1       1  2.9952088     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:          1       high        2       1  0.2600958     0   6.000000</span></span>
+<span><span class="co">#&gt;  3:          1        low        1       5 12.4791239     1   1.413339</span></span>
+<span><span class="co">#&gt;  4:          1        low        2       3 14.4257358     0   1.485291</span></span>
+<span><span class="co">#&gt;  5:          1     medium        1       2  5.9876797     0   3.999543</span></span>
+<span><span class="co">#&gt;  6:          1     medium        2       2  1.5167693     1   4.664260</span></span>
+<span><span class="co">#&gt;  7:          2        low        1       1  2.9979466     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:          2        low        2       1  1.2566735     0   2.000000</span></span>
+<span><span class="co">#&gt;  9:          2     medium        1       4 11.8083504     0   3.993276</span></span>
+<span><span class="co">#&gt; 10:          2     medium        2       4  5.7056810     3   4.175144</span></span>
+<span><span class="co">#&gt; 11:          3       high        1       2  5.8234086     0   6.499765</span></span>
+<span><span class="co">#&gt; 12:          3       high        2       2  7.6824093     2   6.554170</span></span>
+<span><span class="co">#&gt; 13:          3        low        1       1  2.9130732     0   2.000000</span></span>
+<span><span class="co">#&gt; 14:          3        low        2       1  0.2546201     1   2.000000</span></span>
+<span><span class="co">#&gt; 15:          3     medium        1       1  2.9103354     0   3.000000</span></span>
+<span><span class="co">#&gt; 16:          3     medium        2       1  1.2566735     0   3.000000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $bounds</span></span>
+<span><span class="co">#&gt; $bounds$a_category</span></span>
+<span><span class="co">#&gt; [1] " [-1, 3) [3, 5) [5, 7]"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $bounds$b_category</span></span>
+<span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $bounds$time_bin</span></span>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"</span></span>
+<span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
+<span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
+<span>  unit <span class="op">=</span> <span class="st">"months"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $df</span></span>
+<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR cases b_weighted</span></span>
+<span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt;      &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:          1       high        1       1  35.942505     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:          1       high        2       1   3.121150     0   6.000000</span></span>
+<span><span class="co">#&gt;  3:          1        low        1       5 149.749487     1   1.413339</span></span>
+<span><span class="co">#&gt;  4:          1        low        2       3 173.108830     0   1.485291</span></span>
+<span><span class="co">#&gt;  5:          1     medium        1       2  71.852156     0   3.999543</span></span>
+<span><span class="co">#&gt;  6:          1     medium        2       2  18.201232     1   4.664260</span></span>
+<span><span class="co">#&gt;  7:          2        low        1       1  35.975359     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:          2        low        2       1  15.080082     0   2.000000</span></span>
+<span><span class="co">#&gt;  9:          2     medium        1       4 141.700205     0   3.993276</span></span>
+<span><span class="co">#&gt; 10:          2     medium        2       4  68.468172     3   4.175144</span></span>
+<span><span class="co">#&gt; 11:          3       high        1       2  69.880903     0   6.499765</span></span>
+<span><span class="co">#&gt; 12:          3       high        2       2  92.188912     2   6.554170</span></span>
+<span><span class="co">#&gt; 13:          3        low        1       1  34.956879     0   2.000000</span></span>
+<span><span class="co">#&gt; 14:          3        low        2       1   3.055441     1   2.000000</span></span>
+<span><span class="co">#&gt; 15:          3     medium        1       1  34.924025     0   3.000000</span></span>
+<span><span class="co">#&gt; 16:          3     medium        2       1  15.080082     0   3.000000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $bounds</span></span>
+<span><span class="co">#&gt; $bounds$a_category</span></span>
+<span><span class="co">#&gt; [1] " [-1, 3) [3, 5) [5, 7]"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $bounds$b_category</span></span>
+<span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $bounds$time_bin</span></span>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"</span></span>
+<span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
+<span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
+<span>  unit <span class="op">=</span> <span class="st">"days"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $df</span></span>
+<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK   PYR cases b_weighted</span></span>
+<span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt; &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:          1       high        1       1  1094     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:          1       high        2       1    95     0   6.000000</span></span>
+<span><span class="co">#&gt;  3:          1        low        1       5  4558     1   1.413339</span></span>
+<span><span class="co">#&gt;  4:          1        low        2       3  5269     0   1.485291</span></span>
+<span><span class="co">#&gt;  5:          1     medium        1       2  2187     0   3.999543</span></span>
+<span><span class="co">#&gt;  6:          1     medium        2       2   554     1   4.664260</span></span>
+<span><span class="co">#&gt;  7:          2        low        1       1  1095     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:          2        low        2       1   459     0   2.000000</span></span>
+<span><span class="co">#&gt;  9:          2     medium        1       4  4313     0   3.993276</span></span>
+<span><span class="co">#&gt; 10:          2     medium        2       4  2084     3   4.175144</span></span>
+<span><span class="co">#&gt; 11:          3       high        1       2  2127     0   6.499765</span></span>
+<span><span class="co">#&gt; 12:          3       high        2       2  2806     2   6.554170</span></span>
+<span><span class="co">#&gt; 13:          3        low        1       1  1064     0   2.000000</span></span>
+<span><span class="co">#&gt; 14:          3        low        2       1    93     1   2.000000</span></span>
+<span><span class="co">#&gt; 15:          3     medium        1       1  1063     0   3.000000</span></span>
+<span><span class="co">#&gt; 16:          3     medium        2       1   459     0   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
