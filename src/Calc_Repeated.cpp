@@ -1225,6 +1225,246 @@ void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const
     return;
 }
 
+//' Utility function to calculate Cox Log-Likelihood and derivatives with linear ERR simplification
+//'
+//' \code{Calc_LogLik_Linear_ERR} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_LogLik_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
+    #endif
+    for (int t_ijk = 0; t_ijk < reqrdnum*(reqrdnum + 1)/2; t_ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+        for (int j = 0; j < ntime; j++) {
+            int t_ij = 0;
+            int t_jk = t_ijk;
+            while (t_jk > t_ij) {
+                t_ij++;
+                t_jk -= t_ij;
+            }
+            if (KeepConstant[t_ij] + KeepConstant[t_jk] == 0){
+                int ij = t_ij - sum(head(KeepConstant, t_ij));
+                int jk = t_jk - sum(head(KeepConstant, t_jk));
+                int ijk = ij*(ij + 1)/2 + jk;
+                //
+                double Rs1 = Rls1(j, 0);
+                double Rs2 = Rls2(j, ij);
+                double Rs2t = Rls2(j, jk);
+                double Rs3 = Rls3(j, ijk);
+                //
+                int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+                MatrixXd Ld = MatrixXd::Zero(dj, 4);
+                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  // rows with events
+                //
+                MatrixXd Ldm = MatrixXd::Zero(dj, 4);
+                Vector4d Ldcs;
+                if (ties_method == "efron") {
+                    Ldcs << Lls1(j, 0), Lls2(j, ij), Lls2(j, jk), Lls3(j, ijk);
+                    for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
+                        Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                    }
+                }
+                Ldm.col(0) = Ldm.col(0).array() + Rs1;
+                Ldm.col(1) = Ldm.col(1).array() + Rs2;
+                Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+                Ldm.col(3) = Ldm.col(3).array() + Rs3;
+                // Calculates the left-hand side terms
+                //
+                double Ld1 = 0;
+                double Ld2 = 0;
+                double Ld3 = 0;
+                //
+                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
+                MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                if (ij == jk) {
+                    temp1 = Ld.col(0).array().log();
+                    Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                }
+                temp1 = Ld.col(1).array();
+                temp2 = Ld.col(2).array();
+                if (ij == jk) {
+                    Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                }
+                if (t_ij == t_jk) {
+                    if (tform[t_ij] != "loglin"){
+                        temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                        Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                    }
+                }
+                // calculates the right-hand side terms
+                if (ij == jk) {
+                    temp1 = Ldm.col(0).array().log();
+                    Rs1 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                }
+                temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(- 1).array());
+                temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(- 1).array());
+                if (ij == jk) {
+                    Rs2 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                }
+                temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(- 1).array()) - temp1.array() * temp2.array();
+                Rs3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                //
+                if (ij == jk) {
+                    Ll[ij] += Ld1 - Rs1;
+                    Lld[ij] += Ld2 - Rs2;
+                }
+                Lldd[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
+            }
+        }
+    }
+    double LogLik = 0;
+    for (int i = 0; i < reqrdnum; i++) {
+        if (Ll[i] != 0) {
+            LogLik = Ll[i];
+            break;
+        }
+    }
+    fill(Ll.begin(), Ll.end(), LogLik);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
+    }
+    return;
+}
+
+//' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA and Linear ERR simplification
+//'
+//' \code{Calc_LogLik_STRATA_Linear_ERR} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_LogLik_STRATA_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
+    #endif
+    for (int t_ijk = 0; t_ijk < reqrdnum*(reqrdnum + 1)/2; t_ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+        for (int j = 0; j < ntime; j++) {
+            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+                int t_ij = 0;
+                int t_jk = t_ijk;
+                while (t_jk > t_ij) {
+                    t_ij++;
+                    t_jk -= t_ij;
+                }
+                if (KeepConstant[t_ij] + KeepConstant[t_jk] == 0){
+                    int ij = ij - sum(head(KeepConstant, ij));
+                    int jk = jk - sum(head(KeepConstant, jk));
+                    int ijk = ij*(ij + 1)/2 + jk;
+                    //
+                    double Rs1 = Rls1(j, s_ij);
+                    double Rs2 = Rls2(j, ij*STRATA_vals.size() + s_ij);
+                    double Rs2t = Rls2(j, jk*STRATA_vals.size() + s_ij);
+                    double Rs3 = Rls3(j, ijk*STRATA_vals.size() + s_ij);
+                    //
+                    int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
+                    if (RiskFail(j, 2*s_ij + 1)> - 1) {
+                        MatrixXd Ld = MatrixXd::Zero(dj, 4);
+                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1), RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1), RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  // rows with events
+                        //
+                        MatrixXd Ldm = MatrixXd::Zero(dj, 4);
+                        Vector4d Ldcs;
+                        if (ties_method == "efron") {
+                            Ldcs << Lls1(j, s_ij), Lls2(j, ij*STRATA_vals.size() + s_ij), Lls2(j, jk*STRATA_vals.size() + s_ij), Lls3(j, ijk*STRATA_vals.size() + s_ij);
+                            for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
+                                Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                            }
+                        }
+                        Ldm.col(0) = Ldm.col(0).array() + Rs1;
+                        Ldm.col(1) = Ldm.col(1).array() + Rs2;
+                        Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+                        Ldm.col(3) = Ldm.col(3).array() + Rs3;
+                        // Calculates the left-hand side terms
+                        //
+                        double Ld1;
+                        double Ld2;
+                        double Ld3;
+                        //
+                        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
+                        MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                        if (ij == jk) {
+                            temp1 = Ld.col(0).array().log();
+                            Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                        }
+                        temp1 = Ld.col(1).array();
+                        temp2 = Ld.col(2).array();
+                        if (ij == jk) {
+                            Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                        }
+                        if (t_ij == t_jk) {
+                            if (tform[t_ij] != "loglin"){
+                                temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                                Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                            }
+                        }
+                        // calculates the right-hand side terms
+                        if (ij == jk) {
+                            temp1 = Ldm.col(0).array().log();
+                            Rs1 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                        }
+                        temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(- 1).array());
+                        temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(- 1).array());
+                        if (ij == jk) {
+                            Rs2 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                        }
+                        temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(- 1).array()) - temp1.array() * temp2.array();
+                        Rs3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                        //
+                        if (ij == jk) {
+                            Ll[ij] += Ld1 - Rs1;
+                            Lld[ij] += Ld2 - Rs2;
+                        }
+                        Lldd[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
+                    }
+                }
+            }
+        }
+    }
+    double LogLik = 0;
+    for (int i = 0; i < reqrdnum; i++) {
+        if (Ll[i] != 0) {
+            LogLik = Ll[i];
+            break;
+        }
+    }
+    fill(Ll.begin(), Ll.end(), LogLik);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
+    }
+    return;
+}
+
 //' Utility function to calculate Cox Log-Likelihood, basic model
 //'
 //' \code{Calc_LogLik_Basic_Single} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
@@ -1314,6 +1554,8 @@ void Calc_LogLik_Single(const int& nthreads, const IntegerMatrix& RiskFail, cons
         //
         Ll[0] += Ld1 - Rs1;
     }
+    double LogLik = Ll[0];
+    fill(Ll.begin(), Ll.end(), LogLik);
     return;
 }
 

@@ -103,6 +103,22 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       df$CONST <- 1
     }
   }
+  if (model_control$linear_err == TRUE) {
+    if (all(sort(unique(tform)) != c("loglin", "plin"))) {
+      stop("Error: Linear ERR model used, but term formula wasn't only loglin and plin")
+    }
+    if (sum(tform == "plin") > 1) {
+      stop("Error: Linear ERR model used, but more than one plin element was used")
+    }
+    if (length(unique(term_n)) > 1) {
+      warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
+      term_n <- rep(0, length(term_n))
+    }
+    if (modelform != "M") {
+      warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
+      modelform <- "M"
+    }
+  }
   if (model_control$cr == TRUE) {
     if (cens_weight %in% names(df)) {
       # good
@@ -762,7 +778,7 @@ RunCoxPlots <- function(df, time1 = "start", time2 = "end", event0 = "event", na
             # fine
           } else {
             stop("Error: Covariate column " +
-                 dose_col + " is not in the dataframe")
+              dose_col + " is not in the dataframe")
           }
         }
       } else {

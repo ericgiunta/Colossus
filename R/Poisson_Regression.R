@@ -226,7 +226,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       ), dfc, x_all, fir, der_iden,
       modelform, control, keep_constant,
       term_tot, as.matrix(df0[, val_cols,
-        with = FALSE]),
+        with = FALSE
+      ]),
       model_control, cons_mat, cons_vec
     )
     e$Parameter_Lists$names <- names
@@ -1108,7 +1109,8 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     dfc, x_all, fir, der_iden, modelform,
     control, keep_constant,
     term_tot, as.matrix(df0[, val_cols,
-      with = FALSE]),
+      with = FALSE
+    ]),
     model_control
   )
   return(e)

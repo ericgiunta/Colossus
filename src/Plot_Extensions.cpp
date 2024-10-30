@@ -485,7 +485,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
     // Calculates the side sum terms used
-    Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, linerr_bool, FALSE, 0);
+    Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, linerr_bool, FALSE, 0);
     int kept_covs = totalnum - sum(KeepConstant);  // does !base the standard deviation off of constant parameters
     NumericVector Lldd_vec(kept_covs * kept_covs);
     #ifdef _OPENMP

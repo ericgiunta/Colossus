@@ -425,7 +425,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& STRATA_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, string ties_method, int verbose, bool strata_bool, bool CR_bool, bool basic_bool, bool linerr_bool, bool single_bool, int iter_stop) {
+void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& STRATA_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, string ties_method, int verbose, bool strata_bool, bool CR_bool, bool basic_bool, bool linerr_bool, bool single_bool, int iter_stop) {
     // Calculates the side sum terms used
     //
     // time_point<system_clock> comp_point, end_point;
@@ -540,32 +540,53 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const IntegerMatrix
     // comp_point = system_clock::now();
     // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
     if (strata_bool) {
-        if (basic_bool) {
-            if (single_bool) {
-                Calc_LogLik_STRATA_BASIC_SINGLE(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant);
-            } else {
-                Calc_LogLik_STRATA_BASIC(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
-            }
-        } else if (single_bool) {
+        if (single_bool) {
             Calc_LogLik_STRATA_SINGLE(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant);  // strata_single
+        } else if (basic_bool) {
+            Calc_LogLik_STRATA_BASIC(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
+        } else if (linerr_bool) {
+            Calc_LogLik_STRATA_Linear_ERR(tform, nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
         } else {
             Calc_LogLik_STRATA(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
         }
     } else {
-        if (basic_bool) {
-            if (single_bool) {
-                Calc_LogLik_Basic_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant);  // basic_single
-            } else {
-                Calc_LogLik_Basic(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
-            }
+        if (single_bool) {
+            Calc_LogLik_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method);  // single
+        } else if (basic_bool) {
+            Calc_LogLik_Basic(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
+        } else if (linerr_bool) {
+            Calc_LogLik_Linear_ERR(tform, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
         } else {
-            if (single_bool) {
-                Calc_LogLik_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method);  // single
-            } else {
-                Calc_LogLik(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
-            }
+            Calc_LogLik(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
         }
     }
+    // if (strata_bool) {
+    //     if (basic_bool) {
+    //         if (single_bool) {
+    //             Calc_LogLik_STRATA_BASIC_SINGLE(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant);
+    //         } else {
+    //             Calc_LogLik_STRATA_BASIC(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
+    //         }
+    //     } else if (single_bool) {
+    //         Calc_LogLik_STRATA_SINGLE(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant);  // strata_single
+    //     } else {
+    //         Calc_LogLik_STRATA(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
+    //     }
+    // } else {
+    //     if (basic_bool) {
+    //         if (single_bool) {
+    //             Calc_LogLik_Basic_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant);  // basic_single
+    //         } else {
+    //             Calc_LogLik_Basic(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
+    //         }
+    //     } else {
+    //         if (single_bool) {
+    //             Calc_LogLik_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method);  // single
+    //         } else {
+    //             Calc_LogLik(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
+    //         }
+    //     }
+    // }
     // end_point = system_clock::now();
     // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "C++ Note: log-lik " << (ending-comp) * 1e-6  <<endl;
@@ -888,7 +909,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Cox_Pois_Check_Continue(const bool basic_bool, bool linerr_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, const bool change_all, const bool cox_bool, const bool CR_bool, vector<double>& dbeta, const bool debugging, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const bool log_bound_bool, const double& Lstar, const int& nthreads, const int& ntime, const MatrixXd& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const StringMatrix& RiskGroup_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, const bool single_bool, const bool strata_bool, NumericVector& STRATA_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose) {
+void Cox_Pois_Check_Continue(const bool basic_bool, bool linerr_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, const bool change_all, const bool cox_bool, const bool CR_bool, vector<double>& dbeta, const bool debugging, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const bool log_bound_bool, const double& Lstar, const int& nthreads, const int& ntime, const MatrixXd& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const StringMatrix& RiskGroup_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, const bool single_bool, const bool strata_bool, NumericVector& STRATA_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose) {
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -910,7 +931,7 @@ void Cox_Pois_Check_Continue(const bool basic_bool, bool linerr_bool, VectorXd b
     } else {
         halves++;
         if (cox_bool) {
-            Cox_Side_LL_Calc(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool,  linerr_bool, single_bool, iter_stop);
+            Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool,  linerr_bool, single_bool, iter_stop);
         } else {
             Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, single_bool, iter_stop, dev);
         }

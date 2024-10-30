@@ -752,7 +752,9 @@ test_that("gmix omnibus use", {
   keep_constant <- c(0, 0, 0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2, 0.3, -0.5)
   df_order <- data.table("term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n, "names" = names, "order" = 1:5)
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
   options(warn = -1)
   count <- 0
   der_iden <- 0
@@ -825,7 +827,9 @@ test_that("dose nondose combinations", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   options(warn = -1)
   expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
   for (model in c("A", "PAE")) {
     names <- c("a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b")
     term_n <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1)

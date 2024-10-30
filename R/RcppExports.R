@@ -169,6 +169,30 @@ Calc_LogLik_Basic <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R,
     invisible(.Call(`_Colossus_Calc_LogLik_Basic`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant))
 }
 
+#' Utility function to calculate Cox Log-Likelihood and derivatives with linear ERR simplification
+#'
+#' \code{Calc_LogLik_Linear_ERR} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Calc_LogLik_Linear_ERR <- function(tform, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_Linear_ERR`, tform, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant))
+}
+
+#' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA and Linear ERR simplification
+#'
+#' \code{Calc_LogLik_STRATA_Linear_ERR} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Calc_LogLik_STRATA_Linear_ERR <- function(tform, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_STRATA_Linear_ERR`, tform, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant))
+}
+
 #' Utility function to calculate Cox Log-Likelihood, basic model
 #'
 #' \code{Calc_LogLik_Basic_Single} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
@@ -461,8 +485,8 @@ Cox_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, ter
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Cox_Side_LL_Calc <- function(reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, linerr_bool, single_bool, iter_stop) {
-    invisible(.Call(`_Colossus_Cox_Side_LL_Calc`, reqrdnum, ntime, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, linerr_bool, single_bool, iter_stop))
+Cox_Side_LL_Calc <- function(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, linerr_bool, single_bool, iter_stop) {
+    invisible(.Call(`_Colossus_Cox_Side_LL_Calc`, reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, STRATA_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, strata_bool, CR_bool, basic_bool, linerr_bool, single_bool, iter_stop))
 }
 
 #' Utility function to perform calculation of terms and risks for Poisson Omnibus
@@ -499,8 +523,8 @@ Pois_Dev_LL_Calc <- function(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, R
 #' @return Updates matrices in place: risk, scores, etc storage matrices
 #' @noRd
 #'
-Cox_Pois_Check_Continue <- function(basic_bool, linerr_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose) {
-    invisible(.Call(`_Colossus_Cox_Pois_Check_Continue`, basic_bool, linerr_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose))
+Cox_Pois_Check_Continue <- function(basic_bool, linerr_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose) {
+    invisible(.Call(`_Colossus_Cox_Pois_Check_Continue`, basic_bool, linerr_bool, beta_0, beta_best, beta_c, cens_weight, change_all, cox_bool, CR_bool, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, log_bound_bool, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, single_bool, strata_bool, STRATA_vals, term_n, ties_method, totalnum, TTerm, verbose))
 }
 
 #' Utility function to check if risk is valid, and if so continue

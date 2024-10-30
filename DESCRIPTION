@@ -45,7 +45,8 @@ Suggests:
     ggplot2,
     pandoc,
     spelling,
-    survival
+    survival,
+    dtplyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Language: en-US

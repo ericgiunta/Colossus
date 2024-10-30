@@ -35,7 +35,9 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
 
   verbose <- FALSE
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       for (k in c(FALSE, FALSE)) {
@@ -46,10 +48,10 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
               print(model_control)
             }
             a_n <- c(-0.1, -0.1)
-            control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+            control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
             expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
             a_n <- c(-0.1, -0.1)
-            control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "efron", "double_step" = 0)
+            control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "efron", "double_step" = 0)
             expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
             if (verbose) {
               print("---------------")
@@ -100,7 +102,9 @@ test_that("Poisson strata_single log_bound", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
 
   verbose <- FALSE
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
   for (i in c(TRUE, FALSE)) {
     for (k in c(FALSE, FALSE)) {
       for (m in c(TRUE, FALSE)) {
@@ -146,7 +150,9 @@ test_that("Coxph EPICURE validated answers, loglin", {
   a_n <- c(-0.6067, 5.019)
   model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = 0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
   v_lower <- c(-0.6305960, -0.6572672, -0.6817293, -0.6929630, -0.7300938, -0.7537744, -0.7749381, -0.8001031, -0.8175117)
   v_upper <- c(-0.5828725, -0.5562505, -0.5318645, -0.5206756, -0.4837373, -0.4602148, -0.4392159, -0.4142752, -0.3970399)
 
@@ -195,7 +201,9 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
 
   v_lower <- c(-0.6305960, -0.6572672, -0.6817293, -0.6929630, -0.7300938, -0.7537744, -0.7749381, -0.8001031, -0.8175117)
   v_upper <- c(-0.5828725, -0.5562505, -0.5318645, -0.5206756, -0.4837373, -0.4602148, -0.4392159, -0.4142752, -0.3970399)
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
   alphas <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   for (alpha_i in seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
@@ -245,7 +253,9 @@ test_that("Coxph, lin both", {
   a_n <- c(0.2462, 5.020, -0.599)
   model_control <- list("basic" = FALSE, "maxstep" = 5, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control))
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
   alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
@@ -299,31 +309,4 @@ test_that("Poisson, lin both", {
   a_n <- c(-2.917, 0.06526)
   model_control <- list("basic" = FALSE, "maxstep" = 5, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
-  # if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN","false")))){skip("Cran Skip")}
-  # alpha_list <- c(0.75, 0.5, 1-0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-  # control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(1,1), 'halfmax' = 2, 'epsilon' = 1e-6,  'deriv_epsilon' = 1e-6, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
-  # control <- list( "ncores"=2, 'lr' = 0.75, 'maxiters' = c(10,10), 'halfmax' = 5, 'epsilon' = 1e-4,  'deriv_epsilon' = 1e-3, 'abs_max'=1.0, 'change_all'=TRUE, 'dose_abs_max'=100.0, 'verbose'=0, 'ties'='breslow', 'double_step'=1, 'guesses'=10)
-  # v_lower <- c(4.97252283668956, 4.9349945105648, 4.89804715665926, 4.88084912208962, 4.82369762341988, 4.78721237571926, 4.7546530342797, 4.71603055250556, 4.68938287303871)
-  # v_upper <- c(5.06762896572498, 5.10561529697034, 5.14327069556976, 5.16088604918614, 5.21982880792394, 5.2577860471215, 5.29187760184654, 5.33258757872226, 5.36084782852899)
-  # for (alpha_i in 1:length(alpha_list)){
-  # alpha <- alpha_list[alpha_i]
-  # a_n <- c(0.2462, 5.020,-0.599)
-  # model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=1, 'manual'=TRUE)
-  # e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
-  # a <- e$Parameter_Limits
-  # expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
-  # expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
-  # }
-
-  # v_lower <- c(-0.643365949558998, -0.677336655540846, -0.706075250211414, -0.718165409196492, -0.753647332793819, -0.773208334303991, -0.789018704115451, -0.806061085000755, -0.816875114954096)
-  # v_upper <- c(-0.521472203247917, -0.444964438813732, -0.327862977142017, -0.235044092073815, 2.91573713669059, 3.21014641617297, 3.48490803194128, 3.82648584413642, 4.07272009904963)
-  # for (alpha_i in 1:length(alpha_list)){
-  # alpha <- alpha_list[alpha_i]
-  # a_n <- c(0.2462, 5.020,-0.599)
-  # model_control <- list( 'basic'=FALSE, 'maxstep'=100, 'log_bound'=TRUE, 'alpha'=alpha, 'para_number'=2, 'manual'=TRUE)
-  # e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n=term_n, tform=tform, keep_constant=keep_constant, a_n=a_n, modelform=modelform, fir=fir, der_iden=der_iden, control=control,strat_col="nan", model_control=model_control)
-  # a <- e$Parameter_Limits
-  # expect_equal(a[1], v_lower[alpha_i],tolerance=1e-4)
-  # expect_equal(a[2], v_upper[alpha_i],tolerance=1e-4)
-  # }
 })
