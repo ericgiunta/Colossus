@@ -193,18 +193,6 @@ Calc_LogLik_STRATA_Linear_ERR <- function(tform, nthreads, RiskFail, RiskGroup, 
     invisible(.Call(`_Colossus_Calc_LogLik_STRATA_Linear_ERR`, tform, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant))
 }
 
-#' Utility function to calculate Cox Log-Likelihood, basic model
-#'
-#' \code{Calc_LogLik_Basic_Single} Basic model, Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: Log-likelihood vectors/matrix
-#' @noRd
-#'
-Calc_LogLik_Basic_Single <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant) {
-    invisible(.Call(`_Colossus_Calc_LogLik_Basic_Single`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant))
-}
-
 #' Utility function to calculate Cox Log-Likelihood
 #'
 #' \code{Calc_LogLik_Single} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
@@ -251,18 +239,6 @@ Calc_LogLik_STRATA_SINGLE <- function(nthreads, RiskFail, RiskGroup, totalnum, n
 #'
 Calc_LogLik_STRATA_BASIC <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant) {
     invisible(.Call(`_Colossus_Calc_LogLik_STRATA_BASIC`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant))
-}
-
-#' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model, no derivatives
-#'
-#' \code{Calc_LogLik_STRATA_BASIC_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: Log-likelihood vectors/matrix
-#' @noRd
-#'
-Calc_LogLik_STRATA_BASIC_SINGLE <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant) {
-    invisible(.Call(`_Colossus_Calc_LogLik_STRATA_BASIC_SINGLE`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant))
 }
 
 #' Utility function to calculate poisson log-likelihood and derivatives

@@ -389,27 +389,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// Calc_LogLik_Basic_Single
-void Calc_LogLik_Basic_Single(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, bool debugging, string ties_method, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Calc_LogLik_Basic_Single(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP Rls1SEXP, SEXP Lls1SEXP, SEXP LlSEXP, SEXP debuggingSEXP, SEXP ties_methodSEXP, SEXP KeepConstantSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
-    Rcpp::traits::input_parameter< const vector<string>& >::type RiskGroup(RiskGroupSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls1(Rls1SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls1(Lls1SEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type Ll(LlSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Calc_LogLik_Basic_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant);
-    return R_NilValue;
-END_RCPP
-}
 // Calc_LogLik_Single
 void Calc_LogLik_Single(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, bool debugging, string ties_method);
 RcppExport SEXP _Colossus_Calc_LogLik_Single(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP Rls1SEXP, SEXP Lls1SEXP, SEXP LlSEXP, SEXP debuggingSEXP, SEXP ties_methodSEXP) {
@@ -512,28 +491,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calc_LogLik_STRATA_BASIC(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
-    return R_NilValue;
-END_RCPP
-}
-// Calc_LogLik_STRATA_BASIC_SINGLE
-void Calc_LogLik_STRATA_BASIC_SINGLE(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Calc_LogLik_STRATA_BASIC_SINGLE(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskGroupSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP Rls1SEXP, SEXP Lls1SEXP, SEXP LlSEXP, SEXP debuggingSEXP, SEXP ties_methodSEXP, SEXP STRATA_valsSEXP, SEXP KeepConstantSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
-    Rcpp::traits::input_parameter< const StringMatrix& >::type RiskGroup(RiskGroupSEXP);
-    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
-    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls1(Rls1SEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls1(Lls1SEXP);
-    Rcpp::traits::input_parameter< vector<double>& >::type Ll(LlSEXP);
-    Rcpp::traits::input_parameter< bool >::type debugging(debuggingSEXP);
-    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type STRATA_vals(STRATA_valsSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Calc_LogLik_STRATA_BASIC_SINGLE(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
@@ -2207,12 +2164,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_LogLik_Basic", (DL_FUNC) &_Colossus_Calc_LogLik_Basic, 21},
     {"_Colossus_Calc_LogLik_Linear_ERR", (DL_FUNC) &_Colossus_Calc_LogLik_Linear_ERR, 23},
     {"_Colossus_Calc_LogLik_STRATA_Linear_ERR", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA_Linear_ERR, 24},
-    {"_Colossus_Calc_LogLik_Basic_Single", (DL_FUNC) &_Colossus_Calc_LogLik_Basic_Single, 12},
     {"_Colossus_Calc_LogLik_Single", (DL_FUNC) &_Colossus_Calc_LogLik_Single, 11},
     {"_Colossus_Calc_LogLik_STRATA", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA, 23},
     {"_Colossus_Calc_LogLik_STRATA_SINGLE", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA_SINGLE, 13},
     {"_Colossus_Calc_LogLik_STRATA_BASIC", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA_BASIC, 22},
-    {"_Colossus_Calc_LogLik_STRATA_BASIC_SINGLE", (DL_FUNC) &_Colossus_Calc_LogLik_STRATA_BASIC_SINGLE, 13},
     {"_Colossus_Poisson_LogLik", (DL_FUNC) &_Colossus_Poisson_LogLik, 13},
     {"_Colossus_Poisson_LogLik_Single", (DL_FUNC) &_Colossus_Poisson_LogLik_Single, 6},
     {"_Colossus_Calculate_Null_Sides", (DL_FUNC) &_Colossus_Calculate_Null_Sides, 7},
