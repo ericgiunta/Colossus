@@ -26,6 +26,7 @@ RunCoxRegression
 RunPoissonEventAssignment
 RunPoissonRegression
 STP
+SMR
 Schoenfeld
 Subterm
 UserID

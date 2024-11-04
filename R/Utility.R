@@ -2067,6 +2067,9 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
     }
     if (length(categ[[cat]]) > 1) { # boundary as lists
       if ("lower" %in% names(categ[[cat]])) { # lower and upper boundary intervals
+        if (!cat_df %in% names(table)) {
+          stop(paste(cat_df, " not in table", sep = ""))
+        }
         temp0 <- categ[[cat]]$lower
         temp1 <- categ[[cat]]$upper
         if ("name" %in% names(categ[[cat]])) { # check for names for each level
@@ -2297,6 +2300,9 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       }
       categ_bounds[[cat_col]] <- cat_str # update the list of category boundaries
     } else { # boundary as string, not a time category
+      if (!cat_df %in% names(table)) {
+          stop(paste(cat_df, " not in table", sep = ""))
+      }
       cat_str <- ""
       temp <- categ[[cat]]
       temp <- gsub("/", " / ", temp)
