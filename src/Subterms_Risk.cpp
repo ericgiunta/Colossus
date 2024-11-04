@@ -615,6 +615,121 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
     return;
 }
 
+//' Utility function to calculate the term and subterm values with gradient method
+//'
+//' \code{Make_subterms_Gradient} Called to update term matrices, Uses lists of term numbers and types to apply formulas, gradient method
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: subterm matrices, Term matrices
+//' @noRd
+// [[Rcpp::export]]
+void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const  MatrixXd& df0, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+    //
+    // Calculates the sub term values
+    //
+    // reset the subterm counts
+    nonDose_LIN = MatrixXd::Constant(T0.rows(), nonDose.cols(), 0.0);  // matrix of Linear subterm values
+    nonDose_PLIN = MatrixXd::Constant(T0.rows(), nonDose.cols(), 1.0);  // matrix of Loglinear subterm values
+    nonDose_LOGLIN = MatrixXd::Constant(T0.rows(), nonDose.cols(), 1.0);  // matrix of Product linear subterm values
+    //
+    vector<int> lin_count(nonDose.cols(), 0);
+    #ifdef _OPENMP
+    #pragma omp declare reduction (eig_plus: MatrixXd: omp_out=omp_out.array() + omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 0.0))
+    #pragma omp declare reduction (eig_mult: MatrixXd: omp_out=omp_out.array() * omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 1.0))
+    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+            initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus: nonDose_LIN, nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count)
+    #endif
+    for (int ij = 0; ij < totalnum; ij++) {
+        int df0_c = dfc[ij] - 1;
+        int tn = term_n[ij];
+        if (as< string>(tform[ij]) == "loglin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            T0.col(ij) = T0.col(ij).array().exp();;
+            nonDose_LOGLIN.col(tn) = nonDose_LOGLIN.col(tn).array() * T0.col(ij).array();
+
+        } else if (as< string>(tform[ij]) == "lin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            nonDose_LIN.col(tn) = nonDose_LIN.col(tn).array() + T0.col(ij).array();
+            lin_count[tn] = lin_count[tn] + 1;
+
+        } else if (as< string>(tform[ij]) == "plin") {
+            T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
+            nonDose_PLIN.col(tn) = nonDose_PLIN.col(tn).array() + T0.col(ij).array();
+
+        } else {
+            throw invalid_argument("incorrect subterm type");
+        }
+    }
+    //
+    // Calculates the terms and derivatives
+    //
+    for (int ijk = 0;  ijk < nonDose.cols(); ijk++) {  // combines non-dose terms into a single term
+        if (lin_count[ijk] == 0) {
+            nonDose_LIN.col(ijk) = nonDose_LIN.col(ijk).array() * 0.0 + 1;  // replaces missing data with 1
+        }
+        nonDose.col(ijk) = nonDose_LIN.col(ijk).array()  * nonDose_PLIN.col(ijk).array()  * nonDose_LOGLIN.col(ijk).array();
+    }
+    TTerm << nonDose.array();
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ij = 0; ij < totalnum; ij++) {
+        int df0_c = dfc[ij] - 1;
+        int tn = term_n[ij];
+        if (KeepConstant[ij] == 0) {
+            int jk = ij - sum(head(KeepConstant, ij));
+            if (as< string>(tform[ij]) == "loglin") {
+                T0.col(ij) = nonDose_LOGLIN.col(tn);
+                Td0.col(jk) = df0.col(df0_c).array() * T0.col(ij).array();
+                // Tdd0.col((jk)*(jk + 1)/2+jk) = df0.col(df0_c).array() * Td0.col(jk).array();
+            } else if (as< string>(tform[ij]) == "plin") {
+                T0.col(ij) = nonDose_PLIN.col(tn);
+                Td0.col(jk) = df0.col(df0_c);
+            } else if (as< string>(tform[ij]) == "lin") {
+                T0.col(ij) = nonDose_LIN.col(tn);
+                Td0.col(jk) = df0.col(df0_c);
+            } else {
+            }
+        }
+    }
+    //
+    // Adds in possible log-linear subterm second derivatives between DIFFERENT covariates
+    //
+    // #ifdef _OPENMP
+    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    // #endif
+    // for (int ijk = 0; ijk < totalnum*(totalnum + 1)/2; ijk++) {
+    //     int ij = 0;
+    //     int jk = ijk;
+    //     while (jk > ij) {
+    //         ij++;
+    //         jk -= ij;
+    //     }
+    //     int tij = term_n[ij];
+    //     int tjk = term_n[jk];
+    //     int df0_ij = dfc[ij] - 1;
+    //     int df0_jk = dfc[jk] - 1;
+    //     //
+    //     if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+    //         int ij_ind = ij - sum(head(KeepConstant, ij));
+    //         int jk_ind = jk - sum(head(KeepConstant, jk));
+    //         if (tij == tjk) {
+    //             if (as< string>(tform[ij]) == "loglin") {
+    //                 if (ij == jk) {
+    //                     Tdd0.col((ij_ind)*(ij_ind + 1)/2+ij_ind) = df0.col(df0_ij).array().pow(2).array() * nonDose_LOGLIN.col(tij).array();
+    //                 } else if (as< string>(tform[jk]) == "loglin") {
+    //                     Tdd0.col((ij_ind)*(ij_ind + 1)/2+jk_ind) = df0.col(df0_ij).array() * df0.col(df0_jk).array() * nonDose_LOGLIN.col(tij).array();
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    return;
+}
+
 //' Utility function to calculate the term and subterm values, but not derivatives
 //'
 //' \code{Make_subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
@@ -1346,6 +1461,149 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             RdR.col(ij) = R.col(0).array().pow(- 1).array() * Rd.col(jk).array();
         }
         RddR.col(ijk) = R.col(0).array().pow(- 1).array() * Rdd.col(ijk).array();
+    }
+    return;
+}
+
+//' Utility function to calculate the risk and risk ratios for gradient method
+//'
+//' \code{Make_Risks_Gradient} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas for gradient method
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Risk, Risk ratios
+//' @noRd
+// [[Rcpp::export]]
+void Make_Risks_Gradient(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+    //
+    //
+    MatrixXd Tterm_ratio = MatrixXd::Constant(Td0.rows(), Td0.cols(), 1.0);
+    int reqrdnum = totalnum - sum(KeepConstant);
+    //
+    if (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols()>1)) {  // same process used for all of the additive type models
+        Te = TTerm.array().rowwise().sum().array();
+        // computes initial risk and derivatives
+        if (modelform == "A") {
+            R << Te.array();
+            //
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ij = 0; ij < totalnum; ij++) {
+                // int ij = 0;
+                // int jk = ijk;
+                // while (jk > ij) {
+                //     ij++;
+                //     jk -= ij;
+                // }
+                int tij = term_n[ij];
+                // int tjk = term_n[jk];
+                if (KeepConstant[ij] == 0) {
+                    //
+                    ij = ij - sum(head(KeepConstant, ij));
+                    // jk = jk - sum(head(KeepConstant, jk));
+                    // int p_ijk = ij*(ij + 1)/2 + jk;
+                    //
+                    // if (ij == jk) {
+                    if (tform[ij] == "loglin") {
+                        Rd.col(ij) =  TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
+                    } else if (tform[ij] == "lin") {
+                        Rd.col(ij) =  nonDose_PLIN.col(tij).array()  * nonDose_LOGLIN.col(tij).array() *   Td0.col(ij).array();
+                    } else if (tform[ij] == "plin") {
+                        Rd.col(ij) =  nonDose_LIN.col(tij).array()  * nonDose_LOGLIN.col(tij).array()  *   Td0.col(ij).array();
+                    }
+                    // }
+                }
+            }
+        } else if ((modelform == "PAE") || (modelform == "PA")) {
+            Te = Te.array() - TTerm.col(fir).array();
+            if (modelform == "PAE") {
+                Te = Te.array() + 1;
+            }
+            R << TTerm.col(fir).array() * Te.array();
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ij = 0; ij < totalnum; ij++) {
+                // int ij = 0;
+                // int jk = ijk;
+                // while (jk > ij) {
+                //     ij++;
+                //     jk -= ij;
+                // }
+                int tij = term_n[ij];
+                // int tjk = term_n[jk];
+                if (KeepConstant[ij]) {
+                    //
+                    ij = ij - sum(head(KeepConstant, ij));
+                    // jk = jk - sum(head(KeepConstant, jk));
+                    // int p_ijk = ij*(ij + 1)/2 + jk;
+                    //
+                    // if (ij == jk) {
+                    if (tij == fir) {
+                        if (tform[ij] == "lin") {
+                            Rd.col(ij) =  R.col(0).array() * nonDose_LIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
+                        } else if (tform[ij] == "plin") {
+                            Rd.col(ij) =  R.col(0).array() * nonDose_PLIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
+                        } else if (tform[ij] == "loglin") {
+                            Rd.col(ij) =  R.col(0).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
+                        }
+                    } else {
+                        if (tform[ij] == "lin") {
+                            Rd.col(ij) =  TTerm.col(fir).array() * nonDose_PLIN.col(tij).array()  * nonDose_LOGLIN.col(tij).array() * Td0.col(ij).array();
+                        } else if (tform[ij] == "plin") {
+                            Rd.col(ij) =  TTerm.col(fir).array() * nonDose_LIN.col(tij).array()  * nonDose_LOGLIN.col(tij).array()  * Td0.col(ij).array();
+                        } else if (tform[ij] == "loglin") {
+                            Rd.col(ij) =  TTerm.col(fir).array() * TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
+                        }
+                    }
+                    // }
+                }
+            }
+        }
+    }else if ((modelform == "M") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
+        //
+        MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
+        TTerm_p << TTerm.array() + 1.0;
+        TTerm_p.col(fir) = TTerm.col(fir).array();
+        Te = TTerm_p.array().rowwise().prod().array();
+        R << Te.array();
+        //
+        Rd = Td0.array();
+        //
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ij = 0; ij < totalnum; ij++) {
+            int tij = term_n[ij];
+            if (KeepConstant[ij] == 0) {
+                int ijk = ij - sum(head(KeepConstant, ij));
+                if (tij != fir) {
+                    Tterm_ratio.col(ijk) = TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(- 1).array();
+                }
+                if (tform[ij] == "loglin") {
+                    Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array();
+                } else if (tform[ij] == "lin") {
+                    Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_LIN.col(tij).array().pow(- 1).array();
+                } else if (tform[ij] == "plin") {
+                    Tterm_ratio.col(ijk) = Tterm_ratio.col(ijk).array() * nonDose_PLIN.col(tij).array().pow(- 1).array();
+                }
+                Rd.col(ijk) = R.col(0).array() * Td0.array().col(ijk).array() * Tterm_ratio.col(ijk).array();
+            }
+        }
+        R = (R.array().isFinite()).select(R,  - 1);
+        Rd = (Rd.array().isFinite()).select(Rd, 0);
+        //
+        //
+    } else {
+        Rcout << "C++ Note: " << modelform << ", " << TTerm.cols() << endl;
+        throw invalid_argument("Model isn't implemented");
+    }
+    //
+    R =  (R.array().isFinite()).select(R,  - 1);
+    Rd = (Rd.array().isFinite()).select(Rd, 0);
+    //
+    for (int ij = 0; ij < reqrdnum; ij++) {  // calculates ratios
+        RdR.col(ij) = R.col(0).array().pow(- 1).array() * Rd.col(ij).array();
     }
     return;
 }

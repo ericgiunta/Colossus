@@ -67,3 +67,11 @@
 * ggsave defaults to width/height = 7
 * Updates started to fix possible OpenMP issues with fedora 36 running clang 18
 * Unable to have debug printing as an option and cover the c++ files with testing, but still have test output be readable. debug output removed.
+
+# Colossus 1.1.5
+
+* Started adding simplifications to allow for faster iterations
+* Added simplification for linear ERR model
+* Started gradient descent code
+* Started external rate comparison options
+* Added person-count and person-time table generation code and vignette

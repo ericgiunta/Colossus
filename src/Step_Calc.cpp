@@ -311,6 +311,41 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
     return;
 }
 
+//' Utility function to calculate the change to make each iteration with gradient step
+//'
+//' \code{Calc_Change_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: parameter change matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_Change_Gradient(const int& nthreads, const int& totalnum, const double& lr, const double& abs_max, const vector<double>& Lld, vector<double>& dbeta, IntegerVector KeepConstant, bool debugging) {
+    int kept_covs = totalnum - sum(KeepConstant);
+    NumericVector Lld_vec(kept_covs);
+    double magnitude = 0;
+    for (int ij = 0; ij < kept_covs; ij++) {
+        Lld_vec[ij] = Lld[ij];
+        magnitude = magnitude + pow(Lld[ij],2);
+    }
+    //
+    magnitude = sqrt(magnitude);
+    Lld_vec = Lld_vec / magnitude;
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < totalnum; ijk++) {
+        if (KeepConstant[ijk] == 0) {
+            int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+            dbeta[ijk] = -lr * abs_max * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+        } else {
+            dbeta[ijk] = 0;
+        }
+    }
+    return;
+}
+
 //' Utility function to calculate the change to make each iteration, with basic model
 //'
 //' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations

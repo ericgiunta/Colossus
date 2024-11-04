@@ -61,6 +61,18 @@ Calculate_Sides <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rl
     invisible(.Call(`_Colossus_Calculate_Sides`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, KeepConstant))
 }
 
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with gradient option
+#'
+#' \code{Calculate_Sides_Gradient} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+Calculate_Sides_Gradient <- function(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rls1, Rls2, Lls1, Lls2, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides_Gradient`, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rls1, Rls2, Lls1, Lls2, nthreads, debugging, KeepConstant))
+}
+
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
 #'
 #' \code{Calculate_Sides_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
@@ -155,6 +167,18 @@ Calculate_Sides_STRATA_Single_CR <- function(RiskFail, RiskGroup, totalnum, ntim
 #'
 Calc_LogLik <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant) {
     invisible(.Call(`_Colossus_Calc_LogLik`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant))
+}
+
+#' Utility function to calculate Cox Log-Likelihood and first derivatives
+#'
+#' \code{Calc_LogLik_Gradient} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Calc_LogLik_Gradient <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, Rls1, Rls2, Lls1, Lls2, Ll, Lld, debugging, ties_method, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_Gradient`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, Rls1, Rls2, Lls1, Lls2, Ll, Lld, debugging, ties_method, KeepConstant))
 }
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives, basic model
@@ -425,8 +449,8 @@ LogLik_Cox_PH_Multidose_Omnibus <- function(term_n, tform, a_n, x_all, dose_cols
 #' @return Updates matrices in place
 #' @noRd
 #'
-Cox_Refresh_R_TERM <- function(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, linerr_bool, single_bool) {
-    invisible(.Call(`_Colossus_Cox_Refresh_R_TERM`, totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, linerr_bool, single_bool))
+Cox_Refresh_R_TERM <- function(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, linerr_bool, single_bool, gradient_bool) {
+    invisible(.Call(`_Colossus_Cox_Refresh_R_TERM`, totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, basic_bool, linerr_bool, single_bool, gradient_bool))
 }
 
 #' Utility function to refresh side matrices for Cox Omnibus
@@ -437,8 +461,8 @@ Cox_Refresh_R_TERM <- function(totalnum, reqrdnum, term_tot, dint, dslp, dose_ab
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Cox_Refresh_R_SIDES <- function(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool) {
-    invisible(.Call(`_Colossus_Cox_Refresh_R_SIDES`, reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool))
+Cox_Refresh_R_SIDES <- function(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool, gradient_bool) {
+    invisible(.Call(`_Colossus_Cox_Refresh_R_SIDES`, reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, STRATA_vals, strata_bool, single_bool, gradient_bool))
 }
 
 #' Utility function to perform calculation of terms and risks for Cox Omnibus
@@ -783,6 +807,18 @@ Calc_Change <- function(double_step, nthreads, totalnum, der_iden, dose_abs_max,
     invisible(.Call(`_Colossus_Calc_Change`, double_step, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, debugging))
 }
 
+#' Utility function to calculate the change to make each iteration with gradient step
+#'
+#' \code{Calc_Change_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change_Gradient <- function(nthreads, totalnum, lr, abs_max, Lld, dbeta, KeepConstant, debugging) {
+    invisible(.Call(`_Colossus_Calc_Change_Gradient`, nthreads, totalnum, lr, abs_max, Lld, dbeta, KeepConstant, debugging))
+}
+
 #' Utility function to calculate the change to make each iteration, with basic model
 #'
 #' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
@@ -832,6 +868,17 @@ Make_subterms <- function(totalnum, term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose
     invisible(.Call(`_Colossus_Make_subterms`, totalnum, term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant))
 }
 
+#' Utility function to calculate the term and subterm values with gradient method
+#'
+#' \code{Make_subterms_Gradient} Called to update term matrices, Uses lists of term numbers and types to apply formulas, gradient method
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: subterm matrices, Term matrices
+#' @noRd
+Make_subterms_Gradient <- function(totalnum, term_n, tform, dfc, fir, T0, Td0, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_subterms_Gradient`, totalnum, term_n, tform, dfc, fir, T0, Td0, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant))
+}
+
 #' Utility function to calculate the term and subterm values, but not derivatives
 #'
 #' \code{Make_subterms_Single} Called to update term matrices, Uses lists of term numbers and types to apply formulas
@@ -874,6 +921,17 @@ Make_subterms_Linear_ERR <- function(totalnum, tform, dfc, nonDose_PLIN, nonDose
 #' @noRd
 Make_Risks <- function(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term) {
     invisible(.Call(`_Colossus_Make_Risks`, modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term))
+}
+
+#' Utility function to calculate the risk and risk ratios for gradient method
+#'
+#' \code{Make_Risks_Gradient} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas for gradient method
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Risk, Risk ratios
+#' @noRd
+Make_Risks_Gradient <- function(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Make_Risks_Gradient`, modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, debugging, KeepConstant))
 }
 
 #' Utility function to calculate the risk and risk ratios with a weighting applied
