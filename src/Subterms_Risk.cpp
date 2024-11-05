@@ -1644,6 +1644,31 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
     return;
 }
 
+//' Utility function to calculate the risk and risk ratios with a weighting applied and gradient method
+//'
+//' \code{Make_Risks_Weighted_Gradient} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Risk, Risk ratios
+//' @noRd
+// [[Rcpp::export]]
+void Make_Risks_Weighted_Gradient(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+    //
+    Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, debugging, KeepConstant);
+    //
+    int reqrdnum = totalnum - sum(KeepConstant);
+    R = R.array() * s_weights.array();
+    //
+    R =  (R.array().isFinite()).select(R,  - 1);
+    Rd = (Rd.array().isFinite()).select(Rd, 0);
+    //
+    for (int ij = 0; ij < reqrdnum; ij++) {  // calculates ratios
+        Rd.col(ij) = Rd.col(ij).array() * s_weights.array();
+        RdR.col(ij) = R.col(0).array().pow(- 1).array() * Rd.col(ij).array();
+    }
+    return;
+}
+
 
 //' Utility function to calculate the risk with a weighting applied and no derivatives calculated
 //'

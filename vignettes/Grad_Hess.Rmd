@@ -1,0 +1,35 @@
+---
+title: "Gradient and Hessian Approaches"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Gradient and Hessian Approaches}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Colossus)
+library(data.table)
+```
+
+# NOT COMPLETE YET
+
+## Optimization Theory
+
+Colossus offers three levels of score calculation, calculating only the score, calculating the score and first derivative, and calculating the score and both first and second derivatives. The second and third options correspond to the Gradient Descent and Netwon-Raphson optimization approaches. The goal of this vignette is to discuss how these methods are different, and in what circumstances each might be most appropriate. In both cases the algorithm is designed to iterively change the parameter estimates to approach a set of parameter values which optimize the score. The major difference is how much information is being calculated and used. The Newton-Raphson algorithm calculates the second derivative matrix, inverts it, and solves a linear system of equations to set the first derivative vector to zero.
+
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \Delta \beta \times \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta}
+\end{aligned}
+$$
+</p>
