@@ -338,11 +338,16 @@ void Calc_Change_Gradient(const int& nthreads, const int& totalnum, const double
     for (int ijk = 0; ijk < totalnum; ijk++) {
         if (KeepConstant[ijk] == 0) {
             int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-            dbeta[ijk] = -lr * abs_max * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+            dbeta[ijk] = lr * abs_max * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
         } else {
             dbeta[ijk] = 0;
         }
     }
+    // Rcout << "C++ Note: change ";  // prints parameter values
+    // for (int ij = 0; ij < totalnum; ij++) {
+    //     Rcout << dbeta[ij] << " ";
+    // }
+    // Rcout << " " << endl;
     return;
 }
 

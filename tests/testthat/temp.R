@@ -3,7 +3,7 @@ library(data.table)
 library(parallel)
 library(survival)
 
-fname <- "/home/user/Documents/Colossus/tests/testthat/ll_comp_0.csv"
+fname <- "ll_comp_0.csv"
 colTypes <- c("double", "double", "double", "integer", "integer")
 df <- fread(fname, data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
 set.seed(3742)
@@ -43,7 +43,7 @@ j_iterate <- 1
 LL_comp <- c(-81.12079, -81.12079, -77.97632, -77.97632, -68.60263, -68.67108, -75.34028, -75.3691, -81.12079, -81.12079, -77.97632, -77.97632, -68.60263, -68.67108, -75.34028, -75.3691, -122.8909, -122.8909, -119.9814, -119.9814, -109.6211, -109.6742, -117.0147, -117.0539, -122.8909, -122.8909, -119.9814, -119.9814, -109.6211, -109.6742, -117.0147, -117.0539)
 for (i in c( FALSE)) {
     for (j in c( FALSE)) {
-      for (k in c(FALSE, TRUE)) {
+      for (k in c(TRUE)) {
         for (l in c( FALSE)) {
           model_control <- list("strata" = i, "basic" = j, "gradient" = k, "cr" = l)
           if (verbose) {

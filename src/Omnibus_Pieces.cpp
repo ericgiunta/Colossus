@@ -84,7 +84,7 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
         nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
         nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+        TTerm = MatrixXd::Zero(df0.rows(), term_tot);  // matrix of term values
         RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
     } else {
         Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
@@ -320,7 +320,61 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
     } else if (gradient_bool) {
         //
         Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
+        // if (verbose >= 4) {
+        //    Rcout << "C++ Note: values checked ";
+        //    for (int ijk = 0; ijk < totalnum; ijk++) {
+        //        Rcout << beta_0[ijk] << " ";
+        //    }
+        //    Rcout << " " << endl;
+        //    Rcout << "C++ Note: sums checked ";
+        //    for (int ijk = 0; ijk < totalnum; ijk++) {
+        //        Rcout << T0.col(ijk).sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        //    Rcout << "C++ Note: derivs checked ";
+        //    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+        //        Rcout << Td0.col(ijk).sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        //    //
+        //    Rcout << "C++ Note: non-dose checked ";
+        //    for (int ijk = 0; ijk < term_tot; ijk++) {
+        //        Rcout << nonDose.col(ijk).array().sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        //    Rcout << "C++ Note: LIN_non-dose checked ";
+        //    for (int ijk = 0; ijk < term_tot; ijk++) {
+        //        Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        //    Rcout << "C++ Note: PLIN_non-dose checked ";
+        //    for (int ijk = 0; ijk < term_tot; ijk++) {
+        //        Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        //    Rcout << "C++ Note: LOGLIN_non-dose checked ";
+        //    for (int ijk = 0; ijk < term_tot; ijk++) {
+        //        Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        // }
         Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, debugging, KeepConstant);
+        // if (R.minCoeff() <= 0) {
+        //    if (verbose >= 4) {
+        //        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+        //    }
+        // } else if (verbose >= 4) {
+        //    Rcout << "C++ Note: risk checked ";
+        //    for (int ijk = 0; ijk < 1; ijk++) {
+        //        Rcout << R.col(0).sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        //    Rcout << "C++ Note: risk1 checked ";
+        //    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+        //        Rcout << Rd.col(ijk).sum() << " ";
+        //    }
+        //    Rcout << " " << endl;
+        // }
         //
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         //
@@ -525,17 +579,19 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
     //                 Rcout << Rls2.col(ijk).sum() << " ";
     //             }
     //             Rcout << " " << endl;
-    //             Rcout << "C++ Note: risk2r checked ";
-    //             for (int ijk = 0; ijk < reqrdnum; ijk++) {
-    //                 Rcout << Rls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //             if (!gradient_bool){
+    //                 Rcout << "C++ Note: risk2r checked ";
+    //                 for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //                     Rcout << Rls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //                 }
+    //                 Rcout << " " << endl;
+    //                 //
+    //                 Rcout << "C++ Note: ALL risk2r checked ";
+    //                 for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+    //                     Rcout << Rls3.col(ijk).sum() << " ";
+    //                 }
+    //                 Rcout << " " << endl;
     //             }
-    //             Rcout << " " << endl;
-    //             //
-    //             Rcout << "C++ Note: ALL risk2r checked ";
-    //             for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-    //                 Rcout << Rls3.col(ijk).sum() << " ";
-    //             }
-    //             Rcout << " " << endl;
     //             //
     //         }
     //         //
@@ -550,17 +606,19 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
     //                 Rcout << Lls2.col(ijk).sum() << " ";
     //             }
     //             Rcout << " " << endl;
-    //             Rcout << "C++ Note: risk2l checked ";
-    //             for (int ijk = 0; ijk < reqrdnum; ijk++) {
-    //                 Rcout << Lls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //             if (!gradient_bool){
+    //                 Rcout << "C++ Note: risk2l checked ";
+    //                 for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //                     Rcout << Lls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //                 }
+    //                 Rcout << " " << endl;
+    //                 //
+    //                 Rcout << "C++ Note: ALL risk2l checked ";
+    //                 for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+    //                     Rcout << Lls3.col(ijk).sum() << " ";
+    //                 }
+    //                 Rcout << " " << endl;
     //             }
-    //             Rcout << " " << endl;
-    //             //
-    //             Rcout << "C++ Note: ALL risk2l checked ";
-    //             for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-    //                 Rcout << Lls3.col(ijk).sum() << " ";
-    //             }
-    //             Rcout << " " << endl;
     //             //
     //         }
     //     }
@@ -600,33 +658,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
             Calc_LogLik(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
         }
     }
-    // if (strata_bool) {
-    //     if (basic_bool) {
-    //         if (single_bool) {
-    //             Calc_LogLik_STRATA_BASIC_SINGLE(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant);
-    //         } else {
-    //             Calc_LogLik_STRATA_BASIC(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
-    //         }
-    //     } else if (single_bool) {
-    //         Calc_LogLik_STRATA_SINGLE(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, STRATA_vals, KeepConstant);  // strata_single
-    //     } else {
-    //         Calc_LogLik_STRATA(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, STRATA_vals, KeepConstant);
-    //     }
-    // } else {
-    //     if (basic_bool) {
-    //         if (single_bool) {
-    //             Calc_LogLik_Basic_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, KeepConstant);  // basic_single
-    //         } else {
-    //             Calc_LogLik_Basic(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
-    //         }
-    //     } else {
-    //         if (single_bool) {
-    //             Calc_LogLik_Single(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method);  // single
-    //         } else {
-    //             Calc_LogLik(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
-    //         }
-    //     }
-    // }
     // end_point = system_clock::now();
     // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "C++ Note: log-lik " << (ending-comp) * 1e-6  <<endl;
@@ -657,11 +688,13 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
         //         Rcout << Lld[ij] << " ";
         //     }
         //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: df103 ";  // prints the second derivatives
-        //     for (int ij = 0; ij < reqrdnum; ij++) {
-        //         Rcout << Lldd[ij*reqrdnum+ij] << " ";
+        //     if (!gradient_bool){
+        //         Rcout << "C++ Note: df103 ";  // prints the second derivatives
+        //         for (int ij = 0; ij < reqrdnum; ij++) {
+        //             Rcout << Lldd[ij*reqrdnum+ij] << " ";
+        //         }
+        //         Rcout << " " << endl;
         //     }
-        //     Rcout << " " << endl;
         //     Rcout << "C++ Note: df104 ";  // prints parameter values
         //     for (int ij = 0; ij < totalnum; ij++) {
         //         Rcout << beta_0[ij] << " ";
@@ -669,6 +702,23 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
         //     Rcout << " " << endl;
         // }
     }
+    // if (gradient_bool){
+    //     Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
+    //     for (int ij = 0; ij < reqrdnum; ij++) {
+    //         Rcout << Ll[ij] << " ";
+    //     }
+    //     Rcout << " " << endl;
+    //     Rcout << "C++ Note: df102 ";  // prints the first derivatives
+    //     for (int ij = 0; ij < reqrdnum; ij++) {
+    //         Rcout << Lld[ij] << " ";
+    //     }
+    //     Rcout << " " << endl;
+    //     Rcout << "C++ Note: df104 ";  // prints parameter values
+    //     for (int ij = 0; ij < totalnum; ij++) {
+    //         Rcout << beta_0[ij] << " ";
+    //     }
+    //     Rcout << " " << endl;
+    // }
 }
 
 //' Utility function to perform calculation of terms and risks for Poisson Omnibus

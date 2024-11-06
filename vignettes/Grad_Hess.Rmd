@@ -23,13 +23,25 @@ library(data.table)
 
 ## Optimization Theory
 
-Colossus offers three levels of score calculation, calculating only the score, calculating the score and first derivative, and calculating the score and both first and second derivatives. The second and third options correspond to the Gradient Descent and Netwon-Raphson optimization approaches. The goal of this vignette is to discuss how these methods are different, and in what circumstances each might be most appropriate. In both cases the algorithm is designed to iterively change the parameter estimates to approach a set of parameter values which optimize the score. The major difference is how much information is being calculated and used. The Newton-Raphson algorithm calculates the second derivative matrix, inverts it, and solves a linear system of equations to set the first derivative vector to zero.
+Colossus offers three levels of score calculation, calculating only the score, calculating the score and first derivative, and calculating the score and both first and second derivatives. The second and third options correspond to the Gradient Descent and Newton-Raphson optimization approaches. The goal of this vignette is to discuss how these methods are different, and in what circumstances each might be most appropriate. In both cases the algorithm is designed to iteratively change the parameter estimates to approach a set of parameter values which optimize the score. The major difference is how much information is being calculated and used. The Newton-Raphson algorithm calculates the second derivative matrix, inverts it, and solves a linear system of equations to set the first derivative vector to zero. This method establishes both a magnitude and direction for every step. So every step has several time-intensive calculations, but the new parameter estimates are informed. In this algorithm Colossus uses both a learning rate ($\eta$) and maximum allowable parameter change ($\beta_{max}$).
 
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \Delta \beta \times \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta}
+    \Delta \beta \times \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta} \\
+    \Delta \beta = - \eta \frac{\partial LL}{\partial \beta_{t}} \times \left ( \frac{\partial^2 LL}{\partial \beta_{t}^2} \right)^{-1} \\
+    \beta_{t+1} = \beta_{t} + sign(\Delta \beta)*min \left( \left[ \left|\Delta \beta \right|, \beta_{max} \right] \right)
+\end{aligned}
+$$
+</p>
+
+The alternative is a Gradient descent approach. In this algorithm, the first derivatives are calculated and used to determine the vector with highest change in score. This establishes a direction for the change in parameters, the magnitude is normalized to the maximum allowable parameter change ($\beta_{max}$). Colossus uses half-steps to slowly reduce the allowable step size as the solution approaches the optimum. The Gradient algorithm avoids the time-intensive second-derivative calculations, but takes less informed steps. So each iteration runs faster, but more iterations may be required.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \beta_{t+1} = \beta_{t} + \eta * \beta_{max} * \left|\left|\frac{\partial LL}{\partial \beta} \right|\right|
 \end{aligned}
 $$
 </p>

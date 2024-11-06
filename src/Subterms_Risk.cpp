@@ -696,37 +696,6 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
         }
     }
     //
-    // Adds in possible log-linear subterm second derivatives between DIFFERENT covariates
-    //
-    // #ifdef _OPENMP
-    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    // #endif
-    // for (int ijk = 0; ijk < totalnum*(totalnum + 1)/2; ijk++) {
-    //     int ij = 0;
-    //     int jk = ijk;
-    //     while (jk > ij) {
-    //         ij++;
-    //         jk -= ij;
-    //     }
-    //     int tij = term_n[ij];
-    //     int tjk = term_n[jk];
-    //     int df0_ij = dfc[ij] - 1;
-    //     int df0_jk = dfc[jk] - 1;
-    //     //
-    //     if (KeepConstant[ij]+KeepConstant[jk] == 0) {
-    //         int ij_ind = ij - sum(head(KeepConstant, ij));
-    //         int jk_ind = jk - sum(head(KeepConstant, jk));
-    //         if (tij == tjk) {
-    //             if (as< string>(tform[ij]) == "loglin") {
-    //                 if (ij == jk) {
-    //                     Tdd0.col((ij_ind)*(ij_ind + 1)/2+ij_ind) = df0.col(df0_ij).array().pow(2).array() * nonDose_LOGLIN.col(tij).array();
-    //                 } else if (as< string>(tform[jk]) == "loglin") {
-    //                     Tdd0.col((ij_ind)*(ij_ind + 1)/2+jk_ind) = df0.col(df0_ij).array() * df0.col(df0_jk).array() * nonDose_LOGLIN.col(tij).array();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
     return;
 }
 

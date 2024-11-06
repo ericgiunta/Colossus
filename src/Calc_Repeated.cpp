@@ -1484,11 +1484,11 @@ void Calc_LogLik_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, co
             double Rs2 = Rls2(j, ij);
             //
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-            MatrixXd Ld = MatrixXd::Zero(dj, 4);
+            MatrixXd Ld = MatrixXd::Zero(dj, 2);
             Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  // rows with events
             //
             MatrixXd Ldm = MatrixXd::Zero(dj, 2);
-            Vector4d Ldcs;
+            Vector2d Ldcs;
             if (ties_method == "efron") {
                 Ldcs << Lls1(j, 0), Lls2(j, ij);
                 for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
@@ -1765,7 +1765,7 @@ void Calc_LogLik_STRATA_Linear_ERR(const StringVector& tform, const int& nthread
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
     #endif
-    for (int t_ijk = 0; t_ijk < reqrdnum*(reqrdnum + 1)/2; t_ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+    for (int t_ijk = 0; t_ijk < totalnum*(totalnum + 1)/2; t_ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
         for (int j = 0; j < ntime; j++) {
             for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
                 int t_ij = 0;
@@ -1775,8 +1775,8 @@ void Calc_LogLik_STRATA_Linear_ERR(const StringVector& tform, const int& nthread
                     t_jk -= t_ij;
                 }
                 if (KeepConstant[t_ij] + KeepConstant[t_jk] == 0){
-                    int ij = ij - sum(head(KeepConstant, ij));
-                    int jk = jk - sum(head(KeepConstant, jk));
+                    int ij = t_ij - sum(head(KeepConstant, t_ij));
+                    int jk = t_jk - sum(head(KeepConstant, t_jk));
                     int ijk = ij*(ij + 1)/2 + jk;
                     //
                     double Rs1 = Rls1(j, s_ij);
@@ -2058,7 +2058,7 @@ void Calc_LogLik_STRATA_Gradient(const int& nthreads, const IntegerMatrix& RiskF
                     Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  // rows with events
                     //
                     MatrixXd Ldm = MatrixXd::Zero(dj, 2);
-                    Vector4d Ldcs;
+                    Vector2d Ldcs;
                     if (ties_method == "efron") {
                         Ldcs << Lls1(j, s_ij), Lls2(j, ij*STRATA_vals.size() + s_ij);
                         for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
