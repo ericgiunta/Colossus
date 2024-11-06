@@ -90,19 +90,44 @@
 <p>Colossus offers three levels of score calculation, calculating only
 the score, calculating the score and first derivative, and calculating
 the score and both first and second derivatives. The second and third
-options correspond to the Gradient Descent and Netwon-Raphson
+options correspond to the Gradient Descent and Newton-Raphson
 optimization approaches. The goal of this vignette is to discuss how
 these methods are different, and in what circumstances each might be
-most appropriate. In both cases the algorithm is designed to iterively
+most appropriate. In both cases the algorithm is designed to iteratively
 change the parameter estimates to approach a set of parameter values
 which optimize the score. The major difference is how much information
 is being calculated and used. The Newton-Raphson algorithm calculates
 the second derivative matrix, inverts it, and solves a linear system of
-equations to set the first derivative vector to zero.</p>
+equations to set the first derivative vector to zero. This method
+establishes both a magnitude and direction for every step. So every step
+has several time-intensive calculations, but the new parameter estimates
+are informed. In this algorithm Colossus uses both a learning rate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>)
+and maximum allowable parameter change
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{max}</annotation></semantics></math>).</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>×</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msup><mi>β</mi><mn>2</mn></msup></mrow></mfrac><mo>≈</mo><mo>−</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>×</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msup><mi>β</mi><mn>2</mn></msup></mrow></mfrac><mo>≈</mo><mo>−</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>=</mo><mo>−</mo><mi>η</mi><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>t</mi></msub></mrow></mfrac><mo>×</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msubsup><mi>β</mi><mi>t</mi><mn>2</mn></msubsup></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \Delta \beta \times \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta}
+    \Delta \beta \times \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta} \\
+    \Delta \beta = - \eta \frac{\partial LL}{\partial \beta_{t}} \times \left ( \frac{\partial^2 LL}{\partial \beta_{t}^2} \right)^{-1} \\
+    \beta_{t+1} = \beta_{t} + sign(\Delta \beta)*min \left( \left[ \left|\Delta \beta \right|, \beta_{max} \right] \right)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>The alternative is a Gradient descent approach. In this algorithm,
+the first derivatives are calculated and used to determine the vector
+with highest change in score. This establishes a direction for the
+change in parameters, the magnitude is normalized to the maximum
+allowable parameter change
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{max}</annotation></semantics></math>).
+Colossus uses half-steps to slowly reduce the allowable step size as the
+solution approaches the optimum. The Gradient algorithm avoids the
+time-intensive second-derivative calculations, but takes less informed
+steps. So each iteration runs faster, but more iterations may be
+required.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>η</mi><mo>*</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>*</mo><mrow><mo stretchy="true" form="prefix">|</mo><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><mo stretchy="true" form="postfix">|</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    \beta_{t+1} = \beta_{t} + \eta * \beta_{max} * \left|\left|\frac{\partial LL}{\partial \beta} \right|\right|
 \end{aligned}
 </annotation></semantics></math></p>
 </div>
