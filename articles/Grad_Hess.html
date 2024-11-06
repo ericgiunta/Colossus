@@ -82,7 +82,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="not-complete-yet">NOT COMPLETE YET<a class="anchor" aria-label="anchor" href="#not-complete-yet"></a>
+<h2 id="not-complete-working-on-additional-optimization-options">NOT COMPLETE, WORKING ON ADDITIONAL OPTIMIZATION OPTIONS<a class="anchor" aria-label="anchor" href="#not-complete-working-on-additional-optimization-options"></a>
 </h2>
 <div class="section level3">
 <h3 id="optimization-theory">Optimization Theory<a class="anchor" aria-label="anchor" href="#optimization-theory"></a>
@@ -116,8 +116,10 @@ and maximum allowable parameter change
 <p>The alternative is a Gradient descent approach. In this algorithm,
 the first derivatives are calculated and used to determine the vector
 with highest change in score. This establishes a direction for the
-change in parameters, the magnitude is normalized to the maximum
-allowable parameter change
+change in parameters, which is multiplied by the learning rate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>).
+Similar to the Newton-Raphson algorithm, the magnitude is normalized to
+the maximum allowable parameter change
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{max}</annotation></semantics></math>).
 Colossus uses half-steps to slowly reduce the allowable step size as the
 solution approaches the optimum. The Gradient algorithm avoids the
@@ -125,11 +127,17 @@ time-intensive second-derivative calculations, but takes less informed
 steps. So each iteration runs faster, but more iterations may be
 required.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>η</mi><mo>*</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>*</mo><mrow><mo stretchy="true" form="prefix">|</mo><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><mo stretchy="true" form="postfix">|</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>=</mo><mi>η</mi><mo>*</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>*</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \beta_{t+1} = \beta_{t} + \eta * \beta_{max} * \left|\left|\frac{\partial LL}{\partial \beta} \right|\right|
+   \Delta \beta = \eta * \beta_{max} * \frac{\partial LL}{\partial \beta}\\
+   \beta_{t+1} = \beta_{t} + sign(\Delta \beta)*min \left( \left[ \left|\Delta \beta \right|, \beta_{max} \right] \right)
 \end{aligned}
 </annotation></semantics></math></p>
+<p>The standard half-step framework isn’t likely to be sufficient for
+the Gradient descent algorithm. Because of this, several different
+optimization options have been or will be added, like momentum,
+adadelta, and adam, which use previous information about the gradient to
+inform the step size for future steps.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
