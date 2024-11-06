@@ -702,23 +702,23 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
         //     Rcout << " " << endl;
         // }
     }
-    // if (gradient_bool){
-    //     Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
-    //     for (int ij = 0; ij < reqrdnum; ij++) {
-    //         Rcout << Ll[ij] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: df102 ";  // prints the first derivatives
-    //     for (int ij = 0; ij < reqrdnum; ij++) {
-    //         Rcout << Lld[ij] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: df104 ";  // prints parameter values
-    //     for (int ij = 0; ij < totalnum; ij++) {
-    //         Rcout << beta_0[ij] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
+    if (verbose >= 4){
+        Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            Rcout << Ll[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: df102 ";  // prints the first derivatives
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            Rcout << Lld[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: df104 ";  // prints parameter values
+        for (int ij = 0; ij < totalnum; ij++) {
+            Rcout << beta_0[ij] << " ";
+        }
+        Rcout << " " << endl;
+    }
 }
 
 //' Utility function to perform calculation of terms and risks for Poisson Omnibus

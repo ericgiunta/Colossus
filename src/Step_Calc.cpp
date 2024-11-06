@@ -326,11 +326,11 @@ void Calc_Change_Gradient(const int& nthreads, const int& totalnum, const double
     double magnitude = 0;
     for (int ij = 0; ij < kept_covs; ij++) {
         Lld_vec[ij] = Lld[ij];
-        magnitude = magnitude + pow(Lld[ij],2);
+        //magnitude = magnitude + pow(Lld[ij],2);
     }
     //
-    magnitude = sqrt(magnitude);
-    Lld_vec = Lld_vec / magnitude;
+    //magnitude = sqrt(magnitude);
+    //Lld_vec = Lld_vec / magnitude;
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -338,7 +338,10 @@ void Calc_Change_Gradient(const int& nthreads, const int& totalnum, const double
     for (int ijk = 0; ijk < totalnum; ijk++) {
         if (KeepConstant[ijk] == 0) {
             int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-            dbeta[ijk] = lr * abs_max * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+            dbeta[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			if (abs(dbeta[ijk]) > abs_max) {
+				dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			}
         } else {
             dbeta[ijk] = 0;
         }
