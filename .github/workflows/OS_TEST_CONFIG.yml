@@ -52,10 +52,6 @@ jobs:
         run: |
           brew install pandoc
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
-      - name: move to package and run tests
-        run: |
-          Rscript -e "devtools::run_examples()"
-          Rscript -e "devtools::test(stop_on_failure=TRUE)"
   mac_no_OMP_check:
     runs-on: macos-latest
 
@@ -119,7 +115,3 @@ jobs:
           sudo apt-get install pandoc
           sudo apt-get install texlive
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
-      - name: move to package and run tests
-        run: |
-          Rscript -e "devtools::run_examples()"
-          Rscript -e "devtools::test(stop_on_failure=TRUE)"
