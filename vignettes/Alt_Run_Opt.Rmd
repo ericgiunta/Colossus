@@ -54,7 +54,7 @@ In code this is done by adding in an additional parameter for the stratification
 
 ```{r, eval=FALSE}
 Strat_Col <- "e"
-e <- RunCoxRegression_STRATA(
+e <- RunCoxRegression_Strata(
   df, time1, time2, event, names, term_n, tform, keep_constant,
   a_n, modelform, fir, der_iden, control, Strat_Col
 )
@@ -88,7 +88,7 @@ In code this is done by adding in a list of stratification columns and using a d
 
 ```{r, eval=FALSE}
 Strat_Col <- c("e")
-e <- RunPoissonRegression_STRATA(
+e <- RunPoissonRegression_Strata(
   df, pyr, event, names, term_n, tform, keep_constant,
   a_n, modelform, fir, der_iden, control, Strat_Col
 )

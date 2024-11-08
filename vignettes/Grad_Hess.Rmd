@@ -41,10 +41,56 @@ The alternative is a Gradient descent approach. In this algorithm, the first der
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-   \Delta \beta = \eta * \beta_{max} * \frac{\partial LL}{\partial \beta}\\
+   \Delta \beta = \eta * \frac{\partial LL}{\partial \beta}\\
    \beta_{t+1} = \beta_{t} + sign(\Delta \beta)*min \left( \left[ \left|\Delta \beta \right|, \beta_{max} \right] \right)
 \end{aligned}
 $$
 </p>
 
-The standard half-step framework isn't likely to be sufficient for the Gradient descent algorithm. Because of this, several different optimization options have been or will be added, like momentum, adadelta, and adam, which use previous information about the gradient to inform the step size for future steps.
+The standard half-step framework is not likely to be sufficient for the Gradient descent algorithm. Because of this, several different optimization options have been or will be added, like momentum, adadelta, and adam, which use previous information about the gradient to inform the step size for future steps. The first method, momentum, applies a weighted sum ($\gamma$) of the current and previous step. This is done to speed up steps moving toward the optimum position and correct for when the algorithm oversteps. This can avoid the issue of oscillation around an optimum value.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+   \Delta \beta_{t} = \gamma * \Delta \beta_{t-1} + \eta * \frac{\partial LL}{\partial \beta}\\
+   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+\end{aligned}
+$$
+</p>
+
+The next method, the adadelta method, applies a parameter specific learning rate by tracking the root mean square (RMS) gradient and parameter updates within a window. Instead of tracking a true window of iteration, the old estimate of RMS is decayed by a weight ($\gamma$) before being added to the new estimate. The ratio of RMS parameter update to RMS gradient is used to normalize the results back in the correct units. A small offset ($\epsilon$) is used to avoid the case of division by zero.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    g_t = \left (\frac{\partial LL}{\partial \beta} \right)_{t} \\
+    E[g^2]_{t} = \gamma * E[g^2]_{t-1} + (1-\gamma) * g^2_{t} \\
+    E[\Delta \beta^2]_{t-1} = \gamma * E[\Delta \beta^2]_{t-2} + (1-\gamma) * \Delta \beta^2_{t-1} \\
+    RMS[g]_t = \sqrt{E[g^2]_{t} + \epsilon} \\
+    RMS[\Delta \beta]_{t-1} = \sqrt{E[\Delta \beta^2]_{t-1} + \epsilon} \\
+   \Delta \beta_{t} = \frac{RMS[\Delta \beta]_{t-1}}{RMS[g]_t} * g_t\\
+   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+\end{aligned}
+$$
+</p>
+
+The final method, adam, combines the theory behind the momentum and adadelta methods. The adam method tracks an estimate of the first moment vector ($m$) and second moment vector ($v$), which are weighted by decay parameters ($\beta_1, \beta_2$). These are bias corrected to correct for bias in early iterations ($\hat{m}, \hat{v}$). The learning rate ($\eta$) and second moment vector provide the decaying learning rate from adadelta, and the first moment vector provides an effect similar to momentum. Combined these have generally been able to stabilize gradient descent algorithms without incurring a significant computational cost.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    g_t = \left (\frac{\partial LL}{\partial \beta} \right)_{t} \\
+    m_0, v_0 = 0, 0 \\
+    m_t = \beta_1 * m_{t-1} + (1-\beta_1) * g_t \\
+    v_t = \beta_2 * v_{t-1} + (1-\beta_2) * g^2_t \\
+    \hat{m}_t = m_t / (1-\beta_1^t) \\
+    \hat{v}_t = v_t / (1-\beta_2^t) \\
+   \Delta \beta_{t} = \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} * \hat{m}_t \\
+   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+\end{aligned}
+$$
+</p>
+
+
+
+

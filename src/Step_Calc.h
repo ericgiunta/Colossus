@@ -17,7 +17,7 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
 
 void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, bool debugging);
 
-void Calc_Change_Gradient(const int& nthreads, const int& totalnum, const double& lr, const double& abs_max, const vector<double>& Lld, vector<double>& dbeta, IntegerVector KeepConstant, bool debugging);
+void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& abs_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, bool debugging);
 
 void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, IntegerVector KeepConstant, bool debugging);
 

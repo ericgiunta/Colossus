@@ -676,7 +676,7 @@ RunPoissonRegression_Single <- function(df, pyr0 = "pyr", event0 = "event", name
 
 #' Performs poisson regression with strata effect
 #'
-#' \code{RunPoissonRegression_STRATA} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
+#' \code{RunPoissonRegression_Strata} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
 #'
 #' @inheritParams R_template
 #' @family Poisson Wrapper Functions
@@ -715,13 +715,13 @@ RunPoissonRegression_Single <- function(df, pyr0 = "pyr", event0 = "event", name
 #'   "verbose" = FALSE, "double_step" = 1
 #' )
 #' strat_col <- c("e")
-#' e <- RunPoissonRegression_STRATA(
+#' e <- RunPoissonRegression_Strata(
 #'   df, pyr, event, names,
 #'   term_n, tform, keep_constant,
 #'   a_n, modelform, fir, der_iden, control, strat_col
 #' )
 #'
-RunPoissonRegression_STRATA <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null") {
+RunPoissonRegression_Strata <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null") {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -782,6 +782,7 @@ RunPoissonRegression_STRATA <- function(df, pyr0 = "pyr", event0 = "event", name
 #'   "loglin_method" = "uniform", strata = TRUE, term_initial = c(0, 1)
 #' )
 #' strat_col <- c("e")
+#' options(warn = -1)
 #' e <- RunPoissonRegression_Tier_Guesses(
 #'   df, pyr, event, names,
 #'   term_n, tform, keep_constant, a_n, modelform,
@@ -905,6 +906,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0 = "pyr", event0 = "event"
 #'   "loglin_method" = "uniform", strata = FALSE
 #' )
 #' strat_col <- "e"
+#' options(warn = -1)
 #' e <- RunPoissonRegression_Guesses_CPP(
 #'   df, pyr, event, names, term_n,
 #'   tform, keep_constant, a_n, modelform, fir,

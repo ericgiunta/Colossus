@@ -59,7 +59,7 @@ test_that("Coxph_strata time column missing", {
   fir <- 0
   der_iden <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  expect_error(RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
+  expect_error(RunCoxRegression_Strata(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
 })
 test_that("Coxph_strata no events", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -81,7 +81,7 @@ test_that("Coxph_strata no events", {
   fir <- 0
   der_iden <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  expect_error(RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
+  expect_error(RunCoxRegression_Strata(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
   #
   a <- c(0, 1, 2, 3, 4, 5, 6)
   b <- c(1, 2, 3, 4, 5, 6, 7)
@@ -89,7 +89,7 @@ test_that("Coxph_strata no events", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(1, 1, 0, 0, 1, 0, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  expect_no_error(RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
+  expect_no_error(RunCoxRegression_Strata(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
 })
 test_that("Coxph_strata no strata", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -111,7 +111,7 @@ test_that("Coxph_strata no strata", {
   fir <- 0
   der_iden <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  expect_error(RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
+  expect_error(RunCoxRegression_Strata(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
 })
 test_that("Coxph_strata strata with no error", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -133,7 +133,7 @@ test_that("Coxph_strata strata with no error", {
   fir <- 0
   der_iden <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  expect_error(RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
+  expect_error(RunCoxRegression_Strata(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col))
 })
 
 test_that("Coxph null time column missing", {
@@ -275,7 +275,7 @@ test_that("Coxph loglin_M Strata", {
   fir <- 0
   der_iden <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  e <- RunCoxRegression_STRATA(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "fac")
+  e <- RunCoxRegression_Strata(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "fac")
   expect_equal(e$beta_0, c(-0.106), tolerance = 1e-2)
 })
 test_that("Coxph loglin_M Single", {

@@ -38,10 +38,10 @@ $$
 For this analysis we will use the veteran lung cancer trial data from the survival package. We will treat events to be status equal to 2, scale the survival time to be per 100 days, and assume every row has an expected event rate of 0.5, roughly double the average rate in the data. In practice this could be a constant population average or a row specific rate taken from mapping a table of external events onto the data.
 
 ```{r, eval=TRUE}
-data(cancer, package="survival")
+data(cancer, package = "survival")
 
 cancer$status <- as.integer(cancer$status == 2)
-cancer$time <- cancer$time/100
+cancer$time <- cancer$time / 100
 
 cancer$erate <- 0.5
 ```
@@ -59,15 +59,19 @@ a_n <- c(1)
 modelform <- "M"
 fir <- 0
 der_iden <- 0
-control <- list("ncores" = 1, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-9,
-                "deriv_epsilon" = 1e-9, "verbose" = 1)
-e <- RunPoissonRegression_Omnibus(cancer, pyr, event, names, term_n, tform,
-                                  keep_constant, a_n, modelform, fir, der_iden, control)
+control <- list(
+  "ncores" = 1, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-9,
+  "deriv_epsilon" = 1e-9, "verbose" = 1
+)
+e <- RunPoissonRegression_Omnibus(
+  cancer, pyr, event, names, term_n, tform,
+  keep_constant, a_n, modelform, fir, der_iden, control
+)
 
 print(e$beta_0)
 ```
 
-In this case we found the SMR to be 0.474, analysis of the confidence interval (either Wald or Likelihood-based) could be performed to check if the results are statistically significant. Lets suppose we wanted to take the analysis a step further and investigate the effect of difference covariates. The SMR equation can be adjusted to either an additive or multiplicative effect, similar to any other Poisson regression model. Let's assume we are interested in the effects of biological sex. We can add another element to our model and rerun the regression. Let's start with holding the constant multiple ($\beta_0$) constant at 1 and investigate if the difference in SMR is entirely due to biological sex.
+In this case we found the SMR to be 0.474, analysis of the confidence interval (either Wald or Likelihood-based) could be performed to check if the results are statistically significant. Lets suppose we wanted to take the analysis a step further and investigate the effect of difference covariates. The SMR equation can be adjusted to either an additive or multiplicative effect, similar to any other Poisson regression model. Let us assume we are interested in the effects of biological sex. We can add another element to our model and rerun the regression. Let us start with holding the constant multiple ($\beta_0$) constant at 1 and investigate if the difference in SMR is entirely due to biological sex.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -78,27 +82,31 @@ $$
 </p>
 
 ```{r, eval=TRUE}
-names <- c("erate","sex")
-term_n <- c(0,1)
-tform <- c("lin","lin")
-keep_constant <- c(1,0)
-a_n <- c(1,1)
-e <- RunPoissonRegression_Omnibus(cancer, pyr, event, names, term_n, tform,
-                                  keep_constant, a_n, modelform, fir, der_iden, control)
+names <- c("erate", "sex")
+term_n <- c(0, 1)
+tform <- c("lin", "lin")
+keep_constant <- c(1, 0)
+a_n <- c(1, 1)
+e <- RunPoissonRegression_Omnibus(
+  cancer, pyr, event, names, term_n, tform,
+  keep_constant, a_n, modelform, fir, der_iden, control
+)
 print(e$beta_0)
 ```
 
-In this case the estimated contribution of biological sex was 0, so we couldn't find any effect of biological sex on the difference in SMR. Suppose we let both parameter be free and investigated the combined effects. Once again we run the regression, this time with neither parameter held constant.
+In this case the estimated contribution of biological sex was 0, so we could not find any effect of biological sex on the difference in SMR. Suppose we let both parameter be free and investigated the combined effects. Once again we run the regression, this time with neither parameter held constant.
 
 ```{r, eval=TRUE}
-names <- c("erate","sex")
-term_n <- c(0,1)
-tform <- c("lin","lin")
-keep_constant <- c(0,0)
-a_n <- c(1,1)
+names <- c("erate", "sex")
+term_n <- c(0, 1)
+tform <- c("lin", "lin")
+keep_constant <- c(0, 0)
+a_n <- c(1, 1)
 
-e <- RunPoissonRegression_Omnibus(cancer, pyr, event, names, term_n, tform,
-                                  keep_constant, a_n, modelform, fir, der_iden, control)
+e <- RunPoissonRegression_Omnibus(
+  cancer, pyr, event, names, term_n, tform,
+  keep_constant, a_n, modelform, fir, der_iden, control
+)
 
 print(e$beta_0)
 ```

@@ -44,6 +44,7 @@
 #' control <- Def_Control(control)
 #' guesses_control <- Def_Control_Guess(guesses_control, a_n)
 #' model_control <- Def_model_control(model_control)
+#' options(warn = -1)
 #' Gather_Guesses_CPP(
 #'   df, dfc, names, term_n, tform, keep_constant,
 #'   a_n, x_all, a_n_default,
@@ -630,6 +631,7 @@ Def_Control <- function(control) {
   cpp_compiler <- sys_config[["Default c++"]]
   R_compiler <- sys_config[["R Compiler"]]
   if (!OpenMP) {
+    warning("Warning: OpenMP not detected, cores set to 1")
     control$ncores <- 1 # nocov
   }
   if (Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") {
@@ -637,9 +639,11 @@ Def_Control <- function(control) {
       if (cpp_compiler == "gcc") {
         if (R_compiler != "gcc") { # nocov
           control$ncores <- 1 # nocov
+          warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
         }
       } else if (cpp_compiler == "clang") { # nocov
         control$ncores <- 1 # nocov
+        warning("Warning: linux machine using clang, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
       }
     }
   }
@@ -791,6 +795,34 @@ Def_model_control <- function(control) {
       # fine
     } else {
       control["search_mult"] <- 1.0
+    }
+  }
+  if (control[["gradient"]]) {
+    control_def_names <- c(
+      "momentum", "adadelta", "adam"
+    )
+    for (nm in control_def_names) {
+      if (nm %in% names(control)) {
+        # fine
+      } else {
+        control[nm] <- FALSE
+      }
+    }
+    # add different parameters
+    if ("momentum_decay" %in% names(control)) {
+      # fine
+    } else {
+      control["momentum_decay"] <- 0.9
+    }
+    if ("learning_decay" %in% names(control)) {
+      # fine
+    } else {
+      control["learning_decay"] <- 0.999
+    }
+    if ("epsilon_decay" %in% names(control)) {
+      # fine
+    } else {
+      control["epsilon_decay"] <- 1e-8
     }
   }
   return(control)
@@ -1880,18 +1912,24 @@ Check_Verbose <- function(verbose) {
 #' a <- c(0, 1, 2, 3, 4, 5, 6)
 #' b <- c(1, 2, 3, 4, 5, 6, 7)
 #' c <- c(0, 1, 0, 0, 0, 1, 0)
-#' table <- data.table::data.table("a" = a,
-#'                                 "b" = b,
-#'                                 "c" = c)
+#' table <- data.table::data.table(
+#'   "a" = a,
+#'   "b" = b,
+#'   "c" = c
+#' )
 #' categ <- list(
 #'   "a" = "0/3/5]7",
-#'   "b" = list(lower = c(-1, 3, 6),
-#'              upper = c(3, 6, 10),
-#'              name = c("low", "medium", "high"))
+#'   "b" = list(
+#'     lower = c(-1, 3, 6),
+#'     upper = c(3, 6, 10),
+#'     name = c("low", "medium", "high")
+#'   )
 #' )
-#' event <- list("c" = "count AS cases",
-#'               "a" = "mean", "b" = "mean")
-#' Event_Count_Gen(table, categ, event, T)
+#' event <- list(
+#'   "c" = "count AS cases",
+#'   "a" = "mean", "b" = "mean"
+#' )
+#' e <- Event_Count_Gen(table, categ, event, T)
 #'
 Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
   df <- as_tibble(table)
@@ -2013,12 +2051,16 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
 #' c <- c(0, 1, 0, 0, 0, 1, 0)
 #' d <- c(1, 2, 3, 4, 5, 6, 7)
 #' e <- c(2, 3, 4, 5, 6, 7, 8)
-#' f <- c(1900, 1900, 1900, 1900,
-#'        1900, 1900, 1900)
+#' f <- c(
+#'   1900, 1900, 1900, 1900,
+#'   1900, 1900, 1900
+#' )
 #' g <- c(1, 2, 3, 4, 5, 6, 7)
 #' h <- c(2, 3, 4, 5, 6, 7, 8)
-#' i <- c(1901, 1902, 1903, 1904,
-#'        1905, 1906, 1907)
+#' i <- c(
+#'   1901, 1902, 1903, 1904,
+#'   1905, 1906, 1907
+#' )
 #' table <- data.table::data.table(
 #'   "a" = a, "b" = b, "c" = c,
 #'   "d" = d, "e" = e, "f" = f,
@@ -2036,14 +2078,18 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
 #'     "year" = c(1899, 1903, 1910)
 #'   )
 #' )
-#' summary <- list("c" = "count AS cases",
-#'                 "a" = "mean",
-#'                 "b" = "weighted_mean")
+#' summary <- list(
+#'   "c" = "count AS cases",
+#'   "a" = "mean",
+#'   "b" = "weighted_mean"
+#' )
 #' events <- list("c")
-#' pyr <- list(entry = list(year = "f", month = "e", day = "d"),
-#'             exit = list(year = "i", month = "h", day = "g"),
-#'             unit = "years")
-#' Event_Time_Gen(table, pyr, categ, summary, events, T)
+#' pyr <- list(
+#'   entry = list(year = "f", month = "e", day = "d"),
+#'   exit = list(year = "i", month = "h", day = "g"),
+#'   unit = "years"
+#' )
+#' e <- Event_Time_Gen(table, pyr, categ, summary, events, T)
 #'
 Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE) {
   df <- as_tibble(table)
@@ -2301,7 +2347,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       categ_bounds[[cat_col]] <- cat_str # update the list of category boundaries
     } else { # boundary as string, not a time category
       if (!cat_df %in% names(table)) {
-          stop(paste(cat_df, " not in table", sep = ""))
+        stop(paste(cat_df, " not in table", sep = ""))
       }
       cat_str <- ""
       temp <- categ[[cat]]

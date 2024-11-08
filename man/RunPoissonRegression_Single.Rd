@@ -92,7 +92,7 @@ Other Poisson Wrapper Functions:
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
 \code{\link{RunPoissonRegression_Residual}()},
-\code{\link{RunPoissonRegression_STRATA}()},
+\code{\link{RunPoissonRegression_Strata}()},
 \code{\link{RunPoissonRegression_Tier_Guesses}()}
 }
 \concept{Poisson Wrapper Functions}

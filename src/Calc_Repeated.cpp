@@ -176,16 +176,16 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
     return;
 }
 
-//' Utility function to define risk groups with STRATA
+//' Utility function to define risk groups with Strata
 //'
-//' \code{Make_Groups_STRATA} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group
+//' \code{Make_Groups_Strata} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals) {
+void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& Strata_vals) {
     //
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
@@ -197,10 +197,10 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
-    for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         for (int ijk = 0; ijk < ntime; ijk++) {
             double t0 = tu[ijk];
-            VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(3).array() == STRATA_vals[s_ij])).cast<int>();  // indices with events
+            VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
             vector<int> indices_end;
             //
             //
@@ -216,7 +216,7 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
                 safe_fail[ijk][2*s_ij+0] = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
                 safe_fail[ijk][2*s_ij + 1] = indices_end[indices_end.size() - 1] - 1;
                 //
-                select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(3).array() == STRATA_vals[s_ij])).cast<int>();  // indices at risk
+                select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
                 indices_end.clear();
                 visit_lambda(select_ind_end,
                     [&indices_end, th](double v, int i, int j) {
@@ -245,7 +245,7 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
             }
         }
     }
-    for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         for (int ijk = 0; ijk < ntime; ijk++) {
             RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
             RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
@@ -255,16 +255,16 @@ void Make_Groups_STRATA(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
     return;
 }
 
-//' Utility function to define risk groups with STRATA and competing risks
+//' Utility function to define risk groups with Strata and competing risks
 //'
-//' \code{Make_Groups_STRATA_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds competing risks
+//' \code{Make_Groups_Strata_CR} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group, adds competing risks
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const VectorXd& cens_weight) {
+void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& Strata_vals, const VectorXd& cens_weight) {
     //
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
@@ -276,10 +276,10 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
-    for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         for (int ijk = 0; ijk < ntime; ijk++) {
             double t0 = tu[ijk];
-            VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(3).array() == STRATA_vals[s_ij])).cast<int>();  // indices with events
+            VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
             vector<int> indices_end;
             //
             int th = 1;
@@ -294,7 +294,7 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
                 safe_fail[ijk][2*s_ij+0] = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
                 safe_fail[ijk][2*s_ij + 1] = indices_end[indices_end.size() - 1] - 1;
                 //
-                select_ind_end = (((((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)) || ((df_m.col(2).array() == 2) && (df_m.col(1).array() <= t0))) && (df_m.col(3).array() == STRATA_vals[s_ij])).cast<int>();  // indices at risk
+                select_ind_end = (((((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)) || ((df_m.col(2).array() == 2) && (df_m.col(1).array() <= t0))) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
                 indices_end.clear();
                 visit_lambda(select_ind_end,
                     [&indices_end, th](double v, int i, int j) {
@@ -324,7 +324,7 @@ void Make_Groups_STRATA_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
             }
         }
     }
-    for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         for (int ijk = 0; ijk < ntime; ijk++) {
             RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
             RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
@@ -818,22 +818,22 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with Strata
 //'
-//' \code{Calculate_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+//' \code{Calculate_Sides_Strata} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
     for (int j = 0; j < ntime; j++) {
-        for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = 0;
             //
             vector<int> InGroup;
@@ -865,7 +865,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
     #endif
     for (int ij = 0; ij < reqrdnum; ij++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
                 vector<int> InGroup;
@@ -886,8 +886,8 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
                     MatrixXd Ld = MatrixXd::Zero(dj, 1);
                     Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  // sum of risks in group
                     // only assigns values once
-                    Rls2(j, ij*STRATA_vals.size() + s_ij) = Rs2;
-                    Lls2(j, ij*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    Rls2(j, ij*Strata_vals.size() + s_ij) = Rs2;
+                    Lls2(j, ij*Strata_vals.size() + s_ij) = Ld.col(0).sum();
                 }
             }
         }
@@ -898,7 +898,7 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
     #endif
     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 int ij = 0;
                 int jk = ijk;
                 while (jk > ij) {
@@ -925,8 +925,8 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
                     MatrixXd Ld = MatrixXd::Zero(dj, 1);
                     Ld << Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  // sum of risks in group
                     // only assigns values once
-                    Rls3(j, ijk*STRATA_vals.size() + s_ij) = Rs3;
-                    Lls3(j, ijk*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    Rls3(j, ijk*Strata_vals.size() + s_ij) = Rs3;
+                    Lls3(j, ijk*Strata_vals.size() + s_ij) = Ld.col(0).sum();
                 }
             }
         }
@@ -934,22 +934,22 @@ void Calculate_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix&  
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with Strata
 //'
-//' \code{Calculate_Sides_STRATA_Gradient} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+//' \code{Calculate_Sides_Strata_Gradient} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_Gradient(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_Gradient(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
     for (int j = 0; j < ntime; j++) {
-        for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = 0;
             //
             vector<int> InGroup;
@@ -981,7 +981,7 @@ void Calculate_Sides_STRATA_Gradient(const IntegerMatrix& RiskFail, const String
     #endif
     for (int ij = 0; ij < reqrdnum; ij++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
                 vector<int> InGroup;
@@ -1002,8 +1002,8 @@ void Calculate_Sides_STRATA_Gradient(const IntegerMatrix& RiskFail, const String
                     MatrixXd Ld = MatrixXd::Zero(dj, 1);
                     Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  // sum of risks in group
                     // only assigns values once
-                    Rls2(j, ij*STRATA_vals.size() + s_ij) = Rs2;
-                    Lls2(j, ij*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    Rls2(j, ij*Strata_vals.size() + s_ij) = Rs2;
+                    Lls2(j, ij*Strata_vals.size() + s_ij) = Ld.col(0).sum();
                 }
             }
         }
@@ -1012,23 +1012,23 @@ void Calculate_Sides_STRATA_Gradient(const IntegerMatrix& RiskFail, const String
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with Strata and without derivative
 //'
-//' \code{Calculate_Sides_STRATA_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives
+//' \code{Calculate_Sides_Strata_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     #endif
     for (int ij = 0; ij < reqrdnum; ij++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs1 = 0;
                 //
                 vector<int> InGroup;
@@ -1058,22 +1058,22 @@ void Calculate_Sides_STRATA_Single(const IntegerMatrix& RiskFail, const StringMa
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and competing risks
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with Strata and competing risks
 //'
-//' \code{Calculate_Sides_STRATA_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
+//' \code{Calculate_Sides_Strata_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
     for (int j = 0; j < ntime; j++) {
-        for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = 0;
             //
             //
@@ -1115,7 +1115,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
     #endif
     for (int ij = 0; ij < reqrdnum; ij++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
                 vector<int> InGroup;
@@ -1145,8 +1145,8 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
                     MatrixXd Ld = MatrixXd::Zero(dj, 1);
                     Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  // sum of risks in group
                     // only assigns values once
-                    Rls2(j, ij*STRATA_vals.size() + s_ij) = Rs2;
-                    Lls2(j, ij*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    Rls2(j, ij*Strata_vals.size() + s_ij) = Rs2;
+                    Lls2(j, ij*Strata_vals.size() + s_ij) = Ld.col(0).sum();
                 }
             }
         }
@@ -1157,7 +1157,7 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
     #endif
     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 int ij = 0;
                 int jk = ijk;
                 while (jk > ij) {
@@ -1193,8 +1193,8 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
                     MatrixXd Ld = MatrixXd::Zero(dj, 1);
                     Ld << Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  // sum of risks in group
                     // only assigns values once
-                    Rls3(j, ijk*STRATA_vals.size() + s_ij) = Rs3;
-                    Lls3(j, ijk*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    Rls3(j, ijk*Strata_vals.size() + s_ij) = Rs3;
+                    Lls3(j, ijk*Strata_vals.size() + s_ij) = Ld.col(0).sum();
                 }
             }
         }
@@ -1202,22 +1202,22 @@ void Calculate_Sides_STRATA_CR(const IntegerMatrix& RiskFail, const StringMatrix
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and competing risks
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with Strata and competing risks
 //'
-//' \code{Calculate_Sides_STRATA_CR_Gradient} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
+//' \code{Calculate_Sides_Strata_CR_Gradient} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group and competing risks
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_CR_Gradient(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_CR_Gradient(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
     for (int j = 0; j < ntime; j++) {
-        for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = 0;
             //
             //
@@ -1259,7 +1259,7 @@ void Calculate_Sides_STRATA_CR_Gradient(const IntegerMatrix& RiskFail, const Str
     #endif
     for (int ij = 0; ij < reqrdnum; ij++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
                 vector<int> InGroup;
@@ -1289,8 +1289,8 @@ void Calculate_Sides_STRATA_CR_Gradient(const IntegerMatrix& RiskFail, const Str
                     MatrixXd Ld = MatrixXd::Zero(dj, 1);
                     Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  // sum of risks in group
                     // only assigns values once
-                    Rls2(j, ij*STRATA_vals.size() + s_ij) = Rs2;
-                    Lls2(j, ij*STRATA_vals.size() + s_ij) = Ld.col(0).sum();
+                    Rls2(j, ij*Strata_vals.size() + s_ij) = Rs2;
+                    Lls2(j, ij*Strata_vals.size() + s_ij) = Ld.col(0).sum();
                 }
             }
         }
@@ -1298,23 +1298,23 @@ void Calculate_Sides_STRATA_CR_Gradient(const IntegerMatrix& RiskFail, const Str
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with STRATA and without derivative and with competing risks
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with Strata and without derivative and with competing risks
 //'
-//' \code{Calculate_Sides_STRATA_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives but with competing risks
+//' \code{Calculate_Sides_Strata_Single_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group but not derivatives but with competing risks
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_STRATA_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
     #endif
     for (int ij = 0; ij < reqrdnum; ij++) {  // totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs1 = 0;
                 //
                 vector<int> InGroup;
@@ -1748,16 +1748,16 @@ void Calc_LogLik_Linear_ERR(const StringVector& tform, const int& nthreads, cons
     return;
 }
 
-//' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA and Linear ERR simplification
+//' Utility function to calculate Cox Log-Likelihood and derivatives with Strata and Linear ERR simplification
 //'
-//' \code{Calc_LogLik_STRATA_Linear_ERR} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' \code{Calc_LogLik_Strata_Linear_ERR} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1767,7 +1767,7 @@ void Calc_LogLik_STRATA_Linear_ERR(const StringVector& tform, const int& nthread
     #endif
     for (int t_ijk = 0; t_ijk < totalnum*(totalnum + 1)/2; t_ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 int t_ij = 0;
                 int t_jk = t_ijk;
                 while (t_jk > t_ij) {
@@ -1780,9 +1780,9 @@ void Calc_LogLik_STRATA_Linear_ERR(const StringVector& tform, const int& nthread
                     int ijk = ij*(ij + 1)/2 + jk;
                     //
                     double Rs1 = Rls1(j, s_ij);
-                    double Rs2 = Rls2(j, ij*STRATA_vals.size() + s_ij);
-                    double Rs2t = Rls2(j, jk*STRATA_vals.size() + s_ij);
-                    double Rs3 = Rls3(j, ijk*STRATA_vals.size() + s_ij);
+                    double Rs2 = Rls2(j, ij*Strata_vals.size() + s_ij);
+                    double Rs2t = Rls2(j, jk*Strata_vals.size() + s_ij);
+                    double Rs3 = Rls3(j, ijk*Strata_vals.size() + s_ij);
                     //
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     if (RiskFail(j, 2*s_ij + 1)> - 1) {
@@ -1792,7 +1792,7 @@ void Calc_LogLik_STRATA_Linear_ERR(const StringVector& tform, const int& nthread
                         MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                         Vector4d Ldcs;
                         if (ties_method == "efron") {
-                            Ldcs << Lls1(j, s_ij), Lls2(j, ij*STRATA_vals.size() + s_ij), Lls2(j, jk*STRATA_vals.size() + s_ij), Lls3(j, ijk*STRATA_vals.size() + s_ij);
+                            Ldcs << Lls1(j, s_ij), Lls2(j, ij*Strata_vals.size() + s_ij), Lls2(j, jk*Strata_vals.size() + s_ij), Lls3(j, ijk*Strata_vals.size() + s_ij);
                             for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
                                 Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
                             }
@@ -1917,16 +1917,16 @@ void Calc_LogLik_Single(const int& nthreads, const IntegerMatrix& RiskFail, cons
     return;
 }
 
-//' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
+//' Utility function to calculate Cox Log-Likelihood and derivatives with Strata
 //'
-//' \code{Calc_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' \code{Calc_LogLik_Strata} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1936,7 +1936,7 @@ void Calc_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, cons
     #endif
     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 int ij = 0;
                 int jk = ijk;
                 while (jk > ij) {
@@ -1944,9 +1944,9 @@ void Calc_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, cons
                     jk -= ij;
                 }
                 double Rs1 = Rls1(j, s_ij);
-                double Rs2 = Rls2(j, ij*STRATA_vals.size() + s_ij);
-                double Rs2t = Rls2(j, jk*STRATA_vals.size() + s_ij);
-                double Rs3 = Rls3(j, ijk*STRATA_vals.size() + s_ij);
+                double Rs2 = Rls2(j, ij*Strata_vals.size() + s_ij);
+                double Rs2t = Rls2(j, jk*Strata_vals.size() + s_ij);
+                double Rs3 = Rls3(j, ijk*Strata_vals.size() + s_ij);
                 //
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
@@ -1956,7 +1956,7 @@ void Calc_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, cons
                     MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                     Vector4d Ldcs;
                     if (ties_method == "efron") {
-                        Ldcs << Lls1(j, s_ij), Lls2(j, ij*STRATA_vals.size() + s_ij), Lls2(j, jk*STRATA_vals.size() + s_ij), Lls3(j, ijk*STRATA_vals.size() + s_ij);
+                        Ldcs << Lls1(j, s_ij), Lls2(j, ij*Strata_vals.size() + s_ij), Lls2(j, jk*Strata_vals.size() + s_ij), Lls3(j, ijk*Strata_vals.size() + s_ij);
                         for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
                             Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
                         }
@@ -2029,16 +2029,16 @@ void Calc_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, cons
     return;
 }
 
-//' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA
+//' Utility function to calculate Cox Log-Likelihood and derivatives with Strata
 //'
-//' \code{Calc_LogLik_STRATA_Gradient} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' \code{Calc_LogLik_Strata_Gradient} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Lls1, const MatrixXd& Lls2, vector<double>& Ll, vector<double>& Lld, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Lls1, const MatrixXd& Lls2, vector<double>& Ll, vector<double>& Lld, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2048,9 +2048,9 @@ void Calc_LogLik_STRATA_Gradient(const int& nthreads, const IntegerMatrix& RiskF
     #endif
     for (int ij = 0; ij < reqrdnum; ij++) {  // performs log-likelihood calculations for every derivative combination and risk group
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs1 = Rls1(j, s_ij);
-                double Rs2 = Rls2(j, ij*STRATA_vals.size() + s_ij);
+                double Rs2 = Rls2(j, ij*Strata_vals.size() + s_ij);
                 //
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
@@ -2060,7 +2060,7 @@ void Calc_LogLik_STRATA_Gradient(const int& nthreads, const IntegerMatrix& RiskF
                     MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                     Vector2d Ldcs;
                     if (ties_method == "efron") {
-                        Ldcs << Lls1(j, s_ij), Lls2(j, ij*STRATA_vals.size() + s_ij);
+                        Ldcs << Lls1(j, s_ij), Lls2(j, ij*Strata_vals.size() + s_ij);
                         for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
                             Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
                         }
@@ -2100,16 +2100,16 @@ void Calc_LogLik_STRATA_Gradient(const int& nthreads, const IntegerMatrix& RiskF
     return;
 }
 
-//' Utility function to calculate just Cox Log-Likelihood with STRATA
+//' Utility function to calculate just Cox Log-Likelihood with Strata
 //'
-//' \code{Calc_LogLik_STRATA_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata
+//' \code{Calc_LogLik_Strata_SINGLE} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time and strata
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA_SINGLE(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_SINGLE(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
 //    int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2118,7 +2118,7 @@ void Calc_LogLik_STRATA_SINGLE(const int& nthreads, const IntegerMatrix& RiskFai
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
     #endif
     for (int j = 0; j < ntime; j++) {
-        for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = Rls1(j, s_ij);
             //
             int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
@@ -2153,16 +2153,16 @@ void Calc_LogLik_STRATA_SINGLE(const int& nthreads, const IntegerMatrix& RiskFai
     return;
 }
 
-//' Utility function to calculate Cox Log-Likelihood and derivatives with STRATA, basic model
+//' Utility function to calculate Cox Log-Likelihood and derivatives with Strata, basic model
 //'
-//' \code{Calc_LogLik_STRATA_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
+//' \code{Calc_LogLik_Strata_BASIC} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time, basic model
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_STRATA_BASIC(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& STRATA_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_BASIC(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2172,7 +2172,7 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads, const IntegerMatrix& RiskFail
     #endif
     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
         for (int j = 0; j < ntime; j++) {
-            for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 int ij = 0;
                 int jk = ijk;
                 while (jk > ij) {
@@ -2181,9 +2181,9 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads, const IntegerMatrix& RiskFail
                 }
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
                     double Rs1 = Rls1(j, s_ij);
-                    double Rs2 = Rls2(j, ij*STRATA_vals.size() + s_ij);
-                    double Rs2t = Rls2(j, jk*STRATA_vals.size() + s_ij);
-                    double Rs3 = Rls3(j, ijk*STRATA_vals.size() + s_ij);
+                    double Rs2 = Rls2(j, ij*Strata_vals.size() + s_ij);
+                    double Rs2t = Rls2(j, jk*Strata_vals.size() + s_ij);
+                    double Rs3 = Rls3(j, ijk*Strata_vals.size() + s_ij);
                     //
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     MatrixXd Ld = MatrixXd::Zero(dj, 2);
@@ -2192,7 +2192,7 @@ void Calc_LogLik_STRATA_BASIC(const int& nthreads, const IntegerMatrix& RiskFail
                     MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                     Vector4d Ldcs;
                     if (ties_method == "efron") {
-                        Ldcs << Lls1(j, s_ij), Lls2(j, ij*STRATA_vals.size() + s_ij), Lls2(j, jk*STRATA_vals.size() + s_ij), Lls3(j, ijk*STRATA_vals.size() + s_ij);
+                        Ldcs << Lls1(j, s_ij), Lls2(j, ij*Strata_vals.size() + s_ij), Lls2(j, jk*Strata_vals.size() + s_ij), Lls3(j, ijk*Strata_vals.size() + s_ij);
                         for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
                             Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
                         }
@@ -2428,19 +2428,19 @@ void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const 
 
 //' Utility function to perform null model equivalent of Calculate_Sides with strata
 //'
-//' \code{Calculate_Null_Sides_STRATA} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
+//' \code{Calculate_Null_Sides_Strata} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, NumericVector& STRATA_vals, const int& nthreads) {
+void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, NumericVector& Strata_vals, const int& nthreads) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
     for (int j = 0; j < ntime; j++) {
-        for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = 0;
             //
             //
@@ -2473,21 +2473,21 @@ void Calculate_Null_Sides_STRATA(const IntegerMatrix& RiskFail, const StringMatr
 
 //' Utility function to perform null model equivalent of Calc_LogLik
 //'
-//' \code{Calc_Null_LogLik_STRATA} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
+//' \code{Calc_Null_LogLik_Strata} Called to update log-likelihoods, Uses list of event rows and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Null_LogLik_STRATA(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, NumericVector& STRATA_vals, vector<double>& Ll, string ties_method) {
+void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, NumericVector& Strata_vals, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
     #endif
-    for (int s_ij = 0; s_ij < STRATA_vals.size(); s_ij++) {
+    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         for (int j = 0; j < ntime; j++) {
             double Rs1 = Rls1(j, s_ij);
             int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;

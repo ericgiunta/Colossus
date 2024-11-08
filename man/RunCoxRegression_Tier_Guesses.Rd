@@ -106,6 +106,7 @@ guesses_control <- list(
   "loglin_method" = "uniform", strata = TRUE, term_initial = c(0, 1)
 )
 strat_col <- "e"
+options(warn = -1)
 e <- RunCoxRegression_Tier_Guesses(
   df, time1, time2, event, names,
   term_n, tform, keep_constant,
@@ -124,7 +125,7 @@ Other Cox Wrapper Functions:
 \code{\link{RunCoxRegression_Guesses_CPP}()},
 \code{\link{RunCoxRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus_Multidose}()},
-\code{\link{RunCoxRegression_STRATA}()},
-\code{\link{RunCoxRegression_Single}()}
+\code{\link{RunCoxRegression_Single}()},
+\code{\link{RunCoxRegression_Strata}()}
 }
 \concept{Cox Wrapper Functions}

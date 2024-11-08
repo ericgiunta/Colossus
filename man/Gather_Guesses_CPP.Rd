@@ -91,6 +91,7 @@ x_all <- as.matrix(df[, all_names, with = FALSE])
 control <- Def_Control(control)
 guesses_control <- Def_Control_Guess(guesses_control, a_n)
 model_control <- Def_model_control(model_control)
+options(warn = -1)
 Gather_Guesses_CPP(
   df, dfc, names, term_n, tform, keep_constant,
   a_n, x_all, a_n_default,

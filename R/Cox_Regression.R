@@ -473,7 +473,7 @@ RunCoxRegression_Basic <- function(df, time1 = "start", time2 = "end", event0 = 
 
 #' Performs basic Cox Proportional Hazards regression with strata effect
 #'
-#' \code{RunCoxRegression_STRATA} uses user provided data,
+#' \code{RunCoxRegression_Strata} uses user provided data,
 #' time/event columns, vectors specifying the model, and options to control
 #' the convergence and starting positions
 #'
@@ -514,13 +514,13 @@ RunCoxRegression_Basic <- function(df, time1 = "start", time2 = "end", event0 = 
 #'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
 #' )
 #' strat_col <- "e"
-#' e <- RunCoxRegression_STRATA(
+#' e <- RunCoxRegression_Strata(
 #'   df, time1, time2, event, names, term_n,
 #'   tform, keep_constant, a_n, modelform,
 #'   fir, der_iden, control, strat_col
 #' )
 #'
-RunCoxRegression_STRATA <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null") {
+RunCoxRegression_Strata <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null") {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -996,6 +996,7 @@ RunCoxPlots <- function(df, time1 = "start", time2 = "end", event0 = "event", na
 #'   "loglin_method" = "uniform", strata = TRUE, term_initial = c(0, 1)
 #' )
 #' strat_col <- "e"
+#' options(warn = -1)
 #' e <- RunCoxRegression_Tier_Guesses(
 #'   df, time1, time2, event, names,
 #'   term_n, tform, keep_constant,
@@ -1195,6 +1196,7 @@ RunCoxRegression_CR <- function(df, time1 = "start", time2 = "end", event0 = "ev
 #'   "loglin_method" = "uniform", strata = FALSE
 #' )
 #' strat_col <- "e"
+#' options(warn = -1)
 #' e <- RunCoxRegression_Guesses_CPP(
 #'   df, time1, time2, event, names, term_n,
 #'   tform, keep_constant, a_n, modelform, fir,

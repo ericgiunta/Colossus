@@ -90,7 +90,7 @@ NULL
 #' @param Rls1  First Risk sum storage
 #' @param Rls2  First Risk sum derivative storage
 #' @param Rls3  First Risk sum second derivative storage
-#' @param STRATA_vals  vector of strata identifier values
+#' @param Strata_vals  vector of strata identifier values
 #' @param Schoenfeld_bool  boolean for competing risks
 #' @param Surv_bool  boolean for competing risks
 #' @param T0  Term value for each subterm

@@ -320,37 +320,100 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Gradient(const int& nthreads, const int& totalnum, const double& lr, const double& abs_max, const vector<double>& Lld, vector<double>& dbeta, IntegerVector KeepConstant, bool debugging) {
+void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& abs_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, bool debugging) {
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lld_vec(kept_covs);
-    double magnitude = 0;
     for (int ij = 0; ij < kept_covs; ij++) {
         Lld_vec[ij] = Lld[ij];
-        //magnitude = magnitude + pow(Lld[ij],2);
     }
     //
-    //magnitude = sqrt(magnitude);
-    //Lld_vec = Lld_vec / magnitude;
-    //
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < totalnum; ijk++) {
-        if (KeepConstant[ijk] == 0) {
-            int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-            dbeta[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			if (abs(dbeta[ijk]) > abs_max) {
-				dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-			}
-        } else {
-            dbeta[ijk] = 0;
+    // Written for the sake of preparing what variables will be needed
+    bool momentum_bool = model_bool["momentum"]; //assumed I will define booleans to pick which one is used
+    bool adadelta_bool = model_bool["adadelta"];
+    bool adam_bool     = model_bool["adam"];
+    // grouped the necessary variables
+    double lr = optim_para["lr"];
+    double decay1 = optim_para["momentum_decay"];
+    double decay2 = optim_para["learning_decay"];
+    double epsilon_momentum = optim_para["epsilon_decay"];
+    // required vectors for storage
+//    NumericVector m_g_store(kept_covs);
+//    NumericVector v_beta_store(kept_covs);
+//    int iteration = 1;
+    if (momentum_bool) {
+        //
+//        #ifdef _OPENMP
+//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                dbeta[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                m_g_store[pjk_ind] = dbeta[ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
+        }
+    } else if (adadelta_bool) {
+        //
+//        #ifdef _OPENMP
+//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*pow(Lld_vec[pjk_ind],2);
+                v_beta_store[pjk_ind] = decay1 * v_beta_store[pjk_ind] + (1-decay1)*pow(dbeta[ijk],2);
+                dbeta[ijk] = pow((v_beta_store[pjk_ind] + epsilon_momentum) / (m_g_store[pjk_ind] +epsilon_momentum ),0.5)* Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
+        }
+    } else if (adam_bool) {
+        //
+//        #ifdef _OPENMP
+//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
+                v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind],2);
+                //
+                double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1,iteration));
+                double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2,iteration));
+                //
+                dbeta[ijk] = lr / (pow(v_t_bias,0.5)+epsilon_momentum) * m_t_bias;  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
+        }
+    } else {
+        //
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                dbeta[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
         }
     }
-    // Rcout << "C++ Note: change ";  // prints parameter values
-    // for (int ij = 0; ij < totalnum; ij++) {
-    //     Rcout << dbeta[ij] << " ";
-    // }
-    // Rcout << " " << endl;
     return;
 }
 

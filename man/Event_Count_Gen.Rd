@@ -26,18 +26,24 @@ library(data.table)
 a <- c(0, 1, 2, 3, 4, 5, 6)
 b <- c(1, 2, 3, 4, 5, 6, 7)
 c <- c(0, 1, 0, 0, 0, 1, 0)
-table <- data.table::data.table("a" = a,
-                                "b" = b,
-                                "c" = c)
+table <- data.table::data.table(
+  "a" = a,
+  "b" = b,
+  "c" = c
+)
 categ <- list(
   "a" = "0/3/5]7",
-  "b" = list(lower = c(-1, 3, 6),
-             upper = c(3, 6, 10),
-             name = c("low", "medium", "high"))
+  "b" = list(
+    lower = c(-1, 3, 6),
+    upper = c(3, 6, 10),
+    name = c("low", "medium", "high")
+  )
 )
-event <- list("c" = "count AS cases",
-              "a" = "mean", "b" = "mean")
-Event_Count_Gen(table, categ, event, T)
+event <- list(
+  "c" = "count AS cases",
+  "a" = "mean", "b" = "mean"
+)
+e <- Event_Count_Gen(table, categ, event, T)
 
 }
 \seealso{

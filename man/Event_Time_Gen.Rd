@@ -32,12 +32,16 @@ b <- c(1, 2, 3, 4, 5, 6, 7)
 c <- c(0, 1, 0, 0, 0, 1, 0)
 d <- c(1, 2, 3, 4, 5, 6, 7)
 e <- c(2, 3, 4, 5, 6, 7, 8)
-f <- c(1900, 1900, 1900, 1900,
-       1900, 1900, 1900)
+f <- c(
+  1900, 1900, 1900, 1900,
+  1900, 1900, 1900
+)
 g <- c(1, 2, 3, 4, 5, 6, 7)
 h <- c(2, 3, 4, 5, 6, 7, 8)
-i <- c(1901, 1902, 1903, 1904,
-       1905, 1906, 1907)
+i <- c(
+  1901, 1902, 1903, 1904,
+  1905, 1906, 1907
+)
 table <- data.table::data.table(
   "a" = a, "b" = b, "c" = c,
   "d" = d, "e" = e, "f" = f,
@@ -55,14 +59,18 @@ categ <- list(
     "year" = c(1899, 1903, 1910)
   )
 )
-summary <- list("c" = "count AS cases",
-                "a" = "mean",
-                "b" = "weighted_mean")
+summary <- list(
+  "c" = "count AS cases",
+  "a" = "mean",
+  "b" = "weighted_mean"
+)
 events <- list("c")
-pyr <- list(entry = list(year = "f", month = "e", day = "d"),
-            exit = list(year = "i", month = "h", day = "g"),
-            unit = "years")
-Event_Time_Gen(table, pyr, categ, summary, events, T)
+pyr <- list(
+  entry = list(year = "f", month = "e", day = "d"),
+  exit = list(year = "i", month = "h", day = "g"),
+  unit = "years"
+)
+e <- Event_Time_Gen(table, pyr, categ, summary, events, T)
 
 }
 \seealso{

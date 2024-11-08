@@ -30,7 +30,7 @@ This is the "control" variable used by every regression function. This list focu
 | Option | Description |
 | :---------: | :----------: |
 | verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
-| ncores  | Number of cores used for parallel operations. The user can't assign more cores than available. Defaults to the number of detected cores |
+| ncores  | Number of cores used for parallel operations. The user can not assign more cores than available. Defaults to the number of detected cores |
 | lr | Learning rate used. Every step is multiplied by the learning rate. Default is 0.75. |
 | maxiter  | Maximum iterations run for a single initial position. Defaults to 20.  |
 | maxiters | Used for multiple starting positions. List of maximum number of iterations per starting point and maximum number of iterations for final guess. Assumes N values for N guesses and 1 value for final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
