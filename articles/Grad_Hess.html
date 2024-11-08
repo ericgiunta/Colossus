@@ -127,17 +127,82 @@ time-intensive second-derivative calculations, but takes less informed
 steps. So each iteration runs faster, but more iterations may be
 required.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>=</mo><mi>η</mi><mo>*</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>*</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>=</mo><mi>η</mi><mo>*</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-   \Delta \beta = \eta * \beta_{max} * \frac{\partial LL}{\partial \beta}\\
+   \Delta \beta = \eta * \frac{\partial LL}{\partial \beta}\\
    \beta_{t+1} = \beta_{t} + sign(\Delta \beta)*min \left( \left[ \left|\Delta \beta \right|, \beta_{max} \right] \right)
 \end{aligned}
 </annotation></semantics></math></p>
-<p>The standard half-step framework isn’t likely to be sufficient for
+<p>The standard half-step framework is not likely to be sufficient for
 the Gradient descent algorithm. Because of this, several different
 optimization options have been or will be added, like momentum,
 adadelta, and adam, which use previous information about the gradient to
-inform the step size for future steps.</p>
+inform the step size for future steps. The first method, momentum,
+applies a weighted sum
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>)
+of the current and previous step. This is done to speed up steps moving
+toward the optimum position and correct for when the algorithm
+oversteps. This can avoid the issue of oscillation around an optimum
+value.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo>=</mo><mi>γ</mi><mo>*</mo><mi>Δ</mi><msub><mi>β</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mi>η</mi><mo>*</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+   \Delta \beta_{t} = \gamma * \Delta \beta_{t-1} + \eta * \frac{\partial LL}{\partial \beta}\\
+   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>The next method, the adadelta method, applies a parameter specific
+learning rate by tracking the root mean square (RMS) gradient and
+parameter updates within a window. Instead of tracking a true window of
+iteration, the old estimate of RMS is decayed by a weight
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>)
+before being added to the new estimate. The ratio of RMS parameter
+update to RMS gradient is used to normalize the results back in the
+correct units. A small offset
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>)
+is used to avoid the case of division by zero.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>g</mi><mi>t</mi></msub><mo>=</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><msup><mi>g</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">]</mo></mrow><mi>t</mi></msub><mo>=</mo><mi>γ</mi><mo>*</mo><mi>E</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><msup><mi>g</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><msubsup><mi>g</mi><mi>t</mi><mn>2</mn></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><mi>Δ</mi><msup><mi>β</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>γ</mi><mo>*</mo><mi>E</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><mi>Δ</mi><msup><mi>β</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mi>t</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>Δ</mi><msubsup><mi>β</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mi>M</mi><mi>S</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><mi>g</mi><mo stretchy="true" form="postfix">]</mo></mrow><mi>t</mi></msub><mo>=</mo><msqrt><mrow><mi>E</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><msup><mi>g</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">]</mo></mrow><mi>t</mi></msub><mo>+</mo><mi>ϵ</mi></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mi>M</mi><mi>S</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>=</mo><msqrt><mrow><mi>E</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><mi>Δ</mi><msup><mi>β</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mi>ϵ</mi></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo>=</mo><mfrac><mrow><mi>R</mi><mi>M</mi><mi>S</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><mrow><mi>R</mi><mi>M</mi><mi>S</mi><msub><mrow><mo stretchy="true" form="prefix">[</mo><mi>g</mi><mo stretchy="true" form="postfix">]</mo></mrow><mi>t</mi></msub></mrow></mfrac><mo>*</mo><msub><mi>g</mi><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    g_t = \left (\frac{\partial LL}{\partial \beta} \right)_{t} \\
+    E[g^2]_{t} = \gamma * E[g^2]_{t-1} + (1-\gamma) * g^2_{t} \\
+    E[\Delta \beta^2]_{t-1} = \gamma * E[\Delta \beta^2]_{t-2} + (1-\gamma) * \Delta \beta^2_{t-1} \\
+    RMS[g]_t = \sqrt{E[g^2]_{t} + \epsilon} \\
+    RMS[\Delta \beta]_{t-1} = \sqrt{E[\Delta \beta^2]_{t-1} + \epsilon} \\
+   \Delta \beta_{t} = \frac{RMS[\Delta \beta]_{t-1}}{RMS[g]_t} * g_t\\
+   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>The final method, adam, combines the theory behind the momentum and
+adadelta methods. The adam method tracks an estimate of the first moment
+vector
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>)
+and second moment vector
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>),
+which are weighted by decay parameters
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>1</mn></msub><mo>,</mo><msub><mi>β</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\beta_1, \beta_2</annotation></semantics></math>).
+These are bias corrected to correct for bias in early iterations
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>m</mi><mo accent="true">̂</mo></mover><mo>,</mo><mover><mi>v</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">\hat{m}, \hat{v}</annotation></semantics></math>).
+The learning rate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>)
+and second moment vector provide the decaying learning rate from
+adadelta, and the first moment vector provides an effect similar to
+momentum. Combined these have generally been able to stabilize gradient
+descent algorithms without incurring a significant computational
+cost.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>g</mi><mi>t</mi></msub><mo>=</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>m</mi><mn>0</mn></msub><mo>,</mo><msub><mi>v</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn><mo>,</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>m</mi><mi>t</mi></msub><mo>=</mo><msub><mi>β</mi><mn>1</mn></msub><mo>*</mo><msub><mi>m</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>β</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><msub><mi>g</mi><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>v</mi><mi>t</mi></msub><mo>=</mo><msub><mi>β</mi><mn>2</mn></msub><mo>*</mo><msub><mi>v</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>β</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><msubsup><mi>g</mi><mi>t</mi><mn>2</mn></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mover><mi>m</mi><mo accent="true">̂</mo></mover><mi>t</mi></msub><mo>=</mo><msub><mi>m</mi><mi>t</mi></msub><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msubsup><mi>β</mi><mn>1</mn><mi>t</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mover><mi>v</mi><mo accent="true">̂</mo></mover><mi>t</mi></msub><mo>=</mo><msub><mi>v</mi><mi>t</mi></msub><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msubsup><mi>β</mi><mn>2</mn><mi>t</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo>=</mo><mfrac><mi>η</mi><mrow><msqrt><msub><mover><mi>v</mi><mo accent="true">̂</mo></mover><mi>t</mi></msub></msqrt><mo>+</mo><mi>ϵ</mi></mrow></mfrac><mo>*</mo><msub><mover><mi>m</mi><mo accent="true">̂</mo></mover><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><msub><mi>β</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    g_t = \left (\frac{\partial LL}{\partial \beta} \right)_{t} \\
+    m_0, v_0 = 0, 0 \\
+    m_t = \beta_1 * m_{t-1} + (1-\beta_1) * g_t \\
+    v_t = \beta_2 * v_{t-1} + (1-\beta_2) * g^2_t \\
+    \hat{m}_t = m_t / (1-\beta_1^t) \\
+    \hat{v}_t = v_t / (1-\beta_2^t) \\
+   \Delta \beta_{t} = \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} * \hat{m}_t \\
+   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+\end{aligned}
+</annotation></semantics></math></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

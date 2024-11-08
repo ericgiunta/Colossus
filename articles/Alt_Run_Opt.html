@@ -190,7 +190,7 @@ stratification column and using a different function to call the
 regression.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"e"</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_STRATA.html">RunCoxRegression_STRATA</a></span><span class="op">(</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Strata.html">RunCoxRegression_Strata</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
 <span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>, <span class="va">Strat_Col</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -225,7 +225,7 @@ the list of stratification columns into a single interaction, so it does
 not matter if the user provides a list or combines them themselves.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e"</span><span class="op">)</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_STRATA.html">RunPoissonRegression_STRATA</a></span><span class="op">(</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_Strata.html">RunPoissonRegression_Strata</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
 <span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>, <span class="va">Strat_Col</span></span>
 <span><span class="op">)</span></span></code></pre></div>

@@ -162,8 +162,8 @@
 <code><a href="RunCoxRegression_CR.html">RunCoxRegression_CR</a>()</code>,
 <code><a href="RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a>()</code>,
 <code><a href="RunCoxRegression_Omnibus_Multidose.html">RunCoxRegression_Omnibus_Multidose</a>()</code>,
-<code><a href="RunCoxRegression_STRATA.html">RunCoxRegression_STRATA</a>()</code>,
 <code><a href="RunCoxRegression_Single.html">RunCoxRegression_Single</a>()</code>,
+<code><a href="RunCoxRegression_Strata.html">RunCoxRegression_Strata</a>()</code>,
 <code><a href="RunCoxRegression_Tier_Guesses.html">RunCoxRegression_Tier_Guesses</a>()</code></p></div>
     </div>
 
@@ -209,12 +209,12 @@
 <span class="r-in"><span>  <span class="st">"loglin_method"</span> <span class="op">=</span> <span class="st">"uniform"</span>, strata <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">strat_col</span> <span class="op">&lt;-</span> <span class="st">"e"</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>warn <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">RunCoxRegression_Guesses_CPP</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>,</span></span>
 <span class="r-in"><span>  <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>,</span></span>
 <span class="r-in"><span>  <span class="va">der_iden</span>, <span class="va">control</span>, <span class="va">guesses_control</span>, <span class="va">strat_col</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
