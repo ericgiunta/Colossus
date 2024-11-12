@@ -206,4 +206,6 @@ test_that("Coxph multidose model failures", {
   expect_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null"))
   model_control <- list("null" = T, "basic" = F)
   expect_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null"))
+  model_control <- list("gradient" = T, "basic" = F)
+  expect_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null"))
 })

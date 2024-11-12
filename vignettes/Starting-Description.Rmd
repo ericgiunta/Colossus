@@ -42,12 +42,12 @@ There are currently five types of risk models available. The risk can be express
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R_{A}= \sum_{i=0}^n T_i\\
-    R_{PA}= T_0 \times \sum_{i=1}^n T_i\\
-    R_{PAE}= T_0 \times (1 + \sum_{i=1}^n T_i)\\
-    R_{M}= T_0 \times \prod_{i=1}^n( 1 + T_i)\\
-    R_{GMIX} = T_0 \times \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \times \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
-    T^{*}_i = \begin{cases} T_i &\text{Relative Risk} \\ T_i+1 &\text{Excess Risk} \end{cases}\\
+    R_{A} &= \sum_{i=0}^n T_i\\
+    R_{PA} &= T_0 \times \sum_{i=1}^n T_i\\
+    R_{PAE} &= T_0 \times (1 + \sum_{i=1}^n T_i)\\
+    R_{M} &= T_0 \times \prod_{i=1}^n( 1 + T_i)\\
+    R_{GMIX} &= T_0 \times \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \times \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
+    T^{*}_i &= \begin{cases} T_i &\text{Relative Risk} \\ T_i+1 &\text{Excess Risk} \end{cases}\\
 \end{aligned}
 $$
 </p>
@@ -57,15 +57,16 @@ Each term is composed of a combination of 4 types of subterms. Every covariate i
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    S_{LL}=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
-    S_{L}=\sum_i (x_i \cdot \beta_i)\\
-    S_{PL}=1+ \sum (x_i \cdot \beta_i)\\
-    S_{NL}=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
-    F_{LT} = \begin{cases} \alpha_i \cdot (x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
-    F_{STP} = \begin{cases} \alpha_i & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
-    F_{LQ} = \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
-    F_{LEXP} = \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i - \exp{(\nu_i + \mu \cdot x)} &\text{else} \end{cases}\\
-    T_j=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
+    S_{LL}&=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
+    S_{L}&=\sum_i (x_i \cdot \beta_i)\\
+    S_{PL}&=1+ \sum (x_i \cdot \beta_i)\\
+    S_{NL}&=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2)\\
+    & + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
+    F_{LT} &= \begin{cases} \alpha_i \cdot (x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
+    F_{STP} &= \begin{cases} \alpha_i & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
+    F_{LQ} &= \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
+    F_{LEXP} &= \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i - \exp{(\nu_i + \mu \cdot x)} &\text{else} \end{cases}\\
+    T_j&=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 $$
 </p>

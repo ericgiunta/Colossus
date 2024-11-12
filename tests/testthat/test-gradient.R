@@ -80,7 +80,8 @@ test_that("Coxph gradient methods", {
   modelform <- "M"
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
   for (method in c("momentum", "adadelta", "adam")) {
-    model_control <- list("gradient" = TRUE, method = TRUE)
+    model_control <- list("gradient" = TRUE)
+    model_control[[method]] <- TRUE
     a_n <- c(-0.1, -0.1)
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
     modelform <- "M"
