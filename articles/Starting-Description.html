@@ -8,8 +8,8 @@
 <title>Colossus Description • Colossus</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Colossus Description">
 </head>
 <body>
@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
     <li><a class="dropdown-item" href="../articles/count_time_tables.html">Generating Person-Count and Person-Time Tables</a></li>
     <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
+    <li><a class="dropdown-item" href="../articles/Equation_Expression.html">Unified Equation Representation</a></li>
     <li><a class="dropdown-item" href="../articles/Excess_and_Predicted_Cases.html">Excess and Predicted Cases</a></li>
     <li><a class="dropdown-item" href="../articles/Grad_Hess.html">Gradient and Hessian Approaches</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
@@ -358,7 +359,7 @@ of the available data range and creates a dummy column to reference as
 the interval endpoint. So in code these variables would look like
 this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  <span class="st">"UserID"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">112</span>, <span class="fl">114</span>, <span class="fl">213</span>, <span class="fl">214</span>, <span class="fl">115</span>, <span class="fl">116</span>, <span class="fl">117</span><span class="op">)</span>,</span>
 <span>  <span class="st">"Starting_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">20</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">21</span>, <span class="fl">20</span>, <span class="fl">18</span><span class="op">)</span>,</span>
 <span>  <span class="st">"Ending_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">45</span>, <span class="fl">57</span>, <span class="fl">47</span>, <span class="fl">36</span>, <span class="fl">60</span>, <span class="fl">55</span><span class="op">)</span>,</span>
@@ -594,8 +595,8 @@ true</td>
 <span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>,</span>
-<span>  <span class="st">"dbeta_max"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"abs_max"</span> <span class="op">=</span> <span class="fl">1.0</span>, <span class="st">"change_all"</span> <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span>
+<span>  <span class="st">"dbeta_max"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>, <span class="st">"abs_max"</span> <span class="op">=</span> <span class="fl">1.0</span>, <span class="st">"change_all"</span> <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="st">"dose_abs_max"</span> <span class="op">=</span> <span class="fl">100.0</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span>, <span class="st">"double_step"</span> <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>In this example, no parameters are held constant, 100 iterations with
@@ -625,59 +626,22 @@ as follows:</p>
 <span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
 <span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $LogLik</span></span>
-<span><span class="co">#&gt; [1] -0.6753644</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0         39.74661       6.710886e+07</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1         40.72266                NaN</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1         38.82311       9.260454e+01</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2         43.10000       1.532304e+02</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $First_Der</span></span>
-<span><span class="co">#&gt; [1]  0.000000e+00 -7.187040e-05  7.361232e-05  1.919948e-04</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Second_Der</span></span>
-<span><span class="co">#&gt;              [,1]         [,2]          [,3]          [,4]</span></span>
-<span><span class="co">#&gt; [1,] 0.000000e+00 0.000000e+00  0.000000e+00  4.965508e-19</span></span>
-<span><span class="co">#&gt; [2,] 0.000000e+00 1.742209e-08  7.238366e-07  2.311365e-07</span></span>
-<span><span class="co">#&gt; [3,] 0.000000e+00 7.238366e-07 -1.501037e-06 -2.356033e-07</span></span>
-<span><span class="co">#&gt; [4,] 4.965508e-19 2.311365e-07 -2.356033e-07 -3.687577e-06</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $beta_0</span></span>
-<span><span class="co">#&gt; [1]  41.26157  98.72266  96.82311 101.10000</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Standard_Deviation</span></span>
-<span><span class="co">#&gt; [1]      NaN      NaN 177.9643   0.0000</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $AIC</span></span>
-<span><span class="co">#&gt; [1] 9.350729</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $BIC</span></span>
-<span><span class="co">#&gt; [1] 8.517767</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists</span></span>
-<span><span class="co">#&gt; $Parameter_Lists$term_n</span></span>
-<span><span class="co">#&gt; [1] 0 1 1 2</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$tforms</span></span>
-<span><span class="co">#&gt; [1] "loglin" "lin"    "lin"    "plin"  </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$names</span></span>
-<span><span class="co">#&gt; [1] "a" "b" "c" "d"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List</span></span>
-<span><span class="co">#&gt; $Control_List$Iteration</span></span>
-<span><span class="co">#&gt; [1] 100</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Maximum Step`</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Derivative Limiting`</span></span>
-<span><span class="co">#&gt; [1] 0.0001919948</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Converged</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Status</span></span>
-<span><span class="co">#&gt; [1] "PASSED"</span></span>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 1.4,  AIC: 9.4</span></span>
+<span><span class="co">#&gt; Iterations run: 42</span></span>
+<span><span class="co">#&gt; maximum step size: 1.00e+00, maximum first derivative: 9.82e-04</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span> <span class="co"># a_n is updated when either regression is called</span></span>
@@ -685,62 +649,22 @@ as follows:</p>
 <span>  <span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
 <span>  <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $LogLik</span></span>
-<span><span class="co">#&gt; [1] -44.73982</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0      -0.40680015        0.383529879</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1      -0.01846667        0.092209643</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1      -0.07585910        0.008136992</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2      -0.70133825        0.535536589</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $First_Der</span></span>
-<span><span class="co">#&gt; [1]   -19.67462  -290.53655 -2314.56447   -19.64770</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Second_Der</span></span>
-<span><span class="co">#&gt;              [,1]      [,2]        [,3]          [,4]</span></span>
-<span><span class="co">#&gt; [1,]   -21.674624 -153.3672  -1393.0153    -4.8644043</span></span>
-<span><span class="co">#&gt; [2,]  -153.367172 -108.7036   -666.9745  -101.9254174</span></span>
-<span><span class="co">#&gt; [3,] -1393.015328 -666.9745 -21096.6437 -1058.8112374</span></span>
-<span><span class="co">#&gt; [4,]    -4.864404 -101.9254  -1058.8112    -0.5929361</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $beta_0</span></span>
-<span><span class="co">#&gt; [1] -0.40680015 -0.01846667 -0.07585910 -0.70133825</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Standard_Deviation</span></span>
-<span><span class="co">#&gt; [1] 0.383529879 0.092209643 0.008136992 0.535536589</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $AIC</span></span>
-<span><span class="co">#&gt; [1] 93.47964</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $BIC</span></span>
-<span><span class="co">#&gt; [1] 97.26328</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Deviation</span></span>
-<span><span class="co">#&gt; [1] 85.47964</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists</span></span>
-<span><span class="co">#&gt; $Parameter_Lists$term_n</span></span>
-<span><span class="co">#&gt; [1] 0 1 1 2</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$tforms</span></span>
-<span><span class="co">#&gt; [1] "loglin" "lin"    "lin"    "plin"  </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$names</span></span>
-<span><span class="co">#&gt; [1] "a" "b" "c" "d"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List</span></span>
-<span><span class="co">#&gt; $Control_List$Iteration</span></span>
-<span><span class="co">#&gt; [1] 12</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Maximum Step`</span></span>
-<span><span class="co">#&gt; [1] 2.910383e-11</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Derivative Limiting`</span></span>
-<span><span class="co">#&gt; [1] 2314.564</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Converged</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Status</span></span>
-<span><span class="co">#&gt; [1] "PASSED"</span></span></code></pre></div>
+<span><span class="co">#&gt; Poisson Model Used</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 89.48,  AIC: 93.48,  BIC: 97.26</span></span>
+<span><span class="co">#&gt; Iterations run: 8</span></span>
+<span><span class="co">#&gt; maximum step size: 3.05e-05, maximum first derivative: 2.31e+03</span></span>
+<span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output:</p>
 <table class="table">
 <colgroup>

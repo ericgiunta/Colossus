@@ -4,6 +4,7 @@
 <url><loc>/articles/Alt_Run_Opt.html</loc></url>
 <url><loc>/articles/Control_Options.html</loc></url>
 <url><loc>/articles/Dose_Formula_Inputs.html</loc></url>
+<url><loc>/articles/Equation_Expression.html</loc></url>
 <url><loc>/articles/Excess_and_Predicted_Cases.html</loc></url>
 <url><loc>/articles/Grad_Hess.html</loc></url>
 <url><loc>/articles/Multi_Realization.html</loc></url>
@@ -21,6 +22,7 @@
 <url><loc>/reference/Check_Dupe_Columns.html</loc></url>
 <url><loc>/reference/Check_Trunc.html</loc></url>
 <url><loc>/reference/Check_Verbose.html</loc></url>
+<url><loc>/reference/Convert_Model_Eq.html</loc></url>
 <url><loc>/reference/Correct_Formula_Order.html</loc></url>
 <url><loc>/reference/Cox_Relative_Risk.html</loc></url>
 <url><loc>/reference/Date_Shift.html</loc></url>
@@ -32,6 +34,7 @@
 <url><loc>/reference/Event_Time_Gen.html</loc></url>
 <url><loc>/reference/Gather_Guesses_CPP.html</loc></url>
 <url><loc>/reference/GetCensWeight.html</loc></url>
+<url><loc>/reference/Interpret_Output.html</loc></url>
 <url><loc>/reference/Joint_Multiple_Events.html</loc></url>
 <url><loc>/reference/Likelihood_Ratio_Test.html</loc></url>
 <url><loc>/reference/Linked_Dose_Formula.html</loc></url>

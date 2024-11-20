@@ -8,8 +8,8 @@
 <title>List of Control Options • Colossus</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="List of Control Options">
 </head>
 <body>
@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
     <li><a class="dropdown-item" href="../articles/count_time_tables.html">Generating Person-Count and Person-Time Tables</a></li>
     <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
+    <li><a class="dropdown-item" href="../articles/Equation_Expression.html">Unified Equation Representation</a></li>
     <li><a class="dropdown-item" href="../articles/Excess_and_Predicted_Cases.html">Excess and Predicted Cases</a></li>
     <li><a class="dropdown-item" href="../articles/Grad_Hess.html">Gradient and Hessian Approaches</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
@@ -149,12 +150,12 @@ Defaults to 5.</td>
 <tr class="odd">
 <td align="center">epsilon</td>
 <td align="center">Minimum step size before convergence is assumed.
-Defaults to 1e-9</td>
+Defaults to 1e-4</td>
 </tr>
 <tr class="even">
 <td align="center">deriv_epsilon</td>
 <td align="center">Smallest maximum first derivative before convergence
-is assumed. Defaults to 1e-9.</td>
+is assumed. Defaults to 1e-4.</td>
 </tr>
 <tr class="odd">
 <td align="center">abs_max</td>
