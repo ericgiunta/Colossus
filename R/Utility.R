@@ -615,8 +615,8 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
 Def_Control <- function(control) {
   control_def <- list(
     "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
-    "halfmax" = 5, "epsilon" = 1e-9,
-    "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
+    "halfmax" = 5, "epsilon" = 1e-4,
+    "deriv_epsilon" = 1e-4, "abs_max" = 1.0,
     "change_all" = TRUE, "dose_abs_max" = 100.0,
     "ties" = "breslow", "double_step" = 1,
     "ncores" = as.numeric(detectCores())
@@ -1076,6 +1076,7 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
 #' new_col <- val$cols
 #'
 factorize <- function(df, col_list, verbose = 0) {
+  df <- data.table(df)
   verbose <- Check_Verbose(verbose)
   cols <- c()
   col0 <- names(df)
@@ -1093,7 +1094,9 @@ factorize <- function(df, col_list, verbose = 0) {
     }
   }
   cols <- setdiff(names(df), col0)
-  cols <- Check_Dupe_Columns(df, cols, rep(0, length(cols)), verbose, TRUE)
+  if (length(col_list)>1){
+    cols <- Check_Dupe_Columns(df, cols, rep(0, length(cols)), verbose, TRUE)
+  }
   if (verbose >= 3) {
     message(paste("Note: Number of factors:", length(cols), sep = "")) # nocov
   }
@@ -1121,6 +1124,7 @@ factorize <- function(df, col_list, verbose = 0) {
 #' new_col <- val$cols
 #'
 factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detectCores())) {
+  df <- data.table(df)
   verbose <- Check_Verbose(verbose)
   cols <- c()
   vals <- c()
@@ -2492,4 +2496,246 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
   }
   #
   list(df = as.data.table(df_group), bounds = categ_bounds)
+}
+
+#' Converts a string equation to regression model inputs
+#'
+#' \code{Convert_Model_Eq} Converts a string expression of a risk model into the vectors used by different Colossus regression functions
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a list of regression inputs
+#' @export
+#' @family Data Cleaning Functions
+#' @examples
+#' library(data.table)
+#' a <- c(0, 1, 2, 3, 4, 5, 6)
+#' b <- c(1, 2, 3, 4, 5, 6, 7)
+#' c <- c(0, 1, 0, 0, 0, 1, 0)
+#' d <- c(1, 2, 3, 4, 5, 6, 7)
+#' e <- c(2, 3, 4, 5, 6, 7, 8)
+#' table <- data.table::data.table(
+#'   "a" = a, "b" = b, "c" = c,
+#'   "d" = d, "e" = e
+#' )
+#' Model_Eq <- "cox(a,b, c) ~ loglinear(d, factor(e), 0) + multiplicative()"
+#' e <- Convert_Model_Eq(Model_Eq, table)
+#'
+Convert_Model_Eq <- function(Model_Eq, df){
+  # values to assign to
+  term_n <- c()
+  tform <- c()
+  names <- c()
+  modelform <- "NONE"
+  surv_model_type <- "NONE"
+  tstart <- "NONE"
+  tend <- "NONE"
+  pyr <- "NONE"
+  event <- "NONE"
+  strata <- "NONE"
+  # split into the survival model type and the rest of the model terms
+  Model_Eq <- gsub(" ", "", Model_Eq)
+  first_split <- lapply(strsplit(Model_Eq, ''), function(x) which(x == '~'))[[1]]
+  surv_obj  <- substr(Model_Eq, 1,             first_split-1)
+  model_obj <- substr(Model_Eq, first_split+1, nchar(Model_Eq))
+  # split the survival model type
+  second_split <- lapply(strsplit(surv_obj, ''), function(x) which(x == '('))[[1]]
+  surv_type <- tolower(substr(surv_obj, 1, second_split-1))
+  surv_paras <- substr(surv_obj, second_split+1, nchar(surv_obj)-1)
+  surv_paras <- strsplit(surv_paras, ',')[[1]]
+  # assign survival model values
+  surv_model_type <- surv_type
+  if (surv_type == "cox"){
+    if (length(surv_paras)==2){
+        # tend and event
+        tend <- surv_paras[1]
+        event <- surv_paras[2]
+    } else if (length(surv_paras)==3){
+        # tstart, tend, and event
+        tstart <- surv_paras[1]
+        tend <- surv_paras[2]
+        event <- surv_paras[3]
+    } else {
+        stop("Invalid number of parameters for cox model")
+    }
+  } else if (surv_type == "cox_strata"){
+    if (length(surv_paras)==3){
+        # tend and event, then strata
+        tend <- surv_paras[1]
+        event <- surv_paras[2]
+        strata <- surv_paras[3]
+    } else if (length(surv_paras)==4){
+        # tstart, tend, and event, then strata
+        tstart <- surv_paras[1]
+        tend <- surv_paras[2]
+        event <- surv_paras[3]
+        strata <- surv_paras[4]
+    } else {
+        stop("Invalid number of parameters for cox_strata model")
+    }
+  } else if (surv_type == "poisson") {
+      if (length(surv_paras) == 2){
+        pyr <- surv_paras[1]
+        event <- surv_paras[2]
+      } else {
+        stop("Invalid number of parameters for poisson model")
+      }
+  } else if (surv_type == "poisson_strata") {
+      pyr <- surv_paras[1]
+      event <- surv_paras[2]
+      strata <- surv_paras[3:length(surv_paras)]
+  } else {
+      stop("Invalid survival model type for poisson")
+  }
+  model_terms <- strsplit(model_obj, "\\+")[[1]]
+  for (term_i in seq_along(model_terms)){
+      # seperate the term type or model-formula from parameters
+      third_split <- lapply(strsplit(model_terms[term_i], ''), function(x) which(x == '('))[[1]]
+      model_type <- tolower(substr(model_terms[term_i], 1, third_split-1))
+      if (model_type %in% c('loglinear', 'plinear','linear')){
+          model_paras <- substr(model_terms[term_i], third_split+1, nchar(model_terms[term_i])-1)
+          model_paras <- strsplit(model_paras, ',')[[1]]
+          last_entry <- model_paras[length(model_paras)]
+          if (is.na(suppressWarnings(as.integer(last_entry)))){
+              # the last element isn't an integer
+              term_num <- 0
+          } else {
+              model_paras <- model_paras[1:(length(model_paras)-1)]
+              term_num <- as.integer(last_entry)
+          }
+          for (subterm_i in seq_along(model_paras)){
+              # add element
+              if (substr(model_paras[subterm_i],1,7) == "factor("){
+                col_name <- substr(model_paras[subterm_i],8,nchar(model_paras[subterm_i])-1)
+                val <- factorize(df, col_name)
+                df <- val$df
+                col_name <- val$cols
+              } else {
+                col_name <- c(model_paras[subterm_i])
+              }
+              for (col in col_name){
+                names <- c(names, col_name)
+                tform <- c(tform, model_type)
+                term_n <- c(term_n, term_num)
+              }
+          }
+      } else if (model_type %in% c("multiplicative","additive","product_additive","product_additive_excess")){
+          if (modelform == "NONE"){
+              modelform = model_type
+          } else {
+              stop("modelform defined twice")
+          }
+      } else {
+          stop("Unknown option encountered")
+      }
+  }
+  if (modelform == "NONE"){
+      modelform = "multiplicative"
+  }
+  return(list("term_n"=term_n, "tform"=tform, "names"=names, "modelform"=modelform,
+              "survival_model_type"=surv_model_type,
+              "start_age"=tstart, "end_age"=tend, "person_year"=pyr, "event"=event, "strata"=strata,
+              "data"=df))
+}
+
+#' Prints a regression output clearly
+#'
+#' \code{Interpret_Output} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @inheritParams R_template
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' df <- data.table::data.table(
+#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
+#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
+#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
+#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
+#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#' )
+#' # For the interval case
+#' time1 <- "Starting_Age"
+#' time2 <- "Ending_Age"
+#' event <- "Cancer_Status"
+#' names <- c("a", "b", "c", "d")
+#' a_n <- list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
+#' # used to test at a specific point
+#' term_n <- c(0, 1, 1, 2)
+#' tform <- c("loglin", "lin", "lin", "plin")
+#' modelform <- "M"
+#' fir <- 0
+#' keep_constant <- c(0, 0, 0, 0)
+#' der_iden <- 0
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
+#'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
+#'   "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0,
+#'   "verbose" = FALSE,
+#'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
+#' )
+#' e <- RunCoxRegression_Omnibus(df, time1, time2, event,
+#'   names, term_n, tform, keep_constant,
+#'   a_n, modelform, fir, der_iden, control,
+#'   model_control = list(
+#'     "single" = FALSE,
+#'     "basic" = FALSE, "cr" = FALSE, "null" = FALSE
+#'   )
+#' )
+#' Interpret_Output(e)
+#'
+Interpret_Output <- function(out_list, digits=2){
+  # make sure the output isn't an error
+  passed <- out_list$Status
+  if (!is.na(passed)){
+    # get the model details
+    names <- out_list$Parameter_Lists$names
+    tforms <- out_list$Parameter_Lists$tforms
+    term_n <- out_list$Parameter_Lists$term_n
+    beta_0 <- out_list$beta_0
+    stdev <- out_list$Standard_Deviation
+    res_table <- data.table(
+      "Covariate"=names,
+      "Subterm"=tforms,
+      "Term Number"=term_n,
+      "Central Estimate"=beta_0,
+      "Standard Deviation"=stdev
+    )
+    message('|-------------------------------------------------------------------|')
+    message("Final Results")
+    print(res_table)
+    # get the model results
+    LogLik <- out_list$LogLik
+    AIC <- out_list$AIC
+    BIC <- out_list$BIC
+    deviation <- out_list$Deviation
+    iteration <- out_list$Control_List$Iteration
+    step_max <- out_list$Control_List$`Maximum Step`
+    deriv_max <- out_list$Control_List$`Derivative Limiting`
+    converged <- out_list$Converged
+    if (is.null(deviation)){
+      # cox model
+      message("\nCox Model Used")
+      message(paste("-2*Log-Likelihood: ",round(-2*LogLik,digits), ",  AIC: ",round(AIC,digits),sep=""))
+    } else {
+      # poisson model
+      message("\nPoisson Model Used")
+      message(paste("-2*Log-Likelihood: ",round(-2*LogLik,digits), ",  AIC: ",round(AIC,digits), ",  BIC: ",round(BIC,digits),sep=""))
+    }
+    message(paste("Iterations run: ",iteration,"\nmaximum step size: ",formatC(step_max,format = "e",digits=digits),", maximum first derivative: ",formatC(deriv_max,format = "e",digits=digits),sep=""))
+    if (converged){
+      message("Analysis converged")
+    } else {
+      message("Analysis did not converge, check convergence criteria or run further")
+    }
+    message('|-------------------------------------------------------------------|')
+  } else {
+    message(paste("Regression Failed"))
+  }
 }

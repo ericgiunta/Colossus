@@ -19,6 +19,7 @@ returns correct verbose value
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
+\code{\link{Convert_Model_Eq}()},
 \code{\link{Correct_Formula_Order}()},
 \code{\link{Date_Shift}()},
 \code{\link{Def_Control}()},

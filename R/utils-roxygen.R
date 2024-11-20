@@ -16,6 +16,7 @@
 #' @param dep_cols  columns that are not needed in the new dataframe
 #' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0
 #' @param df  a data.table containing the columns of interest
+#' @param digits  digits used for printing results
 #' @param dnames  list of covariate columns to plot by
 #' @param dt  spacing in time for new rows
 #' @param e  output from a baseline calculation
@@ -31,6 +32,7 @@
 #' @param iscox  boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times
 #' @param keep_constant  binary values to denote which parameters to change
 #' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details
+#' @param Model_Eq  String representation of a survival model. Left hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
 #' @param msv  value to replace na with, same used for every column used
 #' @param name_list  vector of string column names to check
@@ -38,6 +40,7 @@
 #' @param new_names  list of new names to use instead of default, default used if entry is ''
 #' @param nthreads  number of threads to use, do not use more threads than available on your machine
 #' @param null_model  a model to compare against, in list form
+#' @param out_list  list output from a regression, used to build results table and pull out convergence values
 #' @param paras  list of formula parameters
 #' @param plot_name  plot identifier, used in filename for saved plots
 #' @param plot_options  list of parameters controlling the plot options, see RunCoxPlots() for different options

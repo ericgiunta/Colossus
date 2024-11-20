@@ -40,6 +40,7 @@ Other Data Cleaning Functions:
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Check_Verbose}()},
+\code{\link{Convert_Model_Eq}()},
 \code{\link{Correct_Formula_Order}()},
 \code{\link{Def_Control}()},
 \code{\link{Def_Control_Guess}()},

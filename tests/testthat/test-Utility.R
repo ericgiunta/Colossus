@@ -384,6 +384,11 @@ test_that("Factorize missing", {
   col_list <- c("d")
   expect_error(factorize(df, col_list, TRUE))
 })
+test_that("Factorize survival lung, test", {
+  data(cancer, package="survival")
+  col_list <- c("inst")
+  expect_no_error(factorize(cancer, col_list, TRUE))
+})
 
 
 test_that("Factorize parallel factor", {

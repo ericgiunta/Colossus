@@ -35,8 +35,8 @@ This is the "control" variable used by every regression function. This list focu
 | maxiter  | Maximum iterations run for a single initial position. Defaults to 20.  |
 | maxiters | Used for multiple starting positions. List of maximum number of iterations per starting point and maximum number of iterations for final guess. Assumes N values for N guesses and 1 value for final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
 | halfmax  | Maximum number of half-steps taken per iteration. Defaults to 5.  |
-| epsilon  | Minimum step size before convergence is assumed. Defaults to 1e-9  |
-| deriv_epsilon  | Smallest maximum first derivative before convergence is assumed. Defaults to 1e-9. |
+| epsilon  | Minimum step size before convergence is assumed. Defaults to 1e-4  |
+| deriv_epsilon  | Smallest maximum first derivative before convergence is assumed. Defaults to 1e-4. |
 | abs_max  | Largest acceptable step size for non-intercept parameters. Defaults to 1.0. |
 | dose_abs_max  | Largest acceptable step size for intercept parameters. Defaults to 100.0.   |
 | ties  | Chooses between 'breslow' and 'efron' methods for tied event times in Cox proportional hazards regressions. Defaults to 'breslow'.  |

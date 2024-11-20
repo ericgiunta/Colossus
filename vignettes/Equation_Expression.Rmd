@@ -1,0 +1,61 @@
+---
+title: "Unified Equation Representation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Unified Equation Representation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Colossus)
+library(data.table)
+```
+
+# Prospective feature, presented for user suggestion
+
+The default method to specify a survival model using a series of vectors can be overly complicated at times. I felt that it wasn't straight-forward for typical R users, and made it too complicated to translate from a model to a script input. My plan is to add two functions: a conversion from a simple string expression of the model into the regression call, and a function to plot the hazard ratio or rate equation in LaTeX.
+
+## Equation Expression
+
+The basic idea of the first function is to take a string expression, similar to the model objects in the Survival package, which contains all of the information required in a more easily read format. This is intended to serve three functions: simplify the required input, make it easier to add multiple elements to each subterm, and make it easier to add factors.
+
+Generally a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox' or 'poisson'. Based on the number of entries, the format of the time interval is assumed. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally the method to combine terms is added as a separate item (multiplicative, additive). To prevent any issues with function definitions, the model equation is stored in a string.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \text{Surv(interval, event) ~ name + ... + factor(name)} \\
+    \text{'Survival(interval, event) ~ subterm(name, factor(name), term_number) + ... + term_model()'}
+\end{aligned}
+$$
+</p>
+
+The following expressions are equivalent.
+
+```{r}
+term_n <- c(0, 0, 1)
+tform <- c("loglin", "loglin", "lin")
+names <- c("dose0", "dose1", "dose2")
+modelform <- "M"
+tstart <- "t0"
+tend <- "t1"
+event <- "lung"
+
+Model_Eq <- "cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative()"
+Model_Eq <- "cox(t0, t1, lung) ~ loglinear(dose0, dose1) + linear(dose2, 1)"
+
+df <- data.table()
+Convert_Model_Eq(Model_Eq, df)
+```
+
+## Model Visualization
+
+The second function will be intended to display the equation.
