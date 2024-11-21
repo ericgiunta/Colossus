@@ -117,59 +117,22 @@
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $LogLik</span></span>
-<span><span class="co">#&gt; [1] -0.6753644</span></span>
+<span><span class="fu"><a href="reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0         41.26157                NaN</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1         98.72266                NaN</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1         96.82311           177.9643</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2        101.10000             0.0000</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $First_Der</span></span>
-<span><span class="co">#&gt; [1]  0.000000e+00 -7.187040e-05  7.361232e-05  1.919948e-04</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Second_Der</span></span>
-<span><span class="co">#&gt;              [,1]         [,2]          [,3]          [,4]</span></span>
-<span><span class="co">#&gt; [1,] 0.000000e+00 0.000000e+00  0.000000e+00  4.965508e-19</span></span>
-<span><span class="co">#&gt; [2,] 0.000000e+00 1.742209e-08  7.238366e-07  2.311365e-07</span></span>
-<span><span class="co">#&gt; [3,] 0.000000e+00 7.238366e-07 -1.501037e-06 -2.356033e-07</span></span>
-<span><span class="co">#&gt; [4,] 4.965508e-19 2.311365e-07 -2.356033e-07 -3.687577e-06</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $beta_0</span></span>
-<span><span class="co">#&gt; [1]  41.26157  98.72266  96.82311 101.10000</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Standard_Deviation</span></span>
-<span><span class="co">#&gt; [1]      NaN      NaN 177.9643   0.0000</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $AIC</span></span>
-<span><span class="co">#&gt; [1] 9.350729</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $BIC</span></span>
-<span><span class="co">#&gt; [1] 8.517767</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists</span></span>
-<span><span class="co">#&gt; $Parameter_Lists$term_n</span></span>
-<span><span class="co">#&gt; [1] 0 1 1 2</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$tforms</span></span>
-<span><span class="co">#&gt; [1] "loglin" "lin"    "lin"    "plin"  </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$names</span></span>
-<span><span class="co">#&gt; [1] "a" "b" "c" "d"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List</span></span>
-<span><span class="co">#&gt; $Control_List$Iteration</span></span>
-<span><span class="co">#&gt; [1] 100</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Maximum Step`</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Derivative Limiting`</span></span>
-<span><span class="co">#&gt; [1] 0.0001919948</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Converged</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Status</span></span>
-<span><span class="co">#&gt; [1] "PASSED"</span></span></code></pre></div>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 1.35,  AIC: 9.35</span></span>
+<span><span class="co">#&gt; Iterations run: 100</span></span>
+<span><span class="co">#&gt; maximum step size: 1.00e+00, maximum first derivative: 1.92e-04</span></span>
+<span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
