@@ -385,7 +385,7 @@ test_that("Factorize missing", {
   expect_error(factorize(df, col_list, TRUE))
 })
 test_that("Factorize survival lung, test", {
-  data(cancer, package="survival")
+  data(cancer, package = "survival")
   col_list <- c("inst")
   expect_no_error(factorize(cancer, col_list, TRUE))
 })
@@ -1459,4 +1459,140 @@ test_that("Gather Guesses error, many term formula", {
   model_control <- Def_model_control(model_control)
 
   expect_error(Gather_Guesses_CPP(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control))
+})
+
+## ------------------------------------- ##
+## Verify equation expression code
+## ------------------------------------- ##
+test_that("Check basic input/output works", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(1, 2, 3, 4, 5, 6, 7)
+  e <- c(2, 3, 2, 2, 2, 3, 3)
+  table <- data.table::data.table(
+    "a" = a, "b" = b, "c" = c,
+    "d" = d, "e" = e
+  )
+  # cox
+  Model_Eq <- "cox(a,b, c) ~ loglinear(d, factor(e), 0) + multiplicative()"
+  eq_out <- Convert_Model_Eq(Model_Eq, table)
+  expect_equal(eq_out$names, c("d", "e_2", "e_3"))
+  expect_equal(eq_out$survival_model_type, "cox")
+  expect_equal(eq_out$person_year, "NONE")
+  expect_equal(eq_out$modelform, "M")
+  Model_Eq <- "cox(a,b, c) ~ loglinear(d, factor(e), 0)"
+  eq_out <- Convert_Model_Eq(Model_Eq, table)
+  expect_equal(eq_out$modelform, "M")
+  expect_equal(eq_out$end_age, "b")
+  Model_Eq <- "cox(b, c) ~ loglinear(d, factor(e), 0)"
+  eq_out <- Convert_Model_Eq(Model_Eq, table)
+  expect_equal(eq_out$end_age, "b")
+  Model_Eq <- "cox_strata(a,b, c,e) ~ loglinear(d, 0)"
+  eq_out <- Convert_Model_Eq(Model_Eq, table)
+  expect_equal(eq_out$end_age, "b")
+  Model_Eq <- "cox_strata(b, c,e) ~ loglinear(d, 0)"
+  eq_out <- Convert_Model_Eq(Model_Eq, table)
+  expect_equal(eq_out$end_age, "b")
+  # poisson
+  Model_Eq <- "poisson(b, c) ~ loglinear(d, factor(e), 0)"
+  eq_out <- Convert_Model_Eq(Model_Eq, table)
+  expect_equal(eq_out$start_age, "NONE")
+  expect_equal(eq_out$person_year, "b")
+  Model_Eq <- "poisson_strata(b, c,e) ~ loglinear(d, 0)"
+  eq_out <- Convert_Model_Eq(Model_Eq, table)
+  expect_equal(eq_out$person_year, "b")
+})
+test_that("Check basic survival formula errors", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(1, 2, 3, 4, 5, 6, 7)
+  e <- c(2, 3, 2, 2, 2, 3, 3)
+  table <- data.table::data.table(
+    "a" = a, "b" = b, "c" = c,
+    "d" = d, "e" = e
+  )
+  Model_Eq <- "cox(a) ~ loglinear(d, factor(e), 0) + multiplicative()"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  Model_Eq <- "cox_strata(a) ~ loglinear(d, factor(e), 0) + multiplicative()"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  Model_Eq <- "poisson(a) ~ loglinear(d, factor(e), 0) + multiplicative()"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  Model_Eq <- "poisson_strata(a) ~ loglinear(d, factor(e), 0) + multiplicative()"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  Model_Eq <- "unknown(a) ~ loglinear(d, factor(e), 0) + multiplicative()"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  #
+  Model_Eq <- "poisson(b, c) - loglinear(d, factor(e), 0)"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  Model_Eq <- "poisson b, c ~ loglinear(d, factor(e), 0)"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  Model_Eq <- "poisson(b, c) ~ loglinear d, 0 "
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  #
+  Model_Eq <- "poisson(b, c) ~ loglinear(d, factor(e), 0) + multiplicative() + multiplicative()"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+  Model_Eq <- "poisson(b, c) ~ loglinear(d, factor(e), 0) + unknown()"
+  expect_error(Convert_Model_Eq(Model_Eq, table))
+})
+test_that("Check basic modelform conversion works", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(1, 2, 3, 4, 5, 6, 7)
+  e <- c(2, 3, 2, 2, 2, 3, 3)
+  table <- data.table::data.table(
+    "a" = a, "b" = b, "c" = c,
+    "d" = d, "e" = e
+  )
+  # cox
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + multiplicative()", table)
+  expect_equal(eq_out$modelform, "M")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + multiplicative-excess()", table)
+  expect_equal(eq_out$modelform, "M")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + additive()", table)
+  expect_equal(eq_out$modelform, "A")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + product-additive()", table)
+  expect_equal(eq_out$modelform, "PA")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + product-additive-excess()", table)
+  expect_equal(eq_out$modelform, "PAE")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + A()", table)
+  expect_equal(eq_out$modelform, "A")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + PA()", table)
+  expect_equal(eq_out$modelform, "PA")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + PAE()", table)
+  expect_equal(eq_out$modelform, "PAE")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + M()", table)
+  expect_equal(eq_out$modelform, "M")
+  eq_out <- Convert_Model_Eq("cox(a,b, c) ~ loglinear(d, factor(e), 0) + ME()", table)
+  expect_equal(eq_out$modelform, "M")
+})
+test_that("Check basic subterm conversion works", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(1, 2, 3, 4, 5, 6, 7)
+  e <- c(2, 3, 2, 2, 2, 3, 3)
+  table <- data.table::data.table(
+    "a" = a, "b" = b, "c" = c,
+    "d" = d, "e" = e
+  )
+  # cox
+  full <- "cox(a,b, c) ~ plin(d) + lin(d) + loglin(d) + loglin-dose(d) + lin_dose(d) + quad_dose(d) + step_dose(d) + lin_quad_dose(d) + lin_exp_dose(d) + plinear(d) + product-linear(d) + linear(d) + loglinear(d) + log-linear(d) + loglinear-dose(d) + log-linear-dose(d) + linear-dose(d) + linear-piecewise(d) + quadratic(d) + quad(d) + quad-dose(d) + quadratic-dose(d) + step-dose(d) + step-piecewise(d) + linear-quadratic-dose(d) + linear-quadratic-piecewise(d) + linear-exponential-dose(d) + linear-exponential-piecewise(d)"
+
+  base_eq <- "cox(a,b, c) ~ plin(d) + lin(d) + loglin(d) + plinear(d) + product-linear(d) + linear(d) + loglinear(d) + log-linear(d)"
+  base_out <- c("plin", "lin", "loglin", "plin", "plin", "lin", "loglin", "loglin")
+  eq_out <- Convert_Model_Eq(base_eq, table)
+  expect_equal(eq_out$tform, base_out)
+
+  base_dose_eq <- "cox(a,b, c) ~ loglin-dose(d) + lin_dose(d) + quad_dose(d) + step_dose(d) + loglinear-dose(d) + log-linear-dose(d) + linear-dose(d) + linear-piecewise(d) + quadratic(d) + quad(d) + quad-dose(d) + quadratic-dose(d) + step-dose(d) + step-piecewise(d)"
+  base_dose_out <- c("loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "loglin_slope", "loglin_top", "loglin_slope", "loglin_top", "lin_slope", "lin_int", "lin_slope", "lin_int", "quad_slope", "quad_slope", "quad_slope", "quad_slope", "step_slope", "step_int", "step_slope", "step_int")
+  eq_out <- Convert_Model_Eq(base_dose_eq, table)
+  expect_equal(eq_out$tform, base_dose_out)
+
+  complx_dose_eq <- "cox(a,b, c) ~ lin_quad_dose(d) + lin_exp_dose(d) + linear-quadratic-dose(d) + linear-quadratic-piecewise(d) + linear-exponential-dose(d) + linear-exponential-piecewise(d)"
+  complx_dose_out <- c("lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "lin_quad_slope", "lin_quad_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
+  eq_out <- Convert_Model_Eq(complx_dose_eq, table)
+  expect_equal(eq_out$tform, complx_dose_out)
 })

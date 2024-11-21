@@ -6,6 +6,11 @@
 \usage{
 Interpret_Output(out_list, digits = 2)
 }
+\arguments{
+\item{out_list}{list output from a regression, used to build results table and pull out convergence values}
+
+\item{digits}{digits used for printing results}
+}
 \value{
 return nothing, prints the results to console
 }

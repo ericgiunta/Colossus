@@ -81,57 +81,20 @@ control <- list(
 )
 
 e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-print(e)
-#> $LogLik
-#> [1] -0.6753644
+Interpret_Output(e)
+#> |-------------------------------------------------------------------|
+#> Final Results
+#>    Covariate Subterm Term Number Central Estimate Standard Deviation
+#>       <char>  <char>       <int>            <num>              <num>
+#> 1:         a  loglin           0         41.26157                NaN
+#> 2:         b     lin           1         98.72266                NaN
+#> 3:         c     lin           1         96.82311           177.9643
+#> 4:         d    plin           2        101.10000             0.0000
 #> 
-#> $First_Der
-#> [1]  0.000000e+00 -7.187040e-05  7.361232e-05  1.919948e-04
-#> 
-#> $Second_Der
-#>              [,1]         [,2]          [,3]          [,4]
-#> [1,] 0.000000e+00 0.000000e+00  0.000000e+00  4.965508e-19
-#> [2,] 0.000000e+00 1.742209e-08  7.238366e-07  2.311365e-07
-#> [3,] 0.000000e+00 7.238366e-07 -1.501037e-06 -2.356033e-07
-#> [4,] 4.965508e-19 2.311365e-07 -2.356033e-07 -3.687577e-06
-#> 
-#> $beta_0
-#> [1]  41.26157  98.72266  96.82311 101.10000
-#> 
-#> $Standard_Deviation
-#> [1]      NaN      NaN 177.9643   0.0000
-#> 
-#> $AIC
-#> [1] 9.350729
-#> 
-#> $BIC
-#> [1] 8.517767
-#> 
-#> $Parameter_Lists
-#> $Parameter_Lists$term_n
-#> [1] 0 1 1 2
-#> 
-#> $Parameter_Lists$tforms
-#> [1] "loglin" "lin"    "lin"    "plin"  
-#> 
-#> $Parameter_Lists$names
-#> [1] "a" "b" "c" "d"
-#> 
-#> 
-#> $Control_List
-#> $Control_List$Iteration
-#> [1] 100
-#> 
-#> $Control_List$`Maximum Step`
-#> [1] 1
-#> 
-#> $Control_List$`Derivative Limiting`
-#> [1] 0.0001919948
-#> 
-#> 
-#> $Converged
-#> [1] FALSE
-#> 
-#> $Status
-#> [1] "PASSED"
+#> Cox Model Used
+#> -2*Log-Likelihood: 1.35,  AIC: 9.35
+#> Iterations run: 100
+#> maximum step size: 1.00e+00, maximum first derivative: 1.92e-04
+#> Analysis did not converge, check convergence criteria or run further
+#> |-------------------------------------------------------------------|
 ```

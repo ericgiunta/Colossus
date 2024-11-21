@@ -75,5 +75,5 @@ control <- list(
 )
 
 e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
-print(e)
+Interpret_Output(e)
 ```

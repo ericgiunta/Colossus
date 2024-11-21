@@ -692,10 +692,20 @@ Def_Control <- function(control) {
 Def_modelform_fix <- function(control, model_control, modelform, term_n) {
   term_tot <- max(term_n) + 1
   modelform <- toupper(modelform)
-  acceptable <- c("A", "PA", "PAE", "M", "ME", "GMIX", "GMIX-R", "GMIX-E")
+  acceptable <- c(
+    "A", "PA", "PAE", "M", "ME", "GMIX", "GMIX-R", "GMIX-E",
+    "multiplicative", "multiplicative-excess", "additive",
+    "product-additive", "product-additive-excess"
+  )
   if (modelform %in% acceptable) {
-    if (modelform == "ME") {
+    if (modelform %in% c("ME", "multiplicative", "multiplicative-excess")) {
       modelform <- "M"
+    } else if (modelform == "additive") {
+      modelform <- "A"
+    } else if (modelform == "product-additive") {
+      modelform <- "PA"
+    } else if (modelform == "product-additive-excess") {
+      modelform <- "PAE"
     } else if (modelform == "GMIX-R") {
       model_control$gmix_term <- rep(0, term_tot)
       modelform <- "GMIX"
@@ -1094,7 +1104,7 @@ factorize <- function(df, col_list, verbose = 0) {
     }
   }
   cols <- setdiff(names(df), col0)
-  if (length(col_list)>1){
+  if (length(col_list) > 1) {
     cols <- Check_Dupe_Columns(df, cols, rep(0, length(cols)), verbose, TRUE)
   }
   if (verbose >= 3) {
@@ -2521,7 +2531,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #' Model_Eq <- "cox(a,b, c) ~ loglinear(d, factor(e), 0) + multiplicative()"
 #' e <- Convert_Model_Eq(Model_Eq, table)
 #'
-Convert_Model_Eq <- function(Model_Eq, df){
+Convert_Model_Eq <- function(Model_Eq, df) {
   # values to assign to
   term_n <- c()
   tform <- c()
@@ -2535,107 +2545,172 @@ Convert_Model_Eq <- function(Model_Eq, df){
   strata <- "NONE"
   # split into the survival model type and the rest of the model terms
   Model_Eq <- gsub(" ", "", Model_Eq)
-  first_split <- lapply(strsplit(Model_Eq, ''), function(x) which(x == '~'))[[1]]
-  surv_obj  <- substr(Model_Eq, 1,             first_split-1)
-  model_obj <- substr(Model_Eq, first_split+1, nchar(Model_Eq))
+  first_split <- lapply(strsplit(Model_Eq, ""), function(x) which(x == "~"))[[1]]
+  if (length(first_split) == 0) {
+    stop("Error: The model equation did not contain ~")
+  }
+  surv_obj <- substr(Model_Eq, 1, first_split - 1)
+  model_obj <- substr(Model_Eq, first_split + 1, nchar(Model_Eq))
   # split the survival model type
-  second_split <- lapply(strsplit(surv_obj, ''), function(x) which(x == '('))[[1]]
-  surv_type <- tolower(substr(surv_obj, 1, second_split-1))
-  surv_paras <- substr(surv_obj, second_split+1, nchar(surv_obj)-1)
-  surv_paras <- strsplit(surv_paras, ',')[[1]]
+  second_split <- lapply(strsplit(surv_obj, ""), function(x) which(x == "("))[[1]]
+  if (length(second_split) == 0) {
+    stop("Error: The left hand side did not contain (")
+  }
+  surv_type <- tolower(substr(surv_obj, 1, second_split - 1))
+  surv_paras <- substr(surv_obj, second_split + 1, nchar(surv_obj) - 1)
+  surv_paras <- strsplit(surv_paras, ",")[[1]]
   # assign survival model values
   surv_model_type <- surv_type
-  if (surv_type == "cox"){
-    if (length(surv_paras)==2){
-        # tend and event
-        tend <- surv_paras[1]
-        event <- surv_paras[2]
-    } else if (length(surv_paras)==3){
-        # tstart, tend, and event
-        tstart <- surv_paras[1]
-        tend <- surv_paras[2]
-        event <- surv_paras[3]
+  if (surv_type == "cox") {
+    if (length(surv_paras) == 2) {
+      # tend and event
+      tend <- surv_paras[1]
+      event <- surv_paras[2]
+    } else if (length(surv_paras) == 3) {
+      # tstart, tend, and event
+      tstart <- surv_paras[1]
+      tend <- surv_paras[2]
+      event <- surv_paras[3]
     } else {
-        stop("Invalid number of parameters for cox model")
+      stop("Error: Invalid number of parameters for cox model")
     }
-  } else if (surv_type == "cox_strata"){
-    if (length(surv_paras)==3){
-        # tend and event, then strata
-        tend <- surv_paras[1]
-        event <- surv_paras[2]
-        strata <- surv_paras[3]
-    } else if (length(surv_paras)==4){
-        # tstart, tend, and event, then strata
-        tstart <- surv_paras[1]
-        tend <- surv_paras[2]
-        event <- surv_paras[3]
-        strata <- surv_paras[4]
+  } else if (surv_type == "cox_strata") {
+    if (length(surv_paras) == 3) {
+      # tend and event, then strata
+      tend <- surv_paras[1]
+      event <- surv_paras[2]
+      strata <- surv_paras[3]
+    } else if (length(surv_paras) == 4) {
+      # tstart, tend, and event, then strata
+      tstart <- surv_paras[1]
+      tend <- surv_paras[2]
+      event <- surv_paras[3]
+      strata <- surv_paras[4]
     } else {
-        stop("Invalid number of parameters for cox_strata model")
+      stop("Error: Invalid number of parameters for cox_strata model")
     }
   } else if (surv_type == "poisson") {
-      if (length(surv_paras) == 2){
-        pyr <- surv_paras[1]
-        event <- surv_paras[2]
-      } else {
-        stop("Invalid number of parameters for poisson model")
-      }
+    if (length(surv_paras) == 2) {
+      pyr <- surv_paras[1]
+      event <- surv_paras[2]
+    } else {
+      stop("Error: Invalid number of parameters for poisson model")
+    }
   } else if (surv_type == "poisson_strata") {
+    if (length(surv_paras) > 2) {
       pyr <- surv_paras[1]
       event <- surv_paras[2]
       strata <- surv_paras[3:length(surv_paras)]
+    } else {
+      stop("Error: Invalid number of parameters for poisson model with stratification")
+    }
   } else {
-      stop("Invalid survival model type for poisson")
+    stop("Error: Invalid survival model type for poisson")
   }
-  model_terms <- strsplit(model_obj, "\\+")[[1]]
-  for (term_i in seq_along(model_terms)){
-      # seperate the term type or model-formula from parameters
-      third_split <- lapply(strsplit(model_terms[term_i], ''), function(x) which(x == '('))[[1]]
-      model_type <- tolower(substr(model_terms[term_i], 1, third_split-1))
-      if (model_type %in% c('loglinear', 'plinear','linear')){
-          model_paras <- substr(model_terms[term_i], third_split+1, nchar(model_terms[term_i])-1)
-          model_paras <- strsplit(model_paras, ',')[[1]]
-          last_entry <- model_paras[length(model_paras)]
-          if (is.na(suppressWarnings(as.integer(last_entry)))){
-              # the last element isn't an integer
-              term_num <- 0
-          } else {
-              model_paras <- model_paras[1:(length(model_paras)-1)]
-              term_num <- as.integer(last_entry)
-          }
-          for (subterm_i in seq_along(model_paras)){
-              # add element
-              if (substr(model_paras[subterm_i],1,7) == "factor("){
-                col_name <- substr(model_paras[subterm_i],8,nchar(model_paras[subterm_i])-1)
-                val <- factorize(df, col_name)
-                df <- val$df
-                col_name <- val$cols
-              } else {
-                col_name <- c(model_paras[subterm_i])
-              }
-              for (col in col_name){
-                names <- c(names, col_name)
-                tform <- c(tform, model_type)
-                term_n <- c(term_n, term_num)
-              }
-          }
-      } else if (model_type %in% c("multiplicative","additive","product_additive","product_additive_excess")){
-          if (modelform == "NONE"){
-              modelform = model_type
-          } else {
-              stop("modelform defined twice")
-          }
+  #
+  right_model_terms <- strsplit(model_obj, "\\+")[[1]]
+  for (term_i in seq_along(right_model_terms)) {
+    # seperate the term type or model-formula from parameters
+    third_split <- lapply(strsplit(right_model_terms[term_i], ""), function(x) which(x == "("))[[1]]
+    if (length(third_split) == 0) {
+      stop(paste('Error: right hand side element "', right_model_terms[term_i], '" did not contain (', sep = ""))
+    }
+    model_type <- tolower(substr(right_model_terms[term_i], 1, third_split - 1))
+    model_type <- gsub("_", "-", model_type)
+    tform_acceptable <- c(
+      "plin", "lin", "loglin", "loglin-dose", "lin-dose",
+      "lin-quad-dose", "lin-exp-dose", "plinear", "product-linear", "linear",
+      "loglinear", "log-linear", "loglinear-dose", "log-linear-dose", "linear-dose", "linear-piecewise",
+      "quadratic", "quad", "quad-dose", "quadratic-dose",
+      "step-dose", "step-piecewise",
+      "linear-quadratic-dose", "linear-quadratic-piecewise",
+      "linear-exponential-dose", "linear-exponential-piecewise"
+    )
+    modelform_acceptable <- c(
+      "multiplicative", "multiplicative-excess", "additive", "product-additive",
+      "product-additive-excess", "a", "pa", "pae", "m", "me"
+    )
+    if (model_type %in% tform_acceptable) {
+      model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
+      model_paras <- strsplit(model_paras, ",")[[1]]
+      last_entry <- model_paras[length(model_paras)]
+      if (is.na(suppressWarnings(as.integer(last_entry)))) {
+        # the last element isn't an integer
+        term_num <- 0
       } else {
-          stop("Unknown option encountered")
+        model_paras <- model_paras[1:(length(model_paras) - 1)]
+        term_num <- as.integer(last_entry)
       }
+      for (subterm_i in seq_along(model_paras)) {
+        # add element
+        if (substr(model_paras[subterm_i], 1, 7) == "factor(") {
+          # currently setting a baseline level isn't supported, planned for later
+          col_name <- substr(model_paras[subterm_i], 8, nchar(model_paras[subterm_i]) - 1)
+          val <- factorize(df, col_name)
+          df <- val$df
+          col_name <- val$cols
+        } else {
+          col_name <- c(model_paras[subterm_i])
+        }
+        # convert subterm formula
+        model_terms <- c(model_type)
+        if (model_type %in% c("plin", "plinear", "product-linear")) {
+          model_terms <- c("plin")
+        } else if (model_type %in% c("lin", "linear")) {
+          model_terms <- c("lin")
+        } else if (model_type %in% c("loglin", "loglinear", "log-linear")) {
+          model_terms <- c("loglin")
+        } else if (model_type %in% c("loglin-dose", "loglinear-dose", "log-linear-dose")) {
+          model_terms <- c("loglin_slope", "loglin_top")
+        } else if (model_type %in% c("lin-dose", "linear-dose", "linear-piecewise")) {
+          model_terms <- c("lin_slope", "lin_int")
+        } else if (model_type %in% c("quadratic", "quad", "quad-dose", "quadratic-dose")) {
+          model_terms <- c("quad_slope")
+        } else if (model_type %in% c("step-dose", "step-piecewise")) {
+          model_terms <- c("step_slope", "step_int")
+        } else if (model_type %in% c("lin-quad-dose", "linear-quadratic-dose", "linear-quadratic-piecewise")) {
+          model_terms <- c("lin_quad_slope", "lin_quad_int")
+        } else if (model_type %in% c("lin-exp-dose", "linear-exponential-dose", "linear-exponential-piecewise")) {
+          model_terms <- c("lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
+        } else {
+          stop(paste("Error: Unknown subterm type used, ", model_type, sep = ""))
+        }
+        for (col in col_name) {
+          for (model_term in model_terms) {
+            names <- c(names, col)
+            tform <- c(tform, model_term)
+            term_n <- c(term_n, term_num)
+          }
+        }
+      }
+    } else if (model_type %in% modelform_acceptable) {
+      if (model_type %in% c("m", "me", "multiplicative", "multiplicative-excess")) {
+        model_type <- "M"
+      } else if (model_type %in% c("a", "additive")) {
+        model_type <- "A"
+      } else if (model_type %in% c("pa", "product-additive")) {
+        model_type <- "PA"
+      } else if (model_type %in% c("pae", "product-additive-excess")) {
+        model_type <- "PAE"
+      }
+      if (modelform == "NONE") {
+        modelform <- model_type
+      } else {
+        stop("Error: modelform defined twice")
+      }
+    } else {
+      stop(paste("Error: Unknown option encountered, ", model_type, sep = ""))
+    }
   }
-  if (modelform == "NONE"){
-      modelform = "multiplicative"
+  if (modelform == "NONE") {
+    modelform <- "M"
   }
-  return(list("term_n"=term_n, "tform"=tform, "names"=names, "modelform"=modelform,
-              "survival_model_type"=surv_model_type,
-              "start_age"=tstart, "end_age"=tend, "person_year"=pyr, "event"=event, "strata"=strata,
-              "data"=df))
+  return(list(
+    "term_n" = term_n, "tform" = tform, "names" = names, "modelform" = modelform,
+    "survival_model_type" = surv_model_type,
+    "start_age" = tstart, "end_age" = tend, "person_year" = pyr, "event" = event, "strata" = strata,
+    "data" = df
+  ))
 }
 
 #' Prints a regression output clearly
@@ -2690,10 +2765,10 @@ Convert_Model_Eq <- function(Model_Eq, df){
 #' )
 #' Interpret_Output(e)
 #'
-Interpret_Output <- function(out_list, digits=2){
+Interpret_Output <- function(out_list, digits = 2) {
   # make sure the output isn't an error
   passed <- out_list$Status
-  if (!is.na(passed)){
+  if (!is.na(passed)) {
     # get the model details
     names <- out_list$Parameter_Lists$names
     tforms <- out_list$Parameter_Lists$tforms
@@ -2701,13 +2776,13 @@ Interpret_Output <- function(out_list, digits=2){
     beta_0 <- out_list$beta_0
     stdev <- out_list$Standard_Deviation
     res_table <- data.table(
-      "Covariate"=names,
-      "Subterm"=tforms,
-      "Term Number"=term_n,
-      "Central Estimate"=beta_0,
-      "Standard Deviation"=stdev
+      "Covariate" = names,
+      "Subterm" = tforms,
+      "Term Number" = term_n,
+      "Central Estimate" = beta_0,
+      "Standard Deviation" = stdev
     )
-    message('|-------------------------------------------------------------------|')
+    message("|-------------------------------------------------------------------|")
     message("Final Results")
     print(res_table)
     # get the model results
@@ -2719,22 +2794,22 @@ Interpret_Output <- function(out_list, digits=2){
     step_max <- out_list$Control_List$`Maximum Step`
     deriv_max <- out_list$Control_List$`Derivative Limiting`
     converged <- out_list$Converged
-    if (is.null(deviation)){
+    if (is.null(deviation)) {
       # cox model
       message("\nCox Model Used")
-      message(paste("-2*Log-Likelihood: ",round(-2*LogLik,digits), ",  AIC: ",round(AIC,digits),sep=""))
+      message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
     } else {
       # poisson model
       message("\nPoisson Model Used")
-      message(paste("-2*Log-Likelihood: ",round(-2*LogLik,digits), ",  AIC: ",round(AIC,digits), ",  BIC: ",round(BIC,digits),sep=""))
+      message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
     }
-    message(paste("Iterations run: ",iteration,"\nmaximum step size: ",formatC(step_max,format = "e",digits=digits),", maximum first derivative: ",formatC(deriv_max,format = "e",digits=digits),sep=""))
-    if (converged){
+    message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+    if (converged) {
       message("Analysis converged")
     } else {
       message("Analysis did not converge, check convergence criteria or run further")
     }
-    message('|-------------------------------------------------------------------|')
+    message("|-------------------------------------------------------------------|")
   } else {
     message(paste("Regression Failed"))
   }
