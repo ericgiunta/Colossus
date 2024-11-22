@@ -73,10 +73,11 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
   # remove rows that start after the last event
   df <- df[get(time1) <= tu[length(tu)], ]
   control <- Def_Control(control)
+  model_control <- Def_model_control(model_control)
   val <- Correct_Formula_Order(
     term_n, tform, keep_constant, a_n,
     names, der_iden, cons_mat, cons_vec,
-    control$verbose
+    control$verbose, model_control
   )
   term_n <- val$term_n
   tform <- val$tform
@@ -86,13 +87,15 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
   names <- val$names
   cons_mat <- as.matrix(val$cons_mat)
   cons_vec <- val$cons_vec
+  if ("para_number" %in% names(model_control)) {
+    model_control$para_number <- val$para_num
+  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
   if (any(val$Permutation != seq_along(tform))) {
     warning("Warning: model covariate order changed")
   }
-  model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
   model_control <- val$model_control

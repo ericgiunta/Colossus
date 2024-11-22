@@ -57,10 +57,11 @@
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   df <- data.table(df)
   control <- Def_Control(control)
+  model_control <- Def_model_control(model_control)
   val <- Correct_Formula_Order(
     term_n, tform, keep_constant, a_n,
     names, der_iden, cons_mat, cons_vec,
-    control$verbose
+    control$verbose, model_control
   )
   term_n <- val$term_n
   tform <- val$tform
@@ -70,6 +71,9 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   names <- val$names
   cons_mat <- as.matrix(val$cons_mat)
   cons_vec <- val$cons_vec
+  if ("para_number" %in% names(model_control)) {
+    model_control$para_number <- val$para_num
+  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
@@ -79,7 +83,6 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       warning("Warning: model covariate order changed")
     }
   }
-  model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
   model_control <- val$model_control

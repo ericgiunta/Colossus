@@ -1913,9 +1913,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     //     Rcout << "C++ Note: STARTING BOUNDS" << endl;
     // }
     //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     upper = true;
     int step = 0;
     bool iter_continue = true;
@@ -2050,9 +2050,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     }
     //
     //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Lower Bound" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
     beta_p = beta_best;  //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
@@ -2143,7 +2143,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
                 // second issue is making sure that the step is forced away from the optimum when possible
                 if (Ll[0] > Lstar) {
                     // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always positive
+                    // for lower limit, the step is always negative
                     dbeta[ij] = - 1*abs(dbeta[ij]);
                 }
             }
@@ -2498,13 +2498,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<bool>   limit_hit(2, FALSE);
     vector<double> ll_final(2, 0.0);
     List res_list;
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING BOUNDS" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING BOUNDS" << endl;
+    }
     // //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    // }
+    if (verbose >= 4) {
+         Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     upper = true;
     // Now define the list of points to check
     trouble = false;
@@ -2519,15 +2519,15 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             a_ns(i, j) = beta_0[j] + dbeta_start[j] * (i + 1)/(guesses);
         }
     }
-    // if (verbose >= 4) {
-    //     for (int i = 0; i < guesses; i++) {
-    //         Rcout << "C++ Note: Initial guess " << i << ": ";
-    //         for (int j = 0; j < totalnum; j++) {
-    //             Rcout << a_ns(i, j) << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //     }
-    // }
+    if (verbose >= 4) {
+        for (int i = 0; i < guesses; i++) {
+            Rcout << "C++ Note: Initial guess " << i << ": ";
+            for (int j = 0; j < totalnum; j++) {
+                Rcout << a_ns(i, j) << " ";
+            }
+            Rcout << " " << endl;
+        }
+    }
     // now we have the points to test
     double halves = 0;  // number of half-steps taken
     int ind0 = fir;  // used for validations
@@ -2727,19 +2727,19 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             best_guess = guess;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Upper Guess Results" << endl;
-    //     Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
-    //     NumericVector beta_temp;
-    //     for (int i = 0;  i < guesses; i++) {
-    //         beta_temp = wrap(beta_fin.row(i));
-    //         if (i == best_guess) {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
-    //         } else {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
-    //         }
-    //     }
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Upper Guess Results" << endl;
+        Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
+        NumericVector beta_temp;
+        for (int i = 0;  i < guesses; i++) {
+            beta_temp = wrap(beta_fin.row(i));
+            if (i == best_guess) {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
+            } else {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
+            }
+        }
+    }
     NumericVector beta_temp;
     NumericVector beta_temp0;
     if (best_guess == 0) {
@@ -2754,13 +2754,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             beta_temp[i] = beta_temp[i]/2;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Initial Guess: ";
-    //     for (int i = 0; i < beta_0.size(); i++) {
-    //         Rcout << beta_temp[i] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Initial Guess: ";
+        for (int i = 0; i < beta_0.size(); i++) {
+            Rcout << beta_temp[i] << " ";
+        }
+        Rcout << " " << endl;
+    }
     for (int i = 0; i < beta_0.size(); i++) {
         a_n[i] = beta_temp[i];
         beta_0[i] = a_n[i];
@@ -2930,9 +2930,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     //
     // -------------------------------------------------------------------------------------------
     //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Lower Bound" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -2984,15 +2984,15 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             a_ns(i, j) = beta_0[j] + dbeta_start[j] * (i + 1)/(guesses);
         }
     }
-    // if (verbose >= 4) {
-    //     for (int i = 0; i < guesses; i++) {
-    //         Rcout << "C++ Note: Initial guess " << i << ": ";
-    //         for (int j = 0; j < totalnum; j++) {
-    //             Rcout << a_ns(i, j) << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //     }
-    // }
+    if (verbose >= 4) {
+        for (int i = 0; i < guesses; i++) {
+            Rcout << "C++ Note: Initial guess " << i << ": ";
+            for (int j = 0; j < totalnum; j++) {
+                Rcout << a_ns(i, j) << " ";
+            }
+            Rcout << " " << endl;
+        }
+    }
     // now we have the points to test
     halves = 0;  // number of half-steps taken
     ind0 = fir;  // used for validations
@@ -3183,19 +3183,19 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             best_guess = guess;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Lower Guess Results" << endl;
-    //     Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
-    //     NumericVector beta_temp;
-    //     for (int i = 0;  i < guesses; i++) {
-    //         beta_temp = wrap(beta_fin.row(i));
-    //         if (i == best_guess) {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
-    //         } else {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
-    //         }
-    //     }
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Lower Guess Results" << endl;
+        Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
+        NumericVector beta_temp;
+        for (int i = 0;  i < guesses; i++) {
+            beta_temp = wrap(beta_fin.row(i));
+            if (i == best_guess) {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
+            } else {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
+            }
+        }
+    }
     if (best_guess == 0) {
         beta_temp = wrap(beta_fin.row(best_guess));  // the first point was closest, no lower bound
     } else if (best_guess == - 1) {
@@ -3208,13 +3208,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             beta_temp[i] = beta_temp[i]/2;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Initial Guess: ";
-    //     for (int i = 0; i < beta_0.size(); i++) {
-    //         Rcout << beta_temp[i] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Initial Guess: ";
+        for (int i = 0; i < beta_0.size(); i++) {
+            Rcout << beta_temp[i] << " ";
+        }
+        Rcout << " " << endl;
+    }
     for (int i = 0; i < beta_0.size(); i++) {
         a_n[i] = beta_temp[i];
         beta_0[i] = a_n[i];
@@ -3302,7 +3302,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // second issue is making sure that the step is forced away from the optimum when possible
                 if (Ll[0] > Lstar) {
                     // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always positive
+                    // for lower limit, the step is always negative
                     dbeta[ij] = - 1*abs(dbeta[ij]);
                 }
             }
@@ -3613,9 +3613,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     //     Rcout << "C++ Note: STARTING BOUNDS" << endl;
     // }
     // //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     upper = true;
     int step = 0;
     bool iter_continue = true;
@@ -3748,9 +3748,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     }
     //
     //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Lower Bound" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
     beta_p = beta_best;  //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
@@ -3828,7 +3828,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
 //            Rcout << dbeta[ij] << " ";
             if (ij == para_number) {
                 // we want to prevent two issues
-                // first prevent the parameter estimate from crossing the optimum
+                // first prevent the parameter estimate from crossing the optimum 
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
@@ -3836,7 +3836,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
                 // second issue is making sure that the step is forced away from the optimum when possible
                 if (Ll[0] > Lstar) {
                     // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always positive
+                    // for lower limit, the step is always negative
                     dbeta[ij] = - 1*abs(dbeta[ij]);
                 }
             }
@@ -4170,9 +4170,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     //     Rcout << "C++ Note: STARTING BOUNDS" << endl;
     // }
     // //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     upper = true;
     // Now define the list of points to check
     trouble = false;
@@ -4187,15 +4187,15 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             a_ns(i, j) = beta_0[j] + dbeta_start[j] * (i + 1)/(guesses);
         }
     }
-    // if (verbose >= 4) {
-    //     for (int i = 0; i < guesses; i++) {
-    //         Rcout << "C++ Note: Initial guess " << i << ": ";
-    //         for (int j = 0; j < totalnum; j++) {
-    //             Rcout << a_ns(i, j) << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //     }
-    // }
+    if (verbose >= 4) {
+        for (int i = 0; i < guesses; i++) {
+            Rcout << "C++ Note: Initial guess " << i << ": ";
+            for (int j = 0; j < totalnum; j++) {
+                Rcout << a_ns(i, j) << " ";
+            }
+            Rcout << " " << endl;
+        }
+    }
     // now we have the points to test
     double halves = 0;  // number of half-steps taken
     int ind0 = fir;  // used for validations
@@ -4396,19 +4396,19 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             best_guess = guess;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Upper Guess Results" << endl;
-    //     Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
-    //     NumericVector beta_temp;
-    //     for (int i = 0;  i < guesses; i++) {
-    //         beta_temp = wrap(beta_fin.row(i));
-    //         if (i == best_guess) {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
-    //         } else {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
-    //         }
-    //     }
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Upper Guess Results" << endl;
+        Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
+        NumericVector beta_temp;
+        for (int i = 0;  i < guesses; i++) {
+            beta_temp = wrap(beta_fin.row(i));
+            if (i == best_guess) {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
+            } else {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
+            }
+        }
+    }
     NumericVector beta_temp;
     NumericVector beta_temp0;
     if (best_guess == 0) {
@@ -4423,13 +4423,13 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             beta_temp[i] = beta_temp[i]/2;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Initial Guess: ";
-    //     for (int i = 0; i < beta_0.size(); i++) {
-    //         Rcout << beta_temp[i] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Initial Guess: ";
+        for (int i = 0; i < beta_0.size(); i++) {
+            Rcout << beta_temp[i] << " ";
+        }
+        Rcout << " " << endl;
+    }
     for (int i = 0; i < beta_0.size(); i++) {
         a_n[i] = beta_temp[i];
         beta_0[i] = a_n[i];
@@ -4590,9 +4590,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     //
     // -------------------------------------------------------------------------------------------
     //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: STARTING Lower Bound" << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -4639,15 +4639,15 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             a_ns(i, j) = beta_0[j] + dbeta_start[j] * (i + 1)/(guesses);
         }
     }
-    // if (verbose >= 4) {
-    //     for (int i = 0; i < guesses; i++) {
-    //         Rcout << "C++ Note: Initial guess " << i << ": ";
-    //         for (int j = 0; j < totalnum; j++) {
-    //             Rcout << a_ns(i, j) << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //     }
-    // }
+    if (verbose >= 4) {
+        for (int i = 0; i < guesses; i++) {
+            Rcout << "C++ Note: Initial guess " << i << ": ";
+            for (int j = 0; j < totalnum; j++) {
+                Rcout << a_ns(i, j) << " ";
+            }
+            Rcout << " " << endl;
+        }
+    }
     // now we have the points to test
     halves = 0;  // number of half-steps taken
     ind0 = fir;  // used for validations
@@ -4829,19 +4829,19 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             best_guess = guess;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Lower Guess Results" << endl;
-    //     Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
-    //     NumericVector beta_temp;
-    //     for (int i = 0;  i < guesses; i++) {
-    //         beta_temp = wrap(beta_fin.row(i));
-    //         if (i == best_guess) {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
-    //         } else {
-    //             Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
-    //         }
-    //     }
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Lower Guess Results" << endl;
+        Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
+        NumericVector beta_temp;
+        for (int i = 0;  i < guesses; i++) {
+            beta_temp = wrap(beta_fin.row(i));
+            if (i == best_guess) {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << "<-- Best Guess" << endl;
+            } else {
+                Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
+            }
+        }
+    }
     if (best_guess == 0) {
         beta_temp = wrap(beta_fin.row(best_guess));  // the first point was closest, no lower bound
     } else if (best_guess == - 1) {
@@ -4854,13 +4854,13 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             beta_temp[i] = beta_temp[i]/2;
         }
     }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Initial Guess: ";
-    //     for (int i = 0; i < beta_0.size(); i++) {
-    //         Rcout << beta_temp[i] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: Initial Guess: ";
+        for (int i = 0; i < beta_0.size(); i++) {
+            Rcout << beta_temp[i] << " ";
+        }
+        Rcout << " " << endl;
+    }
     for (int i = 0; i < beta_0.size(); i++) {
         a_n[i] = beta_temp[i];
         beta_0[i] = a_n[i];
@@ -4945,7 +4945,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // second issue is making sure that the step is forced away from the optimum when possible
                 if (Ll[0] > Lstar) {
                     // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always positive
+                    // for lower limit, the step is always negative
                     dbeta[ij] = - 1*abs(dbeta[ij]);
                 }
             }

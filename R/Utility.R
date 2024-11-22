@@ -2768,49 +2768,68 @@ Convert_Model_Eq <- function(Model_Eq, df) {
 Interpret_Output <- function(out_list, digits = 2) {
   # make sure the output isn't an error
   passed <- out_list$Status
+  message("|-------------------------------------------------------------------|")
   if (!is.na(passed)) {
-    # get the model details
-    names <- out_list$Parameter_Lists$names
-    tforms <- out_list$Parameter_Lists$tforms
-    term_n <- out_list$Parameter_Lists$term_n
-    beta_0 <- out_list$beta_0
-    stdev <- out_list$Standard_Deviation
-    res_table <- data.table(
-      "Covariate" = names,
-      "Subterm" = tforms,
-      "Term Number" = term_n,
-      "Central Estimate" = beta_0,
-      "Standard Deviation" = stdev
-    )
-    message("|-------------------------------------------------------------------|")
-    message("Final Results")
-    print(res_table)
-    # get the model results
-    LogLik <- out_list$LogLik
-    AIC <- out_list$AIC
-    BIC <- out_list$BIC
-    deviation <- out_list$Deviation
-    iteration <- out_list$Control_List$Iteration
-    step_max <- out_list$Control_List$`Maximum Step`
-    deriv_max <- out_list$Control_List$`Derivative Limiting`
-    converged <- out_list$Converged
-    if (is.null(deviation)) {
-      # cox model
-      message("\nCox Model Used")
-      message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+    if ("Likelihood_Goal" %in% names(out_list)) {
+      # likelihood boundary output
+      limits <- out_list$Parameter_Limits
+      neg <- out_list$Negative_Limit_Found
+      lik_bound <- out_list$Likelihood_Boundary
+      lik_goal <- out_list$Likelihood_Goal
+      message("Likelihood Boundary Results")
+      if (neg[1]) {
+        message("Lower limit was not found")
+      } else {
+        message(paste("Lower limit found at ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+      }
+      if (neg[2]) {
+        message("Upper limit was not found")
+      } else {
+        message(paste("Upper limit found at ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+      }
     } else {
-      # poisson model
-      message("\nPoisson Model Used")
-      message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+      # get the model details
+      names <- out_list$Parameter_Lists$names
+      tforms <- out_list$Parameter_Lists$tforms
+      term_n <- out_list$Parameter_Lists$term_n
+      beta_0 <- out_list$beta_0
+      stdev <- out_list$Standard_Deviation
+      res_table <- data.table(
+        "Covariate" = names,
+        "Subterm" = tforms,
+        "Term Number" = term_n,
+        "Central Estimate" = beta_0,
+        "Standard Deviation" = stdev
+      )
+      message("Final Results")
+      print(res_table)
+      # get the model results
+      LogLik <- out_list$LogLik
+      AIC <- out_list$AIC
+      BIC <- out_list$BIC
+      deviation <- out_list$Deviation
+      iteration <- out_list$Control_List$Iteration
+      step_max <- out_list$Control_List$`Maximum Step`
+      deriv_max <- out_list$Control_List$`Derivative Limiting`
+      converged <- out_list$Converged
+      if (is.null(deviation)) {
+        # cox model
+        message("\nCox Model Used")
+        message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+      } else {
+        # poisson model
+        message("\nPoisson Model Used")
+        message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+      }
+      message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+      if (converged) {
+        message("Analysis converged")
+      } else {
+        message("Analysis did not converge, check convergence criteria or run further")
+      }
     }
-    message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-    if (converged) {
-      message("Analysis converged")
-    } else {
-      message("Analysis did not converge, check convergence criteria or run further")
-    }
-    message("|-------------------------------------------------------------------|")
   } else {
     message(paste("Regression Failed"))
   }
+  message("|-------------------------------------------------------------------|")
 }

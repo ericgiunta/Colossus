@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(Colossus)
 library(data.table)
+library(survival)
 ```
 
 ## Available Methods
@@ -56,3 +57,151 @@ The more exact solution is to directly solve for the boundary. The basic premise
 There is one main issues that can arise from this method. The algorithm uses a Newton-Raphson algorithm, which may solve for local solutions instead of the global solution. Similar to the general Colossus regressions, limitations can be placed on step size to limit these effects. However, there is no analogue to selecting multiple starting locations. This is the basis for ongoing work to code in an alternative that can more directly solve for the true optimum.
 
 This method directly solves for the confidence interval, which for linear cases may be non-symmetric or even not have upper or lower bounds. Linear models may be defined only above a parameter threshold. If the optimum value at that parameter threshold is above the $\chi^2$ threshold value, then the interval would not have a lower bound.
+
+
+### Example and Comparison
+
+For the sake of comparison, we will consider an analysis of the capacitor data available in the survival package. Consider the two regressions, one fully exponential and one with a linear effect. Both regressions converge with nearly identical scores.
+
+```{r, eval=TRUE}
+data(reliability, package = "survival")
+
+df <- capacitor
+df$voltage <- (df$voltage - 200) / 150
+df$temperature <- (df$temperature - 170) / 10
+df$time <- (df$time - 216) / (1105 - 216)
+
+t0 <- "%trunc%"
+t1 <- "time"
+event <- "status"
+
+names <- c("temperature", "voltage")
+tform <- c("loglin", "loglin")
+control <- list("Ncores" = 1, "maxiter" = 100, "verbose" = 0)
+
+a_n <- c(0.01, 0.01)
+term_n <- c(0, 0)
+keep_constant <- c(0, 0)
+modelform <- "M"
+fir <- 0
+
+e1 <- RunCoxRegression(
+  df, t0, t1, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, 0, control
+)
+Interpret_Output(e1, 5)
+
+names <- c("temperature", "voltage")
+tform <- c("plin", "loglin")
+a_n <- c(0.01, 0.01)
+
+e2 <- RunCoxRegression(
+  df, t0, t1, event, names, term_n, tform, keep_constant,
+  a_n, modelform, fir, 0, control
+)
+Interpret_Output(e2, 5)
+```
+
+Next suppose we were interested in the confidence intervals. Suppose we want 95% confidence intervals for both the Wald and likelihood-based boundaries and for both parameters in each model. Let us start with the fully exponential model. The Wald boundary is estimated using the central estimates and standard deviations. The Likelihood boundary is solved using the "log_bound" option under the model control list. The parameter number needs to be provided (indexed starting at zero) and an alpha level needs to be provided. Overall the likelihood boundary were all solved with scores within a narrow margin of the threshold. However the boundaries are not exactly the same. The boundaries for temperature are (-0.017, 1.537) and (-0.001, 1.560), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off on the scale of less than 0.1.
+
+```{r, eval=TRUE}
+names <- c("temperature", "voltage")
+tform <- c("loglin", "loglin")
+ci_1 <- c(
+  e1$beta_0[1] - 1.96 * e1$Standard_Deviation[1],
+  e1$beta_0[1] + 1.96 * e1$Standard_Deviation[1]
+)
+ci_2 <- c(
+  e1$beta_0[2] - 1.96 * e1$Standard_Deviation[2],
+  e1$beta_0[2] + 1.96 * e1$Standard_Deviation[2]
+)
+
+a_n <- c(0.7599511, 1.9884051)
+term_n <- c(0, 0)
+keep_constant <- c(0, 0)
+modelform <- "M"
+fir <- 0
+
+model_control <- list(
+  "basic" = FALSE, "maxstep" = 100,
+  "log_bound" = TRUE, "alpha" = 0.05,
+  "para_number" = 0, "manual" = TRUE
+)
+e <- RunCoxRegression_Omnibus(df, t0, t1, event, names,
+  term_n = term_n,
+  tform = tform, keep_constant = keep_constant,
+  a_n = a_n, modelform = modelform, fir = fir,
+  control = control, model_control = model_control
+)
+print("|------------------- Wald Estimate -------------------|")
+print(ci_1)
+Interpret_Output(e, 5)
+
+a_n <- c(0.7599511, 1.9884051)
+model_control <- list(
+  "basic" = FALSE, "maxstep" = 100,
+  "log_bound" = TRUE, "alpha" = 0.05,
+  "para_number" = 1, "manual" = TRUE
+)
+e <- RunCoxRegression_Omnibus(df, t0, t1, event, names,
+  term_n = term_n,
+  tform = tform, keep_constant = keep_constant,
+  a_n = a_n, modelform = modelform, fir = fir,
+  control = control, model_control = model_control
+)
+print("|------------------- Wald Estimate -------------------|")
+print(ci_2)
+Interpret_Output(e, 5)
+```
+
+Next we analyze a model with a linear effect. We would expect the predictions to be further off. The boundaries for temperature are (-0.522, 2.800) and (-0.010, 3.758), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The estimates for voltage boundary are the same, but the estimates for the temperature boundary are much further off.
+
+```{r, eval=TRUE}
+names <- c("temperature", "voltage")
+tform <- c("plin", "loglin")
+ci_1 <- c(
+  e2$beta_0[1] - 1.96 * e2$Standard_Deviation[1],
+  e2$beta_0[1] + 1.96 * e2$Standard_Deviation[1]
+)
+ci_2 <- c(
+  e2$beta_0[2] - 1.96 * e2$Standard_Deviation[2],
+  e2$beta_0[2] + 1.96 * e2$Standard_Deviation[2]
+)
+
+a_n <- c(1.138152, 1.988403)
+term_n <- c(0, 0)
+keep_constant <- c(0, 0)
+modelform <- "M"
+fir <- 0
+
+model_control <- list(
+  "basic" = FALSE, "maxstep" = 100,
+  "log_bound" = TRUE, "alpha" = 0.05,
+  "para_number" = 0, "manual" = TRUE
+)
+e <- RunCoxRegression_Omnibus(df, t0, t1, event, names,
+  term_n = term_n,
+  tform = tform, keep_constant = keep_constant,
+  a_n = a_n, modelform = modelform, fir = fir,
+  control = control, model_control = model_control
+)
+print("|------------------- Wald Estimate -------------------|")
+print(ci_1)
+Interpret_Output(e, 5)
+
+a_n <- c(1.138152, 1.988403)
+model_control <- list(
+  "basic" = FALSE, "maxstep" = 100,
+  "log_bound" = TRUE, "alpha" = 0.05,
+  "para_number" = 1, "manual" = TRUE
+)
+e <- RunCoxRegression_Omnibus(df, t0, t1, event, names,
+  term_n = term_n,
+  tform = tform, keep_constant = keep_constant,
+  a_n = a_n, modelform = modelform, fir = fir,
+  control = control, model_control = model_control
+)
+print("|------------------- Wald Estimate -------------------|")
+print(ci_2)
+Interpret_Output(e, 5)
+```
