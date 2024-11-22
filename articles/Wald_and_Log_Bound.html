@@ -81,7 +81,8 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="available-methods">Available Methods<a class="anchor" aria-label="anchor" href="#available-methods"></a>
 </h2>
@@ -161,6 +162,220 @@ bounds. Linear models may be defined only above a parameter threshold.
 If the optimum value at that parameter threshold is above the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
 threshold value, then the interval would not have a lower bound.</p>
+</div>
+<div class="section level3">
+<h3 id="example-and-comparison">Example and Comparison<a class="anchor" aria-label="anchor" href="#example-and-comparison"></a>
+</h3>
+<p>For the sake of comparison, we will consider an analysis of the
+capacitor data available in the survival package. Consider the two
+regressions, one fully exponential and one with a linear effect. Both
+regressions converge with nearly identical scores.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">reliability</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">capacitor</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">voltage</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">voltage</span> <span class="op">-</span> <span class="fl">200</span><span class="op">)</span> <span class="op">/</span> <span class="fl">150</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">temperature</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">temperature</span> <span class="op">-</span> <span class="fl">170</span><span class="op">)</span> <span class="op">/</span> <span class="fl">10</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">time</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">time</span> <span class="op">-</span> <span class="fl">216</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1105</span> <span class="op">-</span> <span class="fl">216</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">t0</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
+<span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="st">"time"</span></span>
+<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"status"</span></span>
+<span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
+<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
+<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span></span>
+<span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="fl">0</span>, <span class="va">control</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e1</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;      Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;         &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: temperature  loglin           0        0.7599511          0.3964440</span></span>
+<span><span class="co">#&gt; 2:     voltage  loglin           0        1.9884051          0.6063097</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 210.77792,  AIC: 214.77792</span></span>
+<span><span class="co">#&gt; Iterations run: 9</span></span>
+<span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 1.30641e-05</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
+<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.01</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="fl">0</span>, <span class="va">control</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e2</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;      Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;         &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: temperature    plin           0         1.138152          0.8476528</span></span>
+<span><span class="co">#&gt; 2:     voltage  loglin           0         1.988403          0.6063095</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 210.77792,  AIC: 214.77792</span></span>
+<span><span class="co">#&gt; Iterations run: 9</span></span>
+<span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 2.89872e-05</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
+<p>Next suppose we were interested in the confidence intervals. Suppose
+we want 95% confidence intervals for both the Wald and likelihood-based
+boundaries and for both parameters in each model. Let us start with the
+fully exponential model. The Wald boundary is estimated using the
+central estimates and standard deviations. The Likelihood boundary is
+solved using the “log_bound” option under the model control list. The
+parameter number needs to be provided (indexed starting at zero) and an
+alpha level needs to be provided. Overall the likelihood boundary were
+all solved with scores within a narrow margin of the threshold. However
+the boundaries are not exactly the same. The boundaries for temperature
+are (-0.017, 1.537) and (-0.001, 1.560), and the boundaries for voltage
+are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off on the
+scale of less than 0.1.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
+<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
+<span><span class="va">ci_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="va">e1</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e1</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>  <span class="va">e1</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e1</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">ci_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="va">e1</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e1</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  <span class="va">e1</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e1</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7599511</span>, <span class="fl">1.9884051</span><span class="op">)</span></span>
+<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
+<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"basic"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"maxstep"</span> <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  <span class="st">"log_bound"</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="st">"alpha"</span> <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>,</span>
+<span>  term_n <span class="op">=</span> <span class="va">term_n</span>,</span>
+<span>  tform <span class="op">=</span> <span class="va">tform</span>, keep_constant <span class="op">=</span> <span class="va">keep_constant</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, modelform <span class="op">=</span> <span class="va">modelform</span>, fir <span class="op">=</span> <span class="va">fir</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, model_control <span class="op">=</span> <span class="va">model_control</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -0.01707914  1.53698136</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Likelihood Boundary Results</span></span>
+<span><span class="co">#&gt; Lower limit found at -0.0099 at a score of -107.30968 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; Upper limit found at 1.55991 at a score of -107.30968 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7599511</span>, <span class="fl">1.9884051</span><span class="op">)</span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"basic"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"maxstep"</span> <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  <span class="st">"log_bound"</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="st">"alpha"</span> <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>,</span>
+<span>  term_n <span class="op">=</span> <span class="va">term_n</span>,</span>
+<span>  tform <span class="op">=</span> <span class="va">tform</span>, keep_constant <span class="op">=</span> <span class="va">keep_constant</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, modelform <span class="op">=</span> <span class="va">modelform</span>, fir <span class="op">=</span> <span class="va">fir</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, model_control <span class="op">=</span> <span class="va">model_control</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.800038 3.176772</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Likelihood Boundary Results</span></span>
+<span><span class="co">#&gt; Lower limit found at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; Upper limit found at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
+<p>Next we analyze a model with a linear effect. We would expect the
+predictions to be further off. The boundaries for temperature are
+(-0.522, 2.800) and (-0.010, 3.758), and the boundaries for voltage are
+(0.800, 3.177) and (0.841, 3.242). The estimates for voltage boundary
+are the same, but the estimates for the temperature boundary are much
+further off.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
+<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
+<span><span class="va">ci_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="va">e2</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e2</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>  <span class="va">e2</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e2</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">ci_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="va">e2</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e2</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  <span class="va">e2</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e2</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
+<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
+<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"basic"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"maxstep"</span> <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  <span class="st">"log_bound"</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="st">"alpha"</span> <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>,</span>
+<span>  term_n <span class="op">=</span> <span class="va">term_n</span>,</span>
+<span>  tform <span class="op">=</span> <span class="va">tform</span>, keep_constant <span class="op">=</span> <span class="va">keep_constant</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, modelform <span class="op">=</span> <span class="va">modelform</span>, fir <span class="op">=</span> <span class="va">fir</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, model_control <span class="op">=</span> <span class="va">model_control</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -0.5232476  2.7995516</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Likelihood Boundary Results</span></span>
+<span><span class="co">#&gt; Lower limit found at -0.00984 at a score of -107.30967 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; Upper limit found at 3.75837 at a score of -107.30968 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"basic"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"maxstep"</span> <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  <span class="st">"log_bound"</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="st">"alpha"</span> <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>,</span>
+<span>  term_n <span class="op">=</span> <span class="va">term_n</span>,</span>
+<span>  tform <span class="op">=</span> <span class="va">tform</span>, keep_constant <span class="op">=</span> <span class="va">keep_constant</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, modelform <span class="op">=</span> <span class="va">modelform</span>, fir <span class="op">=</span> <span class="va">fir</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, model_control <span class="op">=</span> <span class="va">model_control</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.8000367 3.1767700</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Likelihood Boundary Results</span></span>
+<span><span class="co">#&gt; Lower limit found at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; Upper limit found at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
