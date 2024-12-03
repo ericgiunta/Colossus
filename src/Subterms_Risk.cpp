@@ -1419,6 +1419,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     Rd = (Rd.array().isFinite()).select(Rd, 0);
     Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
     //
+    RdR = MatrixXd::Zero(RdR.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(RddR.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+    //
     for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {  // calculates ratios
         int ij = 0;
         int jk = ijk;
@@ -1773,10 +1776,11 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
     //
     Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
     //
-    for (int ij = 0; ij < totalnum; ij++) {  // calculates ratios
-        int df0_ij = dfc[ij] - 1;
+    for (int ij = 0; ij < totalnum; ij++) {
+        int df0_c = dfc[ij] - 1;
         if (KeepConstant[ij] == 0) {
-            RdR.col(ij) = df0.col(df0_ij).array();
+            int ijk = ij - sum(head(KeepConstant, ij));
+            RdR.col(ijk) = df0.col(df0_c).array();
         }
     }
     return;

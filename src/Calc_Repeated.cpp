@@ -1401,9 +1401,9 @@ void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vecto
             Ldm.col(3) = Ldm.col(3).array() + Rs3;
             // Calculates the left-hand side terms
             //
-            double Ld1;
-            double Ld2;
-            double Ld3;
+            double Ld1 = 0.0;
+            double Ld2 = 0.0;
+            double Ld3 = 0.0;
             //
             MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
             MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
@@ -1412,10 +1412,10 @@ void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vecto
                 Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
             }
             temp1 = Ld.col(1).array();
-            temp2 = Ld.col(2).array();
             if (ij == jk) {
                 Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
             }
+            temp2 = Ld.col(2).array();
             temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
             Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
             // calculates the right-hand side terms
@@ -1436,6 +1436,7 @@ void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vecto
                 Lld[ij] += Ld2 - Rs2;
             }
             Lldd[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
+//            Rcout << ijk << " " << RiskFail(j, 0) << " " << dj << " " << j << " " << " " << Ld2 << " " << Ld3 << endl;
         }
     }
     double LogLik = 0;
@@ -1576,8 +1577,8 @@ void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const
             Ldm.col(3) = Ldm.col(3).array() + Rs3;
             // Calculates the left-hand side terms
             //
-            double Ld1;
-            double Ld2;
+            double Ld1 = 0.0;
+            double Ld2 = 0.0;
             //
             MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
             MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
@@ -1605,6 +1606,7 @@ void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const
                 Lld[ij] += Ld2 - Rs2;
             }
             Lldd[ij*reqrdnum+jk] += 0 - Rs3;  // sums the log-likelihood and derivatives
+//            Rcout << ijk << " " << RiskFail(j, 0) << " " << dj << " " << j << " " << " " << Ld2 << " " << 0 << endl;
         }
     }
     double LogLik = 0;

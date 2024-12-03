@@ -170,18 +170,18 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         // Prints off a series of calculations to check at what point values are changing
         // ---------------------------------------------------------
         //
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: values checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << beta_0[ijk] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: sums checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << T0.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
+//        if (verbose >= 4) {
+//            Rcout << "C++ Note: values checked ";
+//            for (int ijk = 0; ijk < totalnum; ijk++) {
+//                Rcout << beta_0[ijk] << " ";
+//            }
+//            Rcout << " " << endl;
+//            Rcout << "C++ Note: sums checked ";
+//            for (int ijk = 0; ijk < totalnum; ijk++) {
+//                Rcout << T0.col(ijk).sum() << " ";
+//            }
+//            Rcout << " " << endl;
+//        }
         //
         // Calculates the risk for each row
         Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc, KeepConstant);
@@ -189,35 +189,45 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         // Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         //
-        //
-//        if (R.minCoeff() <= 0) {
-//            if (verbose >= 4) {
-//                Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-//            }
-//        } else if (verbose >= 4) {
-//            Rcout << "C++ Note: risk checked ";
-//            for (int ijk = 0; ijk < 1; ijk++) {
-//                Rcout << R.col(0).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: risk1 checked ";
-//            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                Rcout << Rd.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: risk2 checked ";
-//            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            //
-//            Rcout << "C++ Note: ALL risk2 checked ";
-//            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//                Rcout << Rdd.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            //
+//        Rcout << "C++ Note: values checked ";
+//        for (int ijk = 0; ijk < totalnum; ijk++) {
+//            Rcout << beta_0[ijk] << " ";
 //        }
+//        Rcout << " " << endl;
+//        Rcout << "C++ Note: RdR checked ";
+//        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//            Rcout << RdR.col(ijk).sum() << " ";
+//        }
+//        Rcout << " " << endl;
+        //
+        if (R.minCoeff() <= 0) {
+            if (verbose >= 4) {
+                Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+            }
+        } else if (verbose >= 4) {
+            Rcout << "C++ Note: risk checked ";
+            for (int ijk = 0; ijk < 1; ijk++) {
+                Rcout << R.col(0).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: risk1 checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << Rd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: risk2 checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            //
+            Rcout << "C++ Note: ALL risk2 checked ";
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                Rcout << Rdd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            //
+        }
     } else if (model_bool["linear_err"]) {
         Make_subterms_Linear_ERR(totalnum, tform, dfc, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
         //
@@ -460,36 +470,59 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         // Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
-        //
-        //
-//        if (R.minCoeff() <= 0) {
-//            if (verbose >= 4) {
-//                Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-//            }
-//        } else if (verbose >= 4) {
-//            Rcout << "C++ Note: risk checked ";
-//            for (int ijk = 0; ijk < 1; ijk++) {
-//                Rcout << R.col(0).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: risk1 checked ";
-//            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                Rcout << Rd.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: risk2 checked ";
-//            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            //
-//            Rcout << "C++ Note: ALL risk2 checked ";
-//            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//                Rcout << Rdd.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-            //
+        // 3,764,306
+//        int start_point = 800000;
+//        Rcout << start_point;
+//        int skip = 10000;
+//        for (int ijk=start_point; ijk+skip < 1000000; ijk = ijk + skip) {
+//            Rcout << " " << RdR.block(ijk, 1, skip, 1).sum();
 //        }
+//        Rcout << " " << endl;
+        //
+//        Rcout << "C++ Note: values checked ";
+//        for (int ijk = 0; ijk < totalnum; ijk++) {
+//            Rcout << beta_0[ijk] << " ";
+//        }
+//        Rcout << " " << endl;
+//        Rcout << "C++ Note: RdR checked ";
+//        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//            Rcout << RdR.col(ijk).sum() << " ";
+//        }
+//        Rcout << " " << endl;
+//        Rcout << "C++ Note: RddR checked ";
+//        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+//            Rcout << RddR.col(ijk).sum() << " ";
+//        }
+//        Rcout << " " << endl;
+        //
+        if (R.minCoeff() <= 0) {
+            if (verbose >= 4) {
+                Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+            }
+        } else if (verbose >= 4) {
+            Rcout << "C++ Note: risk checked ";
+            for (int ijk = 0; ijk < 1; ijk++) {
+                Rcout << R.col(0).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: risk1 checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << Rd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: risk2 checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            //
+            Rcout << "C++ Note: ALL risk2 checked ";
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                Rcout << Rdd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            //
+        }
     }
     return;
 }
@@ -552,77 +585,77 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
 //    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "C++ Note: sides " << (ending-comp) * 1e-6  <<endl;
     //
-    // if (model_bool["strata"]) {
-    //     if (verbose >= 4) {
-    //         Rcout << "C++ Note: riskr checked ";
-    //         for (int ijk = 0; ijk < Strata_vals.size(); ijk++) {
-    //             Rcout << Rls1.col(ijk).sum() << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //         //
-    //         Rcout << "C++ Note: riskl checked ";
-    //         for (int ijk = 0; ijk < Strata_vals.size(); ijk++) {
-    //             Rcout << Lls1.col(ijk).sum() << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //     }
-    // } else {
-    //     if (verbose >= 4) {
-    //         Rcout << "C++ Note: riskr checked ";
-    //         for (int ijk = 0; ijk < 1; ijk++) {
-    //             Rcout << Rls1.col(0).sum() << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //         if (!model_bool["single"]) {
-    //             Rcout << "C++ Note: risk1r checked ";
-    //             for (int ijk = 0; ijk < reqrdnum; ijk++) {
-    //                 Rcout << Rls2.col(ijk).sum() << " ";
-    //             }
-    //             Rcout << " " << endl;
-    //             if (!model_bool["gradient"]){
-    //                 Rcout << "C++ Note: risk2r checked ";
-    //                 for (int ijk = 0; ijk < reqrdnum; ijk++) {
-    //                     Rcout << Rls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-    //                 }
-    //                 Rcout << " " << endl;
-    //                 //
-    //                 Rcout << "C++ Note: ALL risk2r checked ";
-    //                 for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-    //                     Rcout << Rls3.col(ijk).sum() << " ";
-    //                 }
-    //                 Rcout << " " << endl;
-    //             }
-    //             //
-    //         }
-    //         //
-    //         Rcout << "C++ Note: riskl checked ";
-    //         for (int ijk = 0; ijk < 1; ijk++) {
-    //             Rcout << Lls1.col(0).sum() << " ";
-    //         }
-    //         Rcout << " " << endl;
-    //         if (!model_bool["single"]) {
-    //             Rcout << "C++ Note: risk1l checked ";
-    //             for (int ijk = 0; ijk < reqrdnum; ijk++) {
-    //                 Rcout << Lls2.col(ijk).sum() << " ";
-    //             }
-    //             Rcout << " " << endl;
-    //             if (!model_bool["gradient"]){
-    //                 Rcout << "C++ Note: risk2l checked ";
-    //                 for (int ijk = 0; ijk < reqrdnum; ijk++) {
-    //                     Rcout << Lls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-    //                 }
-    //                 Rcout << " " << endl;
-    //                 //
-    //                 Rcout << "C++ Note: ALL risk2l checked ";
-    //                 for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-    //                     Rcout << Lls3.col(ijk).sum() << " ";
-    //                 }
-    //                 Rcout << " " << endl;
-    //             }
-    //             //
-    //         }
-    //     }
-    // }
+//    if (model_bool["strata"]) {
+//        if (verbose >= 4) {
+//            Rcout << "C++ Note: riskr checked ";
+//            for (int ijk = 0; ijk < Strata_vals.size(); ijk++) {
+//                Rcout << Rls1.col(ijk).sum() << " ";
+//            }
+//            Rcout << " " << endl;
+//            //
+//            Rcout << "C++ Note: riskl checked ";
+//            for (int ijk = 0; ijk < Strata_vals.size(); ijk++) {
+//                Rcout << Lls1.col(ijk).sum() << " ";
+//            }
+//            Rcout << " " << endl;
+//        }
+//    } else {
+//        if (verbose >= 4) {
+//            Rcout << "C++ Note: riskr checked ";
+//            for (int ijk = 0; ijk < 1; ijk++) {
+//                Rcout << Rls1.col(0).sum() << " ";
+//            }
+//            Rcout << " " << endl;
+//            if (!model_bool["single"]) {
+//                Rcout << "C++ Note: risk1r checked ";
+//                for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//                    Rcout << Rls2.col(ijk).sum() << " ";
+//                }
+//                Rcout << " " << endl;
+//                if (!model_bool["gradient"]){
+//                    Rcout << "C++ Note: risk2r checked ";
+//                    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//                        Rcout << Rls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    //
+//                    Rcout << "C++ Note: ALL risk2r checked ";
+//                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+//                        Rcout << Rls3.col(ijk).sum() << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                }
+//                //
+//            }
+//            //
+//            Rcout << "C++ Note: riskl checked ";
+//            for (int ijk = 0; ijk < 1; ijk++) {
+//                Rcout << Lls1.col(0).sum() << " ";
+//            }
+//            Rcout << " " << endl;
+//            if (!model_bool["single"]) {
+//                Rcout << "C++ Note: risk1l checked ";
+//                for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//                    Rcout << Lls2.col(ijk).sum() << " ";
+//                }
+//                Rcout << " " << endl;
+//                if (!model_bool["gradient"]){
+//                    Rcout << "C++ Note: risk2l checked ";
+//                    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//                        Rcout << Lls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                    //
+//                    Rcout << "C++ Note: ALL risk2l checked ";
+//                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+//                        Rcout << Lls3.col(ijk).sum() << " ";
+//                    }
+//                    Rcout << " " << endl;
+//                }
+//                //
+//            }
+//        }
+//    }
     // Calculates log-likelihood
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
@@ -677,30 +710,35 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
         //     Rcout << " " << endl;
         // }
     } else {
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
-        //     for (int ij = 0; ij < reqrdnum; ij++) {
-        //         Rcout << Ll[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: df102 ";  // prints the first derivatives
-        //     for (int ij = 0; ij < reqrdnum; ij++) {
-        //         Rcout << Lld[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     if (!model_bool["gradient"]){
-        //         Rcout << "C++ Note: df103 ";  // prints the second derivatives
-        //         for (int ij = 0; ij < reqrdnum; ij++) {
-        //             Rcout << Lldd[ij*reqrdnum+ij] << " ";
-        //         }
-        //         Rcout << " " << endl;
-        //     }
-        //     Rcout << "C++ Note: df104 ";  // prints parameter values
-        //     for (int ij = 0; ij < totalnum; ij++) {
-        //         Rcout << beta_0[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
+        if (verbose >= 4) {
+            Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
+            for (int ij = 0; ij < reqrdnum; ij++) {
+                Rcout << Ll[ij] << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: df102 ";  // prints the first derivatives
+            for (int ij = 0; ij < reqrdnum; ij++) {
+                Rcout << Lld[ij] << " ";
+            }
+            Rcout << " " << endl;
+            if (!model_bool["gradient"]){
+               Rcout << "C++ Note: df103 ";  // prints the second derivatives
+               for (int ij = 0; ij < reqrdnum; ij++) {
+                   Rcout << Lldd[ij*reqrdnum+ij] << " ";
+               }
+               Rcout << " " << endl;
+               Rcout << "C++ Note: ALL df103 ";  // prints the second derivatives
+               for (int ijk = 0; ijk < reqrdnum*reqrdnum; ijk++) {
+                   Rcout << Lldd[ijk] << " ";
+               }
+                Rcout << " " << endl;
+            }
+            Rcout << "C++ Note: df104 ";  // prints parameter values
+            for (int ij = 0; ij < totalnum; ij++) {
+                Rcout << beta_0[ij] << " ";
+            }
+            Rcout << " " << endl;
+        }
     }
 //    if (verbose >= 4){
 //        Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
