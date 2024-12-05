@@ -186,6 +186,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         // Calculates the risk for each row
         Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc, KeepConstant);
         //
+//        Rcout << R.block(3300900, 0, 1, 1 ) << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rdd.block(3300900, 35, 1, 1 ).sum() << endl;
         // Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         //
@@ -213,6 +214,11 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
             Rcout << "C++ Note: risk1 checked ";
             for (int ijk = 0; ijk < reqrdnum; ijk++) {
                 Rcout << Rd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: rdr checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << RdR.col(ijk).sum() << " ";
             }
             Rcout << " " << endl;
             Rcout << "C++ Note: risk2 checked ";
@@ -470,6 +476,8 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         // Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
+//        Rcout << R.block(3300900, 0, 1, 1 ) << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rdd.block(3300900, 35, 1, 1 ).sum() << endl;
+//        Rcout << RdR.block(3300900, 7, 1, 1 ).sum() << " " << RdR.block(3300900, 7, 1, 1 ).sum() << " " << RddR.block(3300900, 35, 1, 1 ).sum() << " " << R.block(3300900, 0, 1, 1 ) << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rdd.block(3300900, 35, 1, 1 ).sum() << endl;
         // 3,764,306
 //        int start_point = 800000;
 //        Rcout << start_point;
@@ -508,6 +516,11 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
             Rcout << "C++ Note: risk1 checked ";
             for (int ijk = 0; ijk < reqrdnum; ijk++) {
                 Rcout << Rd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: rdr checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << RdR.col(ijk).sum() << " ";
             }
             Rcout << " " << endl;
             Rcout << "C++ Note: risk2 checked ";

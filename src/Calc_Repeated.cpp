@@ -1434,9 +1434,15 @@ void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vecto
             if (ij == jk) {
                 Ll[ij] += Ld1 - Rs1;
                 Lld[ij] += Ld2 - Rs2;
+//                if (ij == 7) {
+//                    Rcout << j << " " << Ld1 << " " << Ld2 << " " << Ld3 << endl;
+//                }
             }
             Lldd[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
-//            Rcout << ijk << " " << RiskFail(j, 0) << " " << dj << " " << j << " " << " " << Ld2 << " " << Ld3 << endl;
+//            if (abs(Ld3) > 0.1){
+//                Rcout << ijk << " " << RiskFail(j, 0) << " " << dj << " " << j << " " << ij << " " << jk << " " << Ld2 << " " << Ld3 << endl;
+//                Rcout << ijk << " " << RiskFail(j, 0) << " " << j << " " << ij << " " << jk << " " << Ld.block(0,1,1,1).sum() << " " << Ld.block(0,2,1,1).sum() << " " << Ld.block(0,3,1,1).sum() << endl;
+//            }
         }
     }
     double LogLik = 0;
@@ -1604,6 +1610,9 @@ void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const
             if (ij == jk) {
                 Ll[ij] += Ld1 - Rs1;
                 Lld[ij] += Ld2 - Rs2;
+//                if (ij == 7) {
+//                    Rcout << j << " " << Ld1 << " " << Ld2 << " " << 0.0 << endl;
+//                }
             }
             Lldd[ij*reqrdnum+jk] += 0 - Rs3;  // sums the log-likelihood and derivatives
 //            Rcout << ijk << " " << RiskFail(j, 0) << " " << dj << " " << j << " " << " " << Ld2 << " " << 0 << endl;

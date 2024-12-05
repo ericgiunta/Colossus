@@ -1415,6 +1415,9 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         throw invalid_argument("Model isn't implemented");
     }
     //
+//    Rd = (Rd.array().abs()<1e-32).select(0.,Rd);
+//    Rdd = (Rdd.array().abs()<1e-32).select(0.,Rdd);
+    //
     R =  (R.array().isFinite()).select(R,  - 1);
     Rd = (Rd.array().isFinite()).select(Rd, 0);
     Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
@@ -1764,6 +1767,7 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
             jk -= ij;
         }
         int df0_c = dfc[ij] - 1;
+        int df1_c = dfc[jk] - 1;
         if (KeepConstant[ij]+KeepConstant[jk] == 0) {
             //
             ij = ij - sum(head(KeepConstant, ij));
@@ -1773,6 +1777,9 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
             Rdd.col(p_ijk) = Rd.col(jk).array() * df0.col(df0_c).array();
         }
     }
+    //
+//    Rd = (Rd.array().abs()<1e-32).select(0.,Rd);
+//    Rdd = (Rdd.array().abs()<1e-32).select(0.,Rdd);
     //
     Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
     //
@@ -1841,6 +1848,9 @@ void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, 
             }
         }
     }
+    //
+//    Rd = (Rd.array().abs()<1e-32).select(0.,Rd);
+//    Rdd = (Rdd.array().abs()<1e-32).select(0.,Rdd);
     //
     R =  (R.array().isFinite()).select(R,  - 1);
     Rd = (Rd.array().isFinite()).select(Rd, 0);
