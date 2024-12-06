@@ -936,34 +936,39 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         RddR = (RddR.array().isFinite()).select(RddR, 0);
         //
         //
-        // if (R.minCoeff() <= 0) {
-        //     if (verbose >= 4) {
-        //         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //     }
-        // } else if (verbose >= 4) {
-        //     Rcout << "C++ Note: risk checked ";
-        //     for (int ijk = 0; ijk < 1; ijk++) {
-        //         Rcout << R.col(0).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk1 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        //     Rcout << "C++ Note: ALL risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        //         Rcout << Rdd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        // }
+        if (R.minCoeff() <= 0) {
+            if (verbose >= 4) {
+                Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+            }
+        } else if (verbose >= 4) {
+            Rcout << "C++ Note: risk checked ";
+            for (int ijk = 0; ijk < 1; ijk++) {
+                Rcout << R.col(0).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: risk1 checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << Rd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: rdr checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << RdR.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            Rcout << "C++ Note: risk2 checked ";
+            for (int ijk = 0; ijk < reqrdnum; ijk++) {
+                Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            //
+            Rcout << "C++ Note: ALL risk2 checked ";
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+               Rcout << Rdd.col(ijk).sum() << " ";
+            }
+            Rcout << " " << endl;
+            //
+        }
     }
     return;
 }
