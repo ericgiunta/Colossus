@@ -33,7 +33,7 @@ jobs:
           Rscript -e "devtools::install()"
       - name: Run the test
         run: |
-           Rscript tests/Large_Test.R
+           Rscript demo/Large_Test.R
   win_check:
     runs-on: windows-latest
 
@@ -52,7 +52,7 @@ jobs:
           Rscript -e "devtools::install()"
       - name: Run the test
         run: |
-           Rscript tests/Large_Test.R
+           Rscript excess_test/Large_Test.R
   ubuntu_check:
     runs-on: ubuntu-latest
     steps:
@@ -73,4 +73,4 @@ jobs:
           Rscript -e "devtools::install()"
       - name: Run the test
         run: |
-           Rscript tests/Large_Test.R
+           Rscript excess_test/Large_Test.R
