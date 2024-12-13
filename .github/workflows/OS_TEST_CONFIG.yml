@@ -21,6 +21,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
+        with:
+          Ncpus: 2
+          remove-openmp-macos: false
       - name: move to package and install
         run: |
           ls
@@ -50,6 +53,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
+        with:
+          Ncpus: 2
       - name: install libraries
         run: |
           sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
