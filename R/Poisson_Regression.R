@@ -136,31 +136,14 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   }
   if (model_control$log_bound) {
     if ("maxiters" %in% names(control)) {
-      if ("guesses" %in% names(control)) {
-        # both are in
-        if (control$guesses + 1 == length(control$maxiters)) {
-          # all good, it matches
-        } else if (length(control$maxiters) == 2) {
-          iter0 <- control$maxiters[1]
-          iter1 <- control$maxiters[2]
-          applied_iter <- c(rep(iter0, control$guesses), iter1)
-          control$maxiters <- applied_iter
-        } else {
-          stop(paste("Error: guesses:", control["guesses"],
-            ", iterations per guess:", control["maxiters"],
-            sep = " "
-          ))
-        }
-      } else {
-        control$guesses <- length(control$maxiters) - 1
-      }
+      # good
     } else {
-      if ("guesses" %in% names(control)) {
-        control$maxiters <- rep(1, control$guesses + 1)
-      } else {
-        control$guesses <- 1
-        control$maxiters <- c(control$maxiter)
-      }
+      control$maxiters <- c(control$maxiter)
+    }
+    if ("guesses" %in% names(control)) {
+      # good
+    } else {
+      control$guesses <- 10
     }
     e <- pois_Omnibus_Bounds_transition(
       as.matrix(df[, ce, with = FALSE]),
@@ -234,6 +217,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       model_control, cons_mat, cons_vec
     )
     e$Parameter_Lists$names <- names
+    e$Parameter_Lists$modelformula <- modelform
     if (is.nan(e$LogLik)) {
       stop(e$Status)
     }

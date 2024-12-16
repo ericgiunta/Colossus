@@ -194,31 +194,14 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
   }
   if (model_control$log_bound) {
     if ("maxiters" %in% names(control)) {
-      if ("guesses" %in% names(control)) {
-        # both are in
-        if (control$guesses + 1 == length(control$maxiters)) {
-          # all good, it matches
-        } else if (length(control$maxiters) == 2) {
-          iter0 <- control$maxiters[1]
-          iter1 <- control$maxiters[2]
-          applied_iter <- c(rep(iter0, control$guesses), iter1)
-          control$maxiters <- applied_iter
-        } else {
-          stop(paste("Error: guesses:", control["guesses"],
-            ", iterations per guess:", control["maxiters"],
-            sep = " "
-          ))
-        }
-      } else {
-        control$guesses <- length(control$maxiters) - 1
-      }
+      # good
     } else {
-      if ("guesses" %in% names(control)) {
-        control$maxiters <- rep(1, control$guesses + 1)
-      } else {
-        control$guesses <- 1
-        control$maxiters <- c(control$maxiter)
-      }
+      control$maxiters <- c(control$maxiter)
+    }
+    if ("guesses" %in% names(control)) {
+      # good
+    } else {
+      control$guesses <- 10
     }
     e <- cox_ph_Omnibus_Bounds_transition(
       term_n, tform, a_ns,
@@ -302,6 +285,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       }
     }
     e$Parameter_Lists$names <- names
+    e$Parameter_Lists$modelformula <- modelform
   }
   return(e)
 }
@@ -1472,5 +1456,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
     }
   }
   e$Parameter_Lists$names <- names
+  e$Parameter_Lists$modelformula <- modelform
   return(e)
 }

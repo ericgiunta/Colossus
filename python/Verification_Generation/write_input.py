@@ -86,7 +86,6 @@ bash_temp0='''#!/bin/bash -l
 ## Number of parallel operations taking place at the same time on the same node (number of cores utilized per node)
 #SBATCH --ntasks-per-node=32
 #SBATCH --gres=killable:1
-#SBATCH --partition=ksu-mne-bahadori.q
 
 module load R/4.2.1-foss-2022a
 source ~/virtualenvs/ret_virtual/bin/activate
@@ -112,7 +111,6 @@ bash_temp1='''#!/bin/bash -l
 ## Number of parallel operations taking place at the same time on the same node (number of cores utilized per node)
 #SBATCH --ntasks-per-node=32
 #SBATCH --gres=killable:1
-#SBATCH --partition=ksu-mne-bahadori.q
 
 module load R/4.2.1-foss-2022a
 source ~/virtualenvs/ret_virtual/bin/activate

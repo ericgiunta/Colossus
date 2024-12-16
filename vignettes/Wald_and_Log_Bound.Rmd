@@ -149,7 +149,7 @@ e <- RunCoxRegression_Omnibus(df, t0, t1, event, names,
   a_n = a_n, modelform = modelform, fir = fir,
   control = control, model_control = model_control
 )
-print("|------------------- Wald Estimate -------------------|")
+print("|------------------- Likelihood Bound Estimate -------------------|")
 print(ci_2)
 Interpret_Output(e, 5)
 ```

@@ -2774,18 +2774,27 @@ Interpret_Output <- function(out_list, digits = 2) {
       # likelihood boundary output
       limits <- out_list$Parameter_Limits
       neg <- out_list$Negative_Limit_Found
+      conv <- out_list$Limit_Converged
       lik_bound <- out_list$Likelihood_Boundary
       lik_goal <- out_list$Likelihood_Goal
       message("Likelihood Boundary Results")
       if (neg[1]) {
         message("Lower limit was not found")
       } else {
-        message(paste("Lower limit found at ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+        if (conv[1]) {
+          message(paste("Lower limit converged to at ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+        } else {
+          message(paste("Lower limit reached ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+        }
       }
       if (neg[2]) {
         message("Upper limit was not found")
       } else {
-        message(paste("Upper limit found at ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+        if (conv[2]) {
+          message(paste("Upper limit converged to at ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+        } else {
+          message(paste("Upper limit reached ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+        }
       }
     } else {
       # get the model details

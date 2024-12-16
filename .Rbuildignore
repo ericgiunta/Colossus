@@ -10,3 +10,6 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^excess_test$
+^python$
+^codecov\.yml$

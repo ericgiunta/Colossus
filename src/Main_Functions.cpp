@@ -1907,6 +1907,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     //
     vector<double> limits(2, 0.0);
     vector<bool>   limit_hit(2, FALSE);
+    vector<bool>   limit_converged(2, FALSE);
     vector<double> ll_final(2, 0.0);
     List res_list;
     // if (verbose >= 4) {
@@ -1968,13 +1969,18 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for upper limit, the step is always positive
-                    dbeta[ij] = abs(dbeta[ij]);
+                    dbeta[ij] = -0.5*dbeta[ij]; // takes a smaller step in the opposite direction
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for upper limit, the step is positive when the first derivative is negative, and negative when the first derivative is positive
+                        // if (Lld[para_number] < 0){
+                        dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        //     dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -1995,6 +2001,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         if (limit_hit[1]) {
             limits[1] = 0;
             ll_final[1] = 0;
+            limit_converged[1] = FALSE;
             break;
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -2045,6 +2052,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         // }
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[1] = TRUE;
         }
         // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
     }
@@ -2139,12 +2147,17 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always negative
-                    dbeta[ij] = - 1*abs(dbeta[ij]);
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for lower limit, the step is negative if the first derivative is positive
+                        // if (Lld[para_number] < 0){
+                        //     dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -2164,6 +2177,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         if (limit_hit[0]) {
             limits[0] = 0;
             ll_final[0] = 0;
+            limit_converged[0] = FALSE;
             break;
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -2214,11 +2228,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         // }
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[0] = TRUE;
         }
         // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
     }
     //
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Status"] = "PASSED");
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }
@@ -2496,6 +2511,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     //
     vector<double> limits(2, 0.0);
     vector<bool>   limit_hit(2, FALSE);
+    vector<bool>   limit_converged(2, FALSE);
     vector<double> ll_final(2, 0.0);
     List res_list;
     if (verbose >= 4) {
@@ -2727,7 +2743,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             best_guess = guess;
         }
     }
-    if (verbose >= 4) {
+    if (verbose >= 3) {
         Rcout << "C++ Note: Upper Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -2854,12 +2870,17 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for upper limit, the step is always positive
-                    dbeta[ij] = abs(dbeta[ij]);
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for upper limit, the step is positive if the first derivative is negative
+                        // if (Lld[para_number] < 0){
+                        dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        //     dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -2879,6 +2900,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
          if (limit_hit[1]) {
              limits[1] = 0;
              ll_final[1] = 0;
+             limit_converged[1] = FALSE;
              break;
          }
          Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -2924,6 +2946,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
          ll_final[1] = Ll[0];
          if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[1] = TRUE;
          }
      }
     // Now refresh matrices back to the maximum point
@@ -3183,7 +3206,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             best_guess = guess;
         }
     }
-    if (verbose >= 4) {
+    if (verbose >= 3) {
         Rcout << "C++ Note: Lower Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -3298,12 +3321,17 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always negative
-                    dbeta[ij] = - 1*abs(dbeta[ij]);
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for lower limit, the step is negative if the first derivative is positive
+                        // if (Lld[para_number] < 0){
+                        //     dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -3322,6 +3350,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
          if (limit_hit[0]) {
              limits[0] = 0;
              ll_final[0] = 0;
+             limit_converged[0] = FALSE;
              break;
          }
          Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -3367,10 +3396,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
          ll_final[0] = Ll[0];
          if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[0] = TRUE;
         }
      }
     //
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Status"] = "PASSED");
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }
@@ -3607,6 +3637,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     //
     vector<double> limits(2, 0.0);
     vector<bool>   limit_hit(2, FALSE);
+    vector<bool>   limit_converged(2, FALSE);
     vector<double> ll_final(2, 0.0);
     List res_list;
     // if (verbose >= 4) {
@@ -3667,12 +3698,17 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for upper limit, the step is always positive
-                    dbeta[ij] = abs(dbeta[ij]);
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for upper limit, the step is positive if the first derivative is negative
+                        // if (Lld[para_number] < 0){
+                        dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        //     dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -3693,6 +3729,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         if (limit_hit[1]) {
             limits[1] = 0;
             ll_final[1] = 0;
+            limit_converged[1] = FALSE;
             break;
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -3743,6 +3780,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         // }
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[1] = TRUE;
         }
         // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
     }
@@ -3832,12 +3870,17 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always negative
-                    dbeta[ij] = - 1*abs(dbeta[ij]);
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for lower limit, the step is negative if the first derivative is positive
+                        // if (Lld[para_number] < 0){
+                        //     dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -3857,6 +3900,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         if (limit_hit[0]) {
             limits[0] = 0;
             ll_final[0] = 0;
+            limit_converged[0] = FALSE;
             break;
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -3907,11 +3951,12 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         // }
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[0] = TRUE;
         }
         // Rcout << "df505 " << beta_0[para_number] << " " << max_change << " " << deriv_max << endl;
     }
     //
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Status"] = "PASSED");
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }
@@ -4164,6 +4209,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     //
     vector<double> limits(2, 0.0);
     vector<bool>   limit_hit(2, FALSE);
+    vector<bool>   limit_converged(2, FALSE);
     vector<double> ll_final(2, 0.0);
     List res_list;
     // if (verbose >= 4) {
@@ -4396,7 +4442,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             best_guess = guess;
         }
     }
-    if (verbose >= 4) {
+    if (verbose >= 3) {
         Rcout << "C++ Note: Upper Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -4514,12 +4560,17 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for upper limit, the step is always positive
-                    dbeta[ij] = abs(dbeta[ij]);
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for upper limit, the step is positive if the first derivative is negative
+                        // if (Lld[para_number] < 0){
+                        dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        //     dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -4539,6 +4590,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          if (limit_hit[1]) {
              limits[1] = 0;
              ll_final[1] = 0;
+             limit_converged[1] = FALSE;
              break;
          }
          Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -4584,6 +4636,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          ll_final[1] = Ll[0];
          if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[1] = TRUE;
          }
      }
     // Now refresh matrices back to the maximum point
@@ -4829,7 +4882,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             best_guess = guess;
         }
     }
-    if (verbose >= 4) {
+    if (verbose >= 3) {
         Rcout << "C++ Note: Lower Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -4941,12 +4994,17 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
-                }
-                // second issue is making sure that the step is forced away from the optimum when possible
-                if (Ll[0] > Lstar) {
-                    // If the log-likelihood is above the goal, then it must move away from the optimum point
-                    // for lower limit, the step is always negative
-                    dbeta[ij] = - 1*abs(dbeta[ij]);
+                } else {
+                    // second issue is making sure that the step is forced away from the optimum when possible
+                    if (Ll[0] > Lstar) {
+                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+                        // for lower limit, the step is negative if the first derivative is positive
+                        // if (Lld[para_number] < 0){
+                        //     dbeta[ij] = abs(dbeta[ij]);
+                        // } else {
+                        dbeta[ij] = -1*abs(dbeta[ij]);
+                        // }
+                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -4966,6 +5024,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          if (limit_hit[0]) {
              limits[0] = 0;
              ll_final[0] = 0;
+             limit_converged[0] = FALSE;
              break;
          }
          Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -5011,10 +5070,11 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
          ll_final[0] = Ll[0];
          if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
             iter_continue = false;
+            limit_converged[0] = TRUE;
         }
      }
     //
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Status"] = "PASSED");
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }
