@@ -2589,7 +2589,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
         iter_check = 0;  // signal to check for convergence
         //
-        maxiter = maxiters[guess];
+        maxiter = maxiters[0];
         a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
@@ -3053,7 +3053,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
         iter_check = 0;  // signal to check for convergence
         //
-        maxiter = maxiters[guess];
+        maxiter = maxiters[0];
         a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
@@ -4295,7 +4295,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
         iter_check = 0;  // signal to check for convergence
         //
-        maxiter = maxiters[guess];
+        maxiter = maxiters[0];
         a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
@@ -4736,7 +4736,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
         iter_check = 0;  // signal to check for convergence
         //
-        maxiter = maxiters[guess];
+        maxiter = maxiters[0];
         a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
@@ -5325,7 +5325,7 @@ List LogLik_Cox_PH_Multidose_Omnibus(IntegerVector term_n, StringVector tform, N
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
         iter_check = 0;  // signal to check for convergence
         //
-        // maxiter = maxiters[guess];
+        // maxiter = maxiters[0];
         // a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = beta_best[i];

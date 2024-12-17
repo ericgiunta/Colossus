@@ -42,9 +42,10 @@ jobs:
             stop()
             }
             "
-      - name: move to package and build examples
+      - name: move to package and test
         run: |
           brew install pandoc
+          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   win_check:
     runs-on: windows-latest
@@ -70,10 +71,11 @@ jobs:
             stop()
             }
             "
-      - name: move to package and build examples
+      - name: move to package and test
         run: |
           choco install pandoc
           refreshenv
+          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   ubuntu_check:
     runs-on: ubuntu-latest
@@ -104,8 +106,9 @@ jobs:
             stop()
             }
             "
-      - name: move to package and build examples
+      - name: move to package and test
         run: |
           sudo apt-get install pandoc
           sudo apt-get install texlive
+          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
