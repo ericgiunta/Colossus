@@ -58,7 +58,7 @@ if (identical(Sys.getenv("TESTTHAT"), "true")){
 #    )
 #    fwrite(df, "excess_test.csv")
 #    stop()
-    df <- fread("excess_test.csv")
+    df <- fread("excess_test/excess_test.csv")
     df <- df[event < 2]
     print(sum(df$event))
     print(nrow(df))

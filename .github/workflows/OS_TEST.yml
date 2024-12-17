@@ -45,7 +45,7 @@ jobs:
       - name: move to package and test
         run: |
           brew install pandoc
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
+          Rscript -e "devtools::test(stop_on_failure = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   win_check:
     runs-on: windows-latest

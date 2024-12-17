@@ -1830,11 +1830,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
+    vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  // stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  // stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  // stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  // stores the best parameters
+    VectorXd::Map(&beta_peak[0], beta_0.size()) = beta_0;  // stores the best parameters
     // double halves = 0;  // number of half-steps taken
     // int ind0 = fir;  // used for validations
 //    int iteration = 0;  // iteration number
@@ -1852,9 +1854,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_best;  //
-    beta_a = beta_best;  //
-    beta_c = beta_best;  //
+    beta_p = beta_peak;  //
+    beta_a = beta_peak;  //
+    beta_c = beta_peak;  //
     abs_max = abs_max0;
     dose_abs_max = dose_abs_max0;
     //
@@ -1968,19 +1970,19 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij]; // takes a smaller step in the opposite direction
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for upper limit, the step is positive when the first derivative is negative, and negative when the first derivative is positive
-                        // if (Lld[para_number] < 0){
-                        dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        //     dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -2061,9 +2063,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     if (verbose >= 4) {
         Rcout << "C++ Note: STARTING Lower Bound" << endl;
     }
-    beta_p = beta_best;  //
-    beta_a = beta_best;  //
-    beta_c = beta_best;  //
+    beta_p = beta_peak;  //
+    beta_a = beta_peak;  //
+    beta_c = beta_peak;  //
     for (int ij = 0; ij < totalnum; ij++) {
         beta_0[ij] = beta_a[ij];
     }
@@ -2145,19 +2147,19 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for lower limit, the step is negative if the first derivative is positive
-                        // if (Lld[para_number] < 0){
-                        //     dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -2449,9 +2451,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_best;  //
-    beta_a = beta_best;  //
-    beta_c = beta_best;  //
+    beta_p = beta_peak;  //
+    beta_a = beta_peak;  //
+    beta_c = beta_peak;  //
     abs_max = abs_max0;
     dose_abs_max = dose_abs_max0;
     //
@@ -2573,9 +2575,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_best;  //
-        beta_a = beta_best;  //
-        beta_c = beta_best;  //
+        beta_p = beta_peak;  //
+        beta_a = beta_peak;  //
+        beta_c = beta_peak;  //
         abs_max = abs_max0;
         dose_abs_max = dose_abs_max0;
         iter_stop = 0;
@@ -2861,26 +2863,27 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
          }
          max_change = abs(dbeta[0]);
          //
- //        Rcout << "Change: ";
+//         Rcout << "Change: ";
          for (int ij = 0; ij < totalnum; ij++) {
 //            Rcout << dbeta[ij] << " ";
             if (ij == para_number) {
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
+//                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for upper limit, the step is positive if the first derivative is negative
-                        // if (Lld[para_number] < 0){
-                        dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        //     dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -2889,7 +2892,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
         }
- //        Rcout << " " << endl;
+//         Rcout << " " << endl;
          // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
          // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
          // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -3037,9 +3040,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_best;  //
-        beta_a = beta_best;  //
-        beta_c = beta_best;  //
+        beta_p = beta_peak;  //
+        beta_a = beta_peak;  //
+        beta_c = beta_peak;  //
         abs_max = abs_max0;
         dose_abs_max = dose_abs_max0;
         iter_stop = 0;
@@ -3319,19 +3322,19 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for lower limit, the step is negative if the first derivative is positive
-                        // if (Lld[para_number] < 0){
-                        //     dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -3561,11 +3564,13 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
+    vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  // stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  // stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  // stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  // stores the best parameters
+    VectorXd::Map(&beta_peak[0], beta_0.size()) = beta_0;  // stores the best parameters
     // double halves = 0;  // number of half-steps taken
     // int ind0 = fir;  // used for validations
 //    int iteration = 0;  // iteration number
@@ -3582,9 +3587,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_best;  //
-    beta_a = beta_best;  //
-    beta_c = beta_best;  //
+    beta_p = beta_peak;  //
+    beta_a = beta_peak;  //
+    beta_c = beta_peak;  //
     abs_max = abs_max0;
     dose_abs_max = dose_abs_max0;
     //
@@ -3696,19 +3701,19 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for upper limit, the step is positive if the first derivative is negative
-                        // if (Lld[para_number] < 0){
-                        dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        //     dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -3789,9 +3794,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     if (verbose >= 4) {
         Rcout << "C++ Note: STARTING Lower Bound" << endl;
     }
-    beta_p = beta_best;  //
-    beta_a = beta_best;  //
-    beta_c = beta_best;  //
+    beta_p = beta_peak;  //
+    beta_a = beta_peak;  //
+    beta_c = beta_peak;  //
     for (int ij = 0; ij < totalnum; ij++) {
         beta_0[ij] = beta_a[ij];
     }
@@ -3868,19 +3873,19 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum 
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for lower limit, the step is negative if the first derivative is positive
-                        // if (Lld[para_number] < 0){
-                        //     dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -4150,9 +4155,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_best;  //
-    beta_a = beta_best;  //
-    beta_c = beta_best;  //
+    beta_p = beta_peak;  //
+    beta_a = beta_peak;  //
+    beta_c = beta_peak;  //
     abs_max = abs_max0;
     dose_abs_max = dose_abs_max0;
     //
@@ -4279,9 +4284,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_best;  //
-        beta_a = beta_best;  //
-        beta_c = beta_best;  //
+        beta_p = beta_peak;  //
+        beta_a = beta_peak;  //
+        beta_c = beta_peak;  //
         abs_max = abs_max0;
         dose_abs_max = dose_abs_max0;
         iter_stop = 0;
@@ -4417,9 +4422,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
-    beta_a = beta_best;  //
-    beta_c = beta_best;  //
+    beta_p = beta_peak;  //
+    beta_a = beta_peak;  //
+    beta_c = beta_peak;  //
     abs_max = abs_max0;
     dose_abs_max = dose_abs_max0;
     iter_stop = 0;
@@ -4558,19 +4563,19 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for upper limit, the step is positive if the first derivative is negative
-                        // if (Lld[para_number] < 0){
-                        dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        //     dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
@@ -4720,9 +4725,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_best;  //
-        beta_a = beta_best;  //
-        beta_c = beta_best;  //
+        beta_p = beta_peak;  //
+        beta_a = beta_peak;  //
+        beta_c = beta_peak;  //
         abs_max = abs_max0;
         dose_abs_max = dose_abs_max0;
         iter_stop = 0;
@@ -4992,19 +4997,19 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // we want to prevent two issues
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_best[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = -0.5*dbeta[ij];
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
-                    if (Ll[0] > Lstar) {
-                        // If the log-likelihood is above the goal, then it must move away from the optimum point
-                        // for lower limit, the step is negative if the first derivative is positive
-                        // if (Lld[para_number] < 0){
-                        //     dbeta[ij] = abs(dbeta[ij]);
-                        // } else {
-                        dbeta[ij] = -1*abs(dbeta[ij]);
-                        // }
-                    }
+//                    if (Ll[0] > Lstar) {
+//                        // If the log-likelihood is above the goal, then it must move away from the optimum point
+//                        // for upper limit, the step is positive if the first derivative is negative
+//                        if (Lld[para_number] < 0){
+//                            dbeta[ij] = abs(dbeta[ij]);
+//                        } else {
+//                            dbeta[ij] = -1*abs(dbeta[ij]);
+//                        }
+//                    }
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
