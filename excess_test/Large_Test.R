@@ -118,4 +118,5 @@ if (identical(Sys.getenv("TESTTHAT"), "true")){
     model_control <- list("basic" = FALSE, "log_bound" = TRUE, "alpha" = 0.05, "para_number" = 1, "manual" = TRUE, "maxstep" = 50, "search_mult" = 2.0)
     e2 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n, tform, keep_constant, e$beta_0, modelform, control = control, model_control = model_control)
     Interpret_Output(e2)
+    warnings()
 }

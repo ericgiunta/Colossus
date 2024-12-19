@@ -28,7 +28,7 @@ jobs:
       - name: move to package and install
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "install.packages(c('devtools','bit64'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
@@ -48,7 +48,7 @@ jobs:
       - name: move to package and install
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "install.packages(c('devtools','bit64'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
@@ -67,7 +67,7 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "install.packages(c('devtools','bit64'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
@@ -88,7 +88,7 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "install.packages(c('devtools','bit64'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"

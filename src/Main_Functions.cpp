@@ -1920,7 +1920,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
     }
     upper = true;
-    int step = 0;
+    int step = -1;
     bool iter_continue = true;
     double max_change = 100;
     double deriv_max = 100;
@@ -1971,7 +1971,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij]; // takes a smaller step in the opposite direction
+                    // dbeta[ij] = -0.5*dbeta[ij]; // takes a smaller step in the opposite direction
+                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
@@ -2104,7 +2105,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     dose_abs_max = dose_abs_max0;
     //
     upper = false;
-    step = 0;
+    step = -1;
     iter_continue = true;
     while ((step < maxstep) && (iter_continue)) {
         step++;
@@ -2148,7 +2149,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
+                    // dbeta[ij] = -0.5*dbeta[ij];
+                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
@@ -2871,8 +2873,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
-//                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
+                    // dbeta[ij] = -0.5*dbeta[ij];
+                   dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
@@ -3323,7 +3325,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
+                    // dbeta[ij] = -0.5*dbeta[ij];
+                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
@@ -3653,7 +3656,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
     }
     upper = true;
-    int step = 0;
+    int step = -1;
     bool iter_continue = true;
     double max_change = 100;
     double deriv_max = 100;
@@ -3702,7 +3705,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
+                    // dbeta[ij] = -0.5*dbeta[ij];
+                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
@@ -3833,7 +3837,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     dose_abs_max = dose_abs_max0;
     //
     upper = false;
-    step = 0;
+    step = -1;
     iter_continue = true;
     while ((step < maxstep) && (iter_continue)) {
         step++;
@@ -3874,7 +3878,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
                 // first prevent the parameter estimate from crossing the optimum 
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
+                    // dbeta[ij] = -0.5*dbeta[ij];
+                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
@@ -4564,7 +4569,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
+                    // dbeta[ij] = -0.5*dbeta[ij];
+                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
@@ -4998,7 +5004,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // first prevent the parameter estimate from crossing the optimum
                 // issue is beta_0[para_number] <= beta_best[para_number]
                 if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
-                    dbeta[ij] = -0.5*dbeta[ij];
+                    // dbeta[ij] = -0.5*dbeta[ij];
+                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 } else {
                     // second issue is making sure that the step is forced away from the optimum when possible
 //                    if (Ll[0] > Lstar) {
