@@ -6,7 +6,7 @@
 # See https://github.com/r-lib/actions/tree/master/examples#readme for
 # additional example workflows available for the R community.
 
-name: OS_Big_Check
+name: OS_Log_Check
 
 on: [workflow_dispatch]
 
