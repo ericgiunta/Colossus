@@ -8,7 +8,7 @@
 
 name: OS_Checks_Config
 
-on: [push, workflow_dispatch]
+on: [workflow_dispatch]
 
 permissions:
   contents: read

@@ -6,7 +6,7 @@
 # See https://github.com/r-lib/actions/tree/master/examples#readme for
 # additional example workflows available for the R community.
 
-name: OS_Checks
+name: OS_Big_Check
 
 on: [workflow_dispatch]
 
@@ -27,26 +27,13 @@ jobs:
       - name: move to package and install
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "install.packages(c('devtools','bit64'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
-      - name: check detected OS and OpenMP
+      - name: Run the test
         run: |
-           Rscript -e "a=Colossus::System_Version()
-            print(a)
-            if (a['OpenMP Enabled']!='FALSE'){
-            stop()
-            }
-            if (a['Operating System']!='osx'){
-            stop()
-            }
-            "
-      - name: move to package and test
-        run: |
-          brew install pandoc
-          Rscript -e "devtools::test(stop_on_failure = TRUE)"
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+           Rscript excess_test/Lin_Test.R
   win_check:
     runs-on: windows-latest
 
@@ -59,24 +46,13 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "install.packages(c('devtools','bit64'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
-      - name: check detected OS and OpenMP
+      - name: Run the test
         run: |
-           Rscript -e "a=Colossus::System_Version()
-            print(a)
-            if (a['OpenMP Enabled']!='TRUE'){
-            stop()
-            }
-            "
-      - name: move to package and test
-        run: |
-          choco install pandoc
-          refreshenv
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+           Rscript excess_test/Lin_Test.R
   ubuntu_check:
     runs-on: ubuntu-latest
     steps:
@@ -91,24 +67,10 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "install.packages(c('devtools','bit64'))"
           Rscript -e "devtools::install_deps(dependencies = TRUE)"
           Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
-      - name: check detected OS and OpenMP
+      - name: Run the test
         run: |
-           Rscript -e "a=Colossus::System_Version()
-            print(a)
-            if (a['OpenMP Enabled']!='TRUE'){
-            stop()
-            }
-            if (a['Operating System']!='linux'){
-            stop()
-            }
-            "
-      - name: move to package and test
-        run: |
-          sudo apt-get install pandoc
-          sudo apt-get install texlive
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+           Rscript excess_test/Lin_Test.R
