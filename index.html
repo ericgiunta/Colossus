@@ -79,6 +79,7 @@
 <p>This is a basic example which shows you how to solve a common problem:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: package 'data.table' was built under R version 4.3.3</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="co">## basic example code reproduced from the starting-description vignette</span></span>
@@ -122,10 +123,10 @@
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         a  loglin           0         41.26157                NaN</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0         44.53340       9.490627e+07</span></span>
 <span><span class="co">#&gt; 2:         b     lin           1         98.72266                NaN</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1         96.82311           177.9643</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2        101.10000             0.0000</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1         96.82311       2.408255e+02</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2        101.10000       5.207003e+02</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 1.35,  AIC: 9.35</span></span>
