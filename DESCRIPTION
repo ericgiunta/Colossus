@@ -1,7 +1,7 @@
 Package: Colossus
 Type: Package
 Title: "Risk Model Regression and Analysis with Complex Non-Linear Models"
-Version: 1.1.5.3
+Version: 1.1.5.4
 Authors@R: c(
     person("Eric", "Giunta", email="egiunta@ksu.edu", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1577-766X")),
     person("Amir", "Bahadori", role=c("ctb"), comment = c(ORCID = "0000-0002-4589-105X")),
@@ -37,7 +37,7 @@ SystemRequirements: make
 RoxygenNote: 7.3.2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
     testthat,
@@ -48,6 +48,7 @@ Suggests:
     survival,
     dtplyr
 Config/testthat/edition: 3
-VignetteBuilder: knitr
+VignetteBuilder:
+    knitr
 Language: en-US
 Biarch: TRUE

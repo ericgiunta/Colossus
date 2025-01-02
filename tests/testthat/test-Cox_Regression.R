@@ -441,3 +441,55 @@ test_that("Coxph censoring weight", {
   #
   expect_error(RunCoxRegression_CR(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, "bad_weighting"))
 })
+
+test_that("dose nondose combinations", {
+  fname <- "dose.csv"
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  #
+  df$dose2 <- df$dose * df$dose
+  df$a <- df$dose + 0.001
+  df$b <- df$dose2 + 0.001
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+  names <- c("a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b", "b", "b")
+  term_n <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1)
+  tform <- c("loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "loglin", "plin", "lin")
+  keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  a_n <- c(1.0, -0.1, -0.1, 1, 0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, 1, 1, 1)
+  modelform <- "A"
+  fir <- 0
+  der_iden <- 0
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  options(warn = -1)
+  expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
+  for (model in c("A", "PAE")) {
+    names <- c("a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b")
+    term_n <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1)
+    tform <- c("loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "loglin", "plin", "lin", "loglin", "plin", "lin")
+    keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    a_n <- c(-0.1, -0.1, 1, 0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, 1, 1, 1, 1, 1, 1)
+    modelform <- model
+    expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+    names <- c("b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "a", "a", "a", "a", "a", "a")
+    term_n <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1)
+    tform <- c("loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "loglin", "plin", "lin", "loglin", "plin", "lin")
+    keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    a_n <- c(-0.1, -0.1, 1, 0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, 1, 1, 1, 1, 1, 1)
+    modelform <- model
+    expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+    #
+    names <- c("b", "b", "b", "b", "b", "a")
+    term_n <- c(0, 0, 0, 0, 0, 1)
+    tform <- c("loglin_top", "loglin_slope", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "loglin")
+    keep_constant <- c(0, 0, 0, 0, 0, 0)
+    a_n <- c(1, 1, -1.0, 100, -0.1, 1)
+    modelform <- model
+    expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control))
+  }
+})

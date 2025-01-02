@@ -69,8 +69,10 @@ modelform
 mult
 na
 omp
+pae
 pearson
 pkgdown
+plin
 plinear
 poisson
 pyr

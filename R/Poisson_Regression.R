@@ -218,6 +218,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     )
     e$Parameter_Lists$names <- names
     e$Parameter_Lists$modelformula <- modelform
+    e$Parameter_Lists$first_term <- fir
+    e$Survival_Type <- "Poisson"
     if (is.nan(e$LogLik)) {
       stop(e$Status)
     }

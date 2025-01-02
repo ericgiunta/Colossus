@@ -31,6 +31,7 @@
 #' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits
 #' @param iscox  boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times
 #' @param keep_constant  binary values to denote which parameters to change
+#' @param log_file file to save log to
 #' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details
 #' @param Model_Eq  String representation of a survival model. Left hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
@@ -188,7 +189,7 @@ NULL
 #' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD
 #' @importFrom parallel detectCores
 #' @importFrom stats runif weighted.mean
-#' @importFrom utils combn head
+#' @importFrom utils combn head sessionInfo
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom graphics legend lines smoothScatter
 #' @importFrom stats approxfun time qchisq

@@ -12,3 +12,9 @@ returns a list of results
 \description{
 \code{System_Version} checks OS, default R c++ compiler, and if OMP is enabled
 }
+\seealso{
+Other Output and Information Functions: 
+\code{\link{Interpret_Output}()},
+\code{\link{Model_Results_Log}()}
+}
+\concept{Output and Information Functions}

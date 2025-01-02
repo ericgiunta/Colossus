@@ -1875,6 +1875,7 @@ Rcpp_version <- function() {
 #'
 #' @return returns a list of results
 #' @export
+#' @family Output and Information Functions
 System_Version <- function() {
   os <- get_os()
   gcc <- gcc_version()
@@ -1884,6 +1885,45 @@ System_Version <- function() {
     "Operating System" = os, "Default c++" = gcc, "R Compiler" = Rcomp,
     "OpenMP Enabled" = OMP
   )
+}
+
+#' Saves information about a run to a log file
+#'
+#' \code{Model_Results_Log} saves information about the data, results, model, computer, software, and date to an external file. Intended to make reproduction of results easier
+#'
+#' @param noprint boolean, if true the file is saved to the log file, if false the output is printed to the console INSTEAD of being saved.
+#' @inheritParams R_template
+#' @family Output and Information Functions
+#' @return null, prints to screen or saves to file
+#' @export
+Model_Results_Log <- function(log_file = "out.log", df = data.table(), out_list = list(), noprint = T) {
+  if (noprint) {
+    try(message_file <- file(log_file, open = "wt"))
+    sink(message_file, type = "message")
+    sink(message_file, type = "output")
+  }
+  message("| ---------------- Data Summary ---------------- |")
+  if (nrow(df) > 0) {
+    print(summary(df))
+  } else {
+    print("No dataframe provided")
+  }
+  message("| ---------------- Results Summary ---------------- |")
+  if (length(out_list) > 0) {
+    Interpret_Output(out_list)
+  } else {
+    print("No results provided")
+  }
+  message("| ---------------- System Summary ---------------- |")
+  print(System_Version())
+  message("| ---------------- Session Summary ---------------- |")
+  print(sessionInfo())
+  message("| ---------------- Date ---------------- |")
+  print(Sys.Date())
+  if (noprint) {
+    sink(NULL)
+  }
+  return(NULL)
 }
 
 #' General purpose verbosity check
@@ -2628,7 +2668,9 @@ Convert_Model_Eq <- function(Model_Eq, df) {
     )
     modelform_acceptable <- c(
       "multiplicative", "multiplicative-excess", "additive", "product-additive",
-      "product-additive-excess", "a", "pa", "pae", "m", "me"
+      "product-additive-excess", "a", "pa", "pae", "m", "me",
+      "gmix", "geometric-mixture", "gmix-r", "relative-geometric-mixture",
+      "gmix-e", "excess-geometric-mixture"
     )
     if (model_type %in% tform_acceptable) {
       model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
@@ -2644,11 +2686,28 @@ Convert_Model_Eq <- function(Model_Eq, df) {
       for (subterm_i in seq_along(model_paras)) {
         # add element
         if (substr(model_paras[subterm_i], 1, 7) == "factor(") {
-          # currently setting a baseline level isn't supported, planned for later
+          # baseline is set by using factor(column;baseline=level)
           col_name <- substr(model_paras[subterm_i], 8, nchar(model_paras[subterm_i]) - 1)
-          val <- factorize(df, col_name)
-          df <- val$df
-          col_name <- val$cols
+          base_split <- lapply(strsplit(col_name, ""), function(x) which(x == ";"))[[1]]
+          if (length(base_split) == 1) {
+            col_names <- substr(col_name, 1, base_split - 1)
+            base_line <- substr(col_name, base_split + 1 + 9, nchar(col_name))
+            base_level <- paste(col_names, base_line, sep = "_")
+            #
+            val <- factorize(df, col_names)
+            df <- val$df
+            col_name <- val$cols
+            if (base_level %in% names(df)) {
+              df <- df[, (base_level) := NULL]
+              col_name <- col_name[!col_name == base_level]
+            } else {
+              warning(paste("Warning: Baseline level ", base_level, " not found.", sep = ""))
+            }
+          } else {
+            val <- factorize(df, col_name)
+            df <- val$df
+            col_name <- val$cols
+          }
         } else {
           col_name <- c(model_paras[subterm_i])
         }
@@ -2692,6 +2751,12 @@ Convert_Model_Eq <- function(Model_Eq, df) {
         model_type <- "PA"
       } else if (model_type %in% c("pae", "product-additive-excess")) {
         model_type <- "PAE"
+      } else if (model_type %in% c("gmix", "geometric-mixture")) {
+        model_type <- "GMIX"
+      } else if (model_type %in% c("gmix-r", "relative-geometric-mixture")) {
+        model_type <- "GMIX-R"
+      } else if (model_type %in% c("gmix-e", "excess-geometric-mixture")) {
+        model_type <- "GMIX-E"
       }
       if (modelform == "NONE") {
         modelform <- model_type
@@ -2721,6 +2786,7 @@ Convert_Model_Eq <- function(Model_Eq, df) {
 #'
 #' @return return nothing, prints the results to console
 #' @export
+#' @family Output and Information Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -2797,44 +2863,48 @@ Interpret_Output <- function(out_list, digits = 2) {
         }
       }
     } else {
-      # get the model details
-      names <- out_list$Parameter_Lists$names
-      tforms <- out_list$Parameter_Lists$tforms
-      term_n <- out_list$Parameter_Lists$term_n
-      beta_0 <- out_list$beta_0
-      stdev <- out_list$Standard_Deviation
-      res_table <- data.table(
-        "Covariate" = names,
-        "Subterm" = tforms,
-        "Term Number" = term_n,
-        "Central Estimate" = beta_0,
-        "Standard Deviation" = stdev
-      )
-      message("Final Results")
-      print(res_table)
-      # get the model results
-      LogLik <- out_list$LogLik
-      AIC <- out_list$AIC
-      BIC <- out_list$BIC
-      deviation <- out_list$Deviation
-      iteration <- out_list$Control_List$Iteration
-      step_max <- out_list$Control_List$`Maximum Step`
-      deriv_max <- out_list$Control_List$`Derivative Limiting`
-      converged <- out_list$Converged
-      if (is.null(deviation)) {
-        # cox model
-        message("\nCox Model Used")
-        message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+      # Check if its a multidose problem
+      if (out_list$Survival_Type == "Cox_Multidose") {
       } else {
-        # poisson model
-        message("\nPoisson Model Used")
-        message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
-      }
-      message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-      if (converged) {
-        message("Analysis converged")
-      } else {
-        message("Analysis did not converge, check convergence criteria or run further")
+        # get the model details
+        names <- out_list$Parameter_Lists$names
+        tforms <- out_list$Parameter_Lists$tforms
+        term_n <- out_list$Parameter_Lists$term_n
+        beta_0 <- out_list$beta_0
+        stdev <- out_list$Standard_Deviation
+        res_table <- data.table(
+          "Covariate" = names,
+          "Subterm" = tforms,
+          "Term Number" = term_n,
+          "Central Estimate" = beta_0,
+          "Standard Deviation" = stdev
+        )
+        message("Final Results")
+        print(res_table)
+        # get the model results
+        LogLik <- out_list$LogLik
+        AIC <- out_list$AIC
+        BIC <- out_list$BIC
+        deviation <- out_list$Deviation
+        iteration <- out_list$Control_List$Iteration
+        step_max <- out_list$Control_List$`Maximum Step`
+        deriv_max <- out_list$Control_List$`Derivative Limiting`
+        converged <- out_list$Converged
+        if (is.null(deviation)) {
+          # cox model
+          message("\nCox Model Used")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+        } else {
+          # poisson model
+          message("\nPoisson Model Used")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        }
+        message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+        if (converged) {
+          message("Analysis converged")
+        } else {
+          message("Analysis did not converge, check convergence criteria or run further")
+        }
       }
     }
   } else {

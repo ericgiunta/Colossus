@@ -286,6 +286,8 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     }
     e$Parameter_Lists$names <- names
     e$Parameter_Lists$modelformula <- modelform
+    e$Parameter_Lists$first_term <- fir
+    e$Survival_Type <- "Cox"
   }
   return(e)
 }
@@ -1457,5 +1459,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
   }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
+  e$Parameter_Lists$first_term <- fir
+  e$Survival_Type <- "Cox_Multidose"
   return(e)
 }

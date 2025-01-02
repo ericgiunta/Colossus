@@ -62,3 +62,9 @@ e <- RunCoxRegression_Omnibus(df, time1, time2, event,
 Interpret_Output(e)
 
 }
+\seealso{
+Other Output and Information Functions: 
+\code{\link{Model_Results_Log}()},
+\code{\link{System_Version}()}
+}
+\concept{Output and Information Functions}
