@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,6 +121,12 @@ definitions, the model equation is stored in a string.</p>
     \text{'Survival(interval, event) ~ subterm(name, factor(name), term_number) + ... + term_model()'}
 \end{aligned}
 </annotation></semantics></math></p>
+<p>The factor option can be used with or without a baseline specified.
+By default no baseline is used. A baseline can be added by changing
+‘factor(name)’ to ‘factor(name;baseline=level)’. If a valid baseline is
+used, the proper factor will not be included in the model expression or
+the final datatable returned. If an invalid baseline is used a warning
+is thrown and the functions runs without a baseline.</p>
 <p>The following expressions are equivalent.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
@@ -170,7 +176,98 @@ definitions, the model equation is stored in a string.</p>
 <span><span class="co">#&gt; Null data.table (0 rows and 0 cols)</span></span></code></pre></div>
 <p>Different model formulas and subterm types are being added as need.
 Please contact the developer if the methods you want to use are not yet
-added.</p>
+added. The following tables cover the subterms and term models that are
+currently implemented. Every option listed has multiple equivalent
+aliases that all refer to the same subterm or model formula.</p>
+<table class="table">
+<colgroup>
+<col width="47%">
+<col width="52%">
+</colgroup>
+<thead><tr class="header">
+<th align="center">Subterm Type</th>
+<th align="center">Equivalent Aliases</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">plin</td>
+<td align="center">“plin”, “plinear”, “product-linear”</td>
+</tr>
+<tr class="even">
+<td align="center">lin</td>
+<td align="center">“lin”, “linear”</td>
+</tr>
+<tr class="odd">
+<td align="center">loglin</td>
+<td align="center">“loglin”, “loglinear”, “log-linear”</td>
+</tr>
+<tr class="even">
+<td align="center">loglin_slope/loglin_top</td>
+<td align="center">“loglin-dose”, “loglinear-dose”,
+“log-linear-dose”</td>
+</tr>
+<tr class="odd">
+<td align="center">lin_slope/lin_top</td>
+<td align="center">“lin-dose”, “linear-dose”, “linear-piecewise”</td>
+</tr>
+<tr class="even">
+<td align="center">quad_slope</td>
+<td align="center">“quadratic”, “quad”, “quad-dose”,
+“quadratic-dose”</td>
+</tr>
+<tr class="odd">
+<td align="center">step_slope/step_int</td>
+<td align="center">“step-dose”, “step-piecewise”</td>
+</tr>
+<tr class="even">
+<td align="center">lin_quad_slope/lin_quad_int</td>
+<td align="center">“lin-quad-dose”, “linear-quadratic-dose”,
+“linear-quadratic-piecewise”</td>
+</tr>
+<tr class="odd">
+<td align="center">lin_exp_slope/lin_exp_int/lin_exp_exp_slope</td>
+<td align="center">“lin-exp-dose”, “linear-exponential-dose”,
+“linear-exponential-piecewise”</td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<thead><tr class="header">
+<th align="center">Term Type</th>
+<th align="center">Equivalent Aliases</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">M</td>
+<td align="center">“m”, “me”, “multiplicative”,
+“multiplicative-excess”</td>
+</tr>
+<tr class="even">
+<td align="center">A</td>
+<td align="center">“a”, “additive”</td>
+</tr>
+<tr class="odd">
+<td align="center">PA</td>
+<td align="center">“pa”, “product-additive”</td>
+</tr>
+<tr class="even">
+<td align="center">PAE</td>
+<td align="center">“pae”, “product-additive-excess”</td>
+</tr>
+<tr class="odd">
+<td align="center">GMIX</td>
+<td align="center">“gmix”,“geometric-mixture”</td>
+</tr>
+<tr class="even">
+<td align="center">GMIX-R</td>
+<td align="center">“gmix-r”,“relative-geometric-mixture”</td>
+</tr>
+<tr class="odd">
+<td align="center">GMIX-E</td>
+<td align="center">“gmix-e”,“excess-geometric-mixture”</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="model-visualization">Model Visualization<a class="anchor" aria-label="anchor" href="#model-visualization"></a>
