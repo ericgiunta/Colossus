@@ -451,6 +451,48 @@ solving the complete likelihood curve.</p>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Wald_and_Log_Bound_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
 </div>
+<div class="section level3">
+<h3 id="likelihood-boundary-algorithm-alternative">Likelihood Boundary Algorithm Alternative<a class="anchor" aria-label="anchor" href="#likelihood-boundary-algorithm-alternative"></a>
+</h3>
+<p>As an alternative to the likelihood algorithm, a direct curve solving
+method is implemented. The CoxCurveSolver function solves for the
+boundary values by iteratively optimizing points and using the bisection
+method. Each step is approximately as fast as running a single
+regression. The same model_control options are used to select which
+parameter is selected and what alpha to use, but adds an additional
+option “step_size” which is the default search window width used. The
+bisection method functions by (1) selecting an interval, (2) optimizing
+at the upper, lower, and midpoint of the interval, and (3) checking if
+the goal likelihood is crossed. If at-least one of the interval points
+are on each side of the goal then the interval is narrowed, and if not
+then the interval is shifted away from the optimum.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fname</span> <span class="op">&lt;-</span> <span class="st">"base_example.csv"</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">fname</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"entry"</span></span>
+<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"exit"</span></span>
+<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"event"</span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dose0"</span>, <span class="st">"dose1"</span>, <span class="st">"dose0"</span><span class="op">)</span></span>
+<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span>, <span class="st">"lin"</span><span class="op">)</span></span>
+<span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.493177</span>, <span class="fl">5.020007</span>, <span class="fl">1.438377</span><span class="op">)</span></span>
+<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
+<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="co">#</span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiters"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"abs_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span>  <span class="st">"change_all"</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="st">"dose_abs_max"</span> <span class="op">=</span> <span class="fl">100.0</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span>, <span class="st">"double_step"</span> <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"basic"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"maxstep"</span> <span class="op">=</span> <span class="fl">20</span>, <span class="st">"log_bound"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"alpha"</span> <span class="op">=</span> <span class="fl">0.005</span>, <span class="st">"para_num"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"step_size"</span> <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxCurveSolver.html">CoxCurveSolver</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, tform <span class="op">=</span> <span class="va">tform</span>, keep_constant <span class="op">=</span> <span class="va">keep_constant</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, modelform <span class="op">=</span> <span class="va">modelform</span>, fir <span class="op">=</span> <span class="va">fir</span>, der_iden <span class="op">=</span> <span class="va">der_iden</span>, control <span class="op">=</span> <span class="va">control</span>, strat_col <span class="op">=</span> <span class="st">"nan"</span>, model_control <span class="op">=</span> <span class="va">model_control</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
