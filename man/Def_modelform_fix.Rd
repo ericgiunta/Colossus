@@ -19,7 +19,7 @@ Def_modelform_fix(control, model_control, modelform, term_n)
 returns a filled list
 }
 \description{
-\code{Def_model_control} checks and assigns default values for modelform options
+\code{Def_modelform_fix} checks and assigns default values for modelform options
 }
 \examples{
 library(data.table)

@@ -668,7 +668,7 @@ Def_Control <- function(control) {
 
 #' Automatically assigns geometric-mixture values and checks that a valid modelform is used
 #'
-#' \code{Def_model_control} checks and assigns default values for modelform options
+#' \code{Def_modelform_fix} checks and assigns default values for modelform options
 #'
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
@@ -759,6 +759,11 @@ Def_model_control <- function(control) {
     } else {
       control[nm] <- FALSE
     }
+  }
+  if ("step_size" %in% names(control)) {
+    # fine
+  } else {
+    control["step_size"] <- 0.5
   }
   if ("unique_values" %in% names(control)) {
     # fine

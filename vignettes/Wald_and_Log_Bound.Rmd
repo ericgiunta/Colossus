@@ -262,3 +262,35 @@ g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y)) +
   ggplot2::labs(x = "Linear Parameter Value", y = "Log-Likelihood")
 g
 ```
+
+### Likelihood Boundary Algorithm Alternative
+
+As an alternative to the likelihood algorithm, a direct curve solving method is implemented. The CoxCurveSolver function solves for the boundary values by iteratively optimizing points and using the bisection method. Each step is approximately as fast as running a single regression. The same model_control options are used to select which parameter is selected and what alpha to use, but adds an additional option "step_size" which is the default search window width used. The bisection method functions by (1) selecting an interval, (2) optimizing at the upper, lower, and midpoint of the interval, and (3) checking if the goal likelihood is crossed. If at-least one of the interval points are on each side of the goal then the interval is narrowed, and if not then the interval is shifted away from the optimum.
+
+```{r, eval=FALSE}
+fname <- "base_example.csv"
+df <- fread(fname)
+
+time1 <- "entry"
+time2 <- "exit"
+event <- "event"
+names <- c("dose0", "dose1", "dose0")
+term_n <- c(0, 0, 1)
+tform <- c("loglin", "loglin", "lin")
+keep_constant <- c(0, 0, 1)
+a_n <- c(-1.493177, 5.020007, 1.438377)
+modelform <- "M"
+fir <- 0
+der_iden <- 0
+#
+model_control <- list()
+control <- list(
+  "ncores" = 2, "lr" = 0.75, "maxiters" = c(100, 100), "halfmax" = 5,
+  "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0,
+  "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0,
+  "ties" = "breslow", "double_step" = 1
+)
+
+model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = FALSE, "alpha" = 0.005, "para_num" = 2, "step_size" = 0.5)
+e <- CoxCurveSolver(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+```

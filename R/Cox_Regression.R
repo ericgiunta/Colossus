@@ -55,6 +55,7 @@
 #' )
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+  func_t_start <- Sys.time()
   df <- data.table(df)
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
@@ -284,11 +285,13 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
         stop(e$Status)
       }
     }
-    e$Parameter_Lists$names <- names
-    e$Parameter_Lists$modelformula <- modelform
-    e$Parameter_Lists$first_term <- fir
-    e$Survival_Type <- "Cox"
   }
+  e$Parameter_Lists$names <- names
+  e$Parameter_Lists$modelformula <- modelform
+  e$Parameter_Lists$first_term <- fir
+  e$Survival_Type <- "Cox"
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
   return(e)
 }
 
@@ -1328,6 +1331,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1 = "start", time2 = "end", eve
 #' )
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+  func_t_start <- Sys.time()
   df <- data.table(df)
   #
   control <- Def_Control(control)
@@ -1461,5 +1465,438 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
   e$Parameter_Lists$modelformula <- modelform
   e$Parameter_Lists$first_term <- fir
   e$Survival_Type <- "Cox_Multidose"
+
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
+  return(e)
+}
+
+#' Calculates the likelihood curve for a cox model directly
+#'
+#' \code{CoxCurveSolver} solves the confidence interval for a cox model, starting at the optimum point and
+#' iteratively optimizing each point to using the bisection method
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Cox Wrapper Functions
+#' @importFrom rlang .data
+CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+  func_t_start <- Sys.time()
+  df <- data.table(df)
+  ce <- c(time1, time2, event0)
+  t_check <- Check_Trunc(df, ce)
+  df <- t_check$df
+  ce <- t_check$ce
+  ## Cox regression only uses intervals which contain an event time
+  time1 <- ce[1]
+  time2 <- ce[2]
+  dfend <- df[get(event0) == 1, ]
+  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+  if (length(tu) == 0) {
+    stop("Error: no events")
+  }
+  # remove rows that end before first event
+  df <- df[get(time2) >= tu[1], ]
+  # remove rows that start after the last event
+  df <- df[get(time1) <= tu[length(tu)], ]
+  control <- Def_Control(control)
+  model_control <- Def_model_control(model_control)
+  val <- Correct_Formula_Order(
+    term_n, tform, keep_constant, a_n,
+    names, der_iden, cons_mat, cons_vec,
+    control$verbose, model_control
+  )
+  term_n <- val$term_n
+  tform <- val$tform
+  keep_constant <- val$keep_constant
+  a_n <- val$a_n
+  der_iden <- val$der_iden
+  names <- val$names
+  cons_mat <- as.matrix(val$cons_mat)
+  cons_vec <- val$cons_vec
+  if ("para_number" %in% names(model_control)) {
+    model_control$para_number <- val$para_num
+  }
+  if (typeof(a_n) != "list") {
+    a_n <- list(a_n)
+  }
+  if (any(val$Permutation != seq_along(tform))) {
+    warning("Warning: model covariate order changed")
+  }
+  val <- Def_modelform_fix(control, model_control, modelform, term_n)
+  modelform <- val$modelform
+  model_control <- val$model_control
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (model_control$linear_err == TRUE) {
+    if (all(sort(unique(tform)) != c("loglin", "plin"))) {
+      stop("Error: Linear ERR model used, but term formula wasn't only loglin and plin")
+    }
+    if (sum(tform == "plin") > 1) {
+      stop("Error: Linear ERR model used, but more than one plin element was used")
+    }
+    if (length(unique(term_n)) > 1) {
+      warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
+      term_n <- rep(0, length(term_n))
+    }
+    if (modelform != "M") {
+      warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
+      modelform <- "M"
+    }
+  }
+  if (model_control$cr == TRUE) {
+    if (cens_weight %in% names(df)) {
+      # good
+    } else {
+      stop("Error: censoring weight column not in the dataframe.")
+    }
+  } else {
+    df[[cens_weight]] <- 1
+  }
+  if (model_control$strata == FALSE) {
+    data.table::setkeyv(df, c(time2, event0))
+    uniq <- c(0)
+    ce <- c(time1, time2, event0)
+  } else {
+    dfend <- df[get(event0) == 1, ]
+    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+      use.names = FALSE
+    ))
+    for (i in seq_along(uniq)) {
+      df0 <- dfend[get(strat_col) == uniq[i], ]
+      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
+      if (length(tu0) == 0) {
+        warning(paste("Warning: no events for strata group:",
+          uniq[i],
+          sep = " "
+        ))
+        df <- df[get(strat_col) != uniq[i], ]
+      }
+    }
+    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+      use.names = FALSE
+    ))
+    if (control$verbose >= 3) {
+      message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
+    }
+    data.table::setkeyv(df, c(time2, event0, strat_col))
+    ce <- c(time1, time2, event0, strat_col)
+  }
+  dfend <- df[get(event0) == 1, ]
+  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+  if (control$verbose >= 3) {
+    message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+  }
+  all_names <- unique(names)
+  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+  # make sure any constant 0 columns are constant
+  for (i in seq_along(keep_constant)) {
+    if ((keep_constant[i] == 0) && (names[i] %in% names(df))) {
+      if (names[i] != "CONST") {
+        if (min(df[[names[i]]]) == max(df[[names[i]]])) {
+          keep_constant[i] <- 1
+          warning(paste("Warning: element ", i,
+            " with column name ", names[i],
+            " was set constant",
+            sep = ""
+          ))
+        }
+      }
+    }
+  }
+  if (min(keep_constant) > 0) {
+    stop("Error: Atleast one parameter must be free")
+  }
+  dfc <- match(names, all_names)
+  term_tot <- max(term_n) + 1
+  x_all <- as.matrix(df[, all_names, with = FALSE])
+  a_ns <- c()
+  for (i in a_n) {
+    a_ns <- c(a_ns, i)
+  }
+  if ("maxiters" %in% names(control)) {
+    if (length(control$maxiters) == length(a_n) + 1) {
+      # all good, it matches
+    } else {
+      if (control$verbose >= 3) {
+        message(paste("Note: Initial starts:", length(a_n),
+          ", Number of iterations provided:",
+          length(control$maxiters),
+          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
+          sep = " "
+        )) # nocov
+      }
+      if (length(control$maxiters) < length(a_n) + 1) {
+        additional <- length(a_n) + 1 - length(control$maxiters)
+        control$maxiters <- c(control$maxiters, rep(1, additional))
+      } else {
+        additional <- length(a_n) + 1
+        control$maxiters <- control$maxiters[1:additional]
+      }
+    }
+    if ("guesses" %in% names(control)) {
+      # both are in
+      if (control$guesses + 1 == length(control$maxiters)) {
+        # all good, it matches
+      } else if (length(control$maxiters) == 2) {
+        iter0 <- control$maxiters[1]
+        iter1 <- control$maxiters[2]
+        applied_iter <- c(rep(iter0, control$guesses), iter1)
+        control$maxiters <- applied_iter
+      } else {
+        stop(paste("Error: guesses:", control["guesses"],
+          ", iterations per guess:", control["maxiters"],
+          sep = " "
+        ))
+      }
+    } else {
+      control$guesses <- length(control$maxiters) - 1
+    }
+  } else {
+    if ("guesses" %in% names(control)) {
+      if (control$guesses == length(a_n)) {
+        # both match, all good
+      } else {
+        control$guesses <- length(a_n)
+      }
+      control$maxiters <- rep(1, control$guesses + 1)
+    } else {
+      control$guesses <- length(a_n)
+      control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
+    }
+  }
+  a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
+  e <- cox_ph_Omnibus_transition(
+    term_n, tform, a_ns, dfc, x_all,
+    fir, der_iden,
+    modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+    keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+    cons_mat, cons_vec
+  )
+  if ("alpha" %in% names(model_control)) {
+    qchi <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  } else {
+    model_control["alpha"] <- 0.05
+    qchi <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  }
+  Lstar <- e$LogLik - qchi
+  beta_opt <- e$beta_0
+  L_opt <- e$LogLik
+  Boundary_Score <- c(0, 0)
+  Boundary_Value <- c(0, 0)
+  Boundary_x <- c(beta_opt)
+  Boundary_y <- c(L_opt)
+  #
+  step_limit <- model_control$maxstep # 10
+  step_size <- model_control$step_size # 0.5
+  para_num <- model_control$para_num + 1 # 3
+  keep_constant[para_num] <- 1
+  # Solving Upper Limit
+  L_low <- e$LogLik
+  beta_low <- e$beta_0
+  e <- list("LogLik" = NaN)
+  temp_step <- copy(step_size)
+  while (is.nan(e$LogLik) & (temp_step > 1e-3)) {
+    beta_high <- copy(beta_low)
+    beta_high[para_num] <- beta_high[para_num] + temp_step
+    #
+    temp_step <- temp_step * 0.5
+    beta_highs <- matrix(beta_high, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- cox_ph_Omnibus_transition(
+      term_n, tform, beta_highs, dfc, x_all,
+      fir, der_iden,
+      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+      cons_mat, cons_vec
+    )
+  }
+  if (is.nan(e$LogLik)) {
+    stop("Failed to find positive upper boundary")
+  }
+  L_high <- e$LogLik
+  beta_high <- e$beta_0
+  beta_mid <- (beta_low + beta_high) / 2
+  beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+  e <- cox_ph_Omnibus_transition(
+    term_n, tform, beta_mids, dfc, x_all,
+    fir, der_iden,
+    modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+    keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+    cons_mat, cons_vec
+  )
+  L_mid <- e$LogLik
+  beta_mid <- e$beta_0
+  step <- 0
+  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon)) {
+    step <- step + 1
+    if (L_low < Lstar) {
+      # the lower estimate is too far out?
+      stop("The lower estimate is too high?")
+    } else if (L_high < Lstar) {
+      # the point is between the two
+      if (L_mid < Lstar) {
+        # the mid point is past the optimum
+        beta_high <- copy(beta_mid)
+        L_high <- copy(L_mid)
+      } else {
+        # the mid point is before the optimum
+        beta_low <- copy(beta_mid)
+        L_low <- copy(L_mid)
+      }
+    } else {
+      # the upper estimate needs to be shifted up
+      L_low <- copy(L_high)
+      beta_low <- copy(beta_high)
+      e <- list("LogLik" = NaN)
+      temp_step <- copy(step_size)
+      while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
+        beta_high <- copy(beta_low)
+        beta_high[para_num] <- beta_high[para_num] + temp_step
+        #
+        temp_step <- temp_step * 0.5
+        beta_highs <- matrix(beta_high, nrow = length(control$maxiters) - 1, byrow = TRUE)
+        e <- cox_ph_Omnibus_transition(
+          term_n, tform, beta_highs, dfc, x_all,
+          fir, der_iden,
+          modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+          keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+          cons_mat, cons_vec
+        )
+      }
+      if (is.nan(e$LogLik)) {
+        stop("Failed to find positive upper boundary")
+      }
+      L_high <- e$LogLik
+      beta_high <- e$beta_0
+    }
+    beta_mid <- (beta_low + beta_high) / 2
+    beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- cox_ph_Omnibus_transition(
+      term_n, tform, beta_mids, dfc, x_all,
+      fir, der_iden,
+      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+      cons_mat, cons_vec
+    )
+    L_mid <- e$LogLik
+    beta_mid <- e$beta_0
+    # Boundary_x <- c(Boundary_x, beta_mid)
+    # Boundary_y <- c(Boundary_y, L_mid)
+    # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
+    # print(c(step, beta_mid[para_num],L_mid,Lstar))
+  }
+  Boundary_Score[2] <- L_mid
+  Boundary_Value[2] <- beta_mid[para_num]
+  # Solve for lower boundary
+  L_high <- copy(L_opt)
+  beta_high <- copy(beta_opt)
+  e <- list("LogLik" = NaN)
+  temp_step <- copy(step_size)
+  while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
+    beta_low <- copy(beta_high)
+    beta_low[para_num] <- beta_low[para_num] - temp_step
+    #
+    temp_step <- temp_step * 0.5
+    beta_lows <- matrix(beta_low, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- cox_ph_Omnibus_transition(
+      term_n, tform, beta_lows, dfc, x_all,
+      fir, der_iden,
+      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+      cons_mat, cons_vec
+    )
+  }
+  if (is.nan(e$LogLik)) {
+    stop("Failed to find positive lower boundary")
+  }
+  L_low <- e$LogLik
+  beta_low <- e$beta_0
+  beta_mid <- (beta_low + beta_high) / 2
+  beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+  e <- cox_ph_Omnibus_transition(
+    term_n, tform, beta_mids, dfc, x_all,
+    fir, der_iden,
+    modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+    keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+    cons_mat, cons_vec
+  )
+  L_mid <- e$LogLik
+  beta_mid <- e$beta_0
+  step <- 0
+  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon)) {
+    step <- step + 1
+    if (L_high < Lstar) {
+      # the upper estimate is too far out?
+      stop("The upper estimate is too high?")
+    } else if (L_low < Lstar) {
+      # the point is between the two
+      if (L_mid > Lstar) {
+        # the mid point is past the optimum
+        beta_high <- copy(beta_mid)
+        L_high <- copy(L_mid)
+      } else {
+        # the mid point is before the optimum
+        beta_low <- copy(beta_mid)
+        L_low <- copy(L_mid)
+      }
+    } else {
+      # the upper estimate needs to be shifted up
+      L_high <- copy(L_low)
+      beta_high <- copy(beta_low)
+      e <- list("LogLik" = NaN)
+      temp_step <- copy(step_size)
+      while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
+        beta_low <- copy(beta_high)
+        beta_low[para_num] <- beta_low[para_num] - temp_step
+        #
+        temp_step <- temp_step * 0.5
+        beta_lows <- matrix(beta_low, nrow = length(control$maxiters) - 1, byrow = TRUE)
+        e <- cox_ph_Omnibus_transition(
+          term_n, tform, beta_lows, dfc, x_all,
+          fir, der_iden,
+          modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+          keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+          cons_mat, cons_vec
+        )
+      }
+      if (is.nan(e$LogLik)) {
+        stop("Failed to find positive lower boundary")
+      }
+      L_low <- e$LogLik
+      beta_low <- e$beta_0
+    }
+    beta_mid <- (beta_low + beta_high) / 2
+    beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- cox_ph_Omnibus_transition(
+      term_n, tform, beta_mids, dfc, x_all,
+      fir, der_iden,
+      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+      cons_mat, cons_vec
+    )
+    L_mid <- e$LogLik
+    beta_mid <- e$beta_0
+    # Boundary_x <- c(beta_mid,Boundary_x)
+    # Boundary_y <- c(L_mid, Boundary_y)
+    # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
+  }
+  # print(c(step, beta_mid[para_num],L_mid,Lstar))
+  Boundary_Score[1] <- L_mid
+  Boundary_Value[1] <- beta_mid[para_num]
+  #
+  e <- list("Boundary_Score" = Boundary_Score, "Boundary_Value" = Boundary_Value, "Goal" = Lstar) # , "Midpoint_beta"=Boundary_x, "Midpoint_score"=Boundary_y)
+  e$Parameter_Lists$names <- names
+  e$Parameter_Lists$modelformula <- modelform
+  e$Parameter_Lists$first_term <- fir
+  e$Survival_Type <- "Cox"
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
   return(e)
 }
