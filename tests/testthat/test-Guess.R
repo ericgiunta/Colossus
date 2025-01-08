@@ -21,6 +21,10 @@ test_that("Pois_tier_guess various_fixes", {
   expect_no_error(RunPoissonRegression_Tier_Guesses(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
   keep_constant <- c(1, 1)
   expect_error(RunPoissonRegression_Tier_Guesses(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
+  keep_constant <- c(0, 0)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  guesses_control <- list("iterations" = 2, "guesses" = 10, "lin_min" = 0.001, "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform", "loglin_method" = "uniform", "strata" = TRUE, "term_initial" = c(0, 1), "verbose" = 0)
+  expect_no_error(RunPoissonRegression_Tier_Guesses(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
 })
 test_that("Poisson_basic_guess_cpp various_fixes", {
   fname <- "MULTI_COV.csv"
@@ -76,6 +80,11 @@ test_that("Cox_tier_guess combinations", {
   names <- c("a", "CONST")
   keep_constant <- c(0, 0)
   guesses_control <- list("iterations" = 1, "guesses" = 1, "lin_min" = 0.001, "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform", "loglin_method" = "uniform", strata = FALSE, term_initial = c(0), rmin = c(1, 1, 1, 1), rmax = c(1, 1))
+  expect_no_error(RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
+  #
+  keep_constant <- c(0, 0)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  guesses_control <- list("iterations" = 2, "guesses" = 10, "lin_min" = 0.001, "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform", "loglin_method" = "uniform", "strata" = TRUE, "term_initial" = c(0, 1), "verbose" = 0)
   expect_no_error(RunCoxRegression_Tier_Guesses(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, guesses_control, strat_col))
 })
 

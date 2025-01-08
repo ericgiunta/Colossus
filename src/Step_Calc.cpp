@@ -337,9 +337,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
     double decay2 = optim_para["learning_decay"];
     double epsilon_momentum = optim_para["epsilon_decay"];
     // required vectors for storage
-//    NumericVector m_g_store(kept_covs);
-//    NumericVector v_beta_store(kept_covs);
-//    int iteration = 1;
     if (momentum_bool) {
         //
 //        #ifdef _OPENMP
@@ -553,14 +550,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
     MatrixXd D0 = Lldd_mat;
     deriv_max = 100;
     if (step == 0) {
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
-        //     Rcout << "C++ Note: df204 ";  // prints parameter values
-        //     for (int ij = 0; ij < totalnum; ij++) {
-        //         Rcout << beta_0[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
         // initial step, calculate dom/dbet and h
         MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
         removeRow(D0, para_number);
@@ -604,25 +593,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
             }
         }
         // At this point, we have the standard newton-raphson equation defined
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: df201 " << L0 << " " << Lstar << " " << endl;
-        //     Rcout << "C++ Note: df202 ";  // prints the first derivatives
-        //     for (int ij = 0; ij < reqrdnum; ij++) {
-        //         Rcout << v[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: df203 ";  // prints the second derivatives
-        //     for (int ij = 0; ij < reqrdnum; ij++) {
-        //         Rcout << G(ij, ij) << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: df204 ";  // prints parameter values
-        //     for (int ij = 0; ij < totalnum; ij++) {
-        //         Rcout << beta_0[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: Second Derivative Determinant: " << G.determinant() << endl;
-        // }
         deriv_max = abs(v[0]);
         for (int ij = 0; ij < reqrdnum; ij++) {
             if (abs(v[ij])>deriv_max) {
@@ -687,13 +657,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 }
             }
         }
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: df205 ";  // prints parameter values
-        //     for (int ij = 0; ij < totalnum; ij++) {
-        //         Rcout << dbeta[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
     }
     return;
 }
@@ -765,7 +728,7 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
             } else {
                 dbeta[ijk] = lr * Lldd_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
             }
-//            //
+           //
             if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
                 if (abs(dbeta[ijk]) > dose_abs_max) {
                     dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);

@@ -105,6 +105,7 @@ e <- RunPoissonRegression_Residual(
 }
 \seealso{
 Other Poisson Wrapper Functions: 
+\code{\link{PoissonCurveSolver}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonEventAssignment_bound}()},
 \code{\link{RunPoissonRegression}()},

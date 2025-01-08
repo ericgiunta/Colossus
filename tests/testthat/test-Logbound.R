@@ -426,7 +426,38 @@ test_that("Coxph, lin both, curve search", {
     a_n <- c(-1.493177, 5.020007, 1.438377)
     model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = FALSE, "alpha" = alpha, "para_num" = 2, "step_size" = 0.5)
     e <- CoxCurveSolver(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
-    a <- e$Boundary_Value
+    a <- e$Parameter_Limits
+    expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
+    expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
+  }
+})
+
+test_that("Poisson, curve search", {
+  fname <- "base_example.csv"
+  df <- fread(fname)
+  pyr <- "exit"
+  event <- "event"
+  names <- c("dose0", "dose1")
+  term_n <- c(0, 1)
+  tform <- c("loglin", "lin")
+  keep_constant <- c(0, 0)
+  a_n <- c(-2.917, 0.06526)
+  modelform <- "M"
+  fir <- 0
+  der_iden <- 0
+  #
+  model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+
+  alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
+  v_lower <- c(0.05420358, 0.04222162, 0.03132875, 0.02635629, 0.01005895, -0.000226426, -0.009347367, -0.02010672, -0.02749484)
+  v_upper <- c(0.07591398, 0.08818014, 0.09951265, 0.10474451, 0.12215383, 0.133353782, 0.143427443, 0.15548284, 0.16387327)
+  for (alpha_i in 1:length(alpha_list)) {
+    alpha <- alpha_list[alpha_i]
+    a_n <- c(-2.917, 0.06526)
+    model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
+    e <- PoissonCurveSolver(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control)
+    a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
   }

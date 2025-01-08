@@ -275,6 +275,258 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
     return res;
 }
 
+//' Interface between R code and the Cox PH omnibus bounds regression function
+//'
+//' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+// [[Rcpp::export]]
+List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
+    int verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    //
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["ncores"];
+    //
+    const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    double mult = model_control["search_mult"];
+    //
+    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = model_control["basic"],
+            _["linear_err"] = model_control["linear_err"],
+            _["null"] = model_control["null"],
+            _["cr"] = model_control["cr"],
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["constraint"] = model_control["constraint"],
+            _["log_bound"] = true,
+            _["cox"] = true
+    );
+    List optim_para = List::create(
+            _["lr"] = Control["lr"],
+            _["double_step"] = Control["double_step"],
+            _["change_all"] = Control["change_all"]
+    );
+    //
+    double qchi    = model_control["qchi"];
+    int para_number = model_control["para_number"];
+    //
+    int maxstep    = model_control["maxstep"];
+    //
+    bool manual   = model_control["manual"];
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res;
+    if (manual) {
+        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+    } else {
+        res = LogLik_Cox_PH_Omnibus_Log_Bound(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+    }
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the poisson omnibus bounds regression function
+//'
+//' \code{pois_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+// [[Rcpp::export]]
+List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
+    //
+    int verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    //
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    int nthreads = Control["ncores"];
+    //
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    double mult = model_control["search_mult"];
+    //
+    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = false,
+            _["linear_err"] = false,
+            _["null"] = false,
+            _["cr"] = false,
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["constraint"] = model_control["constraint"],
+            _["log_bound"] = false,
+            _["cox"] = false
+    );
+    List optim_para = List::create(
+            _["lr"] = Control["lr"],
+            _["double_step"] = Control["double_step"],
+            _["change_all"] = Control["change_all"]
+    );
+    //
+    double qchi    = model_control["qchi"];
+    int para_number = model_control["para_number"];
+    //
+    int maxstep    = model_control["maxstep"];
+    //
+    bool manual   = model_control["manual"];
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res;
+    if (manual) {
+        res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+    } else {
+        res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+    }
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the poisson residual calculation function
+//'
+//' \code{pois_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
+//' @inheritParams CPP_template
+//'
+//' @return Poisson_Residuals output : list of residuals and sum
+//' @noRd
+//'
+// [[Rcpp::export]]
+List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control) {
+    //
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
+    //
+    int verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    int nthreads = Control["ncores"];
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    //
+    //
+    bool Pearson_bool = model_control["pearson"];
+    bool Deviance_bool = model_control["deviance"];
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = false,
+            _["linear_err"] = false,
+            _["null"] = false,
+            _["cr"] = false,
+            _["single"] = true,
+            _["gradient"] = false,
+            _["constraint"] = false,
+            _["log_bound"] = false,
+            _["cox"] = false
+    );
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = Poisson_Residuals(PyrC, term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Pearson_bool, Deviance_bool);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the Cox PH omnibus regression function
+//'
+//' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+// [[Rcpp::export]]
+List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    int verbose = Control["verbose"];
+    bool debugging = FALSE;
+    double lr = Control["lr"];
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    //
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["ncores"];
+    //
+    const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    //
+    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = model_control["basic"],
+            _["linear_err"] = model_control["linear_err"],
+            _["null"] = model_control["null"],
+            _["cr"] = model_control["cr"],
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["constraint"] = model_control["constraint"],
+            _["log_bound"] = false,
+            _["cox"] = true
+    );
+    List optim_para = List::create(
+            _["lr"] = Control["lr"],
+            _["double_step"] = Control["double_step"],
+            _["change_all"] = Control["change_all"]
+    );
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+    }
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Cox_PH_Multidose_Omnibus(term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+
 //' Generates csv file with time-dependent columns
 //'
 //' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
@@ -643,257 +895,6 @@ bool OMP_Check() {
         res = true;
     #endif
     //----------------------------------------------------------------------------------------------------------------//
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH omnibus bounds regression function
-//'
-//' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @inheritParams CPP_template
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-//' @noRd
-//'
-// [[Rcpp::export]]
-List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
-    int verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    NumericVector maxiters = Control["maxiters"];
-    int guesses = Control["guesses"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["ncores"];
-    //
-    const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
-    //
-    double gmix_theta = model_control["gmix_theta"];
-    IntegerVector gmix_term = model_control["gmix_term"];
-    double mult = model_control["search_mult"];
-    //
-    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
-    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
-    //
-    List model_bool = List::create(
-            _["strata"] = model_control["strata"],
-            _["basic"] = model_control["basic"],
-            _["linear_err"] = model_control["linear_err"],
-            _["null"] = model_control["null"],
-            _["cr"] = model_control["cr"],
-            _["single"] = model_control["single"],
-            _["gradient"] = model_control["gradient"],
-            _["constraint"] = model_control["constraint"],
-            _["log_bound"] = true,
-            _["cox"] = true
-    );
-    List optim_para = List::create(
-            _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"],
-            _["change_all"] = Control["change_all"]
-    );
-    //
-    double qchi    = model_control["qchi"];
-    int para_number = model_control["para_number"];
-    //
-    int maxstep    = model_control["maxstep"];
-    //
-    bool manual   = model_control["manual"];
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res;
-    if (manual) {
-        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
-    } else {
-        res = LogLik_Cox_PH_Omnibus_Log_Bound(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
-    }
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the poisson omnibus bounds regression function
-//'
-//' \code{pois_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @inheritParams CPP_template
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-//' @noRd
-//'
-// [[Rcpp::export]]
-List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
-    //
-    int verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    NumericVector maxiters = Control["maxiters"];
-    int guesses = Control["guesses"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    int nthreads = Control["ncores"];
-    //
-    //
-    double gmix_theta = model_control["gmix_theta"];
-    IntegerVector gmix_term = model_control["gmix_term"];
-    double mult = model_control["search_mult"];
-    //
-    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
-    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
-    //
-    List model_bool = List::create(
-            _["strata"] = model_control["strata"],
-            _["basic"] = false,
-            _["linear_err"] = false,
-            _["null"] = false,
-            _["cr"] = false,
-            _["single"] = model_control["single"],
-            _["gradient"] = model_control["gradient"],
-            _["constraint"] = model_control["constraint"],
-            _["log_bound"] = false,
-            _["cox"] = false
-    );
-    List optim_para = List::create(
-            _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"],
-            _["change_all"] = Control["change_all"]
-    );
-    //
-    double qchi    = model_control["qchi"];
-    int para_number = model_control["para_number"];
-    //
-    int maxstep    = model_control["maxstep"];
-    //
-    bool manual   = model_control["manual"];
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res;
-    if (manual) {
-        res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
-    } else {
-        res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
-    }
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the poisson residual calculation function
-//'
-//' \code{pois_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
-//' @inheritParams CPP_template
-//'
-//' @return Poisson_Residuals output : list of residuals and sum
-//' @noRd
-//'
-// [[Rcpp::export]]
-List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control) {
-    //
-    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
-    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
-    //
-    int verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    int nthreads = Control["ncores"];
-    //
-    double gmix_theta = model_control["gmix_theta"];
-    IntegerVector gmix_term = model_control["gmix_term"];
-    //
-    //
-    bool Pearson_bool = model_control["pearson"];
-    bool Deviance_bool = model_control["deviance"];
-    //
-    List model_bool = List::create(
-            _["strata"] = model_control["strata"],
-            _["basic"] = false,
-            _["linear_err"] = false,
-            _["null"] = false,
-            _["cr"] = false,
-            _["single"] = true,
-            _["gradient"] = false,
-            _["constraint"] = false,
-            _["log_bound"] = false,
-            _["cox"] = false
-    );
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = Poisson_Residuals(PyrC, term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, verbose, debugging, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Pearson_bool, Deviance_bool);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-//' Interface between R code and the Cox PH omnibus regression function
-//'
-//' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
-//' @inheritParams CPP_template
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-//' @noRd
-//'
-// [[Rcpp::export]]
-List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
-    bool change_all = Control["change_all"];
-    int double_step = Control["double_step"];
-    int verbose = Control["verbose"];
-    bool debugging = FALSE;
-    double lr = Control["lr"];
-    int maxiter = Control["maxiter"];
-    int halfmax = Control["halfmax"];
-    double epsilon = Control["epsilon"];
-    //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
-    int nthreads = Control["ncores"];
-    //
-    const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
-    //
-    double gmix_theta = model_control["gmix_theta"];
-    IntegerVector gmix_term = model_control["gmix_term"];
-    //
-    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
-    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
-    //
-    List model_bool = List::create(
-            _["strata"] = model_control["strata"],
-            _["basic"] = model_control["basic"],
-            _["linear_err"] = model_control["linear_err"],
-            _["null"] = model_control["null"],
-            _["cr"] = model_control["cr"],
-            _["single"] = model_control["single"],
-            _["gradient"] = model_control["gradient"],
-            _["constraint"] = model_control["constraint"],
-            _["log_bound"] = false,
-            _["cox"] = true
-    );
-    List optim_para = List::create(
-            _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"],
-            _["change_all"] = Control["change_all"]
-    );
-    if (model_bool["gradient"]) {
-        model_bool["momentum"] = model_control["momentum"];
-        model_bool["adadelta"] = model_control["adadelta"];
-        model_bool["adam"] = model_control["adam"];
-        optim_para["momentum_decay"] = model_control["momentum_decay"];
-        optim_para["learning_decay"] = model_control["learning_decay"];
-        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
-    }
-    //
-    // Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Multidose_Omnibus(term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

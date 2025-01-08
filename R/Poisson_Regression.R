@@ -55,6 +55,7 @@
 #' )
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+  func_t_start <- Sys.time()
   df <- data.table(df)
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
@@ -1104,5 +1105,407 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ]),
     model_control
   )
+  return(e)
+}
+
+#' Calculates the likelihood curve for a poisson model directly
+#'
+#' \code{PoissonCurveSolver} solves the confidence interval for a poisson model, starting at the optimum point and
+#' iteratively optimizing each point to using the bisection method
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Poisson Wrapper Functions
+#' @importFrom rlang .data
+PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+  func_t_start <- Sys.time()
+  df <- data.table(df)
+  control <- Def_Control(control)
+  model_control <- Def_model_control(model_control)
+  val <- Correct_Formula_Order(
+    term_n, tform, keep_constant, a_n,
+    names, der_iden, cons_mat, cons_vec,
+    control$verbose, model_control
+  )
+  term_n <- val$term_n
+  tform <- val$tform
+  keep_constant <- val$keep_constant
+  a_n <- val$a_n
+  der_iden <- val$der_iden
+  names <- val$names
+  cons_mat <- as.matrix(val$cons_mat)
+  cons_vec <- val$cons_vec
+  if ("para_number" %in% names(model_control)) {
+    model_control$para_number <- val$para_num
+  }
+  if (typeof(a_n) != "list") {
+    a_n <- list(a_n)
+  }
+  df <- df[get(pyr0) > 0, ]
+  if (control$verbose >= 2) {
+    if (any(val$Permutation != seq_along(tform))) {
+      warning("Warning: model covariate order changed")
+    }
+  }
+  val <- Def_modelform_fix(control, model_control, modelform, term_n)
+  modelform <- val$modelform
+  model_control <- val$model_control
+  if (min(keep_constant) > 0) {
+    stop("Error: Atleast one parameter must be free")
+  }
+  if (sum(df[, event0, with = FALSE]) == 0) {
+    stop("Error: no events")
+  }
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (model_control$strata == TRUE) {
+    val <- factorize(df, strat_col)
+    df0 <- val$df
+    df <- val$df
+    val_cols <- c()
+    for (col in val$cols) {
+      dftemp <- df[get(col) == 1, ]
+      temp <- sum(dftemp[, get(event0)])
+      if (temp == 0) {
+        warning(paste("Warning: no events for strata group:", col,
+          sep = " "
+        ))
+        df <- df[get(col) != 1, ]
+        df0 <- df0[get(col) != 1, ]
+      } else {
+        val_cols <- c(val_cols, col)
+      }
+      data.table::setkeyv(df0, c(pyr0, event0))
+    }
+  } else {
+    df0 <- data.table::data.table("a" = c(0, 0))
+    val <- list(cols = c("a"))
+    val_cols <- c("a")
+  }
+  data.table::setkeyv(df, c(pyr0, event0))
+  all_names <- unique(names)
+  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+  dfc <- match(names, all_names)
+  term_tot <- max(term_n) + 1
+  x_all <- as.matrix(df[, all_names, with = FALSE])
+  ce <- c(pyr0, event0)
+  a_ns <- c()
+  for (i in a_n) {
+    a_ns <- c(a_ns, i)
+  }
+  if ("maxiters" %in% names(control)) {
+    if (length(control$maxiters) == length(a_n) + 1) {
+      # all good, it matches
+    } else {
+      if (control$verbose >= 3) {
+        message(paste("Note: Initial starts:", length(a_n),
+          ", Number of iterations provided:",
+          length(control$maxiters),
+          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
+          sep = " "
+        )) # nocov
+      }
+      if (length(control$maxiters) < length(a_n) + 1) {
+        additional <- length(a_n) + 1 - length(control$maxiters)
+        control$maxiters <- c(control$maxiters, rep(1, additional))
+      } else {
+        additional <- length(a_n) + 1
+        control$maxiters <- control$maxiters[1:additional]
+      }
+    }
+    if ("guesses" %in% names(control)) {
+      # both are in
+      if (control$guesses + 1 == length(control$maxiters)) {
+        # all good, it matches
+      } else {
+        stop(paste("Error: guesses:", control["guesses"],
+          ", iterations per guess:",
+          control["maxiters"],
+          sep = " "
+        ))
+      }
+    } else {
+      control$guesses <- length(control$maxiters) - 1
+    }
+  } else {
+    if ("guesses" %in% names(control)) {
+      if (control$guesses == length(a_n)) {
+        # both match, all good
+      } else {
+        control$guesses <- length(a_n)
+      }
+      control$maxiters <- rep(1, control$guesses + 1)
+    } else {
+      control$guesses <- length(a_n)
+      control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
+    }
+  }
+  e <- pois_Omnibus_transition(
+    as.matrix(df[, ce, with = FALSE]),
+    term_n, tform, matrix(a_ns,
+      nrow = length(control$maxiters) - 1,
+      byrow = TRUE
+    ), dfc, x_all, fir, der_iden,
+    modelform, control, keep_constant,
+    term_tot, as.matrix(df0[, val_cols,
+      with = FALSE
+    ]),
+    model_control, cons_mat, cons_vec
+  )
+  if ("alpha" %in% names(model_control)) {
+    qchi <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  } else {
+    model_control["alpha"] <- 0.05
+    qchi <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  }
+  Lstar <- e$LogLik - qchi
+  beta_opt <- e$beta_0
+  L_opt <- e$LogLik
+  Boundary_Score <- c(0, 0)
+  Boundary_Value <- c(0, 0)
+  Boundary_Conv <- c(FALSE, FALSE)
+  Limit_Hit <- c(FALSE, FALSE)
+  Boundary_x <- c(beta_opt)
+  Boundary_y <- c(L_opt)
+  #
+  step_limit <- model_control$maxstep # 10
+  step_size <- model_control$step_size # 0.5
+  para_num <- model_control$para_num + 1 # 3
+  keep_constant[para_num] <- 1
+  # Solving Upper Limit
+  L_low <- e$LogLik
+  beta_low <- e$beta_0
+  e <- list("LogLik" = NaN)
+  temp_step <- copy(step_size)
+  while (is.nan(e$LogLik) & (temp_step > 1e-3)) {
+    beta_high <- copy(beta_low)
+    beta_high[para_num] <- beta_high[para_num] + temp_step
+    #
+    temp_step <- temp_step * 0.5
+    beta_highs <- matrix(beta_high, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- pois_Omnibus_transition(
+      as.matrix(df[, ce, with = FALSE]),
+      term_n, tform, beta_highs, dfc, x_all, fir, der_iden,
+      modelform, control, keep_constant,
+      term_tot, as.matrix(df0[, val_cols,
+        with = FALSE
+      ]),
+      model_control, cons_mat, cons_vec
+    )
+  }
+  if (is.nan(e$LogLik)) {
+    Limit_Hit[2] <- TRUE
+  }
+  L_high <- e$LogLik
+  beta_high <- e$beta_0
+  beta_mid <- (beta_low + beta_high) / 2
+  beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+  e <- pois_Omnibus_transition(
+    as.matrix(df[, ce, with = FALSE]),
+    term_n, tform, beta_mids, dfc, x_all, fir, der_iden,
+    modelform, control, keep_constant,
+    term_tot, as.matrix(df0[, val_cols,
+      with = FALSE
+    ]),
+    model_control, cons_mat, cons_vec
+  )
+  L_mid <- e$LogLik
+  beta_mid <- e$beta_0
+  step <- 0
+  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
+    step <- step + 1
+    if (L_low < Lstar) {
+      # the lower estimate is too far out?
+      stop("The lower estimate is too high?")
+    } else if (L_high < Lstar) {
+      # the point is between the two
+      if (L_mid < Lstar) {
+        # the mid point is past the optimum
+        beta_high <- copy(beta_mid)
+        L_high <- copy(L_mid)
+      } else {
+        # the mid point is before the optimum
+        beta_low <- copy(beta_mid)
+        L_low <- copy(L_mid)
+      }
+    } else if (L_mid < Lstar) {
+      beta_high <- copy(beta_mid)
+      L_high <- copy(L_mid)
+    } else {
+      # the upper estimate needs to be shifted up
+      L_low <- copy(L_high)
+      beta_low <- copy(beta_high)
+      e <- list("LogLik" = NaN)
+      temp_step <- copy(step_size)
+      while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
+        beta_high <- copy(beta_low)
+        beta_high[para_num] <- beta_high[para_num] + temp_step
+        #
+        temp_step <- temp_step * 0.5
+        beta_highs <- matrix(beta_high, nrow = length(control$maxiters) - 1, byrow = TRUE)
+        e <- pois_Omnibus_transition(
+          as.matrix(df[, ce, with = FALSE]),
+          term_n, tform, beta_highs, dfc, x_all, fir, der_iden,
+          modelform, control, keep_constant,
+          term_tot, as.matrix(df0[, val_cols,
+            with = FALSE
+          ]),
+          model_control, cons_mat, cons_vec
+        )
+      }
+      if (is.nan(e$LogLik)) {
+        Limit_Hit[2] <- TRUE
+      }
+      L_high <- e$LogLik
+      beta_high <- e$beta_0
+    }
+    beta_mid <- (beta_low + beta_high) / 2
+    beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- pois_Omnibus_transition(
+      as.matrix(df[, ce, with = FALSE]),
+      term_n, tform, beta_mids, dfc, x_all, fir, der_iden,
+      modelform, control, keep_constant,
+      term_tot, as.matrix(df0[, val_cols,
+        with = FALSE
+      ]),
+      model_control, cons_mat, cons_vec
+    )
+    L_mid <- e$LogLik
+    beta_mid <- e$beta_0
+    # Boundary_x <- c(Boundary_x, beta_mid)
+    # Boundary_y <- c(Boundary_y, L_mid)
+    # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
+    # print(c(step, beta_mid[para_num],L_mid,Lstar))
+  }
+  if (abs(beta_low[para_num] - beta_high[para_num]) <= control$epsilon) {
+    Boundary_Conv[2] <- TRUE
+  }
+  Boundary_Score[2] <- L_mid
+  Boundary_Value[2] <- beta_mid[para_num]
+  # Solve for lower boundary
+  L_high <- copy(L_opt)
+  beta_high <- copy(beta_opt)
+  e <- list("LogLik" = NaN)
+  temp_step <- copy(step_size)
+  while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
+    beta_low <- copy(beta_high)
+    beta_low[para_num] <- beta_low[para_num] - temp_step
+    #
+    temp_step <- temp_step * 0.5
+    beta_lows <- matrix(beta_low, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- pois_Omnibus_transition(
+      as.matrix(df[, ce, with = FALSE]),
+      term_n, tform, beta_lows, dfc, x_all, fir, der_iden,
+      modelform, control, keep_constant,
+      term_tot, as.matrix(df0[, val_cols,
+        with = FALSE
+      ]),
+      model_control, cons_mat, cons_vec
+    )
+  }
+  if (is.nan(e$LogLik)) {
+    Limit_Hit[1] <- TRUE
+  }
+  L_low <- e$LogLik
+  beta_low <- e$beta_0
+  beta_mid <- (beta_low + beta_high) / 2
+  beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+  e <- pois_Omnibus_transition(
+    as.matrix(df[, ce, with = FALSE]),
+    term_n, tform, beta_mids, dfc, x_all, fir, der_iden,
+    modelform, control, keep_constant,
+    term_tot, as.matrix(df0[, val_cols,
+      with = FALSE
+    ]),
+    model_control, cons_mat, cons_vec
+  )
+  L_mid <- e$LogLik
+  beta_mid <- e$beta_0
+  step <- 0
+  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[1])) {
+    step <- step + 1
+    if (L_high < Lstar) {
+      # the upper estimate is too far out?
+      stop("The upper estimate is too high?")
+    } else if (L_low < Lstar) {
+      # the point is between the two
+      if (L_mid > Lstar) {
+        # the mid point is past the optimum
+        beta_high <- copy(beta_mid)
+        L_high <- copy(L_mid)
+      } else {
+        # the mid point is before the optimum
+        beta_low <- copy(beta_mid)
+        L_low <- copy(L_mid)
+      }
+    } else if (L_mid < Lstar) {
+      beta_low <- copy(beta_mid)
+      L_low <- copy(L_mid)
+    } else {
+      # the upper estimate needs to be shifted up
+      L_high <- copy(L_low)
+      beta_high <- copy(beta_low)
+      e <- list("LogLik" = NaN)
+      temp_step <- copy(step_size)
+      while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
+        beta_low <- copy(beta_high)
+        beta_low[para_num] <- beta_low[para_num] - temp_step
+        #
+        temp_step <- temp_step * 0.5
+        beta_lows <- matrix(beta_low, nrow = length(control$maxiters) - 1, byrow = TRUE)
+        e <- pois_Omnibus_transition(
+          as.matrix(df[, ce, with = FALSE]),
+          term_n, tform, beta_lows, dfc, x_all, fir, der_iden,
+          modelform, control, keep_constant,
+          term_tot, as.matrix(df0[, val_cols,
+            with = FALSE
+          ]),
+          model_control, cons_mat, cons_vec
+        )
+      }
+      if (is.nan(e$LogLik)) {
+        Limit_Hit[1] <- TRUE
+      }
+      L_low <- e$LogLik
+      beta_low <- e$beta_0
+    }
+    beta_mid <- (beta_low + beta_high) / 2
+    beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
+    e <- pois_Omnibus_transition(
+      as.matrix(df[, ce, with = FALSE]),
+      term_n, tform, beta_mids, dfc, x_all, fir, der_iden,
+      modelform, control, keep_constant,
+      term_tot, as.matrix(df0[, val_cols,
+        with = FALSE
+      ]),
+      model_control, cons_mat, cons_vec
+    )
+    L_mid <- e$LogLik
+    beta_mid <- e$beta_0
+    # print(c(step, beta_mid[para_num],L_mid,Lstar))
+    # Boundary_x <- c(beta_mid,Boundary_x)
+    # Boundary_y <- c(L_mid, Boundary_y)
+    # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
+  }
+  if (abs(beta_low[para_num] - beta_high[para_num]) <= control$epsilon) {
+    Boundary_Conv[1] <- TRUE
+  }
+  Boundary_Score[1] <- L_mid
+  Boundary_Value[1] <- beta_mid[para_num]
+  # List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
+  e <- list("Likelihood_Boundary" = Boundary_Score, "Parameter_Limits" = Boundary_Value, "Likelihood_Goal" = Lstar, "Limit_Converged" = Boundary_Conv, "Negative_Limit_Found" = Limit_Hit, "Status" = "PASSED") # , "Midpoint_beta"=Boundary_x, "Midpoint_score"=Boundary_y)
+  e$Parameter_Lists$names <- names
+  e$Parameter_Lists$modelformula <- modelform
+  e$Parameter_Lists$first_term <- fir
+  e$Survival_Type <- "Poisson"
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
   return(e)
 }

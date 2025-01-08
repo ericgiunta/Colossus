@@ -1691,6 +1691,8 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
   L_opt <- e$LogLik
   Boundary_Score <- c(0, 0)
   Boundary_Value <- c(0, 0)
+  Boundary_Conv <- c(FALSE, FALSE)
+  Limit_Hit <- c(FALSE, FALSE)
   Boundary_x <- c(beta_opt)
   Boundary_y <- c(L_opt)
   #
@@ -1718,7 +1720,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     )
   }
   if (is.nan(e$LogLik)) {
-    stop("Failed to find positive upper boundary")
+    Limit_Hit[2] <- TRUE
   }
   L_high <- e$LogLik
   beta_high <- e$beta_0
@@ -1734,7 +1736,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
   L_mid <- e$LogLik
   beta_mid <- e$beta_0
   step <- 0
-  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon)) {
+  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
     step <- step + 1
     if (L_low < Lstar) {
       # the lower estimate is too far out?
@@ -1750,6 +1752,9 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
         beta_low <- copy(beta_mid)
         L_low <- copy(L_mid)
       }
+    } else if (L_mid < Lstar) {
+      beta_high <- copy(beta_mid)
+      L_high <- copy(L_mid)
     } else {
       # the upper estimate needs to be shifted up
       L_low <- copy(L_high)
@@ -1771,7 +1776,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
         )
       }
       if (is.nan(e$LogLik)) {
-        stop("Failed to find positive upper boundary")
+        Limit_Hit[2] <- TRUE
       }
       L_high <- e$LogLik
       beta_high <- e$beta_0
@@ -1791,6 +1796,9 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     # Boundary_y <- c(Boundary_y, L_mid)
     # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
     # print(c(step, beta_mid[para_num],L_mid,Lstar))
+  }
+  if (abs(beta_low[para_num] - beta_high[para_num]) <= control$epsilon) {
+    Boundary_Conv[2] <- TRUE
   }
   Boundary_Score[2] <- L_mid
   Boundary_Value[2] <- beta_mid[para_num]
@@ -1814,7 +1822,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     )
   }
   if (is.nan(e$LogLik)) {
-    stop("Failed to find positive lower boundary")
+    Limit_Hit[1] <- TRUE
   }
   L_low <- e$LogLik
   beta_low <- e$beta_0
@@ -1830,7 +1838,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
   L_mid <- e$LogLik
   beta_mid <- e$beta_0
   step <- 0
-  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon)) {
+  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[1])) {
     step <- step + 1
     if (L_high < Lstar) {
       # the upper estimate is too far out?
@@ -1846,6 +1854,9 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
         beta_low <- copy(beta_mid)
         L_low <- copy(L_mid)
       }
+    } else if (L_mid < Lstar) {
+      beta_low <- copy(beta_mid)
+      L_low <- copy(L_mid)
     } else {
       # the upper estimate needs to be shifted up
       L_high <- copy(L_low)
@@ -1867,7 +1878,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
         )
       }
       if (is.nan(e$LogLik)) {
-        stop("Failed to find positive lower boundary")
+        Limit_Hit[1] <- TRUE
       }
       L_low <- e$LogLik
       beta_low <- e$beta_0
@@ -1887,11 +1898,13 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     # Boundary_y <- c(L_mid, Boundary_y)
     # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
   }
-  # print(c(step, beta_mid[para_num],L_mid,Lstar))
+  if (abs(beta_low[para_num] - beta_high[para_num]) <= control$epsilon) {
+    Boundary_Conv[1] <- TRUE
+  }
   Boundary_Score[1] <- L_mid
   Boundary_Value[1] <- beta_mid[para_num]
-  #
-  e <- list("Boundary_Score" = Boundary_Score, "Boundary_Value" = Boundary_Value, "Goal" = Lstar) # , "Midpoint_beta"=Boundary_x, "Midpoint_score"=Boundary_y)
+  # List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
+  e <- list("Likelihood_Boundary" = Boundary_Score, "Parameter_Limits" = Boundary_Value, "Likelihood_Goal" = Lstar, "Limit_Converged" = Boundary_Conv, "Negative_Limit_Found" = Limit_Hit, "Status" = "PASSED") # , "Midpoint_beta"=Boundary_x, "Midpoint_score"=Boundary_y)
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
   e$Parameter_Lists$first_term <- fir

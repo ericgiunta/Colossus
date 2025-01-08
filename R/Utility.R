@@ -663,6 +663,24 @@ Def_Control <- function(control) {
       control[nm] <- control_def[nm]
     }
   }
+  control_min <- list(
+    "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
+    "halfmax" = 0, "epsilon" = 0.0,
+    "deriv_epsilon" = 0.0, "abs_max" = 0.0,
+    "dose_abs_max" = 0.0
+  )
+  for (nm in names(control_min)) {
+    if (control[[nm]] < control_min[[nm]]) {
+      control[nm] <- control_min[nm]
+    }
+  }
+  control_int <- list(
+    "verbose" = 0, "maxiter" = -1,
+    "halfmax" = 0
+  )
+  for (nm in names(control_int)) {
+    control[nm] <- as.integer(control[nm])
+  }
   return(control)
 }
 
@@ -810,6 +828,11 @@ Def_model_control <- function(control) {
       # fine
     } else {
       control["search_mult"] <- 1.0
+    }
+    if ("step_size" %in% names(control)) {
+      # fine
+    } else {
+      control["search_mult"] <- 0.5
     }
   }
   if (control[["gradient"]]) {

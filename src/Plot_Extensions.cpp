@@ -223,9 +223,6 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, Num
 // [[Rcpp::export]]
 List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  MatrixXd& df0, const MatrixXd& R, MatrixXd& Lldd_inv, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, IntegerVector& dfc, int verbose, bool debugging, IntegerVector KeepConstant, int nthreads) {
     int reqrdnum = totalnum - sum(KeepConstant);
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: starting plot data " << endl;
-    // }
     MatrixXd residuals = MatrixXd::Zero(ntime, reqrdnum);
     MatrixXd res_scale = MatrixXd::Zero(ntime, reqrdnum);
     VectorXd res_df = VectorXd::Zero(ntime);
@@ -299,19 +296,6 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  Ma
 List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double abs_max, double dose_abs_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  // used as a dummy return value for code checking
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: START_PLOT" << endl;
-    // }
-    // time_point<system_clock> start_point, end_point;
-    // start_point = system_clock::now();
-    // auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    // end_point = system_clock::now();
-    // auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
-    // //
-    // auto gibtime = system_clock::to_time_t(system_clock::now());
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
     //
     // Time durations are measured from this point on in microseconds
     //
@@ -361,14 +345,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     // ------------------------------------------------------------------------- // initialize
     totalnum = term_n.size();
     reqrdnum = totalnum - sum(KeepConstant);
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Term checked ";
-    //     for (int ij = 0; ij < totalnum; ij++) {
-    //         Rcout << term_n[ij] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
-    //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
     //
@@ -396,13 +372,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     ColXd RdR;
     ColXd RddR;
     // ------------------------------------------------------------------------- // initialize
-    // if (verbose >= 4) {
-    //     end_point = system_clock::now();
-    //     ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-    //     Rcout << "C++ Note: df99, " << (ending-start) << ", Starting" <<endl;
-    //     gibtime = system_clock::to_time_t(system_clock::now());
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
@@ -445,10 +414,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     if (model_bool["strata"]) {
         RiskGroup_Strata = StringMatrix(ntime, Strata_vals.size());  // vector of strings detailing the rows
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  // vector giving the event rows
-        //
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: Grouping Start" << endl;
-        // }
         // Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
             Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskGroup_Strata, tu, nthreads, debugging, Strata_vals, cens_weight);
@@ -458,10 +423,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     } else {
         RiskGroup.resize(ntime);  // vector of strings detailing the rows
         RiskFail = IntegerMatrix(ntime, 2);  // vector giving the event rows
-        //
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: Grouping Start" << endl;
-        // }
         // Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
             Make_Groups_CR(ntime, df_m, RiskFail, RiskGroup, tu, cens_weight, nthreads, debugging);
@@ -469,16 +430,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
             Make_Groups(ntime, df_m, RiskFail, RiskGroup, tu, nthreads, debugging);
         }
     }
-    // if (verbose >= 4) {
-    //     end_point = system_clock::now();
-    //     ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-    //     Rcout << "C++ Note: df100 " << (ending-start) << " " <<0<< " " <<0<< " " << - 1<< ", Prep_List" <<endl;
-    //     gibtime = system_clock::to_time_t(system_clock::now());
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Made Risk Side Lists" << endl;
-    // }
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
@@ -546,42 +497,9 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector 
     //
     int totalnum = term_n.size();
     List res_list = List::create(_["Status"] = "FAILED");  // used as a dummy return value for code checking
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: START_RISK_CHECK" << endl;
-    // }
-    // time_point<system_clock> start_point, end_point;
-    // start_point = system_clock::now();
-    // auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    // end_point = system_clock::now();
-    // auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
-    // //
-    // auto gibtime = system_clock::to_time_t(system_clock::now());
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
     //
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
-    //
-    //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Term checked ";
-    //     for (int ij = 0; ij < totalnum; ij++) {
-    //         Rcout << term_n[ij] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
-    //
-    //
     Rcout.precision(7);  // forces higher precision numbers printed to terminal
-    //
-    //
-    // if (verbose >= 4) {
-    //     end_point = system_clock::now();
-    //     ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-    //     Rcout << "C++ Note: df99, " << (ending-start) << ", Starting" <<endl;
-    //     gibtime = system_clock::to_time_t(system_clock::now());
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
@@ -598,64 +516,11 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector 
     MatrixXd nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
     MatrixXd nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
     MatrixXd TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
-    //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: starting subterms " << term_tot << endl;
-    // }
     // Calculates the subterm and term values
     Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
     // ---------------------------------------------------------
     // Prints off a series of calculations to check at what point values are changing
     // ---------------------------------------------------------
-    //
-    //
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: values checked ";
-    //     for (int ijk = 0; ijk < totalnum; ijk++) {
-    //         Rcout << beta_0[ijk] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: sums checked ";
-    //     for (int ijk = 0; ijk < totalnum; ijk++) {
-    //         Rcout << T0.col(ijk).sum() << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: dose checked ";
-    //     for (int ijk = 0; ijk < term_tot; ijk++) {
-    //         Rcout << Dose.col(ijk).array().sum() << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: non-dose checked ";
-    //     for (int ijk = 0; ijk < term_tot; ijk++) {
-    //         Rcout << nonDose.col(ijk).array().sum() << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: LIN_non-dose checked ";
-    //     for (int ijk = 0; ijk < term_tot; ijk++) {
-    //         Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: PLIN_non-dose checked ";
-    //     for (int ijk = 0; ijk < term_tot; ijk++) {
-    //         Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-    //     }
-    //     Rcout << " " << endl;
-    //     Rcout << "C++ Note: LOGLIN_non-dose checked ";
-    //     for (int ijk = 0; ijk < term_tot; ijk++) {
-    //         Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
-    //
-    //
-    // if (verbose >= 4) {
-    //     end_point = system_clock::now();
-    //     ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-    //     Rcout << "C++ Note: df99, " << (ending-start) << ", Prep_Terms" <<endl;
-    //     gibtime = system_clock::to_time_t(system_clock::now());
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
-    //
     // Calculates the risk for each row
     VectorXd s_weights;
     if (model_bool["strata"]) {
@@ -695,20 +560,6 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector 
 List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double abs_max, double dose_abs_max, int verbose, bool debugging, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  // used as a dummy return value for code checking
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: START_RESIDUAL" << endl;
-    // }
-    // time_point<system_clock> start_point, end_point;
-    // start_point = system_clock::now();
-    // auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    // end_point = system_clock::now();
-    // auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
-    // //
-    // auto gibtime = system_clock::to_time_t(system_clock::now());
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
-    //
     // Time durations are measured from this point on in microseconds
     //
     // df0: covariate data
@@ -723,14 +574,6 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     // ------------------------------------------------------------------------- // initialize
     totalnum = term_n.size();
     reqrdnum = totalnum - sum(KeepConstant);
-    // if (verbose >= 4) {
-    //     Rcout << "C++ Note: Term checked ";
-    //     for (int ij = 0; ij < totalnum; ij++) {
-    //         Rcout << term_n[ij] << " ";
-    //     }
-    //     Rcout << " " << endl;
-    // }
-    //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
     //
@@ -773,13 +616,6 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
         Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
     }
     // ------------------------------------------------------------------------- // initialize
-    // if (verbose >= 4) {
-    //     end_point = system_clock::now();
-    //     ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-    //     Rcout << "C++ Note: df99, " << (ending-start) << ", Starting" <<endl;
-    //     gibtime = system_clock::to_time_t(system_clock::now());
-    //     Rcout << "C++ Note: Current Time, " << ctime(&gibtime) << endl;
-    // }
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------

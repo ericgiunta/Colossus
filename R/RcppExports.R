@@ -725,6 +725,54 @@ Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, x_all, fir, der_ide
     .Call(`_Colossus_Plot_Omnibus_transition`, term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control)
 }
 
+#' Interface between R code and the Cox PH omnibus bounds regression function
+#'
+#' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_cox_ph_Omnibus_Bounds_transition`, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Interface between R code and the poisson omnibus bounds regression function
+#'
+#' \code{pois_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+pois_Omnibus_Bounds_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_pois_Omnibus_Bounds_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Interface between R code and the poisson residual calculation function
+#'
+#' \code{pois_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
+#' @inheritParams CPP_template
+#'
+#' @return Poisson_Residuals output : list of residuals and sum
+#' @noRd
+#'
+pois_Residual_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control) {
+    .Call(`_Colossus_pois_Residual_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control)
+}
+
+#' Interface between R code and the Cox PH omnibus regression function
+#'
+#' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_cox_ph_multidose_Omnibus_transition`, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+}
+
 #' Generates csv file with time-dependent columns
 #'
 #' \code{Write_Time_Dep} Called directly from R, Defines a new matrix which interpolates time-dependent values on a grid
@@ -781,54 +829,6 @@ Gen_Strat_Weight <- function(modelform, dfs, PyrC, s_weights, nthreads, tform, t
 #'
 OMP_Check <- function() {
     .Call(`_Colossus_OMP_Check`)
-}
-
-#' Interface between R code and the Cox PH omnibus bounds regression function
-#'
-#' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
-#' @inheritParams CPP_template
-#'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-#' @noRd
-#'
-cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_cox_ph_Omnibus_Bounds_transition`, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
-}
-
-#' Interface between R code and the poisson omnibus bounds regression function
-#'
-#' \code{pois_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
-#' @inheritParams CPP_template
-#'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-#' @noRd
-#'
-pois_Omnibus_Bounds_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_pois_Omnibus_Bounds_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
-}
-
-#' Interface between R code and the poisson residual calculation function
-#'
-#' \code{pois_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
-#' @inheritParams CPP_template
-#'
-#' @return Poisson_Residuals output : list of residuals and sum
-#' @noRd
-#'
-pois_Residual_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control) {
-    .Call(`_Colossus_pois_Residual_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, KeepConstant, term_tot, df0, model_control)
-}
-
-#' Interface between R code and the Cox PH omnibus regression function
-#'
-#' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
-#' @inheritParams CPP_template
-#'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-#' @noRd
-#'
-cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_cox_ph_multidose_Omnibus_transition`, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
 }
 
 #' Utility function to keep intercept parameters within the range of possible values

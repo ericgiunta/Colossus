@@ -75,3 +75,7 @@
 * Started gradient descent code
 * Started external rate comparison options
 * Added person-count and person-time table generation code and vignette
+
+# Colossus 1.1.5.5
+
+* Added CoxCurveSolver function to solve likelihood boundaries via bisection method

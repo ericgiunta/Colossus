@@ -103,6 +103,7 @@ e <- RunPoissonEventAssignment_bound(
 }
 \seealso{
 Other Poisson Wrapper Functions: 
+\code{\link{PoissonCurveSolver}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression}()},
 \code{\link{RunPoissonRegression_Guesses_CPP}()},

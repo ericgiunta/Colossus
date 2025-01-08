@@ -1506,8 +1506,8 @@ void Calc_LogLik_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, co
             Ldm.col(1) = Ldm.col(1).array() + Rs2;
             // Calculates the left-hand side terms
             //
-            double Ld1;
-            double Ld2;
+            double Ld1 = 0.0;
+            double Ld2 = 0.0;
             //
             MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
             temp1 = Ld.col(0).array().log();
@@ -1814,9 +1814,9 @@ void Calc_LogLik_Strata_Linear_ERR(const StringVector& tform, const int& nthread
                         Ldm.col(3) = Ldm.col(3).array() + Rs3;
                         // Calculates the left-hand side terms
                         //
-                        double Ld1;
-                        double Ld2;
-                        double Ld3;
+                        double Ld1 = 0.0;
+                        double Ld2 = 0.0;
+                        double Ld3 = 0.0;
                         //
                         MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
                         MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
@@ -1905,7 +1905,7 @@ void Calc_LogLik_Single(const int& nthreads, const IntegerMatrix& RiskFail, cons
         Ld << R.block(RiskFail(j, 0), 0, dj, 1);  // rows with events
         //
         MatrixXd Ldm = MatrixXd::Zero(dj, 1);
-        double Ldcs;
+        double Ldcs = 0.0;
         if (ties_method == "efron") {
             Ldcs = Lls1(j, 0);
             for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
@@ -1978,9 +1978,9 @@ void Calc_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, cons
                     Ldm.col(3) = Ldm.col(3).array() + Rs3;
                     // Calculates the left-hand side terms
                     //
-                    double Ld1;
-                    double Ld2;
-                    double Ld3;
+                    double Ld1 = 0.0;
+                    double Ld2 = 0.0;
+                    double Ld3 = 0.0;
                     //
                     MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
                     MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
@@ -2080,8 +2080,8 @@ void Calc_LogLik_Strata_Gradient(const int& nthreads, const IntegerMatrix& RiskF
                     Ldm.col(1) = Ldm.col(1).array() + Rs2;
                     // Calculates the left-hand side terms
                     //
-                    double Ld1;
-                    double Ld2;
+                    double Ld1 = 0.0;
+                    double Ld2 = 0.0;
                     //
                     MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
                     temp1 = Ld.col(0).array().log();
@@ -2138,7 +2138,7 @@ void Calc_LogLik_Strata_SINGLE(const int& nthreads, const IntegerMatrix& RiskFai
                 Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  // rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 1);
-                double Ldcs;
+                double Ldcs = 0.0;
                 if (ties_method == "efron") {
                     Ldcs = Lls1(j, s_ij);
                     for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
@@ -2148,7 +2148,7 @@ void Calc_LogLik_Strata_SINGLE(const int& nthreads, const IntegerMatrix& RiskFai
                 Ldm.col(0) = Ldm.col(0).array() + Rs1;
                 // Calculates the left-hand side terms
                 //
-                double Ld1;
+                double Ld1 = 0.0;
                 //
                 MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
                 temp1 = Ld.col(0).array().log();
@@ -2214,8 +2214,8 @@ void Calc_LogLik_Strata_BASIC(const int& nthreads, const IntegerMatrix& RiskFail
                     Ldm.col(3) = Ldm.col(3).array() + Rs3;
                     // Calculates the left-hand side terms
                     //
-                    double Ld1;
-                    double Ld2;
+                    double Ld1 = 0.0;
+                    double Ld2 = 0.0;
                     //
                     MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
                     MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
@@ -2507,7 +2507,7 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
                 MatrixXd Ld = MatrixXd::Constant(dj, 1, 1.0);
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 1);
-                double Ldcs;
+                double Ldcs = 0.0;
                 if (ties_method == "efron") {
                     Ldcs = Lls1(j, s_ij);
                     for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
