@@ -79,3 +79,8 @@
 # Colossus 1.1.5.5
 
 * Added CoxCurveSolver function to solve likelihood boundaries via bisection method
+
+# Colossus 1.1.6
+
+* MacOS testing with Openmp finished. MacOS use with openmp officially checked.
+* By default the only systems that is forced to use single thread is linux using clang. This can be turned off by setting the "R_COLOSSUS_NOT_CRAN" environment variable.
