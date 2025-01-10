@@ -490,6 +490,37 @@ then the interval is shifted away from the optimum.</p>
 <span></span>
 <span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"basic"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"maxstep"</span> <span class="op">=</span> <span class="fl">20</span>, <span class="st">"log_bound"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"alpha"</span> <span class="op">=</span> <span class="fl">0.005</span>, <span class="st">"para_num"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"step_size"</span> <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxCurveSolver.html">CoxCurveSolver</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, tform <span class="op">=</span> <span class="va">tform</span>, keep_constant <span class="op">=</span> <span class="va">keep_constant</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, modelform <span class="op">=</span> <span class="va">modelform</span>, fir <span class="op">=</span> <span class="va">fir</span>, der_iden <span class="op">=</span> <span class="va">der_iden</span>, control <span class="op">=</span> <span class="va">control</span>, strat_col <span class="op">=</span> <span class="st">"nan"</span>, model_control <span class="op">=</span> <span class="va">model_control</span><span class="op">)</span></span></code></pre></div>
+<p>In summary there are three functions available for calculating
+likelihood based boundaries. The first method is the standard
+Venzon-Moolgavkar algorithm. This method attempts to both optimize the
+model and guide the desired parameter to the boundary value. This method
+is the fastest, but most susceptible to local extrema. Using this
+algorithm depends on the initial step not being close to a local
+extrema, so the initial step can be scaled up or down. The second method
+is a modification of the Venzon-Moolgavkar algorithm. In the second
+method the initial step is split into multiple guesses, and each guess
+is optimized independently. The Venzon-Moolgavkar algorithm is then
+continued at the closest guess that did not exceed the target
+likelihood. In theory this method makes it more likely for the algorithm
+to start at an appropriate point, so it is slower but slightly less
+susceptible to local extrema. However the final portion of the algorithm
+is still based on derivatives, so it still susceptible to local extrema.
+The third method is an iterative bisection method. In this algorithm the
+desired parameter is fixed, and the model is optimized at the endpoints
+of an interval until an interval is located which contains the goal
+likelihood. Then the interval is split in half until the interval width
+is within a user-set limit. This method takes advantage of the fact that
+the likelihood curve is continuous and we know that the optimum point
+must be above the goal. The algorithm is split into two steps:
+optimizing the model at fixed points and determining if the interval
+contains the goal. The second step does not depend on the likelihood
+derivatives, so it is not prone to getting stuck in local extrema.
+However the interval width must be small enough not to step over the
+solution. Given a small enough interval width, every optimization is
+likely to converge and the solution is unlikely to be skipped. This
+method requires the model to be optimized repeatedly, so it is expected
+to take the longest. However the bisection method is the least likely to
+have issues converging.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
