@@ -62,16 +62,16 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
     }
   }
   for (m in c(TRUE, FALSE)) {
-    model_control <- list("null" = T, "log_bound" = TRUE, "manual" = m)
+    model_control <- list("null" = TRUE, "log_bound" = TRUE, "manual" = m)
     if (verbose) {
       print(model_control)
     }
     a_n <- c(-0.1, -0.1)
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
-    model_control <- list("single" = T, "log_bound" = TRUE, "manual" = m)
+    model_control <- list("single" = TRUE, "log_bound" = TRUE, "manual" = m)
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
-    model_control <- list("gradient" = T, "log_bound" = TRUE, "manual" = m)
+    model_control <- list("gradient" = TRUE, "log_bound" = TRUE, "manual" = m)
     expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
   }
 })
@@ -122,14 +122,14 @@ test_that("Poisson strata_single log_bound", {
   }
   for (m in c(TRUE, FALSE)) {
     for (k in c(TRUE)) {
-      model_control <- list("strata" = F, "single" = k, "log_bound" = TRUE, "manual" = m)
+      model_control <- list("strata" = FALSE, "single" = k, "log_bound" = TRUE, "manual" = m)
       if (verbose) {
         print(model_control)
       }
       a_n <- c(-0.1, -0.1)
       control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
       expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
-      model_control <- list("strata" = F, "gradient" = k, "log_bound" = TRUE, "manual" = m)
+      model_control <- list("strata" = FALSE, "gradient" = k, "log_bound" = TRUE, "manual" = m)
       if (verbose) {
         print(model_control)
       }

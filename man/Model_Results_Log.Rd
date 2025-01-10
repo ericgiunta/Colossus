@@ -8,7 +8,7 @@ Model_Results_Log(
   log_file = "out.log",
   df = data.table(),
   out_list = list(),
-  noprint = T
+  noprint = TRUE
 )
 }
 \arguments{

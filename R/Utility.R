@@ -1924,7 +1924,7 @@ System_Version <- function() {
 #' @family Output and Information Functions
 #' @return null, prints to screen or saves to file
 #' @export
-Model_Results_Log <- function(log_file = "out.log", df = data.table(), out_list = list(), noprint = T) {
+Model_Results_Log <- function(log_file = "out.log", df = data.table(), out_list = list(), noprint = TRUE) {
   if (noprint) {
     try(message_file <- file(log_file, open = "wt"))
     sink(message_file, type = "message")
@@ -2038,7 +2038,7 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
       df <- df %>% mutate("{cat_col}" := "Unassigned") # add to tibble
       for (i in 1:num_categ) { # for each category
         L <- as.numeric(temp0[i]) # lower bound
-        if (grepl("]", temp1[i], fixed = T)) {
+        if (grepl("]", temp1[i], fixed = TRUE)) {
           U <- as.numeric(gsub("]", "", temp1[i])) # assign upper
           a_col_categ <- case_when(df[[cat]] <= U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]), .default = df[[cat_col]]) # rows within the bounds and unassigned are assigned the name
           cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ") # add to list of intervals
@@ -2087,7 +2087,7 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
     group_by(across(all_of(categ_cols))) %>%
     summarize("COUNT" = n(), .groups = "drop") # group by columns and summarize by counts
   for (evt in names(events)) { # iterate through events
-    if (grepl(" AS ", events[[evt]], fixed = T)) { # get method and updated name
+    if (grepl(" AS ", events[[evt]], fixed = TRUE)) { # get method and updated name
       temp <- gsub(" AS ", " ", events[[evt]])
       temp <- strsplit(temp, "\\s+")[[1]]
       col_name <- temp[2]
@@ -2182,7 +2182,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
   categ_bounds <- list()
   for (cat in names(categ)) { # for each category
     cat_str <- ""
-    if (grepl(" AS ", cat, fixed = T)) { # get the column and name
+    if (grepl(" AS ", cat, fixed = TRUE)) { # get the column and name
       temp <- strsplit(gsub(" AS ", " ", cat), "\\s+")[[1]]
       cat_col <- temp[2]
       cat_df <- temp[1]
@@ -2210,7 +2210,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
         df <- df %>% mutate("{cat_col}" := "Unassigned") # initialize the tibble
         for (i in 1:num_categ) { # for each level
           L <- as.numeric(temp0[i])
-          if (grepl("]", temp1[i], fixed = T)) { # check for including the upper limit
+          if (grepl("]", temp1[i], fixed = TRUE)) { # check for including the upper limit
             U <- as.numeric(gsub("]", "", temp1[i])) # get upper limit
             a_col_categ <- case_when(df[[cat_df]] <= U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]), .default = df[[cat_col]]) # assign the level to unassigned rows
             cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ") # add boundary information to list of intervals
@@ -2547,7 +2547,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
     group_by(across(all_of(categ_cols))) %>%
     summarize("AT_RISK" = n(), "PYR" = sum(.data[["PYR"]]), .groups = "drop") # group by categories and define the durations and counts
   for (evt in names(summaries)) { # for each event summary
-    if (grepl(" AS ", summaries[[evt]], fixed = T)) { # get the method and column name
+    if (grepl(" AS ", summaries[[evt]], fixed = TRUE)) { # get the method and column name
       temp <- gsub(" AS ", " ", summaries[[evt]])
       temp <- strsplit(temp, "\\s+")[[1]]
       col_name <- temp[2]

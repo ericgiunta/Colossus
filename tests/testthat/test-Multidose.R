@@ -92,7 +92,7 @@ test_that("Coxph multidose, extra warnings and checks", {
   verbose <- FALSE
   j_iterate <- 1
   # LL_comp <- c(-69.51585, -69.51585, -77.97632, -77.97632, -59.95167, -60.05273, -75.34028, -75.3691, -69.51585, -69.51585, -77.97632, -77.97632, -59.95167, -60.05273, -75.34028, -75.3691, -111.3009, -111.3009, -119.9814, -119.9814, -100.8329, -101.007, -117.0147, -117.0539, -111.3009, -111.3009, -119.9814, -119.9814, -100.8329, -101.007, -117.0147, -117.0539)
-  model_control <- list("cr" = T)
+  model_control <- list("cr" = TRUE)
   a_n <- c(-0.1, -0.1)
   # expect_equal(0,0)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
@@ -107,7 +107,7 @@ test_that("Coxph multidose, extra warnings and checks", {
   expect_no_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "weighting"))
   names <- c("dose", "rand")
   #
-  model_control <- list("strata" = T)
+  model_control <- list("strata" = TRUE)
   d <- df[1, ]
   d$fac <- 101
   d$lung <- 0
@@ -149,7 +149,7 @@ test_that("Coxph multidose failures", {
   verbose <- FALSE
   j_iterate <- 1
 
-  model_control <- list("strata" = F, "basic" = F)
+  model_control <- list("strata" = FALSE, "basic" = FALSE)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
   realization_index <- c("rand", "more_rand")
@@ -200,12 +200,12 @@ test_that("Coxph multidose model failures", {
   verbose <- FALSE
   j_iterate <- 1
 
-  model_control <- list("strata" = F, "basic" = F)
+  model_control <- list("strata" = FALSE, "basic" = FALSE)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  model_control <- list("single" = T, "basic" = F)
+  model_control <- list("single" = TRUE, "basic" = FALSE)
   expect_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null"))
-  model_control <- list("null" = T, "basic" = F)
+  model_control <- list("null" = TRUE, "basic" = FALSE)
   expect_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null"))
-  model_control <- list("gradient" = T, "basic" = F)
+  model_control <- list("gradient" = TRUE, "basic" = FALSE)
   expect_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null"))
 })

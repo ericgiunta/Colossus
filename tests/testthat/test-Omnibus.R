@@ -661,7 +661,7 @@ test_that("check Linear Constraints", {
   term_n <- c(0, 0)
   tform <- c("loglin", "plin")
   keep_constant <- c(0, 0)
-  model_control <- list("strata" = F, "basic" = F, "single" = F, "null" = F, "constraint" = T)
+  model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "null" = FALSE, "constraint" = TRUE)
   Constraint_Matrix <- matrix(c(1, -1), nrow = 1)
   Constraint_const <- c(0.0)
   set.seed(3742)
@@ -853,13 +853,13 @@ test_that("Pois double_step change_all calcs", {
   LL_comp <- c(-496.7366, -475.4213, -461.9726, -461.1227, -4497.178, -3577.953, -2561.685, -2339.961)
   for (i in c(0, 1)) {
     for (j in seq_len(length(term_n))) {
-      model_control <- list("strata" = F, "single" = F)
+      model_control <- list("strata" = FALSE, "single" = FALSE)
       if (verbose) {
         print(model_control)
       }
       a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
       modelform <- "PAE"
-      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = F, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = i)
+      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = FALSE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = i)
       expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, j - 1, control, strat_col, model_control))
       if (verbose) {
         print("---------------")
@@ -890,7 +890,7 @@ test_that("Pois various_fixes", {
   strat_col <- "fac"
 
   verbose <- FALSE
-  model_control <- list("strata" = F, "single" = F)
+  model_control <- list("strata" = FALSE, "single" = FALSE)
   if (verbose) {
     print(model_control)
   }

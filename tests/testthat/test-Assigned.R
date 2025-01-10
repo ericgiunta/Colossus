@@ -327,7 +327,7 @@ test_that("Poisson Assigned Events, Epicure Validated", {
       keep_constant[4] <- 1
       der_iden <- 0
 
-      control <- list("Ncores" = 2, "maxiters" = c(1, 1), "verbose" = F, "abs_max" = 0.1)
+      control <- list("Ncores" = 2, "maxiters" = c(1, 1), "verbose" = FALSE, "abs_max" = 0.1)
       model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "CR" = FALSE)
       e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
       e <- e$predict
