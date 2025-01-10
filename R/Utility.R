@@ -2030,7 +2030,7 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
       if ("name" %in% names(categ[[cat]])) { # assign names to the levels
         temp2 <- categ[[cat]]$name
       } else { # number the categories
-        temp2 <- 1:length(temp0)
+        temp2 <- seq_len(length(temp0)) # 1:length(temp0)
       }
       num_categ <- length(temp0) # number of categories
       cat_col <- paste(cat, "category", sep = "_") # name of the category
@@ -2203,7 +2203,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
         if ("name" %in% names(categ[[cat]])) { # check for names for each level
           temp2 <- categ[[cat]]$name
         } else {
-          temp2 <- 1:length(temp0)
+          temp2 <- seq_len(length(temp0)) # 1:length(temp0)
         }
         num_categ <- length(temp0)
         categ_cols <- c(categ_cols, cat_col)
@@ -2411,7 +2411,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
             b_categ <- case_when(istart %within% risk_interval & iend %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval), pyr_unit), .default = b_categ) # category interval fully in row interval, track full category interval
             b_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(risk_interval), pyr_unit), .default = b_categ) # row interval fully in category interval, track full row interval
           }
-          index_kept <- 1:nrow(df)
+          index_kept <- seq_len(nrow(df))
           index_kept <- index_kept[a_categ == time_i] # indexes which contain the category interval to some level
           b_categ <- b_categ[a_categ == time_i] # durations for kept indexes
           row_kept <- slice(df, index_kept) # dataframe at kept rows
@@ -2937,6 +2937,9 @@ Interpret_Output <- function(out_list, digits = 2) {
     }
   } else {
     message(paste("Regression Failed"))
+  }
+  if ("RunTime" %in% names(out_list)) {
+    message(paste("Run finished in ", out_list$RunTime))
   }
   message("|-------------------------------------------------------------------|")
 }

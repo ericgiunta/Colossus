@@ -51,7 +51,7 @@ RunCoxPlots(
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 }
 \value{
-saves the plots in the current directory and returns a string
+saves the plots in the current directory and returns the data used for plots
 }
 \description{
 \code{RunCoxPlots} uses user provided data, time/event columns,

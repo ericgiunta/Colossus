@@ -653,7 +653,7 @@ RunCoxNull <- function(df, time1 = "start", time2 = "end", event0 = "event", con
 #'
 #' @inheritParams R_template
 #'
-#' @return saves the plots in the current directory and returns a string
+#' @return saves the plots in the current directory and returns the data used for plots
 #' @export
 #' @family Plotting Wrapper Functions
 #' @examples
@@ -1474,7 +1474,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
 #' Calculates the likelihood curve for a cox model directly
 #'
 #' \code{CoxCurveSolver} solves the confidence interval for a cox model, starting at the optimum point and
-#' iteratively optimizing each point to using the bisection method
+#' iteratively optimizing end-points of intervals. Intervals updated using the bisection method.
 #'
 #' @inheritParams R_template
 #'

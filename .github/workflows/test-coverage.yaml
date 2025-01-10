@@ -3,7 +3,7 @@
 # Start at https://github.com/r-lib/actions#where-to-find-help
 
 on:
-  push:
+  workflow_dispatch:
     branches: [main, master]
 
 name: Test coverage

@@ -28,7 +28,7 @@ We will use analysis of the lung dataset in the survival package to visualize th
 data(cancer, package = "survival")
 
 df <- cancer
-df$UserID <- 1:nrow(df)
+df$UserID <- seq_len(nrow(df))
 
 df$status <- df$status - 1
 df$sex <- df$sex - 1

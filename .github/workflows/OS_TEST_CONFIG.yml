@@ -40,7 +40,7 @@ jobs:
         run: |
            Rscript -e "a=Colossus::System_Version()
             print(a)
-            if (a['OpenMP Enabled']!='FALSE'){
+            if (a['OpenMP Enabled']!='TRUE'){
             stop()
             }
             if (a['Operating System']!='osx'){

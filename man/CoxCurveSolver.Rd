@@ -67,7 +67,7 @@ returns a list of the final results
 }
 \description{
 \code{CoxCurveSolver} solves the confidence interval for a cox model, starting at the optimum point and
-iteratively optimizing each point to using the bisection method
+iteratively optimizing end-points of intervals. Intervals updated using the bisection method.
 }
 \seealso{
 Other Cox Wrapper Functions: 
