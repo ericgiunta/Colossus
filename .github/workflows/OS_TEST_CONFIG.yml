@@ -14,9 +14,45 @@ permissions:
   contents: read
 
 jobs:
+  mac_OMP_check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          Ncpus: 2
+          remove-openmp-macos: false
+      - name: enable homebrew to allow OpenMP
+        run: |
+          curl -OL https://mac.r-project.org/openmp/openmp-18.1.8-darwin20-Release.tar.gz
+          sudo tar fvxz openmp-18.1.8-darwin20-Release.tar.gz -C /
+      - name: move to package and install
+        run: |
+          export PKG_CPPFLAGS='-Xclang -fopenmp'
+          export PKG_LIBS=-lomp
+          Rscript -e "install.packages(c('devtools'))"
+          Rscript -e "devtools::install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "Sys.setenv("R_COLOSSUS_NOT_CRAN"="T")
+          Rscript -e "devtools::install()"
+      - name: check detected OS and OpenMP
+        run: |
+           Rscript -e "a=Colossus::System_Version()
+            print(a)
+            if (a['OpenMP Enabled']!='FALSE'){
+            stop()
+            }
+            if (a['Operating System']!='osx'){
+            stop()
+            }
+            "
+      - name: move to package and build examples
+        run: |
+          brew install pandoc
+          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   mac_no_OMP_check:
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up R

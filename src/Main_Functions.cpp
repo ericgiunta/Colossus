@@ -4140,6 +4140,21 @@ List LogLik_Cox_PH_Multidose_Omnibus(IntegerVector term_n, StringVector tform, N
             }
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        int check_loop = 0;
+        while (((R.minCoeff() <= 0) || (R.hasNaN())) && (check_loop < 3)) {
+            check_loop = check_loop + 1;
+            for (int ijk = 0; ijk < totalnum; ijk++) {
+                int tij = term_n[ijk];
+                if (TTerm.col(tij).minCoeff()<=0) {
+                    beta_0[ijk] = beta_0[ijk] / 2.0;
+                } else if (isinf(TTerm.col(tij).maxCoeff())) {
+                    beta_0[ijk] = beta_0[ijk] / 2.0;
+                } else if (isnan(TTerm.col(tij).minCoeff())) {
+                    beta_0[ijk] = beta_0[ijk] / 2.0;
+                }
+            }
+            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        }
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
