@@ -339,9 +339,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
     // required vectors for storage
     if (momentum_bool) {
         //
-//        #ifdef _OPENMP
-//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//        #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -356,9 +353,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
         }
     } else if (adadelta_bool) {
         //
-//        #ifdef _OPENMP
-//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//        #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -374,9 +368,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
         }
     } else if (adam_bool) {
         //
-//        #ifdef _OPENMP
-//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//        #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -506,11 +497,9 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
                         dbeta[ijk] = 0;
                     }
                     //
-                    double dbeta_max;
+                    double dbeta_max = 0.0;
                     if (Lld[ijk]!=0) {
                         dbeta_max = abs(Ll[ijk]/Lld[ijk]);  // uses newtonian step for zero log-likelihood as a limit
-                    }else{
-                        dbeta_max = 0;
                     }
                     if (abs(dbeta[ijk])>dbeta_max) {
                         dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
@@ -611,13 +600,11 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
         } else {
             G = G.inverse().matrix();
             v = G.matrix() * v.matrix();
-    //        Rcout << "reached G" << endl;
             VectorXd g1 = G.col(para_number);
             // we now must solve for the roots
             double as2 = g1.matrix().transpose() * D0 * g1.matrix();
             double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
             double cs0 = v.matrix().transpose() * D0 * v.matrix();
-//            Rcout << as2 << "s^2 + " << bs1 << "s + " << cs0 << endl;
             //
             if (pow(bs1, 2)-4*as2*cs0 >= 0) {
                 double s0 = pow(bs1, 2)-4*as2*cs0;
@@ -699,8 +686,6 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
             Lldd_vec[ij * kept_covs + jk] = Lldd_vec[jk0 * (kept_covs + 1) + ij0];
         }
     }
-    //
-    //
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));

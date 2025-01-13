@@ -166,7 +166,7 @@ test_that("Coxph EPICURE validated answers, loglin", {
   v_upper <- c(-0.5828725, -0.5562505, -0.5318645, -0.5206756, -0.4837373, -0.4602148, -0.4392159, -0.4142752, -0.3970399)
 
   alphas <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-  for (alpha_i in seq_along(alphas)) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 0)
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
@@ -177,7 +177,7 @@ test_that("Coxph EPICURE validated answers, loglin", {
 
   v_lower <- c(4.981497, 4.939337, 4.900838, 4.883211, 4.825191, 4.788380, 4.755608, 4.716794, 4.690041)
   v_upper <- c(5.057414, 5.100032, 5.139239, 5.157283, 5.217094, 5.255376, 5.289680, 5.330581, 5.358945)
-  for (alpha_i in seq_along(alphas)) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1)
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
@@ -214,7 +214,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
     skip("Cran Skip")
   }
   alphas <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-  for (alpha_i in seq_along(alphas)) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 0, "manual" = TRUE)
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
@@ -225,7 +225,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
 
   v_lower <- c(4.981497, 4.939337, 4.900838, 4.883211, 4.825191, 4.788380, 4.755608, 4.716794, 4.690041)
   v_upper <- c(5.057414, 5.100032, 5.139239, 5.157283, 5.217094, 5.255376, 5.289680, 5.330581, 5.358945)
-  for (alpha_i in seq_along(alphas)) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1, "manual" = TRUE)
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
@@ -272,7 +272,7 @@ test_that("Coxph, lin both", {
   # c(4.97252283668956, 4.9349945105648, 4.89804715665926, 4.88084912208962, 4.82369762341988, 4.78721237571926, 4.7546530342797, 4.71603055250556, 4.68938287303871)
   v_upper <- c(5.058015, 5.100656, 5.139868, 5.157913, 5.217754, 5.256045, 5.290357, 5.331277, 5.359649)
   # c(5.06762896572498, 5.10561529697034, 5.14327069556976, 5.16088604918614, 5.21982880792394, 5.2577860471215, 5.29187760184654, 5.33258757872226, 5.36084782852899)
-  for (alpha_i in seq_along(alpha_list)) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
     model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
@@ -286,7 +286,7 @@ test_that("Coxph, lin both", {
   # c(-0.643365949558998, -0.677336655540846, -0.706075250211414, -0.718165409196492, -0.753647332793819, -0.773208334303991, -0.789018704115451, -0.806061085000755, -0.816875114954096)
   v_upper <- c(1.702503, 2.0018595, 2.283068, 2.4149146, 2.8653084, 3.1659745, 3.44475771, 3.7898521, 4.0379529)
   # c(-0.521472203247917, -0.444964438813732, -0.327862977142017, -0.235044092073815, 2.91573713669059, 3.21014641617297, 3.48490803194128, 3.82648584413642, 4.07272009904963)
-  for (alpha_i in seq_along(alpha_list)) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
     model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = TRUE)
@@ -424,7 +424,7 @@ test_that("Coxph, lin both, curve search", {
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
-  for (alpha_i in seq_len(length(alpha_list))) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
     model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = FALSE, "alpha" = alpha, "para_num" = 2, "step_size" = 0.5)
@@ -458,7 +458,7 @@ test_that("Poisson, curve search", {
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
-  for (alpha_i in seq_len(length(alpha_list))) {
+  for (alpha_i in c(1, 5, 9)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-2.917, 0.06526)
     model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)

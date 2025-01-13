@@ -46,7 +46,6 @@ template <typename T> int sign(T val) {
 void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp, double& dose_abs_max, double& abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, List& model_bool) {
     T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
     if (model_bool["basic"]) {
-        //
         R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
         Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
@@ -56,17 +55,14 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
         Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        //
         nonDose_PLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Loglinear subterm values
         nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Product linear subterm values
         TTerm = MatrixXd::Zero(df0.rows(), 1);  // matrix of term values
         RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
         RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     } else if (model_bool["single"]) {
-        //
         Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
         R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        //
         Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
         nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
         nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
@@ -75,11 +71,9 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
     } else if (model_bool["gradient"]){
         Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        //
         Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
         R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
         Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        //
         nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
         nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
         nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
@@ -89,12 +83,10 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
     } else {
         Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
         Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
-        //
         Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
         R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
         Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        //
         Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
         nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
         nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
@@ -157,83 +149,15 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
 //'
 // [[Rcpp::export]]
 void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const  MatrixXd& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
-    // time_point<system_clock> comp_point, end_point;
-    // end_point = system_clock::now();
-    // auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
-    // comp_point = system_clock::now();
-    // auto comp = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
-    int reqrdnum = totalnum - sum(KeepConstant);
+//    int reqrdnum = totalnum - sum(KeepConstant);
     if (model_bool["basic"]) {
         // Calculates the subterm and term values
         Make_subterms_Basic(totalnum, dfc, T0, beta_0, df0, nthreads, debugging);
-        // ---------------------------------------------------------
-        // Prints off a series of calculations to check at what point values are changing
-        // ---------------------------------------------------------
-        //
-//        if (verbose >= 4) {
-//            Rcout << "C++ Note: values checked ";
-//            for (int ijk = 0; ijk < totalnum; ijk++) {
-//                Rcout << beta_0[ijk] << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: sums checked ";
-//            for (int ijk = 0; ijk < totalnum; ijk++) {
-//                Rcout << T0.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//        }
-        //
         // Calculates the risk for each row
         Make_Risks_Basic(totalnum, T0, R, Rd, Rdd, RdR, nthreads, debugging, df0, dfc, KeepConstant);
-        //
-//        Rcout << R.block(3300900, 0, 1, 1 ) << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rdd.block(3300900, 35, 1, 1 ).sum() << endl;
         // Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         //
-//        Rcout << "C++ Note: values checked ";
-//        for (int ijk = 0; ijk < totalnum; ijk++) {
-//            Rcout << beta_0[ijk] << " ";
-//        }
-//        Rcout << " " << endl;
-//        Rcout << "C++ Note: RdR checked ";
-//        for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//            Rcout << RdR.col(ijk).sum() << " ";
-//        }
-//        Rcout << " " << endl;
-        //
-        // if (R.minCoeff() <= 0) {
-        //     if (verbose >= 4) {
-        //         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //     }
-        // } else if (verbose >= 4) {
-        //     Rcout << "C++ Note: risk checked ";
-        //     for (int ijk = 0; ijk < 1; ijk++) {
-        //         Rcout << R.col(0).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk1 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: rdr checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << RdR.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        //     Rcout << "C++ Note: ALL risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        //         Rcout << Rdd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        // }
     } else if (model_bool["linear_err"]) {
         Make_subterms_Linear_ERR(totalnum, tform, dfc, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
         //
@@ -242,111 +166,13 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         RddR = (RddR.array().isFinite()).select(RddR, 0);
         //
         TTerm = R.col(0).array();
-        // if (R.minCoeff() <= 0) {
-        //    if (verbose >= 4) {
-        //        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //    }
-        // } else if (R.minCoeff() <= 0) {
-        //     if (verbose >= 4) {
-        //         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //     }
-        // } else if (verbose >= 4) {
-        //     Rcout << "C++ Note: risk checked ";
-        //     for (int ijk = 0; ijk < 1; ijk++) {
-        //         Rcout << R.col(0).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk1 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: rdr checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << RdR.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        //     Rcout << "C++ Note: ALL risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        //         Rcout << Rdd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: rddr checked ";
-        //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        //         Rcout << RddR.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        // }
     } else if (model_bool["single"]) {
         // Calculates the subterm and term values
         Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
-        // ---------------------------------------------------------
-        // Prints off a series of calculations to check at what point values are changing
-        // ---------------------------------------------------------
-        //
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: values checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << beta_0[ijk] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: sums checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << T0.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << Dose.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: LIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: PLIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: LOGLIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
-        //
         //
         // Calculates the risk for each row
         Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
         //
-        // Removes infinite values
-        //
-        //
-        // if (R.minCoeff() <= 0) {
-        //     if (verbose >= 4) {
-        //         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //     }
-        // } else if (verbose >= 4) {
-        //     Rcout << "C++ Note: risk checked ";
-        //     for (int ijk = 0; ijk < 1; ijk++) {
-        //         Rcout << R.col(0).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
     } else if (model_bool["gradient"]) {
         //
         Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
@@ -412,95 +238,16 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         //
         // Calculates the subterm and term values
         //
-        // comp_point = system_clock::now();
-        // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
         Make_subterms(totalnum, term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant);
-        // end_point = system_clock::now();
-        // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//        Rcout << "C++ Note: subterm " << (ending-comp) * 1e-6  <<endl;
         // ---------------------------------------------------------
         // Prints off a series of calculations to check at what point values are changing
         // ---------------------------------------------------------
-        //
-        //
-//        if (verbose >= 4) {
-//            Rcout << "C++ Note: values checked ";
-//            for (int ijk = 0; ijk < totalnum; ijk++) {
-//                Rcout << beta_0[ijk] << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: sums checked ";
-//            for (int ijk = 0; ijk < totalnum; ijk++) {
-//                Rcout << T0.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: derivs checked ";
-//            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                Rcout << Td0.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: second derivs checked ";
-//            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            //
-//            Rcout << "C++ Note: ALL second derivs checked ";
-//            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//                Rcout << Tdd0.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            //
-//            Rcout << "C++ Note: dose checked ";
-//            for (int ijk = 0; ijk < term_tot; ijk++) {
-//                Rcout << Dose.col(ijk).array().sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: non-dose checked ";
-//            for (int ijk = 0; ijk < term_tot; ijk++) {
-//                Rcout << nonDose.col(ijk).array().sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: LIN_non-dose checked ";
-//            for (int ijk = 0; ijk < term_tot; ijk++) {
-//                Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: PLIN_non-dose checked ";
-//            for (int ijk = 0; ijk < term_tot; ijk++) {
-//                Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            Rcout << "C++ Note: LOGLIN_non-dose checked ";
-//            for (int ijk = 0; ijk < term_tot; ijk++) {
-//                Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//        }
-        //
-        //
         // Calculates the risk for each row
-        // comp_point = system_clock::now();
-        // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
         Make_Risks(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
-        // end_point = system_clock::now();
-        // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//        Rcout << "C++ Note: risk " << (ending-comp) * 1e-6  <<endl;
         //
         // Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
-//        Rcout << R.block(3300900, 0, 1, 1 ) << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rdd.block(3300900, 35, 1, 1 ).sum() << endl;
-//        Rcout << RdR.block(3300900, 7, 1, 1 ).sum() << " " << RdR.block(3300900, 7, 1, 1 ).sum() << " " << RddR.block(3300900, 35, 1, 1 ).sum() << " " << R.block(3300900, 0, 1, 1 ) << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rd.block(3300900, 7, 1, 1 ).sum() << " " << Rdd.block(3300900, 35, 1, 1 ).sum() << endl;
-        // 3,764,306
-//        int start_point = 800000;
-//        Rcout << start_point;
-//        int skip = 10000;
-//        for (int ijk=start_point; ijk+skip < 1000000; ijk = ijk + skip) {
-//            Rcout << " " << RdR.block(ijk, 1, skip, 1).sum();
-//        }
-//        Rcout << " " << endl;
-        //
 //        Rcout << "C++ Note: values checked ";
 //        for (int ijk = 0; ijk < totalnum; ijk++) {
 //            Rcout << beta_0[ijk] << " ";
@@ -570,15 +317,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 // [[Rcpp::export]]
 void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop) {
     // Calculates the side sum terms used
-    //
-    // time_point<system_clock> comp_point, end_point;
-    // end_point = system_clock::now();
-    // auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
-    // comp_point = system_clock::now();
-    // auto comp = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
-    // //
-    // comp_point = system_clock::now();
-    // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
     if (model_bool["strata"]) {
         if (model_bool["cr"]) {
             // strata_CR or strata_CR_single
@@ -613,81 +351,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
     } else {
         Calculate_Sides(RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, debugging, KeepConstant);
     }
-//    end_point = system_clock::now();
-//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//    Rcout << "C++ Note: sides " << (ending-comp) * 1e-6  <<endl;
-    //
-//    if (model_bool["strata"]) {
-//        if (verbose >= 4) {
-//            Rcout << "C++ Note: riskr checked ";
-//            for (int ijk = 0; ijk < Strata_vals.size(); ijk++) {
-//                Rcout << Rls1.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            //
-//            Rcout << "C++ Note: riskl checked ";
-//            for (int ijk = 0; ijk < Strata_vals.size(); ijk++) {
-//                Rcout << Lls1.col(ijk).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//        }
-//    } else {
-//        if (verbose >= 4) {
-//            Rcout << "C++ Note: riskr checked ";
-//            for (int ijk = 0; ijk < 1; ijk++) {
-//                Rcout << Rls1.col(0).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            if (!model_bool["single"]) {
-//                Rcout << "C++ Note: risk1r checked ";
-//                for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                    Rcout << Rls2.col(ijk).sum() << " ";
-//                }
-//                Rcout << " " << endl;
-//                if (!model_bool["gradient"]){
-//                    Rcout << "C++ Note: risk2r checked ";
-//                    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                        Rcout << Rls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-//                    }
-//                    Rcout << " " << endl;
-//                    //
-//                    Rcout << "C++ Note: ALL risk2r checked ";
-//                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//                        Rcout << Rls3.col(ijk).sum() << " ";
-//                    }
-//                    Rcout << " " << endl;
-//                }
-//                //
-//            }
-//            //
-//            Rcout << "C++ Note: riskl checked ";
-//            for (int ijk = 0; ijk < 1; ijk++) {
-//                Rcout << Lls1.col(0).sum() << " ";
-//            }
-//            Rcout << " " << endl;
-//            if (!model_bool["single"]) {
-//                Rcout << "C++ Note: risk1l checked ";
-//                for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                    Rcout << Lls2.col(ijk).sum() << " ";
-//                }
-//                Rcout << " " << endl;
-//                if (!model_bool["gradient"]){
-//                    Rcout << "C++ Note: risk2l checked ";
-//                    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//                        Rcout << Lls3.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-//                    }
-//                    Rcout << " " << endl;
-//                    //
-//                    Rcout << "C++ Note: ALL risk2l checked ";
-//                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//                        Rcout << Lls3.col(ijk).sum() << " ";
-//                    }
-//                    Rcout << " " << endl;
-//                }
-//                //
-//            }
-//        }
-//    }
     // Calculates log-likelihood
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
@@ -696,8 +359,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
-    // comp_point = system_clock::now();
-    // comp = time_point_cast<microseconds>(comp_point).time_since_epoch().count();
     if (model_bool["strata"]) {
         if (model_bool["single"]) {
             Calc_LogLik_Strata_SINGLE(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, debugging, ties_method, Strata_vals, KeepConstant);  // strata_single
@@ -723,9 +384,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
             Calc_LogLik(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, debugging, ties_method, KeepConstant);
         }
     }
-    // end_point = system_clock::now();
-    // ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//    Rcout << "C++ Note: log-lik " << (ending-comp) * 1e-6  <<endl;
     //
     if (model_bool["single"]) {
         iter_stop = 1;
@@ -772,23 +430,6 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
             Rcout << " " << endl;
         }
     }
-//    if (verbose >= 4){
-//        Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
-//        for (int ij = 0; ij < reqrdnum; ij++) {
-//            Rcout << Ll[ij] << " ";
-//        }
-//        Rcout << " " << endl;
-//        Rcout << "C++ Note: df102 ";  // prints the first derivatives
-//        for (int ij = 0; ij < reqrdnum; ij++) {
-//            Rcout << Lld[ij] << " ";
-//        }
-//        Rcout << " " << endl;
-//        Rcout << "C++ Note: df104 ";  // prints parameter values
-//        for (int ij = 0; ij < totalnum; ij++) {
-//            Rcout << beta_0[ij] << " ";
-//        }
-//        Rcout << " " << endl;
-//    }
 }
 
 //' Utility function to perform calculation of terms and risks for Poisson Omnibus
@@ -805,48 +446,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
     if (model_bool["single"]) {
         // Calculates the subterm and term values
         Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
-        // ---------------------------------------------------------
-        // Prints off a series of calculations to check at what point values are changing
-        // ---------------------------------------------------------
-        //
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: values checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << beta_0[ijk] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: sums checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << T0.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << Dose.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: LIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: PLIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: LOGLIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
-        //
         // Calculates the risk for each row
         if (model_bool["strata"]) {
             Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
@@ -854,21 +453,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
             Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
         }
         //
-        // Removes infinite values
-        //
-        //
-        // if (R.minCoeff() <= 0) {
-        //     if (verbose >= 4) {
-        //         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //     }
-        // } else if (verbose >= 4) {
-        //     Rcout << "C++ Note: risk checked ";
-        //     for (int ijk = 0; ijk < 1; ijk++) {
-        //         Rcout << R.col(0).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        // }
     } else if (model_bool["gradient"]) {
         Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, debugging, KeepConstant);
         //
@@ -884,65 +468,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         // Calculates the subterm and term values
         //
         Make_subterms(totalnum, term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, debugging, KeepConstant);
-        // ---------------------------------------------------------
-        // Prints off a series of calculations to check at what point values are changing
-        // ---------------------------------------------------------
-        //
-        //
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: values checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << beta_0[ijk] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: sums checked ";
-        //     for (int ijk = 0; ijk < totalnum; ijk++) {
-        //         Rcout << T0.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: derivs checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Td0.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: second derivs checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        //     Rcout << "C++ Note: ALL second derivs checked ";
-        //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        //         Rcout << Tdd0.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        //     Rcout << "C++ Note: dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << Dose.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: LIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: PLIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: LOGLIN_non-dose checked ";
-        //     for (int ijk = 0; ijk < term_tot; ijk++) {
-        //         Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        // }
         // Calculates the risk for each row
         if (model_bool["strata"]) {
             Make_Risks_Weighted(modelform, tform, term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
@@ -1036,19 +561,6 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
     //
     if (model_bool["single"]) {
         iter_stop = 1;
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
-        //     for (int ij = 0; ij < reqrdnum; ij++) {
-        //         Rcout << Ll[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: df104 ";  // prints parameter values
-        //     for (int ij = 0; ij < totalnum; ij++) {
-        //         Rcout << beta_0[ij] << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: Checking Deviance " << dev << endl;
-        // }
     } else {
         // if (verbose >= 4) {
         //     Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
@@ -1103,9 +615,6 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
                 dbeta[ijk] = dbeta[ijk] / 2.0;
             }
         }
-        // if (verbose >= 4) {
-        //     Rcout << "C++ Warning: A non-positive risk was detected: " << R.minCoeff() << endl;
-        // }
         halves+=0.2;
     } else {
         halves++;
@@ -1230,12 +739,6 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
 // // [[Rcpp::export]]
 // void Simplified_Inform_Matrix(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& InMa, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
 //     int reqrdnum = totalnum - sum(KeepConstant);
-//     #ifdef _OPENMP
-//     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-//         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-//         initializer(omp_priv = omp_orig)
-//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(2)
-//     #endif
 //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
 //         for (int j = 0; j < ntime; j++) {
 //             // rcout << ijk << ", " << j << ", " << " start" << endl;
@@ -1269,8 +772,8 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
 //             Ldm.col(3) = Ldm.col(3).array() + Rs3;
 //             // Calculates the left-hand side terms
 //             //
-//             double Ld1;
-//             double Ld3;
+//             double Ld1 = 0;
+//             double Ld3 = 0;
 //             //
 //             MatrixXd temp1 = MatrixXd::Zero(dj, 1);
 //             MatrixXd temp2 = MatrixXd::Zero(dj, 1);
@@ -1333,12 +836,6 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
 // // [[Rcpp::export]]
 // void Simplified_Inform_Matrix_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& InMa, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
 //     int reqrdnum = totalnum - sum(KeepConstant);
-//     #ifdef _OPENMP
-//     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-//         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-//         initializer(omp_priv = omp_orig)
-//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(3)
-//     #endif
 //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
 //         for (int j = 0; j < ntime; j++) {
 //             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
@@ -1372,8 +869,8 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
 //                     Ldm.col(3) = Ldm.col(3).array() + Rs3;
 //                     // Calculates the left-hand side terms
 //                     //
-//                     double Ld1;
-//                     double Ld3;
+//                     double Ld1 = 0;
+//                     double Ld3 = 0;
 //                     //
 //                     MatrixXd temp1 = MatrixXd::Zero(dj, 1);
 //                     MatrixXd temp2 = MatrixXd::Zero(dj, 1);

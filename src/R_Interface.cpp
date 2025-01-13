@@ -804,28 +804,22 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     //
     s_weights = dfs * weight.matrix();
     //
-//    vector<int> plin_count(term_tot, 0);
     vector<int> lin_count(term_tot, 0);
-//    vector<int> loglin_count(term_tot, 0);
     vector<int> dose_count(term_tot, 0);
     for (int ij = 0; ij<(term_n.size()); ij++) {
         int tn = term_n[ij];
         if (as< string>(tform[ij]) == "loglin") {  // setting parameters to zero makes the subterm 1
-            // loglin_count[tn] = loglin_count[tn] + 1.0;
         } else if (as< string>(tform[ij]) == "lin") {  // setting parameters to zero makes the subterm 0
             lin_count[tn] = lin_count[tn] + 1.0;
         } else if (as< string>(tform[ij]) == "plin") {  // setting parameters to zero makes the subterm 1
-            // plin_count[tn] = plin_count[tn] + 1.0;
         } else if (as< string>(tform[ij]) == "loglin_slope") {  // the slope paremeter sets the element to 0
-            // dose_count[tn] = dose_count[tn] + 1.0;
         } else if (as< string>(tform[ij]) == "loglin_top") {  // the top parameter sets the element to 1
             if (ij == 0) {
                 dose_count[tn] = dose_count[tn] + 1.0;
             } else if (tform[ij - 1] != "loglin_slope") {
                 dose_count[tn] = dose_count[tn] + 1.0;
                 //
-            } else {
-            }
+            } else {}
         } else if (as< string>(tform[ij]) == "lin_slope") {  // every other dose term sets the elements to 0
         } else if (as< string>(tform[ij]) == "lin_int") {
         } else if (as< string>(tform[ij]) == "quad_slope") {
@@ -894,7 +888,5 @@ bool OMP_Check() {
     #ifdef _OPENMP
         res = true;
     #endif
-    //----------------------------------------------------------------------------------------------------------------//
-    //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

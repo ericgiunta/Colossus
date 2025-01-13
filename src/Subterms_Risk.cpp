@@ -133,8 +133,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
         } else if (as< string>(tform[ij]) == "lin_quad_int") {
         } else if (as< string>(tform[ij]) == "lin_exp_slope") {
             T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
-            double c1;
-            double a1;
+            double c1 = 0.0;
+            double a1 = 0.0;
             if (beta_0[ij] < 0) {
                 c1 = log(- 1*beta_0[ij]/beta_0[ij+2]) + beta_0[ij + 1] * beta_0[ij+2];
                 a1 = - 1*beta_0[ij] * beta_0[ij + 1] + exp(c1 - beta_0[ij+2] * beta_0[ij + 1]);
@@ -278,8 +278,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
                 ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
                 ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                double a1 = 0;
-                double b1 = 0;
+                double a1 = 0.0;
+                double b1 = 0.0;
                 //
                 temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
                 a1 = (beta_0[ij] - dslp) /2.0 / (beta_0[ij + 1]-dint);
@@ -363,8 +363,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 if (eeslp >= beta_0[ij+2]) {
                     eeslp = beta_0[ij+2]*0.9;
                 }
-                double c1;
-                double a1;
+                double c1 = 0.0;
+                double a1 = 0.0;
                 //
                 ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
                 if (beta_0[ij] < 0) {
@@ -746,8 +746,6 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
 
         } else if (as< string>(tform[ij]) == "loglin_slope") {
             T0.col(ij) = beta_0[ij] * (beta_0[ij + 1] * df0.col(df0_c)).array().exp();
-            //
-            //
             T0.col(ij + 1) = T0.col(ij);
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn] = dose_count[tn] + 1;
@@ -761,9 +759,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
                 T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
                 Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
                 dose_count[tn] = dose_count[tn] + 1;
-                //
-            } else {
-            }
+            } else {}
         } else if (as< string>(tform[ij]) == "lin_slope") {
             T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
             //
@@ -805,8 +801,8 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
         } else if (as< string>(tform[ij]) == "lin_quad_int") {
         } else if (as< string>(tform[ij]) == "lin_exp_slope") {
             T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
-            double c1;
-            double a1;
+            double c1 = 0.0;
+            double a1 = 0.0;
             if (beta_0[ij] < 0) {
                 c1 = log(- 1*beta_0[ij]/beta_0[ij+2]) + beta_0[ij + 1] * beta_0[ij+2];
                 a1 = - 1*beta_0[ij] * beta_0[ij + 1] + exp(c1 - beta_0[ij+2] * beta_0[ij + 1]);
@@ -867,8 +863,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
             } else if (tform[ij - 1] != "loglin_slope") {
                 T0.col(ij) = Dose.col(tn);
                 //
-            } else {
-            }
+            } else {}
         } else if (as< string>(tform[ij]) == "lin_slope") {
             //
             T0.col(ij) = Dose.col(tn);
@@ -892,8 +887,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
             T0.col(ij + 1) = Dose.col(tn);
             T0.col(ij+2) = Dose.col(tn);
             //
-        } else {
-        }
+        } else {}
     }
     return;
 }
@@ -1067,8 +1061,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                                 Rdd.col(p_ijk) = TTerm.col(tij).array() * Rdd.col(p_ijk).array();
                                 Rdd.col(p_ijk) = Rdd.col(p_ijk).array() * Td0.col(jk).array() *  Td0.col(ij).array();
                             }
-                        } else {
-                        }
+                        } else {}
                     }
                     RddR.col(p_ijk) = R.col(0).array().pow(- 1).array() * Rdd.col(p_ijk).array();
                 }
@@ -1098,7 +1091,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                     jk = jk - sum(head(KeepConstant, jk));
                     int p_ijk = ij*(ij + 1)/2 + jk;
                     //
-//                    Rcout << ijk << " " << p_ijk << " " << ij << " " << jk << " " << tij << " " << tjk << " " << tform[ij] << " " << tform[jk] << endl;
                     if (ij == jk) {
                         if (tij == fir) {
                             if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()) {
@@ -1275,8 +1267,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
                                         Rdd.col(p_ijk) = TTerm.col(fir).array() * nonDose_LOGLIN.col(tij).array() * Dose.col(tij).array() * Td0.col(jk).array() * Td0.col(ij).array();
                                         RddR.col(p_ijk) = Te.array().pow(- 1).array() * nonDose_LOGLIN.col(tij).array() * Dose.col(tij).array() * Td0.col(jk).array() * Td0.col(ij).array();
                                     }
-                                } else {
-                                }
+                                } else {}
                             }
                         } else if ((tij == fir) || (tjk == fir)) {
                             if (Dose_Iden.find(as< string>(tform[ij])) != Dose_Iden.end()) {
@@ -1505,9 +1496,6 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
         throw invalid_argument("Model isn't implemented");
     }
     //
-//    Rd = (Rd.array().abs()<1e-32).select(0.,Rd);
-//    Rdd = (Rdd.array().abs()<1e-32).select(0.,Rdd);
-    //
     R =  (R.array().isFinite()).select(R,  - 1);
     Rd = (Rd.array().isFinite()).select(Rd, 0);
     Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
@@ -1524,10 +1512,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 // [[Rcpp::export]]
 void Make_Risks_Gradient(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
     //
-    //
     MatrixXd Tterm_ratio = MatrixXd::Constant(Td0.rows(), Td0.cols(), 1.0);
-    int reqrdnum = totalnum - sum(KeepConstant);
-    //
     if (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols()>1)) {  // same process used for all of the additive type models
         Te = TTerm.array().rowwise().sum().array();
         // computes initial risk and derivatives
@@ -1538,21 +1523,10 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             #endif
             for (int ij = 0; ij < totalnum; ij++) {
-                // int ij = 0;
-                // int jk = ijk;
-                // while (jk > ij) {
-                //     ij++;
-                //     jk -= ij;
-                // }
                 int tij = term_n[ij];
-                // int tjk = term_n[jk];
                 if (KeepConstant[ij] == 0) {
                     //
                     ij = ij - sum(head(KeepConstant, ij));
-                    // jk = jk - sum(head(KeepConstant, jk));
-                    // int p_ijk = ij*(ij + 1)/2 + jk;
-                    //
-                    // if (ij == jk) {
                     if (tform[ij] == "loglin") {
                         Rd.col(ij) =  TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
                     } else if (tform[ij] == "lin") {
@@ -1561,7 +1535,6 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
                         Rd.col(ij) =  nonDose_LIN.col(tij).array()  * nonDose_LOGLIN.col(tij).array()  *   Td0.col(ij).array();
                     }
                     RdR.col(ij) = R.col(0).array().pow(- 1).array() * Rd.col(ij).array();
-                    // }
                 }
             }
         } else if ((modelform == "PAE") || (modelform == "PA")) {
@@ -1574,21 +1547,10 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             #endif
             for (int ij = 0; ij < totalnum; ij++) {
-                // int ij = 0;
-                // int jk = ijk;
-                // while (jk > ij) {
-                //     ij++;
-                //     jk -= ij;
-                // }
                 int tij = term_n[ij];
-                // int tjk = term_n[jk];
                 if (KeepConstant[ij]) {
                     //
                     ij = ij - sum(head(KeepConstant, ij));
-                    // jk = jk - sum(head(KeepConstant, jk));
-                    // int p_ijk = ij*(ij + 1)/2 + jk;
-                    //
-                    // if (ij == jk) {
                     if (tij == fir) {
                         if (tform[ij] == "lin") {
                             Rd.col(ij) =  R.col(0).array() * nonDose_LIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
@@ -1612,7 +1574,6 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
                             RdR.col(ij) = Te.array().pow(- 1).array() * TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array() * Td0.col(ij).array();
                         }
                     }
-                    // }
                 }
             }
         }
@@ -1623,7 +1584,6 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
         TTerm_p.col(fir) = TTerm.col(fir).array();
         Te = TTerm_p.array().rowwise().prod().array();
         R << Te.array();
-        //
         Rd = Td0.array();
         //
         #ifdef _OPENMP
@@ -1649,8 +1609,6 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
         }
         R = (R.array().isFinite()).select(R,  - 1);
         Rd = (Rd.array().isFinite()).select(Rd, 0);
-        //
-        //
     } else {
         Rcout << "C++ Note: " << modelform << ", " << TTerm.cols() << endl;
         throw invalid_argument("Model isn't implemented");
@@ -1658,10 +1616,6 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
     //
     R =  (R.array().isFinite()).select(R,  - 1);
     Rd = (Rd.array().isFinite()).select(Rd, 0);
-    //
-//    for (int ij = 0; ij < reqrdnum; ij++) {  // calculates ratios
-//        RdR.col(ij) = R.col(0).array().pow(- 1).array() * Rd.col(ij).array();
-//    }
     return;
 }
 
@@ -1710,13 +1664,10 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
 void Make_Risks_Weighted_Gradient(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
     //
     Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, debugging, KeepConstant);
-    //
     int reqrdnum = totalnum - sum(KeepConstant);
     R = R.array() * s_weights.array();
-    //
     R =  (R.array().isFinite()).select(R,  - 1);
     Rd = (Rd.array().isFinite()).select(Rd, 0);
-    //
     for (int ij = 0; ij < reqrdnum; ij++) {  // calculates ratios
         Rd.col(ij) = Rd.col(ij).array() * s_weights.array();
     }
@@ -1735,11 +1686,8 @@ void Make_Risks_Weighted_Gradient(string modelform, const StringVector& tform, c
 void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, debugging, KeepConstant, gmix_theta, gmix_term);
-    //
     R = R.array() * s_weights.array();
-    //
     R =  (R.array().isFinite()).select(R,  - 1);
-    //
     return;
 }
 
@@ -1806,8 +1754,6 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
     } else {
         throw invalid_argument("Model isn't implemented");
     }
-    //
-    //
     R = (R.array().isFinite()).select(R,  - 1);
     return;
 }
@@ -1847,7 +1793,6 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
             jk -= ij;
         }
         int df0_c = dfc[ij] - 1;
-        int df1_c = dfc[jk] - 1;
         if (KeepConstant[ij]+KeepConstant[jk] == 0) {
             //
             ij = ij - sum(head(KeepConstant, ij));
@@ -1858,18 +1803,8 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
         }
     }
     //
-//    Rd = (Rd.array().abs()<1e-32).select(0.,Rd);
-//    Rdd = (Rdd.array().abs()<1e-32).select(0.,Rdd);
-    //
     Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
     //
-//    for (int ij = 0; ij < totalnum; ij++) {
-//        int df0_c = dfc[ij] - 1;
-//        if (KeepConstant[ij] == 0) {
-//            int ijk = ij - sum(head(KeepConstant, ij));
-//            RdR.col(ijk) = df0.col(df0_c).array();
-//        }
-//    }
     return;
 }
 
@@ -1882,8 +1817,6 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //' @noRd
 // [[Rcpp::export]]
 void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, const  MatrixXd& df0, const int& totalnum, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
-    //
-    int reqrdnum = totalnum - sum(KeepConstant);
     //
     R = nonDose_PLIN.array() * nonDose_LOGLIN.array();
     #ifdef _OPENMP
@@ -1932,9 +1865,6 @@ void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, 
             }
         }
     }
-    //
-//    Rd = (Rd.array().abs()<1e-32).select(0.,Rd);
-//    Rdd = (Rdd.array().abs()<1e-32).select(0.,Rdd);
     //
     R =  (R.array().isFinite()).select(R,  - 1);
     Rd = (Rd.array().isFinite()).select(Rd, 0);

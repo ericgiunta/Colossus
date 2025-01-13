@@ -78,15 +78,12 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
             double t0 = tu[ijk];
             VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
             vector<int> indices_end;
-            //
-            //
             int th = 1;
             visit_lambda(select_ind_end,
                 [&indices_end, th](double v, int i, int j) {
                     if (v == th)
                         indices_end.push_back(i + 1);
                 });
-            //
             vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
                 int dj = indices_end[indices_end.size() - 1] - indices_end[0] + 1;  // number of events
@@ -367,8 +364,8 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     MatrixXd nonDose_PLIN;
     MatrixXd nonDose_LOGLIN;
     MatrixXd TTerm;
-    double dint;  // the amount of change used to calculate derivatives in threshold paramters
-    double dslp;
+    double dint = 0.0;  // the amount of change used to calculate derivatives in threshold paramters
+    double dslp = 0.0;
     ColXd RdR;
     ColXd RddR;
     // ------------------------------------------------------------------------- // initialize
@@ -534,7 +531,6 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector 
     MatrixXd caused = MatrixXd::Zero(PyrC.rows(), 3);
     MatrixXd predict = MatrixXd::Zero(PyrC.rows(), 3);
     //
-    //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
     predict.col(1) = (R.col(0).array() * PyrC.col(0).array()).array() - predict.col(0).array();
     predict.col(2) = predict.col(0).array() + predict.col(1).array();
@@ -569,11 +565,8 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     // ------------------------------------------------------------------------- // initialize
     MatrixXd df0;
     df0 = as<Map<MatrixXd> >(x_all);
-    int totalnum;
-    int reqrdnum;
-    // ------------------------------------------------------------------------- // initialize
-    totalnum = term_n.size();
-    reqrdnum = totalnum - sum(KeepConstant);
+    int totalnum = term_n.size();
+    int reqrdnum = totalnum - sum(KeepConstant);
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
     //
@@ -602,8 +595,8 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     MatrixXd Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
     MatrixXd Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
     //
-    double dint;  // the amount of change used to calculate derivatives in threshold paramters
-    double dslp;
+    double dint = 0;  // the amount of change used to calculate derivatives in threshold paramters
+    double dslp = 0;
     ColXd RdR;
     ColXd RddR;
     dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters

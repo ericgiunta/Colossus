@@ -2939,7 +2939,17 @@ Interpret_Output <- function(out_list, digits = 2) {
     message(paste("Regression Failed"))
   }
   if ("RunTime" %in% names(out_list)) {
-    message(paste("Run finished in ", out_list$RunTime))
+    run_time_sec <- as.numeric(out_list$RunTime, units = "secs")
+    run_time_min <- as.numeric(out_list$RunTime, units = "mins")
+    run_time_hour <- as.numeric(out_list$RunTime, units = "hours")
+    if (run_time_sec < 60) {
+      message(paste("Run finished in ", round(run_time_sec, digits), " seconds", sep = ""))
+    } else if (run_time_min < 60) {
+      message(paste("Run finished in ", round(run_time_min, digits), " minutes", sep = ""))
+    } else {
+      message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
+    }
+    #    message(paste("Run finished in ", out_list$RunTime))
   }
   message("|-------------------------------------------------------------------|")
 }
