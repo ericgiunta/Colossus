@@ -209,7 +209,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 1.30641e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.06719 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06753 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
@@ -233,7 +233,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 2.89872e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.0573 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.05784 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -286,7 +286,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at -0.0099 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.55991 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06352 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06463 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7599511</span>, <span class="fl">1.9884051</span><span class="op">)</span></span>
@@ -310,7 +310,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06176 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06393 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
@@ -356,7 +356,7 @@ further off.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at -0.00984 at a score of -107.30967 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.75837 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06379 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06459 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -380,7 +380,7 @@ further off.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06215 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06391 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -451,7 +451,8 @@ solving the complete likelihood curve.</p>
 <span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">x</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, <span class="st">"linewidth"</span> <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Linear Parameter Value"</span>, y <span class="op">=</span> <span class="st">"Log-Likelihood"</span><span class="op">)</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Linear Parameter Value"</span>, y <span class="op">=</span> <span class="st">"Log-Likelihood"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Multi-Peak Curve"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Wald_and_Log_Bound_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
 </div>
