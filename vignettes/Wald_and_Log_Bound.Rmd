@@ -251,7 +251,7 @@ for (v in v0) {
 
 What is important to note is that there are two local optimums within a small range (-0.6 and the global solution at 1.4). The algorithms used for solving the likelihood boundary, similar to the standard regression optimizing algorithm, is trapped in local optimums. This means that if the algorithm at any point has to cross over the local optimum, it can be trapped. The two optimums are close enough in score that a 95% confidence interval has a lower boundary below -0.5, but a 50% confidence interval has a lower bound between -0.5 and 1.4. This meant that the algorithm converged to the 50% confidence interval boundary, but failed to converge for the lower boundary of the 95% confidence interval boundary. Development is ongoing to automate the process for solving the complete likelihood curve.
 
-```{r, eval=TRUE, fig.width=7,fig.height=4}
+```{r, fig.width=7,fig.height=4}
 x <- c(-0.8, -0.784, -0.768, -0.752, -0.736, -0.72, -0.704, -0.688, -0.672, -0.656, -0.64, -0.624, -0.608, -0.592, -0.5909, -0.576, -0.56, -0.544, -0.528, -0.512, -0.496, -0.48, -0.464, -0.448, -0.432, -0.416, -0.4, -0.384, -0.368, -0.352, -0.336, -0.32, -0.304, -0.288, -0.272, -0.256, -0.24, -0.224, -0.208, -0.192, -0.176, -0.16, -0.144, -0.128, -0.112, -0.096, -0.08, -0.064, -0.048, -0.032, -0.016, 0.0, 0.06, 0.12, 0.18, 0.24, 0.3, 0.36, 0.42, 0.48, 0.54, 0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.14, 1.2, 1.26, 1.32, 1.38, 1.438377, 1.44, 1.5, 1.56, 1.62, 1.68, 1.74, 1.8, 1.86, 1.92, 1.98, 2.04, 2.1, 2.16, 2.22, 2.28, 2.34, 2.4, 2.46, 2.52, 2.58, 2.64, 2.7, 2.76, 2.82, 2.88, 2.94, 3.0)
 y <- c(-18500.53, -18499.829, -18499.273, -18498.831, -18498.482, -18498.21, -18497.995, -18497.832, -18497.71, -18497.621, -18497.56, -18497.519, -18497.498, -18497.49, -18497.4904, -18497.495, -18497.51, -18497.53, -18497.558, -18497.589, -18497.624, -18497.66, -18497.7, -18497.739, -18497.779, -18497.818, -18497.86, -18497.896, -18497.933, -18497.969, -18498.003, -18498.04, -18498.067, -18498.096, -18498.124, -18498.15, -18498.17, -18498.196, -18498.216, -18498.235, -18498.252, -18498.27, -18498.281, -18498.292, -18498.303, -18498.311, -18498.32, -18498.324, -18498.329, -18498.332, -18498.334, -18498.33, -18498.33, -18498.31, -18498.27, -18498.23, -18498.18, -18498.13, -18498.07, -18498.01, -18497.96, -18497.9, -18497.84, -18497.78, -18497.73, -18497.68, -18497.63, -18497.59, -18497.56, -18497.52, -18497.49, -18497.47, -18497.45, -18497.44, -18497.43, -18497.429487, -18497.43, -18497.43, -18497.44, -18497.45, -18497.47, -18497.5, -18497.52, -18497.56, -18497.6, -18497.64, -18497.69, -18497.74, -18497.8, -18497.86, -18497.93, -18498.0, -18498.07, -18498.15, -18498.23, -18498.32, -18498.41, -18498.5, -18498.6, -18498.7, -18498.81, -18498.92, -18499.03)
 
@@ -259,7 +259,8 @@ df <- data.table("x" = x, "y" = y)
 
 g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y)) +
   ggplot2::geom_line(color = "black", alpha = 1, "linewidth" = 1.5) +
-  ggplot2::labs(x = "Linear Parameter Value", y = "Log-Likelihood")
+  ggplot2::labs(x = "Linear Parameter Value", y = "Log-Likelihood") +
+  ggplot2::ggtitle("Multi-Peak Curve")
 g
 ```
 

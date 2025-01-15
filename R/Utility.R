@@ -860,7 +860,7 @@ Def_model_control <- function(control) {
     if ("epsilon_decay" %in% names(control)) {
       # fine
     } else {
-      control["epsilon_decay"] <- 1e-8
+      control["epsilon_decay"] <- 1e-4
     }
   }
   return(control)

@@ -13,3 +13,4 @@
 ^excess_test$
 ^python$
 ^codecov\.yml$
+^out.txt
