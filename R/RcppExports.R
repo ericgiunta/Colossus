@@ -490,15 +490,28 @@ LogLik_Poisson_Omnibus_Log_Bound_Search <- function(PyrC, dfs, term_n, tform, a_
 
 #' Primary Cox PH regression with multiple distributed dose columns and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
 #'
-#' \code{LogLik_Cox_PH_Multidose_Omnibus} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#' \code{LogLik_Cox_PH_Multidose_Omnibus_Serial} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
 #' @inheritParams CPP_template
 #'
-#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
 #' @noRd
 #'
-LogLik_Cox_PH_Multidose_Omnibus <- function(term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_LogLik_Cox_PH_Multidose_Omnibus`, term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
+LogLik_Cox_PH_Multidose_Omnibus_Serial <- function(term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Serial`, term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
+}
+
+#' Primary Cox PH regression with multiple distributed dose columns and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
+#'
+#' \code{LogLik_Cox_PH_Multidose_Omnibus_Integrated} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: standard cox outputs for the integrated solution
+#' @noRd
+#'
+LogLik_Cox_PH_Multidose_Omnibus_Integrated <- function(term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated`, term_n, tform, a_n, x_all, dose_cols, dose_index, dfc, fir, der_iden, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
@@ -547,6 +560,18 @@ Cox_Term_Risk_Calc <- function(modelform, tform, term_n, totalnum, fir, dfc, ter
 #'
 Cox_Side_LL_Calc <- function(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop) {
     invisible(.Call(`_Colossus_Cox_Side_LL_Calc`, reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop))
+}
+
+#' Utility function to print likelihood and derivatives
+#'
+#' \code{Print_LL} Called to print likelihood and derivatives
+#' @inheritParams CPP_template
+#'
+#' @return Noting
+#' @noRd
+#'
+Print_LL <- function(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool) {
+    invisible(.Call(`_Colossus_Print_LL`, reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool))
 }
 
 #' Utility function to perform calculation of terms and risks for Poisson Omnibus

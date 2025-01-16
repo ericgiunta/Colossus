@@ -1376,6 +1376,11 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
   } else {
     df[[cens_weight]] <- 1
   }
+  if ("MCML" %in% names(model_control)) {
+    # fine
+  } else {
+    model_control$MCML <- FALSE
+  }
   if (model_control$strata == FALSE) {
     data.table::setkeyv(df, c(time2, event0))
     uniq <- c(0)

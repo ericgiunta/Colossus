@@ -400,35 +400,77 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
         //     Rcout << " " << endl;
         // }
     } else {
-        if (verbose >= 4) {
-            Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
-            for (int ij = 0; ij < reqrdnum; ij++) {
-                Rcout << Ll[ij] << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: df102 ";  // prints the first derivatives
-            for (int ij = 0; ij < reqrdnum; ij++) {
-                Rcout << Lld[ij] << " ";
-            }
-            Rcout << " " << endl;
-            if (!model_bool["gradient"]){
-               Rcout << "C++ Note: df103 ";  // prints the second derivatives
-               for (int ij = 0; ij < reqrdnum; ij++) {
-                   Rcout << Lldd[ij*reqrdnum+ij] << " ";
-               }
-               Rcout << " " << endl;
-               Rcout << "C++ Note: ALL df103 ";  // prints the second derivatives
-               for (int ijk = 0; ijk < reqrdnum*reqrdnum; ijk++) {
-                   Rcout << Lldd[ijk] << " ";
-               }
-                Rcout << " " << endl;
-            }
-            Rcout << "C++ Note: df104 ";  // prints parameter values
-            for (int ij = 0; ij < totalnum; ij++) {
-                Rcout << beta_0[ij] << " ";
-            }
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
+//        if (verbose >= 4) {
+//            Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
+//            for (int ij = 0; ij < reqrdnum; ij++) {
+//                Rcout << Ll[ij] << " ";
+//            }
+//            Rcout << " " << endl;
+//            Rcout << "C++ Note: df102 ";  // prints the first derivatives
+//            for (int ij = 0; ij < reqrdnum; ij++) {
+//                Rcout << Lld[ij] << " ";
+//            }
+//            Rcout << " " << endl;
+//            if (!model_bool["gradient"]){
+//               Rcout << "C++ Note: df103 ";  // prints the second derivatives
+//               for (int ij = 0; ij < reqrdnum; ij++) {
+//                   Rcout << Lldd[ij*reqrdnum+ij] << " ";
+//               }
+//               Rcout << " " << endl;
+//               Rcout << "C++ Note: ALL df103 ";  // prints the second derivatives
+//               for (int ijk = 0; ijk < reqrdnum*reqrdnum; ijk++) {
+//                   Rcout << Lldd[ijk] << " ";
+//               }
+//                Rcout << " " << endl;
+//            }
+//            Rcout << "C++ Note: df104 ";  // prints parameter values
+//            for (int ij = 0; ij < totalnum; ij++) {
+//                Rcout << beta_0[ij] << " ";
+//            }
+//            Rcout << " " << endl;
+//        }
+    }
+}
+
+//' Utility function to print likelihood and derivatives
+//'
+//' \code{Print_LL} Called to print likelihood and derivatives
+//' @inheritParams CPP_template
+//'
+//' @return Noting
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, int verbose, List& model_bool) {
+    if (verbose >= 4) {
+        Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            Rcout << Ll[ij] << " ";
+        }
+        Rcout << " " << endl;
+        Rcout << "C++ Note: df102 ";  // prints the first derivatives
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            Rcout << Lld[ij] << " ";
+        }
+        Rcout << " " << endl;
+        if (!model_bool["gradient"]){
+           Rcout << "C++ Note: df103 ";  // prints the second derivatives
+           for (int ij = 0; ij < reqrdnum; ij++) {
+               Rcout << Lldd[ij*reqrdnum+ij] << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: ALL df103 ";  // prints the second derivatives
+           for (int ijk = 0; ijk < reqrdnum*reqrdnum; ijk++) {
+               Rcout << Lldd[ijk] << " ";
+           }
             Rcout << " " << endl;
         }
+        Rcout << "C++ Note: df104 ";  // prints parameter values
+        for (int ij = 0; ij < totalnum; ij++) {
+            Rcout << beta_0[ij] << " ";
+        }
+        Rcout << " " << endl;
     }
 }
 

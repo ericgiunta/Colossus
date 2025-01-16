@@ -84,3 +84,8 @@
 
 * MacOS testing with OpenMP finished. MacOS use with OpenMP officially checked.
 * By default the only systems that is forced to use single thread is linux using clang. This can be turned off by setting the "R_COLOSSUS_NOT_CRAN" environment variable.
+
+# Colossus 1.1.7
+
+* Gradient descent algorithms tested further and presented in vignette
+* Multiple realization function tested further
