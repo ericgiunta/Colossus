@@ -6,6 +6,7 @@
 #include "Calc_Repeated.h"
 #include "Subterms_Risk.h"
 #include "Colossus_types.h"
+#include "Step_Calc.h"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -769,6 +770,345 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
     return;
 }
 
+
+// //' Utility function to calculate Cox Log-Likelihood and derivatives
+// //'
+// //' \code{Simplified_Inform_Matrix} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+// //' @inheritParams CPP_template
+// //'
+// //' @return Updates matrices in place: Log-likelihood vectors/matrix
+// //' @noRd
+// //'
+// // [[Rcpp::export]]
+// void Simplified_Inform_Matrix(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& InMa, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
+//     int reqrdnum = totalnum - sum(KeepConstant);
+//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+//         for (int j = 0; j < ntime; j++) {
+//             // rcout << ijk << ", " << j << ", " << " start" << endl;
+//             int ij = 0;
+//             int jk = ijk;
+//             while (jk > ij) {
+//                 ij++;
+//                 jk -= ij;
+//             }
+//             double Rs1 = Rls1(j, 0);
+//             double Rs2 = Rls2(j, ij);
+//             double Rs2t = Rls2(j, jk);
+//             double Rs3 = Rls3(j, ijk);
+//             //
+//             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+//             MatrixXd Ld = MatrixXd::Zero(dj, 4);
+//             // rcout << 0 << endl;
+//             // ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  // rows with events
+//             //
+//             MatrixXd Ldm = MatrixXd::Zero(dj, 4);
+//             Vector4d Ldcs;
+//             if (ties_method == "efron") {
+//                 Ldcs << Lls1(j, 0), Lls2(j, ij), Lls2(j, jk), Lls3(j, ijk);
+//                 for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
+//                     Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+//                 }
+//             }
+//             Ldm.col(0) = Ldm.col(0).array() + Rs1;
+//             Ldm.col(1) = Ldm.col(1).array() + Rs2;
+//             Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+//             Ldm.col(3) = Ldm.col(3).array() + Rs3;
+//             // Calculates the left-hand side terms
+//             //
+//             double Ld1 = 0;
+//             double Ld3 = 0;
+//             //
+//             MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+//             MatrixXd temp2 = MatrixXd::Zero(dj, 1);
+//             // calculates the right-hand side terms
+//             temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(- 1).array());
+//             temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(- 1).array());
+//             temp1 = temp1.array() * temp2.array();
+//             Rs3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+//             //
+//             vector<int> InGroup;
+//             string Groupstr = RiskGroup[j];
+//             stringstream ss(Groupstr);
+//             //
+//             //
+//             //
+//             for (int i; ss >> i;) {
+//                 InGroup.push_back(i);
+//                 if (ss.peek() == ',')
+//                     ss.ignore();
+//             }
+//             Ld3 = 0;
+//             Ld1 = 0;
+//             // rcout << 1 << endl;
+//             // now has the grouping pairs
+//             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+//                 // rcout << 2 << ", " << i << endl;
+//                 Ld3 += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array()* R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+//                 Ld1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+//             }
+//             Ld3 = Ld3 / Ld1;
+//             // rcout << 3 << endl;
+//             //
+//             InMa[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
+//             // rcout << 4 << endl;
+//         }
+//     }
+//     #ifdef _OPENMP
+//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//     #endif
+//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+//         int ij = 0;
+//         int jk = ijk;
+//         while (jk > ij) {
+//             ij++;
+//             jk -= ij;
+//         }
+//         InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+//     }
+//     return;
+// }
+
+// //' Utility function to calculate Cox Log-Likelihood and derivatives
+// //'
+// //' \code{Simplified_Inform_Matrix_Strata} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+// //' @inheritParams CPP_template
+// //'
+// //' @return Updates matrices in place: Log-likelihood vectors/matrix
+// //' @noRd
+// //'
+// // [[Rcpp::export]]
+// void Simplified_Inform_Matrix_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& InMa, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+//     int reqrdnum = totalnum - sum(KeepConstant);
+//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+//         for (int j = 0; j < ntime; j++) {
+//             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+//                 int ij = 0;
+//                 int jk = ijk;
+//                 while (jk > ij) {
+//                     ij++;
+//                     jk -= ij;
+//                 }
+//                 double Rs1 = Rls1(j, 0);
+//                 double Rs2 = Rls2(j, ij*Strata_vals.size() + s_ij);
+//                 double Rs2t = Rls2(j, jk*Strata_vals.size() + s_ij);
+//                 double Rs3 = Rls3(j, ijk*Strata_vals.size() + s_ij);
+//                 //
+//                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
+//                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
+//                     MatrixXd Ld = MatrixXd::Zero(dj, 4);
+//                     // ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1), RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1), RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  // rows with events
+//                     //
+//                     MatrixXd Ldm = MatrixXd::Zero(dj, 4);
+//                     Vector4d Ldcs;
+//                     if (ties_method == "efron") {
+//                         Ldcs << Lls1(j, s_ij), Lls2(j, ij*Strata_vals.size() + s_ij), Lls2(j, jk*Strata_vals.size() + s_ij), Lls3(j, ijk*Strata_vals.size() + s_ij);
+//                         for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
+//                             Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+//                         }
+//                     }
+//                     Ldm.col(0) = Ldm.col(0).array() + Rs1;
+//                     Ldm.col(1) = Ldm.col(1).array() + Rs2;
+//                     Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+//                     Ldm.col(3) = Ldm.col(3).array() + Rs3;
+//                     // Calculates the left-hand side terms
+//                     //
+//                     double Ld1 = 0;
+//                     double Ld3 = 0;
+//                     //
+//                     MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+//                     MatrixXd temp2 = MatrixXd::Zero(dj, 1);
+//                     // calculates the right-hand side terms
+//                     temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(- 1).array());
+//                     temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(- 1).array());
+//                     temp1 = temp1.array() * temp2.array();
+//                     Rs3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+//                     //
+//                     vector<int> InGroup;
+//                     string Groupstr = as<std::string>(RiskGroup(j, s_ij));
+//                     stringstream ss(Groupstr);
+//                     for (int i; ss >> i;) {
+//                         InGroup.push_back(i);
+//                         if (ss.peek() == ',')
+//                             ss.ignore();
+//                     }
+//                     Ld3 = 0;
+//                     Ld1 = 0;
+//                     // now has the grouping pairs
+//                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+//                         Ld3 += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array()* R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+//                         Ld1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+//                     }
+//                     Ld3 = Ld3 / Ld1;
+//                     //
+//                     InMa[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
+//                 }
+//             }
+//         }
+//     }
+//     #ifdef _OPENMP
+//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//     #endif
+//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+//         int ij = 0;
+//         int jk = ijk;
+//         while (jk > ij) {
+//             ij++;
+//             jk -= ij;
+//         }
+//         InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+//     }
+//     return;
+// }
+
+//' Run a complete regression for a cox model
+//'
+//' \code{Cox_Full_Run} Called to perform one full regression
+//' @inheritParams CPP_template
+//'
+//' @return Updates everything in place
+//' @noRd
+//'
+// [[Rcpp::export]]
+List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double dose_abs_max, double abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, int der_iden, double lr, List optim_para, int maxiter, int double_step, bool change_all, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+    //
+    vector<double> beta_c(totalnum, 0.0);
+    vector<double> beta_a(totalnum, 0.0);
+    vector<double> beta_best(totalnum, 0.0);
+    vector<double> beta_p(totalnum, 0.0);
+    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  // stores previous parameters
+    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  // stores current parameters
+    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  // stores a refrence value for parameters
+    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  // stores the best parameters
+    double halves = 0;  // number of half-steps taken
+    int ind0 = fir;  // used for validations
+    int iteration = 0;  // iteration number
+    int iter_check = 0;  // signal to check for convergence
+    vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
+    double Ll_abs_best = 10;
+    vector<double> beta_abs_best(totalnum, 0.0);
+    double Lld_worst = 0.0;
+    //
+    vector<double> dbeta(totalnum, 0.0);
+    NumericVector m_g_store(reqrdnum);
+    NumericVector v_beta_store(reqrdnum);
+    // Variables that are used for the risk check function shared across cox, poisson, and log bound functions
+    double dev = 0.0;
+    MatrixXd dev_temp = MatrixXd::Zero(1, 1);
+    double Lstar = 0.0;
+    MatrixXd PyrC = MatrixXd::Zero(1, 1);
+    // Calculates the subterm and term values
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    if ((R.minCoeff() <= 0) || (R.hasNaN())) {
+        if (verbose >= 1) {
+            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+            Rcout << "C++ Warning: final failing values ";
+            for (int ijk = 0; ijk < totalnum; ijk++) {
+                Rcout << beta_0[ijk] << " ";
+            }
+            Rcout << " " << endl;
+        }
+        return List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+    }
+    //
+    // -------------------------------------------------------------------------------------------
+    // Calculates the side sum terms used
+    Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    //
+    for (int i = 0; i < beta_0.size(); i++) {
+        beta_c[i] = beta_0[i];
+    }
+    while ((iteration < maxiter) && (iter_stop == 0)) {
+        iteration++;
+        beta_p = beta_c;  //
+        beta_a = beta_c;  //
+        beta_best = beta_c;  //
+        //
+        // calculates the initial change in parameter
+        if (model_bool["basic"]) {
+            Calc_Change_Basic(double_step, nthreads, totalnum, der_iden, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
+        } else if (model_bool["gradient"]) {
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, debugging);
+        } else {
+            if (model_bool["constraint"]) {
+                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant, debugging);
+            } else {
+                Calc_Change(double_step, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dose_abs_max, abs_max, KeepConstant, debugging);
+            }
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
+        }
+        //
+        if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
+            Ll_abs_best = Ll[ind0];
+            beta_abs_best = beta_c;
+        }
+        //
+        if (model_bool["gradient"]){
+            //
+            for (int ij = 0; ij < totalnum; ij++) {
+                beta_0[ij] = beta_a[ij] + dbeta[ij];
+                beta_c[ij] = beta_0[ij];
+            }
+            //
+            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+            //
+            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+        } else {
+            halves = 0;
+            while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  // repeats until half-steps maxed or an improvement
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_a[ij] + dbeta[ij];
+                    beta_c[ij] = beta_0[ij];
+                }
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+            }
+            if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
+                // If it goes through every half step without improvement, then the maximum change needs to be decreased
+                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
+                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                iter_check = 1;
+                beta_p = beta_best;  //
+                beta_a = beta_best;  //
+                beta_c = beta_best;  //
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_best[ij];
+                }
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                //
+            }
+        }
+        Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Lld_worst = 0;
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            if (abs(Lld[ij]) > Lld_worst) {
+                Lld_worst = abs(Lld[ij]);
+            }
+        }
+        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
+            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+                iter_check = 0;
+                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+                    iter_stop = 1;
+                    convgd = TRUE;
+                }
+                Ll_comp[1] = Ll[0];
+                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
+                    iter_stop = 1;
+                }
+            }
+        }
+    }
+    if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+        iter_stop = 1;
+        convgd = TRUE;
+    }
+    List res_list = List::create(_["LogLik"] = wrap(Ll[0]),_["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED");
+    // returns a list of results
+    return res_list;
+}
 
 // //' Utility function to calculate Cox Log-Likelihood and derivatives
 // //'
