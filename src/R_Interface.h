@@ -17,7 +17,11 @@ List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0, Int
 
 List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec);
 
+List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec);
+
 List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec);
+
+List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec);
 
 List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control);
 

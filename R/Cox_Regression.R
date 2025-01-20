@@ -1677,7 +1677,20 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
       control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
     }
   }
+  if ("alpha" %in% names(model_control)) {
+    model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  } else {
+    model_control["alpha"] <- 0.05
+    model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  }
   a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
+  # e <- cox_ph_Omnibus_CurveSearch_transition(
+  #     term_n, tform, a_ns,
+  #     dfc, x_all, fir,
+  #     modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
+  #     keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+  #     cons_mat, cons_vec
+  #   )
   e <- cox_ph_Omnibus_transition(
     term_n, tform, a_ns, dfc, x_all,
     fir, der_iden,

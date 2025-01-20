@@ -770,6 +770,321 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
     return;
 }
 
+//' Run a complete regression for a cox model
+//'
+//' \code{Cox_Full_Run} Called to perform one full regression
+//' @inheritParams CPP_template
+//'
+//' @return Updates everything in place
+//' @noRd
+//'
+// [[Rcpp::export]]
+List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double dose_abs_max, double abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, int der_iden, double lr, List optim_para, int maxiter, int double_step, bool change_all, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+    //
+    vector<double> beta_c(totalnum, 0.0);
+    vector<double> beta_a(totalnum, 0.0);
+    vector<double> beta_best(totalnum, 0.0);
+    vector<double> beta_p(totalnum, 0.0);
+    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  // stores previous parameters
+    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  // stores current parameters
+    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  // stores a refrence value for parameters
+    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  // stores the best parameters
+    double halves = 0;  // number of half-steps taken
+    int ind0 = fir;  // used for validations
+    int iteration = 0;  // iteration number
+    int iter_check = 0;  // signal to check for convergence
+    vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
+    double Ll_abs_best = 10;
+    vector<double> beta_abs_best(totalnum, 0.0);
+    double Lld_worst = 0.0;
+    //
+    vector<double> dbeta(totalnum, 0.0);
+    NumericVector m_g_store(reqrdnum);
+    NumericVector v_beta_store(reqrdnum);
+    // Variables that are used for the risk check function shared across cox, poisson, and log bound functions
+    double dev = 0.0;
+    MatrixXd dev_temp = MatrixXd::Zero(1, 1);
+    double Lstar = 0.0;
+    MatrixXd PyrC = MatrixXd::Zero(1, 1);
+    // Calculates the subterm and term values
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    if ((R.minCoeff() <= 0) || (R.hasNaN())) {
+        if (verbose >= 1) {
+            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+            Rcout << "C++ Warning: final failing values ";
+            for (int ijk = 0; ijk < totalnum; ijk++) {
+                Rcout << beta_0[ijk] << " ";
+            }
+            Rcout << " " << endl;
+        }
+        return List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+    }
+    //
+    // -------------------------------------------------------------------------------------------
+    // Calculates the side sum terms used
+    Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    //
+    for (int i = 0; i < beta_0.size(); i++) {
+        beta_c[i] = beta_0[i];
+    }
+    while ((iteration < maxiter) && (iter_stop == 0)) {
+        iteration++;
+        beta_p = beta_c;  //
+        beta_a = beta_c;  //
+        beta_best = beta_c;  //
+        //
+        // calculates the initial change in parameter
+        if (model_bool["basic"]) {
+            Calc_Change_Basic(double_step, nthreads, totalnum, der_iden, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
+        } else if (model_bool["gradient"]) {
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, debugging);
+        } else {
+            if (model_bool["constraint"]) {
+                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant, debugging);
+            } else {
+                Calc_Change(double_step, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dose_abs_max, abs_max, KeepConstant, debugging);
+            }
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
+        }
+        //
+        if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
+            Ll_abs_best = Ll[ind0];
+            beta_abs_best = beta_c;
+        }
+        //
+        if (model_bool["gradient"]){
+            //
+            for (int ij = 0; ij < totalnum; ij++) {
+                beta_0[ij] = beta_a[ij] + dbeta[ij];
+                beta_c[ij] = beta_0[ij];
+            }
+            //
+            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+            //
+            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+        } else {
+            halves = 0;
+            while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  // repeats until half-steps maxed or an improvement
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_a[ij] + dbeta[ij];
+                    beta_c[ij] = beta_0[ij];
+                }
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+            }
+            if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
+                // If it goes through every half step without improvement, then the maximum change needs to be decreased
+                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
+                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                iter_check = 1;
+                beta_p = beta_best;  //
+                beta_a = beta_best;  //
+                beta_c = beta_best;  //
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_best[ij];
+                }
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                //
+            }
+        }
+        Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Lld_worst = 0;
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            if (abs(Lld[ij]) > Lld_worst) {
+                Lld_worst = abs(Lld[ij]);
+            }
+        }
+        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
+            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+                iter_check = 0;
+                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+                    iter_stop = 1;
+                    convgd = TRUE;
+                }
+                Ll_comp[1] = Ll[0];
+                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
+                    iter_stop = 1;
+                }
+            }
+        }
+    }
+    if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+        iter_stop = 1;
+        convgd = TRUE;
+    }
+    List res_list = List::create(_["LogLik"] = wrap(Ll[0]),_["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED");
+    // returns a list of results
+    return res_list;
+}
+
+//' Run a complete regression for a cox model
+//'
+//' \code{Pois_Full_Run} Called to perform one full regression
+//' @inheritParams CPP_template
+//'
+//' @return Updates everything in place
+//' @noRd
+//'
+// [[Rcpp::export]]
+List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double dose_abs_max, double abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, int der_iden, double lr, List optim_para, int maxiter, int double_step, bool change_all, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+    //
+    vector<double> beta_c(totalnum, 0.0);
+    vector<double> beta_a(totalnum, 0.0);
+    vector<double> beta_best(totalnum, 0.0);
+    vector<double> beta_p(totalnum, 0.0);
+    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  // stores previous parameters
+    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  // stores current parameters
+    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  // stores a refrence value for parameters
+    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  // stores the best parameters
+    double halves = 0;  // number of half-steps taken
+    int ind0 = fir;  // used for validations
+    int iteration = 0;  // iteration number
+    int iter_check = 0;  // signal to check for convergence
+    vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
+    double Ll_abs_best = 10;
+    vector<double> beta_abs_best(totalnum, 0.0);
+    double Lld_worst = 0.0;
+    double dev = 0.0;
+    MatrixXd dev_temp = MatrixXd::Zero(PyrC.rows(), 2);
+    //
+    vector<double> dbeta(totalnum, 0.0);
+    NumericVector m_g_store(reqrdnum);
+    NumericVector v_beta_store(reqrdnum);
+    // Variables that are used for the risk check function shared across cox, poisson, and log bound functions
+    VectorXd cens_weight(1);
+    MatrixXd Lls1 = MatrixXd::Zero(1, 1);
+    MatrixXd Lls2 = MatrixXd::Zero(1, 1);
+    MatrixXd Lls3 = MatrixXd::Zero(1, 1);
+    double Lstar = 0.0;
+    int ntime = 1.0;
+    IntegerMatrix RiskFail(1);
+    vector<string> RiskGroup = {"temp"};
+    StringMatrix RiskGroup_Strata(1);
+    MatrixXd Rls1 = MatrixXd::Zero(1, 1);
+    MatrixXd Rls2 = MatrixXd::Zero(1, 1);
+    MatrixXd Rls3 = MatrixXd::Zero(1, 1);
+    NumericVector Strata_vals(1);
+    string ties_method = "temp";
+    // MatrixXd dev_temp = MatrixXd::Zero(1, 1);
+    // double Lstar = 0.0;
+    // MatrixXd PyrC = MatrixXd::Zero(1, 1);
+    // Calculates the subterm and term values
+    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    if ((R.minCoeff() <= 0) || (R.hasNaN())) {
+        if (verbose >= 1) {
+            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+            Rcout << "C++ Warning: final failing values ";
+            for (int ijk = 0; ijk < totalnum; ijk++) {
+                Rcout << beta_0[ijk] << " ";
+            }
+            Rcout << " " << endl;
+        }
+        return List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+    }
+    //
+    // -------------------------------------------------------------------------------------------
+    // Calculates the side sum terms used
+    Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, dev);
+    //
+    for (int i = 0; i < beta_0.size(); i++) {
+        beta_c[i] = beta_0[i];
+    }
+    while ((iteration < maxiter) && (iter_stop == 0)) {
+        iteration++;
+        beta_p = beta_c;  //
+        beta_a = beta_c;  //
+        beta_best = beta_c;  //
+        //
+        // calculates the initial change in parameter
+        if (model_bool["basic"]) {
+            Calc_Change_Basic(double_step, nthreads, totalnum, der_iden, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
+        } else if (model_bool["gradient"]) {
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, debugging);
+        } else {
+            if (model_bool["constraint"]) {
+                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant, debugging);
+            } else {
+                Calc_Change(double_step, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dose_abs_max, abs_max, KeepConstant, debugging);
+            }
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
+        }
+        //
+        if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
+            Ll_abs_best = Ll[ind0];
+            beta_abs_best = beta_c;
+        }
+        //
+        if (model_bool["gradient"]){
+            //
+            for (int ij = 0; ij < totalnum; ij++) {
+                beta_0[ij] = beta_a[ij] + dbeta[ij];
+                beta_c[ij] = beta_0[ij];
+            }
+            //
+            Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+            //
+            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+        } else {
+            halves = 0;
+            while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  // repeats until half-steps maxed or an improvement
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_a[ij] + dbeta[ij];
+                    beta_c[ij] = beta_0[ij];
+                }
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
+                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+            }
+            if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
+                // If it goes through every half step without improvement, then the maximum change needs to be decreased
+                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
+                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                iter_check = 1;
+                beta_p = beta_best;  //
+                beta_a = beta_best;  //
+                beta_c = beta_best;  //
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_best[ij];
+                }
+                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                //
+            }
+        }
+        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Lld_worst = 0;
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            if (abs(Lld[ij]) > Lld_worst) {
+                Lld_worst = abs(Lld[ij]);
+            }
+        }
+        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
+            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+                iter_check = 0;
+                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+                    iter_stop = 1;
+                    convgd = TRUE;
+                }
+                Ll_comp[1] = Ll[0];
+                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
+                    iter_stop = 1;
+                }
+            }
+        }
+    }
+    if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+        iter_stop = 1;
+        convgd = TRUE;
+    }
+    List res_list = List::create(_["LogLik"] = wrap(Ll[0]),_["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED");
+    // returns a list of results
+    return res_list;
+}
+
 
 // //' Utility function to calculate Cox Log-Likelihood and derivatives
 // //'
@@ -959,156 +1274,6 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
 //     }
 //     return;
 // }
-
-//' Run a complete regression for a cox model
-//'
-//' \code{Cox_Full_Run} Called to perform one full regression
-//' @inheritParams CPP_template
-//'
-//' @return Updates everything in place
-//' @noRd
-//'
-// [[Rcpp::export]]
-List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double dose_abs_max, double abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, int der_iden, double lr, List optim_para, int maxiter, int double_step, bool change_all, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
-    //
-    vector<double> beta_c(totalnum, 0.0);
-    vector<double> beta_a(totalnum, 0.0);
-    vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  // stores previous parameters
-    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  // stores current parameters
-    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  // stores a refrence value for parameters
-    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  // stores the best parameters
-    double halves = 0;  // number of half-steps taken
-    int ind0 = fir;  // used for validations
-    int iteration = 0;  // iteration number
-    int iter_check = 0;  // signal to check for convergence
-    vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
-    double Ll_abs_best = 10;
-    vector<double> beta_abs_best(totalnum, 0.0);
-    double Lld_worst = 0.0;
-    //
-    vector<double> dbeta(totalnum, 0.0);
-    NumericVector m_g_store(reqrdnum);
-    NumericVector v_beta_store(reqrdnum);
-    // Variables that are used for the risk check function shared across cox, poisson, and log bound functions
-    double dev = 0.0;
-    MatrixXd dev_temp = MatrixXd::Zero(1, 1);
-    double Lstar = 0.0;
-    MatrixXd PyrC = MatrixXd::Zero(1, 1);
-    // Calculates the subterm and term values
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-    if ((R.minCoeff() <= 0) || (R.hasNaN())) {
-        if (verbose >= 1) {
-            Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
-            Rcout << "C++ Warning: final failing values ";
-            for (int ijk = 0; ijk < totalnum; ijk++) {
-                Rcout << beta_0[ijk] << " ";
-            }
-            Rcout << " " << endl;
-        }
-        return List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
-    }
-    //
-    // -------------------------------------------------------------------------------------------
-    // Calculates the side sum terms used
-    Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
-    //
-    for (int i = 0; i < beta_0.size(); i++) {
-        beta_c[i] = beta_0[i];
-    }
-    while ((iteration < maxiter) && (iter_stop == 0)) {
-        iteration++;
-        beta_p = beta_c;  //
-        beta_a = beta_c;  //
-        beta_best = beta_c;  //
-        //
-        // calculates the initial change in parameter
-        if (model_bool["basic"]) {
-            Calc_Change_Basic(double_step, nthreads, totalnum, der_iden, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, KeepConstant, debugging);
-        } else if (model_bool["gradient"]) {
-                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, debugging);
-        } else {
-            if (model_bool["constraint"]) {
-                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant, debugging);
-            } else {
-                Calc_Change(double_step, nthreads, totalnum, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dose_abs_max, abs_max, KeepConstant, debugging);
-            }
-            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, debugging, tform);
-        }
-        //
-        if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
-            Ll_abs_best = Ll[ind0];
-            beta_abs_best = beta_c;
-        }
-        //
-        if (model_bool["gradient"]){
-            //
-            for (int ij = 0; ij < totalnum; ij++) {
-                beta_0[ij] = beta_a[ij] + dbeta[ij];
-                beta_c[ij] = beta_0[ij];
-            }
-            //
-            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-            //
-            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
-        } else {
-            halves = 0;
-            while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  // repeats until half-steps maxed or an improvement
-                for (int ij = 0; ij < totalnum; ij++) {
-                    beta_0[ij] = beta_a[ij] + dbeta[ij];
-                    beta_c[ij] = beta_0[ij];
-                }
-                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-                // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, change_all, dbeta, debugging, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskGroup, RiskGroup_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
-            }
-            if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
-                // If it goes through every half step without improvement, then the maximum change needs to be decreased
-                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
-                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
-                iter_check = 1;
-                beta_p = beta_best;  //
-                beta_a = beta_best;  //
-                beta_c = beta_best;  //
-                for (int ij = 0; ij < totalnum; ij++) {
-                    beta_0[ij] = beta_best[ij];
-                }
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, debugging, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                //
-            }
-        }
-        Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop);
-        Lld_worst = 0;
-        for (int ij = 0; ij < reqrdnum; ij++) {
-            if (abs(Lld[ij]) > Lld_worst) {
-                Lld_worst = abs(Lld[ij]);
-            }
-        }
-        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                    iter_stop = 1;
-                    convgd = TRUE;
-                }
-                Ll_comp[1] = Ll[0];
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
-                }
-            }
-        }
-    }
-    if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-        iter_stop = 1;
-        convgd = TRUE;
-    }
-    List res_list = List::create(_["LogLik"] = wrap(Ll[0]),_["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED");
-    // returns a list of results
-    return res_list;
-}
 
 // //' Utility function to calculate Cox Log-Likelihood and derivatives
 // //'

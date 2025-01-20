@@ -527,6 +527,19 @@ LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch <- function(term_n, tform, a_n, x_al
     .Call(`_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch`, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, double_step, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, debugging, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size)
 }
 
+#' Primary Cox PH likelihood bounds calcualtion function.
+#'
+#' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+LogLik_Poisson_Omnibus_Log_Bound_CurveSearch <- function(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, doublestep, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size) {
+    .Call(`_Colossus_LogLik_Poisson_Omnibus_Log_Bound_CurveSearch`, PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, doublestep, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, debugging, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size)
+}
+
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
 #'
 #' \code{Cox_Refresh_R_TERM} Called to update matrices
@@ -647,6 +660,18 @@ Cox_Pois_Log_Loop <- function(abs_max, model_bool, beta_0, beta_a, beta_c, bound
 #'
 Cox_Full_Run <- function(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon) {
     .Call(`_Colossus_Cox_Full_Run`, reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon)
+}
+
+#' Run a complete regression for a cox model
+#'
+#' \code{Pois_Full_Run} Called to perform one full regression
+#' @inheritParams CPP_template
+#'
+#' @return Updates everything in place
+#' @noRd
+#'
+Pois_Full_Run <- function(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon) {
+    .Call(`_Colossus_Pois_Full_Run`, PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon)
 }
 
 #' Primary Cox PH baseline hazard function with stratification
@@ -785,6 +810,30 @@ Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, x_all, fir, der_ide
 #'
 cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
     .Call(`_Colossus_cox_ph_Omnibus_Bounds_transition`, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Interface between R code and the Cox PH omnibus bounds regression function
+#'
+#' \code{cox_ph_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+cox_ph_Omnibus_CurveSearch_transition <- function(term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_cox_ph_Omnibus_CurveSearch_transition`, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Interface between R code and the poisson omnibus bounds regression function
+#'
+#' \code{pois_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+pois_Omnibus_CurveSearch_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_pois_Omnibus_CurveSearch_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
 }
 
 #' Interface between R code and the poisson omnibus bounds regression function

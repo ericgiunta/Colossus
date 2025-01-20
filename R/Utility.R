@@ -769,7 +769,8 @@ Def_model_control <- function(control) {
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "surv",
     "schoenfeld", "risk",
-    "risk_subset", "log_bound", "pearson", "deviance"
+    "risk_subset", "log_bound", "pearson", "deviance",
+    "mcml"
   )
   for (nm in control_def_names) {
     if (nm %in% names(control)) {

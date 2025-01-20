@@ -1247,6 +1247,18 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
       control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
     }
   }
+  # if ("alpha" %in% names(model_control)) {
+  #   model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  # } else {
+  #   model_control["alpha"] <- 0.05
+  #   model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
+  # }
+  # e <- pois_Omnibus_CurveSearch_transition(
+  #     as.matrix(df[, ce, with = FALSE]),
+  #     term_n, tform, a_ns, dfc, x_all, fir, modelform, control,
+  #     keep_constant, term_tot, as.matrix(df0[, val_cols, with = FALSE]),
+  #     model_control, cons_mat, cons_vec
+  #   )
   e <- pois_Omnibus_transition(
     as.matrix(df[, ce, with = FALSE]),
     term_n, tform, matrix(a_ns,
