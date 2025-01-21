@@ -89,3 +89,8 @@
 
 * Gradient descent algorithms tested further and presented in vignette
 * Multiple realization function tested further
+
+# Colossus 1.1.8
+
+* CurveSolve functions converted to c++ functions
+* Testing scaled back to take up less time

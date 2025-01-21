@@ -52,7 +52,7 @@ This is the "model_control" variable used primarily by the omnibus functions. Th
 | single  | Boolean used by both Cox and Poisson functions to calculate score without derivatives. This method can be used to quickly test multiple starting points. Defaults to FALSE.  |
 | basic  | Boolean used by Cox functions to use the single-term log-linear model. This method can apply simplifications which reduce the time and memory requirements. Defaults to FALSE.  |
 | null  | Boolean used by Cox functions to calculate the null model, which assumes a constant hazard ratio. Defaults to FALSE.   |
-| cr  | Boolean used by Cox functions to apply competing risks model options to use a Fine-Grey model. Defaults to FALSE.  |
+| cr  | Boolean used by Cox functions to apply competing risks model options to use a Fine-Gray model. Defaults to FALSE.  |
 | constraint  | Boolean used by both Cox and Poisson function to apply a system of linear constraints. Defaults to FALSE. |
 | strata  | Boolean used by both Cox and Poisson functions to apply stratification. Cox functions use stratified risk groups and Poisson functions apply an average event rate per strata. Defaults to FALSE.  |
 | surv  | Boolean used by Cox plotting function to choose survival curve plotting. Defaults to FALSE  |

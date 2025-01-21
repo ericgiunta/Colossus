@@ -25,7 +25,7 @@ library(parallel)
 
 ## Model Structure
 
-At its full potential, Colossus is able to analyze a vast number of possible risk/rate models. Specifically Colossus is designed to allow for a combination of linear and non-linear models to estimate cox proportional hazard ratios, Poisson model rates, and Fine-Grey Competing risks ratios. The simplest of which is an exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
+At its full potential, Colossus is able to analyze a vast number of possible risk/rate models. Specifically Colossus is designed to allow for a combination of linear and non-linear models to estimate cox proportional hazard ratios, Poisson model rates, and Fine-Gray Competing risks ratios. The simplest of which is an exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
 
 <p class="text-center" style="background-color: aliceblue">
 $$

@@ -810,6 +810,10 @@ Def_model_control <- function(control) {
         control["qchi"] <- qchisq(1 - control[["alpha"]], df = 1) / 2
       }
     }
+    if ("para_num" %in% names(control)) {
+      warning("R Warning: para_num detected in model_control, did you mean para_number?")
+      control["para_number"] <- control["para_num"]
+    }
     if ("para_number" %in% names(control)) {
       # fine
     } else {

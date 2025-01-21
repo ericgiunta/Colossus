@@ -397,7 +397,7 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
     int para_number = model_control["para_number"];
     //
     int maxstep    = model_control["maxstep"];
-    int step_size    = model_control["step_size"];
+    double step_size    = model_control["step_size"];
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//

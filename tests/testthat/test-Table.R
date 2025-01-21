@@ -173,17 +173,14 @@ test_that("person time, different intervals", {
         if (i == 1) {
           pyr_entry$day <- "d"
           pyr_exit$day <- "g"
-          # time_categ$day <- c(1,1,1)
         }
         if (j == 1) {
           pyr_entry$month <- "e"
           pyr_exit$month <- "h"
-          # time_categ$month <- c(1,1,1)
         }
         if (k == 1) {
           pyr_entry$year <- "f"
           pyr_exit$year <- "i"
-          # time_categ$year <- c(1899,1903,1910)
         }
         if (i + j + k != 6) {
           pyr <- list(entry = pyr_entry, exit = pyr_exit)

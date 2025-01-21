@@ -126,7 +126,7 @@ e <- RunPoissonRegression_Single(
 
 ## Competing Risks
 
-### Fine-Grey
+### Fine-Gray
 
 In Cox PH there is an assumption that every individual is recorded until they have an event or they are naturally censored, and the same censoring rates are assumed to apply to every individual. These are violated when there is a competing event occurring. In sensitivity analysis there are two extremes that can be tested. Either every person with a competing event is treated as having the event of interest instead, or they are assumed to never experience the event of interest. However there are methods to find a more realistic alternative. Colossus applies the Fine-Gray model for competing risks, which instead weights the contribution of competing event intervals in future intervals by the probability they would not have been censored.
 

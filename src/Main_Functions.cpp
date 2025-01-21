@@ -4778,20 +4778,20 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    if (model_bool["single"]) {
-        if (verbose >= 1) {
-            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
-    if (model_bool["gradient"]) {
-        if (verbose >= 1) {
-            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+//    if (model_bool["single"]) {
+//        if (verbose >= 1) {
+//            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
+//        }
+//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
+//        return temp_list;
+//    }
+//    if (model_bool["gradient"]) {
+//        if (verbose >= 1) {
+//            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
+//        }
+//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
+//        return temp_list;
+//    }
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
@@ -4991,8 +4991,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         temp_step = temp_step * 0.5;
         //
         reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        temp_L[0] = reg_out['LogLik'];
-        if (is_nan(temp_L)[0]){
+        temp_L[0] = reg_out["LogLik"];
+        if (!is_nan(temp_L)[0]){
         // if (reg_status == "PASSED"){
             loop_check = false;
         }
@@ -5004,7 +5004,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         limit_converged[1] = false;
     } else {
         // Now we can run the actual algorithm
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_H[ij] = reg_beta[ij];
         }
@@ -5015,7 +5015,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
             beta_0[ij] = beta_M[ij];
         }
         reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
         }
@@ -5024,7 +5024,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         int step = 0;
         // now run the bisection until stopping point
         // while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
-        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number] > epsilon)) && (! limit_hit[1])){
+        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number]) > epsilon) && (! limit_hit[1])){
             step = step + 1;
             if (L_L < Lstar) {
                 throw invalid_argument("The lower estimate is too high?");
@@ -5066,8 +5066,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     temp_step = temp_step * 0.5;
                     //
                     reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                    temp_L[0] = reg_out['LogLik'];
-                    if (is_nan(temp_L)[0]){
+                    temp_L[0] = reg_out["LogLik"];
+                    if (!is_nan(temp_L)[0]){
                         loop_check = false;
                     }
                 }
@@ -5077,7 +5077,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     ll_final[1] = 0;
                     limit_converged[1] = false;
                 } else {
-                    reg_beta = reg_out['beta_0'];
+                    reg_beta = reg_out["beta_0"];
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_H[ij] = reg_beta[ij];
                     }
@@ -5091,20 +5091,23 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     beta_0[ij] = beta_M[ij];
                 }
                 reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                reg_beta = reg_out['beta_0'];
+                reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];
                 }
                 L_M = reg_out["LogLik"];
             }
         }
-        if (abs(beta_L[para_number] - beta_H[para_number] > epsilon)){
+        if (abs(beta_L[para_number] - beta_H[para_number]) > epsilon){
             limit_converged[1] = true;
         }
         limits[1] = beta_M[para_number];
         ll_final[1] = L_M;
     }
     // upper limit found, now solve lower limit
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
     for (int ij = 0; ij < totalnum; ij++) {
         beta_L[ij] = beta_peak[ij];
         beta_H[ij] = beta_peak[ij];
@@ -5121,8 +5124,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         temp_step = temp_step * 0.5;
         //
         reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        temp_L[0] = reg_out['LogLik'];
-        if (is_nan(temp_L)[0]){
+        temp_L[0] = reg_out["LogLik"];
+        if (!is_nan(temp_L)[0]){
             loop_check = false;
         }
     }
@@ -5133,7 +5136,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         limit_converged[0] = false;
     } else {
         // Now we can run the actual algorithm
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_L[ij] = reg_beta[ij];
         }
@@ -5144,7 +5147,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
             beta_0[ij] = beta_M[ij];
         }
         reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
         }
@@ -5153,7 +5156,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         int step = 0;
         // now run the bisection until stopping point
         // while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
-        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number] > epsilon)) && (! limit_hit[0])){
+        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number]) > epsilon) && (! limit_hit[0])){
             step = step + 1;
             if (L_H < Lstar) {
                 throw invalid_argument("The upper estimate is too high?");
@@ -5195,8 +5198,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     temp_step = temp_step * 0.5;
                     //
                     reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                    temp_L[0] = reg_out['LogLik'];
-                    if (is_nan(temp_L)[0]){
+                    temp_L[0] = reg_out["LogLik"];
+                    if (!is_nan(temp_L)[0]){
                         loop_check = false;
                     }
                 }
@@ -5206,7 +5209,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     ll_final[0] = 0;
                     limit_converged[0] = false;
                 } else {
-                    reg_beta = reg_out['beta_0'];
+                    reg_beta = reg_out["beta_0"];
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_L[ij] = reg_beta[ij];
                     }
@@ -5220,14 +5223,14 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     beta_0[ij] = beta_M[ij];
                 }
                 reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail, RiskGroup_Strata, RiskGroup, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                reg_beta = reg_out['beta_0'];
+                reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];
                 }
                 L_M = reg_out["LogLik"];
             }
         }
-        if (abs(beta_L[para_number] - beta_H[para_number] > epsilon)){
+        if (abs(beta_L[para_number] - beta_H[para_number]) > epsilon){
             limit_converged[0] = true;
         }
         limits[0] = beta_M[para_number];
@@ -5480,8 +5483,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         temp_step = temp_step * 0.5;
         //
         reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        temp_L[0] = reg_out['LogLik'];
-        if (is_nan(temp_L)[0]){
+        temp_L[0] = reg_out["LogLik"];
+        if (!is_nan(temp_L)[0]){
         // if (reg_status == "PASSED"){
             loop_check = false;
         }
@@ -5493,7 +5496,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         limit_converged[1] = false;
     } else {
         // Now we can run the actual algorithm
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_H[ij] = reg_beta[ij];
         }
@@ -5504,7 +5507,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
             beta_0[ij] = beta_M[ij];
         }
         reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
         }
@@ -5513,7 +5516,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         int step = 0;
         // now run the bisection until stopping point
         // while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
-        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number] > epsilon)) && (! limit_hit[1])){
+        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number]) > epsilon) && (! limit_hit[1])){
             step = step + 1;
             if (L_L < Lstar) {
                 throw invalid_argument("The lower estimate is too high?");
@@ -5555,8 +5558,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     temp_step = temp_step * 0.5;
                     //
                     reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                    temp_L[0] = reg_out['LogLik'];
-                    if (is_nan(temp_L)[0]){
+                    temp_L[0] = reg_out["LogLik"];
+                    if (!is_nan(temp_L)[0]){
                         loop_check = false;
                     }
                 }
@@ -5566,7 +5569,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     ll_final[1] = 0;
                     limit_converged[1] = false;
                 } else {
-                    reg_beta = reg_out['beta_0'];
+                    reg_beta = reg_out["beta_0"];
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_H[ij] = reg_beta[ij];
                     }
@@ -5580,14 +5583,14 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     beta_0[ij] = beta_M[ij];
                 }
                 reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                reg_beta = reg_out['beta_0'];
+                reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];
                 }
                 L_M = reg_out["LogLik"];
             }
         }
-        if (abs(beta_L[para_number] - beta_H[para_number] > epsilon)){
+        if (abs(beta_L[para_number] - beta_H[para_number]) > epsilon){
             limit_converged[1] = true;
         }
         limits[1] = beta_M[para_number];
@@ -5610,8 +5613,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         temp_step = temp_step * 0.5;
         //
         reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        temp_L[0] = reg_out['LogLik'];
-        if (is_nan(temp_L)[0]){
+        temp_L[0] = reg_out["LogLik"];
+        if (!is_nan(temp_L)[0]){
             loop_check = false;
         }
     }
@@ -5622,7 +5625,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         limit_converged[0] = false;
     } else {
         // Now we can run the actual algorithm
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_L[ij] = reg_beta[ij];
         }
@@ -5633,7 +5636,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
             beta_0[ij] = beta_M[ij];
         }
         reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-        reg_beta = reg_out['beta_0'];
+        reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
         }
@@ -5642,7 +5645,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         int step = 0;
         // now run the bisection until stopping point
         // while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
-        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number] > epsilon)) && (! limit_hit[0])){
+        while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number]) > epsilon) && (! limit_hit[0])){
             step = step + 1;
             if (L_H < Lstar) {
                 throw invalid_argument("The upper estimate is too high?");
@@ -5684,8 +5687,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     temp_step = temp_step * 0.5;
                     //
                     reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                    temp_L[0] = reg_out['LogLik'];
-                    if (is_nan(temp_L)[0]){
+                    temp_L[0] = reg_out["LogLik"];
+                    if (!is_nan(temp_L)[0]){
                         loop_check = false;
                     }
                 }
@@ -5695,7 +5698,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     ll_final[0] = 0;
                     limit_converged[0] = false;
                 } else {
-                    reg_beta = reg_out['beta_0'];
+                    reg_beta = reg_out["beta_0"];
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_L[ij] = reg_beta[ij];
                     }
@@ -5709,14 +5712,14 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     beta_0[ij] = beta_M[ij];
                 }
                 reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
-                reg_beta = reg_out['beta_0'];
+                reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];
                 }
                 L_M = reg_out["LogLik"];
             }
         }
-        if (abs(beta_L[para_number] - beta_H[para_number] > epsilon)){
+        if (abs(beta_L[para_number] - beta_H[para_number]) > epsilon){
             limit_converged[0] = true;
         }
         limits[0] = beta_M[para_number];

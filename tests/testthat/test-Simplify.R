@@ -165,7 +165,7 @@ test_that("Coxph basic check value", {
   event <- "lung"
 
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  for (i in 1:5) {
+  for (i in 1:3) {
     a_n <- runif(length(names))
     tform <- c("loglin", "loglin", "loglin", "loglin", "loglin")
     model_control <- list("basic" = TRUE)
