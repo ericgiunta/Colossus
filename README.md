@@ -66,7 +66,6 @@ names <- c("a", "b", "c", "d")
 term_n <- c(0, 1, 1, 2)
 tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
-fir <- 0
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 
@@ -75,12 +74,11 @@ der_iden <- 0
 
 control <- list(
   "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,
-  "dbeta_max" = 0.5, "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
-  "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = FALSE,
-  "ties" = "breslow", "double_step" = 1
+  "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
+  "verbose" = FALSE, "ties" = "breslow"
 )
 
-e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control = control)
 Interpret_Output(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
@@ -96,6 +94,6 @@ Interpret_Output(e)
 #> Iterations run: 100
 #> maximum step size: 1.00e+00, maximum first derivative: 1.92e-04
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.31 seconds
+#> Run finished in 0.25 seconds
 #> |-------------------------------------------------------------------|
 ```

@@ -11,7 +11,7 @@ from pyspark.sql.types import IntegerType, NumericType
 
 import os
 os.environ["PYARROW_IGNORE_TIMEZONE"] = "1"
-
+# spark-submit --master local[*] --driver-memory 20g --executor-memory 2g --verbose file.py
 import time
 #
 if (False):

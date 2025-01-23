@@ -82,7 +82,7 @@ $$
 $$
 </p>
 
-```{r, eval=TRUE}
+```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
   "type" = c("surv", paste(tempfile(), "run", sep = "")), "studyid" = "UserID",
   "verbose" = 0, "surv_curv" = T, "martingale" = F, "strat_haz" = F, "km" = F
@@ -90,7 +90,7 @@ plot_options <- list(
 
 e <- RunCoxPlots(
   df, t0, t1, event, names, term_n, tform, keep_constant, a_n, modelform,
-  fir, control, plot_options
+  control = control, plot_options = plot_options
 )
 
 norm_surv <- e[["standard"]]
@@ -114,7 +114,7 @@ plot_options <- list(
 
 e <- RunCoxPlots(
   df, t0, t1, event, names, term_n, tform, keep_constant, a_n, modelform,
-  fir, control, plot_options
+  control = control, plot_options = plot_options
 )
 km <- e[["kaplin-meier"]]
 g <- ggplot2::ggplot(km, ggplot2::aes(x = .data$t_t, y = .data$n_t)) +
@@ -139,7 +139,7 @@ $$
 $$
 </p>
 
-```{r, eval=TRUE}
+```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
   "type" = c("schoenfeld", paste(tempfile(), "run", sep = "")),
   "studyid" = "UserID", "verbose" = 0
@@ -147,7 +147,8 @@ plot_options <- list(
 
 res_all <- RunCoxPlots(
   df, t0, t1, event, names, term_n, tform, keep_constant, a_n,
-  modelform, fir, control, plot_options
+  modelform,
+  control = control, plot_options = plot_options
 )
 
 res_age <- res_all[["age"]]
@@ -196,7 +197,7 @@ $$
 $$
 </p>
 
-```{r, eval=TRUE}
+```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
   "type" = c("surv", paste(tempfile(), "run", sep = "")),
   "studyid" = "UserID", "verbose" = 0, "surv_curv" = F,
@@ -204,7 +205,8 @@ plot_options <- list(
 )
 res_all <- RunCoxPlots(
   df, t0, t1, event, names, term_n, tform, keep_constant, a_n,
-  modelform, fir, control, plot_options
+  modelform,
+  control = control, plot_options = plot_options
 )
 
 res_age <- res_all[["age"]]
@@ -238,14 +240,15 @@ g
 
 Colossus also offers scripts that plot the relative risk by parameter value for each parameter in the model, assuming every other parameter is constant. Any parameter with more than 10 values is assumed to be constant.
 
-```{r, eval=TRUE}
+```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
   "type" = c("risk", paste(tempfile(), "run", sep = "")), "studyid" = "UserID",
   "verbose" = 0
 )
 res_all <- RunCoxPlots(
   df, t0, t1, event, names, term_n, tform, keep_constant, a_n,
-  modelform, fir, control, plot_options
+  modelform,
+  control = control, plot_options = plot_options
 )
 
 res_age <- res_all[["age"]]

@@ -76,6 +76,7 @@ If the log_bound method is used, there are several additional control options us
 | manual | Boolean which selects if the standard Venzon-Moolgavkar algorithm (FALSE) or if a modified version is used which starts by optimizing multiple points (TRUE). The manual mode is beneficial for problems with linear terms, which may have issues with local optimums. Defaults to FALSE. |
 | maxstep | Integer used by the manual search option, splits the initial step into maxstep points. Then each point is optimized with a constant boundary parameter. This is done to find the closest estimate for the boundary point. Defaults to 10. |
 | search_mult | Double used by manual search option, scales the initial step by that amount. This can be done to widen or narrow the scope of the search if the initial quadratic assumption made by the Venzon-Moolgavkar algorithm is incorrect. |
+| step_size | Double used by the Curve Search functions. Sets the initial interval length used. Defaults to 0.5 |
 
 ### Guess Control List
 

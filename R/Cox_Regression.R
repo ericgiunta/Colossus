@@ -1507,6 +1507,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
   # remove rows that start after the last event
   df <- df[get(time1) <= tu[length(tu)], ]
   control <- Def_Control(control)
+  model_control$log_bound <- TRUE
   model_control <- Def_model_control(model_control)
   val <- Correct_Formula_Order(
     term_n, tform, keep_constant, a_n,

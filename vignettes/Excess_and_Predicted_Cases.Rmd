@@ -70,9 +70,8 @@ fir <- 0
 a_n <- c(0.1, 0.1)
 keep_constant <- rep(0, length(names))
 der_iden <- 0
-control <- list("Ncores" = 2, "maxiters" = c(1, 1), "verbose" = F, "abs_max" = 0.1)
-model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "CR" = FALSE)
-e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control)
+control <- list("Ncores" = 2, "verbose" = F)
+e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, control = control)
 
 e0 <- e$predict
 e1 <- e$caused

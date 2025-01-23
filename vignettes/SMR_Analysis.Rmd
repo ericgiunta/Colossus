@@ -89,7 +89,8 @@ keep_constant <- c(1, 0)
 a_n <- c(1, 1)
 e <- RunPoissonRegression_Omnibus(
   cancer, pyr, event, names, term_n, tform,
-  keep_constant, a_n, modelform, fir, der_iden, control
+  keep_constant, a_n, modelform,
+  control = control
 )
 print(e$beta_0)
 ```
@@ -105,7 +106,8 @@ a_n <- c(1, 1)
 
 e <- RunPoissonRegression_Omnibus(
   cancer, pyr, event, names, term_n, tform,
-  keep_constant, a_n, modelform, fir, der_iden, control
+  keep_constant, a_n, modelform,
+  control = control
 )
 
 print(e$beta_0)

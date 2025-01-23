@@ -102,7 +102,9 @@ Next the script defines the model and control information. Colossus stores the m
 
 ```{r, eval=FALSE}
 # ERR
-names <- c("cumulative_dose", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2", "YOB_CAT_3", "YOB_CAT_4", "sexm")
+names <- c("cumulative_dose", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2",
+           "YOB_CAT_3", "YOB_CAT_4", "sexm"
+           )
 tform <- c("plin", rep("loglin", length(names) - 1))
 control <- list("Ncores" = 8, "maxiter" = 50, "verbose" = F)
 ```
@@ -117,12 +119,17 @@ A similar process is run for the two hazard ratio regressions.
 
 ```{r, eval=FALSE}
 # HR
-names <- c("cumulative_dose", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2", "YOB_CAT_3", "YOB_CAT_4", "sexm")
+names <- c("cumulative_dose", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2",
+           "YOB_CAT_3", "YOB_CAT_4", "sexm"
+           )
 tform <- rep("loglin", length(names))
 e <- RunCoxRegression(df_Dose, t0, t1, event, names, tform = tform, control = control)
 
 # Categorical
-names <- c("dose_cat_1", "dose_cat_2", "dose_cat_3", "dose_cat_4", "dose_cat_5", "dose_cat_6", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2", "YOB_CAT_3", "YOB_CAT_4", "sexm")
+names <- c("dose_cat_1", "dose_cat_2", "dose_cat_3", "dose_cat_4", "dose_cat_5",
+           "dose_cat_6", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2",
+           "YOB_CAT_3", "YOB_CAT_4", "sexm"
+           )
 tform <- rep("loglin", length(names))
 e <- RunCoxRegression(df_Dose, t0, t1, event, names, tform = tform, control = control)
 ```

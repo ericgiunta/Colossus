@@ -54,7 +54,7 @@ event <- "lung"
 Model_Eq <- "cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative()"
 Model_Eq <- "cox(t0, t1, lung) ~ loglinear(dose0, dose1) + linear(dose2, 1)"
 
-df <- data.table()
+df <- data.table("dose0" = 1:4, "dose1" = 2:5, "dose2" = 3:6)
 Convert_Model_Eq(Model_Eq, df)
 ```
 
