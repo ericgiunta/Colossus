@@ -193,7 +193,8 @@ regression.</p>
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"e"</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Strata.html">RunCoxRegression_Strata</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
-<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>, <span class="va">Strat_Col</span></span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, strat_col <span class="op">=</span> <span class="va">Strat_Col</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -228,7 +229,8 @@ not matter if the user provides a list or combines them themselves.</p>
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e"</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_Strata.html">RunPoissonRegression_Strata</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
-<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>, <span class="va">Strat_Col</span></span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, strat_col <span class="op">=</span> <span class="va">Strat_Col</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -251,7 +253,8 @@ is as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Basic.html">RunCoxRegression_Basic</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>,</span>
-<span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">der_iden</span>, <span class="va">control</span></span>
+<span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -269,12 +272,14 @@ user’s convenience.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Single.html">RunCoxRegression_Single</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>,</span>
-<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">control</span></span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_Single.html">RunPoissonRegression_Single</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>,</span>
-<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">control</span></span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -343,11 +348,15 @@ which individuals have events and which are censored.</p>
 <code class="sourceCode R"><span><span class="va">df</span><span class="op">$</span><span class="va">censor</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">lung</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># censoring column made</span></span>
 <span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"censor"</span> <span class="co"># event type switched to censoring</span></span>
 <span></span>
-<span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"name"</span> <span class="op">=</span> <span class="st">"run_2"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"studyID"</span> <span class="op">=</span> <span class="st">"studyID"</span>, <span class="st">"age_unit"</span> <span class="op">=</span> <span class="st">"years"</span><span class="op">)</span></span>
+<span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"name"</span> <span class="op">=</span> <span class="st">"run_2"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="st">"studyID"</span> <span class="op">=</span> <span class="st">"studyID"</span>, <span class="st">"age_unit"</span> <span class="op">=</span> <span class="st">"years"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co"># modified plotting function used to get censoring weights</span></span>
 <span><span class="va">dft</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GetCensWeight.html">GetCensWeight</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
-<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">control</span>, <span class="va">plot_options</span></span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, plot_options <span class="op">=</span> <span class="va">plot_options</span></span>
 <span><span class="op">)</span> <span class="co"># generates a survival curve</span></span>
 <span><span class="va">t_ref</span> <span class="op">&lt;-</span> <span class="va">dft</span><span class="op">$</span><span class="va">t</span></span>
 <span><span class="va">surv_ref</span> <span class="op">&lt;-</span> <span class="va">dft</span><span class="op">$</span><span class="va">surv</span></span>
@@ -358,7 +367,8 @@ which individuals have events and which are censored.</p>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_CR.html">RunCoxRegression_CR</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
-<span>  <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>, <span class="va">cens_weight</span></span>
+<span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, cens_weight <span class="op">=</span> <span class="va">cens_weight</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -562,75 +572,28 @@ not included.</p>
 <span>  strata <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"f"</span></span>
-<span><span class="fu"><a href="../reference/RunPoissonRegression_Joint_Omnibus.html">RunPoissonRegression_Joint_Omnibus</a></span><span class="op">(</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_Joint_Omnibus.html">RunPoissonRegression_Joint_Omnibus</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">pyr</span>, <span class="va">events</span>, <span class="va">name_list</span>, <span class="va">term_n_list</span>,</span>
 <span>  <span class="va">tform_list</span>, <span class="va">keep_constant_list</span>, <span class="va">a_n_list</span>,</span>
-<span>  <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span>, <span class="va">Strat_Col</span></span>
+<span>  <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, strat_col <span class="op">=</span> <span class="va">Strat_Col</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; $LogLik</span></span>
-<span><span class="co">#&gt; [1] -10.44542</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate    Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:    fac_e0     loglin           0        0.5742948          0.4676081</span></span>
+<span><span class="co">#&gt; 2:    fac_e1     loglin           0       -1.0346366          1.0090325</span></span>
+<span><span class="co">#&gt; 3:        t0 loglin_top           0       -0.0200000         69.6135954</span></span>
+<span><span class="co">#&gt; 4:        t0 quad_slope           0       -0.1646741         68.2362377</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $First_Der</span></span>
-<span><span class="co">#&gt; [1] -2.762934e-05 -5.121649e-04 -2.063535e-04 -2.105221e-04</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Second_Der</span></span>
-<span><span class="co">#&gt;           [,1]       [,2]      [,3]       [,4]</span></span>
-<span><span class="co">#&gt; [1,] -5.000028  0.0000000 -1.740713 -1.7758778</span></span>
-<span><span class="co">#&gt; [2,]  0.000000 -1.0005122 -0.348319 -0.3553555</span></span>
-<span><span class="co">#&gt; [3,] -1.740713 -0.3483190 -7.223314 -7.3690239</span></span>
-<span><span class="co">#&gt; [4,] -1.775878 -0.3553555 -7.369024 -7.5178880</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $beta_0</span></span>
-<span><span class="co">#&gt; [1]  0.5742948 -1.0346366 -0.0200000 -0.1646741</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Standard_Deviation</span></span>
-<span><span class="co">#&gt; [1]  0.4676081  1.0090325 69.6135954 68.2362377</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $AIC</span></span>
-<span><span class="co">#&gt; [1] 14.43602</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $BIC</span></span>
-<span><span class="co">#&gt; [1] 30.83046</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Deviation</span></span>
-<span><span class="co">#&gt; [1] 6.436016</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists</span></span>
-<span><span class="co">#&gt; $Parameter_Lists$term_n</span></span>
-<span><span class="co">#&gt; [1] 0 0 0 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$tforms</span></span>
-<span><span class="co">#&gt; [1] "loglin"     "loglin"     "loglin_top" "quad_slope"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$names</span></span>
-<span><span class="co">#&gt; [1] "fac_e0" "fac_e1" "t0"     "t0"    </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$modelformula</span></span>
-<span><span class="co">#&gt; [1] "M"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Parameter_Lists$first_term</span></span>
-<span><span class="co">#&gt; [1] 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List</span></span>
-<span><span class="co">#&gt; $Control_List$Iteration</span></span>
-<span><span class="co">#&gt; [1] 6</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Maximum Step`</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Control_List$`Derivative Limiting`</span></span>
-<span><span class="co">#&gt; [1] 0.0005121649</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Converged</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Status</span></span>
-<span><span class="co">#&gt; [1] "PASSED"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Survival_Type</span></span>
-<span><span class="co">#&gt; [1] "Poisson"</span></span></code></pre></div>
+<span><span class="co">#&gt; Poisson Model Used</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 20.89,  AIC: 14.44,  BIC: 30.83</span></span>
+<span><span class="co">#&gt; Iterations run: 6</span></span>
+<span><span class="co">#&gt; maximum step size: 1.00e+00, maximum first derivative: 5.12e-04</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

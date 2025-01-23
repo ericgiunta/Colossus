@@ -178,7 +178,8 @@ to biological sex.</p>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_Omnibus.html">RunPoissonRegression_Omnibus</a></span><span class="op">(</span></span>
 <span>  <span class="va">cancer</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>,</span>
-<span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span></span>
+<span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">$</span><span class="va">beta_0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1 0</span></span></code></pre></div>
@@ -196,7 +197,8 @@ parameter held constant.</p>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_Omnibus.html">RunPoissonRegression_Omnibus</a></span><span class="op">(</span></span>
 <span>  <span class="va">cancer</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>,</span>
-<span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span></span>
+<span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">$</span><span class="va">beta_0</span><span class="op">)</span></span>

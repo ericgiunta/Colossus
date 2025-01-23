@@ -102,7 +102,6 @@
 <span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"lin"</span>, <span class="st">"lin"</span>, <span class="st">"plin"</span><span class="op">)</span></span>
 <span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
-<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
@@ -111,12 +110,11 @@
 <span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>,</span>
-<span>  <span class="st">"dbeta_max"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"abs_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
-<span>  <span class="st">"change_all"</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="st">"dose_abs_max"</span> <span class="op">=</span> <span class="fl">100.0</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span>, <span class="st">"double_step"</span> <span class="op">=</span> <span class="fl">1</span></span>
+<span>  <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"abs_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
@@ -132,7 +130,7 @@
 <span><span class="co">#&gt; Iterations run: 100</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00e+00, maximum first derivative: 1.92e-04</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.31 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.25 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>

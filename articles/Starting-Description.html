@@ -648,7 +648,8 @@ as follows:</p>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span> <span class="co"># a_n is updated when either regression is called</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression.html">RunPoissonRegression</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">pyr</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
-<span>  <span class="va">modelform</span>, <span class="va">fir</span>, <span class="va">der_iden</span>, <span class="va">control</span></span>
+<span>  <span class="va">modelform</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
