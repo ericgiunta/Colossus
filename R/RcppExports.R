@@ -674,6 +674,54 @@ Pois_Full_Run <- function(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_we
     .Call(`_Colossus_Pois_Full_Run`, PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, debugging, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon)
 }
 
+#' Utility function to calculate Information Matrix, from Epicure manual
+#'
+#' \code{Simplified_Inform_Matrix} Called to update information matrix
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: information matrix
+#' @noRd
+#'
+Simplified_Inform_Matrix <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, InMa, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Simplified_Inform_Matrix`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, InMa, debugging, KeepConstant))
+}
+
+#' Utility function to calculate Information Matrix with strata, from Epicure manual
+#'
+#' \code{Simplified_Inform_Matrix_Strata} Called to update information matrix with strata
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: information matrix
+#' @noRd
+#'
+Simplified_Inform_Matrix_Strata <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, InMa, debugging, Strata_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Simplified_Inform_Matrix_Strata`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, InMa, debugging, Strata_vals, KeepConstant))
+}
+
+#' Utility function to calculate Information Matrix with competing risks, adapted from Epicure manual
+#'
+#' \code{Simplified_Inform_Matrix_CR} Called to update information matrix with competing risks
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: information matrix
+#' @noRd
+#'
+Simplified_Inform_Matrix_CR <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, KeepConstant) {
+    invisible(.Call(`_Colossus_Simplified_Inform_Matrix_CR`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, KeepConstant))
+}
+
+#' Utility function to calculate Information Matrix with strata and competing risks, adapted from from Epicure manual
+#'
+#' \code{Simplified_Inform_Matrix_Strata_CR} Called to update information matrix with strata and competing risks
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: information matrix
+#' @noRd
+#'
+Simplified_Inform_Matrix_Strata_CR <- function(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, Strata_vals, KeepConstant) {
+    invisible(.Call(`_Colossus_Simplified_Inform_Matrix_Strata_CR`, nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, Strata_vals, KeepConstant))
+}
+
 #' Primary Cox PH baseline hazard function with stratification
 #'
 #' \code{PLOT_SURV_Strata} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives

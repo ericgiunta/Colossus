@@ -629,21 +629,60 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
     }
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    // const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    // //
+    // MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+    // VectorXd stdev = VectorXd::Zero(totalnum);
+    // for (int ij = 0; ij < totalnum; ij++) {
+    //     if (KeepConstant[ij] == 0) {
+    //         int pij_ind = ij - sum(head(KeepConstant, ij));
+    //         stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
+    //     }
+    // }
     //
-    MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
-    VectorXd stdev = VectorXd::Zero(totalnum);
+    vector<double> InMa(pow(reqrdnum, 2), 0.0);
+    if (model_bool["strata"]){
+        if (model_bool["cr"]){
+            Simplified_Inform_Matrix_Strata_CR(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, Strata_vals, KeepConstant);
+        } else {
+            Simplified_Inform_Matrix_Strata(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, RdR, InMa, debugging, Strata_vals, KeepConstant);
+        }
+    } else {
+        if (model_bool["cr"]){
+            Simplified_Inform_Matrix_CR(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, KeepConstant);
+        } else {
+            Simplified_Inform_Matrix(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, InMa, debugging, KeepConstant);
+        }
+    }
+    NumericVector InMa_vec(reqrdnum * reqrdnum);  // simplfied information matrix
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
+        InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
+    }
+    InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+    const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
+    MatrixXd InMa_inv = InMa_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev_InMa = VectorXd::Zero(totalnum);
     for (int ij = 0; ij < totalnum; ij++) {
         if (KeepConstant[ij] == 0) {
             int pij_ind = ij - sum(head(KeepConstant, ij));
-            stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
+            stdev_InMa(ij) = sqrt(InMa_inv(pij_ind, pij_ind));
         }
     }
     //
     if (model_bool["basic"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev_InMa), _["Covariance"] = wrap(InMa_inv), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     } else {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev_InMa), _["Covariance"] = wrap(InMa_inv), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     }
     // returns a list of results
     return res_list;
@@ -4125,7 +4164,47 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
         a_n = beta_0;
         beta_fin(guess, _) = a_n;
         LL_fin[guess] = Ll[0];
-        NumericVector Lldd_vec(reqrdnum * reqrdnum);  // simplfied information matrix
+        // NumericVector Lldd_vec(reqrdnum * reqrdnum);  // simplfied information matrix
+        // #ifdef _OPENMP
+        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        // #endif
+        // for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+        //     int ij = 0;
+        //     int jk = ijk;
+        //     while (jk > ij) {
+        //         ij++;
+        //         jk -= ij;
+        //     }
+        //     Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
+        //     Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
+        // }
+        // Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+        // const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        // //
+        // MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+        // NumericVector stdev(totalnum);
+        // for (int ij = 0; ij < totalnum; ij++) {
+        //     if (KeepConstant[ij] == 0) {
+        //         int pij_ind = ij - sum(head(KeepConstant, ij));
+        //         stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
+        //     }
+        // }
+        //
+        vector<double> InMa(pow(reqrdnum, 2), 0.0);
+        if (model_bool["strata"]){
+            if (model_bool["cr"]){
+                Simplified_Inform_Matrix_Strata_CR(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, Strata_vals, KeepConstant);
+            } else {
+                Simplified_Inform_Matrix_Strata(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, RdR, InMa, debugging, Strata_vals, KeepConstant);
+            }
+        } else {
+            if (model_bool["cr"]){
+                Simplified_Inform_Matrix_CR(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, KeepConstant);
+            } else {
+                Simplified_Inform_Matrix(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, InMa, debugging, KeepConstant);
+            }
+        }
+        NumericVector InMa_vec(reqrdnum * reqrdnum);  // simplfied information matrix
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
@@ -4136,21 +4215,20 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                 ij++;
                 jk -= ij;
             }
-            Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
-            Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
+            InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
+            InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
         }
-        Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        //
-        MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
-        NumericVector stdev(totalnum);
+        InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+        const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
+        MatrixXd InMa_inv = InMa_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+        NumericVector stdev_InMa(totalnum);
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
                 int pij_ind = ij - sum(head(KeepConstant, ij));
-                stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
+                stdev_InMa(ij) = sqrt(InMa_inv(pij_ind, pij_ind));
             }
         }
-        std_fin(guess, _) = stdev;
+        std_fin(guess, _) = stdev_InMa;
     }
     List para_list;
     if (!model_bool["basic"]) {
@@ -4726,21 +4804,60 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
     }
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    // const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+    // //
+    // MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+    // VectorXd stdev = VectorXd::Zero(totalnum);
+    // for (int ij = 0; ij < totalnum; ij++) {
+    //     if (KeepConstant[ij] == 0) {
+    //         int pij_ind = ij - sum(head(KeepConstant, ij));
+    //         stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
+    //     }
+    // }
     //
-    MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
-    VectorXd stdev = VectorXd::Zero(totalnum);
+    vector<double> InMa(pow(reqrdnum, 2), 0.0);
+    if (model_bool["strata"]){
+        if (model_bool["cr"]){
+            Simplified_Inform_Matrix_Strata_CR(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, Strata_vals, KeepConstant);
+        } else {
+            Simplified_Inform_Matrix_Strata(nthreads, RiskFail, RiskGroup_Strata, totalnum, ntime, R, Rd, RdR, InMa, debugging, Strata_vals, KeepConstant);
+        }
+    } else {
+        if (model_bool["cr"]){
+            Simplified_Inform_Matrix_CR(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, debugging, KeepConstant);
+        } else {
+            Simplified_Inform_Matrix(nthreads, RiskFail, RiskGroup, totalnum, ntime, R, Rd, RdR, InMa, debugging, KeepConstant);
+        }
+    }
+    NumericVector InMa_vec(reqrdnum * reqrdnum);  // simplfied information matrix
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
+        InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
+    }
+    InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+    const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
+    MatrixXd InMa_inv = InMa_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+    VectorXd stdev_InMa = VectorXd::Zero(totalnum);
     for (int ij = 0; ij < totalnum; ij++) {
         if (KeepConstant[ij] == 0) {
             int pij_ind = ij - sum(head(KeepConstant, ij));
-            stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
+            stdev_InMa(ij) = sqrt(InMa_inv(pij_ind, pij_ind));
         }
     }
     //
     if (model_bool["basic"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev_InMa), _["Covariance"] = wrap(InMa_inv), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     } else {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev_InMa), _["Covariance"] = wrap(InMa_inv), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     }
     // returns a list of results
     return res_list;

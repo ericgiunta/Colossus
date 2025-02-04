@@ -1183,194 +1183,325 @@ List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector
 //     return;
 // }
 
-// //' Utility function to calculate Cox Log-Likelihood and derivatives
-// //'
-// //' \code{Simplified_Inform_Matrix_Strata} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-// //' @inheritParams CPP_template
-// //'
-// //' @return Updates matrices in place: Log-likelihood vectors/matrix
-// //' @noRd
-// //'
-// // [[Rcpp::export]]
-// void Simplified_Inform_Matrix_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& InMa, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
-//     int reqrdnum = totalnum - sum(KeepConstant);
-//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
-//         for (int j = 0; j < ntime; j++) {
-//             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-//                 int ij = 0;
-//                 int jk = ijk;
-//                 while (jk > ij) {
-//                     ij++;
-//                     jk -= ij;
-//                 }
-//                 double Rs1 = Rls1(j, 0);
-//                 double Rs2 = Rls2(j, ij*Strata_vals.size() + s_ij);
-//                 double Rs2t = Rls2(j, jk*Strata_vals.size() + s_ij);
-//                 double Rs3 = Rls3(j, ijk*Strata_vals.size() + s_ij);
-//                 //
-//                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
-//                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-//                     MatrixXd Ld = MatrixXd::Zero(dj, 4);
-//                     // ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1), RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1), RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  // rows with events
-//                     //
-//                     MatrixXd Ldm = MatrixXd::Zero(dj, 4);
-//                     Vector4d Ldcs;
-//                     if (ties_method == "efron") {
-//                         Ldcs << Lls1(j, s_ij), Lls2(j, ij*Strata_vals.size() + s_ij), Lls2(j, jk*Strata_vals.size() + s_ij), Lls3(j, ijk*Strata_vals.size() + s_ij);
-//                         for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
-//                             Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
-//                         }
-//                     }
-//                     Ldm.col(0) = Ldm.col(0).array() + Rs1;
-//                     Ldm.col(1) = Ldm.col(1).array() + Rs2;
-//                     Ldm.col(2) = Ldm.col(2).array() + Rs2t;
-//                     Ldm.col(3) = Ldm.col(3).array() + Rs3;
-//                     // Calculates the left-hand side terms
-//                     //
-//                     double Ld1 = 0;
-//                     double Ld3 = 0;
-//                     //
-//                     MatrixXd temp1 = MatrixXd::Zero(dj, 1);
-//                     MatrixXd temp2 = MatrixXd::Zero(dj, 1);
-//                     // calculates the right-hand side terms
-//                     temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(- 1).array());
-//                     temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(- 1).array());
-//                     temp1 = temp1.array() * temp2.array();
-//                     Rs3 = (temp1.array().isFinite()).select(temp1, 0).sum();
-//                     //
-//                     vector<int> InGroup;
-//                     string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-//                     stringstream ss(Groupstr);
-//                     for (int i; ss >> i;) {
-//                         InGroup.push_back(i);
-//                         if (ss.peek() == ',')
-//                             ss.ignore();
-//                     }
-//                     Ld3 = 0;
-//                     Ld1 = 0;
-//                     // now has the grouping pairs
-//                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
-//                         Ld3 += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array()* R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
-//                         Ld1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
-//                     }
-//                     Ld3 = Ld3 / Ld1;
-//                     //
-//                     InMa[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
-//                 }
-//             }
-//         }
-//     }
-//     #ifdef _OPENMP
-//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//     #endif
-//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
-//         int ij = 0;
-//         int jk = ijk;
-//         while (jk > ij) {
-//             ij++;
-//             jk -= ij;
-//         }
-//         InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
-//     }
-//     return;
-// }
 
-// //' Utility function to calculate Cox Log-Likelihood and derivatives
-// //'
-// //' \code{Simplified_Inform_Matrix} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
-// //' @inheritParams CPP_template
-// //'
-// //' @return Updates matrices in place: Log-likelihood vectors/matrix
-// //' @noRd
-// //'
-// // [[Rcpp::export]]
-// void Simplified_Inform_Matrix(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& InMa, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
-//     int reqrdnum = totalnum - sum(KeepConstant);
-//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
-//         for (int j = 0; j < ntime; j++) {
-//             // rcout << ijk << ", " << j << ", " << " start" << endl;
-//             int ij = 0;
-//             int jk = ijk;
-//             while (jk > ij) {
-//                 ij++;
-//                 jk -= ij;
-//             }
-//             double Rs1 = Rls1(j, 0);
-//             double Rs2 = Rls2(j, ij);
-//             double Rs2t = Rls2(j, jk);
-//             double Rs3 = Rls3(j, ijk);
-//             //
-//             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-//             MatrixXd Ld = MatrixXd::Zero(dj, 4);
-//             // rcout << 0 << endl;
-//             // ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  // rows with events
-//             //
-//             MatrixXd Ldm = MatrixXd::Zero(dj, 4);
-//             Vector4d Ldcs;
-//             if (ties_method == "efron") {
-//                 Ldcs << Lls1(j, 0), Lls2(j, ij), Lls2(j, jk), Lls3(j, ijk);
-//                 for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
-//                     Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
-//                 }
-//             }
-//             Ldm.col(0) = Ldm.col(0).array() + Rs1;
-//             Ldm.col(1) = Ldm.col(1).array() + Rs2;
-//             Ldm.col(2) = Ldm.col(2).array() + Rs2t;
-//             Ldm.col(3) = Ldm.col(3).array() + Rs3;
-//             // Calculates the left-hand side terms
-//             //
-//             double Ld1 = 0;
-//             double Ld3 = 0;
-//             //
-//             MatrixXd temp1 = MatrixXd::Zero(dj, 1);
-//             MatrixXd temp2 = MatrixXd::Zero(dj, 1);
-//             // calculates the right-hand side terms
-//             temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(- 1).array());
-//             temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(- 1).array());
-//             temp1 = temp1.array() * temp2.array();
-//             Rs3 = (temp1.array().isFinite()).select(temp1, 0).sum();
-//             //
-//             vector<int> InGroup;
-//             string Groupstr = RiskGroup[j];
-//             stringstream ss(Groupstr);
-//             //
-//             //
-//             //
-//             for (int i; ss >> i;) {
-//                 InGroup.push_back(i);
-//                 if (ss.peek() == ',')
-//                     ss.ignore();
-//             }
-//             Ld3 = 0;
-//             Ld1 = 0;
-//             // rcout << 1 << endl;
-//             // now has the grouping pairs
-//             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
-//                 // rcout << 2 << ", " << i << endl;
-//                 Ld3 += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array()* R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
-//                 Ld1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
-//             }
-//             Ld3 = Ld3 / Ld1;
-//             // rcout << 3 << endl;
-//             //
-//             InMa[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
-//             // rcout << 4 << endl;
-//         }
-//     }
-//     #ifdef _OPENMP
-//     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//     #endif
-//     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
-//         int ij = 0;
-//         int jk = ijk;
-//         while (jk > ij) {
-//             ij++;
-//             jk -= ij;
-//         }
-//         InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
-//     }
-//     return;
-// }
+//' Utility function to calculate Information Matrix, from Epicure manual
+//'
+//' \code{Simplified_Inform_Matrix} Called to update information matrix
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: information matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Simplified_Inform_Matrix(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, bool debugging, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(2)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+        for (int j = 0; j < ntime; j++) {
+            // I need to collect four values, sum of risk, sum of first derivative 1, sum of first derivative 2, and the combined products of risk and derivative ratios
+            // Start by initializing the four values and getting the derivative columns
+            double r_sum = 0;
+            double rd_sum0 = 0;
+            double rd_sum1 = 0;
+            double r_rd_prod = 0;
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            // Next I need to iterate through the rows at risk
+            vector<int> InGroup;
+            string Groupstr = RiskGroup[j];
+            stringstream ss(Groupstr);
+            //
+            for (int i; ss >> i;) {
+                InGroup.push_back(i);
+                if (ss.peek() == ',')
+                    ss.ignore();
+            }
+            // now has the grouping pairs and how many events per group
+            int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                //
+                r_sum += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                //
+                rd_sum0 += Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                rd_sum1 += Rd.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                //
+                r_rd_prod += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+            }
+            // now they should be combined
+            double Rs1 = r_rd_prod/r_sum;
+            double Ls1 = rd_sum0*rd_sum1/pow(r_sum,2);
+            InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+        }
+    }
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+    }
+    return;
+}
+
+//' Utility function to calculate Information Matrix with strata, from Epicure manual
+//'
+//' \code{Simplified_Inform_Matrix_Strata} Called to update information matrix with strata
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: information matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Simplified_Inform_Matrix_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(3)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+        for (int j = 0; j < ntime; j++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+                // rcout << ijk << ", " << j << ", " << " start" << endl;
+                // I need to collect four values, sum of risk, sum of first derivative 1, sum of first derivative 2, and the combined products of risk and derivative ratios
+                // Start by initializing the four values and getting the derivative columns
+                double r_sum = 0;
+                double rd_sum0 = 0;
+                double rd_sum1 = 0;
+                double r_rd_prod = 0;
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                // Next I need to iterate through the rows at risk
+                vector<int> InGroup;
+                if (RiskFail(j, 2*s_ij + 1) >  - 1) {
+                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
+                    stringstream ss(Groupstr);
+                    //
+                    for (int i; ss >> i;) {
+                        InGroup.push_back(i);
+                        if (ss.peek() == ',')
+                            ss.ignore();
+                    }
+                    // now has the grouping pairs and how many events per group
+                    int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
+                    for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                        //
+                        r_sum += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                        //
+                        rd_sum0 += Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                        rd_sum1 += Rd.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                        //
+                        r_rd_prod += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+                    }
+                    // now they should be combined
+                    double Rs1 = r_rd_prod/r_sum;
+                    double Ls1 = rd_sum0*rd_sum1/pow(r_sum,2);
+                    InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+                }
+            }
+        }
+    }
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+    }
+    return;
+}
+
+//' Utility function to calculate Information Matrix with competing risks, adapted from Epicure manual
+//'
+//' \code{Simplified_Inform_Matrix_CR} Called to update information matrix with competing risks
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: information matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Simplified_Inform_Matrix_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, bool debugging, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(2)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+        for (int j = 0; j < ntime; j++) {
+            // rcout << ijk << ", " << j << ", " << " start" << endl;
+            // I need to collect four values, sum of risk, sum of first derivative 1, sum of first derivative 2, and the combined products of risk and derivative ratios
+            // Start by initializing the four values and getting the derivative columns
+            double r_sum = 0;
+            double rd_sum0 = 0;
+            double rd_sum1 = 0;
+            double r_rd_prod = 0;
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            // Next I need to iterate through the rows at risk
+            vector<int> InGroup;
+            string Groupstr = RiskGroup[j];
+            stringstream ss(Groupstr);
+            //
+            for (int i; ss >> i;) {
+                InGroup.push_back(i);
+                if (ss.peek() == ',')
+                    ss.ignore();
+            }
+            // now has the grouping pairs and how many events per group
+            int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+            double cens_0 = cens_weight[RiskFail(j, 0)];
+            VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                if (weighting.size() != InGroup[i + 1]-InGroup[i] + 1) {
+                    weighting.resize(InGroup[i + 1]-InGroup[i] + 1);
+                }
+                weighting.head(InGroup[i + 1]-InGroup[i] + 1) << cens_weight.segment(InGroup[i] - 1, InGroup[i + 1]-InGroup[i] + 1);
+                weighting = weighting / cens_0;
+                weighting = (weighting.array() < 1).select(weighting, 1);
+                //
+                r_sum += (R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+                //
+                rd_sum0 += (Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+                rd_sum1 += (Rd.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+                //
+                r_rd_prod += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+            }
+            // now they should be combined
+            double Rs1 = r_rd_prod/r_sum;
+            double Ls1 = rd_sum0*rd_sum1/pow(r_sum,2);
+            InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+        }
+    }
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+    }
+    return;
+}
+
+//' Utility function to calculate Information Matrix with strata and competing risks, adapted from from Epicure manual
+//'
+//' \code{Simplified_Inform_Matrix_Strata_CR} Called to update information matrix with strata and competing risks
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: information matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Simplified_Inform_Matrix_Strata_CR(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(3)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+        for (int j = 0; j < ntime; j++) {
+            for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+                // rcout << ijk << ", " << j << ", " << " start" << endl;
+                // I need to collect four values, sum of risk, sum of first derivative 1, sum of first derivative 2, and the combined products of risk and derivative ratios
+                // Start by initializing the four values and getting the derivative columns
+                double r_sum = 0;
+                double rd_sum0 = 0;
+                double rd_sum1 = 0;
+                double r_rd_prod = 0;
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                // Next I need to iterate through the rows at risk
+                vector<int> InGroup;
+                if (RiskFail(j, 2*s_ij + 1) >  - 1) {
+                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
+                    stringstream ss(Groupstr);
+                    //
+                    for (int i; ss >> i;) {
+                        InGroup.push_back(i);
+                        if (ss.peek() == ',')
+                            ss.ignore();
+                    }
+                    // now has the grouping pairs and how many events per group
+                    int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
+                    double cens_0 = cens_weight[RiskFail(j, 2*s_ij)];
+                    VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
+                    for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                        if (weighting.size() < InGroup[i + 1]-InGroup[i] + 1) {
+                            weighting.resize(InGroup[i + 1]-InGroup[i] + 1);
+                        }
+                        weighting.head(InGroup[i + 1]-InGroup[i] + 1) << cens_weight.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1);
+                        weighting = weighting / cens_0;
+                        weighting = (weighting.array() < 1).select(weighting, 1);
+                        //
+                        r_sum += (R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+                        //
+                        rd_sum0 += (Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+                        rd_sum1 += (Rd.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+                        //
+                        r_rd_prod += (RdR.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
+                    }
+                    // now they should be combined
+                    double Rs1 = r_rd_prod/r_sum;
+                    double Ls1 = rd_sum0*rd_sum1/pow(r_sum,2);
+                    InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+                }
+            }
+        }
+    }
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+    }
+    return;
+}
 
 // //' Utility function to calculate Cox Log-Likelihood and derivatives
 // //'

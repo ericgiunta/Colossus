@@ -94,3 +94,7 @@
 
 * CurveSolve functions converted to c++ functions
 * Testing scaled back to take up less time
+
+# Colossus 1.1.9
+
+* Cox based functions switched covariance matrix calculation from negative inverse of log-likelihood second derivative, to expected information matrix equation in 32-bit Epicure manual.

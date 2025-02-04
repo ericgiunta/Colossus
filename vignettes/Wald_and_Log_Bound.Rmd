@@ -26,24 +26,16 @@ Colossus supports two methods of calculating a confidence interval for model par
 
 ### Wald Method
 
-When Colossus finishes a Cox regression, it returns both parameter estimates and standard errors. The simplest form of confidence interval is assuming a normal distribution with the parameter mean and deviation. The standard errors are calculated from the covariance matrix, which is calculated as the negative inverse of the information matrix ($I$) which is equal to the second derivative of Log-Likelihood.
+When Colossus finishes a Cox regression, it returns both parameter estimates and standard errors. The simplest form of confidence interval is assuming a normal distribution with the parameter mean and deviation. The standard errors are calculated from the covariance matrix, which is calculated in line with the equation for expected information matrix presented in the 32-bit Epicure manual. The covariance matrix is calculated using the inverse of the expected information matrix ($I$).
+
+For every event time ($i$) there are a number of events ($d_i$) and a list of subjects at risk ($l \in R_i$). Every valid combination of subject and event time has a hazard ratio ($r_{li}$) and derivative of hazard ratio with respect to each parameter ($\beta$). This equation is used to compute the covariance matrix and standard errors returned by Colossus by default. Fine-Gray models use a similar equation which also weights the contribution of each row at risk, similar to the adjustments used to calculate log-likelihood.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    I \approx \frac{\partial^2 LL}{\partial \vec{\beta}^2}
-\end{aligned}
-$$
-</p>
-
-For every row ($i$) if there is an event ($\delta_i=1$) the second derivative is a function of the relative risk and derivatives at the event row ($A, B$) and the sum of relative risks and derivatives for every row at risk ($C, D, E$) based on the rows in each risk group ($l \in R_i$).
-
-<p class="text-center" style="background-color: aliceblue">
-$$
-\begin{aligned}
-    \frac{\partial^2 LL}{\partial \vec{\beta}_j \partial \vec{\beta}_k} =& \sum_{i=0}^N \left( \delta_i \left( (A_{i,j,k} - B_{i,j}*B_{i,k} ) - (C_{i,j,k} - D_{i,j}*D_{i,k} )  \right)\right)\\
-    A_{i,j,k} =& \frac{\frac{\partial^2 r_i}{\partial \vec{\beta}_j \partial \vec{\beta}_k}}{r_i}, B_{i,j} = \frac{\frac{\partial r_i}{\partial \vec{\beta}_j}}{r_i}\\
-    C_{i,j,k} =& \frac{\sum_{l \in R_i} \frac{\partial^2 r_l}{\partial \vec{\beta}_j \partial \vec{\beta}_k}}{E_i}, D_{i,j} = \frac{\sum_{l \in R_i} \frac{\partial r_l}{\partial \vec{\beta}_j}}{E_i}, E_{i} = \sum_{l \in R_i} r_l
+    I(\mu, \nu) = \sum_{i=1}^{N} \left [ d_i \left ( \frac{\sum_{l \in R_i} c_{li}^{\mu} c_{li}^{\nu} r_{li}}{A_{i}} - \frac{B_{i}^{\mu} B_{i}^{\nu}}{A_{i}^{2}} \right ) \right] \\
+    A_i = \sum_{l \in R_i} r_{li}, \quad b_{li}^{\mu} = \frac{\partial r_{li}}{\partial \beta_{\mu}}\\
+    B_i^{\mu} = \sum_{l \in R_i} b_{li}^{\mu}, \quad c_{li}^{\mu} = \frac{b_{li}^{\mu}}{r_{li}}
 \end{aligned}
 $$
 </p>
@@ -103,7 +95,7 @@ e2 <- RunCoxRegression(
 Interpret_Output(e2, 5)
 ```
 
-Next suppose we were interested in the confidence intervals. Suppose we want 95% confidence intervals for both the Wald and likelihood-based boundaries and for both parameters in each model. Let us start with the fully exponential model. The Wald boundary is estimated using the central estimates and standard deviations. The Likelihood boundary is solved using the "log_bound" option under the model control list. The parameter number needs to be provided (indexed starting at zero) and an alpha level needs to be provided. Overall the likelihood boundary were all solved with scores within a narrow margin of the threshold. However the boundaries are not exactly the same. The boundaries for temperature are (-0.017, 1.537) and (-0.001, 1.560), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off on the scale of less than 0.1.
+Next suppose we were interested in the confidence intervals. Suppose we want 95% confidence intervals for both the Wald and likelihood-based boundaries and for both parameters in each model. Let us start with the fully exponential model. The Wald boundary is estimated using the central estimates and standard deviations. The Likelihood boundary is solved using the "log_bound" option under the model control list. The parameter number needs to be provided (indexed starting at zero) and an alpha level needs to be provided. Overall the likelihood boundary were all solved with scores within a narrow margin of the threshold. However the boundaries are not exactly the same. The boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off on the scale of less than 0.1.
 
 ```{r, eval=TRUE}
 names <- c("temperature", "voltage")
@@ -154,7 +146,7 @@ print(ci_2)
 Interpret_Output(e, 5)
 ```
 
-Next we analyze a model with a linear effect. We would expect the predictions to be further off. The boundaries for temperature are (-0.522, 2.800) and (-0.010, 3.758), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The estimates for voltage boundary are the same, but the estimates for the temperature boundary are much further off.
+Next we analyze a model with a linear effect. We would expect the predictions to be further off. The boundaries for temperature are (-0.523, 2.800) and (-0.010, 3.758), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The estimates for voltage boundary are the same, but the estimates for the temperature boundary are much further off.
 
 ```{r, eval=TRUE}
 names <- c("temperature", "voltage")
