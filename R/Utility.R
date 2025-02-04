@@ -2932,11 +2932,13 @@ Interpret_Output <- function(out_list, digits = 2) {
           message("\nPoisson Model Used")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         }
-        message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-        if (converged) {
-          message("Analysis converged")
-        } else {
-          message("Analysis did not converge, check convergence criteria or run further")
+        if (!is.null(converged)){
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            if (converged) {
+              message("Analysis converged")
+            } else {
+              message("Analysis did not converge, check convergence criteria or run further")
+            }
         }
       }
     }
