@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,32 +97,30 @@ focused on the differences and what issues may arise.</p>
 estimates and standard errors. The simplest form of confidence interval
 is assuming a normal distribution with the parameter mean and deviation.
 The standard errors are calculated from the covariance matrix, which is
-calculated as the negative inverse of the information matrix
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>)
-which is equal to the second derivative of Log-Likelihood.</p>
-<p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><mo>≈</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msup><mover><mi>β</mi><mo accent="true">→</mo></mover><mn>2</mn></msup></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{aligned}
-    I \approx \frac{\partial^2 LL}{\partial \vec{\beta}^2}
-\end{aligned}
-</annotation></semantics></math></p>
-<p>For every row
+calculated in line with the equation for expected information matrix
+presented in the 32-bit Epicure manual. The covariance matrix is
+calculated using the inverse of the expected information matrix
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>).</p>
+<p>For every event time
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>)
-if there is an event
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta_i=1</annotation></semantics></math>)
-the second derivative is a function of the relative risk and derivatives
-at the event row
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>,</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">A, B</annotation></semantics></math>)
-and the sum of relative risks and derivatives for every row at risk
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>,</mo><mi>D</mi><mo>,</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">C, D, E</annotation></semantics></math>)
-based on the rows in each risk group
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">l \in R_i</annotation></semantics></math>).</p>
+there are a number of events
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mi>i</mi></msub><annotation encoding="application/x-tex">d_i</annotation></semantics></math>)
+and a list of subjects at risk
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">l \in R_i</annotation></semantics></math>).
+Every valid combination of subject and event time has a hazard ratio
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">r_{li}</annotation></semantics></math>)
+and derivative of hazard ratio with respect to each parameter
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>).
+This equation is used to compute the covariance matrix and standard
+errors returned by Colossus by default. Fine-Gray models use a similar
+equation which also weights the contribution of each row at risk,
+similar to the adjustments used to calculate log-likelihood.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>k</mi></msub></mrow></mfrac><mo>=</mo></mtd><mtd columnalign="left" style="text-align: left"><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>N</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>δ</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>−</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>*</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>k</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>−</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>*</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>k</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>=</mo></mtd><mtd columnalign="left" style="text-align: left"><mfrac><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>k</mi></msub></mrow></mfrac><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo>,</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub></mrow></mfrac><msub><mi>r</mi><mi>i</mi></msub></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>=</mo></mtd><mtd columnalign="left" style="text-align: left"><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>k</mi></msub></mrow></mfrac></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>,</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>j</mi></msub></mrow></mfrac></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>,</mo><msub><mi>E</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mi>l</mi></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>d</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>ν</mi></msubsup><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mrow><msub><mi>A</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><mrow><msubsup><mi>B</mi><mi>i</mi><mi>μ</mi></msubsup><msubsup><mi>B</mi><mi>i</mi><mi>ν</mi></msubsup></mrow><msubsup><mi>A</mi><mi>i</mi><mn>2</mn></msubsup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>A</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>=</mo><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>μ</mi></msub></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>B</mi><mi>i</mi><mi>μ</mi></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>=</mo><mfrac><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \frac{\partial^2 LL}{\partial \vec{\beta}_j \partial \vec{\beta}_k} =&amp; \sum_{i=0}^N \left( \delta_i \left( (A_{i,j,k} - B_{i,j}*B_{i,k} ) - (C_{i,j,k} - D_{i,j}*D_{i,k} )  \right)\right)\\
-    A_{i,j,k} =&amp; \frac{\frac{\partial^2 r_i}{\partial \vec{\beta}_j \partial \vec{\beta}_k}}{r_i}, B_{i,j} = \frac{\frac{\partial r_i}{\partial \vec{\beta}_j}}{r_i}\\
-    C_{i,j,k} =&amp; \frac{\sum_{l \in R_i} \frac{\partial^2 r_l}{\partial \vec{\beta}_j \partial \vec{\beta}_k}}{E_i}, D_{i,j} = \frac{\sum_{l \in R_i} \frac{\partial r_l}{\partial \vec{\beta}_j}}{E_i}, E_{i} = \sum_{l \in R_i} r_l
+    I(\mu, \nu) = \sum_{i=1}^{N} \left [ d_i \left ( \frac{\sum_{l \in R_i} c_{li}^{\mu} c_{li}^{\nu} r_{li}}{A_{i}} - \frac{B_{i}^{\mu} B_{i}^{\nu}}{A_{i}^{2}} \right ) \right] \\
+    A_i = \sum_{l \in R_i} r_{li}, \quad b_{li}^{\mu} = \frac{\partial r_{li}}{\partial \beta_{\mu}}\\
+    B_i^{\mu} = \sum_{l \in R_i} b_{li}^{\mu}, \quad c_{li}^{\mu} = \frac{b_{li}^{\mu}}{r_{li}}
 \end{aligned}
 </annotation></semantics></math></p>
 <p>This gives a symmetric parameter confidence interval which is often
@@ -209,7 +207,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 1.30641e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.06921 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06746 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
@@ -226,15 +224,15 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;      Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: temperature    plin           0         1.138152          0.8476528</span></span>
-<span><span class="co">#&gt; 2:     voltage  loglin           0         1.988403          0.6063095</span></span>
+<span><span class="co">#&gt; 1: temperature    plin           0         1.138152          0.8476570</span></span>
+<span><span class="co">#&gt; 2:     voltage  loglin           0         1.988403          0.6063096</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 210.77792,  AIC: 214.77792</span></span>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 2.89872e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.06072 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.05889 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -246,7 +244,7 @@ parameter number needs to be provided (indexed starting at zero) and an
 alpha level needs to be provided. Overall the likelihood boundary were
 all solved with scores within a narrow margin of the threshold. However
 the boundaries are not exactly the same. The boundaries for temperature
-are (-0.017, 1.537) and (-0.001, 1.560), and the boundaries for voltage
+are (-0.017, 1.537) and (-0.01, 1.560), and the boundaries for voltage
 are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off on the
 scale of less than 0.1.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -286,7 +284,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at -0.0099 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.55991 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06569 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06469 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7599511</span>, <span class="fl">1.9884051</span><span class="op">)</span></span>
@@ -310,11 +308,11 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06524 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06341 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
-(-0.522, 2.800) and (-0.010, 3.758), and the boundaries for voltage are
+(-0.523, 2.800) and (-0.010, 3.758), and the boundaries for voltage are
 (0.800, 3.177) and (0.841, 3.242). The estimates for voltage boundary
 are the same, but the estimates for the temperature boundary are much
 further off.</p>
@@ -349,13 +347,13 @@ further off.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -0.5232476  2.7995516</span></span>
+<span><span class="co">#&gt; [1] -0.5232557  2.7995597</span></span>
 <span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at -0.00984 at a score of -107.30967 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.75837 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06583 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06422 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -373,13 +371,13 @@ further off.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.8000367 3.1767700</span></span>
+<span><span class="co">#&gt; [1] 0.8000365 3.1767701</span></span>
 <span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06437 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06556 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
