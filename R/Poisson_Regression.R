@@ -225,6 +225,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       stop(e$Status)
     }
   }
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
   return(e)
 }
 

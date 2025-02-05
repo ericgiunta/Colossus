@@ -347,6 +347,13 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     //
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -375,6 +382,11 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
         Rls1(j, 0) = Rs1;
         Lls1(j, 0) = Ld.col(0).sum();
     }
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "C++ Note: df99, " << (ending-start) << ", R1_calc" <<endl;
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)

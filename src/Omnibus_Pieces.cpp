@@ -317,6 +317,11 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //'
 // [[Rcpp::export]]
 void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup_Strata, const vector<string>& RiskGroup, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, bool debugging, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop) {
+//    time_point<system_clock> start_point, end_point;
+//    start_point = system_clock::now();
+//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//    end_point = system_clock::now();
+//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     // Calculates the side sum terms used
     if (model_bool["strata"]) {
         if (model_bool["cr"]) {

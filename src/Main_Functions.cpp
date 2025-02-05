@@ -117,6 +117,11 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
+//    time_point<system_clock> start_point, end_point;
+//    start_point = system_clock::now();
+//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//    end_point = system_clock::now();
+//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     //
     // df0: covariate data
     // ntime: number of event times for Cox PH
@@ -281,7 +286,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     MatrixXd dev_temp = MatrixXd::Zero(1, 1);
     double Lstar = 0.0;
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
-    ///
+    //
     //
     for (int guess = 0; guess <guesses; guess++) {
         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
