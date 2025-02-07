@@ -174,9 +174,10 @@ the only non-default values are the column names and subterm types. The
 Epicure.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ERR</span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cumulative_dose"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
-<span>           <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
-<span>           <span class="op">)</span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"cumulative_dose"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
+<span>  <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">8</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">50</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
 <p>Finally the regression is run, and a list of the results is returned
@@ -186,17 +187,19 @@ to a variable “e”.</p>
 <p>A similar process is run for the two hazard ratio regressions.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># HR</span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cumulative_dose"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
-<span>           <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
-<span>           <span class="op">)</span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"cumulative_dose"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
+<span>  <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df_Dose</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Categorical</span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dose_cat_1"</span>, <span class="st">"dose_cat_2"</span>, <span class="st">"dose_cat_3"</span>, <span class="st">"dose_cat_4"</span>, <span class="st">"dose_cat_5"</span>,</span>
-<span>           <span class="st">"dose_cat_6"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
-<span>           <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
-<span>           <span class="op">)</span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"dose_cat_1"</span>, <span class="st">"dose_cat_2"</span>, <span class="st">"dose_cat_3"</span>, <span class="st">"dose_cat_4"</span>, <span class="st">"dose_cat_5"</span>,</span>
+<span>  <span class="st">"dose_cat_6"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
+<span>  <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df_Dose</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span></code></pre></div>
 </div>
