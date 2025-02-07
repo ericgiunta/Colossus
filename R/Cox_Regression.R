@@ -133,7 +133,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     df[[cens_weight]] <- 1
   }
   if (model_control$strata == FALSE) {
-    data.table::setkeyv(df, c(time2, event0))
+    data.table::setkeyv(df, c(event0, time2, time1))
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
@@ -158,7 +158,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     if (control$verbose >= 3) {
       message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
     }
-    data.table::setkeyv(df, c(time2, event0, strat_col))
+    data.table::setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
   }
   dfend <- df[get(event0) == 1, ]
@@ -719,7 +719,13 @@ RunCoxPlots <- function(df, time1 = "start", time2 = "end", event0 = "event", na
       df$CONST <- 1
     }
   }
-  data.table::setkeyv(df, c(time2, event0))
+  ce <- c(time1, time2, event0)
+  t_check <- Check_Trunc(df, ce)
+  df <- t_check$df
+  ce <- t_check$ce
+  time1 <- ce[1]
+  time2 <- ce[2]
+  data.table::setkeyv(df, c(event0, time2, time1))
   base <- NULL
   der_iden <- 0
   plot_type <- plot_options$type
@@ -1382,7 +1388,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
     model_control$MCML <- FALSE
   }
   if (model_control$strata == FALSE) {
-    data.table::setkeyv(df, c(time2, event0))
+    data.table::setkeyv(df, c(event0, time2, time1))
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
@@ -1409,7 +1415,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
         sep = " "
       )) # nocov
     }
-    data.table::setkeyv(df, c(time2, event0, strat_col))
+    data.table::setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
   }
   dfend <- df[get(event0) == 1, ]
@@ -1567,7 +1573,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     df[[cens_weight]] <- 1
   }
   if (model_control$strata == FALSE) {
-    data.table::setkeyv(df, c(time2, event0))
+    data.table::setkeyv(df, c(event0, time2, time1))
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
@@ -1592,7 +1598,7 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     if (control$verbose >= 3) {
       message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
     }
-    data.table::setkeyv(df, c(time2, event0, strat_col))
+    data.table::setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
   }
   dfend <- df[get(event0) == 1, ]
@@ -1697,238 +1703,6 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
     cons_mat, cons_vec
   )
-  #  e <- cox_ph_Omnibus_transition(
-  #    term_n, tform, a_ns, dfc, x_all,
-  #    fir, der_iden,
-  #    modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #    keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #    cons_mat, cons_vec
-  #  )
-  #  if ("alpha" %in% names(model_control)) {
-  #    qchi <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
-  #  } else {
-  #    model_control["alpha"] <- 0.05
-  #    qchi <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
-  #  }
-  #  Lstar <- e$LogLik - qchi
-  #  beta_opt <- e$beta_0
-  #  L_opt <- e$LogLik
-  #  Boundary_Score <- c(0, 0)
-  #  Boundary_Value <- c(0, 0)
-  #  Boundary_Conv <- c(FALSE, FALSE)
-  #  Limit_Hit <- c(FALSE, FALSE)
-  #  Boundary_x <- c(beta_opt)
-  #  Boundary_y <- c(L_opt)
-  #  #
-  #  step_limit <- model_control$maxstep # 10
-  #  step_size <- model_control$step_size # 0.5
-  #  para_num <- model_control$para_num + 1 # 3
-  #  keep_constant[para_num] <- 1
-  #  # Solving Upper Limit
-  #  L_low <- e$LogLik
-  #  beta_low <- e$beta_0
-  #  e <- list("LogLik" = NaN)
-  #  temp_step <- copy(step_size)
-  #  while (is.nan(e$LogLik) & (temp_step > 1e-3)) {
-  #    beta_high <- copy(beta_low)
-  #    beta_high[para_num] <- beta_high[para_num] + temp_step
-  #    #
-  #    temp_step <- temp_step * 0.5
-  #    beta_highs <- matrix(beta_high, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #    e <- cox_ph_Omnibus_transition(
-  #      term_n, tform, beta_highs, dfc, x_all,
-  #      fir, der_iden,
-  #      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #      cons_mat, cons_vec
-  #    )
-  #  }
-  #  if (is.nan(e$LogLik)) {
-  #    Limit_Hit[2] <- TRUE
-  #  }
-  #  L_high <- e$LogLik
-  #  beta_high <- e$beta_0
-  #  beta_mid <- (beta_low + beta_high) / 2
-  #  beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #  e <- cox_ph_Omnibus_transition(
-  #    term_n, tform, beta_mids, dfc, x_all,
-  #    fir, der_iden,
-  #    modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #    keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #    cons_mat, cons_vec
-  #  )
-  #  L_mid <- e$LogLik
-  #  beta_mid <- e$beta_0
-  #  step <- 0
-  #  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
-  #    step <- step + 1
-  #    if (L_low < Lstar) {
-  #      # the lower estimate is too far out?
-  #      stop("The lower estimate is too high?")
-  #    } else if (L_high < Lstar) {
-  #      # the point is between the two
-  #      if (L_mid < Lstar) {
-  #        # the mid point is past the optimum
-  #        beta_high <- copy(beta_mid)
-  #        L_high <- copy(L_mid)
-  #      } else {
-  #        # the mid point is before the optimum
-  #        beta_low <- copy(beta_mid)
-  #        L_low <- copy(L_mid)
-  #      }
-  #    } else if (L_mid < Lstar) {
-  #      beta_high <- copy(beta_mid)
-  #      L_high <- copy(L_mid)
-  #    } else {
-  #      # the upper estimate needs to be shifted up
-  #      L_low <- copy(L_high)
-  #      beta_low <- copy(beta_high)
-  #      e <- list("LogLik" = NaN)
-  #      temp_step <- copy(step_size)
-  #      while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
-  #        beta_high <- copy(beta_low)
-  #        beta_high[para_num] <- beta_high[para_num] + temp_step
-  #        #
-  #        temp_step <- temp_step * 0.5
-  #        beta_highs <- matrix(beta_high, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #        e <- cox_ph_Omnibus_transition(
-  #          term_n, tform, beta_highs, dfc, x_all,
-  #          fir, der_iden,
-  #          modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #          keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #          cons_mat, cons_vec
-  #        )
-  #      }
-  #      if (is.nan(e$LogLik)) {
-  #        Limit_Hit[2] <- TRUE
-  #      }
-  #      L_high <- e$LogLik
-  #      beta_high <- e$beta_0
-  #    }
-  #    beta_mid <- (beta_low + beta_high) / 2
-  #    beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #    e <- cox_ph_Omnibus_transition(
-  #      term_n, tform, beta_mids, dfc, x_all,
-  #      fir, der_iden,
-  #      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #      cons_mat, cons_vec
-  #    )
-  #    L_mid <- e$LogLik
-  #    beta_mid <- e$beta_0
-  #    # Boundary_x <- c(Boundary_x, beta_mid)
-  #    # Boundary_y <- c(Boundary_y, L_mid)
-  #    # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
-  #    # print(c(step, beta_mid[para_num],L_mid,Lstar))
-  #  }
-  #  if (abs(beta_low[para_num] - beta_high[para_num]) <= control$epsilon) {
-  #    Boundary_Conv[2] <- TRUE
-  #  }
-  #  Boundary_Score[2] <- L_mid
-  #  Boundary_Value[2] <- beta_mid[para_num]
-  #  # Solve for lower boundary
-  #  L_high <- copy(L_opt)
-  #  beta_high <- copy(beta_opt)
-  #  e <- list("LogLik" = NaN)
-  #  temp_step <- copy(step_size)
-  #  while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
-  #    beta_low <- copy(beta_high)
-  #    beta_low[para_num] <- beta_low[para_num] - temp_step
-  #    #
-  #    temp_step <- temp_step * 0.5
-  #    beta_lows <- matrix(beta_low, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #    e <- cox_ph_Omnibus_transition(
-  #      term_n, tform, beta_lows, dfc, x_all,
-  #      fir, der_iden,
-  #      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #      cons_mat, cons_vec
-  #    )
-  #  }
-  #  if (is.nan(e$LogLik)) {
-  #    Limit_Hit[1] <- TRUE
-  #  }
-  #  L_low <- e$LogLik
-  #  beta_low <- e$beta_0
-  #  beta_mid <- (beta_low + beta_high) / 2
-  #  beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #  e <- cox_ph_Omnibus_transition(
-  #    term_n, tform, beta_mids, dfc, x_all,
-  #    fir, der_iden,
-  #    modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #    keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #    cons_mat, cons_vec
-  #  )
-  #  L_mid <- e$LogLik
-  #  beta_mid <- e$beta_0
-  #  step <- 0
-  #  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[1])) {
-  #    step <- step + 1
-  #    if (L_high < Lstar) {
-  #      # the upper estimate is too far out?
-  #      stop("The upper estimate is too high?")
-  #    } else if (L_low < Lstar) {
-  #      # the point is between the two
-  #      if (L_mid > Lstar) {
-  #        # the mid point is past the optimum
-  #        beta_high <- copy(beta_mid)
-  #        L_high <- copy(L_mid)
-  #      } else {
-  #        # the mid point is before the optimum
-  #        beta_low <- copy(beta_mid)
-  #        L_low <- copy(L_mid)
-  #      }
-  #    } else if (L_mid < Lstar) {
-  #      beta_low <- copy(beta_mid)
-  #      L_low <- copy(L_mid)
-  #    } else {
-  #      # the upper estimate needs to be shifted up
-  #      L_high <- copy(L_low)
-  #      beta_high <- copy(beta_low)
-  #      e <- list("LogLik" = NaN)
-  #      temp_step <- copy(step_size)
-  #      while ((is.nan(e$LogLik)) & (temp_step > 1e-3)) {
-  #        beta_low <- copy(beta_high)
-  #        beta_low[para_num] <- beta_low[para_num] - temp_step
-  #        #
-  #        temp_step <- temp_step * 0.5
-  #        beta_lows <- matrix(beta_low, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #        e <- cox_ph_Omnibus_transition(
-  #          term_n, tform, beta_lows, dfc, x_all,
-  #          fir, der_iden,
-  #          modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #          keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #          cons_mat, cons_vec
-  #        )
-  #      }
-  #      if (is.nan(e$LogLik)) {
-  #        Limit_Hit[1] <- TRUE
-  #      }
-  #      L_low <- e$LogLik
-  #      beta_low <- e$beta_0
-  #    }
-  #    beta_mid <- (beta_low + beta_high) / 2
-  #    beta_mids <- matrix(beta_mid, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  #    e <- cox_ph_Omnibus_transition(
-  #      term_n, tform, beta_mids, dfc, x_all,
-  #      fir, der_iden,
-  #      modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-  #      keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
-  #      cons_mat, cons_vec
-  #    )
-  #    L_mid <- e$LogLik
-  #    beta_mid <- e$beta_0
-  #    # Boundary_x <- c(beta_mid,Boundary_x)
-  #    # Boundary_y <- c(L_mid, Boundary_y)
-  #    # print(c(step, beta_low[para_num],beta_mid[para_num],beta_high[para_num],L_low,L_mid,L_high,Lstar))
-  #  }
-  #  if (abs(beta_low[para_num] - beta_high[para_num]) <= control$epsilon) {
-  #    Boundary_Conv[1] <- TRUE
-  #  }
-  #  Boundary_Score[1] <- L_mid
-  #  Boundary_Value[1] <- beta_mid[para_num]
-  #  # List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Limit_Found"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
-  #  e <- list("Likelihood_Boundary" = Boundary_Score, "Parameter_Limits" = Boundary_Value, "Likelihood_Goal" = Lstar, "Limit_Converged" = Boundary_Conv, "Negative_Limit_Found" = Limit_Hit, "Status" = "PASSED") # , "Midpoint_beta"=Boundary_x, "Midpoint_score"=Boundary_y)
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
   e$Parameter_Lists$first_term <- fir

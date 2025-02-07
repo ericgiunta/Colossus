@@ -82,7 +82,8 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
     #endif
     for (int ijk = 0; ijk < ntime; ijk++) {
         double t0 = tu[ijk];
-        VectorXi select_ind_all = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)).cast<int>();  // indices at risk
+//        VectorXi select_ind_all = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)).cast<int>();  // indices at risk
+        VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  // indices at risk
         vector<int> indices_all;
         int th = 1;
         visit_lambda(select_ind_all,
@@ -106,6 +107,9 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
         copy(indices.begin(), indices.end(),
             std::ostream_iterator<int>(oss, ", "));
         RiskGroup[ijk] = oss.str();  // stores risk groups in string
+//        if (ijk==100){
+//            Rcout << "C++ Note: df99, " << t0 << " " << indices_all.size() << " " << indices.size() << ", group" <<endl;
+//        }
         select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
         indices_all.clear();
         visit_lambda(select_ind_all,
@@ -347,13 +351,11 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     //
-    time_point<system_clock> start_point, end_point;
-    start_point = system_clock::now();
-    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
+//    time_point<system_clock> start_point, end_point;
 //    start_point = system_clock::now();
-//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//    end_point = system_clock::now();
+//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -384,7 +386,6 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
     }
 //    end_point = system_clock::now();
 //    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
-//    Rcout << "C++ Note: df99, " << (ending-start) << ", R1_calc" <<endl;
 //    start_point = system_clock::now();
 //    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     //

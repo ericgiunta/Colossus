@@ -1531,7 +1531,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     header = FALSE, nThread = nthreads,
     col.names = c(time1, time2, new_names, dfn_same, event0)
   )
-  data.table::setkeyv(df_new, c(time2, event0))
+  data.table::setkeyv(df_new, c(event0, time2, time1))
   return(df_new)
 }
 
@@ -2930,15 +2930,15 @@ Interpret_Output <- function(out_list, digits = 2) {
         } else {
           # poisson model
           message("\nPoisson Model Used")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         }
-        if (!is.null(converged)){
-            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-            if (converged) {
-              message("Analysis converged")
-            } else {
-              message("Analysis did not converge, check convergence criteria or run further")
-            }
+        if (!is.null(converged)) {
+          message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          if (converged) {
+            message("Analysis converged")
+          } else {
+            message("Analysis did not converge, check convergence criteria or run further")
+          }
         }
       }
     }

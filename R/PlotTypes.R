@@ -370,7 +370,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   if (control$verbose >= 3) {
     message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
   }
-  data.table::setkeyv(df, c(time2, event0, strat_col))
+  data.table::setkeyv(df, c(strat_col, event0, time2, time1))
   ce <- c(time1, time2, event0, strat_col)
   model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -486,7 +486,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
 #' @noRd
 #' @importFrom rlang .data
 PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, age_unit, plot_name, model_control = list()) {
-  data.table::setkeyv(df, c(time2, event0))
+  data.table::setkeyv(df, c(event0, time2, time1))
   model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
@@ -650,7 +650,7 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
   model_control <- val$model_control
-  data.table::setkeyv(df, c(time2, event0))
+  data.table::setkeyv(df, c(event0, time2, time1))
   base <- NULL
   plot_name <- plot_options$name
   dfend <- df[get(event0) == 1, ]

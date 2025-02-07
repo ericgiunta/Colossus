@@ -96,7 +96,7 @@ test_that("Coxph strata_basic_single_CR", {
           control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
           e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting")
           expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-3)
-          if (k == FALSE){
+          if (k == FALSE) {
             expect_equal(sum(e$Standard_Deviation), dev_comp[j_iterate], tolerance = 1e-3)
           }
           j_iterate <- j_iterate + 1
@@ -104,7 +104,7 @@ test_that("Coxph strata_basic_single_CR", {
           control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "efron", "double_step" = 0)
           e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting")
           expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-3)
-          if (k == FALSE){
+          if (k == FALSE) {
             expect_equal(sum(e$Standard_Deviation), dev_comp[j_iterate], tolerance = 1e-3)
           }
           j_iterate <- j_iterate + 1
@@ -586,13 +586,13 @@ test_that("check deviation calc", {
   modelform <- "M"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   for (i in 1:3) {
-      a_n <- c(0.6465390, 0.4260961, 0.1572781)
-      keep_constant <- c(0, 0, 0)
-      keep_constant[i] <- 1
-      #
-      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-      e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
-      devs <- c(devs, sum(e$Standard_Deviation))
+    a_n <- c(0.6465390, 0.4260961, 0.1572781)
+    keep_constant <- c(0, 0, 0)
+    keep_constant[i] <- 1
+    #
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+    devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
@@ -611,13 +611,13 @@ test_that("check deviation calc", {
   a_n <- c(-0.1, 0.1, 0.2)
 
   for (i in 1:3) {
-      a_n <- c(0.6428582, 0.4240752, 0.1507817)
-      keep_constant <- c(0, 0, 0)
-      keep_constant[i] <- 1
-      #
-      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-      e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
-      devs <- c(devs, sum(e$Standard_Deviation))
+    a_n <- c(0.6428582, 0.4240752, 0.1507817)
+    keep_constant <- c(0, 0, 0)
+    keep_constant[i] <- 1
+    #
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+    devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6428582, 0.4240752, 0.1507817)
   keep_constant <- c(0, 0, 0)
