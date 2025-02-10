@@ -100,7 +100,8 @@ The standard errors are calculated from the covariance matrix, which is
 calculated in line with the equation for expected information matrix
 presented in the 32-bit Epicure manual. The covariance matrix is
 calculated using the inverse of the expected information matrix
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>).</p>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>).
+The derivation is outlined at the end of this vignette for clarity.</p>
 <p>For every event time
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>)
 there are a number of events
@@ -116,11 +117,10 @@ errors returned by Colossus by default. Fine-Gray models use a similar
 equation which also weights the contribution of each row at risk,
 similar to the adjustments used to calculate log-likelihood.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>d</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>ν</mi></msubsup><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mrow><msub><mi>A</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><mrow><msubsup><mi>B</mi><mi>i</mi><mi>μ</mi></msubsup><msubsup><mi>B</mi><mi>i</mi><mi>ν</mi></msubsup></mrow><msubsup><mi>A</mi><mi>i</mi><mn>2</mn></msubsup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>A</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>=</mo><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>μ</mi></msub></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>B</mi><mi>i</mi><mi>μ</mi></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>=</mo><mfrac><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mi>μ</mi></msub><mo>,</mo><msub><mi>β</mi><mi>ν</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>d</mi><mi>i</mi></msub><mo>*</mo><mrow><mo stretchy="true" form="prefix">[</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>ν</mi></msubsup><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><mrow><msubsup><mi>F</mi><mi>i</mi><mi>μ</mi></msubsup><msubsup><mi>F</mi><mi>i</mi><mi>ν</mi></msubsup></mrow><msubsup><mi>E</mi><mi>i</mi><mn>2</mn></msubsup></mfrac><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>=</mo><mfrac><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><mo>=</mo><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>μ</mi></msub></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>E</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>F</mi><mi>i</mi><mi>μ</mi></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msubsup><mi>b</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    I(\mu, \nu) = \sum_{i=1}^{N} \left [ d_i \left ( \frac{\sum_{l \in R_i} c_{li}^{\mu} c_{li}^{\nu} r_{li}}{A_{i}} - \frac{B_{i}^{\mu} B_{i}^{\nu}}{A_{i}^{2}} \right ) \right] \\
-    A_i = \sum_{l \in R_i} r_{li}, \quad b_{li}^{\mu} = \frac{\partial r_{li}}{\partial \beta_{\mu}}\\
-    B_i^{\mu} = \sum_{l \in R_i} b_{li}^{\mu}, \quad c_{li}^{\mu} = \frac{b_{li}^{\mu}}{r_{li}}
+    I(\beta_\mu, \beta_\nu) = \sum_{i=1}^{N} \left ( d_i * \left[ \sum_{l \in R_i} \frac{c_{li}^{\mu} c_{li}^{\nu} r_{li}}{E_i} - \frac{F_i^{\mu} F_i^{\nu}}{E_i^2} \right] \right )\\
+    c_{li}^{\mu} = \frac{b_{li}^{\mu}}{r_{li}}, \quad b_{li}^{\mu} = \frac{\partial r_{li}}{\partial \beta_{\mu}}, \quad E_{i} = \sum_{l \in R_i} r_{li}, \quad F_i^{\mu} = \sum_{l \in R_i} b_{li}^{\mu}
 \end{aligned}
 </annotation></semantics></math></p>
 <p>This gives a symmetric parameter confidence interval which is often
@@ -207,7 +207,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 1.30641e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.06737 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.07071 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
@@ -232,7 +232,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00000e+00, maximum first derivative: 2.89872e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.05759 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06246 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -284,7 +284,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at -0.0099 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.55991 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06466 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06876 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7599511</span>, <span class="fl">1.9884051</span><span class="op">)</span></span>
@@ -308,7 +308,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06399 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.06797 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
@@ -353,7 +353,7 @@ further off.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at -0.00984 at a score of -107.30967 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.75837 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06471 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.07145 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -377,7 +377,7 @@ further off.</p>
 <span><span class="co">#&gt; Likelihood Boundary Results</span></span>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.24203 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.06375 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.0686 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -523,6 +523,69 @@ method requires the model to be optimized repeatedly, so it is expected
 to take the longest. However the bisection method is the least likely to
 have issues converging.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="expected-information-matrix-derivation">Expected Information Matrix Derivation<a class="anchor" aria-label="anchor" href="#expected-information-matrix-derivation"></a>
+</h2>
+<p>The expected information matrix is calculated using two equations,
+the second-derivative of log-likelihood and the probability of a subject
+having an event given the rows at risk and the number of events. To
+begin, the second derivative of log-likelihood is expressed as
+follows:</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>μ</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>ν</mi></msub></mrow></mfrac><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>δ</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>−</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>−</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>=</mo><mfrac><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>μ</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>ν</mi></msub></mrow></mfrac><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>=</mo><mfrac><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>μ</mi></msub></mrow></mfrac><msub><mi>r</mi><mi>i</mi></msub></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>μ</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>ν</mi></msub></mrow></mfrac></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><mi>∂</mi><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>μ</mi></msub></mrow></mfrac></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>E</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mi>l</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    \frac{\partial^2 LL}{\partial \vec{\beta}_{\mu} \partial \vec{\beta}_{\nu}} = \sum_{i=1}^N \left[ \delta_i \left( [A_{i,\mu,\nu} - B_{i,\mu}*B_{i,\nu} ] - [C_{i,\mu,\nu} - D_{i,\mu}*D_{i,\nu} ]  \right)\right]\\
+    A_{i,\mu,\nu} = \frac{\frac{\partial^2 r_i}{\partial \vec{\beta}_\mu \partial \vec{\beta}_\nu}}{r_i}, \quad B_{i,\mu} = \frac{\frac{\partial r_i}{\partial \vec{\beta}_\mu}}{r_i} \\
+    C_{i,\mu,\nu} = \frac{\sum_{l \in R_i} \frac{\partial^2 r_l}{\partial \vec{\beta}_\mu \partial \vec{\beta}_\nu}}{E_i},\quad D_{i,\mu} = \frac{\sum_{l \in R_i} \frac{\partial r_l}{\partial \vec{\beta}_\mu}}{E_i}, \quad E_{i} = \sum_{l \in R_i} r_l \\
+\end{aligned}
+</annotation></semantics></math></p>
+<p>Next we assume we have independent failure and censoring, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+events in a risk group
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>.
+Assuming each row at risk has an approximately equal background rate,
+the probability of any given subject having an event is as follows:</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>p</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo stretchy="false" form="prefix">|</mo><mi>d</mi><mo>,</mo><mi>R</mi><mo>,</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>r</mi><mi>i</mi></msub><mi>/</mi><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><mi>R</mi></mrow></munder><msub><mi>r</mi><mi>l</mi></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    pr(\delta_i = 1 | d,R, \beta) = r_i / \sum_{l \in R} r_l
+\end{aligned}
+</annotation></semantics></math></p>
+<p>Finally we want to evaluate the expected information matrix given the
+following:</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><mo>−</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>μ</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>ν</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    I(\mu, \nu) = E \left[-\frac{\partial^2 LL}{\partial \vec{\beta}_{\mu} \partial \vec{\beta}_{\nu}} \right]
+\end{aligned}
+</annotation></semantics></math></p>
+<p>We can start by splitting the equation into the expected contribution
+at each event time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>),
+and then simplifying the expected value of constant terms. Note that we
+switch from the event indicator of each row
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>δ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\delta_i</annotation></semantics></math>)
+to the number of events in each risk group
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mi>i</mi></msub><annotation encoding="application/x-tex">d_i</annotation></semantics></math>):</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>i</mi></msub><mo>=</mo><mo>−</mo><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><munder><mo>∑</mo><mrow><mi>k</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>δ</mi><mi>k</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>−</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>−</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>i</mi></msub><mo>=</mo><msub><mi>d</mi><mi>i</mi></msub><mo>*</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>−</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><munder><mo>∑</mo><mrow><mi>k</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>δ</mi><mi>k</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>−</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><munder><mo>∑</mo><mrow><mi>k</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>δ</mi><mi>k</mi></msub><msub><mi>A</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>A</mi><mrow><mi>l</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>*</mo><mi>p</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>δ</mi><mi>l</mi></msub><mo>=</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>d</mi><mi>i</mi></msub><mo>*</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>μ</mi></msub><mi>∂</mi><msub><mover><mi>β</mi><mo accent="true">→</mo></mover><mi>ν</mi></msub></mrow></mfrac><msub><mi>r</mi><mi>l</mi></msub></mfrac><mo>*</mo><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mi>l</mi></msub></mrow></mfrac><mo>=</mo><msub><mi>d</mi><mi>i</mi></msub><mo>*</mo><msub><mi>C</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>μ</mi></mrow></msub><mo>*</mo><msub><mi>B</mi><mrow><mi>i</mi><mo>,</mo><mi>ν</mi></mrow></msub><mo>*</mo><mi>p</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>δ</mi><mi>l</mi></msub><mo>=</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>d</mi><mi>i</mi></msub><mo>*</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msubsup><mi>c</mi><mi>l</mi><mi>μ</mi></msubsup><msubsup><mi>c</mi><mi>l</mi><mi>ν</mi></msubsup><msub><mi>r</mi><mi>l</mi></msub></mrow><mrow><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mi>l</mi></msub></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    I(\mu, \nu)_i = - E \left[ \sum_{k \in R_i} \left ( \delta_k \left( [A_{i,\mu,\nu} - B_{i,\mu}*B_{i,\nu} ] - [C_{i,\mu,\nu} - D_{i,\mu}*D_{i,\nu} ]  \right) \right )\right] \\
+    I(\mu, \nu)_i = d_i*[C_{i,\mu,\nu} - D_{i,\mu}*D_{i,\nu} ] - E \left [ \sum_{k \in R_i} \left ( \delta_k \left( [A_{i,\mu,\nu} - B_{i,\mu}*B_{i,\nu} ] \right ) \right ) \right] \\
+    E \left [ \sum_{k \in R_i} \delta_k A_{i,\mu,\nu} \right] = \sum_{l \in R_i} A_{l,\mu,\nu} * pr(\delta_l = 1) = d_i * \frac{\sum_{l \in R_i} \frac{\frac{\partial^2 r_l}{\partial \vec{\beta}_\mu \partial \vec{\beta}_\nu}}{r_l} * r_l}{ \sum_{l \in R_i} r_l} = d_i * C_{i,\mu,\nu}\\
+    E \left [ B_{i,\mu}*B_{i,\nu} \right] = \sum_{l \in R_i} B_{i,\mu}*B_{i,\nu}*pr(\delta_l = 1) = d_i * \frac{\sum_{l \in R_i} c_{l}^{\mu}c_{l}^{\nu}r_l}{\sum_{l \in R_i} r_l}
+\end{aligned}
+</annotation></semantics></math></p>
+<p>Finally we substitute, cancel, and use the function definitions above
+and we have the expected information matrix derived from the observed
+information matrix formula.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>ν</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>i</mi></msub><mo>=</mo><msub><mi>d</mi><mi>i</mi></msub><mo>*</mo><mrow><mo stretchy="true" form="prefix">[</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><mfrac><mrow><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>μ</mi></msubsup><msubsup><mi>c</mi><mrow><mi>l</mi><mi>i</mi></mrow><mi>ν</mi></msubsup><msub><mi>r</mi><mrow><mi>l</mi><mi>i</mi></mrow></msub></mrow><msub><mi>E</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><mrow><msubsup><mi>F</mi><mi>i</mi><mi>μ</mi></msubsup><msubsup><mi>F</mi><mi>i</mi><mi>ν</mi></msubsup></mrow><msubsup><mi>E</mi><mi>i</mi><mn>2</mn></msubsup></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    I(\mu, \nu)_i = d_i * \left[ \sum_{l \in R_i} \frac{c_{li}^{\mu} c_{li}^{\nu} r_{li}}{E_i} - \frac{F_i^{\mu} F_i^{\nu}}{E_i^2} \right]
+\end{aligned}
+</annotation></semantics></math></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
