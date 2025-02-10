@@ -26,16 +26,15 @@ Colossus supports two methods of calculating a confidence interval for model par
 
 ### Wald Method
 
-When Colossus finishes a Cox regression, it returns both parameter estimates and standard errors. The simplest form of confidence interval is assuming a normal distribution with the parameter mean and deviation. The standard errors are calculated from the covariance matrix, which is calculated in line with the equation for expected information matrix presented in the 32-bit Epicure manual. The covariance matrix is calculated using the inverse of the expected information matrix ($I$).
+When Colossus finishes a Cox regression, it returns both parameter estimates and standard errors. The simplest form of confidence interval is assuming a normal distribution with the parameter mean and deviation. The standard errors are calculated from the covariance matrix, which is calculated in line with the equation for expected information matrix presented in the 32-bit Epicure manual. The covariance matrix is calculated using the inverse of the expected information matrix ($I$). The derivation is outlined at the end of this vignette for clarity.
 
 For every event time ($i$) there are a number of events ($d_i$) and a list of subjects at risk ($l \in R_i$). Every valid combination of subject and event time has a hazard ratio ($r_{li}$) and derivative of hazard ratio with respect to each parameter ($\beta$). This equation is used to compute the covariance matrix and standard errors returned by Colossus by default. Fine-Gray models use a similar equation which also weights the contribution of each row at risk, similar to the adjustments used to calculate log-likelihood.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    I(\mu, \nu) = \sum_{i=1}^{N} \left [ d_i \left ( \frac{\sum_{l \in R_i} c_{li}^{\mu} c_{li}^{\nu} r_{li}}{A_{i}} - \frac{B_{i}^{\mu} B_{i}^{\nu}}{A_{i}^{2}} \right ) \right] \\
-    A_i = \sum_{l \in R_i} r_{li}, \quad b_{li}^{\mu} = \frac{\partial r_{li}}{\partial \beta_{\mu}}\\
-    B_i^{\mu} = \sum_{l \in R_i} b_{li}^{\mu}, \quad c_{li}^{\mu} = \frac{b_{li}^{\mu}}{r_{li}}
+    I(\beta_\mu, \beta_\nu) = \sum_{i=1}^{N} \left ( d_i * \left[ \sum_{l \in R_i} \frac{c_{li}^{\mu} c_{li}^{\nu} r_{li}}{E_i} - \frac{F_i^{\mu} F_i^{\nu}}{E_i^2} \right] \right )\\
+    c_{li}^{\mu} = \frac{b_{li}^{\mu}}{r_{li}}, \quad b_{li}^{\mu} = \frac{\partial r_{li}}{\partial \beta_{\mu}}, \quad E_{i} = \sum_{l \in R_i} r_{li}, \quad F_i^{\mu} = \sum_{l \in R_i} b_{li}^{\mu}
 \end{aligned}
 $$
 </p>
@@ -285,3 +284,66 @@ e <- CoxCurveSolver(df, time1, time2, event, names,
 ```
 
 In summary there are three functions available for calculating likelihood based boundaries. The first method is the standard Venzon-Moolgavkar algorithm. This method attempts to both optimize the model and guide the desired parameter to the boundary value. This method is the fastest, but most susceptible to local extrema. Using this algorithm depends on the initial step not being close to a local extrema, so the initial step can be scaled up or down. The second method is a modification of the Venzon-Moolgavkar algorithm. In the second method the initial step is split into multiple guesses, and each guess is optimized independently. The Venzon-Moolgavkar algorithm is then continued at the closest guess that did not exceed the target likelihood. In theory this method makes it more likely for the algorithm to start at an appropriate point, so it is slower but slightly less susceptible to local extrema. However the final portion of the algorithm is still based on derivatives, so it still susceptible to local extrema. The third method is an iterative bisection method. In this algorithm the desired parameter is fixed, and the model is optimized at the endpoints of an interval until an interval is located which contains the goal likelihood. Then the interval is split in half until the interval width is within a user-set limit. This method takes advantage of the fact that the likelihood curve is continuous and we know that the optimum point must be above the goal. The algorithm is split into two steps: optimizing the model at fixed points and determining if the interval contains the goal. The second step does not depend on the likelihood derivatives, so it is not prone to getting stuck in local extrema. However the interval width must be small enough not to step over the solution. Given a small enough interval width, every optimization is likely to converge and the solution is unlikely to be skipped. This method requires the model to be optimized repeatedly, so it is expected to take the longest. However the bisection method is the least likely to have issues converging.
+
+## Expected Information Matrix Derivation
+
+The expected information matrix is calculated using two equations, the second-derivative of log-likelihood and the probability of a subject having an event given the rows at risk and the number of events. To begin, the second derivative of log-likelihood is expressed as follows:
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \frac{\partial^2 LL}{\partial \vec{\beta}_{\mu} \partial \vec{\beta}_{\nu}} = \sum_{i=1}^N \left[ \delta_i \left( [A_{i,\mu,\nu} - B_{i,\mu}*B_{i,\nu} ] - [C_{i,\mu,\nu} - D_{i,\mu}*D_{i,\nu} ]  \right)\right]\\
+    A_{i,\mu,\nu} = \frac{\frac{\partial^2 r_i}{\partial \vec{\beta}_\mu \partial \vec{\beta}_\nu}}{r_i}, \quad B_{i,\mu} = \frac{\frac{\partial r_i}{\partial \vec{\beta}_\mu}}{r_i} \\
+    C_{i,\mu,\nu} = \frac{\sum_{l \in R_i} \frac{\partial^2 r_l}{\partial \vec{\beta}_\mu \partial \vec{\beta}_\nu}}{E_i},\quad D_{i,\mu} = \frac{\sum_{l \in R_i} \frac{\partial r_l}{\partial \vec{\beta}_\mu}}{E_i}, \quad E_{i} = \sum_{l \in R_i} r_l \\
+\end{aligned}
+$$
+</p>
+
+Next we assume we have independent failure and censoring, and $d$ events in a risk group $R$. Assuming each row at risk has an approximately equal background rate, the probability of any given subject having an event is as follows:
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    pr(\delta_i = 1 | d,R, \beta) = r_i / \sum_{l \in R} r_l
+\end{aligned}
+$$
+</p>
+
+Finally we want to evaluate the expected information matrix given the following:
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    I(\mu, \nu) = E \left[-\frac{\partial^2 LL}{\partial \vec{\beta}_{\mu} \partial \vec{\beta}_{\nu}} \right]
+\end{aligned}
+$$
+</p>
+
+We can start by splitting the equation into the expected contribution at each event time ($i$), and then simplifying the expected value of constant terms. Note that we switch from the event indicator of each row ($\delta_i$) to the number of events in each risk group ($d_i$):
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    I(\mu, \nu)_i = - E \left[ \sum_{k \in R_i} \left ( \delta_k \left( [A_{i,\mu,\nu} - B_{i,\mu}*B_{i,\nu} ] - [C_{i,\mu,\nu} - D_{i,\mu}*D_{i,\nu} ]  \right) \right )\right] \\
+    I(\mu, \nu)_i = d_i*[C_{i,\mu,\nu} - D_{i,\mu}*D_{i,\nu} ] - E \left [ \sum_{k \in R_i} \left ( \delta_k \left( [A_{i,\mu,\nu} - B_{i,\mu}*B_{i,\nu} ] \right ) \right ) \right] \\
+    E \left [ \sum_{k \in R_i} \delta_k A_{i,\mu,\nu} \right] = \sum_{l \in R_i} A_{l,\mu,\nu} * pr(\delta_l = 1) = d_i * \frac{\sum_{l \in R_i} \frac{\frac{\partial^2 r_l}{\partial \vec{\beta}_\mu \partial \vec{\beta}_\nu}}{r_l} * r_l}{ \sum_{l \in R_i} r_l} = d_i * C_{i,\mu,\nu}\\
+    E \left [ B_{i,\mu}*B_{i,\nu} \right] = \sum_{l \in R_i} B_{i,\mu}*B_{i,\nu}*pr(\delta_l = 1) = d_i * \frac{\sum_{l \in R_i} c_{l}^{\mu}c_{l}^{\nu}r_l}{\sum_{l \in R_i} r_l}
+\end{aligned}
+$$
+</p>
+
+Finally we substitute, cancel, and use the function definitions above and we have the expected information matrix derived from the observed information matrix formula.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    I(\mu, \nu)_i = d_i * \left[ \sum_{l \in R_i} \frac{c_{li}^{\mu} c_{li}^{\nu} r_{li}}{E_i} - \frac{F_i^{\mu} F_i^{\nu}}{E_i^2} \right]
+\end{aligned}
+$$
+</p>
+
+
+
+
+
+
