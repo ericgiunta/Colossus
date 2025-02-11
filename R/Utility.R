@@ -770,7 +770,7 @@ Def_model_control <- function(control) {
     "gradient", "constraint", "strata", "surv",
     "schoenfeld", "risk",
     "risk_subset", "log_bound", "pearson", "deviance",
-    "mcml"
+    "mcml", "oberved_info"
   )
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
@@ -2872,7 +2872,7 @@ Interpret_Output <- function(out_list, digits = 2) {
     if ("Likelihood_Goal" %in% names(out_list)) {
       # likelihood boundary output
       limits <- out_list$Parameter_Limits
-      neg <- out_list$Negative_Limit_Found
+      neg <- out_list$Negative_Risk_Limit_Hit
       conv <- out_list$Limit_Converged
       lik_bound <- out_list$Likelihood_Boundary
       lik_goal <- out_list$Likelihood_Goal

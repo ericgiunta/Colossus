@@ -76,13 +76,13 @@ void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove) {
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup, NumericVector& tu, const int& nthreads, bool debugging) {
+void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads) {
+//    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ijk = 0; ijk < ntime; ijk++) {
         double t0 = tu[ijk];
-//        VectorXi select_ind_all = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)).cast<int>();  // indices at risk
         VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  // indices at risk
         vector<int> indices_all;
         int th = 1;
@@ -103,13 +103,7 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
                 indices[indices.size() - 1] = *it;
             }
         }
-        ostringstream oss;
-        copy(indices.begin(), indices.end(),
-            std::ostream_iterator<int>(oss, ", "));
-        RiskGroup[ijk] = oss.str();  // stores risk groups in string
-//        if (ijk==100){
-//            Rcout << "C++ Note: df99, " << t0 << " " << indices_all.size() << " " << indices.size() << ", group" <<endl;
-//        }
+        RiskPairs[ijk] = indices;
         select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
         indices_all.clear();
         visit_lambda(select_ind_all,
@@ -132,7 +126,8 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<string>&  RiskGroup, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads, bool debugging) {
+void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads) {
+//    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -161,10 +156,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
                 indices[indices.size() - 1] = *it;
             }
         }
-        ostringstream oss;
-        copy(indices.begin(), indices.end(),
-            std::ostream_iterator<int>(oss, ", "));
-        RiskGroup[ijk] = oss.str();  // stores risk groups in string
+        RiskPairs[ijk] = indices;
         //
         select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
         indices_all.clear();
@@ -189,13 +181,13 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& Strata_vals) {
+void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
     //
+//    vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
     for (int i = 0; i < ntime; i++) {
         safe_fail[i] = vector<int>(RiskFail.cols(), 0);
-        safe_group[i] = vector<string>(RiskGroup.cols(), "");
     }
     //
     #ifdef _OPENMP
@@ -239,10 +231,7 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
                     }
                 }
                 //
-                ostringstream oss;
-                copy(indices.begin(), indices.end(),
-                    std::ostream_iterator<int>(oss, ", "));
-                safe_group[ijk][s_ij] = oss.str();  // stores risk groups in string
+                RiskPairs_Strata[ijk][s_ij] = indices;
             } else {
                 safe_fail[ijk][2*s_ij+0] = - 1;
                 safe_fail[ijk][2*s_ij + 1] = - 1;
@@ -253,7 +242,6 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
         for (int ijk = 0; ijk < ntime; ijk++) {
             RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
             RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
-            RiskGroup(ijk, s_ij) = safe_group[ijk][s_ij];
         }
     }
     return;
@@ -268,13 +256,13 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, StringMatrix&  RiskGroup, NumericVector& tu, const int& nthreads, bool debugging, NumericVector& Strata_vals, const VectorXd& cens_weight) {
+void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
     //
+//    vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
     vector<vector<int>> safe_fail(ntime);
     vector<vector<string>> safe_group(ntime);
     for (int i = 0; i < ntime; i++) {
         safe_fail[i] = vector<int>(RiskFail.cols(), 0);
-        safe_group[i] = vector<string>(RiskGroup.cols(), "");
     }
     //
     #ifdef _OPENMP
@@ -318,10 +306,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
                     }
                 }
                 //
-                ostringstream oss;
-                copy(indices.begin(), indices.end(),
-                    std::ostream_iterator<int>(oss, ", "));
-                safe_group[ijk][s_ij] = oss.str();  // stores risk groups in string
+                RiskPairs_Strata[ijk][s_ij] = indices;
             } else {
                 safe_fail[ijk][2*s_ij+0] = - 1;
                 safe_fail[ijk][2*s_ij + 1] = - 1;
@@ -332,7 +317,6 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
         for (int ijk = 0; ijk < ntime; ijk++) {
             RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
             RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
-            RiskGroup(ijk, s_ij) = safe_group[ijk][s_ij];
         }
     }
     return;
@@ -348,7 +332,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     //
 //    time_point<system_clock> start_point, end_point;
@@ -363,16 +347,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
         double Rs1 = 0;
         //
         //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
+        vector<int> InGroup = RiskPairs[j];
         // now has the grouping pairs
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
@@ -396,17 +371,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
         for (int j = 0; j < ntime; j++) {
             double Rs2 = 0;
             //
-            vector<int> InGroup;
-            string Groupstr = RiskGroup[j];
-            stringstream ss(Groupstr);
-            //
-            //
-            //
-            for (int i; ss >> i;) {
-                InGroup.push_back(i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
+            vector<int> InGroup = RiskPairs[j];
             // now has the grouping pairs
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
@@ -427,17 +392,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
         for (int j = 0; j < ntime; j++) {
             double Rs3 = 0;
             //
-            vector<int> InGroup;
-            string Groupstr = RiskGroup[j];
-            stringstream ss(Groupstr);
-            //
-            //
-            //
-            for (int i; ss >> i;) {
-                InGroup.push_back(i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
+            vector<int> InGroup = RiskPairs[j];
             // now has the grouping pairs
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
@@ -462,7 +417,7 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskG
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Gradient(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Gradient(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     //
     #ifdef _OPENMP
@@ -472,16 +427,7 @@ void Calculate_Sides_Gradient(const IntegerMatrix& RiskFail, const vector<string
         double Rs1 = 0;
         //
         //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
+        vector<int> InGroup = RiskPairs[j];
         // now has the grouping pairs
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
@@ -501,14 +447,7 @@ void Calculate_Sides_Gradient(const IntegerMatrix& RiskFail, const vector<string
         for (int j = 0; j < ntime; j++) {
             double Rs2 = 0;
             //
-            vector<int> InGroup;
-            string Groupstr = RiskGroup[j];
-            stringstream ss(Groupstr);
-            for (int i; ss >> i;) {
-                InGroup.push_back(i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
+            vector<int> InGroup = RiskPairs[j];
             // now has the grouping pairs
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
@@ -534,7 +473,7 @@ void Calculate_Sides_Gradient(const IntegerMatrix& RiskFail, const vector<string
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -542,15 +481,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
     for (int j = 0; j < ntime; j++) {
         double Rs1 = 0;
         //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
+        vector<int> InGroup = RiskPairs[j];
         // now has the grouping pairs
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         double cens_0 = cens_weight[RiskFail(j, 0)];
@@ -579,17 +510,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
         for (int j = 0; j < ntime; j++) {
             double Rs2 = 0;
             //
-            vector<int> InGroup;
-            string Groupstr = RiskGroup[j];
-            stringstream ss(Groupstr);
-            //
-            //
-            //
-            for (int i; ss >> i;) {
-                InGroup.push_back(i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
+            vector<int> InGroup = RiskPairs[j];
             // now has the grouping pairs
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
             double cens_0 = cens_weight[RiskFail(j, 0)];
@@ -619,16 +540,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
         for (int j = 0; j < ntime; j++) {
             double Rs3 = 0;
             //
-            vector<int> InGroup;
-            string Groupstr = RiskGroup[j];
-            stringstream ss(Groupstr);
-            //
-            //
-            for (int i; ss >> i;) {
-                InGroup.push_back(i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
+            vector<int> InGroup = RiskPairs[j];
             // now has the grouping pairs
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
             double cens_0 = cens_weight[RiskFail(j, 0)];
@@ -662,7 +574,7 @@ void Calculate_Sides_CR(const IntegerMatrix& RiskFail, const vector<string>&  Ri
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_CR_Gradient(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const VectorXd& cens_weight, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+void Calculate_Sides_CR_Gradient(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const VectorXd& cens_weight, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -670,15 +582,7 @@ void Calculate_Sides_CR_Gradient(const IntegerMatrix& RiskFail, const vector<str
     for (int j = 0; j < ntime; j++) {
         double Rs1 = 0;
         //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
+        vector<int> InGroup = RiskPairs[j];
         // now has the grouping pairs
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         double cens_0 = cens_weight[RiskFail(j, 0)];
@@ -707,17 +611,7 @@ void Calculate_Sides_CR_Gradient(const IntegerMatrix& RiskFail, const vector<str
         for (int j = 0; j < ntime; j++) {
             double Rs2 = 0;
             //
-            vector<int> InGroup;
-            string Groupstr = RiskGroup[j];
-            stringstream ss(Groupstr);
-            //
-            //
-            //
-            for (int i; ss >> i;) {
-                InGroup.push_back(i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
+            vector<int> InGroup = RiskPairs[j];
             // now has the grouping pairs
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
             double cens_0 = cens_weight[RiskFail(j, 0)];
@@ -751,22 +645,14 @@ void Calculate_Sides_CR_Gradient(const IntegerMatrix& RiskFail, const vector<str
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, bool debugging, const IntegerVector& KeepConstant) {
+void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, const IntegerVector& KeepConstant) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int j = 0; j < ntime; j++) {
         double Rs1 = 0;
         //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
+        vector<int> InGroup = RiskPairs[j];
         // now has the grouping pairs
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         double cens_0 = cens_weight[RiskFail(j, 0)];
@@ -799,22 +685,14 @@ void Calculate_Sides_CR_SINGLE(const IntegerMatrix& RiskFail, const vector<strin
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads, bool debugging) {
+void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int j = 0; j < ntime; j++) {
         double Rs1 = 0;
         //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
+        vector<int> InGroup = RiskPairs[j];
         // now has the grouping pairs
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
@@ -837,7 +715,7 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<string>&
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -846,16 +724,9 @@ void Calculate_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix&  
         for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = 0;
             //
-            vector<int> InGroup;
+            vector<int> InGroup = RiskPairs_Strata[j][s_ij];
             // now has the grouping pairs
             if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                stringstream ss(Groupstr);
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                     //
@@ -878,17 +749,9 @@ void Calculate_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix&  
             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                         Rs2 += Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
@@ -917,17 +780,9 @@ void Calculate_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix&  
                 }
                 double Rs3 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1) >  - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                         Rs3 += Rdd.block(InGroup[i] - 1, ijk, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
@@ -953,7 +808,7 @@ void Calculate_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix&  
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Strata_Gradient(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_Gradient(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -962,16 +817,9 @@ void Calculate_Sides_Strata_Gradient(const IntegerMatrix& RiskFail, const String
         for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double Rs1 = 0;
             //
-            vector<int> InGroup;
+            vector<int> InGroup = RiskPairs_Strata[j][s_ij];
             // now has the grouping pairs
             if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                stringstream ss(Groupstr);
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                     //
@@ -994,17 +842,9 @@ void Calculate_Sides_Strata_Gradient(const IntegerMatrix& RiskFail, const String
             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                         Rs2 += Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
@@ -1031,7 +871,7 @@ void Calculate_Sides_Strata_Gradient(const IntegerMatrix& RiskFail, const String
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Strata_Single(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_Single(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
@@ -1041,17 +881,9 @@ void Calculate_Sides_Strata_Single(const IntegerMatrix& RiskFail, const StringMa
             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs1 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                         Rs1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
@@ -1077,7 +909,7 @@ void Calculate_Sides_Strata_Single(const IntegerMatrix& RiskFail, const StringMa
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Strata_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_CR(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -1087,17 +919,9 @@ void Calculate_Sides_Strata_CR(const IntegerMatrix& RiskFail, const StringMatrix
             double Rs1 = 0;
             //
             //
-            vector<int> InGroup;
+            vector<int> InGroup = RiskPairs_Strata[j][s_ij];
             // now has the grouping pairs
             if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                stringstream ss(Groupstr);
-            //
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 double cens_0 = cens_weight[RiskFail(j, 2*s_ij)];
                 VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
@@ -1128,17 +952,9 @@ void Calculate_Sides_Strata_CR(const IntegerMatrix& RiskFail, const StringMatrix
             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     double cens_0 = cens_weight[RiskFail(j, 2*s_ij)];
                     VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
@@ -1176,17 +992,9 @@ void Calculate_Sides_Strata_CR(const IntegerMatrix& RiskFail, const StringMatrix
                 }
                 double Rs3 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     double cens_0 = cens_weight[RiskFail(j, 2*s_ij)];
                     VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
@@ -1221,7 +1029,7 @@ void Calculate_Sides_Strata_CR(const IntegerMatrix& RiskFail, const StringMatrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Strata_CR_Gradient(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_CR_Gradient(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const VectorXd& cens_weight, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -1231,17 +1039,9 @@ void Calculate_Sides_Strata_CR_Gradient(const IntegerMatrix& RiskFail, const Str
             double Rs1 = 0;
             //
             //
-            vector<int> InGroup;
+            vector<int> InGroup = RiskPairs_Strata[j][s_ij];
             // now has the grouping pairs
             if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                stringstream ss(Groupstr);
-            //
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 double cens_0 = cens_weight[RiskFail(j, 2*s_ij)];
                 VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
@@ -1272,17 +1072,9 @@ void Calculate_Sides_Strata_CR_Gradient(const IntegerMatrix& RiskFail, const Str
             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs2 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     double cens_0 = cens_weight[RiskFail(j, 2*s_ij)];
                     VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
@@ -1317,7 +1109,7 @@ void Calculate_Sides_Strata_CR_Gradient(const IntegerMatrix& RiskFail, const Str
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Sides_Strata_Single_CR(const IntegerMatrix& RiskFail, const StringMatrix&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, bool debugging, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calculate_Sides_Strata_Single_CR(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const VectorXd& cens_weight, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(3)
@@ -1327,17 +1119,9 @@ void Calculate_Sides_Strata_Single_CR(const IntegerMatrix& RiskFail, const Strin
             for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
                 double Rs1 = 0;
                 //
-                vector<int> InGroup;
+                vector<int> InGroup = RiskPairs_Strata[j][s_ij];
                 // now has the grouping pairs
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                    stringstream ss(Groupstr);
-                    //
-                    for (int i; ss >> i;) {
-                        InGroup.push_back(i);
-                        if (ss.peek() == ',')
-                            ss.ignore();
-                    }
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     double cens_0 = cens_weight[RiskFail(j, 2*s_ij)];
                     VectorXd weighting = VectorXd::Zero(InGroup[1]-InGroup[0] + 1);
@@ -1372,7 +1156,7 @@ void Calculate_Sides_Strata_Single_CR(const IntegerMatrix& RiskFail, const Strin
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
+void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1480,7 +1264,7 @@ void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vecto
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Lls1, const MatrixXd& Lls2, vector<double>& Ll, vector<double>& Lld, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Lls1, const MatrixXd& Lls2, vector<double>& Ll, vector<double>& Lld, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1547,7 +1331,7 @@ void Calc_LogLik_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, co
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1649,7 +1433,7 @@ void Calc_LogLik_Basic(const int& nthreads, const IntegerMatrix& RiskFail, const
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1767,7 +1551,7 @@ void Calc_LogLik_Linear_ERR(const StringVector& tform, const int& nthreads, cons
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Strata_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_Linear_ERR(const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1889,7 +1673,7 @@ void Calc_LogLik_Strata_Linear_ERR(const StringVector& tform, const int& nthread
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Single(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, bool debugging, string ties_method) {
+void Calc_LogLik_Single(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
@@ -1936,7 +1720,7 @@ void Calc_LogLik_Single(const int& nthreads, const IntegerMatrix& RiskFail, cons
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2048,7 +1832,7 @@ void Calc_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, cons
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Strata_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Lls1, const MatrixXd& Lls2, vector<double>& Ll, vector<double>& Lld, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_Gradient(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Lls1, const MatrixXd& Lls2, vector<double>& Ll, vector<double>& Lld, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2119,7 +1903,7 @@ void Calc_LogLik_Strata_Gradient(const int& nthreads, const IntegerMatrix& RiskF
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Strata_SINGLE(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_SINGLE(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
 //    int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2172,7 +1956,7 @@ void Calc_LogLik_Strata_SINGLE(const int& nthreads, const IntegerMatrix& RiskFai
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_LogLik_Strata_BASIC(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Strata_BASIC(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2278,7 +2062,7 @@ void Calc_LogLik_Strata_BASIC(const int& nthreads, const IntegerMatrix& RiskFail
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, bool debugging, const IntegerVector& KeepConstant) {
+void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     MatrixXd temp(Rd.rows(), Rd.cols());
     VectorXd CoL = VectorXd::Zero(Rd.rows());
@@ -2317,7 +2101,7 @@ void Poisson_LogLik(const int& nthreads, const int& totalnum, const MatrixXd& Py
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Poisson_LogLik_Gradient(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& Ll, vector<double>& Lld, bool debugging, const IntegerVector& KeepConstant) {
+void Poisson_LogLik_Gradient(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& Ll, vector<double>& Lld, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     MatrixXd temp(Rd.rows(), Rd.cols());
     VectorXd CoL = VectorXd::Zero(Rd.rows());
@@ -2344,7 +2128,7 @@ void Poisson_LogLik_Gradient(const int& nthreads, const int& totalnum, const Mat
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, vector<double>& Ll, bool debugging) {
+void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, vector<double>& Ll) {
     int reqrdnum = Ll.size();
     MatrixXd temp(R.rows(), reqrdnum);
     temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
@@ -2361,22 +2145,14 @@ void Poisson_LogLik_Single(const int& nthreads, const int& totalnum, const Matri
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads) {
+void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int j = 0; j < ntime; j++) {
         double Rs1 = 0;
         //
-        vector<int> InGroup;
-        string Groupstr = RiskGroup[j];
-        stringstream ss(Groupstr);
-        //
-        for (int i; ss >> i;) {
-            InGroup.push_back(i);
-            if (ss.peek() == ',')
-                ss.ignore();
-        }
+        vector<int> InGroup = RiskPairs[j];
         // now has the grouping pairs
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
@@ -2401,7 +2177,7 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<string>&  
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vector<string>&  RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, string ties_method) {
+void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
@@ -2445,7 +2221,7 @@ void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const 
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, NumericVector& Strata_vals, const int& nthreads) {
+void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, NumericVector& Strata_vals, const int& nthreads) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
@@ -2454,16 +2230,9 @@ void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatr
             double Rs1 = 0;
             //
             //
-            vector<int> InGroup;
+            vector<int> InGroup = RiskPairs_Strata[j][s_ij];
             // now has the grouping pairs
             if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                string Groupstr = as<std::string>(RiskGroup(j, s_ij));
-                stringstream ss(Groupstr);
-                for (int i; ss >> i;) {
-                    InGroup.push_back(i);
-                    if (ss.peek() == ',')
-                        ss.ignore();
-                }
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                     //
@@ -2490,7 +2259,7 @@ void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const StringMatr
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const StringMatrix& RiskGroup, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, NumericVector& Strata_vals, vector<double>& Ll, string ties_method) {
+void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, NumericVector& Strata_vals, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
         std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
