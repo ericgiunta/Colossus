@@ -648,15 +648,15 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         vector<double> InMa(pow(reqrdnum, 2), 0.0);
         if (model_bool["strata"]){
             if (model_bool["cr"]){
-                Simplified_Inform_Matrix_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
+                Expected_Inform_Matrix_Cox_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
             } else {
-                Simplified_Inform_Matrix_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
+                Expected_Inform_Matrix_Cox_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
             }
         } else {
             if (model_bool["cr"]){
-                Simplified_Inform_Matrix_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
+                Expected_Inform_Matrix_Cox_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
             } else {
-                Simplified_Inform_Matrix(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
+                Expected_Inform_Matrix_Cox(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
             }
         }
         NumericVector InMa_vec(reqrdnum * reqrdnum);  // simplfied information matrix
@@ -1197,17 +1197,45 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
-    MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+    MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
-    for (int ij = 0; ij < totalnum; ij++) {
-        if (KeepConstant[ij] == 0) {
-            int pij_ind = ij - sum(head(KeepConstant, ij));
-            stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
+    if (model_bool["oberved_info"]){
+        cov = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+        for (int ij = 0; ij < totalnum; ij++) {
+            if (KeepConstant[ij] == 0) {
+                int pij_ind = ij - sum(head(KeepConstant, ij));
+                stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+            }
+        }
+    } else {
+        vector<double> InMa(pow(reqrdnum, 2), 0.0);
+        Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
+        NumericVector InMa_vec(reqrdnum * reqrdnum);  // simplfied information matrix
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
+            InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
+        }
+        InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+        const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
+        cov = InMa_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
+        for (int ij = 0; ij < totalnum; ij++) {
+            if (KeepConstant[ij] == 0) {
+                int pij_ind = ij - sum(head(KeepConstant, ij));
+                stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+            }
         }
     }
     //
-    //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Deviation"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Deviation"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }
@@ -4195,15 +4223,15 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
             vector<double> InMa(pow(reqrdnum, 2), 0.0);
             if (model_bool["strata"]){
                 if (model_bool["cr"]){
-                    Simplified_Inform_Matrix_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
+                    Expected_Inform_Matrix_Cox_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
                 } else {
-                    Simplified_Inform_Matrix_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
+                    Expected_Inform_Matrix_Cox_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
                 }
             } else {
                 if (model_bool["cr"]){
-                    Simplified_Inform_Matrix_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
+                    Expected_Inform_Matrix_Cox_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
                 } else {
-                    Simplified_Inform_Matrix(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
+                    Expected_Inform_Matrix_Cox(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
                 }
             }
             NumericVector InMa_vec(reqrdnum * reqrdnum);  // simplfied information matrix
@@ -4821,15 +4849,15 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         vector<double> InMa(pow(reqrdnum, 2), 0.0);
         if (model_bool["strata"]){
             if (model_bool["cr"]){
-                Simplified_Inform_Matrix_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
+                Expected_Inform_Matrix_Cox_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
             } else {
-                Simplified_Inform_Matrix_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
+                Expected_Inform_Matrix_Cox_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
             }
         } else {
             if (model_bool["cr"]){
-                Simplified_Inform_Matrix_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
+                Expected_Inform_Matrix_Cox_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
             } else {
-                Simplified_Inform_Matrix(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
+                Expected_Inform_Matrix_Cox(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
             }
         }
         NumericVector InMa_vec(reqrdnum * reqrdnum);  // simplfied information matrix

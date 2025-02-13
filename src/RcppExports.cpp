@@ -1645,9 +1645,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// Simplified_Inform_Matrix
-void Simplified_Inform_Matrix(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Simplified_Inform_Matrix(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP InMaSEXP, SEXP KeepConstantSEXP) {
+// Expected_Inform_Matrix_Cox
+void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Expected_Inform_Matrix_Cox(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP InMaSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
@@ -1660,13 +1660,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const MatrixXd& >::type RdR(RdRSEXP);
     Rcpp::traits::input_parameter< vector<double>& >::type InMa(InMaSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Simplified_Inform_Matrix(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
+    Expected_Inform_Matrix_Cox(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
-// Simplified_Inform_Matrix_Strata
-void Simplified_Inform_Matrix_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Simplified_Inform_Matrix_Strata(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairs_StrataSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP InMaSEXP, SEXP Strata_valsSEXP, SEXP KeepConstantSEXP) {
+// Expected_Inform_Matrix_Cox_Strata
+void Expected_Inform_Matrix_Cox_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Expected_Inform_Matrix_Cox_Strata(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairs_StrataSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP InMaSEXP, SEXP Strata_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
@@ -1680,13 +1680,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<double>& >::type InMa(InMaSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Simplified_Inform_Matrix_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
+    Expected_Inform_Matrix_Cox_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
-// Simplified_Inform_Matrix_CR
-void Simplified_Inform_Matrix_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Simplified_Inform_Matrix_CR(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP cens_weightSEXP, SEXP InMaSEXP, SEXP KeepConstantSEXP) {
+// Expected_Inform_Matrix_Cox_CR
+void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Expected_Inform_Matrix_Cox_CR(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP cens_weightSEXP, SEXP InMaSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
@@ -1700,13 +1700,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
     Rcpp::traits::input_parameter< vector<double>& >::type InMa(InMaSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Simplified_Inform_Matrix_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
+    Expected_Inform_Matrix_Cox_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
-// Simplified_Inform_Matrix_Strata_CR
-void Simplified_Inform_Matrix_Strata_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Simplified_Inform_Matrix_Strata_CR(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairs_StrataSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP cens_weightSEXP, SEXP InMaSEXP, SEXP Strata_valsSEXP, SEXP KeepConstantSEXP) {
+// Expected_Inform_Matrix_Cox_Strata_CR
+void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Expected_Inform_Matrix_Cox_Strata_CR(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairs_StrataSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP cens_weightSEXP, SEXP InMaSEXP, SEXP Strata_valsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
@@ -1721,7 +1721,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<double>& >::type InMa(InMaSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Simplified_Inform_Matrix_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
+    Expected_Inform_Matrix_Cox_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
+    return R_NilValue;
+END_RCPP
+}
+// Expected_Inform_Matrix_Poisson
+void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Expected_Inform_Matrix_Poisson(SEXP nthreadsSEXP, SEXP totalnumSEXP, SEXP PyrCSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RdRSEXP, SEXP InMaSEXP, SEXP KeepConstantSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type PyrC(PyrCSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type InMa(InMaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
@@ -2768,10 +2785,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Cox_Pois_Log_Loop", (DL_FUNC) &_Colossus_Cox_Pois_Log_Loop, 43},
     {"_Colossus_Cox_Full_Run", (DL_FUNC) &_Colossus_Cox_Full_Run, 64},
     {"_Colossus_Pois_Full_Run", (DL_FUNC) &_Colossus_Pois_Full_Run, 53},
-    {"_Colossus_Simplified_Inform_Matrix", (DL_FUNC) &_Colossus_Simplified_Inform_Matrix, 10},
-    {"_Colossus_Simplified_Inform_Matrix_Strata", (DL_FUNC) &_Colossus_Simplified_Inform_Matrix_Strata, 11},
-    {"_Colossus_Simplified_Inform_Matrix_CR", (DL_FUNC) &_Colossus_Simplified_Inform_Matrix_CR, 11},
-    {"_Colossus_Simplified_Inform_Matrix_Strata_CR", (DL_FUNC) &_Colossus_Simplified_Inform_Matrix_Strata_CR, 12},
+    {"_Colossus_Expected_Inform_Matrix_Cox", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_Cox, 10},
+    {"_Colossus_Expected_Inform_Matrix_Cox_Strata", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_Cox_Strata, 11},
+    {"_Colossus_Expected_Inform_Matrix_Cox_CR", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_Cox_CR, 11},
+    {"_Colossus_Expected_Inform_Matrix_Cox_Strata_CR", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_Cox_Strata_CR, 12},
+    {"_Colossus_Expected_Inform_Matrix_Poisson", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_Poisson, 8},
     {"_Colossus_PLOT_SURV_Strata", (DL_FUNC) &_Colossus_PLOT_SURV_Strata, 9},
     {"_Colossus_PLOT_SURV", (DL_FUNC) &_Colossus_PLOT_SURV, 8},
     {"_Colossus_Schoenfeld_Calc", (DL_FUNC) &_Colossus_Schoenfeld_Calc, 12},

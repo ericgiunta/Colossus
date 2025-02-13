@@ -97,9 +97,13 @@
 
 # Colossus 1.1.9
 
-* Cox based functions switched covariance matrix calculation from negative inverse of log-likelihood second derivative, to expected information matrix equation in 32-bit Epicure manual.
+* Cox based functions switched covariance matrix calculation from negative inverse of log-likelihood second derivative, to expected information matrix.
 
 # Colossus 1.1.10
 
 * Cox based functions updated to improve speed
 * Additional CurveSolve output provided to give final window width and final step
+
+# Colossus 1.2
+
+* Both Cox and Poisson functions now all return the expected information matrix derived covariance
