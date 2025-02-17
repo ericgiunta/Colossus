@@ -408,6 +408,89 @@ void Calculate_Sides(const IntegerMatrix& RiskFail, const vector<vector<int> >& 
     return;
 }
 
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+//'
+//' \code{Calculate_Sides_PO} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: risk storage matrices
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calculate_Sides_PO(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int j = 0; j < ntime; j++) {
+        double Rs1 = 0;
+        //
+        vector<int> InGroup = RiskPairs[j];
+        // now has the grouping pairs
+        int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+        for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+            //
+            Rs1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().sum();
+        }  // precalculates the sums of risk groups
+        VectorXd weighting = VectorXd::Zero(dj);
+        weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
+        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+        Ld << R.block(RiskFail(j, 0), 0, dj, 1).array() * weighting.array();  // sum of risks in group
+        // only assigns values once
+        Rls1(j, 0) = Rs1;
+        Lls1(j, 0) = Ld.col(0).sum();
+    }
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
+    for (int ij = 0; ij < reqrdnum; ij++) {  // totalnum*(totalnum + 1)/2
+        for (int j = 0; j < ntime; j++) {
+            double Rs2 = 0;
+            //
+            vector<int> InGroup = RiskPairs[j];
+            // now has the grouping pairs
+            int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                //
+                Rs2 += Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array().sum();
+            }  // precalculates the sums of risk groups
+            VectorXd weighting = VectorXd::Zero(dj);
+            weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
+            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+            Ld << Rd.block(RiskFail(j, 0), ij, dj, 1).array() * weighting.array();  // sum of risks in group
+            // only assigns values once
+            Rls2(j, ij) = Rs2;
+            Lls2(j, ij) = Ld.col(0).sum();
+        }
+    }
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // totalnum*(totalnum + 1)/2
+        for (int j = 0; j < ntime; j++) {
+            double Rs3 = 0;
+            //
+            vector<int> InGroup = RiskPairs[j];
+            // now has the grouping pairs
+            int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+                //
+                Rs3 += Rdd.block(InGroup[i] - 1, ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array().sum();
+            }  // precalculates the sums of risk groups
+            VectorXd weighting = VectorXd::Zero(dj);
+            weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
+            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+            Ld << Rdd.block(RiskFail(j, 0), ijk, dj, 1).array() * weighting.array();  // sum of risks in group
+            // only assigns values once
+            Rls3(j, ijk) = Rs3;
+            Lls3(j, ijk) = Ld.col(0).sum();
+        }
+    }
+    return;
+}
+
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with gradient option
 //'
 //' \code{Calculate_Sides_Gradient} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
@@ -1224,6 +1307,116 @@ void Calc_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vecto
             }
             temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(- 1).array()) - temp1.array() * temp2.array();
             Rs3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+            //
+            if (ij == jk) {
+                Ll[ij] += Ld1 - Rs1;
+                Lld[ij] += Ld2 - Rs2;
+            }
+            Lldd[ij*reqrdnum+jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
+        }
+    }
+    double LogLik = 0;
+    for (int i = 0; i < reqrdnum; i++) {
+        if (Ll[i] != 0) {
+            LogLik = Ll[i];
+            break;
+        }
+    }
+    fill(Ll.begin(), Ll.end(), LogLik);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
+    }
+    return;
+}
+
+//' Utility function to calculate Cox Log-Likelihood and derivatives with outcome probability
+//'
+//' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_LogLik_PO(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, const VectorXd& cens_weight, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // performs log-likelihood calculations for every derivative combination and risk group
+        for (int j = 0; j < ntime; j++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            double Rs1 = Rls1(j, 0);
+            double Rs2 = Rls2(j, ij);
+            double Rs2t = Rls2(j, jk);
+            double Rs3 = Rls3(j, ijk);
+            //
+            int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
+            VectorXd weighting = VectorXd::Zero(dj);
+            weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
+            MatrixXd Ld = MatrixXd::Zero(dj, 4);
+            Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  // rows with events
+            //
+            MatrixXd Ldm = MatrixXd::Zero(dj, 4);
+            Vector4d Ldcs;
+            if (ties_method == "efron") {
+                Ldcs << Lls1(j, 0), Lls2(j, ij), Lls2(j, jk), Lls3(j, ijk);
+                for (int i = 0; i < dj; i++) {  // adds in the efron approximation terms
+                    Ldm.row(i) = (-double(i) / double(dj)) *Ldcs.array();
+                }
+            }
+            Ldm.col(0) = Ldm.col(0).array() + Rs1;
+            Ldm.col(1) = Ldm.col(1).array() + Rs2;
+            Ldm.col(2) = Ldm.col(2).array() + Rs2t;
+            Ldm.col(3) = Ldm.col(3).array() + Rs3;
+            // Calculates the left-hand side terms
+            //
+            double Ld1 = 0.0;
+            double Ld2 = 0.0;
+            double Ld3 = 0.0;
+            //
+            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
+            MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+            if (ij == jk) {
+                temp1 = Ld.col(0).array().log();
+                Ld1 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
+            }
+            temp1 = Ld.col(1).array();
+            if (ij == jk) {
+                Ld2 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
+            }
+            temp2 = Ld.col(2).array();
+            temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+            Ld3 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
+            // calculates the right-hand side terms
+            if (ij == jk) {
+                temp1 = Ldm.col(0).array().log();
+                Rs1 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
+            }
+            temp1 = Ldm.col(1).array() * (Ldm.col(0).array().pow(- 1).array());
+            temp2 = Ldm.col(2).array() * (Ldm.col(0).array().pow(- 1).array());
+            if (ij == jk) {
+                Rs2 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
+            }
+            temp1 = Ldm.col(3).array() * (Ldm.col(0).array().pow(- 1).array()) - temp1.array() * temp2.array();
+            Rs3 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
             //
             if (ij == jk) {
                 Ll[ij] += Ld1 - Rs1;

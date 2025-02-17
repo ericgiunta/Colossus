@@ -100,6 +100,31 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// Calculate_Sides_PO
+void Calculate_Sides_PO(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Calculate_Sides_PO(SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP cens_weightSEXP, SEXP nthreadsSEXP, SEXP KeepConstantSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
+    Rcpp::traits::input_parameter< const vector<vector<int> >& >::type RiskPairs(RiskPairsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rls1(Rls1SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rls2(Rls2SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Rls3(Rls3SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Lls1(Lls1SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Lls2(Lls2SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type Lls3(Lls3SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Calculate_Sides_PO(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant);
+    return R_NilValue;
+END_RCPP
+}
 // Calculate_Sides_Gradient
 void Calculate_Sides_Gradient(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Lls1, MatrixXd& Lls2, const int& nthreads, const IntegerVector& KeepConstant);
 RcppExport SEXP _Colossus_Calculate_Sides_Gradient(SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP nthreadsSEXP, SEXP KeepConstantSEXP) {
@@ -366,6 +391,37 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
     Calc_LogLik(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
+    return R_NilValue;
+END_RCPP
+}
+// Calc_LogLik_PO
+void Calc_LogLik_PO(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, const VectorXd& cens_weight, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Calc_LogLik_PO(SEXP nthreadsSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP Rls1SEXP, SEXP Rls2SEXP, SEXP Rls3SEXP, SEXP Lls1SEXP, SEXP Lls2SEXP, SEXP Lls3SEXP, SEXP cens_weightSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP ties_methodSEXP, SEXP KeepConstantSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
+    Rcpp::traits::input_parameter< const vector<vector<int> >& >::type RiskPairs(RiskPairsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type RddR(RddRSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls1(Rls1SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls2(Rls2SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rls3(Rls3SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls1(Lls1SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls2(Lls2SEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Lls3(Lls3SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Ll(LlSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Lld(LldSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type Lldd(LlddSEXP);
+    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Calc_LogLik_PO(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Ll, Lld, Lldd, ties_method, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
@@ -2735,6 +2791,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Make_Groups_Strata", (DL_FUNC) &_Colossus_Make_Groups_Strata, 7},
     {"_Colossus_Make_Groups_Strata_CR", (DL_FUNC) &_Colossus_Make_Groups_Strata_CR, 8},
     {"_Colossus_Calculate_Sides", (DL_FUNC) &_Colossus_Calculate_Sides, 15},
+    {"_Colossus_Calculate_Sides_PO", (DL_FUNC) &_Colossus_Calculate_Sides_PO, 16},
     {"_Colossus_Calculate_Sides_Gradient", (DL_FUNC) &_Colossus_Calculate_Sides_Gradient, 12},
     {"_Colossus_Calculate_Sides_CR", (DL_FUNC) &_Colossus_Calculate_Sides_CR, 16},
     {"_Colossus_Calculate_Sides_CR_Gradient", (DL_FUNC) &_Colossus_Calculate_Sides_CR_Gradient, 13},
@@ -2747,6 +2804,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calculate_Sides_Strata_CR_Gradient", (DL_FUNC) &_Colossus_Calculate_Sides_Strata_CR_Gradient, 14},
     {"_Colossus_Calculate_Sides_Strata_Single_CR", (DL_FUNC) &_Colossus_Calculate_Sides_Strata_Single_CR, 11},
     {"_Colossus_Calc_LogLik", (DL_FUNC) &_Colossus_Calc_LogLik, 21},
+    {"_Colossus_Calc_LogLik_PO", (DL_FUNC) &_Colossus_Calc_LogLik_PO, 22},
     {"_Colossus_Calc_LogLik_Gradient", (DL_FUNC) &_Colossus_Calc_LogLik_Gradient, 16},
     {"_Colossus_Calc_LogLik_Basic", (DL_FUNC) &_Colossus_Calc_LogLik_Basic, 20},
     {"_Colossus_Calc_LogLik_Linear_ERR", (DL_FUNC) &_Colossus_Calc_LogLik_Linear_ERR, 22},

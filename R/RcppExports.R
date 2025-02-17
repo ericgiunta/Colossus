@@ -61,6 +61,18 @@ Calculate_Sides <- function(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rl
     invisible(.Call(`_Colossus_Calculate_Sides`, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, KeepConstant))
 }
 
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+#'
+#' \code{Calculate_Sides_PO} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+Calculate_Sides_PO <- function(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Sides_PO`, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant))
+}
+
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with gradient option
 #'
 #' \code{Calculate_Sides_Gradient} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
@@ -203,6 +215,18 @@ Calculate_Sides_Strata_Single_CR <- function(RiskFail, RiskPairs_Strata, totalnu
 #'
 Calc_LogLik <- function(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant) {
     invisible(.Call(`_Colossus_Calc_LogLik`, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant))
+}
+
+#' Utility function to calculate Cox Log-Likelihood and derivatives with outcome probability
+#'
+#' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Calc_LogLik_PO <- function(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Ll, Lld, Lldd, ties_method, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_PO`, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Ll, Lld, Lldd, ties_method, KeepConstant))
 }
 
 #' Utility function to calculate Cox Log-Likelihood and first derivatives

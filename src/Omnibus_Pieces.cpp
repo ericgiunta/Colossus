@@ -323,7 +323,9 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
 //    end_point = system_clock::now();
 //    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     // Calculates the side sum terms used
-    if (model_bool["strata"]) {
+    if (model_bool["outcome_prob"]) {
+        Calculate_Sides_PO(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant);
+    } else if (model_bool["strata"]) {
         if (model_bool["cr"]) {
             // strata_CR or strata_CR_single
             if (model_bool["single"]) {
@@ -365,7 +367,9 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
-    if (model_bool["strata"]) {
+    if (model_bool["outcome_prob"]) {
+        Calc_LogLik_PO(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Ll, Lld, Lldd, ties_method, KeepConstant);
+    } else if (model_bool["strata"]) {
         if (model_bool["single"]) {
             Calc_LogLik_Strata_SINGLE(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, ties_method, Strata_vals, KeepConstant);  // strata_single
         } else if (model_bool["basic"]) {
