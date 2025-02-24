@@ -81,7 +81,9 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   df <- df[get(pyr0) > 0, ]
   if (control$verbose >= 2) {
     if (any(val$Permutation != seq_along(tform))) {
+      if (control$verbose >=2){
       warning("Warning: model covariate order changed")
+      }
     }
   }
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -109,9 +111,11 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       dftemp <- df[get(col) == 1, ]
       temp <- sum(dftemp[, get(event0)])
       if (temp == 0) {
+        if (control$verbose >=2){
         warning(paste("Warning: no events for strata group:", col,
           sep = " "
         ))
+        }
         df <- df[get(col) != 1, ]
         df0 <- df0[get(col) != 1, ]
       } else {
@@ -479,9 +483,11 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
       dftemp <- df[get(col) == 1, ]
       temp <- sum(dftemp[, get(event0)])
       if (temp == 0) {
+        if (control$verbose >=2){
         warning(paste("Warning: no events for strata group:", col,
           sep = " "
         ))
+        }
         df <- df[get(col) != 1, ]
         df0 <- df0[get(col) != 1, ]
       } else {
@@ -793,7 +799,9 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0 = "pyr", event0 = "event"
   rmin <- guesses_control$rmin
   rmax <- guesses_control$rmax
   if (length(rmin) != length(rmax)) {
+    if (control$verbose >=2){
     warning("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
+    }
   }
   name_initial <- c()
   term_n_initial <- c()
@@ -1046,7 +1054,9 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
   }
   df <- df[get(pyr0) > 0, ]
   if (any(val$Permutation != seq_along(tform))) {
+    if (control$verbose >=2){
     warning("Warning: model covariate order changed")
+    }
   }
   model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -1074,10 +1084,12 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
       dftemp <- df[get(col) == 1, ]
       temp <- sum(dftemp[, get(event0)])
       if (temp == 0) {
+        if (control$verbose >=2){
         warning(paste("Warning: no events for strata group:",
           col,
           sep = " "
         ))
+        }
         df <- df[get(col) != 1, ]
         df0 <- df0[get(col) != 1, ]
       } else {
@@ -1148,7 +1160,9 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   df <- df[get(pyr0) > 0, ]
   if (control$verbose >= 2) {
     if (any(val$Permutation != seq_along(tform))) {
+      if (control$verbose >=2){
       warning("Warning: model covariate order changed")
+      }
     }
   }
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -1176,9 +1190,11 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
       dftemp <- df[get(col) == 1, ]
       temp <- sum(dftemp[, get(event0)])
       if (temp == 0) {
+        if (control$verbose >=2){
         warning(paste("Warning: no events for strata group:", col,
           sep = " "
         ))
+        }
         df <- df[get(col) != 1, ]
         df0 <- df0[get(col) != 1, ]
       } else {

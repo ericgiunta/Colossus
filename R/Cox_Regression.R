@@ -95,7 +95,9 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     a_n <- list(a_n)
   }
   if (any(val$Permutation != seq_along(tform))) {
+    if (control$verbose >=2){
     warning("Warning: model covariate order changed")
+    }
   }
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
@@ -115,11 +117,15 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       stop("Error: Linear ERR model used, but more than one plin element was used")
     }
     if (length(unique(term_n)) > 1) {
+      if (control$verbose >=2){
       warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
+      }
       term_n <- rep(0, length(term_n))
     }
     if (modelform != "M") {
+      if (control$verbose >=2){
       warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
+      }
       modelform <- "M"
     }
   }
@@ -145,10 +151,12 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       df0 <- dfend[get(strat_col) == uniq[i], ]
       tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
       if (length(tu0) == 0) {
+        if (control$verbose >=2){
         warning(paste("Warning: no events for strata group:",
           uniq[i],
           sep = " "
         ))
+        }
         df <- df[get(strat_col) != uniq[i], ]
       }
     }
@@ -174,11 +182,13 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       if (names[i] != "CONST") {
         if (min(df[[names[i]]]) == max(df[[names[i]]])) {
           keep_constant[i] <- 1
+          if (control$verbose >=2){
           warning(paste("Warning: element ", i,
             " with column name ", names[i],
             " was set constant",
             sep = ""
           ))
+          }
         }
       }
     }
@@ -1022,7 +1032,9 @@ RunCoxRegression_Tier_Guesses <- function(df, time1 = "start", time2 = "end", ev
   rmin <- guesses_control$rmin
   rmax <- guesses_control$rmax
   if (length(rmin) != length(rmax)) {
+    if (control$verbose >=2){
     warning("Warning: rmin/rmax not equal size, lin/loglin min/max used")
+    }
   }
   name_initial <- c()
   term_n_initial <- c()
@@ -1356,7 +1368,9 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
   cons_vec <- val$cons_vec
   if (control$verbose >= 2) {
     if (any(val$Permutation != seq_along(tform))) {
+      if (control$verbose >=2){
       warning("Warning: model covariate order changed")
+      }
     }
   }
   model_control <- Def_model_control(model_control)
@@ -1400,10 +1414,12 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
       df0 <- dfend[get(strat_col) == uniq[i], ]
       tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
       if (length(tu0) == 0) {
+        if (control$verbose >=2){
         warning(paste("Warning: no events for strata group:",
           uniq[i],
           sep = " "
         ))
+        }
         df <- df[get(strat_col) != uniq[i], ]
       }
     }
@@ -1535,7 +1551,9 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     a_n <- list(a_n)
   }
   if (any(val$Permutation != seq_along(tform))) {
+    if (control$verbose >=2){
     warning("Warning: model covariate order changed")
+    }
   }
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
@@ -1555,11 +1573,15 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
       stop("Error: Linear ERR model used, but more than one plin element was used")
     }
     if (length(unique(term_n)) > 1) {
+      if (control$verbose >=2){
       warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
+      }
       term_n <- rep(0, length(term_n))
     }
     if (modelform != "M") {
+      if (control$verbose >=2){
       warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
+      }
       modelform <- "M"
     }
   }
@@ -1585,10 +1607,12 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
       df0 <- dfend[get(strat_col) == uniq[i], ]
       tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
       if (length(tu0) == 0) {
+        if (control$verbose >=2){
         warning(paste("Warning: no events for strata group:",
           uniq[i],
           sep = " "
         ))
+        }
         df <- df[get(strat_col) != uniq[i], ]
       }
     }
@@ -1614,11 +1638,13 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
       if (names[i] != "CONST") {
         if (min(df[[names[i]]]) == max(df[[names[i]]])) {
           keep_constant[i] <- 1
+          if (control$verbose >=2){
           warning(paste("Warning: element ", i,
             " with column name ", names[i],
             " was set constant",
             sep = ""
           ))
+          }
         }
       }
     }
