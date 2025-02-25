@@ -304,13 +304,13 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
     ))
   }
   if (min(term_n) != 0) {
-    if (verbose >=2){
-    warning(paste("Warning: term_n expects nonnegative integer values and a minimum of 0, minimum value was ",
-      min(term_n),
-      ". Minimum value set to 0, others shifted by ",
-      -1 * min(term_n),
-      sep = ""
-    ))
+    if (verbose >= 2) {
+      warning(paste("Warning: term_n expects nonnegative integer values and a minimum of 0, minimum value was ",
+        min(term_n),
+        ". Minimum value set to 0, others shifted by ",
+        -1 * min(term_n),
+        sep = ""
+      ))
     }
     term_n <- term_n - min(term_n)
   }
@@ -329,38 +329,38 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
     keep_constant <- keep_constant[seq_len(length(names))]
   }
   if (length(term_n) < length(names)) {
-    if (verbose >=2){
-    warning(paste("Warning: Terms used: ", length(term_n),
-      ", Covariates used: ", length(names),
-      sep = ""
-    ))
+    if (verbose >= 2) {
+      warning(paste("Warning: Terms used: ", length(term_n),
+        ", Covariates used: ", length(names),
+        sep = ""
+      ))
     }
     term_n <- c(term_n, rep(0, length(names) -
       length(term_n)))
   } else if (length(term_n) > length(names)) {
-    if (verbose >=2){
-    warning(paste("Warning: Terms used: ", length(term_n),
-      ", Covariates used: ", length(names),
-      sep = ""
-    ))
+    if (verbose >= 2) {
+      warning(paste("Warning: Terms used: ", length(term_n),
+        ", Covariates used: ", length(names),
+        sep = ""
+      ))
     }
     term_n <- term_n[seq_len(length(names))]
   }
   if (length(tform) < length(names)) {
-    if (verbose >=2){
-    warning(paste("Warning: Term types used: ", length(tform),
-      ", Covariates used: ", length(names),
-      sep = ""
-    ))
+    if (verbose >= 2) {
+      warning(paste("Warning: Term types used: ", length(tform),
+        ", Covariates used: ", length(names),
+        sep = ""
+      ))
     }
-    tform <- c(tform, rep('loglin', length(names) -
+    tform <- c(tform, rep("loglin", length(names) -
       length(tform)))
   } else if (length(tform) > length(names)) {
-    if (verbose >=2){
-    warning(paste("Warning: Term types used: ", length(tform),
-      ", Covariates used: ", length(names),
-      sep = ""
-    ))
+    if (verbose >= 2) {
+      warning(paste("Warning: Term types used: ", length(tform),
+        ", Covariates used: ", length(names),
+        sep = ""
+      ))
     }
     tform <- tform[seq_len(length(names))]
   }
@@ -406,12 +406,12 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
       a_n <- a_n[[1]]
     }
     if (length(a_n) < length(names)) {
-      if (verbose >=2){
-      warning(paste("Warning: Parameters used: ",
-        length(a_n), ", Covariates used: ",
-        length(names), ", Remaining filled with 0.01",
-        sep = ""
-      ))
+      if (verbose >= 2) {
+        warning(paste("Warning: Parameters used: ",
+          length(a_n), ", Covariates used: ",
+          length(names), ", Remaining filled with 0.01",
+          sep = ""
+        ))
       }
       a_n <- c(a_n, rep(0.01, length(names) - length(a_n)))
     } else if (length(a_n) > length(names)) {
@@ -449,12 +449,12 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
       }
     }
     if (length(a_0) < length(names)) {
-      if (verbose >=2){
-      warning(paste("Warning: Parameters used: ", length(a_0),
-        ", Covariates used: ", length(names),
-        ", Remaining filled with 0.01",
-        sep = ""
-      ))
+      if (verbose >= 2) {
+        warning(paste("Warning: Parameters used: ", length(a_0),
+          ", Covariates used: ", length(names),
+          ", Remaining filled with 0.01",
+          sep = ""
+        ))
       }
       for (i in seq_len(length(a_n))) {
         a_n[[i]] <- c(
@@ -1258,15 +1258,15 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
     col1 <- formula[1]
     col2 <- formula[3]
     if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
-      if (verbose >=2){
-      warning(paste("Warning: interation ", i, "is duplicated")) # nocov
+      if (verbose >= 2) {
+        warning(paste("Warning: interation ", i, "is duplicated")) # nocov
       }
     } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
-      if (verbose >=2){
-      warning(paste(
-        "Warning: the reverse of interation ", i,
-        "is duplicated"
-      )) # nocov
+      if (verbose >= 2) {
+        warning(paste(
+          "Warning: the reverse of interation ", i,
+          "is duplicated"
+        )) # nocov
       }
     } else {
       if (formula[2] == "+") {
@@ -1360,11 +1360,11 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
       if ((t1 == t2) && (checked_factor)) {
         if (!(f1 %in% toRemove) && !(f2 %in% toRemove)) {
           if (all(df[[f1]] == df[[f2]])) { # test for duplicates
-            if (verbose >=2){
-            warning(paste("Warning: ", f1, " and ", f2,
-              " are equal",
-              sep = ""
-            ))
+            if (verbose >= 2) {
+              warning(paste("Warning: ", f1, " and ", f2,
+                " are equal",
+                sep = ""
+              ))
             }
             toRemove <- c(toRemove, f2) # build the list of duplicates
           }

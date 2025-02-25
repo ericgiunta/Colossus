@@ -6,8 +6,8 @@
 \usage{
 RunCoxNull(
   df,
-  time1 = "start",
-  time2 = "end",
+  time1 = "\%trunc\%",
+  time2 = "\%trunc\%",
   event0 = "event",
   control = list()
 )

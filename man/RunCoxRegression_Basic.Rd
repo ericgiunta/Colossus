@@ -6,8 +6,8 @@
 \usage{
 RunCoxRegression_Basic(
   df,
-  time1 = "start",
-  time2 = "end",
+  time1 = "\%trunc\%",
+  time2 = "\%trunc\%",
   event0 = "event",
   names = c("CONST"),
   keep_constant = c(0),

@@ -54,7 +54,7 @@
 #'   )
 #' )
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   df <- data.table(df)
   ce <- c(time1, time2, event0)
@@ -95,8 +95,8 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
     a_n <- list(a_n)
   }
   if (any(val$Permutation != seq_along(tform))) {
-    if (control$verbose >=2){
-    warning("Warning: model covariate order changed")
+    if (control$verbose >= 2) {
+      warning("Warning: model covariate order changed")
     }
   }
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -117,14 +117,14 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       stop("Error: Linear ERR model used, but more than one plin element was used")
     }
     if (length(unique(term_n)) > 1) {
-      if (control$verbose >=2){
-      warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
+      if (control$verbose >= 2) {
+        warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
       }
       term_n <- rep(0, length(term_n))
     }
     if (modelform != "M") {
-      if (control$verbose >=2){
-      warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
+      if (control$verbose >= 2) {
+        warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
       }
       modelform <- "M"
     }
@@ -151,11 +151,11 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       df0 <- dfend[get(strat_col) == uniq[i], ]
       tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
       if (length(tu0) == 0) {
-        if (control$verbose >=2){
-        warning(paste("Warning: no events for strata group:",
-          uniq[i],
-          sep = " "
-        ))
+        if (control$verbose >= 2) {
+          warning(paste("Warning: no events for strata group:",
+            uniq[i],
+            sep = " "
+          ))
         }
         df <- df[get(strat_col) != uniq[i], ]
       }
@@ -182,12 +182,12 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
       if (names[i] != "CONST") {
         if (min(df[[names[i]]]) == max(df[[names[i]]])) {
           keep_constant[i] <- 1
-          if (control$verbose >=2){
-          warning(paste("Warning: element ", i,
-            " with column name ", names[i],
-            " was set constant",
-            sep = ""
-          ))
+          if (control$verbose >= 2) {
+            warning(paste("Warning: element ", i,
+              " with column name ", names[i],
+              " was set constant",
+              sep = ""
+            ))
           }
         }
       }
@@ -352,7 +352,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "start", time2 = "end", event0 
 #'   keep_constant, a_n, modelform, fir, der_iden, control
 #' )
 #' @importFrom rlang .data
-RunCoxRegression <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list()) {
+RunCoxRegression <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list()) {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -407,7 +407,7 @@ RunCoxRegression <- function(df, time1 = "start", time2 = "end", event0 = "event
 #' )
 #'
 #' @importFrom rlang .data
-RunCoxRegression_Single <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, control = list()) {
+RunCoxRegression_Single <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, control = list()) {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -459,7 +459,7 @@ RunCoxRegression_Single <- function(df, time1 = "start", time2 = "end", event0 =
 #' )
 #'
 #' @importFrom rlang .data
-RunCoxRegression_Basic <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), keep_constant = c(0), a_n = c(0), der_iden = 0, control = list()) {
+RunCoxRegression_Basic <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), keep_constant = c(0), a_n = c(0), der_iden = 0, control = list()) {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -522,7 +522,7 @@ RunCoxRegression_Basic <- function(df, time1 = "start", time2 = "end", event0 = 
 #'   fir, der_iden, control, strat_col
 #' )
 #'
-RunCoxRegression_Strata <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null") {
+RunCoxRegression_Strata <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null") {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -580,7 +580,7 @@ RunCoxRegression_Strata <- function(df, time1 = "start", time2 = "end", event0 =
 #'   keep_constant, a_n, modelform, fir, control
 #' )
 #'
-Cox_Relative_Risk <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, control = list(), model_control = list()) {
+Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, control = list(), model_control = list()) {
   df <- data.table(df)
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
@@ -645,7 +645,7 @@ Cox_Relative_Risk <- function(df, time1 = "start", time2 = "end", event0 = "even
 #' )
 #' e <- RunCoxNull(df, time1, time2, event, control)
 #'
-RunCoxNull <- function(df, time1 = "start", time2 = "end", event0 = "event", control = list()) {
+RunCoxNull <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", control = list()) {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -711,7 +711,7 @@ RunCoxNull <- function(df, time1 = "start", time2 = "end", event0 = "event", con
 #'   a_n, modelform, fir, control, plot_options
 #' )
 #'
-RunCoxPlots <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, control = list(), plot_options = list(), model_control = list()) {
+RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, control = list(), plot_options = list(), model_control = list()) {
   names(plot_options) <- tolower(names(plot_options))
   df <- data.table(df)
   control <- Def_Control(control)
@@ -1014,7 +1014,7 @@ RunCoxPlots <- function(df, time1 = "start", time2 = "end", event0 = "event", na
 #' )
 #'
 #' @importFrom rlang .data
-RunCoxRegression_Tier_Guesses <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
+RunCoxRegression_Tier_Guesses <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
   df <- data.table(df)
   control <- Def_Control(control)
   guesses_control <- Def_Control_Guess(guesses_control, a_n)
@@ -1032,8 +1032,8 @@ RunCoxRegression_Tier_Guesses <- function(df, time1 = "start", time2 = "end", ev
   rmin <- guesses_control$rmin
   rmax <- guesses_control$rmax
   if (length(rmin) != length(rmax)) {
-    if (control$verbose >=2){
-    warning("Warning: rmin/rmax not equal size, lin/loglin min/max used")
+    if (control$verbose >= 2) {
+      warning("Warning: rmin/rmax not equal size, lin/loglin min/max used")
     }
   }
   name_initial <- c()
@@ -1142,7 +1142,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1 = "start", time2 = "end", ev
 #' )
 #'
 #' @importFrom rlang .data
-RunCoxRegression_CR <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), cens_weight = "null") {
+RunCoxRegression_CR <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), cens_weight = "null") {
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -1213,7 +1213,7 @@ RunCoxRegression_CR <- function(df, time1 = "start", time2 = "end", event0 = "ev
 #'   der_iden, control, guesses_control, strat_col
 #' )
 #' @importFrom rlang .data
-RunCoxRegression_Guesses_CPP <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
+RunCoxRegression_Guesses_CPP <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
   df <- data.table(df)
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
@@ -1348,7 +1348,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1 = "start", time2 = "end", eve
 #'   model_control = list(), cens_weight = "null"
 #' )
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   df <- data.table(df)
   #
@@ -1368,8 +1368,8 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
   cons_vec <- val$cons_vec
   if (control$verbose >= 2) {
     if (any(val$Permutation != seq_along(tform))) {
-      if (control$verbose >=2){
-      warning("Warning: model covariate order changed")
+      if (control$verbose >= 2) {
+        warning("Warning: model covariate order changed")
       }
     }
   }
@@ -1414,11 +1414,11 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
       df0 <- dfend[get(strat_col) == uniq[i], ]
       tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
       if (length(tu0) == 0) {
-        if (control$verbose >=2){
-        warning(paste("Warning: no events for strata group:",
-          uniq[i],
-          sep = " "
-        ))
+        if (control$verbose >= 2) {
+          warning(paste("Warning: no events for strata group:",
+            uniq[i],
+            sep = " "
+          ))
         }
         df <- df[get(strat_col) != uniq[i], ]
       }
@@ -1509,7 +1509,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "start", time2 = "end
 #' @export
 #' @family Cox Wrapper Functions
 #' @importFrom rlang .data
-CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", fir = 0, der_iden = 0, control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   df <- data.table(df)
   ce <- c(time1, time2, event0)
@@ -1551,8 +1551,8 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
     a_n <- list(a_n)
   }
   if (any(val$Permutation != seq_along(tform))) {
-    if (control$verbose >=2){
-    warning("Warning: model covariate order changed")
+    if (control$verbose >= 2) {
+      warning("Warning: model covariate order changed")
     }
   }
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -1573,14 +1573,14 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
       stop("Error: Linear ERR model used, but more than one plin element was used")
     }
     if (length(unique(term_n)) > 1) {
-      if (control$verbose >=2){
-      warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
+      if (control$verbose >= 2) {
+        warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
       }
       term_n <- rep(0, length(term_n))
     }
     if (modelform != "M") {
-      if (control$verbose >=2){
-      warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
+      if (control$verbose >= 2) {
+        warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
       }
       modelform <- "M"
     }
@@ -1607,11 +1607,11 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
       df0 <- dfend[get(strat_col) == uniq[i], ]
       tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
       if (length(tu0) == 0) {
-        if (control$verbose >=2){
-        warning(paste("Warning: no events for strata group:",
-          uniq[i],
-          sep = " "
-        ))
+        if (control$verbose >= 2) {
+          warning(paste("Warning: no events for strata group:",
+            uniq[i],
+            sep = " "
+          ))
         }
         df <- df[get(strat_col) != uniq[i], ]
       }
@@ -1638,12 +1638,12 @@ CoxCurveSolver <- function(df, time1 = "start", time2 = "end", event0 = "event",
       if (names[i] != "CONST") {
         if (min(df[[names[i]]]) == max(df[[names[i]]])) {
           keep_constant[i] <- 1
-          if (control$verbose >=2){
-          warning(paste("Warning: element ", i,
-            " with column name ", names[i],
-            " was set constant",
-            sep = ""
-          ))
+          if (control$verbose >= 2) {
+            warning(paste("Warning: element ", i,
+              " with column name ", names[i],
+              " was set constant",
+              sep = ""
+            ))
           }
         }
       }

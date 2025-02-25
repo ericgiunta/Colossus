@@ -743,52 +743,52 @@ test_that("check Linear Constraints", {
   }
 })
 test_that("check deviation calc, poisson", {
-    fname <- "ll_comp_0.csv"
-    colTypes <- c("double", "double", "double", "integer", "integer")
-    df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
-    set.seed(3742)
-    df$rand <- floor(runif(nrow(df), min = 0, max = 5))
-    df$pyr <- df$t1 - df$t0
-    pyr <- "pyr"
+  fname <- "ll_comp_0.csv"
+  colTypes <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  set.seed(3742)
+  df$rand <- floor(runif(nrow(df), min = 0, max = 5))
+  df$pyr <- df$t1 - df$t0
+  pyr <- "pyr"
+  event <- "lung"
+  names <- c("dose", "fac", "rand")
+  term_n <- c(0, 0, 1)
+  tform <- c("loglin", "loglin", "loglin")
+  keep_constant <- c(0, 0, 0)
+  a_n <- c(-0.1, 0.1, 0.2)
+  modelform <- "M"
+  devs <- c()
+
+  modelform <- "M"
+  for (inma_type in c(T, F)) {
+    model_control <- list("oberved_info" = inma_type)
+    for (i in 1:3) {
+      a_n <- c(0.6465390, 0.4260961, 0.1572781)
+      keep_constant <- c(0, 0, 0)
+      keep_constant[i] <- 1
+      #
+      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      devs <- c(devs, sum(e$Standard_Deviation))
+    }
     event <- "lung"
     names <- c("dose", "fac", "rand")
-    term_n <- c(0, 0, 1)
-    tform <- c("loglin", "loglin", "loglin")
+    term_n <- c(0, 0, 0)
+    tform <- c("loglin", "loglin", "plin")
     keep_constant <- c(0, 0, 0)
     a_n <- c(-0.1, 0.1, 0.2)
-    modelform <- "M"
-    devs <- c()
 
-    modelform <- "M"
-    for (inma_type in c(T,F)){
-        model_control <- list("oberved_info" = inma_type)
-        for (i in 1:3) {
-            a_n <- c(0.6465390, 0.4260961, 0.1572781)
-            keep_constant <- c(0, 0, 0)
-            keep_constant[i] <- 1
-            #
-            control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-            e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
-            devs <- c(devs, sum(e$Standard_Deviation))
-        }
-        event <- "lung"
-        names <- c("dose", "fac", "rand")
-        term_n <- c(0, 0, 0)
-        tform <- c("loglin", "loglin", "plin")
-        keep_constant <- c(0, 0, 0)
-        a_n <- c(-0.1, 0.1, 0.2)
-
-        for (i in 1:3) {
-            a_n <- c(0.6428582, 0.4240752, 0.1507817)
-            keep_constant <- c(0, 0, 0)
-            keep_constant[i] <- 1
-            #
-            control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-            e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
-            devs <- c(devs, sum(e$Standard_Deviation))
-        }
+    for (i in 1:3) {
+      a_n <- c(0.6428582, 0.4240752, 0.1507817)
+      keep_constant <- c(0, 0, 0)
+      keep_constant[i] <- 1
+      #
+      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      devs <- c(devs, sum(e$Standard_Deviation))
     }
-    expect_equal(devs, c(0.029317931, 0.014226835, 0.030171059, 0.026452308, 0.008968795, 0.040982844, 0.026119220, 0.008023552, 0.040535859, 0.026082652, 0.007801193, 0.040982844), tolerance = 1e-4)
+  }
+  expect_equal(devs, c(0.029317931, 0.014226835, 0.030171059, 0.026452308, 0.008968795, 0.040982844, 0.026119220, 0.008023552, 0.040535859, 0.026082652, 0.007801193, 0.040982844), tolerance = 1e-4)
 })
 
 test_that("Various CoxRegressionOmnibus options", {
