@@ -152,7 +152,7 @@ NOMODEL @</code></pre>
 script starts off by reading the input file. The only difference is that
 R does not require memory to be set aside prior to reading the file.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_Dose</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"EX_DOSE.csv"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df_Dose</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"EX_DOSE.csv"</span><span class="op">)</span></span></code></pre></div>
 <p>The next step defines covariates with levels and assigns the
 interval/event column information. The main difference is that Colossus
 currently does not automatically split factored columns. So the first
