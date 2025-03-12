@@ -5887,3 +5887,208 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     // returns a list of results
     return res_list;
 }
+
+//' Primary Matched Case-Control starting point
+//'
+//' \code{LogLik_CaseCon_Omnibus} Primary Matched Case-Control starting point
+//'
+//' @inheritParams CPP_template
+//'
+//' @return only if it works
+//' @noRd
+//'
+// [[Rcpp::export]]
+List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+    //
+    List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
+    // Time durations are measured from this point on in microseconds
+//    time_point<system_clock> start_point, end_point;
+//    start_point = system_clock::now();
+//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//    end_point = system_clock::now();
+//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
+    //
+    // df0: covariate data
+    // ntime: number of event times for Cox PH
+    // totalnum: number of terms used
+    //
+    // ------------------------------------------------------------------------- // initialize
+    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    int ntime = tu.size();
+    int totalnum;
+    int reqrdnum;
+    // ------------------------------------------------------------------------- // initialize
+    if (!model_bool["null"]) {
+        totalnum = term_n.size();
+        reqrdnum = totalnum - sum(KeepConstant);
+    } else {
+        totalnum = 1;
+        reqrdnum = 1;
+    }
+    //
+    // cout.precision: controls the number of significant digits printed
+    // nthreads: number of threads used for parallel operations
+    //
+    Rcout.precision(7);  // forces higher precision numbers printed to terminal
+    //
+    // Lld_worst: stores the highest magnitude log-likelihood derivative
+    //
+    //
+    double Lld_worst = 0.0;  // stores derivative value used to determine if every parameter is near convergence
+    //
+    // ---------------------------------------------
+    // To Start, needs to seperate the derivative terms
+    // ---------------------------------------------
+    //
+    // ------------------------------------------------------------------------- // initialize
+    NumericVector a_n = a_ns.row(0);
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    MatrixXd T0;
+    MatrixXd Td0;
+    MatrixXd Tdd0;
+    //
+    MatrixXd Te;
+    MatrixXd R;
+    ColXd Rd;
+    ColXd Rdd;
+    //
+    MatrixXd Dose;
+    MatrixXd nonDose;
+    MatrixXd nonDose_LIN;
+    MatrixXd nonDose_PLIN;
+    MatrixXd nonDose_LOGLIN;
+    MatrixXd TTerm;
+    double dint = 0.0;  // the amount of change used to calculate derivatives in threshold paramters
+    double dslp = 0.0;
+    ColXd RdR;
+    ColXd RddR;
+    // ------------------------------------------------------------------------- // initialize
+    // ------------------------------------------------------------------------- // initialize
+    int group_num = ntime*Strata_vals.size();
+    IntegerMatrix RiskFail(group_num, 2);
+    vector<vector<int> > RiskPairs(group_num);
+    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    //
+    vector<vector<double> > Recur_Base(group_num);
+    vector<vector<vector<double> > > Recur_First(group_num, vector<vector<double>>(reqrdnum));
+    vector<vector<vector<double> > > Recur_Second(group_num, vector<vector<double>>(reqrdnum*(reqrdnum + 1)/2));
+    // ------------------------------------------------------------------------- // initialize
+    if (model_bool["time_risk"]){
+        if (model_bool["strata"]) {
+            Make_Match_Time_Strata(ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals);
+        } else {
+            Make_Match_Time(ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu);
+        }
+    } else {
+        if (model_bool["strata"]) {
+            Make_Match_Strata(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals);
+        } else {
+            Make_Match(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads);
+        }
+    }
+    // ------------------------------------------------------------------------- // initialize
+    vector<double> Ll(reqrdnum, 0.0);  // log-likelihood values
+    vector<double> Lld(reqrdnum, 0.0);  // log-likelihood derivative values
+    vector<double> Lldd(pow(reqrdnum, 2), 0.0);  // the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
+    // ------------------------------------------------------------------------- // initialize
+    // the log-likelihood is calculated in parallel over the risk groups
+    vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
+    double abs_max0 = abs_max;
+    double dose_abs_max0 = dose_abs_max;
+    //
+    vector<double> dbeta(totalnum, 0.0);
+    NumericVector m_g_store(reqrdnum);
+    NumericVector v_beta_store(reqrdnum);
+    //
+    // --------------------------
+    // always starts from initial guess
+    // --------------------------
+    vector<double> beta_c(totalnum, 0.0);
+    vector<double> beta_a(totalnum, 0.0);
+    vector<double> beta_best(totalnum, 0.0);
+    vector<double> beta_p(totalnum, 0.0);
+    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  // stores previous parameters
+    VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  // stores current parameters
+    VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  // stores a refrence value for parameters
+    VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  // stores the best parameters
+    double halves = 0;  // number of half-steps taken
+    int ind0 = fir;  // used for validations
+    int iteration = 0;  // iteration number
+    int maxiter = 0;
+    //
+    bool convgd = FALSE;
+    int iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
+    int iter_check = 0;  // signal to check for convergence
+    //
+    NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
+    NumericVector LL_fin(a_ns.rows());
+    //
+    double Ll_abs_best = 10;
+    vector<double> beta_abs_best(totalnum, 0.0);
+    int guess_abs_best = - 1;
+    double Ll_iter_best = 10;
+    ///
+    // Variables that are used for the risk check function shared across cox, poisson, and log bound functions
+    double dev = 0.0;
+    MatrixXd dev_temp = MatrixXd::Zero(1, 1);
+    double Lstar = 0.0;
+    MatrixXd PyrC = MatrixXd::Zero(1, 1);
+    //
+    //
+    for (int guess = 0; guess <guesses; guess++) {
+        Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
+        fill(Ll.begin(), Ll.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+        if (model_bool["gradient"]) {
+            m_g_store.fill(0);
+            v_beta_store.fill(0);
+        }
+        beta_p = beta_best;  //
+        beta_a = beta_best;  //
+        beta_c = beta_best;  //
+        abs_max = abs_max0;
+        dose_abs_max = dose_abs_max0;
+        iter_stop = 0;
+        halves = 0;
+        iteration = 0;
+        halves = 0;  // number of half-steps taken
+        ind0 = fir;  // used for validations
+        iteration = 0;  // iteration number
+        Ll_iter_best = 10;
+        //
+        convgd = FALSE;
+        iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
+        iter_check = 0;  // signal to check for convergence
+        //
+        maxiter = maxiters[guess];
+        a_n = a_ns.row(guess);
+        for (int i = 0; i < beta_0.size(); i++) {
+            beta_0[i] = a_n[i];
+        }
+        if (verbose >= 4) {
+            Rcout << "C++ Note: starting guess " << guess << endl;
+        }
+        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        if ((R.minCoeff() <= 0) || (R.hasNaN())) {
+            if (verbose >= 1) {
+                Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
+                Rcout << "C++ Warning: final failing values ";
+                for (int ijk = 0; ijk < totalnum; ijk++) {
+                    Rcout << beta_0[ijk] << " ";
+                }
+                Rcout << " " << endl;
+            }
+            //
+            temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+            return temp_list;
+        }
+        //
+        // -------------------------------------------------------------------------------------------
+        // We need B vectors
+//        Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    }
+    return temp_list;
+}

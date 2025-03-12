@@ -49,6 +49,54 @@ Make_Groups_Strata_CR <- function(ntime, df_m, RiskFail, RiskPairs_Strata, tu, n
     invisible(.Call(`_Colossus_Make_Groups_Strata_CR`, ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight))
 }
 
+#' Utility function to define matched risk groups
+#'
+#' \code{Make_Match} Called to update lists of risk groups, assumes the data is matched into one group and df_m only contains the event indicator
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+#' @noRd
+#'
+Make_Match <- function(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads) {
+    invisible(.Call(`_Colossus_Make_Match`, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads))
+}
+
+#' Utility function to define matched risk groups by strata
+#'
+#' \code{Make_Match_Strata} Called to update lists of risk groups, assumes the data is matched into strata and df_m only contains the strata value and then the event indicator
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+#' @noRd
+#'
+Make_Match_Strata <- function(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Strata`, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals))
+}
+
+#' Utility function to define matched risk groups by time
+#'
+#' \code{Make_Match_Time} Called to update lists of risk groups, assumes the data is matched into groups by time at risk and df_m contains the interval times, and then event indicator
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+#' @noRd
+#'
+Make_Match_Time <- function(ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu) {
+    invisible(.Call(`_Colossus_Make_Match_Time`, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu))
+}
+
+#' Utility function to define matched risk groups by time and strata
+#'
+#' \code{Make_Match_Time_Strata} Called to update lists of risk groups, assumes the data is matched into groups by time at risk as well as strata and df_m contains the interval times, the strata value, and then event indicator
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+#' @noRd
+#'
+Make_Match_Time_Strata <- function(ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Time_Strata`, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals))
+}
+
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
 #'
 #' \code{Calculate_Sides} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
@@ -562,6 +610,19 @@ LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch <- function(term_n, tform, a_n, x_al
 #'
 LogLik_Poisson_Omnibus_Log_Bound_CurveSearch <- function(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, doublestep, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size) {
     .Call(`_Colossus_LogLik_Poisson_Omnibus_Log_Bound_CurveSearch`, PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, doublestep, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size)
+}
+
+#' Primary Matched Case-Control starting point
+#'
+#' \code{LogLik_CaseCon_Omnibus} Primary Matched Case-Control starting point
+#'
+#' @inheritParams CPP_template
+#'
+#' @return only if it works
+#' @noRd
+#'
+LogLik_CaseCon_Omnibus <- function(term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_CaseCon_Omnibus`, term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function

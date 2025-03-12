@@ -184,11 +184,10 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
     //
 //    vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    vector<vector<int>> safe_fail(ntime);
-    vector<vector<string>> safe_group(ntime);
-    for (int i = 0; i < ntime; i++) {
-        safe_fail[i] = vector<int>(RiskFail.cols(), 0);
-    }
+//    vector<vector<int>> safe_fail(ntime);
+//    for (int i = 0; i < ntime; i++) {
+//        safe_fail[i] = vector<int>(RiskFail.cols(), 0);
+//    }
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -209,8 +208,8 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
             //
             vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
-                safe_fail[ijk][2*s_ij+0] = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
-                safe_fail[ijk][2*s_ij + 1] = indices_end[indices_end.size() - 1] - 1;
+                RiskFail(ijk, 2*s_ij + 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                RiskFail(ijk, 2*s_ij + 1) = indices_end[indices_end.size() - 1] - 1;
                 //
                 select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
                 indices_end.clear();
@@ -233,17 +232,17 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
                 //
                 RiskPairs_Strata[ijk][s_ij] = indices;
             } else {
-                safe_fail[ijk][2*s_ij+0] = - 1;
-                safe_fail[ijk][2*s_ij + 1] = - 1;
+                RiskFail(ijk, 2*s_ij + 0) = - 1;
+                RiskFail(ijk, 2*s_ij + 1) = - 1;
             }
         }
     }
-    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-        for (int ijk = 0; ijk < ntime; ijk++) {
-            RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
-            RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
-        }
-    }
+//    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+//        for (int ijk = 0; ijk < ntime; ijk++) {
+//            RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
+//            RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
+//        }
+//    }
     return;
 }
 
@@ -259,11 +258,10 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
     //
 //    vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    vector<vector<int>> safe_fail(ntime);
-    vector<vector<string>> safe_group(ntime);
-    for (int i = 0; i < ntime; i++) {
-        safe_fail[i] = vector<int>(RiskFail.cols(), 0);
-    }
+//    vector<vector<int>> safe_fail(ntime);
+//    for (int i = 0; i < ntime; i++) {
+//        safe_fail[i] = vector<int>(RiskFail.cols(), 0);
+//    }
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -283,8 +281,8 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
             //
             vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
-                safe_fail[ijk][2*s_ij+0] = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
-                safe_fail[ijk][2*s_ij + 1] = indices_end[indices_end.size() - 1] - 1;
+                RiskFail(ijk, 2*s_ij + 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                RiskFail(ijk, 2*s_ij + 1) = indices_end[indices_end.size() - 1] - 1;
                 //
                 select_ind_end = (((((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)) || ((df_m.col(2).array() == 2) && (df_m.col(1).array() <= t0))) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
                 indices_end.clear();
@@ -308,20 +306,263 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
                 //
                 RiskPairs_Strata[ijk][s_ij] = indices;
             } else {
-                safe_fail[ijk][2*s_ij+0] = - 1;
-                safe_fail[ijk][2*s_ij + 1] = - 1;
+                RiskFail(ijk, 2*s_ij + 0) = - 1;
+                RiskFail(ijk, 2*s_ij + 1) = - 1;
             }
         }
     }
+//    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+//        for (int ijk = 0; ijk < ntime; ijk++) {
+//            RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
+//            RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
+//        }
+//    }
+    return;
+}
+
+//' Utility function to define matched risk groups
+//'
+//' \code{Make_Match} Called to update lists of risk groups, assumes the data is matched into one group and df_m only contains the event indicator
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Make_Match(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads) {
+//    vector<vector<int> > RiskPairs(ntime);
+    vector<int> indices = {0, int(df_m.rows())-1};
+    RiskPairs[0] = indices;
+    //
+    VectorXi select_ind_all = (df_m.col(0).array() == 1).cast<int>();  // indices with events
+    vector<int> indices_all;
+    int th = 1;
+    visit_lambda(select_ind_all,
+        [&indices_all, th](double v, int i, int j) {
+            if (v == th)
+                indices_all.push_back(i + 1);
+        });
+    RiskFail(0, 0) = indices_all[0] - 1;  // Due to the sorting method, there is a continuous block of event rows
+    RiskFail(0, 1) = indices_all[indices_all.size() - 1] - 1;
+    //
+    int dj = RiskFail(0, 1) - RiskFail(0, 0);
+    int m = int(dj*(dj+1)/2);
+    vector<double> risk_initial(m, 0.0);
+    Recur_Base[0] = risk_initial;
+    for (int i=0; i< Recur_First[0].size(); i++){
+        Recur_First[0][i] = risk_initial;
+    }
+    for (int i=0; i< Recur_Second[0].size(); i++){
+        Recur_Second[0][i] = risk_initial;
+    }
+    //
+    return;
+}
+
+//' Utility function to define matched risk groups by strata
+//'
+//' \code{Make_Match_Strata} Called to update lists of risk groups, assumes the data is matched into strata and df_m only contains the strata value and then the event indicator
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Make_Match_Strata(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& Strata_vals) {
+//    vector<vector<int> > RiskPairs(ntime);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
     for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-        for (int ijk = 0; ijk < ntime; ijk++) {
-            RiskFail(ijk, 2*s_ij + 0) = safe_fail[ijk][2*s_ij+0];
-            RiskFail(ijk, 2*s_ij + 1) = safe_fail[ijk][2*s_ij + 1];
+        VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+        vector<int> indices_end;
+        //
+        //
+        int th = 1;
+        visit_lambda(select_ind_end,
+            [&indices_end, th](double v, int i, int j) {
+                if (v == th)
+                    indices_end.push_back(i + 1);
+            });
+        //
+        vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+        if (indices_end.size() > 0) {
+            RiskFail(s_ij, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+            RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
+            //
+            int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0);
+            int m = int(dj*(dj+1)/2);
+            vector<double> risk_initial(m, 0.0);
+            Recur_Base[s_ij] = risk_initial;
+            for (int i=0; i< Recur_First[s_ij].size(); i++){
+                Recur_First[s_ij][i] = risk_initial;
+            }
+            for (int i=0; i< Recur_Second[s_ij].size(); i++){
+                Recur_Second[s_ij][i] = risk_initial;
+            }
+            //
+            select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  // indices at risk
+            indices_end.clear();
+            visit_lambda(select_ind_end,
+                [&indices_end, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_end.push_back(i + 1);
+                });
+            for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                if (indices.size() == 0) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else if (indices[indices.size() - 1] + 1 < *it) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else {
+                    indices[indices.size() - 1] = *it;
+                }
+            }
+            //
+            RiskPairs[s_ij] = indices;
+        } else {
+            RiskFail(s_ij, 0) = - 1;
+            RiskFail(s_ij, 1) = - 1;
         }
     }
     return;
 }
 
+//' Utility function to define matched risk groups by time
+//'
+//' \code{Make_Match_Time} Called to update lists of risk groups, assumes the data is matched into groups by time at risk and df_m contains the interval times, and then event indicator
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Make_Match_Time(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu) {
+//    vector<vector<int> > RiskPairs(ntime);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < ntime; ijk++) {
+        double t0 = tu[ijk];
+        VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  // indices at risk
+        vector<int> indices_all;
+        int th = 1;
+        visit_lambda(select_ind_all,
+            [&indices_all, th](double v, int i, int j) {
+                if (v == th)
+                    indices_all.push_back(i + 1);
+            });
+        vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+        for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+            if (indices.size() == 0) {
+                indices.push_back(*it);
+                indices.push_back(*it);
+            } else if (indices[indices.size() - 1] + 1 < *it) {
+                indices.push_back(*it);
+                indices.push_back(*it);
+            } else {
+                indices[indices.size() - 1] = *it;
+            }
+        }
+        RiskPairs[ijk] = indices;
+        select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
+        indices_all.clear();
+        visit_lambda(select_ind_all,
+            [&indices_all, th](double v, int i, int j) {
+                if (v == th)
+                    indices_all.push_back(i + 1);
+            });
+        RiskFail(ijk, 0) = indices_all[0] - 1;  // Due to the sorting method, there is a continuous block of event rows
+        RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
+        //
+        int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0);
+        int m = int(dj*(dj+1)/2);
+        vector<double> risk_initial(m, 0.0);
+        Recur_Base[ijk] = risk_initial;
+        for (int i=0; i< Recur_First[ijk].size(); i++){
+            Recur_First[ijk][i] = risk_initial;
+        }
+        for (int i=0; i< Recur_Second[ijk].size(); i++){
+            Recur_Second[ijk][i] = risk_initial;
+        }
+        //
+    }
+    return;
+}
+
+//' Utility function to define matched risk groups by time and strata
+//'
+//' \code{Make_Match_Time_Strata} Called to update lists of risk groups, assumes the data is matched into groups by time at risk as well as strata and df_m contains the interval times, the strata value, and then event indicator
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Make_Match_Time_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
+//    vector<vector<int> > RiskPairs(ntime);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
+    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+        for (int ijk = 0; ijk < ntime; ijk++) {
+            double t0 = tu[ijk];
+            VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+            vector<int> indices_end;
+            //
+            //
+            int th = 1;
+            visit_lambda(select_ind_end,
+                [&indices_end, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_end.push_back(i + 1);
+                });
+            //
+            vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+            if (indices_end.size() > 0) {
+                RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
+                //
+                int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0);
+                int m = int(dj*(dj+1)/2);
+                vector<double> risk_initial(m, 0.0);
+                Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
+                    Recur_First[s_ij*ntime+ijk][i] = risk_initial;
+                }
+                for (int i=0; i< Recur_Second[s_ij*ntime+ijk].size(); i++){
+                    Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
+                }
+                //
+                select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
+                indices_end.clear();
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v == th)
+                            indices_end.push_back(i + 1);
+                    });
+                for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                    if (indices.size() == 0) {
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else if (indices[indices.size() - 1] + 1 < *it) {
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else {
+                        indices[indices.size() - 1] = *it;
+                    }
+                }
+                //
+                RiskPairs[s_ij*ntime+ijk] = indices;
+            } else {
+                RiskFail(s_ij*ntime+ijk, 0) = - 1;
+                RiskFail(s_ij*ntime+ijk, 1) = - 1;
+            }
+        }
+    }
+    return;
+}
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
 //'
