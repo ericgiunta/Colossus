@@ -332,6 +332,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 void Make_Match(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     vector<int> indices = {0, int(df_m.rows())-1};
+    int nstar = int(df_m.rows());
     RiskPairs[0] = indices;
     //
     VectorXi select_ind_all = (df_m.col(0).array() == 1).cast<int>();  // indices with events
@@ -346,7 +347,7 @@ void Make_Match(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int
     RiskFail(0, 1) = indices_all[indices_all.size() - 1] - 1;
     //
     int dj = RiskFail(0, 1) - RiskFail(0, 0);
-    int m = int(dj*(dj+1)/2);
+    int m = int((nstar - dj + 1)*dj);
     vector<double> risk_initial(m, 0.0);
     Recur_Base[0] = risk_initial;
     for (int i=0; i< Recur_First[0].size(); i++){
@@ -391,16 +392,6 @@ void Make_Match_Strata(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vec
             RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
             //
             int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0);
-            int m = int(dj*(dj+1)/2);
-            vector<double> risk_initial(m, 0.0);
-            Recur_Base[s_ij] = risk_initial;
-            for (int i=0; i< Recur_First[s_ij].size(); i++){
-                Recur_First[s_ij][i] = risk_initial;
-            }
-            for (int i=0; i< Recur_Second[s_ij].size(); i++){
-                Recur_Second[s_ij][i] = risk_initial;
-            }
-            //
             select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  // indices at risk
             indices_end.clear();
             visit_lambda(select_ind_end,
@@ -421,6 +412,17 @@ void Make_Match_Strata(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vec
             }
             //
             RiskPairs[s_ij] = indices;
+            int nstar = indices_end.size();
+            int m = int((nstar - dj + 1)*dj);
+            vector<double> risk_initial(m, 0.0);
+            Recur_Base[s_ij] = risk_initial;
+            for (int i=0; i< Recur_First[s_ij].size(); i++){
+                Recur_First[s_ij][i] = risk_initial;
+            }
+            for (int i=0; i< Recur_Second[s_ij].size(); i++){
+                Recur_Second[s_ij][i] = risk_initial;
+            }
+            //
         } else {
             RiskFail(s_ij, 0) = - 1;
             RiskFail(s_ij, 1) = - 1;
@@ -466,6 +468,7 @@ void Make_Match_Time(const int& ntime, const MatrixXd& df_m, IntegerMatrix& Risk
             }
         }
         RiskPairs[ijk] = indices;
+        int nstar = indices_all.size();
         select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
         indices_all.clear();
         visit_lambda(select_ind_all,
@@ -477,7 +480,7 @@ void Make_Match_Time(const int& ntime, const MatrixXd& df_m, IntegerMatrix& Risk
         RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
         //
         int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0);
-        int m = int(dj*(dj+1)/2);
+        int m = int((nstar - dj + 1)*dj);
         vector<double> risk_initial(m, 0.0);
         Recur_Base[ijk] = risk_initial;
         for (int i=0; i< Recur_First[ijk].size(); i++){
@@ -525,15 +528,6 @@ void Make_Match_Time_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatri
                 RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
                 //
                 int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0);
-                int m = int(dj*(dj+1)/2);
-                vector<double> risk_initial(m, 0.0);
-                Recur_Base[s_ij*ntime+ijk] = risk_initial;
-                for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
-                    Recur_First[s_ij*ntime+ijk][i] = risk_initial;
-                }
-                for (int i=0; i< Recur_Second[s_ij*ntime+ijk].size(); i++){
-                    Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
-                }
                 //
                 select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
                 indices_end.clear();
@@ -555,6 +549,16 @@ void Make_Match_Time_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatri
                 }
                 //
                 RiskPairs[s_ij*ntime+ijk] = indices;
+                int nstar = indices_end.size();
+                int m = int((nstar - dj + 1)*dj);
+                vector<double> risk_initial(m, 0.0);
+                Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
+                    Recur_First[s_ij*ntime+ijk][i] = risk_initial;
+                }
+                for (int i=0; i< Recur_Second[s_ij*ntime+ijk].size(); i++){
+                    Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
+                }
             } else {
                 RiskFail(s_ij*ntime+ijk, 0) = - 1;
                 RiskFail(s_ij*ntime+ijk, 1) = - 1;
