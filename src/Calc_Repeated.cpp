@@ -329,7 +329,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Match(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads) {
+void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     vector<int> indices = {0, int(df_m.rows())-1};
     int nstar = int(df_m.rows());
@@ -346,15 +346,19 @@ void Make_Match(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int
     RiskFail(0, 0) = indices_all[0] - 1;  // Due to the sorting method, there is a continuous block of event rows
     RiskFail(0, 1) = indices_all[indices_all.size() - 1] - 1;
     //
-    int dj = RiskFail(0, 1) - RiskFail(0, 0);
+    int dj = RiskFail(0, 1) - RiskFail(0, 0) + 1;
     int m = int((nstar - dj + 1)*dj);
     vector<double> risk_initial(m, 0.0);
     Recur_Base[0] = risk_initial;
-    for (int i=0; i< Recur_First[0].size(); i++){
-        Recur_First[0][i] = risk_initial;
-    }
-    for (int i=0; i< Recur_Second[0].size(); i++){
-        Recur_Second[0][i] = risk_initial;
+    if (!model_bool["single"]){
+        for (int i=0; i< Recur_First[0].size(); i++){
+            Recur_First[0][i] = risk_initial;
+        }
+        if (!model_bool["gradient"]){
+            for (int i=0; i< Recur_Second[0].size(); i++){
+                Recur_Second[0][i] = risk_initial;
+            }
+        }
     }
     //
     return;
@@ -369,149 +373,13 @@ void Make_Match(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Match_Strata(const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& Strata_vals) {
-//    vector<vector<int> > RiskPairs(ntime);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-        VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
-        vector<int> indices_end;
-        //
-        //
-        int th = 1;
-        visit_lambda(select_ind_end,
-            [&indices_end, th](double v, int i, int j) {
-                if (v == th)
-                    indices_end.push_back(i + 1);
-            });
-        //
-        vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
-        if (indices_end.size() > 0) {
-            RiskFail(s_ij, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
-            RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
-            //
-            int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0);
-            select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  // indices at risk
-            indices_end.clear();
-            visit_lambda(select_ind_end,
-                [&indices_end, th](double v, int i, int j) {
-                    if (v == th)
-                        indices_end.push_back(i + 1);
-                });
-            for (auto it = begin (indices_end); it != end (indices_end); ++it) {
-                if (indices.size() == 0) {
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else if (indices[indices.size() - 1] + 1 < *it) {
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else {
-                    indices[indices.size() - 1] = *it;
-                }
-            }
-            //
-            RiskPairs[s_ij] = indices;
-            int nstar = indices_end.size();
-            int m = int((nstar - dj + 1)*dj);
-            vector<double> risk_initial(m, 0.0);
-            Recur_Base[s_ij] = risk_initial;
-            for (int i=0; i< Recur_First[s_ij].size(); i++){
-                Recur_First[s_ij][i] = risk_initial;
-            }
-            for (int i=0; i< Recur_Second[s_ij].size(); i++){
-                Recur_Second[s_ij][i] = risk_initial;
-            }
-            //
-        } else {
-            RiskFail(s_ij, 0) = - 1;
-            RiskFail(s_ij, 1) = - 1;
-        }
-    }
-    return;
-}
-
-//' Utility function to define matched risk groups by time
-//'
-//' \code{Make_Match_Time} Called to update lists of risk groups, assumes the data is matched into groups by time at risk and df_m contains the interval times, and then event indicator
-//' @inheritParams CPP_template
-//'
-//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
-//' @noRd
-//'
-// [[Rcpp::export]]
-void Make_Match_Time(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu) {
-//    vector<vector<int> > RiskPairs(ntime);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < ntime; ijk++) {
-        double t0 = tu[ijk];
-        VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  // indices at risk
-        vector<int> indices_all;
-        int th = 1;
-        visit_lambda(select_ind_all,
-            [&indices_all, th](double v, int i, int j) {
-                if (v == th)
-                    indices_all.push_back(i + 1);
-            });
-        vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
-        for (auto it = begin (indices_all); it != end (indices_all); ++it) {
-            if (indices.size() == 0) {
-                indices.push_back(*it);
-                indices.push_back(*it);
-            } else if (indices[indices.size() - 1] + 1 < *it) {
-                indices.push_back(*it);
-                indices.push_back(*it);
-            } else {
-                indices[indices.size() - 1] = *it;
-            }
-        }
-        RiskPairs[ijk] = indices;
-        int nstar = indices_all.size();
-        select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
-        indices_all.clear();
-        visit_lambda(select_ind_all,
-            [&indices_all, th](double v, int i, int j) {
-                if (v == th)
-                    indices_all.push_back(i + 1);
-            });
-        RiskFail(ijk, 0) = indices_all[0] - 1;  // Due to the sorting method, there is a continuous block of event rows
-        RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
-        //
-        int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0);
-        int m = int((nstar - dj + 1)*dj);
-        vector<double> risk_initial(m, 0.0);
-        Recur_Base[ijk] = risk_initial;
-        for (int i=0; i< Recur_First[ijk].size(); i++){
-            Recur_First[ijk][i] = risk_initial;
-        }
-        for (int i=0; i< Recur_Second[ijk].size(); i++){
-            Recur_Second[ijk][i] = risk_initial;
-        }
-        //
-    }
-    return;
-}
-
-//' Utility function to define matched risk groups by time and strata
-//'
-//' \code{Make_Match_Time_Strata} Called to update lists of risk groups, assumes the data is matched into groups by time at risk as well as strata and df_m contains the interval times, the strata value, and then event indicator
-//' @inheritParams CPP_template
-//'
-//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
-//' @noRd
-//'
-// [[Rcpp::export]]
-void Make_Match_Time_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
-//    vector<vector<int> > RiskPairs(ntime);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
-    #endif
-    for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-        for (int ijk = 0; ijk < ntime; ijk++) {
-            double t0 = tu[ijk];
-            VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& Strata_vals) {
+    if (model_bool["single"]){
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
             vector<int> indices_end;
             //
             //
@@ -524,12 +392,11 @@ void Make_Match_Time_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatri
             //
             vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
-                RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
-                RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
+                RiskFail(s_ij, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
                 //
-                int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0);
-                //
-                select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
+                int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0) + 1;
+                select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  // indices at risk
                 indices_end.clear();
                 visit_lambda(select_ind_end,
                     [&indices_end, th](double v, int i, int j) {
@@ -548,20 +415,469 @@ void Make_Match_Time_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatri
                     }
                 }
                 //
-                RiskPairs[s_ij*ntime+ijk] = indices;
+                RiskPairs[s_ij] = indices;
                 int nstar = indices_end.size();
                 int m = int((nstar - dj + 1)*dj);
                 vector<double> risk_initial(m, 0.0);
-                Recur_Base[s_ij*ntime+ijk] = risk_initial;
-                for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
-                    Recur_First[s_ij*ntime+ijk][i] = risk_initial;
-                }
-                for (int i=0; i< Recur_Second[s_ij*ntime+ijk].size(); i++){
-                    Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
-                }
+                Recur_Base[s_ij] = risk_initial;
+                //
             } else {
-                RiskFail(s_ij*ntime+ijk, 0) = - 1;
-                RiskFail(s_ij*ntime+ijk, 1) = - 1;
+                RiskFail(s_ij, 0) = - 1;
+                RiskFail(s_ij, 1) = - 1;
+            }
+        }
+    } else if (model_bool["gradient"]){
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+            vector<int> indices_end;
+            //
+            //
+            int th = 1;
+            visit_lambda(select_ind_end,
+                [&indices_end, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_end.push_back(i + 1);
+                });
+            //
+            vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+            if (indices_end.size() > 0) {
+                RiskFail(s_ij, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
+                //
+                int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0) + 1;
+                select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  // indices at risk
+                indices_end.clear();
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v == th)
+                            indices_end.push_back(i + 1);
+                    });
+                for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                    if (indices.size() == 0) {
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else if (indices[indices.size() - 1] + 1 < *it) {
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else {
+                        indices[indices.size() - 1] = *it;
+                    }
+                }
+                //
+                RiskPairs[s_ij] = indices;
+                int nstar = indices_end.size();
+                int m = int((nstar - dj + 1)*dj);
+                vector<double> risk_initial(m, 0.0);
+                Recur_Base[s_ij] = risk_initial;
+                for (int i=0; i< Recur_First[s_ij].size(); i++){
+                    Recur_First[s_ij][i] = risk_initial;
+                }
+                //
+            } else {
+                RiskFail(s_ij, 0) = - 1;
+                RiskFail(s_ij, 1) = - 1;
+            }
+        }
+    } else {
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+            vector<int> indices_end;
+            //
+            //
+            int th = 1;
+            visit_lambda(select_ind_end,
+                [&indices_end, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_end.push_back(i + 1);
+                });
+            //
+            vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+            if (indices_end.size() > 0) {
+                RiskFail(s_ij, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
+                //
+                int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0) + 1;
+                select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  // indices at risk
+                indices_end.clear();
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v == th)
+                            indices_end.push_back(i + 1);
+                    });
+                for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                    if (indices.size() == 0) {
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else if (indices[indices.size() - 1] + 1 < *it) {
+                        indices.push_back(*it);
+                        indices.push_back(*it);
+                    } else {
+                        indices[indices.size() - 1] = *it;
+                    }
+                }
+                //
+                RiskPairs[s_ij] = indices;
+                int nstar = indices_end.size();
+                int m = int((nstar - dj + 1)*dj);
+                vector<double> risk_initial(m, 0.0);
+                Recur_Base[s_ij] = risk_initial;
+                for (int i=0; i< Recur_First[s_ij].size(); i++){
+                    Recur_First[s_ij][i] = risk_initial;
+                }
+                for (int i=0; i< Recur_Second[s_ij].size(); i++){
+                    Recur_Second[s_ij][i] = risk_initial;
+                }
+                //
+            } else {
+                RiskFail(s_ij, 0) = - 1;
+                RiskFail(s_ij, 1) = - 1;
+            }
+        }
+    }
+    return;
+}
+
+//' Utility function to define matched risk groups by time
+//'
+//' \code{Make_Match_Time} Called to update lists of risk groups, assumes the data is matched into groups by time at risk and df_m contains the interval times, and then event indicator
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu) {
+//    vector<vector<int> > RiskPairs(ntime);
+    if (model_bool["single"]) {
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < ntime; ijk++) {
+            double t0 = tu[ijk];
+            VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  // indices at risk
+            vector<int> indices_all;
+            int th = 1;
+            visit_lambda(select_ind_all,
+                [&indices_all, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_all.push_back(i + 1);
+                });
+            vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+            for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+                if (indices.size() == 0) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else if (indices[indices.size() - 1] + 1 < *it) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else {
+                    indices[indices.size() - 1] = *it;
+                }
+            }
+            RiskPairs[ijk] = indices;
+            int nstar = indices_all.size();
+            select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
+            indices_all.clear();
+            visit_lambda(select_ind_all,
+                [&indices_all, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_all.push_back(i + 1);
+                });
+            RiskFail(ijk, 0) = indices_all[0] - 1;  // Due to the sorting method, there is a continuous block of event rows
+            RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
+            //
+            int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0) + 1;
+            int m = int((nstar - dj + 1)*dj);
+            vector<double> risk_initial(m, 0.0);
+            Recur_Base[ijk] = risk_initial;
+        }
+    } else if (model_bool["gradient"]) {
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < ntime; ijk++) {
+            double t0 = tu[ijk];
+            VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  // indices at risk
+            vector<int> indices_all;
+            int th = 1;
+            visit_lambda(select_ind_all,
+                [&indices_all, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_all.push_back(i + 1);
+                });
+            vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+            for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+                if (indices.size() == 0) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else if (indices[indices.size() - 1] + 1 < *it) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else {
+                    indices[indices.size() - 1] = *it;
+                }
+            }
+            RiskPairs[ijk] = indices;
+            int nstar = indices_all.size();
+            select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
+            indices_all.clear();
+            visit_lambda(select_ind_all,
+                [&indices_all, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_all.push_back(i + 1);
+                });
+            RiskFail(ijk, 0) = indices_all[0] - 1;  // Due to the sorting method, there is a continuous block of event rows
+            RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
+            //
+            int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0) + 1;
+            int m = int((nstar - dj + 1)*dj);
+            vector<double> risk_initial(m, 0.0);
+            Recur_Base[ijk] = risk_initial;
+            for (int i=0; i< Recur_First[ijk].size(); i++){
+                Recur_First[ijk][i] = risk_initial;
+            }
+        }
+    } else {
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < ntime; ijk++) {
+            double t0 = tu[ijk];
+            VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  // indices at risk
+            vector<int> indices_all;
+            int th = 1;
+            visit_lambda(select_ind_all,
+                [&indices_all, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_all.push_back(i + 1);
+                });
+            vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+            for (auto it = begin (indices_all); it != end (indices_all); ++it) {
+                if (indices.size() == 0) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else if (indices[indices.size() - 1] + 1 < *it) {
+                    indices.push_back(*it);
+                    indices.push_back(*it);
+                } else {
+                    indices[indices.size() - 1] = *it;
+                }
+            }
+            RiskPairs[ijk] = indices;
+            int nstar = indices_all.size();
+            select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  // indices with events
+            indices_all.clear();
+            visit_lambda(select_ind_all,
+                [&indices_all, th](double v, int i, int j) {
+                    if (v == th)
+                        indices_all.push_back(i + 1);
+                });
+            RiskFail(ijk, 0) = indices_all[0] - 1;  // Due to the sorting method, there is a continuous block of event rows
+            RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
+            //
+            int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0) + 1;
+            int m = int((nstar - dj + 1)*dj);
+            vector<double> risk_initial(m, 0.0);
+            Recur_Base[ijk] = risk_initial;
+            for (int i=0; i< Recur_First[ijk].size(); i++){
+                Recur_First[ijk][i] = risk_initial;
+            }
+            for (int i=0; i< Recur_Second[ijk].size(); i++){
+                Recur_Second[ijk][i] = risk_initial;
+            }
+        }
+    }
+    return;
+}
+
+//' Utility function to define matched risk groups by time and strata
+//'
+//' \code{Make_Match_Time_Strata} Called to update lists of risk groups, assumes the data is matched into groups by time at risk as well as strata and df_m contains the interval times, the strata value, and then event indicator
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
+    if (model_bool["single"]){
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            for (int ijk = 0; ijk < ntime; ijk++) {
+                double t0 = tu[ijk];
+                VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+                vector<int> indices_end;
+                //
+                //
+                int th = 1;
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v == th)
+                            indices_end.push_back(i + 1);
+                    });
+                //
+                vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+                if (indices_end.size() > 0) {
+                    RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                    RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
+                    //
+                    int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0) + 1;
+                    //
+                    select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
+                    indices_end.clear();
+                    visit_lambda(select_ind_end,
+                        [&indices_end, th](double v, int i, int j) {
+                            if (v == th)
+                                indices_end.push_back(i + 1);
+                        });
+                    for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                        if (indices.size() == 0) {
+                            indices.push_back(*it);
+                            indices.push_back(*it);
+                        } else if (indices[indices.size() - 1] + 1 < *it) {
+                            indices.push_back(*it);
+                            indices.push_back(*it);
+                        } else {
+                            indices[indices.size() - 1] = *it;
+                        }
+                    }
+                    //
+                    RiskPairs[s_ij*ntime+ijk] = indices;
+                    int nstar = indices_end.size();
+                    int m = int((nstar - dj + 1)*dj);
+                    vector<double> risk_initial(m, 0.0);
+                    Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                } else {
+                    RiskFail(s_ij*ntime+ijk, 0) = - 1;
+                    RiskFail(s_ij*ntime+ijk, 1) = - 1;
+                }
+            }
+        }
+    } else if (model_bool["gradient"]){
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            for (int ijk = 0; ijk < ntime; ijk++) {
+                double t0 = tu[ijk];
+                VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+                vector<int> indices_end;
+                //
+                //
+                int th = 1;
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v == th)
+                            indices_end.push_back(i + 1);
+                    });
+                //
+                vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+                if (indices_end.size() > 0) {
+                    RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                    RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
+                    //
+                    int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0) + 1;
+                    //
+                    select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
+                    indices_end.clear();
+                    visit_lambda(select_ind_end,
+                        [&indices_end, th](double v, int i, int j) {
+                            if (v == th)
+                                indices_end.push_back(i + 1);
+                        });
+                    for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                        if (indices.size() == 0) {
+                            indices.push_back(*it);
+                            indices.push_back(*it);
+                        } else if (indices[indices.size() - 1] + 1 < *it) {
+                            indices.push_back(*it);
+                            indices.push_back(*it);
+                        } else {
+                            indices[indices.size() - 1] = *it;
+                        }
+                    }
+                    //
+                    RiskPairs[s_ij*ntime+ijk] = indices;
+                    int nstar = indices_end.size();
+                    int m = int((nstar - dj + 1)*dj);
+                    vector<double> risk_initial(m, 0.0);
+                    Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                    for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
+                        Recur_First[s_ij*ntime+ijk][i] = risk_initial;
+                    }
+                } else {
+                    RiskFail(s_ij*ntime+ijk, 0) = - 1;
+                    RiskFail(s_ij*ntime+ijk, 1) = - 1;
+                }
+            }
+        }
+    } else {
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            for (int ijk = 0; ijk < ntime; ijk++) {
+                double t0 = tu[ijk];
+                VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices with events
+                vector<int> indices_end;
+                //
+                //
+                int th = 1;
+                visit_lambda(select_ind_end,
+                    [&indices_end, th](double v, int i, int j) {
+                        if (v == th)
+                            indices_end.push_back(i + 1);
+                    });
+                //
+                vector<int> indices;  // generates vector of (start, end) pairs for indices at risk
+                if (indices_end.size() > 0) {
+                    RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  // due to the sorting method, there is a continuous block of event rows
+                    RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
+                    //
+                    int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0) + 1;
+                    //
+                    select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  // indices at risk
+                    indices_end.clear();
+                    visit_lambda(select_ind_end,
+                        [&indices_end, th](double v, int i, int j) {
+                            if (v == th)
+                                indices_end.push_back(i + 1);
+                        });
+                    for (auto it = begin (indices_end); it != end (indices_end); ++it) {
+                        if (indices.size() == 0) {
+                            indices.push_back(*it);
+                            indices.push_back(*it);
+                        } else if (indices[indices.size() - 1] + 1 < *it) {
+                            indices.push_back(*it);
+                            indices.push_back(*it);
+                        } else {
+                            indices[indices.size() - 1] = *it;
+                        }
+                    }
+                    //
+                    RiskPairs[s_ij*ntime+ijk] = indices;
+                    int nstar = indices_end.size();
+                    int m = int((nstar - dj + 1)*dj);
+                    vector<double> risk_initial(m, 0.0);
+                    Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                    for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
+                        Recur_First[s_ij*ntime+ijk][i] = risk_initial;
+                    }
+                    for (int i=0; i< Recur_Second[s_ij*ntime+ijk].size(); i++){
+                        Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
+                    }
+                } else {
+                    RiskFail(s_ij*ntime+ijk, 0) = - 1;
+                    RiskFail(s_ij*ntime+ijk, 1) = - 1;
+                }
             }
         }
     }
@@ -2732,5 +3048,387 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
             }
         }
     }
+    return;
+}
+
+//' Fills out recursive vectors for matched case-control logistic regression
+//'
+//' \code{Calculate_Recursive} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
+//'
+//' @return Updates matrices in place: risk storage matrices
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    // We need B vectors
+    // start with the basic B matrix vector
+    // Rcout << "starting 1" << endl;
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int group_ij = 0; group_ij < group_num; group_ij++) {
+        // we start by getting a vector of risks
+        vector<double> risk_list;
+        vector<int> InGroup = RiskPairs[group_ij];
+        // now has the grouping pairs and number of events
+        if (InGroup.size() > 0) {
+            int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                int i0 = InGroup[i] - 1;
+                int i1 = InGroup[i + 1] - 1;
+                for (int i_inter = i0; i_inter <= i1; i_inter ++){
+                    risk_list.push_back(R(i_inter, 0));
+                }
+            }
+            int risk_size = risk_list.size();
+            // we need to start filling out the recusion
+            // we have risk_size elements and are selecting dj items, filling object B(m,n)
+            // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
+            double r_sum = 0;
+            int nm_dif = int(risk_size - dj + 1);
+            for (int i=0; i< risk_size; i++){
+                // start by incrementing the sum
+                r_sum += risk_list[i];
+                // two options, it is before the first item or it is one of the items to assign
+                if (i > nm_dif){
+                    // just keep summing
+                } else {
+                    // now we assign
+                    Recur_Base[group_ij][i] = r_sum;
+                }
+            }
+            // now we need to progress through the remaining entries
+            for (int i_index = 1; i_index < dj; i_index ++){
+                // our increment in m
+                for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
+                    // our increment in n
+                    int recur_index = (i_index)*(nm_dif+1) + j_index; // the index of the value we are trying to fill
+                    int risk_index = j_index + i_index; // the index of the risk value at this n
+                    int t0 = recur_index - 1; // index for B(m, n-1)
+                    int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+                    // the filled value is either an edge case, B(m,n) = rn*B(m-1, n-1), or the full case
+                    if (j_index == 0){
+                        // edge case
+                        Recur_Base[group_ij][recur_index] = risk_list[risk_index] * Recur_Base[group_ij][t1];
+                    } else {
+                        Recur_Base[group_ij][recur_index] = Recur_Base[group_ij][t0] + risk_list[risk_index] * Recur_Base[group_ij][t1];
+                    }
+                }
+            }
+        }
+    }
+    if (!model_bool["single"]){
+        // Rcout << "starting 2" << endl;
+        // next we want the first derivative B matrix vector
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+        #endif
+        for (int group_ij = 0; group_ij < group_num; group_ij++) {
+            for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
+                // we start by getting a vector of risks
+                vector<double> risk_list;
+                vector<double> riskd_list;
+                vector<int> InGroup = RiskPairs[group_ij];
+                // Rcout << group_ij << " " << der_ij << endl;
+                // now has the grouping pairs and number of events
+                if (InGroup.size() > 0) {
+                    int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+                    for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                        int i0 = InGroup[i] - 1;
+                        int i1 = InGroup[i + 1] - 1;
+                        for (int i_inter = i0; i_inter <= i1; i_inter ++){
+                            risk_list.push_back(R(i_inter, 0));
+                            riskd_list.push_back(Rd(i_inter, der_ij));
+                        }
+                    }
+                    int risk_size = risk_list.size();
+                    // we need to start filling out the recusion
+                    // we have risk_size elements and are selecting dj items, filling object B(m,n)
+                    // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
+                    double r_sum = 0;
+                    int nm_dif = int(risk_size - dj + 1);
+                    // Rcout << "initial row" << endl;
+                    // Rcout << nm_dif << " " << Recur_First[group_ij][der_ij].size() << endl;
+                    // Rcout << risk_list.size() << " " << riskd_list.size() << endl;
+                    for (int i=0; i< risk_size; i++){
+                        // start by incrementing the sum
+                        r_sum += riskd_list[i];
+                        // two options, it is before the first item or it is one of the items to assign
+                        if (i >= nm_dif){
+                            // just keep summing
+                        } else {
+                            // now we assign
+                            Recur_First[group_ij][der_ij][i] = r_sum;
+                        }
+                    }
+                    // Rcout << "other rows" << endl;
+                    // now we need to progress through the remaining entries
+                    for (int i_index = 1; i_index < dj; i_index ++){
+                        // our increment in m
+                        for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
+                            // our increment in n
+                            int recur_index = (i_index)*(nm_dif+1) + j_index; // the index of the value we are trying to fill
+                            int risk_index = j_index + i_index; // the index of the risk value at this n
+                            int t0 = recur_index - 1; // index for B(m, n-1)
+                            int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+                            // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
+                            if (j_index == 0){
+                                // edge case
+                                Recur_First[group_ij][der_ij][recur_index] = risk_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskd_list[risk_index] * Recur_Base[group_ij][t1];
+                            } else {
+                                Recur_First[group_ij][der_ij][recur_index] = Recur_First[group_ij][der_ij][t0] + risk_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskd_list[risk_index] * Recur_Base[group_ij][t1];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!model_bool["gradient"]){
+            // Rcout << "starting 3" << endl;
+            // finally we want the second derivative B matrix vector
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+            #endif
+            for (int group_ij = 0; group_ij < group_num; group_ij++) {
+                for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
+                    // get the derivative column numbers
+                    int der_ij = 0;
+                    int der_jk = der_ijk;
+                    while (der_jk > der_ij) {
+                        der_ij++;
+                        der_jk -= der_ij;
+                    }
+                    // we start by getting a vector of risks
+                    vector<double> risk_list;
+                    vector<double> riskd0_list;
+                    vector<double> riskd1_list;
+                    vector<double> riskdd_list;
+                    vector<int> InGroup = RiskPairs[group_ij];
+                    // now has the grouping pairs and number of events
+                    if (InGroup.size() > 0) {
+                        int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+                        for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                            int i0 = InGroup[i] - 1;
+                            int i1 = InGroup[i + 1] - 1;
+                            for (int i_inter = i0; i_inter <= i1; i_inter ++){
+                                risk_list.push_back(R(i_inter, 0));
+                                riskd0_list.push_back(Rd(i_inter, der_ij));
+                                riskd1_list.push_back(Rd(i_inter, der_jk));
+                                riskdd_list.push_back(Rdd(i_inter, der_ijk));
+                            }
+                        }
+                        int risk_size = risk_list.size();
+                        // we need to start filling out the recusion
+                        // we have risk_size elements and are selecting dj items, filling object B(m,n)
+                        // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
+                        double r_sum = 0;
+                        int nm_dif = int(risk_size - dj + 1);
+                        for (int i=0; i< risk_size; i++){
+                            // start by incrementing the sum
+                            r_sum += riskdd_list[i];
+                            // two options, it is before the first item or it is one of the items to assign
+                            if (i > nm_dif){
+                                // just keep summing
+                            } else {
+                                // now we assign
+                                Recur_Second[group_ij][der_ijk][i] = r_sum;
+                            }
+                        }
+                        // now we need to progress through the remaining entries
+                        for (int i_index = 1; i_index < dj; i_index ++){
+                            // our increment in m
+                            for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
+                                // our increment in n
+                                int recur_index = (i_index)*(nm_dif+1) + j_index; // the index of the value we are trying to fill
+                                int risk_index = j_index + i_index; // the index of the risk value at this n
+                                int t0 = recur_index - 1; // index for B(m, n-1)
+                                int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+                                // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
+                                if (j_index == 0){
+                                    // edge case
+                                    Recur_Second[group_ij][der_ijk][recur_index] = risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskdd_list[risk_index] * Recur_Base[group_ij][t1];
+                                } else {
+                                    Recur_Second[group_ij][der_ijk][recur_index] = Recur_Second[group_ij][der_ijk][t0] + risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskdd_list[risk_index] * Recur_Base[group_ij][t1];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return;
+}
+
+//' Fills out recursive vectors for matched case-control logistic regression
+//'
+//' \code{Calculate_Recursive} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
+//'
+//' @return Updates matrices in place: risk storage matrices
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    if (model_bool["single"]){
+        // Rcout << "starting single" << endl;
+        // now we can calculate the loglikelihoods
+        #ifdef _OPENMP
+        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+            initializer(omp_priv = omp_orig)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
+        #endif
+        for (int group_ij = 0; group_ij < group_num; group_ij++) {
+            //
+            int recur_index = int(Recur_Base[group_ij].size() - 1);
+            int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+            if (recur_index > -1){
+                MatrixXd Ld = MatrixXd::Zero(dj, 1);
+                Ld << R.block(RiskFail(group_ij, 0), 0, dj, 1);  // rows with events
+                //
+                double Ld1 = 0.0;
+                //
+                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
+                temp1 = Ld.col(0).array().log();
+                Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                // calculates the right-hand side terms
+                double b_0 = Recur_Base[group_ij][recur_index];
+                //
+                double Rs1 = 0.0;
+                Rs1 = log(b_0);
+                //
+                Ll[0] += Ld1 - Rs1;
+            }
+        }
+    } else if (!model_bool["gradient"]){
+        // Rcout << "starting gradient" << endl;
+        // now we can calculate the loglikelihoods
+        #ifdef _OPENMP
+        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+            initializer(omp_priv = omp_orig)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
+        #endif
+        for (int group_ij = 0; group_ij < group_num; group_ij++) {
+            for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
+                //
+                int recur_index = int(Recur_Base[group_ij].size() - 1);
+                int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+                if (recur_index > -1){
+                    MatrixXd Ld = MatrixXd::Zero(dj, 2);
+                    Ld << R.block(RiskFail(group_ij, 0), 0, dj, 1), RdR.block(RiskFail(group_ij, 0), der_ij, dj, 1);  // rows with events
+                    //
+                    double Ld1 = 0.0;
+                    double Ld2 = 0.0;
+                    //
+                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
+                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                    temp1 = Ld.col(0).array().log();
+                    Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                    temp1 = Ld.col(1).array();
+                    Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                    // calculates the right-hand side terms
+                    double b_0 = Recur_Base[group_ij][recur_index];
+                    double b_1 = Recur_First[group_ij][der_ij][recur_index];
+                    //
+                    double Rs1 = 0.0;
+                    double Rs2 = 0.0;
+                    Rs1 = log(b_0);
+                    Rs2 = b_1 / b_0;
+                    //
+                    Ll[der_ij] += Ld1 - Rs1;
+                    Lld[der_ij] += Ld2 - Rs2;
+                }
+            }
+        }
+    } else {
+        // Rcout << "starting full" << endl;
+        // now we can calculate the loglikelihoods
+        #ifdef _OPENMP
+        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+            initializer(omp_priv = omp_orig)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
+        #endif
+        for (int group_ij = 0; group_ij < group_num; group_ij++) {
+            for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
+                int der_ij = 0;
+                int der_jk = der_ijk;
+                while (der_jk > der_ij) {
+                    der_ij++;
+                    der_jk -= der_ij;
+                }
+                //
+                int recur_index = int(Recur_Base[group_ij].size() - 1);
+                int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+                if (recur_index > -1){
+                    MatrixXd Ld = MatrixXd::Zero(dj, 4);
+                    Ld << R.block(RiskFail(group_ij, 0), 0, dj, 1), RdR.block(RiskFail(group_ij, 0), der_ij, dj, 1), RdR.block(RiskFail(group_ij, 0), der_jk, dj, 1), RddR.block(RiskFail(group_ij, 0), der_ijk, dj, 1);  // rows with events
+                    //
+                    double Ld1 = 0.0;
+                    double Ld2 = 0.0;
+                    double Ld3 = 0.0;
+                    //
+                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
+                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                    if (der_ij == der_jk) {
+                        temp1 = Ld.col(0).array().log();
+                        Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                    }
+                    temp1 = Ld.col(1).array();
+                    if (der_ij == der_jk) {
+                        Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                    }
+                    temp2 = Ld.col(2).array();
+                    temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                    Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
+                    // calculates the right-hand side terms
+                    double b_0 = Recur_Base[group_ij][recur_index];
+                    double b_1 = Recur_First[group_ij][der_ij][recur_index];
+                    double b_2 = Recur_First[group_ij][der_jk][recur_index];
+                    double b_3 = Recur_Second[group_ij][der_ijk][recur_index];
+                    //
+                    double Rs1 = 0.0;
+                    double Rs2 = 0.0;
+                    double Rs3 = 0.0;
+                    if (der_ij == der_jk) {
+                        Rs1 = log(b_0);
+                        Rs2 = b_1 / b_0;
+                    }
+                    Rs3 = b_3 / b_0 - b_1 / b_0 * b_2 / b_0;
+                    //
+                    if (der_ij == der_jk) {
+                        Ll[der_ij] += Ld1 - Rs1;
+                        Lld[der_ij] += Ld2 - Rs2;
+                    }
+                    Lldd[der_ij*reqrdnum+der_jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
+                }
+            }
+        }
+        // Rcout << "fill the lldd" << endl;
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  // fills second-derivative matrix
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
+        }
+    }
+    Rcout << "get the loglik" << endl;
+    double LogLik = 0;
+    for (int i = 0; i < reqrdnum; i++) {
+        if (Ll[i] != 0) {
+            LogLik = Ll[i];
+            break;
+        }
+    }
+    fill(Ll.begin(), Ll.end(), LogLik);
     return;
 }

@@ -57,8 +57,8 @@ Make_Groups_Strata_CR <- function(ntime, df_m, RiskFail, RiskPairs_Strata, tu, n
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match <- function(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads) {
-    invisible(.Call(`_Colossus_Make_Match`, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads))
+Make_Match <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads) {
+    invisible(.Call(`_Colossus_Make_Match`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads))
 }
 
 #' Utility function to define matched risk groups by strata
@@ -69,8 +69,8 @@ Make_Match <- function(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Strata <- function(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals) {
-    invisible(.Call(`_Colossus_Make_Match_Strata`, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals))
+Make_Match_Strata <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Strata`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals))
 }
 
 #' Utility function to define matched risk groups by time
@@ -81,8 +81,8 @@ Make_Match_Strata <- function(df_m, RiskFail, RiskPairs, Recur_Base, Recur_First
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Time <- function(ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu) {
-    invisible(.Call(`_Colossus_Make_Match_Time`, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu))
+Make_Match_Time <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu) {
+    invisible(.Call(`_Colossus_Make_Match_Time`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu))
 }
 
 #' Utility function to define matched risk groups by time and strata
@@ -93,8 +93,8 @@ Make_Match_Time <- function(ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Time_Strata <- function(ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals) {
-    invisible(.Call(`_Colossus_Make_Match_Time_Strata`, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals))
+Make_Match_Time_Strata <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Time_Strata`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals))
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
@@ -469,6 +469,28 @@ Calc_Null_LogLik_Strata <- function(nthreads, RiskFail, RiskPairs_Strata, ntime,
     invisible(.Call(`_Colossus_Calc_Null_LogLik_Strata`, nthreads, RiskFail, RiskPairs_Strata, ntime, R, Rls1, Lls1, Strata_vals, Ll, ties_method))
 }
 
+#' Fills out recursive vectors for matched case-control logistic regression
+#'
+#' \code{Calculate_Recursive} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+Calculate_Recursive <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant) {
+    invisible(.Call(`_Colossus_Calculate_Recursive`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant))
+}
+
+#' Fills out recursive vectors for matched case-control logistic regression
+#'
+#' \code{Calculate_Recursive} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+Calc_Recur_LogLik <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_Recur_LogLik`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant))
+}
+
 #' checks if the model is viable
 #'
 #' \code{Check_Risk} Calculates risks and checks for negative values
@@ -621,8 +643,8 @@ LogLik_Poisson_Omnibus_Log_Bound_CurveSearch <- function(PyrC, dfs, term_n, tfor
 #' @return only if it works
 #' @noRd
 #'
-LogLik_CaseCon_Omnibus <- function(term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_LogLik_CaseCon_Omnibus`, term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
+LogLik_CaseCon_Omnibus <- function(term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_CaseCon_Omnibus`, term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
@@ -1015,6 +1037,18 @@ pois_Residual_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, d
 #'
 cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
     .Call(`_Colossus_cox_ph_multidose_Omnibus_transition`, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Interface between R code and the matched case-control omnibus regression function
+#'
+#' \code{caco_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_CaseCon_Omnibus output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_caco_Omnibus_transition`, term_n, tform, a_ns, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, model_control, Cons_Mat, Cons_Vec)
 }
 
 #' Generates csv file with time-dependent columns

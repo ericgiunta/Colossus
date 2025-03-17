@@ -686,6 +686,74 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     return res;
 }
 
+//' Interface between R code and the matched case-control omnibus regression function
+//'
+//' \code{caco_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_CaseCon_Omnibus output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+// [[Rcpp::export]]
+List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
+    bool change_all = Control["change_all"];
+    int double_step = Control["double_step"];
+    int verbose = Control["verbose"];
+    //
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    //
+    double abs_max = Control["abs_max"];
+    double dose_abs_max = Control["dose_abs_max"];
+    double deriv_epsilon =Control["deriv_epsilon"];
+    string ties_method =Control["ties"];
+    int nthreads = Control["ncores"];
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    //
+    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["time_risk"] = model_control["time_risk"],
+            _["basic"] = model_control["basic"],
+            _["linear_err"] = model_control["linear_err"],
+            _["null"] = false,
+            _["cr"] = false,
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["outcome_prob"] = false,
+            _["constraint"] = model_control["constraint"],
+            _["oberved_info"] = true,
+            _["log_bound"] = false,
+            _["cox"] = false
+    );
+    List optim_para = List::create(
+            _["lr"] = Control["lr"],
+            _["double_step"] = Control["double_step"],
+            _["change_all"] = Control["change_all"]
+    );
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+    }
+    //
+    // Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_CaseCon_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, der_iden, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, change_all, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 
 //' Generates csv file with time-dependent columns
 //'

@@ -53,6 +53,7 @@ e <- RunCoxNull(df, time1, time2, event, control)
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxCurveSolver}()},
+\code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},
 \code{\link{RunCoxRegression_CR}()},
