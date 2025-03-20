@@ -5986,7 +5986,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             Make_Match(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads);
         }
     }
-    // return temp_list;
+//    return temp_list;
     // ------------------------------------------------------------------------- // initialize
     vector<double> Ll(reqrdnum, 0.0);  // log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  // log-likelihood derivative values
@@ -6035,7 +6035,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     double Lstar = 0.0;
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     //
-    return temp_list;
+//    return temp_list;
     //
     for (int guess = 0; guess <guesses; guess++) {
         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
@@ -6087,11 +6087,11 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
         }
-        // Rcout << "starting the sides" << endl;
+//        Rcout << "starting the sides" << endl;
         Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
-        // Rcout << "starting loglik" << endl;
+//        Rcout << "starting loglik" << endl;
         Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
-        // Rcout << "ending loglik" << endl;
+//        Rcout << "ending loglik" << endl;
     }
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {

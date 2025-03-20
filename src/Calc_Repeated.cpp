@@ -331,7 +331,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 // [[Rcpp::export]]
 void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
-    vector<int> indices = {0, int(df_m.rows())-1};
+    vector<int> indices = {1, int(df_m.rows())};
     int nstar = int(df_m.rows());
     RiskPairs[0] = indices;
     //
@@ -3063,7 +3063,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
     int reqrdnum = totalnum - sum(KeepConstant);
     // We need B vectors
     // start with the basic B matrix vector
-    // Rcout << "starting 1" << endl;
+//    Rcout << "starting 1" << endl;
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -3103,10 +3103,11 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                 // our increment in m
                 for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
                     // our increment in n
-                    int recur_index = (i_index)*(nm_dif+1) + j_index; // the index of the value we are trying to fill
+                    int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
                     int risk_index = j_index + i_index; // the index of the risk value at this n
                     int t0 = recur_index - 1; // index for B(m, n-1)
                     int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+//                    Rcout << recur_index << " " << risk_index << " " << t0 << " " << t1 << endl;
                     // the filled value is either an edge case, B(m,n) = rn*B(m-1, n-1), or the full case
                     if (j_index == 0){
                         // edge case
@@ -3119,7 +3120,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
         }
     }
     if (!model_bool["single"]){
-        // Rcout << "starting 2" << endl;
+//        Rcout << "starting 2" << endl;
         // next we want the first derivative B matrix vector
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -3168,7 +3169,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                         // our increment in m
                         for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
                             // our increment in n
-                            int recur_index = (i_index)*(nm_dif+1) + j_index; // the index of the value we are trying to fill
+                            int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
                             int risk_index = j_index + i_index; // the index of the risk value at this n
                             int t0 = recur_index - 1; // index for B(m, n-1)
                             int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
@@ -3185,7 +3186,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
             }
         }
         if (!model_bool["gradient"]){
-            // Rcout << "starting 3" << endl;
+//            Rcout << "starting 3" << endl;
             // finally we want the second derivative B matrix vector
             #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -3240,7 +3241,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                             // our increment in m
                             for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
                                 // our increment in n
-                                int recur_index = (i_index)*(nm_dif+1) + j_index; // the index of the value we are trying to fill
+                                int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
                                 int risk_index = j_index + i_index; // the index of the risk value at this n
                                 int t0 = recur_index - 1; // index for B(m, n-1)
                                 int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
@@ -3258,6 +3259,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
             }
         }
     }
+//    Rcout << "Done" << endl;
     return;
 }
 
@@ -3421,7 +3423,7 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
             Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
         }
     }
-    Rcout << "get the loglik" << endl;
+//    Rcout << "get the loglik" << endl;
     double LogLik = 0;
     for (int i = 0; i < reqrdnum; i++) {
         if (Ll[i] != 0) {
