@@ -2,7 +2,7 @@
 % Please edit documentation in R/CaseControl_Regression.R
 \name{RunCaseControlRegression_Omnibus}
 \alias{RunCaseControlRegression_Omnibus}
-\title{Performs Cox Proportional Hazards regression using the omnibus function}
+\title{Performs Matched Case-Control Conditional Logistic Regression}
 \usage{
 RunCaseControlRegression_Omnibus(
   df,
@@ -66,11 +66,11 @@ RunCaseControlRegression_Omnibus(
 returns a list of the final results
 }
 \description{
-\code{RunCoxRegression_Omnibus} uses user provided data, time/event columns,
+\code{RunCaseControlRegression_Omnibus} uses user provided data, time/event columns,
 vectors specifying the model, and options to control the convergence
 and starting positions. Has additional options for starting with several
-initial guesses, using stratification, multiplicative loglinear 1-term,
-competing risks, and calculation without derivatives
+initial guesses, using stratification and/or matching by time at risk,
+and calculation without derivatives
 }
 \examples{
 library(data.table)
@@ -106,12 +106,12 @@ control <- list(
   "verbose" = FALSE,
   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 )
-e <- RunCoxRegression_Omnibus(df, time1, time2, event,
+e <- RunCaseControlRegression_Omnibus(df, time1, time2, event,
   names, term_n, tform, keep_constant,
   a_n, modelform, fir, der_iden, control,
   model_control = list(
-    "single" = FALSE,
-    "basic" = FALSE, "cr" = FALSE, "null" = FALSE
+    "stata" = FALSE,
+    "time_risk" = FALSE
   )
 )
 }

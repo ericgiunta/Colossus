@@ -78,6 +78,13 @@ If the log_bound method is used, there are several additional control options us
 | search_mult | Double used by manual search option, scales the initial step by that amount. This can be done to widen or narrow the scope of the search if the initial quadratic assumption made by the Venzon-Moolgavkar algorithm is incorrect. |
 | step_size | Double used by the Curve Search functions. Sets the initial interval length used. Defaults to 0.5 |
 
+Several options are available for matched case-control conditional logistic regression:
+
+| Option | Description |
+| :---------: | :----------: |
+| time_risk  | Boolean used to denote if rows should be matched by time at risk, similar to a Cox proportional hazards model risk group. Defaults to FALSE.  |
+| strata  | Boolean used to denote matching by stratification. Defaults to FALSE.  |
+
 ### Guess Control List
 
 This is the "guesses_control" variable used by the distributed start functions. These options are used to control the number and scope of distributed initial parameter sets used.

@@ -107,3 +107,7 @@
 # Colossus 1.2
 
 * Both Cox and Poisson functions now all return the expected information matrix derived covariance
+
+# Colossus 1.2.1
+
+* Matched Case-Control base code and equation vignette added
