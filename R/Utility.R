@@ -819,6 +819,11 @@ Def_model_control <- function(control) {
   } else {
     control["gmix_term"] <- c(0)
   }
+  if ("conditional_threshold" %in% names(control)) {
+    # fine
+  } else {
+    control["conditional_threshold"] <- 50
+  }
   if (control[["log_bound"]]) {
     if ("qchi" %in% names(control)) {
       # fine

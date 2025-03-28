@@ -728,6 +728,7 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
             _["single"] = model_control["single"],
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
+            _["cond_thres"] = model_control["conditional_threshold"],
             _["constraint"] = model_control["constraint"],
             _["oberved_info"] = true,
             _["log_bound"] = false,

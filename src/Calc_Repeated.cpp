@@ -3061,6 +3061,7 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
 // [[Rcpp::export]]
 void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    double cond_thres = model_bool["cond_thres"];
     // We need B vectors
     // start with the basic B matrix vector
 //    Rcout << "starting 1" << endl;
@@ -3074,46 +3075,48 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
         // now has the grouping pairs and number of events
         if (InGroup.size() > 0) {
             int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
-            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                int i0 = InGroup[i] - 1;
-                int i1 = InGroup[i + 1] - 1;
-                for (int i_inter = i0; i_inter <= i1; i_inter ++){
-                    risk_list.push_back(R(i_inter, 0));
+            if (dj <= cond_thres) {
+                for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                    int i0 = InGroup[i] - 1;
+                    int i1 = InGroup[i + 1] - 1;
+                    for (int i_inter = i0; i_inter <= i1; i_inter ++){
+                        risk_list.push_back(R(i_inter, 0));
+                    }
                 }
-            }
-            int risk_size = risk_list.size();
-            // we need to start filling out the recusion
-            // we have risk_size elements and are selecting dj items, filling object B(m,n)
-            // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
-            double r_sum = 0;
-            int nm_dif = int(risk_size - dj + 1);
-            for (int i=0; i< risk_size; i++){
-                // start by incrementing the sum
-                r_sum += risk_list[i];
-                // two options, it is before the first item or it is one of the items to assign
-                if (i > nm_dif){
-                    // just keep summing
-                } else {
-                    // now we assign
-                    Recur_Base[group_ij][i] = r_sum;
-                }
-            }
-            // now we need to progress through the remaining entries
-            for (int i_index = 1; i_index < dj; i_index ++){
-                // our increment in m
-                for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
-                    // our increment in n
-                    int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
-                    int risk_index = j_index + i_index; // the index of the risk value at this n
-                    int t0 = recur_index - 1; // index for B(m, n-1)
-                    int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
-//                    Rcout << recur_index << " " << risk_index << " " << t0 << " " << t1 << endl;
-                    // the filled value is either an edge case, B(m,n) = rn*B(m-1, n-1), or the full case
-                    if (j_index == 0){
-                        // edge case
-                        Recur_Base[group_ij][recur_index] = risk_list[risk_index] * Recur_Base[group_ij][t1];
+                int risk_size = risk_list.size();
+                // we need to start filling out the recusion
+                // we have risk_size elements and are selecting dj items, filling object B(m,n)
+                // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
+                double r_sum = 0;
+                int nm_dif = int(risk_size - dj + 1);
+                for (int i=0; i< risk_size; i++){
+                    // start by incrementing the sum
+                    r_sum += risk_list[i];
+                    // two options, it is before the first item or it is one of the items to assign
+                    if (i > nm_dif){
+                        // just keep summing
                     } else {
-                        Recur_Base[group_ij][recur_index] = Recur_Base[group_ij][t0] + risk_list[risk_index] * Recur_Base[group_ij][t1];
+                        // now we assign
+                        Recur_Base[group_ij][i] = r_sum;
+                    }
+                }
+                // now we need to progress through the remaining entries
+                for (int i_index = 1; i_index < dj; i_index ++){
+                    // our increment in m
+                    for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
+                        // our increment in n
+                        int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
+                        int risk_index = j_index + i_index; // the index of the risk value at this n
+                        int t0 = recur_index - 1; // index for B(m, n-1)
+                        int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+    //                    Rcout << recur_index << " " << risk_index << " " << t0 << " " << t1 << endl;
+                        // the filled value is either an edge case, B(m,n) = rn*B(m-1, n-1), or the full case
+                        if (j_index == 0){
+                            // edge case
+                            Recur_Base[group_ij][recur_index] = risk_list[risk_index] * Recur_Base[group_ij][t1];
+                        } else {
+                            Recur_Base[group_ij][recur_index] = Recur_Base[group_ij][t0] + risk_list[risk_index] * Recur_Base[group_ij][t1];
+                        }
                     }
                 }
             }
@@ -3135,50 +3138,52 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                 // now has the grouping pairs and number of events
                 if (InGroup.size() > 0) {
                     int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
-                    for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                        int i0 = InGroup[i] - 1;
-                        int i1 = InGroup[i + 1] - 1;
-                        for (int i_inter = i0; i_inter <= i1; i_inter ++){
-                            risk_list.push_back(R(i_inter, 0));
-                            riskd_list.push_back(Rd(i_inter, der_ij));
+                    if (dj <= cond_thres) {
+                        for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                            int i0 = InGroup[i] - 1;
+                            int i1 = InGroup[i + 1] - 1;
+                            for (int i_inter = i0; i_inter <= i1; i_inter ++){
+                                risk_list.push_back(R(i_inter, 0));
+                                riskd_list.push_back(Rd(i_inter, der_ij));
+                            }
                         }
-                    }
-                    int risk_size = risk_list.size();
-                    // we need to start filling out the recusion
-                    // we have risk_size elements and are selecting dj items, filling object B(m,n)
-                    // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
-                    double r_sum = 0;
-                    int nm_dif = int(risk_size - dj + 1);
-                    // Rcout << "initial row" << endl;
-                    // Rcout << nm_dif << " " << Recur_First[group_ij][der_ij].size() << endl;
-                    // Rcout << risk_list.size() << " " << riskd_list.size() << endl;
-                    for (int i=0; i< risk_size; i++){
-                        // start by incrementing the sum
-                        r_sum += riskd_list[i];
-                        // two options, it is before the first item or it is one of the items to assign
-                        if (i >= nm_dif){
-                            // just keep summing
-                        } else {
-                            // now we assign
-                            Recur_First[group_ij][der_ij][i] = r_sum;
-                        }
-                    }
-                    // Rcout << "other rows" << endl;
-                    // now we need to progress through the remaining entries
-                    for (int i_index = 1; i_index < dj; i_index ++){
-                        // our increment in m
-                        for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
-                            // our increment in n
-                            int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
-                            int risk_index = j_index + i_index; // the index of the risk value at this n
-                            int t0 = recur_index - 1; // index for B(m, n-1)
-                            int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
-                            // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
-                            if (j_index == 0){
-                                // edge case
-                                Recur_First[group_ij][der_ij][recur_index] = risk_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskd_list[risk_index] * Recur_Base[group_ij][t1];
+                        int risk_size = risk_list.size();
+                        // we need to start filling out the recusion
+                        // we have risk_size elements and are selecting dj items, filling object B(m,n)
+                        // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
+                        double r_sum = 0;
+                        int nm_dif = int(risk_size - dj + 1);
+                        // Rcout << "initial row" << endl;
+                        // Rcout << nm_dif << " " << Recur_First[group_ij][der_ij].size() << endl;
+                        // Rcout << risk_list.size() << " " << riskd_list.size() << endl;
+                        for (int i=0; i< risk_size; i++){
+                            // start by incrementing the sum
+                            r_sum += riskd_list[i];
+                            // two options, it is before the first item or it is one of the items to assign
+                            if (i >= nm_dif){
+                                // just keep summing
                             } else {
-                                Recur_First[group_ij][der_ij][recur_index] = Recur_First[group_ij][der_ij][t0] + risk_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskd_list[risk_index] * Recur_Base[group_ij][t1];
+                                // now we assign
+                                Recur_First[group_ij][der_ij][i] = r_sum;
+                            }
+                        }
+                        // Rcout << "other rows" << endl;
+                        // now we need to progress through the remaining entries
+                        for (int i_index = 1; i_index < dj; i_index ++){
+                            // our increment in m
+                            for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
+                                // our increment in n
+                                int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
+                                int risk_index = j_index + i_index; // the index of the risk value at this n
+                                int t0 = recur_index - 1; // index for B(m, n-1)
+                                int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+                                // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
+                                if (j_index == 0){
+                                    // edge case
+                                    Recur_First[group_ij][der_ij][recur_index] = risk_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskd_list[risk_index] * Recur_Base[group_ij][t1];
+                                } else {
+                                    Recur_First[group_ij][der_ij][recur_index] = Recur_First[group_ij][der_ij][t0] + risk_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskd_list[risk_index] * Recur_Base[group_ij][t1];
+                                }
                             }
                         }
                     }
@@ -3209,48 +3214,50 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                     // now has the grouping pairs and number of events
                     if (InGroup.size() > 0) {
                         int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
-                        for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                            int i0 = InGroup[i] - 1;
-                            int i1 = InGroup[i + 1] - 1;
-                            for (int i_inter = i0; i_inter <= i1; i_inter ++){
-                                risk_list.push_back(R(i_inter, 0));
-                                riskd0_list.push_back(Rd(i_inter, der_ij));
-                                riskd1_list.push_back(Rd(i_inter, der_jk));
-                                riskdd_list.push_back(Rdd(i_inter, der_ijk));
+                        if (dj <= cond_thres) {
+                            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                                int i0 = InGroup[i] - 1;
+                                int i1 = InGroup[i + 1] - 1;
+                                for (int i_inter = i0; i_inter <= i1; i_inter ++){
+                                    risk_list.push_back(R(i_inter, 0));
+                                    riskd0_list.push_back(Rd(i_inter, der_ij));
+                                    riskd1_list.push_back(Rd(i_inter, der_jk));
+                                    riskdd_list.push_back(Rdd(i_inter, der_ijk));
+                                }
                             }
-                        }
-                        int risk_size = risk_list.size();
-                        // we need to start filling out the recusion
-                        // we have risk_size elements and are selecting dj items, filling object B(m,n)
-                        // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
-                        double r_sum = 0;
-                        int nm_dif = int(risk_size - dj + 1);
-                        for (int i=0; i< risk_size; i++){
-                            // start by incrementing the sum
-                            r_sum += riskdd_list[i];
-                            // two options, it is before the first item or it is one of the items to assign
-                            if (i > nm_dif){
-                                // just keep summing
-                            } else {
-                                // now we assign
-                                Recur_Second[group_ij][der_ijk][i] = r_sum;
-                            }
-                        }
-                        // now we need to progress through the remaining entries
-                        for (int i_index = 1; i_index < dj; i_index ++){
-                            // our increment in m
-                            for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
-                                // our increment in n
-                                int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
-                                int risk_index = j_index + i_index; // the index of the risk value at this n
-                                int t0 = recur_index - 1; // index for B(m, n-1)
-                                int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
-                                // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
-                                if (j_index == 0){
-                                    // edge case
-                                    Recur_Second[group_ij][der_ijk][recur_index] = risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskdd_list[risk_index] * Recur_Base[group_ij][t1];
+                            int risk_size = risk_list.size();
+                            // we need to start filling out the recusion
+                            // we have risk_size elements and are selecting dj items, filling object B(m,n)
+                            // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
+                            double r_sum = 0;
+                            int nm_dif = int(risk_size - dj + 1);
+                            for (int i=0; i< risk_size; i++){
+                                // start by incrementing the sum
+                                r_sum += riskdd_list[i];
+                                // two options, it is before the first item or it is one of the items to assign
+                                if (i > nm_dif){
+                                    // just keep summing
                                 } else {
-                                    Recur_Second[group_ij][der_ijk][recur_index] = Recur_Second[group_ij][der_ijk][t0] + risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskdd_list[risk_index] * Recur_Base[group_ij][t1];
+                                    // now we assign
+                                    Recur_Second[group_ij][der_ijk][i] = r_sum;
+                                }
+                            }
+                            // now we need to progress through the remaining entries
+                            for (int i_index = 1; i_index < dj; i_index ++){
+                                // our increment in m
+                                for (int j_index = 0; j_index < nm_dif; j_index ++ ) {
+                                    // our increment in n
+                                    int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
+                                    int risk_index = j_index + i_index; // the index of the risk value at this n
+                                    int t0 = recur_index - 1; // index for B(m, n-1)
+                                    int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+                                    // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
+                                    if (j_index == 0){
+                                        // edge case
+                                        Recur_Second[group_ij][der_ijk][recur_index] = risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskdd_list[risk_index] * Recur_Base[group_ij][t1];
+                                    } else {
+                                        Recur_Second[group_ij][der_ijk][recur_index] = Recur_Second[group_ij][der_ijk][t0] + risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + riskdd_list[risk_index] * Recur_Base[group_ij][t1];
+                                    }
                                 }
                             }
                         }
@@ -3273,6 +3280,14 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
 // [[Rcpp::export]]
 void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    double cond_thres = model_bool["cond_thres"];
+    // we need to get the repeated values for unconditional likelihood calculation
+    MatrixXd RP = MatrixXd::Zero(RdR.rows(), 1);  // preallocates matrix for risk plus 1
+    MatrixXd RdRP = MatrixXd::Zero(RdR.rows(), reqrdnum);  // preallocates matrix for ratio of risk derivative to risk plus 1
+    MatrixXd RddRP = MatrixXd::Zero(RdR.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for ratio of risk second derivative to risk plus 1
+    //
+    RP.col(0) = R.col(0).array() + 1.0;
+    //
     if (model_bool["single"]){
         // Rcout << "starting single" << endl;
         // now we can calculate the loglikelihoods
@@ -3295,18 +3310,27 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                 MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
                 temp1 = Ld.col(0).array().log();
                 Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                // calculates the right-hand side terms
-                double b_0 = Recur_Base[group_ij][recur_index];
-                //
                 double Rs1 = 0.0;
-                Rs1 = log(b_0);
-                //
+                if (dj <= cond_thres) {
+                    // calculates the right-hand side terms
+                    double b_0 = Recur_Base[group_ij][recur_index];
+                    //
+                    Rs1 = log(b_0);
+                    //
+                } else {
+                    vector<int> InGroup = RiskPairs[group_ij];
+                    for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                        Rs1 += RP.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().log().sum();
+                    }
+                }
                 Ll[0] += Ld1 - Rs1;
             }
         }
-    } else if (!model_bool["gradient"]){
-        // Rcout << "starting gradient" << endl;
-        // now we can calculate the loglikelihoods
+    } else if (model_bool["gradient"]){
+        for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
+            RdRP.col(der_ij) = Rd.col(der_ij).array() * RP.col(0).array().pow(-1).array();
+        }
+        // now we can calculate the loglikelihoods first derivative
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
@@ -3332,13 +3356,21 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                     temp1 = Ld.col(1).array();
                     Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     // calculates the right-hand side terms
-                    double b_0 = Recur_Base[group_ij][recur_index];
-                    double b_1 = Recur_First[group_ij][der_ij][recur_index];
-                    //
                     double Rs1 = 0.0;
                     double Rs2 = 0.0;
-                    Rs1 = log(b_0);
-                    Rs2 = b_1 / b_0;
+                    if (dj <= cond_thres) {
+                        double b_0 = Recur_Base[group_ij][recur_index];
+                        double b_1 = Recur_First[group_ij][der_ij][recur_index];
+                        //
+                        Rs1 = log(b_0);
+                        Rs2 = b_1 / b_0;
+                    } else {
+                        vector<int> InGroup = RiskPairs[group_ij];
+                        for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                            Rs1 += RP.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().log().sum();
+                            Rs2 += RdRP.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                        }
+                    }
                     //
                     Ll[der_ij] += Ld1 - Rs1;
                     Lld[der_ij] += Ld2 - Rs2;
@@ -3347,7 +3379,13 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         }
     } else {
         // Rcout << "starting full" << endl;
-        // now we can calculate the loglikelihoods
+        for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
+            RdRP.col(der_ij) = Rd.col(der_ij).array() * RP.col(0).array().pow(-1).array();
+        }
+        for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
+            RddRP.col(der_ijk) = Rdd.col(der_ijk).array() * RP.col(0).array().pow(-1).array();
+        }
+        // now we can calculate the loglikelihoods second derivatives
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
@@ -3387,19 +3425,33 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                     temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
                     Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     // calculates the right-hand side terms
-                    double b_0 = Recur_Base[group_ij][recur_index];
-                    double b_1 = Recur_First[group_ij][der_ij][recur_index];
-                    double b_2 = Recur_First[group_ij][der_jk][recur_index];
-                    double b_3 = Recur_Second[group_ij][der_ijk][recur_index];
-                    //
                     double Rs1 = 0.0;
                     double Rs2 = 0.0;
                     double Rs3 = 0.0;
-                    if (der_ij == der_jk) {
-                        Rs1 = log(b_0);
-                        Rs2 = b_1 / b_0;
+                    if (dj <= cond_thres) {
+                        double b_0 = Recur_Base[group_ij][recur_index];
+                        double b_1 = Recur_First[group_ij][der_ij][recur_index];
+                        double b_2 = Recur_First[group_ij][der_jk][recur_index];
+                        double b_3 = Recur_Second[group_ij][der_ijk][recur_index];
+                        //
+                        if (der_ij == der_jk) {
+                            Rs1 = log(b_0);
+                            Rs2 = b_1 / b_0;
+                        }
+                        Rs3 = b_3 / b_0 - b_1 / b_0 * b_2 / b_0;
+                    } else {
+                        vector<int> InGroup = RiskPairs[group_ij];
+                        if (der_ij == der_jk) {
+                            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                                Rs1 += RP.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().log().sum();
+                                Rs2 += RdRP.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                            }
+                        }
+                        for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                            Rs3 -= (RdRP.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdRP.block(InGroup[i] - 1, der_jk, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+                            Rs3 += RddRP.block(InGroup[i] - 1, der_ijk, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                        }
                     }
-                    Rs3 = b_3 / b_0 - b_1 / b_0 * b_2 / b_0;
                     //
                     if (der_ij == der_jk) {
                         Ll[der_ij] += Ld1 - Rs1;
@@ -3434,3 +3486,62 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     fill(Ll.begin(), Ll.end(), LogLik);
     return;
 }
+
+// --------------------------- Code for changing the linking function for logistic regression ------------------------------ //
+// --------------------------- Not tested or implemented, stored for later use if needed ----------------------------------- //
+//MatrixXd P = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
+//MatrixXd Pd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
+//VectorXd Pdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+//
+//bool odds = false;
+//bool ident = false;
+//bool loglink = false;
+//
+//if (ident == true){
+//    P.col(0) = R.col(0);
+//    for (int ij=0; ij< reqrdnum; ij++){
+//        Pd.col(ij) = Rd.col(ij);
+//    }
+//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++){
+//        Pdd.col(ijk) = Rdd.col(ijk);
+//    }
+//}  else if (loglink == true){
+//    P.col(0) = (-1*R.col(0).array()).log();
+//    for (int ij=0; ij< reqrdnum; ij++){
+//        Pd.col(ij) = -1*Rd.col(ij).array() * P.col(0).array();
+//    }
+//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++){
+//        int ij = 0;
+//        int jk = ijk;
+//        while (jk > ij) {
+//            ij++;
+//            jk -= ij;
+//        }
+//        Pdd.col(ijk) = -1*Rdd.col(ijk).array() * P.col(0).array() - Rd.col(ij).array() * Pd.col(jk).array();
+//    }
+//} else if (odds == true){
+//    MatrixXd Ftemp = MatrixXd::Zero(df0.rows(), 9);
+//    Ftemp.col(0) = 1 + R.col(0).array(); // 1+f
+//    Ftemp.col(1) = Ftemp.col(0).array() + R.col(0).array(); // 1+2f
+//    Ftemp.col(2) = Ftemp.col(0).array().pow(2); // (1+f)^2
+//    Ftemp.col(3) = Ftemp.col(2).array() * Ftemp.col(1).array(); // (1+f)^2(1+2f)
+//    Ftemp.col(4) = Ftemp.col(2).array() + Ftemp.col(1).array(); // (1+f^2) + 1 + 2f
+//    Ftemp.col(5) = Ftemp.col(2).array().pow(2); // (1+f)^4
+//    Ftemp.col(6) = Ftemp.col(1).array() * Ftemp.col(2).array().pow(-1).array(); // (1+2f)/(1+f)^2
+//    Ftemp.col(7) = Ftemp.col(3).array() * Ftemp.col(5).array().pow(-1).array(); // ((1+f)^2+1+2f)/(1+f)^4
+//    Ftemp.col(8) = Ftemp.col(4).array() * Ftemp.col(5).array().pow(-1).array(); // ((1+f)^2(1+2f)/(1+f)^4
+//    //
+//    P.col(0) = R.col(0).array() * Ftemp.col(0).array().pow(-1).array();
+//    for (int ij=0; ij< reqrdnum; ij++){
+//        Pd.col(ij) = Rd.col(ij).array() * Ftemp.col(6).array();
+//    }
+//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++){
+//        int ij = 0;
+//        int jk = ijk;
+//        while (jk > ij) {
+//            ij++;
+//            jk -= ij;
+//        }
+//        Pdd.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(8).array() + Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(7).array();
+//    }
+//}

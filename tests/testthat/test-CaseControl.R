@@ -39,9 +39,9 @@ test_that("Basic nonfail", {
 
   control <- list(verbose = 0)
 
-  for (time_bool in c(F)) {
-    for (strat_bool in c(F)) {
-      model_control <- list("time_risk" = time_bool, "strata" = strat_bool)
+  for (time_bool in c(T, F)) {
+    for (strat_bool in c(T, F)) {
+      model_control <- list("time_risk" = time_bool, "strata" = strat_bool, "threshold" = 50)
       expect_no_error(RunCaseControlRegression_Omnibus(
         df, t0, t1, event,
         names = names, tform = tform_1,

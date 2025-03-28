@@ -6087,11 +6087,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
         }
-//        Rcout << "starting the sides" << endl;
         Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
-//        Rcout << "starting loglik" << endl;
         Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
-//        Rcout << "ending loglik" << endl;
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     }
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
@@ -6101,10 +6099,10 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
     Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
     //
-    if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
-        Ll_abs_best = Ll[ind0];
-        beta_abs_best = beta_c;
-    }
+//    if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
+//        Ll_abs_best = Ll[ind0];
+//        beta_abs_best = beta_c;
+//    }
     // Rcout << "prep finish" << endl;
     //
     List res_list;
