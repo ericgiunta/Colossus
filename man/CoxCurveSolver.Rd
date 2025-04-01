@@ -71,7 +71,6 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
 }
 \seealso{
 Other Cox Wrapper Functions: 
-\code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},

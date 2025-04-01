@@ -116,7 +116,6 @@ e <- RunCoxRegression_Guesses_CPP(
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxCurveSolver}()},
-\code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},

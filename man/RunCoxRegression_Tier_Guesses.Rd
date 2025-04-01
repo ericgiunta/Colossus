@@ -119,7 +119,6 @@ e <- RunCoxRegression_Tier_Guesses(
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxCurveSolver}()},
-\code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression}()},
 \code{\link{RunCoxRegression_Basic}()},

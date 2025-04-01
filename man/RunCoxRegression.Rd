@@ -94,7 +94,6 @@ e <- RunCoxRegression(
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxCurveSolver}()},
-\code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxNull}()},
 \code{\link{RunCoxRegression_Basic}()},
 \code{\link{RunCoxRegression_CR}()},
