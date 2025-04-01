@@ -7,10 +7,8 @@ articles:
   Control_Options: Control_Options.html
   count_time_tables: count_time_tables.html
   Dose_Formula_Inputs: Dose_Formula_Inputs.html
-  Equation_Expression: Equation_Expression.html
   Excess_and_Predicted_Cases: Excess_and_Predicted_Cases.html
   Grad_Hess: Grad_Hess.html
-  Matched_Case_Control: Matched_Case_Control.html
   Multi_Realization: Multi_Realization.html
   Plotting_And_Analysis: Plotting_And_Analysis.html
   Script_Comparison_Epicure: Script_Comparison_Epicure.html
@@ -18,4 +16,4 @@ articles:
   Starting-Description: Starting-Description.html
   Time_Dep_Cov: Time_Dep_Cov.html
   Wald_and_Log_Bound: Wald_and_Log_Bound.html
-last_built: 2025-04-01T20:28Z
+last_built: 2025-04-01T21:26Z

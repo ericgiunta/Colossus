@@ -4,10 +4,8 @@
 <url><loc>/articles/Alt_Run_Opt.html</loc></url>
 <url><loc>/articles/Control_Options.html</loc></url>
 <url><loc>/articles/Dose_Formula_Inputs.html</loc></url>
-<url><loc>/articles/Equation_Expression.html</loc></url>
 <url><loc>/articles/Excess_and_Predicted_Cases.html</loc></url>
 <url><loc>/articles/Grad_Hess.html</loc></url>
-<url><loc>/articles/Matched_Case_Control.html</loc></url>
 <url><loc>/articles/Multi_Realization.html</loc></url>
 <url><loc>/articles/Plotting_And_Analysis.html</loc></url>
 <url><loc>/articles/SMR_Analysis.html</loc></url>
@@ -47,7 +45,6 @@
 <url><loc>/reference/Rcomp_version.html</loc></url>
 <url><loc>/reference/Rcpp_version.html</loc></url>
 <url><loc>/reference/Replace_Missing.html</loc></url>
-<url><loc>/reference/RunCaseControlRegression_Omnibus.html</loc></url>
 <url><loc>/reference/RunCoxNull.html</loc></url>
 <url><loc>/reference/RunCoxPlots.html</loc></url>
 <url><loc>/reference/RunCoxRegression.html</loc></url>
