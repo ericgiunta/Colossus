@@ -459,28 +459,32 @@ void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<
             Rcout << Ll[ij] << " ";
         }
         Rcout << " " << endl;
-        Rcout << "C++ Note: df102 ";  // prints the first derivatives
-        for (int ij = 0; ij < reqrdnum; ij++) {
-            Rcout << Lld[ij] << " ";
+        if (!model_bool["single"]){
+            Rcout << "C++ Note: df102 ";  // prints the first derivatives
+            for (int ij = 0; ij < reqrdnum; ij++) {
+                Rcout << Lld[ij] << " ";
+            }
+            Rcout << " " << endl;
+            if (!model_bool["gradient"]){
+               Rcout << "C++ Note: df103 ";  // prints the second derivatives
+               for (int ij = 0; ij < reqrdnum; ij++) {
+                   Rcout << Lldd[ij*reqrdnum+ij] << " ";
+               }
+               Rcout << " " << endl;
+               Rcout << "C++ Note: ALL df103 ";  // prints the second derivatives
+               for (int ijk = 0; ijk < reqrdnum*reqrdnum; ijk++) {
+                   Rcout << Lldd[ijk] << " ";
+               }
+                Rcout << " " << endl;
+            }
         }
-        Rcout << " " << endl;
-        if (!model_bool["gradient"]){
-           Rcout << "C++ Note: df103 ";  // prints the second derivatives
-           for (int ij = 0; ij < reqrdnum; ij++) {
-               Rcout << Lldd[ij*reqrdnum+ij] << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: ALL df103 ";  // prints the second derivatives
-           for (int ijk = 0; ijk < reqrdnum*reqrdnum; ijk++) {
-               Rcout << Lldd[ijk] << " ";
-           }
+        if (!model_bool["null"]){
+            Rcout << "C++ Note: df104 ";  // prints parameter values
+            for (int ij = 0; ij < totalnum; ij++) {
+                Rcout << beta_0[ij] << " ";
+            }
             Rcout << " " << endl;
         }
-        Rcout << "C++ Note: df104 ";  // prints parameter values
-        for (int ij = 0; ij < totalnum; ij++) {
-            Rcout << beta_0[ij] << " ";
-        }
-        Rcout << " " << endl;
     }
 }
 

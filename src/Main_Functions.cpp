@@ -5963,6 +5963,15 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     ColXd RdR;
     ColXd RddR;
     // ------------------------------------------------------------------------- // initialize
+    if (!model_bool["null"]) {
+        // ---------------------------------------------
+        // To Start, needs to seperate the derivative terms
+        // ---------------------------------------------
+        //
+        Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
+    } else {
+        R = MatrixXd::Constant(df0.rows(), 1, 1.0);
+    }
     // ------------------------------------------------------------------------- // initialize
     int group_num = ntime*Strata_vals.size();
     IntegerMatrix RiskFail(group_num, 2);
@@ -5991,6 +6000,36 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     vector<double> Ll(reqrdnum, 0.0);  // log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  // log-likelihood derivative values
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  // the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
+    if (model_bool["null"]){
+        Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
+        Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
+//        if (verbose >= 4) {
+//            for (int group_ij = 0; group_ij < group_num; group_ij++) {
+//                //
+//                int risk_size = 0;
+//                vector<int> InGroup = RiskPairs[group_ij];
+//                // now has the grouping pairs and number of events
+//                int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+//                for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+//                    int i0 = InGroup[i] - 1;
+//                    int i1 = InGroup[i + 1] - 1;
+//                    risk_size += i1 - i0 + 1;
+//                }
+//                //
+//                vector<double> matched_data = Recur_Base[group_ij];
+//                Rcout << group_ij << " " << risk_size << " " << dj << endl;
+//                Rcout << " recur vals ";
+//                for (int i = 0; i < matched_data.size(); i++){
+//                    Rcout << matched_data[i] << " ";
+//                }
+//                Rcout << " " << endl;
+//            }
+//        }
+        //
+        List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["AIC"]=-2*Ll[0], _["BIC"]=-2*Ll[0], _["Status"] = "PASSED");
+        // returns a list of results
+        return res_list;
+    }
     // ------------------------------------------------------------------------- // initialize
     // the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  // vector to compare values

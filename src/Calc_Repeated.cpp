@@ -3060,7 +3060,10 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
 //'
 // [[Rcpp::export]]
 void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
-    int reqrdnum = totalnum - sum(KeepConstant);
+    int reqrdnum = 1;
+    if (!model_bool["null"]){
+        reqrdnum = totalnum - sum(KeepConstant);
+    }
     double cond_thres = model_bool["cond_thres"];
     // We need B vectors
     // start with the basic B matrix vector
@@ -3279,12 +3282,15 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
 //'
 // [[Rcpp::export]]
 void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
-    int reqrdnum = totalnum - sum(KeepConstant);
+    int reqrdnum = 1;
+    if (!model_bool["null"]){
+        reqrdnum = totalnum - sum(KeepConstant);
+    }
     double cond_thres = model_bool["cond_thres"];
     // we need to get the repeated values for unconditional likelihood calculation
-    MatrixXd RP = MatrixXd::Zero(RdR.rows(), 1);  // preallocates matrix for risk plus 1
-    MatrixXd RdRP = MatrixXd::Zero(RdR.rows(), reqrdnum);  // preallocates matrix for ratio of risk derivative to risk plus 1
-    MatrixXd RddRP = MatrixXd::Zero(RdR.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for ratio of risk second derivative to risk plus 1
+    MatrixXd RP = MatrixXd::Zero(R.rows(), 1);  // preallocates matrix for risk plus 1
+    MatrixXd RdRP = MatrixXd::Zero(R.rows(), reqrdnum);  // preallocates matrix for ratio of risk derivative to risk plus 1
+    MatrixXd RddRP = MatrixXd::Zero(R.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for ratio of risk second derivative to risk plus 1
     //
     RP.col(0) = R.col(0).array() + 1.0;
     //

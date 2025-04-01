@@ -799,6 +799,9 @@ Def_model_control <- function(control) {
       control[nm] <- FALSE
     }
   }
+  if (control["null"] == TRUE) {
+    control["single"] <- TRUE
+  }
   if ("step_size" %in% names(control)) {
     # fine
   } else {

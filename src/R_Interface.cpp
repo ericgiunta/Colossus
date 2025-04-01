@@ -723,7 +723,7 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
             _["time_risk"] = model_control["time_risk"],
             _["basic"] = model_control["basic"],
             _["linear_err"] = model_control["linear_err"],
-            _["null"] = false,
+            _["null"] = model_control["null"],
             _["cr"] = false,
             _["single"] = model_control["single"],
             _["gradient"] = model_control["gradient"],
