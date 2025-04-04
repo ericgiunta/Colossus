@@ -329,7 +329,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads) {
+void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     vector<int> indices = {1, int(df_m.rows())};
     int nstar = int(df_m.rows());
@@ -348,6 +348,9 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
     //
     int dj = RiskFail(0, 1) - RiskFail(0, 0) + 1;
     int m = int((nstar - dj + 1)*dj);
+    if (nstar > dj){
+        strata_odds[0] = double(dj) / double(nstar - dj);
+    }
     vector<double> risk_initial(m, 0.0);
     Recur_Base[0] = risk_initial;
     if (!model_bool["single"]){
@@ -373,7 +376,7 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& Strata_vals) {
+void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, NumericVector& Strata_vals) {
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -420,6 +423,9 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                 int m = int((nstar - dj + 1)*dj);
                 vector<double> risk_initial(m, 0.0);
                 Recur_Base[s_ij] = risk_initial;
+                if (nstar > dj){
+                    strata_odds[s_ij] = double(dj) / double(nstar - dj);
+                }
                 //
             } else {
                 RiskFail(s_ij, 0) = - 1;
@@ -472,6 +478,9 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                 int m = int((nstar - dj + 1)*dj);
                 vector<double> risk_initial(m, 0.0);
                 Recur_Base[s_ij] = risk_initial;
+                if (nstar > dj){
+                    strata_odds[s_ij] = double(dj) / double(nstar - dj);
+                }
                 for (int i=0; i< Recur_First[s_ij].size(); i++){
                     Recur_First[s_ij][i] = risk_initial;
                 }
@@ -527,6 +536,9 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                 int m = int((nstar - dj + 1)*dj);
                 vector<double> risk_initial(m, 0.0);
                 Recur_Base[s_ij] = risk_initial;
+                if (nstar > dj){
+                    strata_odds[s_ij] = double(dj) / double(nstar - dj);
+                }
                 for (int i=0; i< Recur_First[s_ij].size(); i++){
                     Recur_First[s_ij][i] = risk_initial;
                 }
@@ -552,7 +564,7 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu) {
+void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, NumericVector& tu) {
 //    vector<vector<int> > RiskPairs(ntime);
     if (model_bool["single"]) {
         #ifdef _OPENMP
@@ -596,6 +608,9 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
             int m = int((nstar - dj + 1)*dj);
             vector<double> risk_initial(m, 0.0);
             Recur_Base[ijk] = risk_initial;
+            if (nstar > dj){
+                strata_odds[ijk] = double(dj) / double(nstar - dj);
+            }
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
@@ -639,6 +654,9 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
             int m = int((nstar - dj + 1)*dj);
             vector<double> risk_initial(m, 0.0);
             Recur_Base[ijk] = risk_initial;
+            if (nstar > dj){
+                strata_odds[ijk] = double(dj) / double(nstar - dj);
+            }
             for (int i=0; i< Recur_First[ijk].size(); i++){
                 Recur_First[ijk][i] = risk_initial;
             }
@@ -685,6 +703,9 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
             int m = int((nstar - dj + 1)*dj);
             vector<double> risk_initial(m, 0.0);
             Recur_Base[ijk] = risk_initial;
+            if (nstar > dj){
+                strata_odds[ijk] = double(dj) / double(nstar - dj);
+            }
             for (int i=0; i< Recur_First[ijk].size(); i++){
                 Recur_First[ijk][i] = risk_initial;
             }
@@ -705,7 +726,7 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
+void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -755,6 +776,9 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                     int m = int((nstar - dj + 1)*dj);
                     vector<double> risk_initial(m, 0.0);
                     Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                    if (nstar > dj){
+                        strata_odds[s_ij*ntime+ijk] = double(dj) / double(nstar - dj);
+                    }
                 } else {
                     RiskFail(s_ij*ntime+ijk, 0) = - 1;
                     RiskFail(s_ij*ntime+ijk, 1) = - 1;
@@ -810,6 +834,9 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                     int m = int((nstar - dj + 1)*dj);
                     vector<double> risk_initial(m, 0.0);
                     Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                    if (nstar > dj){
+                        strata_odds[s_ij*ntime+ijk] = double(dj) / double(nstar - dj);
+                    }
                     for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
                         Recur_First[s_ij*ntime+ijk][i] = risk_initial;
                     }
@@ -868,6 +895,9 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                     int m = int((nstar - dj + 1)*dj);
                     vector<double> risk_initial(m, 0.0);
                     Recur_Base[s_ij*ntime+ijk] = risk_initial;
+                    if (nstar > dj){
+                        strata_odds[s_ij*ntime+ijk] = double(dj) / double(nstar - dj);
+                    }
                     for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
                         Recur_First[s_ij*ntime+ijk][i] = risk_initial;
                     }
@@ -3059,7 +3089,7 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
+void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = 1;
     if (!model_bool["null"]){
         reqrdnum = totalnum - sum(KeepConstant);
@@ -3092,16 +3122,10 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                 // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
                 double r_sum = 0;
                 int nm_dif = int(risk_size - dj + 1);
-                for (int i=0; i< risk_size; i++){
+                for (int i=0; i< nm_dif; i++){
                     // start by incrementing the sum
                     r_sum += risk_list[i];
-                    // two options, it is before the first item or it is one of the items to assign
-                    if (i > nm_dif){
-                        // just keep summing
-                    } else {
-                        // now we assign
-                        Recur_Base[group_ij][i] = r_sum;
-                    }
+                    Recur_Base[group_ij][i] = r_sum;
                 }
                 // now we need to progress through the remaining entries
                 for (int i_index = 1; i_index < dj; i_index ++){
@@ -3111,8 +3135,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                         int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
                         int risk_index = j_index + i_index; // the index of the risk value at this n
                         int t0 = recur_index - 1; // index for B(m, n-1)
-                        int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
-    //                    Rcout << recur_index << " " << risk_index << " " << t0 << " " << t1 << endl;
+                        int t1 = recur_index - nm_dif; // index for B(m-1, n-1)
                         // the filled value is either an edge case, B(m,n) = rn*B(m-1, n-1), or the full case
                         if (j_index == 0){
                             // edge case
@@ -3159,16 +3182,10 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                         // Rcout << "initial row" << endl;
                         // Rcout << nm_dif << " " << Recur_First[group_ij][der_ij].size() << endl;
                         // Rcout << risk_list.size() << " " << riskd_list.size() << endl;
-                        for (int i=0; i< risk_size; i++){
+                        for (int i=0; i< nm_dif; i++){
                             // start by incrementing the sum
                             r_sum += riskd_list[i];
-                            // two options, it is before the first item or it is one of the items to assign
-                            if (i >= nm_dif){
-                                // just keep summing
-                            } else {
-                                // now we assign
-                                Recur_First[group_ij][der_ij][i] = r_sum;
-                            }
+                            Recur_First[group_ij][der_ij][i] = r_sum;
                         }
                         // Rcout << "other rows" << endl;
                         // now we need to progress through the remaining entries
@@ -3179,7 +3196,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                                 int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
                                 int risk_index = j_index + i_index; // the index of the risk value at this n
                                 int t0 = recur_index - 1; // index for B(m, n-1)
-                                int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+                                int t1 = recur_index - nm_dif; // index for B(m-1, n-1)
                                 // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
                                 if (j_index == 0){
                                     // edge case
@@ -3234,16 +3251,10 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                             // we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
                             double r_sum = 0;
                             int nm_dif = int(risk_size - dj + 1);
-                            for (int i=0; i< risk_size; i++){
+                            for (int i=0; i< nm_dif; i++){
                                 // start by incrementing the sum
                                 r_sum += riskdd_list[i];
-                                // two options, it is before the first item or it is one of the items to assign
-                                if (i > nm_dif){
-                                    // just keep summing
-                                } else {
-                                    // now we assign
-                                    Recur_Second[group_ij][der_ijk][i] = r_sum;
-                                }
+                                Recur_Second[group_ij][der_ijk][i] = r_sum;
                             }
                             // now we need to progress through the remaining entries
                             for (int i_index = 1; i_index < dj; i_index ++){
@@ -3253,7 +3264,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                                     int recur_index = (i_index)*(nm_dif) + j_index; // the index of the value we are trying to fill
                                     int risk_index = j_index + i_index; // the index of the risk value at this n
                                     int t0 = recur_index - 1; // index for B(m, n-1)
-                                    int t1 = recur_index - (nm_dif+1); // index for B(m-1, n-1)
+                                    int t1 = recur_index - nm_dif; // index for B(m-1, n-1)
                                     // the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
                                     if (j_index == 0){
                                         // edge case
@@ -3281,18 +3292,18 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second , const int& nthreads, const IntegerVector& KeepConstant) {
+void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, double& dev, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = 1;
     if (!model_bool["null"]){
         reqrdnum = totalnum - sum(KeepConstant);
     }
     double cond_thres = model_bool["cond_thres"];
     // we need to get the repeated values for unconditional likelihood calculation
-    MatrixXd RP = MatrixXd::Zero(R.rows(), 1);  // preallocates matrix for risk plus 1
-    MatrixXd RdRP = MatrixXd::Zero(R.rows(), reqrdnum);  // preallocates matrix for ratio of risk derivative to risk plus 1
-    MatrixXd RddRP = MatrixXd::Zero(R.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for ratio of risk second derivative to risk plus 1
-    //
-    RP.col(0) = R.col(0).array() + 1.0;
+//    MatrixXd RP = MatrixXd::Zero(R.rows(), 1);  // preallocates matrix for risk plus 1
+//    MatrixXd RdRP = MatrixXd::Zero(R.rows(), reqrdnum);  // preallocates matrix for ratio of risk derivative to risk plus 1
+//    MatrixXd RddRP = MatrixXd::Zero(R.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for ratio of risk second derivative to risk plus 1
+//    //
+//    RP.col(0) = R.col(0).array() + 1.0;
     //
     if (model_bool["single"]){
         // Rcout << "starting single" << endl;
@@ -3301,7 +3312,8 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
             initializer(omp_priv = omp_orig)
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
+            reduction(vec_double_plus:Ll)  reduction(+:dev)
         #endif
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             //
@@ -3324,24 +3336,27 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                     Rs1 = log(b_0);
                     //
                 } else {
+                    Ld1 = log(strata_odds[group_ij])*dj + Ld1;
                     vector<int> InGroup = RiskPairs[group_ij];
                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                        Rs1 += RP.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().log().sum();
+                        Rs1 += (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).log().sum();
                     }
                 }
+                dev += -2*(Ld1 - Rs1);
                 Ll[0] += Ld1 - Rs1;
             }
         }
     } else if (model_bool["gradient"]){
-        for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
-            RdRP.col(der_ij) = Rd.col(der_ij).array() * RP.col(0).array().pow(-1).array();
-        }
+//        for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
+//            RdRP.col(der_ij) = Rd.col(der_ij).array() * RP.col(0).array().pow(-1).array();
+//        }
         // now we can calculate the loglikelihoods first derivative
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
             initializer(omp_priv = omp_orig)
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
+            reduction(vec_double_plus:Ll, Lld)  reduction(+:dev) collapse(2)
         #endif
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
@@ -3372,10 +3387,14 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                         Rs2 = b_1 / b_0;
                     } else {
                         vector<int> InGroup = RiskPairs[group_ij];
+                        Ld1 = log(strata_odds[group_ij])*dj + Ld1;
                         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                            Rs1 += RP.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().log().sum();
-                            Rs2 += RdRP.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                            Rs1 += (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).log().sum();
+                            Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
                         }
+                    }
+                    if (der_ij == 0){
+                        dev += -2*(Ld1 - Rs1);
                     }
                     //
                     Ll[der_ij] += Ld1 - Rs1;
@@ -3385,18 +3404,19 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         }
     } else {
         // Rcout << "starting full" << endl;
-        for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
-            RdRP.col(der_ij) = Rd.col(der_ij).array() * RP.col(0).array().pow(-1).array();
-        }
-        for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
-            RddRP.col(der_ijk) = Rdd.col(der_ijk).array() * RP.col(0).array().pow(-1).array();
-        }
+//        for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
+//            RdRP.col(der_ij) = Rd.col(der_ij).array() * RP.col(0).array().pow(-1).array();
+//        }
+//        for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
+//            RddRP.col(der_ijk) = Rdd.col(der_ijk).array() * RP.col(0).array().pow(-1).array();
+//        }
         // now we can calculate the loglikelihoods second derivatives
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
             std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
             initializer(omp_priv = omp_orig)
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
+            reduction(vec_double_plus:Ll, Lld, Lldd) reduction(+:dev) collapse(2)
         #endif
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
@@ -3447,21 +3467,25 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                         Rs3 = b_3 / b_0 - b_1 / b_0 * b_2 / b_0;
                     } else {
                         vector<int> InGroup = RiskPairs[group_ij];
+                        Ld1 = log(strata_odds[group_ij])*dj + Ld1;
                         if (der_ij == der_jk) {
                             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                                Rs1 += RP.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().log().sum();
-                                Rs2 += RdRP.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                                Rs1 += (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).log().sum();
+                                Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
                             }
                         }
                         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                            Rs3 -= (RdRP.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdRP.block(InGroup[i] - 1, der_jk, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
-                            Rs3 += RddRP.block(InGroup[i] - 1, der_ijk, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                            Rs3 -= ((Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())) * (Rd.block(InGroup[i] - 1, der_jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array()))).sum();
+                            Rs3 += (Rdd.block(InGroup[i] - 1, der_ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
                         }
                     }
                     //
                     if (der_ij == der_jk) {
                         Ll[der_ij] += Ld1 - Rs1;
                         Lld[der_ij] += Ld2 - Rs2;
+                        if (der_ij == 0){
+                            dev += -2*(Ld1 - Rs1);
+                        }
                     }
                     Lldd[der_ij*reqrdnum+der_jk] += Ld3 - Rs3;  // sums the log-likelihood and derivatives
                 }

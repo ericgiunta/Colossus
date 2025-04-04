@@ -57,8 +57,8 @@ Make_Groups_Strata_CR <- function(ntime, df_m, RiskFail, RiskPairs_Strata, tu, n
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads) {
-    invisible(.Call(`_Colossus_Make_Match`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads))
+Make_Match <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads) {
+    invisible(.Call(`_Colossus_Make_Match`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads))
 }
 
 #' Utility function to define matched risk groups by strata
@@ -69,8 +69,8 @@ Make_Match <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Strata <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals) {
-    invisible(.Call(`_Colossus_Make_Match_Strata`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals))
+Make_Match_Strata <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Strata`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, Strata_vals))
 }
 
 #' Utility function to define matched risk groups by time
@@ -81,8 +81,8 @@ Make_Match_Strata <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base,
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Time <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu) {
-    invisible(.Call(`_Colossus_Make_Match_Time`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu))
+Make_Match_Time <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu) {
+    invisible(.Call(`_Colossus_Make_Match_Time`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu))
 }
 
 #' Utility function to define matched risk groups by time and strata
@@ -93,8 +93,8 @@ Make_Match_Time <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Time_Strata <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals) {
-    invisible(.Call(`_Colossus_Make_Match_Time_Strata`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals))
+Make_Match_Time_Strata <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Time_Strata`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu, Strata_vals))
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
@@ -487,8 +487,8 @@ Calculate_Recursive <- function(model_bool, group_num, RiskFail, RiskPairs, tota
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Calc_Recur_LogLik <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant) {
-    invisible(.Call(`_Colossus_Calc_Recur_LogLik`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant))
+Calc_Recur_LogLik <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_Recur_LogLik`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant))
 }
 
 #' checks if the model is viable

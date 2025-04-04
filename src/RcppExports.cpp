@@ -77,8 +77,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Make_Match
-void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads);
-RcppExport SEXP _Colossus_Make_Match(SEXP model_boolSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP nthreadsSEXP) {
+void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads);
+RcppExport SEXP _Colossus_Make_Match(SEXP model_boolSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP strata_oddsSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
@@ -88,14 +88,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<vector<double> >& >::type Recur_Base(Recur_BaseSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_First(Recur_FirstSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_Second(Recur_SecondSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type strata_odds(strata_oddsSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
-    Make_Match(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads);
+    Make_Match(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads);
     return R_NilValue;
 END_RCPP
 }
 // Make_Match_Strata
-void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& Strata_vals);
-RcppExport SEXP _Colossus_Make_Match_Strata(SEXP model_boolSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP) {
+void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, NumericVector& Strata_vals);
+RcppExport SEXP _Colossus_Make_Match_Strata(SEXP model_boolSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP strata_oddsSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
@@ -105,15 +106,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<vector<double> >& >::type Recur_Base(Recur_BaseSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_First(Recur_FirstSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_Second(Recur_SecondSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type strata_odds(strata_oddsSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
-    Make_Match_Strata(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, Strata_vals);
+    Make_Match_Strata(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, Strata_vals);
     return R_NilValue;
 END_RCPP
 }
 // Make_Match_Time
-void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu);
-RcppExport SEXP _Colossus_Make_Match_Time(SEXP model_boolSEXP, SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP nthreadsSEXP, SEXP tuSEXP) {
+void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, NumericVector& tu);
+RcppExport SEXP _Colossus_Make_Match_Time(SEXP model_boolSEXP, SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP strata_oddsSEXP, SEXP nthreadsSEXP, SEXP tuSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
@@ -124,15 +126,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<vector<double> >& >::type Recur_Base(Recur_BaseSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_First(Recur_FirstSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_Second(Recur_SecondSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type strata_odds(strata_oddsSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type tu(tuSEXP);
-    Make_Match_Time(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu);
+    Make_Match_Time(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu);
     return R_NilValue;
 END_RCPP
 }
 // Make_Match_Time_Strata
-void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals);
-RcppExport SEXP _Colossus_Make_Match_Time_Strata(SEXP model_boolSEXP, SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP nthreadsSEXP, SEXP tuSEXP, SEXP Strata_valsSEXP) {
+void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals);
+RcppExport SEXP _Colossus_Make_Match_Time_Strata(SEXP model_boolSEXP, SEXP ntimeSEXP, SEXP df_mSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP strata_oddsSEXP, SEXP nthreadsSEXP, SEXP tuSEXP, SEXP Strata_valsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
@@ -143,10 +146,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< vector<vector<double> >& >::type Recur_Base(Recur_BaseSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_First(Recur_FirstSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_Second(Recur_SecondSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type strata_odds(strata_oddsSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type tu(tuSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
-    Make_Match_Time_Strata(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, nthreads, tu, Strata_vals);
+    Make_Match_Time_Strata(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu, Strata_vals);
     return R_NilValue;
 END_RCPP
 }
@@ -890,8 +894,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Calc_Recur_LogLik
-void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant);
-RcppExport SEXP _Colossus_Calc_Recur_LogLik(SEXP model_boolSEXP, SEXP group_numSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP nthreadsSEXP, SEXP KeepConstantSEXP) {
+void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, double& dev, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Calc_Recur_LogLik(SEXP model_boolSEXP, SEXP group_numSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP devSEXP, SEXP LlSEXP, SEXP LldSEXP, SEXP LlddSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP strata_oddsSEXP, SEXP nthreadsSEXP, SEXP KeepConstantSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
@@ -905,15 +909,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const MatrixXd& >::type Rdd(RddSEXP);
     Rcpp::traits::input_parameter< const MatrixXd& >::type RdR(RdRSEXP);
     Rcpp::traits::input_parameter< const MatrixXd& >::type RddR(RddRSEXP);
+    Rcpp::traits::input_parameter< double& >::type dev(devSEXP);
     Rcpp::traits::input_parameter< vector<double>& >::type Ll(LlSEXP);
     Rcpp::traits::input_parameter< vector<double>& >::type Lld(LldSEXP);
     Rcpp::traits::input_parameter< vector<double>& >::type Lldd(LlddSEXP);
     Rcpp::traits::input_parameter< vector<vector<double> >& >::type Recur_Base(Recur_BaseSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_First(Recur_FirstSEXP);
     Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_Second(Recur_SecondSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type strata_odds(strata_oddsSEXP);
     Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
-    Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant);
+    Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant);
     return R_NilValue;
 END_RCPP
 }
@@ -2984,10 +2990,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Make_Groups_CR", (DL_FUNC) &_Colossus_Make_Groups_CR, 7},
     {"_Colossus_Make_Groups_Strata", (DL_FUNC) &_Colossus_Make_Groups_Strata, 7},
     {"_Colossus_Make_Groups_Strata_CR", (DL_FUNC) &_Colossus_Make_Groups_Strata_CR, 8},
-    {"_Colossus_Make_Match", (DL_FUNC) &_Colossus_Make_Match, 8},
-    {"_Colossus_Make_Match_Strata", (DL_FUNC) &_Colossus_Make_Match_Strata, 9},
-    {"_Colossus_Make_Match_Time", (DL_FUNC) &_Colossus_Make_Match_Time, 10},
-    {"_Colossus_Make_Match_Time_Strata", (DL_FUNC) &_Colossus_Make_Match_Time_Strata, 11},
+    {"_Colossus_Make_Match", (DL_FUNC) &_Colossus_Make_Match, 9},
+    {"_Colossus_Make_Match_Strata", (DL_FUNC) &_Colossus_Make_Match_Strata, 10},
+    {"_Colossus_Make_Match_Time", (DL_FUNC) &_Colossus_Make_Match_Time, 11},
+    {"_Colossus_Make_Match_Time_Strata", (DL_FUNC) &_Colossus_Make_Match_Time_Strata, 12},
     {"_Colossus_Calculate_Sides", (DL_FUNC) &_Colossus_Calculate_Sides, 15},
     {"_Colossus_Calculate_Sides_PO", (DL_FUNC) &_Colossus_Calculate_Sides_PO, 16},
     {"_Colossus_Calculate_Sides_Gradient", (DL_FUNC) &_Colossus_Calculate_Sides_Gradient, 12},
@@ -3020,7 +3026,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calculate_Null_Sides_Strata", (DL_FUNC) &_Colossus_Calculate_Null_Sides_Strata, 8},
     {"_Colossus_Calc_Null_LogLik_Strata", (DL_FUNC) &_Colossus_Calc_Null_LogLik_Strata, 10},
     {"_Colossus_Calculate_Recursive", (DL_FUNC) &_Colossus_Calculate_Recursive, 14},
-    {"_Colossus_Calc_Recur_LogLik", (DL_FUNC) &_Colossus_Calc_Recur_LogLik, 19},
+    {"_Colossus_Calc_Recur_LogLik", (DL_FUNC) &_Colossus_Calc_Recur_LogLik, 21},
     {"_Colossus_Check_Risk", (DL_FUNC) &_Colossus_Check_Risk, 13},
     {"_Colossus_LogLik_Cox_PH_Omnibus", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus, 33},
     {"_Colossus_LogLik_Pois_Omnibus", (DL_FUNC) &_Colossus_LogLik_Pois_Omnibus, 30},

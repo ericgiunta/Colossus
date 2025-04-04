@@ -39,20 +39,25 @@ tform_1 <- c(
 )
 
 term_n <- c(0, 0)
-a_n <- c(0.1, 0.1)
+a_n <- c(0.1, -0.1)
 
-control <- list(verbose = 4)
+control <- list(verbose = 0)
+
+#df <- df[cell == 0,]
 
 for (time_bool in c(F)) {
 for (strat_bool in c(T)) {
-  model_control <- list("time_risk" = time_bool, "strata" = strat_bool, "threshold" = 50)
-  model_control["null"] <- TRUE
-  RunCaseControlRegression_Omnibus(
+  model_control <- list("time_risk" = time_bool, "strata" = strat_bool, "conditional_threshold" = 200)
+  model_control["pass"] <- TRUE
+  for (i in 1:5) {
+  e <- RunCaseControlRegression_Omnibus(
     df, t0, t1, event,
     names = names, tform = tform_1,
     strat_col = "cell", model_control = model_control,
     control = control, term_n = term_n, a_n = a_n
   )
+  print(c(e$LogLik, e$Deviance))
+  }
 }
 }
 
