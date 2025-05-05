@@ -730,19 +730,19 @@ Def_Control <- function(control) {
 Def_modelform_fix <- function(control, model_control, modelform, term_n) {
   term_tot <- max(term_n) + 1
   modelform <- toupper(modelform)
-  acceptable <- c(
+  acceptable <- toupper(c(
     "A", "PA", "PAE", "M", "ME", "GMIX", "GMIX-R", "GMIX-E",
     "multiplicative", "multiplicative-excess", "additive",
     "product-additive", "product-additive-excess"
-  )
+  ))
   if (modelform %in% acceptable) {
-    if (modelform %in% c("ME", "multiplicative", "multiplicative-excess")) {
+    if (modelform %in% c("ME", "MULTIPLICATIVE", "MULTIPLICATIVE-EXCESS")) {
       modelform <- "M"
-    } else if (modelform == "additive") {
+    } else if (modelform == "ADDITIVE") {
       modelform <- "A"
-    } else if (modelform == "product-additive") {
+    } else if (modelform == "PRODUCT-ADDITIVE") {
       modelform <- "PA"
-    } else if (modelform == "product-additive-excess") {
+    } else if (modelform == "PRODUCT-ADDITIVE-EXCESS") {
       modelform <- "PAE"
     } else if (modelform == "GMIX-R") {
       model_control$gmix_term <- rep(0, term_tot)

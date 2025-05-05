@@ -144,22 +144,26 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     ce <- c(time1, time2, event0)
   } else {
     dfend <- df[get(event0) == 1, ]
-    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+    #    uniq <- unlist(unique(df[, strat_col, with = FALSE]),
+    #      use.names = FALSE
+    #    )
+    uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
-    ))
-    for (i in seq_along(uniq)) {
-      df0 <- dfend[get(strat_col) == uniq[i], ]
-      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-      if (length(tu0) == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:",
-            uniq[i],
-            sep = " "
-          ))
-        }
-        df <- df[get(strat_col) != uniq[i], ]
-      }
-    }
+    )
+    df <- df[get(strat_col) %in% uniq_end, ]
+    #    for (i in seq_along(uniq)) {
+    #      df0 <- dfend[get(strat_col) == uniq[i], ]
+    #      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
+    #      if (length(tu0) == 0) {
+    #        if (control$verbose >= 2) {
+    #          warning(paste("Warning: no events for strata group:",
+    #            uniq[i],
+    #            sep = " "
+    #          ))
+    #        }
+    #        df <- df[get(strat_col) != uniq[i], ]
+    #      }
+    #    }
     uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
       use.names = FALSE
     ))
@@ -1407,22 +1411,26 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
     ce <- c(time1, time2, event0)
   } else {
     dfend <- df[get(event0) == 1, ]
-    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+    uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
-    ))
-    for (i in seq_along(uniq)) {
-      df0 <- dfend[get(strat_col) == uniq[i], ]
-      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-      if (length(tu0) == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:",
-            uniq[i],
-            sep = " "
-          ))
-        }
-        df <- df[get(strat_col) != uniq[i], ]
-      }
-    }
+    )
+    df <- df[get(strat_col) %in% uniq_end, ]
+    #    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+    #      use.names = FALSE
+    #    ))
+    #    for (i in seq_along(uniq)) {
+    #      df0 <- dfend[get(strat_col) == uniq[i], ]
+    #      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
+    #      if (length(tu0) == 0) {
+    #        if (control$verbose >= 2) {
+    #          warning(paste("Warning: no events for strata group:",
+    #            uniq[i],
+    #            sep = " "
+    #          ))
+    #        }
+    #        df <- df[get(strat_col) != uniq[i], ]
+    #      }
+    #    }
     uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
       use.names = FALSE
     ))
@@ -1600,22 +1608,26 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
     ce <- c(time1, time2, event0)
   } else {
     dfend <- df[get(event0) == 1, ]
-    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+    uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
-    ))
-    for (i in seq_along(uniq)) {
-      df0 <- dfend[get(strat_col) == uniq[i], ]
-      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-      if (length(tu0) == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:",
-            uniq[i],
-            sep = " "
-          ))
-        }
-        df <- df[get(strat_col) != uniq[i], ]
-      }
-    }
+    )
+    df <- df[get(strat_col) %in% uniq_end, ]
+    #    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+    #      use.names = FALSE
+    #    ))
+    #    for (i in seq_along(uniq)) {
+    #      df0 <- dfend[get(strat_col) == uniq[i], ]
+    #      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
+    #      if (length(tu0) == 0) {
+    #        if (control$verbose >= 2) {
+    #          warning(paste("Warning: no events for strata group:",
+    #            uniq[i],
+    #            sep = " "
+    #          ))
+    #        }
+    #        df <- df[get(strat_col) != uniq[i], ]
+    #      }
+    #    }
     uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
       use.names = FALSE
     ))

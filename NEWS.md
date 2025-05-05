@@ -111,3 +111,7 @@
 # Colossus 1.2.1
 
 * Matched Case-Control base code and equation vignette added
+
+# Colossus 1.2.2
+
+* Additional code cleanup and minor utility function speed improvements

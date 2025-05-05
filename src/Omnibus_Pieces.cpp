@@ -75,6 +75,7 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
         R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
         Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
+        Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
         nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
         nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
         nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
@@ -176,62 +177,8 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         //
     } else if (model_bool["gradient"]) {
         //
-        Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, KeepConstant);
-        // if (verbose >= 4) {
-        //    Rcout << "C++ Note: values checked ";
-        //    for (int ijk = 0; ijk < totalnum; ijk++) {
-        //        Rcout << beta_0[ijk] << " ";
-        //    }
-        //    Rcout << " " << endl;
-        //    Rcout << "C++ Note: sums checked ";
-        //    for (int ijk = 0; ijk < totalnum; ijk++) {
-        //        Rcout << T0.col(ijk).sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        //    Rcout << "C++ Note: derivs checked ";
-        //    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //        Rcout << Td0.col(ijk).sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        //    //
-        //    Rcout << "C++ Note: non-dose checked ";
-        //    for (int ijk = 0; ijk < term_tot; ijk++) {
-        //        Rcout << nonDose.col(ijk).array().sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        //    Rcout << "C++ Note: LIN_non-dose checked ";
-        //    for (int ijk = 0; ijk < term_tot; ijk++) {
-        //        Rcout << nonDose_LIN.col(ijk).array().sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        //    Rcout << "C++ Note: PLIN_non-dose checked ";
-        //    for (int ijk = 0; ijk < term_tot; ijk++) {
-        //        Rcout << nonDose_PLIN.col(ijk).array().sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        //    Rcout << "C++ Note: LOGLIN_non-dose checked ";
-        //    for (int ijk = 0; ijk < term_tot; ijk++) {
-        //        Rcout << nonDose_LOGLIN.col(ijk).array().sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        // }
-        Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant);
-        // if (R.minCoeff() <= 0) {
-        //    if (verbose >= 4) {
-        //        Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //    }
-        // } else if (verbose >= 4) {
-        //    Rcout << "C++ Note: risk checked ";
-        //    for (int ijk = 0; ijk < 1; ijk++) {
-        //        Rcout << R.col(0).sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        //    Rcout << "C++ Note: risk1 checked ";
-        //    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //        Rcout << Rd.col(ijk).sum() << " ";
-        //    }
-        //    Rcout << " " << endl;
-        // }
+        Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, KeepConstant);
+        Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
         //
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         //
@@ -324,40 +271,17 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
 //    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     // Calculates the side sum terms used
     if (model_bool["outcome_prob"]) {
-        Calculate_Sides_PO(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant);
+        Calculate_Sides_PO(model_bool, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant);
     } else if (model_bool["strata"]) {
         if (model_bool["cr"]) {
-            // strata_CR or strata_CR_single
-            if (model_bool["single"]) {
-                Calculate_Sides_Strata_Single_CR(RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, Strata_vals, KeepConstant);  // strata_CR_single
-            } else {
-                if (model_bool["gradient"]){
-                    Calculate_Sides_Strata_CR_Gradient(RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rls1, Rls2, Lls1, Lls2, cens_weight, nthreads, Strata_vals, KeepConstant);
-                } else {
-                    Calculate_Sides_Strata_CR(RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, Strata_vals, KeepConstant);  // strata_cr
-                }
-            }
-        } else if (model_bool["single"]) {
-            Calculate_Sides_Strata_Single(RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rls1, Lls1, nthreads, Strata_vals, KeepConstant);  // strata_single
-        } else if (model_bool["gradient"]) {
-            Calculate_Sides_Strata_Gradient(RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rls1, Rls2, Lls1, Lls2, nthreads, Strata_vals, KeepConstant);
+            Calculate_Sides_Strata_CR(model_bool, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, Strata_vals, KeepConstant);
         } else {
-            Calculate_Sides_Strata(RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, Strata_vals, KeepConstant);
+            Calculate_Sides_Strata(model_bool, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, Strata_vals, KeepConstant);
         }
     } else if (model_bool["cr"]) {
-        if (model_bool["single"]) {
-            Calculate_Sides_CR_SINGLE(RiskFail, RiskPairs, totalnum, ntime, R, Rls1, Lls1, cens_weight, nthreads, KeepConstant);
-        } else if (model_bool["gradient"]) {
-            Calculate_Sides_CR_Gradient(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rls1, Rls2, Lls1, Lls2, cens_weight, nthreads, KeepConstant);
-        } else {
-            Calculate_Sides_CR(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant);
-        }
-    } else if (model_bool["single"]) {
-        Calculate_Sides_Single(RiskFail, RiskPairs, totalnum, ntime, R, Rls1, Lls1, nthreads);
-    } else if (model_bool["gradient"]) {
-        Calculate_Sides_Gradient(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rls1, Rls2, Lls1, Lls2, nthreads, KeepConstant);
+        Calculate_Sides_CR(model_bool, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, nthreads, KeepConstant);
     } else {
-        Calculate_Sides(RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, KeepConstant);
+        Calculate_Sides(model_bool, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, nthreads, KeepConstant);
     }
     // Calculates log-likelihood
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -368,30 +292,22 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
         }
     }
     if (model_bool["outcome_prob"]) {
-        Calc_LogLik_PO(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Ll, Lld, Lldd, ties_method, KeepConstant);
+        Calc_LogLik_PO(model_bool, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Ll, Lld, Lldd, ties_method, KeepConstant);
     } else if (model_bool["strata"]) {
-        if (model_bool["single"]) {
-            Calc_LogLik_Strata_SINGLE(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rls1, Lls1, Ll, ties_method, Strata_vals, KeepConstant);  // strata_single
-        } else if (model_bool["basic"]) {
-            Calc_LogLik_Strata_BASIC(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, Strata_vals, KeepConstant);
+        if (model_bool["basic"]) {
+            Calc_LogLik_Strata_Basic(model_bool, nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, Strata_vals, KeepConstant);
         } else if (model_bool["linear_err"]) {
-            Calc_LogLik_Strata_Linear_ERR(tform, nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, Strata_vals, KeepConstant);
-        } else if (model_bool["gradient"]) {
-            Calc_LogLik_Strata_Gradient(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, Rls1, Rls2, Lls1, Lls2, Ll, Lld, ties_method, Strata_vals, KeepConstant);
+            Calc_LogLik_Strata_Linear_ERR(model_bool, tform, nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, Strata_vals, KeepConstant);
         } else {
-            Calc_LogLik_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, Strata_vals, KeepConstant);
+            Calc_LogLik_Strata(model_bool, nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, Strata_vals, KeepConstant);
         }
     } else {
-        if (model_bool["single"]) {
-            Calc_LogLik_Single(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rls1, Lls1, Ll, ties_method);  // single
-        } else if (model_bool["basic"]) {
-            Calc_LogLik_Basic(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
+        if (model_bool["basic"]) {
+            Calc_LogLik_Basic(model_bool, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
         } else if (model_bool["linear_err"]) {
-            Calc_LogLik_Linear_ERR(tform, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
-        } else if (model_bool["gradient"]) {
-            Calc_LogLik_Gradient(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, Rls1, Rls2, Lls1, Lls2, Ll, Lld, ties_method, KeepConstant);
+            Calc_LogLik_Linear_ERR(model_bool, tform, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
         } else {
-            Calc_LogLik(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
+            Calc_LogLik(model_bool, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
         }
     }
     //
@@ -510,12 +426,12 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         }
         //
     } else if (model_bool["gradient"]) {
-        Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, KeepConstant);
+        Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, KeepConstant);
         //
         if (model_bool["strata"]) {
-            Make_Risks_Weighted_Gradient(modelform, tform, term_n, totalnum, fir, s_weights, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant);
+            Make_Risks_Weighted_Gradient(modelform, tform, term_n, totalnum, fir, s_weights, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
         } else {
-            Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant);
+            Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
         }
         //
         RdR = (RdR.array().isFinite()).select(RdR, 0);
@@ -593,13 +509,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
-    if (model_bool["single"]) {
-        Poisson_LogLik_Single(nthreads, totalnum, PyrC, R, Ll);
-    } else if (model_bool["gradient"]) {
-        Poisson_LogLik_Gradient(nthreads, totalnum, PyrC, R, Rd, RdR, Ll, Lld, KeepConstant);
-    } else {
-        Poisson_LogLik(nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, KeepConstant);
-    }
+    Poisson_LogLik(model_bool, nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, KeepConstant);
     //
     dev_temp.col(0) = PyrC.col(0).array() * R.col(0).array();
     dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array().pow(- 1).array();

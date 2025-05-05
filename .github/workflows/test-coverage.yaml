@@ -4,7 +4,7 @@
 
 on:
   workflow_dispatch:
-    branches: [main, master]
+    branches: [main, master, dev]
 
 name: Test coverage
 

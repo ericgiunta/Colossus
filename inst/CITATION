@@ -14,9 +14,9 @@ bibentry(
   url = "https://github.com/ericgiunta/Colossus"
 )
 bibentry(
-    bibtype = "Misc",
-	title   = "Colossus: Software for radiation epidemiologic studies with big data",
-	author  = c(
+  bibtype = "Article",
+  title   = "Colossus: Software for radiation epidemiologic studies with big data",
+  author  = c(
     person("Eric", "Giunta"),
 	person("Dawson", "Stutzman"),
 	person("Sarah", "Cohen"),
@@ -28,7 +28,11 @@ bibentry(
 	person("Dan", "Andresen"),
     person("Amir", "Bahadori")
     ),
-  year     = "2024",
-  url = " https://burkclients.com/IRPA/2024/site/welcome.html",
-  publisher = "IRPA 16"
+  year     = "2025",
+  url = "https://iopscience.iop.org/article/10.1088/1361-6498/adcd80",
+  publisher = "IOP Publishing",
+  doi = "10.1088/1361-6498/adcd80",
+  volume = "45",
+  number = "2",
+  journal = "Journal of Radiological Protection"
 )

@@ -43,15 +43,15 @@ test_that("threshold nonfail", {
     for (time_bool in c(T, F)) {
       for (strat_bool in c(T, F)) {
         for (thres in c(1, 40, 100)) {
-            model_control <- list("time_risk" = time_bool, "strata" = strat_bool, "conditional_threshold" = thres)
-            model_control[extra_bool] <- TRUE
-            expect_no_error(RunCaseControlRegression_Omnibus(
-              df, t0, t1, event,
-              names = names, tform = tform_1,
-              strat_col = "cell", model_control = model_control,
-              control = control, term_n = term_n, a_n = a_n
-            ))
-          }
+          model_control <- list("time_risk" = time_bool, "strata" = strat_bool, "conditional_threshold" = thres)
+          model_control[extra_bool] <- TRUE
+          expect_no_error(RunCaseControlRegression_Omnibus(
+            df, t0, t1, event,
+            names = names, tform = tform_1,
+            strat_col = "cell", model_control = model_control,
+            control = control, term_n = term_n, a_n = a_n
+          ))
+        }
       }
     }
   }
