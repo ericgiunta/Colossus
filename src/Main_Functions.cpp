@@ -1286,6 +1286,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
+    if (model_bool["constraint"]) {
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
+        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+        return temp_list;
+    }
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
@@ -1709,6 +1716,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
+        return temp_list;
+    }
+    if (model_bool["constraint"]) {
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
+        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
     //
@@ -2576,6 +2590,13 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
+    if (model_bool["constraint"]) {
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
+        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+        return temp_list;
+    }
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
@@ -2975,6 +2996,13 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
+        return temp_list;
+    }
+    if (model_bool["constraint"]) {
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
+        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
     // cout.precision: controls the number of significant digits printed
@@ -4926,6 +4954,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
+    if (model_bool["constraint"]) {
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
+        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+        return temp_list;
+    }
 //    if (model_bool["single"]) {
 //        if (verbose >= 1) {
 //            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
@@ -5439,6 +5474,13 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
+    if (model_bool["constraint"]) {
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
+        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+        return temp_list;
+    }
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
@@ -5907,6 +5949,13 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
 //    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
 //    end_point = system_clock::now();
 //    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
+    if (model_bool["constraint"]) {
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
+        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+        return temp_list;
+    }
     //
     // df0: covariate data
     // ntime: number of event times for Cox PH
@@ -5982,29 +6031,35 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     vector<vector<vector<double> > > Recur_First(group_num, vector<vector<double>>(reqrdnum));
     vector<vector<vector<double> > > Recur_Second(group_num, vector<vector<double>>(reqrdnum*(reqrdnum + 1)/2));
     vector<double> strata_odds(group_num, 0.0);
+    vector<int> strata_cond(group_num, 1);
     // ------------------------------------------------------------------------- // initialize
     if (model_bool["time_risk"]){
         if (model_bool["strata"]) {
-            Make_Match_Time_Strata(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu, Strata_vals);
+            Make_Match_Time_Strata(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, tu, Strata_vals);
         } else {
-            Make_Match_Time(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu);
+            Make_Match_Time(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, tu);
         }
     } else {
         if (model_bool["strata"]) {
-            Make_Match_Strata(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, Strata_vals);
+            Make_Match_Strata(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, Strata_vals);
         } else {
-            Make_Match(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads);
+            Make_Match(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads);
         }
     }
+    int reqrdcond = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
 //    return temp_list;
     // ------------------------------------------------------------------------- // initialize
     vector<double> Ll(reqrdnum, 0.0);  // log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  // log-likelihood derivative values
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  // the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
+    //
+    vector<double> LldOdds(reqrdcond, 0.0); // storing the first derivative with respect to each strata odds ratio
+    vector<double> LlddOdds(reqrdcond, 0.0); // storing the second derivative with respect to each strata odds ratio
+    vector<double> LlddOddsBeta(reqrdcond*reqrdnum, 0.0); // storing the second derivative with respect to each strata odds ratio and model parameter
     double dev = 0.0; // deviance needs to be calculated seperately, because the conditional and unconditional portions have different formula?
     if (model_bool["null"]){
         Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant);
-        Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant);
+        Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta);
         //
         List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["AIC"]=-2*Ll[0], _["BIC"]=-2*Ll[0], _["Status"] = "PASSED");
         // returns a list of results
@@ -6017,8 +6072,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     double dose_abs_max0 = dose_abs_max;
     //
     vector<double> dbeta(totalnum, 0.0);
-    NumericVector m_g_store(reqrdnum);
-    NumericVector v_beta_store(reqrdnum);
+    vector<double> dstrata(group_num, 0.0);
+    NumericVector m_g_store(reqrdnum+reqrdcond);
+    NumericVector v_beta_store(reqrdnum+reqrdcond);
     //
     // --------------------------
     // always starts from initial guess
@@ -6061,6 +6117,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(Lldd.begin(), Lldd.end(), 0.0);
+            fill(LldOdds.begin(), LldOdds.end(), 0.0);
+            fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
+            fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
         }
         dev = 0.0;
         if (model_bool["gradient"]) {
@@ -6107,17 +6166,27 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             return temp_list;
         }
         Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
-        Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant);
+        Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta);
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
+        //
+        if (model_bool["gradient"]) {
+            Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
+        } else {
+            Calc_Change_Background(double_step, nthreads, totalnum, group_num, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dose_abs_max, abs_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+        }
     }
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
+        fill(LldOdds.begin(), LldOdds.end(), 0.0);
+        fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
+        fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
     }
     dev = 0.0;
     Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
-    Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant);
+    Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta);
     //
     //
     List res_list;

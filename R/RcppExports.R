@@ -57,8 +57,8 @@ Make_Groups_Strata_CR <- function(ntime, df_m, RiskFail, RiskPairs_Strata, tu, n
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads) {
-    invisible(.Call(`_Colossus_Make_Match`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads))
+Make_Match <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads) {
+    invisible(.Call(`_Colossus_Make_Match`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads))
 }
 
 #' Utility function to define matched risk groups by strata
@@ -69,8 +69,8 @@ Make_Match <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Strata <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, Strata_vals) {
-    invisible(.Call(`_Colossus_Make_Match_Strata`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, Strata_vals))
+Make_Match_Strata <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Strata`, model_bool, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, Strata_vals))
 }
 
 #' Utility function to define matched risk groups by time
@@ -81,8 +81,8 @@ Make_Match_Strata <- function(model_bool, df_m, RiskFail, RiskPairs, Recur_Base,
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Time <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu) {
-    invisible(.Call(`_Colossus_Make_Match_Time`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu))
+Make_Match_Time <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, tu) {
+    invisible(.Call(`_Colossus_Make_Match_Time`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, tu))
 }
 
 #' Utility function to define matched risk groups by time and strata
@@ -93,8 +93,8 @@ Make_Match_Time <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_
 #' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 #' @noRd
 #'
-Make_Match_Time_Strata <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu, Strata_vals) {
-    invisible(.Call(`_Colossus_Make_Match_Time_Strata`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, tu, Strata_vals))
+Make_Match_Time_Strata <- function(model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, tu, Strata_vals) {
+    invisible(.Call(`_Colossus_Make_Match_Time_Strata`, model_bool, ntime, df_m, RiskFail, RiskPairs, Recur_Base, Recur_First, Recur_Second, strata_odds, strata_cond, nthreads, tu, Strata_vals))
 }
 
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
@@ -331,8 +331,8 @@ Calculate_Recursive <- function(model_bool, group_num, RiskFail, RiskPairs, tota
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
 #'
-Calc_Recur_LogLik <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant) {
-    invisible(.Call(`_Colossus_Calc_Recur_LogLik`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant))
+Calc_Recur_LogLik <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta) {
+    invisible(.Call(`_Colossus_Calc_Recur_LogLik`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta))
 }
 
 #' checks if the model is viable
@@ -1037,6 +1037,30 @@ Log_Bound <- function(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, L0, para_number
 #'
 Calc_Change_trouble <- function(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble) {
     invisible(.Call(`_Colossus_Calc_Change_trouble`, para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant_trouble))
+}
+
+#' Utility function to calculate the change to make each iteration, applies to background terms as well
+#'
+#' \code{Calc_Change_Background} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change_Background <- function(double_step, nthreads, totalnum, group_num, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata) {
+    invisible(.Call(`_Colossus_Calc_Change_Background`, double_step, nthreads, totalnum, group_num, der_iden, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, change_all, tform, dint, dslp, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata))
+}
+
+#' Utility function to calculate the change to make each iteration with gradient step and background terms
+#'
+#' \code{Calc_Change_Background_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+Calc_Change_Background_Gradient <- function(nthreads, model_bool, totalnum, group_num, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata) {
+    invisible(.Call(`_Colossus_Calc_Change_Background_Gradient`, nthreads, model_bool, totalnum, group_num, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata))
 }
 
 #' Utility function to calculate the term and subterm values

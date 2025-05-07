@@ -729,3 +729,367 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
     }
     return;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//' Utility function to calculate the change to make each iteration, applies to background terms as well
+//'
+//' \code{Calc_Change_Background} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: parameter change matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_Change_Background(const int& double_step, const int& nthreads, const int& totalnum, const int& group_num, const int& der_iden, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
+    if (double_step == 1) {
+        int kept_covs = totalnum - sum(KeepConstant);
+        int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
+        int total_val = kept_covs + kept_strata;
+        NumericVector Lldd_vec(total_val * total_val);
+        NumericVector Lld_vec(total_val);
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < total_val*(total_val + 1)/2; ijk++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            if ((ij < kept_covs) && (jk < kept_covs)){
+                // Both are within the model parameters
+                Lldd_vec[jk * total_val + ij] = Lldd[jk * kept_covs + ij];
+                if (ij == jk) {
+                    Lld_vec[ij] = Lld[ij];
+                } else {
+                    Lldd_vec[ij * total_val + jk] = Lldd_vec[jk * total_val + ij];
+                }
+            } else if ((ij >= kept_covs) && (jk < kept_covs)) {
+                // ij is a strata parameter, jk is a model parameter
+                int ij_strata = ij - kept_covs;
+                Lldd_vec[jk * total_val + ij] = LlddOddsBeta[ij_strata*kept_covs + jk];
+                Lldd_vec[ij * total_val + jk] = Lldd_vec[jk * total_val + ij];
+            } else {
+                // Both are strata parameters
+                if (ij == jk){
+                    // We only want diagonal terms
+                    int ij_strata = ij - kept_covs;
+                    Lld_vec[ij] = LldOdds[ij_strata];
+                    Lldd_vec[jk * total_val + ij] = LlddOdds[ij_strata];
+                }
+            }
+        }
+        //
+        Lldd_vec.attr("dim") = Dimension(total_val, total_val);
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+        VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
+        VectorXd Lldd_beta_solve = VectorXd::Zero(totalnum);
+        VectorXd Lldd_strata_solve = VectorXd::Zero(group_num);
+        for (int ij = 0; ij < totalnum; ij++) {
+            if (KeepConstant[ij] == 0) {
+                int pij_ind = ij - sum(head(KeepConstant, ij));
+                Lldd_beta_solve(ij) = Lldd_solve0(pij_ind);
+            }
+        }
+        std::vector<int>::iterator it_end = strata_cond.begin();
+        for (int ij = 0; ij < group_num; ij++) {
+            if (strata_cond[ij] == 0) {
+                it_end = strata_cond.begin();
+                std::advance( it_end, ij);
+                int pij_ind = ij - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                Lldd_strata_solve(ij) = Lldd_solve0(pij_ind);
+            }
+        }
+        //
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (change_all) {
+                if (KeepConstant[ijk] == 0) {
+                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                    if (isnan(Lldd_beta_solve(ijk))) {
+                        if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                            dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+                        } else {
+                            dbeta[ijk] = 0;
+                        }
+                    } else {
+                        dbeta[ijk] = lr * Lldd_beta_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                    }
+                    //
+                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
+                        if (abs(dbeta[ijk]) > dose_abs_max) {
+                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                        }
+                    }else{
+                        if (abs(dbeta[ijk]) > abs_max) {
+                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                        }
+                    }
+                } else {
+                    dbeta[ijk] = 0;
+                }
+            }else{
+                if (ijk!=der_iden) {  // validation requires controlled changes
+                    dbeta[ijk] = 0.0;
+                } else {
+                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {
+                        dbeta[ijk] = dint;
+                    } else if ((tform[ijk] == "loglin") || (tform[ijk] == "lin") || (tform[ijk] == "plin")) {
+                        dbeta[ijk] = 0.001;
+                    } else {
+                        dbeta[ijk] = dslp;
+                    }
+                }
+            }
+        }
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < group_num; ijk++) {
+            if (strata_cond[ijk] == 0) {
+                std::vector<int>::iterator it_end = strata_cond.begin();
+                std::advance( it_end, ijk);
+                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end);
+                if (isnan(Lldd_strata_solve(ijk))) {
+                    if (LlddOdds[pjk_ind*kept_strata+pjk_ind] != 0) {
+                        dstrata[ijk] = -lr * LldOdds[pjk_ind] / LlddOdds[pjk_ind*kept_strata+pjk_ind];
+                    } else {
+                        dstrata[ijk] = 0;
+                    }
+                } else {
+                    dstrata[ijk] = lr * Lldd_strata_solve(ijk);
+                }
+                //
+            } else {
+                dstrata[ijk] = 0;
+            }
+        }
+    } else {
+        ;
+        int kept_covs = totalnum - sum(KeepConstant);
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (change_all) {
+                if (KeepConstant[ijk] == 0) {
+                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+                    } else {
+                        dbeta[ijk] = 0;
+                    }
+                    //
+                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
+                        if (abs(dbeta[ijk]) > dose_abs_max) {
+                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                        }
+                    }else{
+                        if (abs(dbeta[ijk]) > abs_max) {
+                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                        }
+                    }
+                } else {
+                    dbeta[ijk] = 0;
+                }
+            }else{
+                if (ijk!=der_iden) {  // validation requires controlled changes
+                    dbeta[ijk] = 0.0;
+                } else {
+                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {
+                        dbeta[ijk] = dint;
+                    } else if ((tform[ijk] == "loglin") || (tform[ijk] == "lin") || (tform[ijk] == "plin")) {
+                        dbeta[ijk] = abs_max;
+                    } else {
+                        dbeta[ijk] = dslp;
+                    }
+                }
+            }
+        }
+        int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < group_num; ijk++) {
+            if (strata_cond[ijk] == 0) {
+                std::vector<int>::iterator it_end = strata_cond.begin();
+                std::advance( it_end, ijk);
+                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end);
+                if (LlddOdds[pjk_ind*kept_strata+pjk_ind] != 0) {
+                    dstrata[ijk] = -lr * LldOdds[pjk_ind] / LlddOdds[pjk_ind*kept_strata+pjk_ind];
+                } else {
+                    dstrata[ijk] = 0;
+                }
+            } else {
+                dstrata[ijk] = 0;
+            }
+        }
+    }
+    return;
+}
+
+//' Utility function to calculate the change to make each iteration with gradient step and background terms
+//'
+//' \code{Calc_Change_Background_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: parameter change matrix
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& abs_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata) {
+    int kept_covs = totalnum - sum(KeepConstant);
+    int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
+    int total_val = kept_covs + kept_strata;
+    NumericVector Lld_vec(total_val);
+    for (int ij = 0; ij < kept_covs; ij++) {
+        Lld_vec[ij] = Lld[ij];
+    }
+    for (int ij = 0; ij < kept_strata; ij++) {
+        Lld_vec[ij+kept_covs] = LldOdds[ij];
+    }
+    //
+    // Written for the sake of preparing what variables will be needed
+    bool momentum_bool = model_bool["momentum"]; //assumed I will define booleans to pick which one is used
+    bool adadelta_bool = model_bool["adadelta"];
+    bool adam_bool     = model_bool["adam"];
+    // grouped the necessary variables
+    double lr = optim_para["lr"];
+    double decay1 = optim_para["momentum_decay"];
+    double decay2 = optim_para["learning_decay"];
+    double epsilon_momentum = optim_para["epsilon_decay"];
+    // required vectors for storage
+    if (momentum_bool) {
+        //
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                dbeta[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                m_g_store[pjk_ind] = dbeta[ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
+        }
+        for (int ijk = 0; ijk < group_num; ijk++) {
+            if (strata_cond[ijk] == 0) {
+                std::vector<int>::iterator it_end = strata_cond.begin();
+                std::advance( it_end, ijk);
+                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                dstrata[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+                m_g_store[pjk_ind] = dstrata[ijk];
+			    if (abs(dstrata[ijk]) > abs_max) {
+				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    }
+            } else {
+                dstrata[ijk] = 0;
+            }
+        }
+    } else if (adadelta_bool) {
+        //
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*pow(Lld_vec[pjk_ind],2);
+                v_beta_store[pjk_ind] = decay1 * v_beta_store[pjk_ind] + (1-decay1)*pow(dbeta[ijk],2);
+                dbeta[ijk] = pow((v_beta_store[pjk_ind] + epsilon_momentum) / (m_g_store[pjk_ind] +epsilon_momentum ),0.5)* Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
+        }
+        for (int ijk = 0; ijk < group_num; ijk++) {
+            if (strata_cond[ijk] == 0) {
+                std::vector<int>::iterator it_end = strata_cond.begin();
+                std::advance( it_end, ijk);
+                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*pow(Lld_vec[pjk_ind],2);
+                v_beta_store[pjk_ind] = decay1 * v_beta_store[pjk_ind] + (1-decay1)*pow(dstrata[ijk],2);
+                dstrata[ijk] = pow((v_beta_store[pjk_ind] + epsilon_momentum) / (m_g_store[pjk_ind] +epsilon_momentum ),0.5)* Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dstrata[ijk]) > abs_max) {
+				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    }
+            } else {
+                dstrata[ijk] = 0;
+            }
+        }
+    } else if (adam_bool) {
+        //
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
+                v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind],2);
+                //
+                double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1,iteration));
+                double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2,iteration));
+                //
+                dbeta[ijk] = lr / (pow(v_t_bias,0.5)+epsilon_momentum) * m_t_bias;  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
+        }
+        for (int ijk = 0; ijk < group_num; ijk++) {
+            if (strata_cond[ijk] == 0) {
+                std::vector<int>::iterator it_end = strata_cond.begin();
+                std::advance( it_end, ijk);
+                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
+                v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind],2);
+                //
+                double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1,iteration));
+                double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2,iteration));
+                //
+                dstrata[ijk] = lr / (pow(v_t_bias,0.5)+epsilon_momentum) * m_t_bias;  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dstrata[ijk]) > abs_max) {
+				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    }
+            } else {
+                dstrata[ijk] = 0;
+            }
+        }
+    } else {
+        //
+//        #ifdef _OPENMP
+//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                dbeta[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dbeta[ijk]) > abs_max) {
+				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    }
+            } else {
+                dbeta[ijk] = 0;
+            }
+        }
+        for (int ijk = 0; ijk < group_num; ijk++) {
+            if (strata_cond[ijk] == 0) {
+                std::vector<int>::iterator it_end = strata_cond.begin();
+                std::advance( it_end, ijk);
+                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                dstrata[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
+			    if (abs(dstrata[ijk]) > abs_max) {
+				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    }
+            } else {
+                dstrata[ijk] = 0;
+            }
+        }
+    }
+    return;
+}
+
+
