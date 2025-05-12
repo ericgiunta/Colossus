@@ -551,6 +551,18 @@ Print_LL <- function(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_b
     invisible(.Call(`_Colossus_Print_LL`, reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool))
 }
 
+#' Utility function to print likelihood and derivatives
+#'
+#' \code{Print_LL_Background} Called to print likelihood and derivatives for background model
+#' @inheritParams CPP_template
+#'
+#' @return Noting
+#' @noRd
+#'
+Print_LL_Background <- function(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool) {
+    invisible(.Call(`_Colossus_Print_LL_Background`, reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool))
+}
+
 #' Utility function to perform calculation of terms and risks for Poisson Omnibus
 #'
 #' \code{Pois_Term_Risk_Calc} Called to perform repeated term and risk calculations

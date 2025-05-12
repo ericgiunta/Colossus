@@ -787,12 +787,16 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
         VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
         VectorXd Lldd_beta_solve = VectorXd::Zero(totalnum);
         VectorXd Lldd_strata_solve = VectorXd::Zero(group_num);
+//        Rcout << "dbeta solve ";
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
                 int pij_ind = ij - sum(head(KeepConstant, ij));
                 Lldd_beta_solve(ij) = Lldd_solve0(pij_ind);
+//                Rcout << Lldd_solve0(pij_ind) << " ";
             }
         }
+//        Rcout << " " << endl;
+//        Rcout << "dstrata solve ";
         std::vector<int>::iterator it_end = strata_cond.begin();
         for (int ij = 0; ij < group_num; ij++) {
             if (strata_cond[ij] == 0) {
@@ -800,8 +804,10 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
                 std::advance( it_end, ij);
                 int pij_ind = ij - std::reduce(strata_cond.begin(), it_end) + kept_covs;
                 Lldd_strata_solve(ij) = Lldd_solve0(pij_ind);
+//                Rcout << Lldd_solve0(pij_ind) << " ";
             }
         }
+//        Rcout << " " << endl;
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -863,6 +869,9 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
                 } else {
                     dstrata[ijk] = lr * Lldd_strata_solve(ijk);
                 }
+                if (abs(dstrata[ijk]) > abs_max) {
+                    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+                }
                 //
             } else {
                 dstrata[ijk] = 0;
@@ -923,6 +932,9 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
                     dstrata[ijk] = -lr * LldOdds[pjk_ind] / LlddOdds[pjk_ind*kept_strata+pjk_ind];
                 } else {
                     dstrata[ijk] = 0;
+                }
+                if (abs(dstrata[ijk]) > abs_max) {
+                    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
                 }
             } else {
                 dstrata[ijk] = 0;

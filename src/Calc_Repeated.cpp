@@ -1494,6 +1494,13 @@ void Calculate_Sides_Strata_CR(List& model_bool, const IntegerMatrix& RiskFail, 
 // [[Rcpp::export]]
 void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1683,6 +1690,13 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
 // [[Rcpp::export]]
 void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, const VectorXd& cens_weight, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -1881,6 +1895,13 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
 // [[Rcpp::export]]
 void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2070,6 +2091,13 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
 // [[Rcpp::export]]
 void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2274,6 +2302,13 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
 // [[Rcpp::export]]
 void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2489,6 +2524,13 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
 // [[Rcpp::export]]
 void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2692,6 +2734,13 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
 // [[Rcpp::export]]
 void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     if (model_bool["single"]){
         #ifdef _OPENMP
         #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
@@ -2888,6 +2937,13 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
 // [[Rcpp::export]]
 void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]){
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
     MatrixXd temp(Rd.rows(), Rd.cols());
     temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
     fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp, 0).sum());
@@ -3310,6 +3366,16 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     if (!model_bool["single"]){
         reqrdcond = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
     }
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]) {
+        fill(Lld.begin(), Lld.end(), 0.0);
+        fill(LldOdds.begin(), LldOdds.end(), 0.0);
+        if (!model_bool["gradient"]){
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+            fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
+            fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+        }
+    }
     double cond_thres = model_bool["cond_thres"];
     // we need to get the repeated values for unconditional likelihood calculation
     //
@@ -3398,7 +3464,7 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                         Ld1 = strata_odds[group_ij]*dj + Ld1;
                         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
                             Rs1 += (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).log().sum();
-                            Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
+                            Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-1).array()).sum();
                         }
                         Rs2 *= exp(strata_odds[group_ij]);
                     }
@@ -3422,12 +3488,14 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                 int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
                 //
                 int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
-                double Ls1 = dj - 1;
                 vector<int> InGroup = RiskPairs[group_ij];
                 double Rs1 = 0.0;
+                int num_row = 0;
                 for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
                     Rs1 += (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-1).array().sum();
+                    num_row += InGroup[i + 1]-InGroup[i] + 1;
                 }
+                double Ls1 = dj - num_row;
                 LldOdds[group_jk] += Ls1 + Rs1;
             }
         }
@@ -3493,14 +3561,17 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                         if (der_ij == der_jk) {
                             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
                                 Rs1 += (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).log().sum();
-                                Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
+                                Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-1).array()).sum();
                             }
                             Rs2 *= exp(strata_odds[group_ij]);
                         }
+                        double Rs3l = 0.0;
+                        double Rs3r = 0.0;
                         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                            Rs3 -= exp(strata_odds[group_ij]) * ((Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())) * (Rd.block(InGroup[i] - 1, der_jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array()))).sum();
-                            Rs3 += (Rdd.block(InGroup[i] - 1, der_ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
+                            Rs3r += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * Rd.block(InGroup[i] - 1, der_jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-2).array() ).sum();
+                            Rs3l += (Rdd.block(InGroup[i] - 1, der_ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-1).array()).sum();
                         }
+                        Rs3 = exp(strata_odds[group_ij]) * (Rs3l - exp(strata_odds[group_ij])*Rs3r);
                     }
                     //
                     if (der_ij == der_jk) {
@@ -3525,14 +3596,16 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                 int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
                 //
                 int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
-                double Ls1 = dj-1;
+                int num_row = 0;
                 vector<int> InGroup = RiskPairs[group_ij];
                 double Rs1 = 0.0;
                 double Rs2 = 0.0;
                 for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
                     Rs1 += (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-1).array().sum();
-                    Rs2 += (R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
+                    Rs2 += ( R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-2).array()).sum();
+                    num_row += InGroup[i + 1]-InGroup[i] + 1;
                 }
+                double Ls1 = dj-num_row;
                 LldOdds[group_jk] += Ls1 + Rs1;
                 LlddOdds[group_jk] -= exp(strata_odds[group_ij])*Rs2;
             }
@@ -3551,7 +3624,8 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                     vector<int> InGroup = RiskPairs[group_ij];
                     double Rs2 = 0.0;
                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
-                        Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + strata_odds[group_ij] * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().pow(-1).array())).sum();
+                        Rs2 += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-2).array()).sum();
+                        //     (R.block( InGroup[i] - 1, 0,      InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-2).array()).sum();
                     }
                     LlddOddsBeta[group_jk*reqrdnum + der_ij] -= exp(strata_odds[group_ij])*Rs2;
                 }

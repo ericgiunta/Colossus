@@ -1312,6 +1312,25 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// Print_LL_Background
+void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& group_num, const int& reqrdcond, vector<double> strata_odds, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, int verbose, List& model_bool);
+RcppExport SEXP _Colossus_Print_LL_Background(SEXP reqrdnumSEXP, SEXP totalnumSEXP, SEXP group_numSEXP, SEXP reqrdcondSEXP, SEXP strata_oddsSEXP, SEXP LldOddsSEXP, SEXP LlddOddsSEXP, SEXP LlddOddsBetaSEXP, SEXP verboseSEXP, SEXP model_boolSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type reqrdnum(reqrdnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type group_num(group_numSEXP);
+    Rcpp::traits::input_parameter< const int& >::type reqrdcond(reqrdcondSEXP);
+    Rcpp::traits::input_parameter< vector<double> >::type strata_odds(strata_oddsSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type LldOdds(LldOddsSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type LlddOdds(LlddOddsSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type LlddOddsBeta(LlddOddsBetaSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
+    Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
+    return R_NilValue;
+END_RCPP
+}
 // Pois_Term_Risk_Calc
 void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const MatrixXd& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term);
 RcppExport SEXP _Colossus_Pois_Term_Risk_Calc(SEXP modelformSEXP, SEXP tformSEXP, SEXP term_nSEXP, SEXP totalnumSEXP, SEXP firSEXP, SEXP dfcSEXP, SEXP term_totSEXP, SEXP T0SEXP, SEXP Td0SEXP, SEXP Tdd0SEXP, SEXP TeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP DoseSEXP, SEXP nonDoseSEXP, SEXP beta_0SEXP, SEXP df0SEXP, SEXP dintSEXP, SEXP dslpSEXP, SEXP TTermSEXP, SEXP nonDose_LINSEXP, SEXP nonDose_PLINSEXP, SEXP nonDose_LOGLINSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP s_weightsSEXP, SEXP nthreadsSEXP, SEXP KeepConstantSEXP, SEXP verboseSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
@@ -2847,6 +2866,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Cox_Term_Risk_Calc", (DL_FUNC) &_Colossus_Cox_Term_Risk_Calc, 32},
     {"_Colossus_Cox_Side_LL_Calc", (DL_FUNC) &_Colossus_Cox_Side_LL_Calc, 31},
     {"_Colossus_Print_LL", (DL_FUNC) &_Colossus_Print_LL, 8},
+    {"_Colossus_Print_LL_Background", (DL_FUNC) &_Colossus_Print_LL_Background, 10},
     {"_Colossus_Pois_Term_Risk_Calc", (DL_FUNC) &_Colossus_Pois_Term_Risk_Calc, 33},
     {"_Colossus_Pois_Dev_LL_Calc", (DL_FUNC) &_Colossus_Pois_Dev_LL_Calc, 20},
     {"_Colossus_Cox_Pois_Check_Continue", (DL_FUNC) &_Colossus_Cox_Pois_Check_Continue, 45},

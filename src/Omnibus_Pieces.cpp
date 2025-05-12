@@ -404,6 +404,46 @@ void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<
     }
 }
 
+//' Utility function to print likelihood and derivatives
+//'
+//' \code{Print_LL_Background} Called to print likelihood and derivatives for background model
+//' @inheritParams CPP_template
+//'
+//' @return Noting
+//' @noRd
+//'
+// [[Rcpp::export]]
+void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& group_num, const int& reqrdcond, vector<double> strata_odds, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, int verbose, List& model_bool) {
+    if (verbose >= 4) {
+        if (!model_bool["single"]){
+            Rcout << "C++ Note: df105 ";  // prints the first derivatives
+            for (int ij = 0; ij < reqrdcond; ij++) {
+                Rcout << LldOdds[ij] << " ";
+            }
+            Rcout << " " << endl;
+            if (!model_bool["gradient"]){
+               Rcout << "C++ Note: df106 ";  // prints the second derivatives
+               for (int ij = 0; ij < reqrdcond; ij++) {
+                   Rcout << LlddOdds[ij] << " ";
+               }
+               Rcout << " " << endl;
+               Rcout << "C++ Note: df107 ";  // prints the second derivatives
+               for (int ijk = 0; ijk < reqrdnum*reqrdcond; ijk++) {
+                   Rcout << LlddOddsBeta[ijk] << " ";
+               }
+               Rcout << " " << endl;
+            }
+        }
+        if (!model_bool["null"]){
+            Rcout << "C++ Note: df108 ";  // prints parameter values
+            for (int ij = 0; ij < group_num; ij++) {
+                Rcout << strata_odds[ij] << " ";
+            }
+            Rcout << " " << endl;
+        }
+    }
+}
+
 //' Utility function to perform calculation of terms and risks for Poisson Omnibus
 //'
 //' \code{Pois_Term_Risk_Calc} Called to perform repeated term and risk calculations
