@@ -83,7 +83,19 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     between, first, last</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="matched-case-control-modeling">Matched Case-Control Modeling<a class="anchor" aria-label="anchor" href="#matched-case-control-modeling"></a>
 </h2>
@@ -93,6 +105,9 @@ presented in the following section.</p>
 <div class="section level3">
 <h3 id="general-theory">General Theory<a class="anchor" aria-label="anchor" href="#general-theory"></a>
 </h3>
+<div class="section level4">
+<h4 id="conditional-logistic-regression">Conditional Logistic Regression<a class="anchor" aria-label="anchor" href="#conditional-logistic-regression"></a>
+</h4>
 <p>Suppose we have matched case-control data and divide our data into
 each matched set. Each set has
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
@@ -175,6 +190,175 @@ then optimized via the same methods as the other regression models.</p>
     L^{\mu, \nu}_{set} = \sum_{i=1}^{m} \left ( \frac{r_i^{\mu,\nu}}{r_i} - \frac{r_i^{\mu}}{r_i}\frac{r_i^{nu}}{r_i} \right ) - \left ( \frac{B^{\mu,\nu}(m,n)}{B(m,n)} - \frac{B^{\mu}(m,n)}{B(m,n)}\frac{B^{\nu}(m,n)}{B(m,n)}  \right )
 \end{aligned}
 </annotation></semantics></math></p>
+</div>
+<div class="section level4">
+<h4 id="unconditional-logistic-regression">Unconditional Logistic Regression<a class="anchor" aria-label="anchor" href="#unconditional-logistic-regression"></a>
+</h4>
+<p>It is important to note that the recursive formula calculation can
+quickly become time-consuming, particularly if there is a large number
+of cases. To make the matched case-control method generally applicable,
+the likelihood function can be changed to a logistic regression model
+for matched sets with too many cases. In general the matched
+case-control regression function adds an item to the model control list,
+“cond_thres”, to set the threshold to switch to a logistic regression
+model.</p>
+<p>The logistic loglikelihood is defined by treating the matched
+case-control data as single trial data. The likelihood is a function of
+the event status
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\theta_i</annotation></semantics></math>)
+and odds ratio
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>O</mi><mi>i</mi></msub><annotation encoding="application/x-tex">O_i</annotation></semantics></math>).
+The odds ratio for any row is calculated as the product of the odds
+ratio for the matched set
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>O</mi><mi>s</mi></msub><annotation encoding="application/x-tex">O_s</annotation></semantics></math>)
+and the relative risk for the row
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>i</mi></msub><annotation encoding="application/x-tex">r_i</annotation></semantics></math>).
+Behind the scenes, Colossus optimizes both the model parameters
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">→</mo></mover><annotation encoding="application/x-tex">\vec{\beta}</annotation></semantics></math>)
+for the relative risk as well as a logistic model for the matched set
+odds ratios
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>O</mi><mi>s</mi></msub><mo>=</mo><msup><mi>e</mi><msub><mi>α</mi><mi>s</mi></msub></msup></mrow><annotation encoding="application/x-tex">O_s=e^{\alpha_s}</annotation></semantics></math>).</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>L</mi><mi>i</mi></msub><mo>=</mo><msub><mi>y</mi><mi>i</mi></msub><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><mi>∂</mi><msub><mi>L</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>j</mi></msub></mrow></mfrac><mo>=</mo><msub><mi>y</mi><mi>i</mi></msub><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>j</mi></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo>−</mo><msub><mi>O</mi><mi>s</mi></msub><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>j</mi></msubsup><mrow><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><mi>∂</mi><msub><mi>L</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mi>α</mi><mi>s</mi></msub></mrow></mfrac><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>L</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>j</mi></msub><mi>∂</mi><msub><mi>β</mi><mi>k</mi></msub></mrow></mfrac><mo>=</mo><msub><mi>y</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msubsup><mi>r</mi><mi>i</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>j</mi></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>k</mi></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>O</mi><mi>s</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msubsup><mi>r</mi><mi>i</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msubsup><mrow><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac><mo>−</mo><msub><mi>O</mi><mi>s</mi></msub><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>j</mi></msubsup><mrow><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>k</mi></msubsup><mrow><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>L</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>j</mi></msub><mi>∂</mi><msub><mi>α</mi><mi>s</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><mo>−</mo><msub><mi>O</mi><mi>s</mi></msub><msubsup><mi>r</mi><mi>i</mi><mi>j</mi></msubsup></mrow><mrow><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>L</mi><mi>i</mi></msub></mrow><mrow><mi>∂</mi><msubsup><mi>α</mi><mi>s</mi><mn>2</mn></msubsup></mrow></mfrac><mo>=</mo><mfrac><mrow><mo>−</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><mn>1</mn><mo>+</mo><msub><mi>O</mi><mi>s</mi></msub><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    L_i = y_i ln(O_s r_i) - ln(1+ O_s r_i) \\
+    \frac{\partial L_i}{\partial \beta_j} = y_i \frac{r^j_i}{r_i} - O_s \frac{r^j_i}{1 + O_s r_i}\\
+    \frac{\partial L_i}{\partial \alpha_s} = (y_i - 1) + \frac{1}{1 + O_s r_i} \\
+    \frac{\partial^2 L_i}{\partial \beta_j \partial \beta_k} = y_i \left ( \frac{r^{j,k}_i}{r_i} - \frac{r^j_i}{r_i} \frac{r^k_i}{r_i} \right ) - O_s \left ( \frac{r^{j,k}_i}{1 + O_s r_i} - O_s \frac{r^j_i}{1 + O_s r_i} \frac{r^k_i}{1 + O_s r_i} \right ) \\
+    \frac{\partial^2 L_i}{\partial \beta_j \partial \alpha_s} = \frac{-O_s r^j_i}{1 + O_s r_i} \\
+    \frac{\partial^2 L_i}{\partial \alpha_s^2} = \frac{-O_s r_i}{1 + O_s r_i}
+\end{aligned}
+</annotation></semantics></math></p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="examples-of-use">Examples of Use<a class="anchor" aria-label="anchor" href="#examples-of-use"></a>
+</h3>
+<p>The following provides a basic example of how to use the matched
+case-control regression function. The data used is from a lung cancer
+study, included with the survival library. Slight adjustments were made
+to make the data line up with data included with 32-bit Epicure, for
+comparison. In short we want to model the effects of treatment and
+Karnofsky performance score on sets matched by cancer cell type.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cancer</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">veteran</span></span>
+<span></span>
+<span><span class="co"># Make the same adjustments as Epicure example 6.5</span></span>
+<span><span class="va">karno</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span></span>
+<span><span class="va">karno</span><span class="op">[</span><span class="fl">93</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">karno</span> <span class="op">&lt;-</span> <span class="va">karno</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">cell_string</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">celltype</span></span>
+<span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"squamous"</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"smallcell"</span> <span class="op">~</span> <span class="fl">2</span>,</span>
+<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"adeno"</span> <span class="op">~</span> <span class="fl">3</span>,</span>
+<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"large"</span> <span class="op">~</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="va">cell</span></span>
+<span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">karno50</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span> <span class="op">-</span> <span class="fl">50</span></span>
+<span><span class="co"># Convert the cell column into multiple factor columns</span></span>
+<span><span class="va">fcols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span><span class="op">)</span></span>
+<span><span class="va">val</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/factorize.html">factorize</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">fcols</span><span class="op">)</span> <span class="co"># Colossus function</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">val</span><span class="op">$</span><span class="va">df</span></span>
+<span></span>
+<span><span class="va">t0</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
+<span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="st">"time"</span></span>
+<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"status"</span></span>
+<span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"karno50"</span>, <span class="st">"trt"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">tform_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"loglin"</span>, <span class="st">"loglin"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
+<p>In the following examples we are using matching by strata and
+changing the conditional threshold. In the first case every matched set
+uses the recursive formula, in the second one set uses the simplified
+formula, and in the third every set uses the simplified formula. In all
+cases the regression returns the typical output and can be summarized
+similar to other regression function output.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"strata"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"conditional_threshold"</span> <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>,</span>
+<span>  names <span class="op">=</span> <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform_1</span>,</span>
+<span>  strat_col <span class="op">=</span> <span class="st">"cell"</span>, model_control <span class="op">=</span> <span class="va">model_control</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, a_n <span class="op">=</span> <span class="va">a_n</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"strata"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"conditional_threshold"</span> <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
+<span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>,</span>
+<span>  names <span class="op">=</span> <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform_1</span>,</span>
+<span>  strat_col <span class="op">=</span> <span class="st">"cell"</span>, model_control <span class="op">=</span> <span class="va">model_control</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, a_n <span class="op">=</span> <span class="va">a_n</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"strata"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"conditional_threshold"</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>,</span>
+<span>  names <span class="op">=</span> <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform_1</span>,</span>
+<span>  strat_col <span class="op">=</span> <span class="st">"cell"</span>, model_control <span class="op">=</span> <span class="va">model_control</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, a_n <span class="op">=</span> <span class="va">a_n</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e0</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04350168         0.02315817</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin           0      -0.36615825         0.73703418</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
+<span><span class="co">#&gt; Deviance: 49.86</span></span>
+<span><span class="co">#&gt; 0 out of 4 matched sets used Unconditional Likelihood</span></span>
+<span><span class="co">#&gt; Iterations run: 18</span></span>
+<span><span class="co">#&gt; maximum step size: 9.54e-07, maximum first derivative: 3.79e+02</span></span>
+<span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
+<span><span class="co">#&gt; Run finished in 0.07 seconds</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04386339         0.02048506</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin           0      -0.37043487         0.57345538</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
+<span><span class="co">#&gt; Deviance: 52.75</span></span>
+<span><span class="co">#&gt; 1 out of 4 matched sets used Unconditional Likelihood</span></span>
+<span><span class="co">#&gt; Iterations run: 21</span></span>
+<span><span class="co">#&gt; maximum step size: 9.54e-07, maximum first derivative: 4.35e+02</span></span>
+<span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
+<span><span class="co">#&gt; Run finished in 0.06 seconds</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Deviation</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04487003         0.01633575</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin           0      -0.37735968         0.55683957</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
+<span><span class="co">#&gt; Deviance: 59.72</span></span>
+<span><span class="co">#&gt; 4 out of 4 matched sets used Unconditional Likelihood</span></span>
+<span><span class="co">#&gt; Iterations run: 21</span></span>
+<span><span class="co">#&gt; maximum step size: 9.54e-07, maximum first derivative: 7.06e+02</span></span>
+<span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
+<span><span class="co">#&gt; Run finished in 0.06 seconds</span></span>
+<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
