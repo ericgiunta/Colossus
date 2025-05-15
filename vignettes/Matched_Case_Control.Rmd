@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 library(Colossus)
 library(data.table)
 library(survival)
+library(dplyr)
 ```
 
 ## Matched Case-Control Modeling
@@ -27,6 +28,8 @@ library(survival)
 One upcoming regression method in Colossus is matched case-control logistic regression. The implementation is ongoing, but the theory is presented in the following section.
 
 ### General Theory
+
+#### Conditional Logistic Regression
 
 Suppose we have matched case-control data and divide our data into each matched set. Each set has $m$ cases and $n$ records. We denote the relative risk for individual $i$ in the set by $r_i$. We can calculate the probability of case exposures conditional on all exposures in the set by taking the ratio of the product of relative risks in the cases to the sum of the product of relative risks for every way of selecting $m$ individuals from the $n$ at risk.
 
@@ -97,4 +100,99 @@ $$
 $$
 </p>
 
+#### Unconditional Logistic Regression
 
+It is important to note that the recursive formula calculation can quickly become time-consuming, particularly if there is a large number of cases. To make the matched case-control method generally applicable, the likelihood function can be changed to a logistic regression model for matched sets with too many cases. In general the matched case-control regression function adds an item to the model control list, "cond_thres", to set the threshold to switch to a logistic regression model.
+
+The logistic loglikelihood is defined by treating the matched case-control data as single trial data. The likelihood is a function of the event status ($\theta_i$) and odds ratio ($O_i$). The odds ratio for any row is calculated as the product of the odds ratio for the matched set ($O_s$) and the relative risk for the row ($r_i$). Behind the scenes, Colossus optimizes both the model parameters ($\vec{\beta}$) for the relative risk as well as a logistic model for the matched set odds ratios ($O_s=e^{\alpha_s}$).
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    L_i = y_i ln(O_s r_i) - ln(1+ O_s r_i) \\
+    \frac{\partial L_i}{\partial \beta_j} = y_i \frac{r^j_i}{r_i} - O_s \frac{r^j_i}{1 + O_s r_i}\\
+    \frac{\partial L_i}{\partial \alpha_s} = (y_i - 1) + \frac{1}{1 + O_s r_i} \\
+    \frac{\partial^2 L_i}{\partial \beta_j \partial \beta_k} = y_i \left ( \frac{r^{j,k}_i}{r_i} - \frac{r^j_i}{r_i} \frac{r^k_i}{r_i} \right ) - O_s \left ( \frac{r^{j,k}_i}{1 + O_s r_i} - O_s \frac{r^j_i}{1 + O_s r_i} \frac{r^k_i}{1 + O_s r_i} \right ) \\
+    \frac{\partial^2 L_i}{\partial \beta_j \partial \alpha_s} = \frac{-O_s r^j_i}{1 + O_s r_i} \\
+    \frac{\partial^2 L_i}{\partial \alpha_s^2} = \frac{-O_s r_i}{1 + O_s r_i}
+\end{aligned}
+$$
+</p>
+
+### Examples of Use
+
+The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included with the survival library. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
+
+```{r}
+#
+data(cancer, package = "survival")
+df <- veteran
+
+# Make the same adjustments as Epicure example 6.5
+karno <- df$karno
+karno[93] <- 20
+df$karno <- karno
+df$trt <- df$trt - 1
+df$trt <- as.integer(df$trt == 0)
+cell_string <- df$celltype
+cell <- case_when(
+  cell_string == "squamous" ~ 1,
+  cell_string == "smallcell" ~ 2,
+  cell_string == "adeno" ~ 3,
+  cell_string == "large" ~ 0
+)
+df$cell <- cell
+
+df$karno50 <- df$karno - 50
+# Convert the cell column into multiple factor columns
+fcols <- c("cell")
+val <- factorize(df, fcols) # Colossus function
+df <- val$df
+
+t0 <- "%trunc%"
+t1 <- "time"
+event <- "status"
+
+names <- c(
+  "karno50", "trt"
+)
+tform_1 <- c(
+  "loglin", "loglin"
+)
+
+term_n <- c(0, 0)
+a_n <- c(0.1, 0.1)
+```
+
+In the following examples we are using matching by strata and changing the conditional threshold. In the first case every matched set uses the recursive formula, in the second one set uses the simplified formula, and in the third every set uses the simplified formula. In all cases the regression returns the typical output and can be summarized similar to other regression function output.
+
+```{r}
+control <- list(verbose = 0, maxiters = c(25, 25))
+model_control <- list("strata" = T, "conditional_threshold" = 100)
+e0 <- RunCaseControlRegression_Omnibus(
+  df, t0, t1, event,
+  names = names, tform = tform_1,
+  strat_col = "cell", model_control = model_control,
+  control = control, term_n = term_n, a_n = a_n
+)
+
+model_control <- list("strata" = T, "conditional_threshold" = 40)
+e1 <- RunCaseControlRegression_Omnibus(
+  df, t0, t1, event,
+  names = names, tform = tform_1,
+  strat_col = "cell", model_control = model_control,
+  control = control, term_n = term_n, a_n = a_n
+)
+
+model_control <- list("strata" = T, "conditional_threshold" = 0)
+e2 <- RunCaseControlRegression_Omnibus(
+  df, t0, t1, event,
+  names = names, tform = tform_1,
+  strat_col = "cell", model_control = model_control,
+  control = control, term_n = term_n, a_n = a_n
+)
+
+Interpret_Output(e0)
+Interpret_Output(e1)
+Interpret_Output(e2)
+```

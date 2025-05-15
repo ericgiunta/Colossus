@@ -302,16 +302,16 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     keep_constant, term_tot, uniq, model_control,
     cons_mat, cons_vec
   )
-  # if ("Status" %in% names(e)) {
-  #   if (is.nan(e$LogLik)) {
-  #     stop(e$Status)
-  #   }
-  # }
-  # e$Parameter_Lists$names <- names
-  # e$Parameter_Lists$modelformula <- modelform
-  # e$Parameter_Lists$first_term <- fir
-  # e$Survival_Type <- "CaseControl"
-  # func_t_end <- Sys.time()
-  # e$RunTime <- func_t_end - func_t_start
+  if ("Status" %in% names(e)) {
+    if (is.nan(e$LogLik)) {
+      stop(e$Status)
+    }
+  }
+  e$Parameter_Lists$names <- names
+  e$Parameter_Lists$modelformula <- modelform
+  e$Parameter_Lists$first_term <- fir
+  e$Survival_Type <- "CaseControl"
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
   return(e)
 }

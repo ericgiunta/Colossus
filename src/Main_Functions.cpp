@@ -6065,7 +6065,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant);
         Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta);
         //
-        List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["Status"] = "PASSED", _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond));
+        List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["Status"] = "PASSED", _["StrataOdds"]=wrap(strata_odds), _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond));
         // returns a list of results
         return res_list;
     }
@@ -6186,7 +6186,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 Rcout << " " << endl;
             }
             //
-            temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+            temp_list = List::create(_["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
         }
         Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
@@ -6831,7 +6831,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     List res_list;
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
         // returns a list of results
         return res_list;
     }
@@ -6842,7 +6842,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
     if (model_bool["gradient"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
         return res_list;
     }
     //
@@ -6875,7 +6875,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         }
     } else { }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }

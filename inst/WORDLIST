@@ -7,6 +7,7 @@ breslow
 breslow's
 CMD
 codecov
+cond
 config
 CoxCurveSolver
 cr
@@ -34,6 +35,7 @@ halfmax
 iden
 infty
 iteratively
+Karnofsky
 LEXP
 lin
 linux
@@ -85,7 +87,9 @@ subterms
 surv
 Surv
 tform
+thres
 trunc
 unshared
 UserID
+vec
 Venzon

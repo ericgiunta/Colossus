@@ -2932,6 +2932,45 @@ Interpret_Output <- function(out_list, digits = 2) {
     } else {
       # Check if its a multidose problem
       if (out_list$Survival_Type == "Cox_Multidose") {
+        message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
+      } else if (out_list$Survival_Type == "CaseControl") {
+        # case control output
+        # get the model details
+        names <- out_list$Parameter_Lists$names
+        tforms <- out_list$Parameter_Lists$tforms
+        term_n <- out_list$Parameter_Lists$term_n
+        beta_0 <- out_list$beta_0
+        stdev <- out_list$Standard_Deviation
+        strata_odds <- out_list$StrataOdds
+        res_table <- data.table(
+          "Covariate" = names,
+          "Subterm" = tforms,
+          "Term Number" = term_n,
+          "Central Estimate" = beta_0,
+          "Standard Deviation" = stdev
+        )
+        message("Final Results")
+        print(res_table)
+        deviance <- out_list$Deviance
+        iteration <- out_list$Control_List$Iteration
+        step_max <- out_list$Control_List$`Maximum Step`
+        deriv_max <- out_list$Control_List$`Derivative Limiting`
+        converged <- out_list$Converged
+        #
+        freepara <- out_list$FreeParameters
+        freestrata <- out_list$FreeSets
+        #
+        message("\nMatched Case-Control Model Used")
+        message(paste("Deviance: ", round(deviance, digits), sep = ""))
+        message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
+        if (!is.null(converged)) {
+          message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          if (converged) {
+            message("Analysis converged")
+          } else {
+            message("Analysis did not converge, check convergence criteria or run further")
+          }
+        }
       } else {
         # get the model details
         names <- out_list$Parameter_Lists$names

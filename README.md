@@ -6,7 +6,6 @@
 <!-- badges: start -->
 
 [![](https://img.shields.io/github/languages/code-size/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus)
-[![](https://img.shields.io/github/last-commit/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![Project Status: Active - The project has reached a stable, usable
 state and is being actively
@@ -84,16 +83,16 @@ Interpret_Output(e)
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Deviation
 #>       <char>  <char>       <int>            <num>              <num>
-#> 1:         a  loglin           0         44.53340       9.490627e+07
-#> 2:         b     lin           1         98.72266                NaN
-#> 3:         c     lin           1         96.82311       2.408255e+02
-#> 4:         d    plin           2        101.10000       5.207003e+02
+#> 1:         a  loglin           0         42.10452                NaN
+#> 2:         b     lin           1         98.72266        3781273.501
+#> 3:         c     lin           1         96.82311        3698137.325
+#> 4:         d    plin           2        101.10000           2326.871
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 1.35,  AIC: 9.35
 #> Iterations run: 100
 #> maximum step size: 1.00e+00, maximum first derivative: 1.92e-04
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.25 seconds
+#> Run finished in 0.27 seconds
 #> |-------------------------------------------------------------------|
 ```
