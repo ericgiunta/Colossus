@@ -45,60 +45,61 @@ template <typename T> int sign(T val) {
 //'
 // [[Rcpp::export]]
 void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp, double& dose_abs_max, double& abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, List& model_bool) {
-    T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
+    const int mat_row = df0.rows();
+    T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
     if (model_bool["basic"]) {
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        TTerm = MatrixXd::Zero(df0.rows(), 1);  // matrix of term values
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        TTerm = MatrixXd::Zero(mat_row, 1);  // matrix of term values
     } else if (model_bool["linear_err"]) {
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        nonDose_PLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Loglinear subterm values
-        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(df0.rows(), 1);  // matrix of term values
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        nonDose_PLIN = MatrixXd::Constant(mat_row, 1, 1.0);  // matrix of Loglinear subterm values
+        nonDose_LOGLIN = MatrixXd::Constant(mat_row, 1, 1.0);  // matrix of Product linear subterm values
+        TTerm = MatrixXd::Zero(mat_row, 1);  // matrix of term values
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     } else if (model_bool["single"]) {
-        Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-        nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-        nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-        nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+        Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+        nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+        nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+        nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+        nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+        TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
     } else if (model_bool["gradient"]){
-        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-        nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-        nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-        nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(df0.rows(), term_tot);  // matrix of term values
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Term derivative columns
+        Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+        nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+        nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+        nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+        nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+        TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
     } else {
-        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
-        Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-        nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-        nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-        nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Term derivative columns
+        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
+        Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+        nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+        nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+        nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+        nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+        TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
         dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
         dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
     return;
 }

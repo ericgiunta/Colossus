@@ -1226,8 +1226,9 @@ void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, c
     // Calculates the sub term values
     //
     // reset the subterm counts
-    nonDose_PLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Loglinear subterm values
-    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Product linear subterm values
+    const int mat_row = df0.rows();
+    nonDose_PLIN = MatrixXd::Constant(mat_row, 1, 1.0);  // matrix of Loglinear subterm values
+    nonDose_LOGLIN = MatrixXd::Constant(mat_row, 1, 1.0);  // matrix of Product linear subterm values
     #ifdef _OPENMP
     #pragma omp declare reduction (eig_plus: MatrixXd: omp_out=omp_out.array() + omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 0.0))
     #pragma omp declare reduction (eig_mult: MatrixXd: omp_out=omp_out.array() * omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 1.0))

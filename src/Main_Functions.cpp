@@ -75,17 +75,18 @@ bool Check_Risk(IntegerVector term_n, StringVector tform, NumericVector a_n, Num
     // ---------------------------------------------
     //
     Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
-    MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
+    const int mat_row = df0.rows();
+    MatrixXd T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
     //
-    MatrixXd Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-    MatrixXd R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
+    MatrixXd Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+    MatrixXd R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
     //
-    MatrixXd Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-    MatrixXd nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-    MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-    MatrixXd nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-    MatrixXd TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+    MatrixXd Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+    MatrixXd nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+    MatrixXd nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+    MatrixXd nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+    MatrixXd TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
     //
     // Calculates the subterm and term values
     Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, KeepConstant);
@@ -129,6 +130,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum;
     int reqrdnum;
@@ -185,7 +187,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         //
         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     } else {
-        R = MatrixXd::Constant(df0.rows(), 1, 1.0);
+        R = MatrixXd::Constant(mat_row, 1, 1.0);
     }
     // ------------------------------------------------------------------------- // initialize
     IntegerMatrix RiskFail;
@@ -602,7 +604,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     List res_list;
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
         // returns a list of results
         return res_list;
     }
@@ -613,7 +615,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
     if (model_bool["gradient"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
         return res_list;
     }
     //
@@ -715,6 +717,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     //
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -760,32 +763,32 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     //
-    T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
-    Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-    R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
+    T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
+    Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+    R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
     //
-    Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-    nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-    nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-    nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-    TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+    Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+    nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+    nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+    nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+    nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+    TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
     if (model_bool["single"]) {
     } else {
-        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
+        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Term derivative columns
+        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
         //
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
         //
         dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
         dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
     VectorXd s_weights;
     if (model_bool["strata"]) {
-        s_weights = VectorXd::Zero(df0.rows());
+        s_weights = VectorXd::Zero(mat_row);
         Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
     }
     // ------------------------------------------------------------------------- // initialize
@@ -1168,7 +1171,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     List res_list;
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
         // returns a list of results
         return res_list;
     }
@@ -1176,7 +1179,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
     if (model_bool["gradient"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
         return res_list;
     }
     //
@@ -1235,7 +1238,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Deviation"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Deviation"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }
@@ -1261,6 +1264,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2573,6 +2577,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
     // ------------------------------------------------------------------------- // initialize
@@ -2626,32 +2631,32 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     //
-    T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
-    Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-    R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
+    T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
+    Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+    R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
     //
-    Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-    nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-    nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-    nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-    TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+    Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+    nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+    nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+    nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+    nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+    TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
     if (model_bool["single"]) {
     } else {
-        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
+        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Term derivative columns
+        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
         //
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
         //
         dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
         dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
     VectorXd s_weights;
     if (model_bool["strata"]) {
-        s_weights = VectorXd::Zero(df0.rows());
+        s_weights = VectorXd::Zero(mat_row);
         Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
     }
     // ------------------------------------------------------------------------- // initialize
@@ -2981,6 +2986,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
     // ------------------------------------------------------------------------- // initialize
@@ -3036,30 +3042,30 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     //
-    T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
-    Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-    R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
+    T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
+    Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+    R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
     //
-    Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-    nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-    nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-    nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-    TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+    Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+    nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+    nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+    nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+    nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+    TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
     if (model_bool["single"]) {
     } else {
-        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Term derivative columns
+        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
         dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
         dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
     VectorXd s_weights;
     if (model_bool["strata"]) {
-        s_weights = VectorXd::Zero(df0.rows());
+        s_weights = VectorXd::Zero(mat_row);
         Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
     }
     // ------------------------------------------------------------------------- // initialize
@@ -3815,6 +3821,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     //
     // df0: covariate data
     // ntime: number of event times for Cox PH
@@ -3883,39 +3894,40 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     // Manually define the full memory reserve
-    T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
+    const int mat_row = df0.rows();
+    T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
     if (model_bool["basic"]) {
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        TTerm = MatrixXd::Zero(df0.rows(), 1);  // matrix of term values
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        TTerm = MatrixXd::Zero(mat_row, 1);  // matrix of term values
     } else if (model_bool["linear_err"]) {
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        nonDose_PLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Loglinear subterm values
-        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), 1, 1.0);  // matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(df0.rows(), 1);  // matrix of term values
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        nonDose_PLIN = MatrixXd::Constant(mat_row, 1, 1.0);  // matrix of Loglinear subterm values
+        nonDose_LOGLIN = MatrixXd::Constant(mat_row, 1, 1.0);  // matrix of Product linear subterm values
+        TTerm = MatrixXd::Zero(mat_row, 1);  // matrix of term values
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     } else {
-        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
-        Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-        R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-        nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-        nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-        nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-        nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Term derivative columns
+        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
+        Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+        R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+        nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+        nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+        nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+        nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+        TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
         dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
         dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
     //
     // Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
@@ -4010,8 +4022,13 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     bool convgd = FALSE;
     //
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "Prep step: " << ending - start << endl;
     List out_list;
     for (int guess = 0; guess <guesses; guess++) {
+//        start_point = system_clock::now();
+//        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
@@ -4047,6 +4064,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                 }
             }
         }
+//        end_point = system_clock::now();
+//        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//        Rcout << "Step Prep " << guess << " step: " << ending - start << endl;
+//        start_point = system_clock::now();
+//        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         int check_loop = 0;
         while (((R.minCoeff() <= 0) || (R.hasNaN())) && (check_loop < 3)) { // If a linear column changes, then a previous optimum can give a negative risk
@@ -4080,6 +4102,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
         for (int i = 0; i < beta_0.size(); i++) {
             beta_c[i] = beta_0[i];
         }
+//        end_point = system_clock::now();
+//        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//        Rcout << "First Guess " << guess << " step: " << ending - start << endl;
+//        start_point = system_clock::now();
+//        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         // out_list = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, der_iden, lr, optim_para, maxiter, double_step, change_all, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
@@ -4161,6 +4188,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
             convgd = TRUE;
         }
         conv_fin[guess] = convgd;
+//        end_point = system_clock::now();
+//        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//        Rcout << "Iteration " << guess << " step: " << ending - start << endl;
+//        start_point = system_clock::now();
+//        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         // -----------------------------------------------
         // Performing Full Calculation to get full second derivative matrix
         // -----------------------------------------------
@@ -4214,6 +4246,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                 Calc_LogLik(model_bool, nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Ll, Lld, Lldd, ties_method, KeepConstant);
             }
         }
+//        end_point = system_clock::now();
+//        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//        Rcout << "Last Guess " << guess << " step: " << ending - start << endl;
+//        start_point = system_clock::now();
+//        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         // Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         // Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         a_n = beta_0;
@@ -4286,8 +4323,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                 }
             }
         }
+//        end_point = system_clock::now();
+//        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//        Rcout << "Deviation " << guess << " step: " << ending - start << endl;
+//        start_point = system_clock::now();
+//        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         std_fin(guess, _) = stdev;
+//        end_point = system_clock::now();
+//        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//        Rcout << "Assigned " << guess << " step: " << ending - start << endl;
     }
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     List para_list;
     if (!model_bool["basic"]) {
         para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  // stores the term information
@@ -4298,6 +4345,10 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     } else {
         res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = "PASSED");
     }
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//
+//    Rcout << "Wrapping step: " << ending - start << endl;
     // returns a list of results
     return res_list;
 }
@@ -4323,6 +4374,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -4830,7 +4882,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     List res_list;
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Status"] = "PASSED");
         // returns a list of results
         return res_list;
     }
@@ -4841,7 +4893,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
     if (model_bool["gradient"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
         return res_list;
     }
     //
@@ -4914,9 +4966,9 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     }
     //
     if (model_bool["basic"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     } else {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     }
     // returns a list of results
     return res_list;
@@ -5449,6 +5501,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     // int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -5519,30 +5572,30 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     //
-    T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
-    Te = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for column terms used for temporary storage
-    R = MatrixXd::Zero(df0.rows(), 1);  // preallocates matrix for Risks
+    T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
+    Te = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for column terms used for temporary storage
+    R = MatrixXd::Zero(mat_row, 1);  // preallocates matrix for Risks
     //
-    Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of the total dose term values
-    nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of the total non-dose term values
-    nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  // matrix of Linear subterm values
-    nonDose_PLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Loglinear subterm values
-    nonDose_LOGLIN = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  // matrix of Product linear subterm values
-    TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  // matrix of term values
+    Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of the total dose term values
+    nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of the total non-dose term values
+    nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  // matrix of Linear subterm values
+    nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
+    nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
+    TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
     if (model_bool["single"]) {
     } else {
-        Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
-        Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
+        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Term derivative columns
+        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
+        Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
+        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
         dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
         dslp = abs_max;
-        RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
+        RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
+        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
     VectorXd s_weights;
     if (model_bool["strata"]) {
-        s_weights = VectorXd::Zero(df0.rows());
+        s_weights = VectorXd::Zero(mat_row);
         Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
     }
     // ------------------------------------------------------------------------- // initialize
@@ -5963,6 +6016,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum;
     int reqrdnum;
@@ -6019,7 +6073,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         //
         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     } else {
-        R = MatrixXd::Constant(df0.rows(), 1, 1.0);
+        R = MatrixXd::Constant(mat_row, 1, 1.0);
     }
     // ------------------------------------------------------------------------- // initialize
     int group_num = ntime*Strata_vals.size();
@@ -6875,7 +6929,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         }
     } else { }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
     // returns a list of results
     return res_list;
 }
