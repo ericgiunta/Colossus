@@ -3817,7 +3817,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
@@ -3832,7 +3832,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     // totalnum: number of terms used
     //
     // ------------------------------------------------------------------------- // initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -4060,7 +4061,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
         for (int i = 0; i<dose_index.size(); i++) {
             for (int j = 0; j < totalnum; j++) {
                 if (dfc_0[j] == dose_index[i]) {
-                    dfc[j] = dose_cols(i, guess);
+                    df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
+//                    dfc[j] = dose_cols(i, guess);
                 }
             }
         }
@@ -4363,7 +4365,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, int der_iden, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, bool change_all, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
@@ -4373,7 +4375,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     // totalnum: number of terms used
     //
     // ------------------------------------------------------------------------- // initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
+    const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
     const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum = term_n.size();
@@ -4548,7 +4551,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         for (int i = 0; i<dose_index.size(); i++) {
             for (int j = 0; j < totalnum; j++) {
                 if (dfc_0[j] == dose_index[i]) {
-                    dfc[j] = dose_cols(i, guess);
+//                    dfc[j] = dose_cols(i, guess);
+                    df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
                 }
             }
         }
@@ -4590,7 +4594,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         for (int i = 0; i<dose_index.size(); i++) {
             for (int j = 0; j < totalnum; j++) {
                 if (dfc_0[j] == dose_index[i]) {
-                    dfc[j] = dose_cols(i, guess);
+//                    dfc[j] = dose_cols(i, guess);
+                    df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
                 }
             }
         }
@@ -4651,7 +4656,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                 for (int i = 0; i<dose_index.size(); i++) {
                     for (int j = 0; j < totalnum; j++) {
                         if (dfc_0[j] == dose_index[i]) {
-                            dfc[j] = dose_cols(i, guess);
+//                            dfc[j] = dose_cols(i, guess);
+                            df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
                         }
                     }
                 }
@@ -4692,7 +4698,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                     for (int i = 0; i<dose_index.size(); i++) {
                         for (int j = 0; j < totalnum; j++) {
                             if (dfc_0[j] == dose_index[i]) {
-                                dfc[j] = dose_cols(i, guess);
+//                                dfc[j] = dose_cols(i, guess);
+                                df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
                             }
                         }
                     }
@@ -4726,7 +4733,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                     for (int i = 0; i<dose_index.size(); i++) {
                         for (int j = 0; j < totalnum; j++) {
                             if (dfc_0[j] == dose_index[i]) {
-                                dfc[j] = dose_cols(i, guess);
+//                                dfc[j] = dose_cols(i, guess);
+                                df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
                             }
                         }
                     }
@@ -4763,7 +4771,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                         for (int i = 0; i<dose_index.size(); i++) {
                             for (int j = 0; j < totalnum; j++) {
                                 if (dfc_0[j] == dose_index[i]) {
-                                    dfc[j] = dose_cols(i, guess);
+//                                    dfc[j] = dose_cols(i, guess);
+                                    df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
                                 }
                             }
                         }
@@ -4853,7 +4862,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         for (int i = 0; i<dose_index.size(); i++) {
             for (int j = 0; j < totalnum; j++) {
                 if (dfc_0[j] == dose_index[i]) {
-                    dfc[j] = dose_cols(i, guess);
+//                    dfc[j] = dose_cols(i, guess);
+                    df0.col(dfc[j]-1) = df1.col(dose_cols(i, guess)-1);
                 }
             }
         }

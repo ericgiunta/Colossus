@@ -387,6 +387,16 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
+  tform <- tolower(tform)
+  for (i in 1:length(tform)) {
+    if (tform[i] %in% c("plin", "plinear", "product-linear")) {
+      tform[i] <- "plin"
+    } else if (tform[i] %in% c("lin", "linear")) {
+      tform[i] <- "lin"
+    } else if (tform[i] %in% c("loglin", "loglinear", "log-linear")) {
+      tform[i] <- "loglin"
+    }
+  }
   tform_order <- c(
     "loglin", "lin", "plin", "loglin_slope", "loglin_top",
     "lin_slope", "lin_int", "quad_slope",

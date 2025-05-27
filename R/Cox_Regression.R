@@ -1469,23 +1469,25 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   } else {
     stop(paste("Error: Atleast one realization column provided was not used in the model", sep = " "))
   }
-  all_names <- unique(c(all_names, as.vector(realization_columns)))
-  if (all(all_names %in% names(df))) {
+  #  all_names <- unique(c(all_names, as.vector(realization_columns)))
+  dose_names <- unique(as.vector(realization_columns))
+  if (all(dose_names %in% names(df))) {
     # pass
   } else {
     stop(paste("Error: Atleast one realization column provided was not in the data.table", sep = " "))
   }
   dfc <- match(names, all_names)
-  dose_cols <- matrix(match(realization_columns, all_names), nrow = nrow(realization_columns))
+  dose_cols <- matrix(match(realization_columns, dose_names), nrow = nrow(realization_columns))
   dose_index <- match(realization_index, all_names)
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
+  dose_all <- as.matrix(df[, dose_names, with = FALSE])
   t_check <- Check_Trunc(df, ce)
   df <- t_check$df
   ce <- t_check$ce
   e <- cox_ph_multidose_Omnibus_transition(
     term_n, tform, a_n,
-    as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all,
+    as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all, dose_all,
     fir, der_iden, modelform, control,
     as.matrix(df[, ce, with = FALSE]), tu,
     keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
