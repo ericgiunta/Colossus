@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,13 +104,12 @@ visualize the different plotting methods available in Colossus.</p>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01701289</span>, <span class="op">-</span><span class="fl">0.51256478</span><span class="op">)</span></span>
 <span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
-<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></code></pre></div>
+<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="survival-function-approximation">Survival Function Approximation<a class="anchor" aria-label="anchor" href="#survival-function-approximation"></a>
@@ -155,7 +154,7 @@ time.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"type"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>,</span>
-<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">F</span></span>
+<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">F</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
@@ -185,7 +184,7 @@ time.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"type"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>,</span>
-<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">T</span></span>
+<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">T</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
@@ -228,7 +227,7 @@ standard-deviation.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"type"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"schoenfeld"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span></span>
+<span>  <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
@@ -297,7 +296,7 @@ or under-predicting dependent on time.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"type"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">F</span>,</span>
+<span>  <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"cov_cols"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
@@ -348,7 +347,7 @@ constant.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"type"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"risk"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>,</span>
-<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span></span>
+<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
 <span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>

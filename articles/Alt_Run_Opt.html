@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -214,9 +214,9 @@ without stratification:</p>
 </annotation></semantics></math></p>
 <p>Then the stratified model may look like this:</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mi>j</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>⋅</mo><msub><mi>β</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    R = (\sum_i (x_i \cdot \beta_i)) \times (1 + \exp{(\sum_j (x_j \cdot \beta_j))})
+    R = (\sum_i (x_i \cdot \beta_i)) \times (\exp{(\sum_{strata} (x_{strata} \cdot \beta_{strata}))})
 \end{aligned}
 </annotation></semantics></math></p>
 <p>Only results associated with the non-stratified parameters are
@@ -239,16 +239,15 @@ not matter if the user provides a list or combines them themselves.</p>
 <h2 id="simplified-model">Simplified Model<a class="anchor" aria-label="anchor" href="#simplified-model"></a>
 </h2>
 <p>The inclusion of linear subterms, additive models, and multiple terms
-means that default Colossus calculates and stores every derivative
-assuming that every value is needed. If the equation is log-linear with
-one term, then there are many simplifications that can be made. This
-option is designed to make those simplifications. In particular having
-only one subterm type means that the hazard ratios and their derivatives
-can be calculated directly, and the only subterm type being an
-exponential means that the logarithm of the hazard ratio in the
-Log-Likelihood calculation is simplified. In tests, using the simplified
-function was able to save approximately 40% time versus the full code
-being used.</p>
+as options means that the Colossus calculates and stores every
+derivative. If the equation is log-linear with one term, then there are
+many simplifications that can be made. This option is designed to make
+those simplifications. In particular having only one subterm type means
+that the hazard ratios and their derivatives can be calculated directly,
+and the only subterm type being an exponential means that the logarithm
+of the hazard ratio in the Log-Likelihood calculation is simplified. In
+tests, using the simplified function was able to save approximately 40%
+time versus the full code being used.</p>
 <p>Assuming the same general parameters in the other vignettes, the code
 is as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -257,18 +256,22 @@ is as follows:</p>
 <span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
 <span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>If the basic option is used in combination with incompatable model
+options, then the model options will be overwritten. A warning is
+provided details what options were overwritten, and the final result
+will indiciate what model options were truly used.</p>
 </div>
 <div class="section level2">
 <h2 id="non-derivative-calculation">Non-Derivative Calculation<a class="anchor" aria-label="anchor" href="#non-derivative-calculation"></a>
 </h2>
 <p>Colossus uses Newton’s method to perform the regression, which can
-become computationally complex as the number of terms and formula
-increases. So Colossus contains functions to calculate only the scores
-for a parameter set, and skip the intensive derivative calculations.
-These results could be used to perform a bisection method of regression
-or plot the dependence of score on parameter values. Colossus in the
-current state does not use these functions, but they are left for the
-user’s convenience.</p>
+become computationally intensive as the model becomes more complicated.
+So, Colossus contains functions to calculate only the scores for a
+parameter set and skip the derivative calculations. These results could
+be used to perform a bisection method of regression or plot the
+dependence of score on parameter values. Colossus in the current state
+does not use these functions, but they are left for the user’s
+convenience.</p>
 <p>The code is similar to previous examples:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Single.html">RunCoxRegression_Single</a></span><span class="op">(</span></span>
@@ -313,7 +316,8 @@ that time:</p>
 <p>The competing risks model adjusts this to be the probability that an
 individual survived up to the time and experienced the event of
 interest, given that they did not experience an event up to that time OR
-they survived up to a previous time and experienced an event:</p>
+they survived up to a previous time and experienced a different
+event:</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>lim</mo><mrow><mi>Δ</mi><mi>t</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mo stretchy="true" form="prefix">(</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>≤</mo><mi>T</mi><mo>≤</mo><mi>t</mi><mo>+</mo><mi>Δ</mi><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>k</mi><mo>=</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>T</mi><mo>≥</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> or </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>T</mi><mo>&lt;</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>k</mi><mo>≠</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>Δ</mi><mi>t</mi></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -324,52 +328,20 @@ they survived up to a previous time and experienced an event:</p>
 risk and intervals with competing events treated as if they were at
 risk. If we assume that no time-dependent covariates are being used,
 then all that remains is to weight the contribution of these competing
-events. The goal is to quantify the probability that an interval would
-have been uncensored at the new event time given that it was uncensored
-up to the competing event time. Colossus handles this by fitting a
-survival curve for censoring and using the ratio of surviving proportion
-to weight intervals.</p>
-<p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>W</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>S</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{aligned}
-   W_i(j) = min \left(\frac{S(t_j)}{S(t_i)},1 \right)
-\end{aligned}
-</annotation></semantics></math></p>
-<p>At any given event time, every competing event interval will have a
-right interval limit below the event time and every interval without
-events will have a right interval limit above the event time. So
-competing events will have a weighting below 1 and every other interval
-will have a weighting set to 1.</p>
-<p>In code, the call is similar to the standard function. The process
-for finding a weighting is included below. In this example we assume the
+events. In general a weighting column is provided prior to regression,
+the values can be solved from a survival curve or by using the
+“finegray” function of the survival library.</p>
+<p>n code, the call is similar to the standard function. The process for
+finding a weighting is included below. In this example we assume the
 event column, lung, to contain a 0 for no events, 1 for the primary
-event, and 2 for the competing event. A ID column is used to determine
-which individuals have events and which are censored.</p>
+event, and 2 for the competing event.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span><span class="op">$</span><span class="va">censor</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">lung</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># censoring column made</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"censor"</span> <span class="co"># event type switched to censoring</span></span>
-<span></span>
-<span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"name"</span> <span class="op">=</span> <span class="st">"run_2"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="st">"studyID"</span> <span class="op">=</span> <span class="st">"studyID"</span>, <span class="st">"age_unit"</span> <span class="op">=</span> <span class="st">"years"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co"># modified plotting function used to get censoring weights</span></span>
-<span><span class="va">dft</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GetCensWeight.html">GetCensWeight</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
-<span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, plot_options <span class="op">=</span> <span class="va">plot_options</span></span>
-<span><span class="op">)</span> <span class="co"># generates a survival curve</span></span>
-<span><span class="va">t_ref</span> <span class="op">&lt;-</span> <span class="va">dft</span><span class="op">$</span><span class="va">t</span></span>
-<span><span class="va">surv_ref</span> <span class="op">&lt;-</span> <span class="va">dft</span><span class="op">$</span><span class="va">surv</span></span>
-<span><span class="va">t_c</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">t1</span></span>
-<span><span class="va">cens_weight</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/approxfun.html" class="external-link">approx</a></span><span class="op">(</span><span class="va">t_ref</span>, <span class="va">surv_ref</span>, <span class="va">t_c</span>, rule <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">$</span><span class="va">y</span></span>
-<span><span class="co"># the surviving proportions used as censoring weight</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"lung"</span> <span class="co"># event switched back</span></span>
+<code class="sourceCode R"><span><span class="va">pdata</span> <span class="op">&lt;-</span> <span class="fu">finegray</span><span class="op">(</span><span class="fu">Surv</span><span class="op">(</span><span class="va">time2</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_CR.html">RunCoxRegression_CR</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
+<span>  <span class="va">pdata</span>, <span class="st">"fgstart"</span>, <span class="st">"fgstop"</span>, <span class="st">"fgstatus"</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>
 <span>  <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, cens_weight <span class="op">=</span> <span class="va">cens_weight</span></span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, cens_weight <span class="op">=</span> <span class="st">"fgwt"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -554,23 +526,12 @@ vectors.</p>
 <span><span class="co">#&gt; [1]  0.001 -0.020 -0.100  0.100</span></span></code></pre></div>
 <p>These results could be then used as input for any of the available
 regression functions. Colossus also includes a wrapper functions to
-directly call the Poisson model regression function. This method could
-applied to a Cox model assuming every event has the same baseline
-hazard. However this is not the intended use, so a wrapper function was
-not included.</p>
+directly call the Poisson model regression function.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">der_iden</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
-<span><span class="va">fir</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<code class="sourceCode R"><span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">10</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span>
-<span>  <span class="st">"dbeta_max"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>, <span class="st">"abs_max"</span> <span class="op">=</span> <span class="fl">1.0</span>, <span class="st">"change_all"</span> <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  <span class="st">"dose_abs_max"</span> <span class="op">=</span> <span class="fl">100.0</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span>, <span class="st">"double_step"</span> <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">guesses_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">10</span>, <span class="st">"guesses"</span> <span class="op">=</span> <span class="fl">10</span>, <span class="st">"lin_min"</span> <span class="op">=</span> <span class="fl">0.001</span>, <span class="st">"lin_max"</span> <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  <span class="st">"loglin_min"</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, <span class="st">"loglin_max"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lin_method"</span> <span class="op">=</span> <span class="st">"uniform"</span>, <span class="st">"loglin_method"</span> <span class="op">=</span> <span class="st">"uniform"</span>,</span>
-<span>  strata <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">10</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>,</span>
+<span>  <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"f"</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunPoissonRegression_Joint_Omnibus.html">RunPoissonRegression_Joint_Omnibus</a></span><span class="op">(</span></span>
@@ -579,22 +540,30 @@ not included.</p>
 <span>  <span class="va">modelform</span>,</span>
 <span>  control <span class="op">=</span> <span class="va">control</span>, strat_col <span class="op">=</span> <span class="va">Strat_Col</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in RunPoissonRegression_Omnibus(df, pyr0, "events", names, term_n, :</span></span>
+<span><span class="co">#&gt; Warning: model covariate order changed</span></span>
 <span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate    Subterm Term Number Central Estimate Standard Deviation</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;       &lt;int&gt;            &lt;num&gt;              &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    fac_e0     loglin           0        0.5742948          0.4676073</span></span>
-<span><span class="co">#&gt; 2:    fac_e1     loglin           0       -1.0346366          1.0090321</span></span>
-<span><span class="co">#&gt; 3:        t0 loglin_top           0       -0.0200000                NaN</span></span>
-<span><span class="co">#&gt; 4:        t0 quad_slope           0       -0.1646741                NaN</span></span>
+<span><span class="co">#&gt;    Covariate    Subterm Term Number Central Estimate Standard Error</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:    fac_e0     loglin           0        0.5742903            NaN</span></span>
+<span><span class="co">#&gt; 2:    fac_e1     loglin           0       -1.0351456            NaN</span></span>
+<span><span class="co">#&gt; 3:        t0 loglin_top           0       -0.0200000            NaN</span></span>
+<span><span class="co">#&gt; 4:        t0 quad_slope           0       -0.1646768            NaN</span></span>
+<span><span class="co">#&gt;    1-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:            NaN</span></span>
+<span><span class="co">#&gt; 2:            NaN</span></span>
+<span><span class="co">#&gt; 3:            NaN</span></span>
+<span><span class="co">#&gt; 4:            NaN</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Poisson Model Used</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 20.89,  Deviation: 6.44,  AIC: 14.44,  BIC: 30.83</span></span>
-<span><span class="co">#&gt; Iterations run: 6</span></span>
-<span><span class="co">#&gt; maximum step size: 1.00e+00, maximum first derivative: 5.12e-04</span></span>
-<span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.07 seconds</span></span>
+<span><span class="co">#&gt; Iterations run: 10</span></span>
+<span><span class="co">#&gt; maximum step size: 1.00e+00, maximum first derivative: 2.00e-06</span></span>
+<span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
+<span><span class="co">#&gt; Run finished in 0.06 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
@@ -613,9 +582,12 @@ guess.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">control</span><span class="op">$</span><span class="va">maxiter</span> <span class="op">&lt;-</span> <span class="fl">5</span> <span class="co"># runs each (4) starts 1 iteration, and then runs the best 5 iterations</span></span>
-<span><span class="va">control</span><span class="op">$</span><span class="va">maxiters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span> <span class="co"># runs each (4) starts 1 iteration, and then runs the best 5 iterations</span></span>
-<span><span class="va">control</span><span class="op">$</span><span class="va">maxiters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span> <span class="co"># runs each (4) starts 5 iterations, and then runs the best 5 iterations</span></span>
+<span><span class="co"># runs each (4) starts 1 iteration, and then runs the best 5 iterations</span></span>
+<span><span class="va">control</span><span class="op">$</span><span class="va">maxiter</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
+<span><span class="co"># runs each (4) starts 1 iteration, and then runs the best 5 iterations</span></span>
+<span><span class="va">control</span><span class="op">$</span><span class="va">maxiters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co"># runs each (4) starts 5 iterations, and then runs the best 5 iterations</span></span>
+<span><span class="va">control</span><span class="op">$</span><span class="va">maxiters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>,</span>
 <span>  <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>,</span>

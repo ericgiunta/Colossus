@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,7 +102,7 @@ descriptions of the inputs for each function.</p>
 <div class="section level3">
 <h3 id="large-multi-dimensional-space">Large Multi-Dimensional Space<a class="anchor" aria-label="anchor" href="#large-multi-dimensional-space"></a>
 </h3>
-<p>Generally speaking the optimization methods used in Colossus and
+<p>Generally speaking, the optimization methods used in Colossus and
 similar software are based on using derivatives to improve the
 log-likelihood or some measure of deviance. These methods search for an
 optimum, but it is not guaranteed to be a global optimum. The final
@@ -110,12 +110,12 @@ solution may be dependent on the initial regression conditions. For a
 model with a small number of covariates or a well understood
 relationship between covariate and event, the user may be able to start
 the regression near the global optimum. If the model is composed of
-hundreds of covariates, this becomes less likely.</p>
+dozens of covariates, this becomes less likely.</p>
 <p>The solution an experienced user might come to is to try multiple
 starting points and see if they all converge to the same solution.
 Colossus tries to make this easier by automating the process. The user
-provides Colossus with an initial starting point to try and parameters
-controlling how many random points to try and how to generate them.
+provides Colossus with an initial starting point to try, parameters
+controlling how many random points to try, and how to generate them.
 Currently Colossus only supports uniformly generated points with user
 provided minimum and maximum values. The log-linear terms generally have
 a different range of acceptable values than the linear terms, so
@@ -128,7 +128,9 @@ terms that can be solved separately. Colossus automates splitting the
 model into a simplified form, searching for a solution, substituting the
 final solution for the simplified model into the full model, and then
 searching for a solution to the full model near the solution to the
-simplified model.</p>
+simplified model. A common example would be solving for the background
+model (simplified model) and then adding additional risk factors to make
+a full model.</p>
 </div>
 <div class="section level3">
 <h3 id="infeasible-parameter-spaces">Infeasible Parameter Spaces<a class="anchor" aria-label="anchor" href="#infeasible-parameter-spaces"></a>
