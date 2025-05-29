@@ -150,9 +150,7 @@ test_that("Joint data regression, no error", {
   )
   a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
 
-  der_iden <- 0
   modelform <- "M"
-  fir <- 0
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 2, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
@@ -167,7 +165,7 @@ test_that("Joint data regression, no error", {
   expect_no_error(RunPoissonRegression_Joint_Omnibus(
     df, pyr, events, name_list, term_n_list,
     tform_list, keep_constant_list, a_n_list,
-    modelform, fir, der_iden, control, strat_col
+    modelform, control, strat_col
   ))
 })
 test_that("Joint data regression, check results", {
@@ -207,9 +205,7 @@ test_that("Joint data regression, check results", {
   )
   a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
 
-  der_iden <- 0
   modelform <- "M"
-  fir <- 0
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
@@ -224,7 +220,7 @@ test_that("Joint data regression, check results", {
   e <- RunPoissonRegression_Joint_Omnibus(
     df, pyr, events, name_list, term_n_list,
     tform_list, keep_constant_list, a_n_list,
-    modelform, fir, der_iden, control, strat_col
+    modelform, control, strat_col
   )
   expect_equal(e$beta_0, c(0.5742600, -1.0349816, -0.0200000, -0.1647421), tolerance = 1e-2)
   expect_equal(e$Converged, TRUE)

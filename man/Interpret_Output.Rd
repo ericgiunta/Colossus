@@ -41,19 +41,17 @@ a_n <- list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
 term_n <- c(0, 1, 1, 2)
 tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
-fir <- 0
 keep_constant <- c(0, 0, 0, 0)
-der_iden <- 0
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-  "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0,
+  "abs_max" = 1.0, "dose_abs_max" = 100.0,
   "verbose" = FALSE,
   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 )
 e <- RunCoxRegression_Omnibus(df, time1, time2, event,
   names, term_n, tform, keep_constant,
-  a_n, modelform, fir, der_iden, control,
+  a_n, modelform, control,
   model_control = list(
     "single" = FALSE,
     "basic" = FALSE, "cr" = FALSE, "null" = FALSE

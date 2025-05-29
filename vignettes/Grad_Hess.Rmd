@@ -97,14 +97,12 @@ The first thing to acknowledge is that the gradient descent method may require m
 ```{r, eval=FALSE}
 fname <- "tests/testthat/ll_comp_0.csv"
 colTypes <- c("double", "double", "double", "integer", "integer")
-df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = 2, fill = TRUE)
 set.seed(3742)
 df$rand <- floor(runif(nrow(df), min = 0, max = 5))
 time1 <- "t0"
 time2 <- "t1"
 modelform <- "M"
-fir <- 0
-der_iden <- 0
 event <- "lung"
 a_n <- c(-0.1, -0.1)
 keep_constant <- c(0, 0)
@@ -113,7 +111,7 @@ for (method in c("momentum", "adadelta", "adam", "gradient")) {
   model_control <- list("gradient" = TRUE, "epsilon_decay" = 1e-4)
   model_control[[method]] <- TRUE
   a_n <- c(-0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.2, "maxiters" = c(1, 20), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "verbose" = 4)
+  control <- list("ncores" = 2, "lr" = 0.2, "maxiters" = c(1, 20), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "verbose" = 2)
   modelform <- "M"
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
   Interpret_Output(e)

@@ -11,8 +11,6 @@ RunPoissonEventAssignment_bound(
   alternative_model = list(),
   keep_constant = c(0),
   modelform = "M",
-  fir = 0,
-  der_iden = 0,
   check_num = 1,
   z = 2,
   control = list(),
@@ -32,10 +30,6 @@ RunPoissonEventAssignment_bound(
 \item{keep_constant}{binary values to denote which parameters to change}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
-
-\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
-
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0}
 
 \item{check_num}{the parameter number to check at the bounds of, indexed from 1 using the order returned by Colossus}
 
@@ -75,12 +69,10 @@ a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
 term_n <- c(0, 1, 1, 2)
 tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
-fir <- 0
 keep_constant <- c(0, 0, 0, 0)
-der_iden <- 0
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5, "epsilon" = 1e-3,
-  "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
+  "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
   "double_step" = 1
 )
@@ -93,12 +85,12 @@ strat_col <- "e"
 e0 <- RunPoissonRegression_Omnibus(
   df, pyr, event, names, term_n, tform,
   keep_constant,
-  a_n, modelform, fir, der_iden,
+  a_n, modelform,
   control, strat_col
 )
 e <- RunPoissonEventAssignment_bound(
   df, pyr, event, e0, keep_constant,
-  modelform, fir, der_iden, 4, 2, control
+  modelform, 4, 2, control
 )
 }
 \seealso{

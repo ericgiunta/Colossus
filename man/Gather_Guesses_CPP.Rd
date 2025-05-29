@@ -15,7 +15,6 @@ Gather_Guesses_CPP(
   x_all,
   a_n_default,
   modelform,
-  fir,
   control,
   guesses_control,
   model_control = list()
@@ -41,8 +40,6 @@ Gather_Guesses_CPP(
 \item{a_n_default}{center of parameter distribution guessing scope}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
-
-\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 
@@ -73,12 +70,10 @@ keep_constant <- c(0)
 a_n <- c(-0.1)
 a_n_default <- a_n
 modelform <- "M"
-fir <- 0
-der_iden <- 0
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = -1,
   "halfmax" = 5, "epsilon" = 1e-9,
-  "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE,
+  "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
   "double_step" = 1
 )
@@ -95,6 +90,6 @@ options(warn = -1)
 Gather_Guesses_CPP(
   df, dfc, names, term_n, tform, keep_constant,
   a_n, x_all, a_n_default,
-  modelform, fir, control, guesses_control
+  modelform, control, guesses_control
 )
 }

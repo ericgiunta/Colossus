@@ -11,13 +11,12 @@ test_that("Coxph basic_single_null match", {
   keep_constant <- c(0)
   a_n <- c(0.0)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   verbose <- FALSE
 
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", fir = 0, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
@@ -26,19 +25,19 @@ test_that("Coxph basic_single_null match", {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = FALSE, "basic" = j, "single" = k, "null" = l)
         a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", fir = 0, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
   }
   model_control <- list("strata" = TRUE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", fir = 0, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
   for (j in c(TRUE, FALSE)) {
     for (k in c(TRUE, FALSE)) {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = TRUE, "basic" = j, "single" = k, "null" = l)
         a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", fir = 0, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
@@ -61,11 +60,10 @@ test_that("Coxph strata_basic_single_CR", {
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   plot_options <- list("name" = paste(tempfile(), "run", sep = ""), "verbose" = FALSE, "studyid" = "studyid", "age_unit" = "years")
-  dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
+  dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options)
   #
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
@@ -94,7 +92,7 @@ test_that("Coxph strata_basic_single_CR", {
           model_control <- list("strata" = i, "basic" = j, "single" = k, "cr" = l)
           a_n <- c(-0.1, -0.1)
           control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-          e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting")
+          e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting")
           expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-3)
           if (k == FALSE) {
             expect_equal(sum(e$Standard_Deviation), dev_comp[j_iterate], tolerance = 1e-3)
@@ -102,7 +100,7 @@ test_that("Coxph strata_basic_single_CR", {
           j_iterate <- j_iterate + 1
           a_n <- c(-0.1, -0.1)
           control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "efron", "double_step" = 0)
-          e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting")
+          e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting")
           expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-3)
           if (k == FALSE) {
             expect_equal(sum(e$Standard_Deviation), dev_comp[j_iterate], tolerance = 1e-3)
@@ -130,8 +128,7 @@ test_that("Pois strata_single", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(0.01, 0.1, 0.1)
   modelform <- "PAE"
-  fir <- 0
-  der_iden <- 0
+
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 0)
   strat_col <- "fac"
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
@@ -145,12 +142,12 @@ test_that("Pois strata_single", {
       model_control <- list("strata" = i, "single" = j)
       a_n <- c(0.01, 0.1, 0.1)
       modelform <- "PAE"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
       expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
       j_iterate <- j_iterate + 1
       a_n <- c(0.01, 0.1, 0.1)
       modelform <- "A"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
       expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
       j_iterate <- j_iterate + 1
     }
@@ -173,8 +170,7 @@ test_that("Pois comb_forms", {
   keep_constant <- c(0, 0, 0, 0, 0)
   a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
   modelform <- "PAE"
-  fir <- 0
-  der_iden <- 0
+
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 0)
   strat_col <- "fac"
 
@@ -185,7 +181,7 @@ test_that("Pois comb_forms", {
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
     a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
-    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
     expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
     j_iterate <- j_iterate + 1
   }
@@ -193,7 +189,7 @@ test_that("Pois comb_forms", {
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
     a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
-    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
     expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
     j_iterate <- j_iterate + 1
   }
@@ -216,8 +212,7 @@ test_that("Pois strata_single expanded", {
   a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
 
   modelform <- "PAE"
-  fir <- 0
-  der_iden <- 0
+
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 0)
   strat_col <- "fac"
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
@@ -231,12 +226,12 @@ test_that("Pois strata_single expanded", {
       model_control <- list("strata" = i, "single" = j)
       a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
       modelform <- "PAE"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
       expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
       j_iterate <- j_iterate + 1
       a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
       modelform <- "A"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control)
+      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
       expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
       j_iterate <- j_iterate + 1
     }
@@ -261,8 +256,7 @@ test_that("risk check omnibus plain", {
   keep_constant <- c(0, 0, 0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2, 0.3, -0.5)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
 
   cens_weight <- c(0)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
@@ -272,34 +266,32 @@ test_that("risk check omnibus plain", {
   df_order <- data.table("term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n, "names" = names, "order" = 1:5)
 
   model_list <- c("M", "A", "PA", "PAE")
-  means <- c(0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.223545565747452, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0079328174864236, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.0532705372693687, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931, 0.186140663450931)
-  medians <- c(0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0.155704743824735, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.0822977918796923, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932, 0.112941187026932)
-  sums <- c(53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931, 53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 223.545565747452, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 7.9328174864236, 53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 53.2705372693687, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931, 186.140663450931)
+  means <- c(0.053270537, 0.053270537, 0.053270537, 0.053270537, 0.053270537, 0.223545566, 0.223545566, 0.223545566, 0.223545566, 0.223545566, 0.007932817, 0.007932817, 0.007932817, 0.007932817, 0.007932817, 0.053270537, 0.053270537, 0.053270537, 0.053270537, 0.053270537)
+  medians <- c(0.08229779, 0.08229779, 0.08229779, 0.08229779, 0.08229779, 0.15570474, 0.15570474, 0.15570474, 0.15570474, 0.15570474, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.08229779, 0.08229779, 0.08229779, 0.08229779, 0.08229779)
+  sums <- c(53.270537, 53.270537, 53.270537, 53.270537, 53.270537, 223.545566, 223.545566, 223.545566, 223.545566, 223.545566, 7.932817, 7.932817, 7.932817, 7.932817, 7.932817, 53.270537, 53.270537, 53.270537, 53.270537, 53.270537)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
   for (model_i in 1:4) {
     modelform <- model_list[model_i]
-    for (fir in c(0, 1)) {
-      for (i in 1:5) {
-        model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
-        #
-        df_order$order <- sample(df_order$order)
-        setorderv(df_order, c("order"))
-        term_n <- df_order$term_n
-        tform <- df_order$tform
-        keep_constant <- df_order$keep_constant
-        a_n <- df_order$a_n
-        names <- df_order$names
-        #
-        control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-        e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, control = control, model_control = model_control)$Risk
+    for (i in 1:5) {
+      model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
+      #
+      df_order$order <- sample(df_order$order)
+      setorderv(df_order, c("order"))
+      term_n <- df_order$term_n
+      tform <- df_order$tform
+      keep_constant <- df_order$keep_constant
+      a_n <- df_order$a_n
+      names <- df_order$names
+      #
+      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+      e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)$Risk
 
-        a_i <- (model_i - 1) * 10 + fir * 5 + i
-        expect_equal(mean(e), means[a_i], tolerance = 1e-2)
-        expect_equal(median(e), medians[a_i], tolerance = 1e-2)
-        expect_equal(sum(e), sums[a_i], tolerance = 1e-2)
-      }
+      a_i <- (model_i - 1) * 5 + i
+      expect_equal(mean(e), means[a_i], tolerance = 1e-2)
+      expect_equal(median(e), medians[a_i], tolerance = 1e-2)
+      expect_equal(sum(e), sums[a_i], tolerance = 1e-2)
     }
   }
 })
@@ -328,10 +320,9 @@ test_that("risk check omnibus gmix", {
   a_n <- c(-0.1, 0.1, 0.2, 0.3, -0.5)
   df_order <- data.table("term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n, "names" = names, "order" = 1:5)
 
-  means <- c(0.6918334, 0.6918334, 0.6918334, 2.9080098, 3.8839872, 2.7077608, 0.6918334, 1.2728663, 1.8214142, 2.9080098, 0.6918334, 1.4807626, 1.8214142, 3.8839872, 0.6918334, 1.4807626, 1.2728663, 2.7077608)
-  medians <- c(0.5871897, 0.5871897, 0.5871897, 2.8144283, 3.7521540, 2.4285966, 0.5871897, 1.0226682, 1.7472830, 2.8144283, 0.5871897, 1.2200643, 1.7472830, 3.7521540, 0.5871897, 1.2200643, 1.0226682, 2.4285966)
-  sums <- c(691.8334, 691.8334, 691.8334, 2908.0098, 3883.9872, 2707.7608, 691.8334, 1272.8663, 1821.4142, 2908.0098, 691.8334, 1480.7626, 1821.4142, 3883.9872, 691.8334, 1480.7626, 1272.8663, 2707.7608)
-
+  means <- c(0.6918334, 2.9080098, 0.6918334, 1.2728663, 1.8214142, 2.9080098)
+  medians <- c(0.5871897, 2.8144283, 0.5871897, 1.0226682, 1.7472830, 2.8144283)
+  sums <- c(691.8334, 2908.0098, 691.8334, 1272.8663, 1821.4142, 2908.0098)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
@@ -339,36 +330,9 @@ test_that("risk check omnibus gmix", {
   for (model_i in 1:3) {
     modelform <- model_list[model_i]
     if (modelform == "GMIX") {
-      for (fir in c(0, 1, 2)) {
-        for (term_i in 0:3) {
-          model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
-          if (fir == 0) {
-            model_control$gmix_term <- c(0, term_i %% 2, floor(term_i / 2))
-          } else if (fir == 1) {
-            model_control$gmix_term <- c(term_i %% 2, 0, floor(term_i / 2))
-          } else if (fir == 2) {
-            model_control$gmix_term <- c(term_i %% 2, floor(term_i / 2), 1)
-          }
-          #
-          df_order$order <- sample(df_order$order)
-          setorderv(df_order, c("order"))
-          term_n <- df_order$term_n
-          tform <- df_order$tform
-          keep_constant <- df_order$keep_constant
-          a_n <- df_order$a_n
-          names <- df_order$names
-          #
-          control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-          e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, control = control, model_control = model_control)$Risk
-          count <- count + 1
-          expect_equal(mean(e), means[count], tolerance = 1e-2)
-          expect_equal(median(e), medians[count], tolerance = 1e-2)
-          expect_equal(sum(e), sums[count], tolerance = 1e-2)
-        }
-      }
-    } else {
-      for (fir in c(0, 1, 2)) {
+      for (term_i in 0:3) {
         model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
+        model_control$gmix_term <- c(0, term_i %% 2, floor(term_i / 2))
         #
         df_order$order <- sample(df_order$order)
         setorderv(df_order, c("order"))
@@ -379,12 +343,29 @@ test_that("risk check omnibus gmix", {
         names <- df_order$names
         #
         control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-        e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, control = control, model_control = model_control)$Risk
+        e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)$Risk
         count <- count + 1
         expect_equal(mean(e), means[count], tolerance = 1e-2)
         expect_equal(median(e), medians[count], tolerance = 1e-2)
         expect_equal(sum(e), sums[count], tolerance = 1e-2)
       }
+    } else {
+      model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
+      #
+      df_order$order <- sample(df_order$order)
+      setorderv(df_order, c("order"))
+      term_n <- df_order$term_n
+      tform <- df_order$tform
+      keep_constant <- df_order$keep_constant
+      a_n <- df_order$a_n
+      names <- df_order$names
+      #
+      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+      e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)$Risk
+      count <- count + 1
+      expect_equal(mean(e), means[count], tolerance = 1e-2)
+      expect_equal(median(e), medians[count], tolerance = 1e-2)
+      expect_equal(sum(e), sums[count], tolerance = 1e-2)
     }
   }
 })
@@ -417,37 +398,13 @@ test_that("gmix omnibus use", {
   }
   options(warn = -1)
   count <- 0
-  der_iden <- 0
   cens_weight <- c(0)
   for (model_i in 1:3) {
     modelform <- model_list[model_i]
     if (modelform == "GMIX") {
-      for (fir in c(0, 1, 2)) {
-        for (term_i in 0:3) {
-          model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
-          if (fir == 0) {
-            model_control$gmix_term <- c(0, term_i %% 2, floor(term_i / 2))
-          } else if (fir == 1) {
-            model_control$gmix_term <- c(term_i %% 2, 0, floor(term_i / 2))
-          } else if (fir == 2) {
-            model_control$gmix_term <- c(term_i %% 2, floor(term_i / 2), 1)
-          }
-          #
-          df_order$order <- sample(df_order$order)
-          setorderv(df_order, c("order"))
-          term_n <- df_order$term_n
-          tform <- df_order$tform
-          keep_constant <- df_order$keep_constant
-          a_n <- df_order$a_n
-          names <- df_order$names
-          #
-          control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-          expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "null"))
-        }
-      }
-    } else {
-      for (fir in c(0, 1, 2)) {
+      for (term_i in 0:3) {
         model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
+        model_control$gmix_term <- c(0, term_i %% 2, floor(term_i / 2))
         #
         df_order$order <- sample(df_order$order)
         setorderv(df_order, c("order"))
@@ -458,8 +415,21 @@ test_that("gmix omnibus use", {
         names <- df_order$names
         #
         control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "null"))
+        expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "null"))
       }
+    } else {
+      model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
+      #
+      df_order$order <- sample(df_order$order)
+      setorderv(df_order, c("order"))
+      term_n <- df_order$term_n
+      tform <- df_order$tform
+      keep_constant <- df_order$keep_constant
+      a_n <- df_order$a_n
+      names <- df_order$names
+      #
+      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+      expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "null"))
     }
   }
 })
@@ -482,8 +452,7 @@ test_that("risk check omnibus dose", {
   keep_constant <- c(0, 0, 0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2, 0.3, -0.5)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
 
   cens_weight <- c(0)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
@@ -500,33 +469,30 @@ test_that("risk check omnibus dose", {
   a_n <- c(-0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
 
   df_order <- data.table("term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n, "names" = names, "order" = 1:22)
-  means <- c(3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 2.67297456164882, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 1.75338940554459, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 3.26883019325272, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529, 2.91092317948529)
-  medians <- c(2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 2.55867858245872, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 1.6364085377938, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.89841334635291, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858, 2.90408823467858)
-  sums <- c(3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 2672.97456164882, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 1753.38940554459, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 3268.83019325272, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529, 2910.92317948529)
+  means <- c(3.268830, 2.672975, 1.753389, 3.268830)
+  medians <- c(2.898413, 2.558679, 1.636409, 2.898413)
+  sums <- c(3268.830, 2672.975, 1753.389, 3268.830)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
   for (model_i in 1:4) {
     modelform <- model_list[model_i]
-    for (fir in c(0, 1)) {
-      for (i in 1:22) {
-        model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
-        #
-        df_order$order <- sample(df_order$order)
-        setorderv(df_order, c("order"))
-        term_n <- df_order$term_n
-        tform <- df_order$tform
-        keep_constant <- df_order$keep_constant
-        a_n <- df_order$a_n
-        names <- df_order$names
-        #
-        control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-        e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, control = control, model_control = model_control)$Risk
-        a_i <- (model_i - 1) * 44 + fir * 22 + i
-        expect_equal(mean(e), means[a_i], tolerance = 1e-2)
-        expect_equal(median(e), medians[a_i], tolerance = 1e-2)
-        expect_equal(sum(e), sums[a_i], tolerance = 1e-2)
-      }
+    for (i in 1:5) {
+      model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
+      #
+      df_order$order <- sample(df_order$order)
+      setorderv(df_order, c("order"))
+      term_n <- df_order$term_n
+      tform <- df_order$tform
+      keep_constant <- df_order$keep_constant
+      a_n <- df_order$a_n
+      names <- df_order$names
+      #
+      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+      e <- Cox_Relative_Risk(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)$Risk
+      expect_equal(mean(e), means[model_i], tolerance = 1e-2)
+      expect_equal(median(e), medians[model_i], tolerance = 1e-2)
+      expect_equal(sum(e), sums[model_i], tolerance = 1e-2)
     }
   }
 })
@@ -546,17 +512,16 @@ test_that("Coxph relative risk combinations", {
   keep_constant <- c(0)
   a_n <- c(-0.1)
   modelform <- "M"
-  fir <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   keep_constant <- c(1)
-  expect_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control))
+  expect_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control))
   keep_constant <- c(0)
   names <- c("d", "CONST")
   term_n <- c(0, 0)
   tform <- c("loglin", "loglin")
   keep_constant <- c(0, 0)
   a_n <- c(-0.1, 0.1)
-  expect_no_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control))
+  expect_no_error(Cox_Relative_Risk(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control))
 })
 
 test_that("check deviation calc, expected cox", {
@@ -574,8 +539,7 @@ test_that("check deviation calc, expected cox", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
 
   cens_weight <- c(0)
 
@@ -591,14 +555,14 @@ test_that("check deviation calc, expected cox", {
     keep_constant[i] <- 1
     #
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
 
   time1 <- "t0"
@@ -616,14 +580,14 @@ test_that("check deviation calc, expected cox", {
     keep_constant[i] <- 1
     #
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6428582, 0.4240752, 0.1507817)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
 
   expect_equal(devs, c(0.61445, 0.54101, 0.73858, 0.95015, 0.63646, 0.56292, 0.73815, 0.97195), tolerance = 1e-4)
@@ -643,8 +607,7 @@ test_that("check deviation calc, Observed cox", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
 
   cens_weight <- c(0)
 
@@ -660,14 +623,14 @@ test_that("check deviation calc, Observed cox", {
     keep_constant[i] <- 1
     #
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
 
   time1 <- "t0"
@@ -685,14 +648,14 @@ test_that("check deviation calc, Observed cox", {
     keep_constant[i] <- 1
     #
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6428582, 0.4240752, 0.1507817)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
   expect_equal(devs, c(0.6091269, 0.5356671, 0.7385757, 0.9448081, 0.7051473, 0.5838560, 0.7381538, 0.9897501), tolerance = 1e-4)
 })
@@ -723,10 +686,8 @@ test_that("check Linear Constraints", {
     a_n0 <- rep(sum(a_n) / 2, 2)
     a_n <- a_n0 - c(-del / 2, del / 2)
     modelform <- "M"
-    fir <- 0
-    der_iden <- 0
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
     expect_equal(e$beta_0, c(0.357333, 0.357333), tolerance = 1e-2)
   }
   for (i in 1:5) {
@@ -735,10 +696,8 @@ test_that("check Linear Constraints", {
     a_n0 <- rep(sum(a_n) / 2, 2)
     a_n <- a_n0 + c(-del / 2, del / 2)
     modelform <- "M"
-    fir <- 0
-    der_iden <- 0
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
+    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
     expect_equal(e$beta_0, c(-0.472812, -0.472812), tolerance = 1e-2)
   }
 })
@@ -806,8 +765,7 @@ test_that("Various CoxRegressionOmnibus options", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   cens_weight <- c(0)
   verbose <- FALSE
   devs <- c()
@@ -818,33 +776,33 @@ test_that("Various CoxRegressionOmnibus options", {
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   keep_constant <- c(1, 1, 1)
-  expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   lung_temp <- df$lung
   df$lung <- rep(0, length(lung_temp))
   keep_constant <- c(0, 0, 0)
-  expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   df$lung <- lung_temp
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1, 1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   a_n <- list(c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781))
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   #
   control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 1)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   #
   names <- c("rand", "fac", "dose")
   term_n <- c(0, 0, 1)
   tform <- c("lin", "lin", "lin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, -0.1, 0.2)
-  expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "fac", model_control = model_control))
+  expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
 })
 
 test_that("Various RunPoissonRegression_Omnibus options", {
@@ -865,8 +823,7 @@ test_that("Various RunPoissonRegression_Omnibus options", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   cens_weight <- c(0)
   verbose <- FALSE
   devs <- c()
@@ -877,73 +834,35 @@ test_that("Various RunPoissonRegression_Omnibus options", {
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   strat_col <- "fac"
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   keep_constant <- c(1, 1, 1)
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   lung_temp <- df$lung
   df$lung <- rep(0, length(lung_temp))
   keep_constant <- c(0, 0, 0)
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   df$lung <- lung_temp
   #
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1, 1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   a_n <- list(c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781))
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 50)
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   #
   control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 1)
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   #
   names <- c("rand", "fac", "dose")
   term_n <- c(0, 0, 1)
   tform <- c("lin", "lin", "lin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, -0.1, 0.2)
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
-})
-
-test_that("Pois double_step change_all calcs", {
-  fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
-  time1 <- "t0"
-  df$pyr <- df$t1 - df$t0
-  pyr <- "pyr"
-  event <- "lung"
-  set.seed(3742)
-  df$rand <- floor(runif(nrow(df), min = 0, max = 5))
-  names <- c("dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand")
-  term_n <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-  tform <- c("loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
-  keep_constant <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-
-  modelform <- "PAE"
-  fir <- 0
-  der_iden <- 0
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 0)
-  strat_col <- "fac"
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
-    skip("Cran Skip")
-  }
-  verbose <- FALSE
-  j_iterate <- 1
-  LL_comp <- c(-496.7366, -475.4213, -461.9726, -461.1227, -4497.178, -3577.953, -2561.685, -2339.961)
-  for (i in c(0, 1)) {
-    for (j in 1:5) {
-      model_control <- list("strata" = FALSE, "single" = FALSE)
-      a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-      modelform <- "PAE"
-      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = FALSE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = i)
-      expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, j - 1, control, strat_col, model_control))
-    }
-  }
+  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
 })
 
 test_that("Pois various_fixes", {
@@ -962,8 +881,7 @@ test_that("Pois various_fixes", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(0.01, 0.1, 0.1)
   modelform <- "PAE"
-  fir <- 0
-  der_iden <- 0
+
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 0)
   strat_col <- "fac"
 
@@ -971,16 +889,16 @@ test_that("Pois various_fixes", {
   model_control <- list("strata" = FALSE, "single" = FALSE)
   a_n <- c(0.01, 0.1, 0.1)
   modelform <- "PAE"
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   keep_constant <- c(1, 1, 1)
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   keep_constant <- c(0, 0, 0)
   ev0 <- df$lung
   df$lung <- rep(0, length(ev0))
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   names <- c("dose", "rand", "CONST")
   df$lung <- ev0
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   control$guesses <- 100
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, strat_col, model_control))
+  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
 })

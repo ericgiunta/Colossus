@@ -84,7 +84,7 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const int& der_iden, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
+void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     //
     int kept_covs = totalnum - sum(KeepConstant);
     //
@@ -188,7 +188,7 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
+void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     if (double_step == 1) {
         int kept_covs = totalnum - sum(KeepConstant);
         NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -227,43 +227,29 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
-            if (change_all) {
-                if (KeepConstant[ijk] == 0) {
-                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-                    if (isnan(Lldd_solve(ijk))) {
-                        if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                            dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
-                        } else {
-                            dbeta[ijk] = 0;
-                        }
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                if (isnan(Lldd_solve(ijk))) {
+                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
                     } else {
-                        dbeta[ijk] = lr * Lldd_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                    }
-                    //
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                        if (abs(dbeta[ijk]) > dose_abs_max) {
-                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                        }
-                    }else{
-                        if (abs(dbeta[ijk]) > abs_max) {
-                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                        }
+                        dbeta[ijk] = 0;
                     }
                 } else {
-                    dbeta[ijk] = 0;
+                    dbeta[ijk] = lr * Lldd_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                 }
-            }else{
-                if (ijk!=der_iden) {  // validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {
-                        dbeta[ijk] = dint;
-                    } else if ((tform[ijk] == "loglin") || (tform[ijk] == "lin") || (tform[ijk] == "plin")) {
-                        dbeta[ijk] = 0.001;
-                    } else {
-                        dbeta[ijk] = dslp;
+                //
+                if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
+                    if (abs(dbeta[ijk]) > dose_abs_max) {
+                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    }
+                }else{
+                    if (abs(dbeta[ijk]) > abs_max) {
+                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
                     }
                 }
+            } else {
+                dbeta[ijk] = 0;
             }
         }
     } else {
@@ -272,39 +258,25 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
-            if (change_all) {
-                if (KeepConstant[ijk] == 0) {
-                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
-                    } else {
-                        dbeta[ijk] = 0;
-                    }
-                    //
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                        if (abs(dbeta[ijk]) > dose_abs_max) {
-                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                        }
-                    }else{
-                        if (abs(dbeta[ijk]) > abs_max) {
-                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                        }
-                    }
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                    dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
                 } else {
                     dbeta[ijk] = 0;
                 }
-            }else{
-                if (ijk!=der_iden) {  // validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {
-                        dbeta[ijk] = dint;
-                    } else if ((tform[ijk] == "loglin") || (tform[ijk] == "lin") || (tform[ijk] == "plin")) {
-                        dbeta[ijk] = abs_max;
-                    } else {
-                        dbeta[ijk] = dslp;
+                //
+                if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
+                    if (abs(dbeta[ijk]) > dose_abs_max) {
+                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    }
+                }else{
+                    if (abs(dbeta[ijk]) > abs_max) {
+                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
                     }
                 }
+            } else {
+                dbeta[ijk] = 0;
             }
         }
     }
@@ -414,7 +386,7 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const int& der_iden, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, IntegerVector KeepConstant) {
+void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant) {
     if (double_step == 1) {
         //
         int kept_covs = totalnum - sum(KeepConstant);
@@ -453,33 +425,25 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
-            if (change_all) {
-                if (KeepConstant[ijk] == 0) {
-                    //
-                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-                    if (isnan(Lldd_solve(ijk))) {
-                        if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                            dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
-                        } else {
-                            dbeta[ijk] = 0;
-                        }
+            if (KeepConstant[ijk] == 0) {
+                //
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                if (isnan(Lldd_solve(ijk))) {
+                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
                     } else {
-                        dbeta[ijk] = lr * Lldd_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                    }
-                    //
-                    //
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                        dbeta[ijk] = 0;
                     }
                 } else {
-                    dbeta[ijk] = 0;
+                    dbeta[ijk] = lr * Lldd_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                 }
-            }else{
-                if (ijk!=der_iden) {  // validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    dbeta[ijk] = abs_max;
+                //
+                //
+                if (abs(dbeta[ijk]) > abs_max) {
+                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
                 }
+            } else {
+                dbeta[ijk] = 0;
             }
         }
     } else {
@@ -488,34 +452,26 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
-            if (change_all) {
-                if (KeepConstant[ijk] == 0) {
-                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
-                    } else {
-                        dbeta[ijk] = 0;
-                    }
-                    //
-                    double dbeta_max = 0.0;
-                    if (Lld[ijk]!=0) {
-                        dbeta_max = abs(Ll[ijk]/Lld[ijk]);  // uses newtonian step for zero log-likelihood as a limit
-                    }
-                    if (abs(dbeta[ijk])>dbeta_max) {
-                        dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
-                    }
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                    }
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                    dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
                 } else {
                     dbeta[ijk] = 0;
                 }
-            }else{
-                if (ijk!=der_iden) {  // validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    dbeta[ijk] = abs_max;
+                //
+                double dbeta_max = 0.0;
+                if (Lld[ijk]!=0) {
+                    dbeta_max = abs(Ll[ijk]/Lld[ijk]);  // uses newtonian step for zero log-likelihood as a limit
                 }
+                if (abs(dbeta[ijk])>dbeta_max) {
+                    dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
+                }
+                if (abs(dbeta[ijk]) > abs_max) {
+                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                }
+            } else {
+                dbeta[ijk] = 0;
             }
         }
     }
@@ -740,7 +696,7 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Background(const int& double_step, const int& nthreads, const int& totalnum, const int& group_num, const int& der_iden, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const bool change_all, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
+void Calc_Change_Background(const int& double_step, const int& nthreads, const int& totalnum, const int& group_num, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
     if (double_step == 1) {
         int kept_covs = totalnum - sum(KeepConstant);
         int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
@@ -813,43 +769,29 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
-            if (change_all) {
-                if (KeepConstant[ijk] == 0) {
-                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-                    if (isnan(Lldd_beta_solve(ijk))) {
-                        if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                            dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
-                        } else {
-                            dbeta[ijk] = 0;
-                        }
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                if (isnan(Lldd_beta_solve(ijk))) {
+                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
                     } else {
-                        dbeta[ijk] = lr * Lldd_beta_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-                    }
-                    //
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                        if (abs(dbeta[ijk]) > dose_abs_max) {
-                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                        }
-                    }else{
-                        if (abs(dbeta[ijk]) > abs_max) {
-                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                        }
+                        dbeta[ijk] = 0;
                     }
                 } else {
-                    dbeta[ijk] = 0;
+                    dbeta[ijk] = lr * Lldd_beta_solve(ijk);  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                 }
-            }else{
-                if (ijk!=der_iden) {  // validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {
-                        dbeta[ijk] = dint;
-                    } else if ((tform[ijk] == "loglin") || (tform[ijk] == "lin") || (tform[ijk] == "plin")) {
-                        dbeta[ijk] = 0.001;
-                    } else {
-                        dbeta[ijk] = dslp;
+                //
+                if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
+                    if (abs(dbeta[ijk]) > dose_abs_max) {
+                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    }
+                }else{
+                    if (abs(dbeta[ijk]) > abs_max) {
+                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
                     }
                 }
+            } else {
+                dbeta[ijk] = 0;
             }
         }
         #ifdef _OPENMP
@@ -884,39 +826,25 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
-            if (change_all) {
-                if (KeepConstant[ijk] == 0) {
-                    int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
-                    } else {
-                        dbeta[ijk] = 0;
-                    }
-                    //
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                        if (abs(dbeta[ijk]) > dose_abs_max) {
-                            dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
-                        }
-                    }else{
-                        if (abs(dbeta[ijk]) > abs_max) {
-                            dbeta[ijk] = abs_max * sign(dbeta[ijk]);
-                        }
-                    }
+            if (KeepConstant[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant, ijk));
+                if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                    dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
                 } else {
                     dbeta[ijk] = 0;
                 }
-            }else{
-                if (ijk!=der_iden) {  // validation requires controlled changes
-                    dbeta[ijk] = 0.0;
-                } else {
-                    if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {
-                        dbeta[ijk] = dint;
-                    } else if ((tform[ijk] == "loglin") || (tform[ijk] == "lin") || (tform[ijk] == "plin")) {
-                        dbeta[ijk] = abs_max;
-                    } else {
-                        dbeta[ijk] = dslp;
+                //
+                if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
+                    if (abs(dbeta[ijk]) > dose_abs_max) {
+                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    }
+                }else{
+                    if (abs(dbeta[ijk]) > abs_max) {
+                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
                     }
                 }
+            } else {
+                dbeta[ijk] = 0;
             }
         }
         int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());

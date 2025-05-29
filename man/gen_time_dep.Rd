@@ -62,7 +62,7 @@ time2 <- "a"
 event <- "c"
 control <- list(
   "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9,
-  "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE,
+  "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
   "dose_abs_max" = 100.0,
   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
 )

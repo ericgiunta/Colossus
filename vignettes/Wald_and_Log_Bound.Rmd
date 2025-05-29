@@ -68,7 +68,7 @@ event <- "status"
 
 names <- c("temperature", "voltage")
 tform <- c("loglin", "loglin")
-control <- list("Ncores" = 1, "maxiter" = 100, "verbose" = 0)
+control <- list("Ncores" = 1, "maxiter" = 100, "verbose" = 2)
 
 a_n <- c(0.01, 0.01)
 term_n <- c(0, 0)
@@ -218,8 +218,8 @@ model_control <- list()
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiters" = c(100, 100), "halfmax" = 5,
   "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0,
-  "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0,
-  "ties" = "breslow", "double_step" = 1
+  "dose_abs_max" = 100.0, "verbose" = 2,
+  "ties" = "breslow"
 )
 
 v0 <- sort(c((0:50 / 50 - 1.0) * 0.8, 1:50 / 50 * 3, 1.438377, -0.5909))
@@ -272,7 +272,7 @@ modelform <- "M"
 #
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5,
-  "verbose" = 0
+  "verbose" = 2
 )
 
 model_control <- list("maxstep" = 20, "alpha" = 0.005, "para_number" = 2, "step_size" = 0.5)

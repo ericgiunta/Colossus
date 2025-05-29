@@ -15,7 +15,6 @@ Cox_Relative_Risk(
   keep_constant = c(0),
   a_n = c(0),
   modelform = "M",
-  fir = 0,
   control = list(),
   model_control = list()
 )
@@ -40,8 +39,6 @@ Cox_Relative_Risk(
 \item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
-
-\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 
@@ -73,7 +70,6 @@ time2 <- "Ending_Age"
 event <- "Cancer_Status"
 names <- c("a", "b", "c", "d")
 term_n <- c(0, 1, 1, 2)
-fir <- 0
 tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
 a_n <- c(1.1, 0.1, 0.2, 0.5) # used to test at a specific point
@@ -81,13 +77,13 @@ keep_constant <- c(0, 0, 0, 0)
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
   "epsilon" = 1e-3,
-  "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
+  "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
   "double_step" = 1
 )
 e <- Cox_Relative_Risk(
   df, time1, time2, event, names, term_n, tform,
-  keep_constant, a_n, modelform, fir, control
+  keep_constant, a_n, modelform, control
 )
 
 }

@@ -212,7 +212,7 @@ CoxSurvival <- function(t, h, ch, surv, plot_name, verbose, time_lims, age_unit)
 #' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a list of data-tables plotted
-CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu, term_n, tform, a_n, er, fir, der_iden, modelform, control, keep_constant, plot_type, age_unit, model_control = list()) {
+CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu, term_n, tform, a_n, er, modelform, control, keep_constant, plot_type, age_unit, model_control = list()) {
   if (verbose >= 3) {
     message("Note: Plotting Kaplan-Meier Curve") # nocov
   }
@@ -277,7 +277,7 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
 #' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a list of data-tables plotted
-CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, fir, der_iden, modelform, control, keep_constant, plot_type, b, er, model_control = list()) {
+CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, modelform, control, keep_constant, plot_type, b, er, model_control = list()) {
   fir_KM <- 0
   model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -298,7 +298,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
     model_control$risk <- TRUE
     model_control$unique_values <- length(uniq)
     e <- Plot_Omnibus_transition(
-      term_n, tform, a_n, dfc, x_all, fir,
+      term_n, tform, a_n, dfc, x_all, 0,
       der_iden, modelform,
       control,
       as.matrix(df[, ce, with = FALSE]), tu,
@@ -349,7 +349,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
 #' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a list of data-tables plotted
-CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, er, fir, der_iden, modelform, control, keep_constant, plot_type, strat_col, time_lims, age_unit, model_control = list()) {
+CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, er, modelform, control, keep_constant, plot_type, strat_col, time_lims, age_unit, model_control = list()) {
   dfend <- df[get(event0) == 1, ]
   uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
     use.names = FALSE
@@ -390,7 +390,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   control$guesses <- 1
   e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names,
     term_n, tform, keep_constant,
-    a_n, modelform, fir, der_iden, control,
+    a_n, modelform, control,
     strat_col = strat_col,
     model_control = list("strata" = TRUE)
   )
@@ -405,7 +405,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   model_control$surv <- TRUE
   model_control$strata <- TRUE
   e <- Plot_Omnibus_transition(
-    term_n, tform, a_n, dfc, x_all, fir, der_iden,
+    term_n, tform, a_n, dfc, x_all, 0, 0,
     modelform, control,
     as.matrix(df[, ce, with = FALSE]),
     tu, keep_constant, term_tot, uniq, c(0),
@@ -485,7 +485,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
 #' @family Plotting Functions
 #' @noRd
 #' @importFrom rlang .data
-PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, der_iden, control, age_unit, plot_name, model_control = list()) {
+PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, age_unit, plot_name, model_control = list()) {
   data.table::setkeyv(df, c(event0, time2, time1))
   model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -501,13 +501,12 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
   }
   val <- Correct_Formula_Order(
     term_n, tform, keep_constant, a_n,
-    names, der_iden
+    names
   )
   term_n <- val$term_n
   tform <- val$tform
   keep_constant <- val$keep_constant
   a_n <- val$a_n
-  der_iden <- val$der_iden
   names <- val$names
   all_names <- unique(names)
   dfc <- match(names, all_names)
@@ -521,8 +520,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   model_control$schoenfeld <- TRUE
   res_list <- Plot_Omnibus_transition(
-    term_n, tform, a_n, dfc, x_all,
-    fir, der_iden,
+    term_n, tform, a_n, dfc, x_all, 0, 0,
     modelform, control,
     as.matrix(df[, ce, with = FALSE]),
     tu, keep_constant, term_tot, c(0),
@@ -613,16 +611,14 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
 #' term_n <- c(0, 1, 1, 2)
 #' tform <- c("loglin", "lin", "lin", "plin")
 #' modelform <- "M"
-#' fir <- 0
 #' a_n <- c(0.1, 0.1, 0.1, 0.1)
 #' keep_constant <- c(0, 0, 0, 0)
-#' der_iden <- 0
 #' df$censor <- (df$Cancer_Status == 0)
 #' event <- "censor"
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5,
 #'   "epsilon" = 1e-6, "deriv_epsilon" = 1e-6,
-#'   "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = FALSE,
+#'   "abs_max" = 1.0, "dose_abs_max" = 100.0, "verbose" = FALSE,
 #'   "ties" = "breslow", "double_step" = 1
 #' )
 #' plot_options <- list(
@@ -631,14 +627,14 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
 #' )
 #' dft <- GetCensWeight(
 #'   df, time1, time2, event, names, term_n, tform,
-#'   keep_constant, a_n, modelform, fir, control, plot_options
+#'   keep_constant, a_n, modelform, control, plot_options
 #' )
 #' t_ref <- dft$t
 #' surv_ref <- dft$surv
 #' t_c <- df$t1
 #' cens_weight <- approx(t_ref, surv_ref, t_c, rule = 2)$y
 #'
-GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options, model_control = list(), strat_col = "e") {
+GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options, model_control = list(), strat_col = "e") {
   df <- data.table(df)
   if (plot_options$verbose >= 3) {
     message("Note: Starting Censoring weight Plot Function") # nocov
@@ -690,15 +686,15 @@ GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_c
   control$maxiter <- -1
   e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names,
     term_n, tform, keep_constant,
-    a_n, modelform, fir, 0, control,
+    a_n, modelform, control,
     strat_col = strat_col,
     model_control = model_control
   )
   control$maxiter <- maxiterc
   model_control$surv <- TRUE
   e <- Plot_Omnibus_transition(
-    term_n, tform, a_n, dfc, x_all, fir,
-    0, modelform, control,
+    term_n, tform, a_n, dfc, x_all, 0, 0,
+    modelform, control,
     as.matrix(df[, ce, with = FALSE]),
     tu, keep_constant, term_tot,
     c(0), c(0), model_control

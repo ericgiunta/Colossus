@@ -14,8 +14,6 @@ RunPoissonEventAssignment(
   keep_constant = c(0),
   a_n = c(0),
   modelform = "M",
-  fir = 0,
-  der_iden = 0,
   control = list(),
   strat_col = "null",
   model_control = list()
@@ -39,10 +37,6 @@ RunPoissonEventAssignment(
 \item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
-
-\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
-
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0}
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 
@@ -77,20 +71,18 @@ names <- c("a", "b", "c", "d")
 term_n <- c(0, 1, 1, 2)
 tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
-fir <- 0
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 keep_constant <- c(0, 0, 0, 0)
-der_iden <- 0
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
   "halfmax" = 5, "epsilon" = 1e-3,
-  "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
+  "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
   "dose_abs_max" = 100.0, "verbose" = FALSE, "double_step" = 1
 )
 e <- RunPoissonEventAssignment(
   df, pyr, event, names, term_n,
   tform, keep_constant,
-  a_n, modelform, fir, der_iden, control
+  a_n, modelform, control
 )
 }
 \seealso{

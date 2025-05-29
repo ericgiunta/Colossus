@@ -81,7 +81,6 @@ term_n <- val$term_n
 tform <- val$tform
 keep_constant <- val$keep_constant
 a_n <- val$a_n
-der_iden <- val$der_iden
 names <- val$names
 ```
 

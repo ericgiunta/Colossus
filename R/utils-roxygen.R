@@ -23,7 +23,6 @@
 #' @param er  standard deviation for the parameters
 #' @param event0  column used for event status
 #' @param factor_check  a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns
-#' @param fir  term number for the initial term, used for models of the form T0*f(Ti) in which the order matters
 #' @param fname  filename used for new dataframe
 #' @param func_form  vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
 #' @param guesses_control  list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Control_Options")
@@ -141,7 +140,6 @@ NULL
 #' @param dt  spacing in time
 #' @param epsilon  minimum acceptable maximum parameter change
 #' @param filename  file to save the data to
-#' @param fir  st term number
 #' @param gmix_term list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)
 #' @param gmix_theta theta value for geometric-mixture model
 #' @param guesses  number of initial
@@ -188,7 +186,7 @@ NULL
 #' @importFrom Rcpp evalCpp
 #' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD
 #' @importFrom parallel detectCores
-#' @importFrom stats runif weighted.mean
+#' @importFrom stats runif weighted.mean pnorm
 #' @importFrom utils combn head sessionInfo
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom graphics legend lines smoothScatter

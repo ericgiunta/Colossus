@@ -78,7 +78,7 @@ Then the stratified model may look like this:
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = (\sum_i (x_i \cdot \beta_i)) \times (1 + \exp{(\sum_j (x_j \cdot \beta_j))})
+    R = (\sum_i (x_i \cdot \beta_i)) \times (\exp{(\sum_{strata} (x_{strata} \cdot \beta_{strata}))})
 \end{aligned}
 $$
 </p>
@@ -98,7 +98,7 @@ e <- RunPoissonRegression_Strata(
 
 ## Simplified Model
 
-The inclusion of linear subterms, additive models, and multiple terms means that default Colossus calculates and stores every derivative assuming that every value is needed. If the equation is log-linear with one term, then there are many simplifications that can be made. This option is designed to make those simplifications. In particular having only one subterm type means that the hazard ratios and their derivatives can be calculated directly, and the only subterm type being an exponential means that the logarithm of the hazard ratio in the Log-Likelihood calculation is simplified. In tests, using the simplified function was able to save approximately 40% time versus the full code being used.
+The inclusion of linear subterms, additive models, and multiple terms as options means that the Colossus calculates and stores every derivative. If the equation is log-linear with one term, then there are many simplifications that can be made. This option is designed to make those simplifications. In particular having only one subterm type means that the hazard ratios and their derivatives can be calculated directly, and the only subterm type being an exponential means that the logarithm of the hazard ratio in the Log-Likelihood calculation is simplified. In tests, using the simplified function was able to save approximately 40% time versus the full code being used.
 
 Assuming the same general parameters in the other vignettes, the code is as follows:
 
@@ -110,9 +110,11 @@ e <- RunCoxRegression_Basic(
 )
 ```
 
+If the basic option is used in combination with incompatable model options, then the model options will be overwritten. A warning is provided details what options were overwritten, and the final result will indiciate what model options were truly used.
+
 ## Non-Derivative Calculation
 
-Colossus uses Newton's method to perform the regression, which can become computationally complex as the number of terms and formula increases. So Colossus contains functions to calculate only the scores for a parameter set, and skip the intensive derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence of score on parameter values. Colossus in the current state does not use these functions, but they are left for the user's convenience.
+Colossus uses Newton's method to perform the regression, which can become computationally intensive as the model becomes more complicated. So, Colossus contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence of score on parameter values. Colossus in the current state does not use these functions, but they are left for the user's convenience.
 
 The code is similar to previous examples:
 ```{r, eval=FALSE}
@@ -146,7 +148,7 @@ $$
 $$
 </p>
 
-The competing risks model adjusts this to be the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time OR they survived up to a previous time and experienced an event:
+The competing risks model adjusts this to be the probability that an individual survived up to the time and experienced the event of interest, given that they did not experience an event up to that time OR they survived up to a previous time and experienced a different event:
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -156,45 +158,17 @@ $$
 $$
 </p>
 
-This means that risks groups would contain both intervals actually at risk and intervals with competing events treated as if they were at risk. If we assume that no time-dependent covariates are being used, then all that remains is to weight the contribution of these competing events. The goal is to quantify the probability that an interval would have been uncensored at the new event time given that it was uncensored up to the competing event time. Colossus handles this by fitting a survival curve for censoring and using the ratio of surviving proportion to weight intervals.
+This means that risks groups would contain both intervals actually at risk and intervals with competing events treated as if they were at risk. If we assume that no time-dependent covariates are being used, then all that remains is to weight the contribution of these competing events. In general a weighting column is provided prior to regression, the values can be solved from a survival curve or by using the "finegray" function of the survival library.
 
-<p class="text-center" style="background-color: aliceblue">
-$$
-\begin{aligned}
-   W_i(j) = min \left(\frac{S(t_j)}{S(t_i)},1 \right)
-\end{aligned}
-$$
-</p>
-
-At any given event time, every competing event interval will have a right interval limit below the event time and every interval without events will have a right interval limit above the event time. So competing events will have a weighting below 1 and every other interval will have a weighting set to 1.
-
-In code, the call is similar to the standard function. The process for finding a weighting is included below. In this example we assume the event column, lung, to contain a 0 for no events, 1 for the primary event, and 2 for the competing event. A ID column is used to determine which individuals have events and which are censored.
+n code, the call is similar to the standard function. The process for finding a weighting is included below. In this example we assume the event column, lung, to contain a 0 for no events, 1 for the primary event, and 2 for the competing event.
 
 ```{r, eval=FALSE}
-df$censor <- (df$lung == 0) # censoring column made
-event <- "censor" # event type switched to censoring
-
-plot_options <- list(
-  "name" = "run_2", "verbose" = FALSE,
-  "studyID" = "studyID", "age_unit" = "years"
-)
-# modified plotting function used to get censoring weights
-dft <- GetCensWeight(
-  df, time1, time2, event, names, term_n, tform, keep_constant,
-  a_n, modelform,
-  control = control, plot_options = plot_options
-) # generates a survival curve
-t_ref <- dft$t
-surv_ref <- dft$surv
-t_c <- df$t1
-cens_weight <- approx(t_ref, surv_ref, t_c, rule = 2)$y
-# the surviving proportions used as censoring weight
-event <- "lung" # event switched back
+pdata <- finegray(Surv(time2, event) ~ ., data = df)
 
 e <- RunCoxRegression_CR(
-  df, time1, time2, event, names, term_n, tform, keep_constant,
+  pdata, "fgstart", "fgstop", "fgstatus", names, term_n, tform, keep_constant,
   a_n, modelform,
-  control = control, cens_weight = cens_weight
+  control = control, cens_weight = "fgwt"
 )
 ```
 
@@ -287,20 +261,12 @@ Joint_Multiple_Events(
 )
 ```
 
-These results could be then used as input for any of the available regression functions. Colossus also includes a wrapper functions to directly call the Poisson model regression function. This method could applied to a Cox model assuming every event has the same baseline hazard. However this is not the intended use, so a wrapper function was not included.
+These results could be then used as input for any of the available regression functions. Colossus also includes a wrapper functions to directly call the Poisson model regression function.
 ```{r, eval=TRUE}
-der_iden <- 0
 modelform <- "M"
-fir <- 0
 control <- list(
-  "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-3,
-  "dbeta_max" = 0.5, "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
-  "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
-)
-guesses_control <- list(
-  "maxiter" = 10, "guesses" = 10, "lin_min" = 0.001, "lin_max" = 1,
-  "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform", "loglin_method" = "uniform",
-  strata = FALSE
+  "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-6,
+  "deriv_epsilon" = 1e-6, "verbose" = 2
 )
 Strat_Col <- "f"
 e <- RunPoissonRegression_Joint_Omnibus(
@@ -321,9 +287,12 @@ The distributed start framework is built into both Cox proportional hazards and 
 ```{r, eval=FALSE}
 a_n <- list(c(1, 1, 1), c(1, 2, 1), c(1, 2, 2), c(2, 1, 1))
 
-control$maxiter <- 5 # runs each (4) starts 1 iteration, and then runs the best 5 iterations
-control$maxiters <- c(1, 1, 1, 1, 5) # runs each (4) starts 1 iteration, and then runs the best 5 iterations
-control$maxiters <- c(5, 5, 5, 5, 5) # runs each (4) starts 5 iterations, and then runs the best 5 iterations
+# runs each (4) starts 1 iteration, and then runs the best 5 iterations
+control$maxiter <- 5
+# runs each (4) starts 1 iteration, and then runs the best 5 iterations
+control$maxiters <- c(1, 1, 1, 1, 5)
+# runs each (4) starts 5 iterations, and then runs the best 5 iterations
+control$maxiters <- c(5, 5, 5, 5, 5)
 
 e <- RunCoxRegression_Omnibus(df, time1, time2, event,
   names, term_n, tform, keep_constant,

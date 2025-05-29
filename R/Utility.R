@@ -26,12 +26,10 @@
 #' a_n <- c(-0.1)
 #' a_n_default <- a_n
 #' modelform <- "M"
-#' fir <- 0
-#' der_iden <- 0
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiter" = -1,
 #'   "halfmax" = 5, "epsilon" = 1e-9,
-#'   "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE,
+#'   "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
 #'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
 #'   "double_step" = 1
 #' )
@@ -48,10 +46,10 @@
 #' Gather_Guesses_CPP(
 #'   df, dfc, names, term_n, tform, keep_constant,
 #'   a_n, x_all, a_n_default,
-#'   modelform, fir, control, guesses_control
+#'   modelform, control, guesses_control
 #' )
 #' @importFrom rlang .data
-Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, fir, control, guesses_control, model_control = list()) {
+Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, control, guesses_control, model_control = list()) {
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
@@ -137,7 +135,7 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
     }
     keep <- risk_check_transition(
       term_n, tform, a_n0, dfc, x_all,
-      fir, modelform,
+      0, modelform,
       control, model_control,
       keep_constant, term_tot
     )
@@ -215,8 +213,8 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
       }
     }
     keep <- risk_check_transition(
-      term_n, tform, a_n0, dfc, x_all, fir,
-      modelform, control, model_control,
+      term_n, tform, a_n0, dfc, x_all,
+      0, modelform, control, model_control,
       keep_constant, term_tot
     )
     if (keep) {
@@ -258,21 +256,15 @@ Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n
 #' tform <- val$tform
 #' keep_constant <- val$keep_constant
 #' a_n <- val$a_n
-#' der_iden <- val$der_iden
 #' names <- val$names
 #'
-Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_iden = 0, cons_mat = matrix(c(0)), cons_vec = c(0), verbose = FALSE, model_control = list()) {
+Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, cons_mat = matrix(c(0)), cons_vec = c(0), verbose = FALSE, model_control = list()) {
   #
   verbose <- Check_Verbose(verbose)
   if ("para_number" %in% names(model_control)) {
     # pass
   } else {
     model_control["para_number"] <- 0
-  }
-  if (der_iden %in% (seq_len(length(tform)) - 1)) {
-    # pass
-  } else {
-    stop("Error: der_iden should be within 0:(length(tform)-1)")
   }
   if (is.matrix(cons_mat)) {
     # pass
@@ -439,7 +431,6 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
       "current_order" = seq_len(length(tform)),
       "constraint_order" = col_to_cons
     )
-    df$iden_const[[der_iden + 1]] <- 1
     df$para_num[[model_control[["para_number"]] + 1]] <- 1
     df$tform_order <- tform_iden
     keycol <- c("term_n", "names", "tform_order")
@@ -486,7 +477,6 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
       "current_order" = seq_along(tform),
       "constraint_order" = col_to_cons
     )
-    df$iden_const[[der_iden + 1]] <- 1
     df$para_num[[model_control[["para_number"]] + 1]] <- 1
     for (i in seq_len(length(a_n))) {
       df[[paste("a_", i, sep = "")]] <- a_n[[i]]
@@ -573,11 +563,10 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, der_
   }
   a_temp <- df$iden_const
   b_temp <- df$para_num
-  der_iden <- which(a_temp == 1) - 1
   para_num <- which(b_temp == 1) - 1
   list(
     "term_n" = df$term_n, "tform" = df$tform, "keep_constant" = df$keep_constant,
-    "a_n" = a_n, "der_iden" = der_iden, "names" = df$names,
+    "a_n" = a_n, "names" = df$names,
     "Permutation" = df$current_order,
     "cons_mat" = unname(cons_mat), "cons_vec" = cons_vec,
     "para_num" = para_num
@@ -1490,7 +1479,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' event <- "c"
 #' control <- list(
 #'   "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9,
-#'   "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE,
+#'   "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
 #'   "dose_abs_max" = 100.0,
 #'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
 #' )
@@ -2888,19 +2877,17 @@ Convert_Model_Eq <- function(Model_Eq, df) {
 #' term_n <- c(0, 1, 1, 2)
 #' tform <- c("loglin", "lin", "lin", "plin")
 #' modelform <- "M"
-#' fir <- 0
 #' keep_constant <- c(0, 0, 0, 0)
-#' der_iden <- 0
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
 #'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0,
+#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
 #'   "verbose" = FALSE,
 #'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 #' )
 #' e <- RunCoxRegression_Omnibus(df, time1, time2, event,
 #'   names, term_n, tform, keep_constant,
-#'   a_n, modelform, fir, der_iden, control,
+#'   a_n, modelform, control,
 #'   model_control = list(
 #'     "single" = FALSE,
 #'     "basic" = FALSE, "cr" = FALSE, "null" = FALSE
@@ -2951,13 +2938,15 @@ Interpret_Output <- function(out_list, digits = 2) {
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
         stdev <- out_list$Standard_Deviation
+        pval <- pnorm(-abs(beta_0 / stdev))
         strata_odds <- out_list$StrataOdds
         res_table <- data.table(
           "Covariate" = names,
           "Subterm" = tforms,
           "Term Number" = term_n,
           "Central Estimate" = beta_0,
-          "Standard Deviation" = stdev
+          "Standard Error" = stdev,
+          "1-tail p-value" = pval
         )
         message("Final Results")
         print(res_table)
@@ -2988,12 +2977,14 @@ Interpret_Output <- function(out_list, digits = 2) {
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
         stdev <- out_list$Standard_Deviation
+        pval <- pnorm(-abs(beta_0 / stdev))
         res_table <- data.table(
           "Covariate" = names,
           "Subterm" = tforms,
           "Term Number" = term_n,
           "Central Estimate" = beta_0,
-          "Standard Deviation" = stdev
+          "Standard Error" = stdev,
+          "1-tail p-value" = pval
         )
         message("Final Results")
         print(res_table)

@@ -10,7 +10,6 @@ Correct_Formula_Order(
   keep_constant,
   a_n,
   names,
-  der_iden = 0,
   cons_mat = matrix(c(0)),
   cons_vec = c(0),
   verbose = FALSE,
@@ -27,8 +26,6 @@ Correct_Formula_Order(
 \item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{names}{columns for elements of the model, used to identify data columns}
-
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0}
 
 \item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
 
@@ -61,7 +58,6 @@ term_n <- val$term_n
 tform <- val$tform
 keep_constant <- val$keep_constant
 a_n <- val$a_n
-der_iden <- val$der_iden
 names <- val$names
 
 }

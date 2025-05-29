@@ -25,7 +25,7 @@ library(parallel)
 
 ## Model Structure
 
-At its full potential, Colossus is able to analyze a vast number of possible risk/rate models. Specifically Colossus is designed to allow for a combination of linear and non-linear models to estimate cox proportional hazard ratios, Poisson model rates, and Fine-Gray Competing risks ratios. The simplest of which is an exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
+At its full potential, Colossus can analyze a vast number of possible risk/rate models. Specifically, Colossus is designed to allow for a combination of linear and non-linear models to estimate Cox proportional hazard ratios, Poisson model rates, and Fine-Gray Competing risk ratios. The simplest of which is an exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -77,7 +77,7 @@ In short, every element of the risk model has a subterm type, term number, covar
 
 ## Using The Standard Model
 
-In Colossus every equation is defined in a very similar fashion. On the user side of the code, elements of the risk equation can be viewed as rows of a table. The columns store covariate names, term numbers, subterms types, and a starting point. For more complex regression most parameters can be also be set to remain constant over the regression. Doing so forces the parameter value to remain constant but not remove the element from the risk calculations. Constant elements are used for risk calculation, but are not used for calculating steps or standard deviations. For a multiplicative excess risk model the following table and equation are equivalent.
+In Colossus, every equation is defined in a very similar fashion. On the user side of the code, elements of the risk equation can be viewed as rows of a table: the columns store covariate names, term numbers, subterms types, and a starting point. For more complex regression most parameters can also be set to remain constant over the regression. Doing so forces the parameter value to be constant but not remove the element from the risk calculations. Constant elements are used for risk calculation but are not used for calculating steps or standard deviations. For a multiplicative excess risk model, the following table and equation are equivalent.
 
 
 | Term number | subterm type | covariate|
@@ -114,27 +114,26 @@ $$
 
 Note that the multiplicative model is taking the product of terms, each of which is the product of subterms. The same equation may be written with subterms distributed over different terms in the multiplicative model without changing the final value. The only exception is subterms moved from or into the "first" term in the multiplicative excess model. The same equation could be expressed in ways with different computational complexity.
 
-The specific model options are passed to the code as separate variables. The model identifier (A, M, PA, PAE, GMIX) is passed as a string. Every model except the additive model has a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term, however it can be set to any used term number without producing an error.
+The specific model options are passed to the code as separate variables. The model identifier (A, M, PA, PAE, GMIX) is passed as a string. Every model except the additive model has a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term.
 
-The final table is also equivalent to the following code
+The final table is also equivalent to the following code.
 
 ```{r}
 names <- c("a", "b", "c", "d")
 term_n <- c(0, 1, 1, 2)
 tform <- c("loglin", "lin", "lin", "plin")
 modelform <- "M"
-fir <- 0
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 ```
 
-*names* denotes the column names used, *term_n* denotes the term numbers, *tform* denotes the subterm formula, *modelform* denotes the term formula, *fir* denotes the "first" term indexed from zero which defaults to 0, and *a_n* denotes the initial guesses for the parameter values. All of which are assumed to be in the same order. A function is called prior to regression that reorders the inputs in order of terms, subterm types, etc.
+*names* denotes the column names used, *term_n* denotes the term numbers, *tform* denotes the subterm formula, *modelform* denotes the term formula, *fir* denotes the "first" term indexed from zero which defaults to 0, and *a_n* denotes the initial guesses for the parameter values. All of which are assumed to be in the same order. A function is called before regression that reorders the inputs in order of terms, subterm types, etc.
 
 ## Survival Time and Event Data
 
-Colossus performs survival analysis via either a Cox Proportional Hazards or a Poisson model regression. In both cases the user specifies which columns contain time duration and events of interest. For the Poisson model regression these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression the user identifies which columns provide starting and ending times, and what column gives the event status. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. Colossus supports left censored data, right censored data, and interval censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times. For Poisson model regression the user only provides columns for the person-years per row and number of events. Poisson model regression supports any non-negative number of events.
+Colossus performs survival analysis via either a Cox Proportional Hazards or a Poisson model regression. In both cases, the user specifies which columns contain time duration and events of interest. For the Poisson model regression, these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression, the user identifies which columns provide starting and ending times, and what column gives the event status. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. Colossus supports left-censored data, right-censored data, and interval-censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times. For Poisson model regression the user only provides columns for the person-years per row and number of events. Poisson model regression supports any non-negative number of events.
 
-On the user side, the names of columns containing the time and events need to be given. Lets assume we have a dataframe organized as follows:
+On the user side, the names of columns containing the time and events need to be given. Let us assume we have a dataframe organized as follows:
 
 | UserID | Starting_Age | Ending_Age | Cancer_Status |
 | :---------: | :----------: | :-------: |  :-------: |
@@ -143,7 +142,7 @@ On the user side, the names of columns containing the time and events need to be
 | 213           | 18    | 57         | 1 |
 | ...           | ...    | ...         | ... |
 
-For a Cox Proportional Hazard we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example we have interval data, however that may not always be the case. Colossus is designed to allow for the user to input "%trunc%" in-place of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. So in code these variables would look like this:
+For Cox proportional hazard, we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example, we have interval data but that may not always be the case. Colossus is designed to allow the user to input "%trunc%" in place of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. So in code, these variables would look like this:
 
 ```{r}
 df <- data.table(
@@ -174,7 +173,7 @@ time1 <- "Starting_Age"
 time2 <- "Ending_Age"
 ```
 
-Suppose instead we were interested in a Poisson model regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. In this case we need to define a new column, but that may not be the case in general. Suppose we are now working with the following table:
+Suppose instead we were interested in a Poisson model regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. In this case, we need to define a new column, but that may not be the case in general. Suppose we are now working with the following table:
 
 | UserID | Starting_Age | Ending_Age | Person_Years | Cancer_Status |
 | :---------: | :----------: | :-------: | :-------: |  :-------: |
@@ -183,7 +182,7 @@ Suppose instead we were interested in a Poisson model regression, the only diffe
 | 213           | 18    | 57  |   39    | 1   |
 | ...           | ...   | ... | ...     | ... |
 
-we would just provide the duration column and event column, or "Person_Years" and "Cancer_Status". Which in code looks like the following:
+We would just provide the duration column and event column, or "Person_Years" and "Cancer_Status". Which in code looks like the following:
 
 ```{r}
 df$Person_Years <- df$Ending_Age - df$Starting_Age
@@ -194,18 +193,18 @@ event <- "Cancer_Status"
 
 ## Control and Verbosity
 
-Colossus offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information. A more common option is the verbosity. The verbose mode prints time-steps and intermediate values for the sum of terms, sum of risks, and log-likelihood each iteration. A less common option is the *der_iden* parameter, which is used change only one parameter at a time by a set amount. This was used in the debugging process for recording intermediate values on a plane. This option could be used by the user in conjunction with the verbose option to plot intermediate values by parameter value.
+Colossus offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information.
 
 The convergence parameters currently supported in general are as follows:
 
 | Parameter | Description |
 | :---------: | :----------: |
-| lr            | learning rate applied to steps taken, smaller values avoid overshooting at the risk of slower convergence. Applied to the solution for setting first derivative of Log-Likelihood to zero  |
+| lr            | learning rate applied to steps taken, smaller values avoid overshooting at the risk of slower convergence. Applied to the solution for setting the first derivative of Log-Likelihood to zero  |
 | maxiter       | maximum number of iterations run |
 | maxiters      | list of maximum iterations if a list of initial values is given |
 | halfmax       | Maximum number of half-steps taken each iteration |
-| epsilon       | Minimum parameter change above convergence. If change is below this, the regression exits |
-| dbeta_max     | learning rate applied to limit on steps taken. Applied to solution to zero Log-Likelihood, for double_step=0|
+| epsilon       | Minimum parameter change above convergence. If the change is below this, the regression exits |
+| dbeta_max     | learning rate applied to limit on the steps taken. Applied to solution to zero Log-Likelihood, for double_step=0|
 | deriv_epsilon | Minimum Log-Likelihood first derivative above convergence. If the largest first derivative is below this, the regression exits |
 | abs_max       | Largest starting step size. Code reduces it every time halfmax is hit without finding an improvement. When abs_max is below epsilon, the code exits  |
 | dose_abs_max  | Largest starting step size for threshold parameters. Assumes the threshold parameters may be orders of magnitude different than other parameters   |
@@ -217,40 +216,37 @@ The additional information parameters currently supported are as follows:
 | Parameter | Description |
 | :---------: | :----------: |
 | verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
-| change_all | TRUE/FALSE flag to choose if the user wants a regression or to calculate log-likelihoods on a grid changing only one parameter at a time |
 | ncores | Number of physical cores assigned, cannot be greater than the number of cores available |
 
-The previous options are all contained within a list of parameters, however there are additional standalone parameters which control the convergence and information. They are as follows:
+The previous options are all contained within a list of parameters, however, there are additional standalone parameters that control the convergence and information. They are as follows:
 
 | Parameter | Description |
 | :---------: | :----------: |
-| der_iden | If change_all is used, selects which parameter number indexed from 0 to change. The parameter is changed by abs_max or dose_abs_max every iteration over the maximum number of iterations|
 | keep_constant | a vector of 0/1 to denote if any parameters should be held constant over the calculations. 0 denoting false and 1 denoting true |
 
 Going back to our example, the code may look like the following:
 ```{r}
 keep_constant <- c(0, 0, 0, 0)
-der_iden <- 0
 
 control <- list(
   "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
-  "dbeta_max" = 0.5, "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE,
-  "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
+  "dbeta_max" = 0.5, "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
+  "dose_abs_max" = 100.0, "verbose" = 2, "ties" = "breslow", "double_step" = 1
 )
 ```
 
-In this example, no parameters are held constant, 100 iterations with 5 half-steps are used, a regression is performed with matrix step solutions, and breslow's method for tied event times is used. There are no errors for unused control parameters being used, they will simply be ignored. Every commonly required control parameter has a default value which is automatically used if not declared. This includes an optional list of model control options. These are used for nonstandard model options not covered in this vignette.
+In this example, no parameters are held constant, 100 iterations with 5 half-steps are used, a regression is performed with matrix step solutions, and Breslow's method for tied event times is used. There are no errors for unused control parameters being used, they will simply be ignored. Every commonly required control parameter has a default value which is automatically used if not declared. This includes an optional list of model control options. These are used for nonstandard model options not covered in this vignette.
 
 ## Running the Regression and Output
 
-Finally the user calls the regression function they need. The names used throughout this vignette are the defaults assumed. Both the Cox PH regression and Poisson model regression are called directly and return a list of results. Colossus contains a suite of additional checks it runs on the inputs prior to starting and calculations, which are designed to output explicit details on any issues. Printing error details may require the verbose option to be TRUE. In code the functions are called as follows:
+Finally, the user calls the regression function they need. The names used throughout this vignette are the defaults assumed. Both the Cox PH regression and Poisson model regression are called directly and return a list of results. Colossus contains a suite of additional checks it runs on the inputs before starting any calculations, which are designed to output explicit details on any issues. Printing error details may require the verbose option to be TRUE. In code, the functions are called as follows:
 
 ```{r}
 # assuming the table of covariates is stored in a data.table "df"
 
 e <- RunCoxRegression(
   df, time1, time2, event, names, term_n, tform, keep_constant,
-  a_n, modelform, fir, der_iden, control
+  a_n, modelform, control
 )
 Interpret_Output(e)
 
@@ -274,7 +270,7 @@ The following are output:
 | beta_0 | The final parameter list |
 | Standard_Deviation | Inverse-Hessian estimate of the standard deviation |
 | AIC | Akaike information criterion for the final solution |
-| Deviation | Deviance calculated using the difference in log-likelihood contributions between the saturated model and current model |
+| Deviation | Deviance calculated using the difference in log-likelihood contributions between the saturated model and the current model |
 | Parameter_Lists | the term numbers and term formulas used, to compare against the expected |
 | Control_List | a list containing the number of iterations, the maximum step at the final iteration, and the highest first derivative magnitude |
 |Converged | TRUE/FALSE if the regression converged |

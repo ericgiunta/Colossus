@@ -74,25 +74,25 @@ der_iden <- 0
 control <- list(
   "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,
   "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
-  "verbose" = FALSE, "ties" = "breslow"
+  "verbose" = 2, "ties" = "breslow"
 )
 
 e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control = control)
 Interpret_Output(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Deviation
-#>       <char>  <char>       <int>            <num>              <num>
-#> 1:         a  loglin           0         42.10452                NaN
-#> 2:         b     lin           1         98.72266        3781273.501
-#> 3:         c     lin           1         96.82311        3698137.325
-#> 4:         d    plin           2        101.10000           2326.871
+#>    Covariate Subterm Term Number Central Estimate Standard Error 1-tail p-value
+#>       <char>  <char>       <int>            <num>          <num>          <num>
+#> 1:         a  loglin           0         42.10452            NaN            NaN
+#> 2:         b     lin           1         98.72266    3781273.501      0.4999896
+#> 3:         c     lin           1         96.82311    3698137.325      0.4999896
+#> 4:         d    plin           2        101.10000       2326.871      0.4826718
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 1.35,  AIC: 9.35
 #> Iterations run: 100
 #> maximum step size: 1.00e+00, maximum first derivative: 1.92e-04
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.27 seconds
+#> Run finished in 0.28 seconds
 #> |-------------------------------------------------------------------|
 ```

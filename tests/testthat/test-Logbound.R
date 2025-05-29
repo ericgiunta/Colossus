@@ -15,11 +15,9 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   plot_options <- list("name" = paste(tempfile(), "run", sep = ""), "verbose" = FALSE, "studyid" = "studyid", "age_unit" = "years")
-  dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, fir, control, plot_options)
+  dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options)
   #
   #
   t_ref <- dft$t
@@ -46,10 +44,10 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
             model_control <- list("strata" = i, "basic" = j, "single" = k, "cr" = l, "log_bound" = TRUE, "manual" = m)
             a_n <- c(-0.1, -0.1)
             control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-            expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
+            expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
             a_n <- c(-0.1, -0.1)
             control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "efron", "double_step" = 0)
-            expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
+            expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
           }
         }
       }
@@ -59,11 +57,11 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
     model_control <- list("null" = TRUE, "log_bound" = TRUE, "manual" = m)
     a_n <- c(-0.1, -0.1)
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
+    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
     model_control <- list("single" = TRUE, "log_bound" = TRUE, "manual" = m)
-    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
+    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
     model_control <- list("gradient" = TRUE, "log_bound" = TRUE, "manual" = m)
-    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
+    expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
   }
 })
 test_that("Poisson strata_single log_bound", {
@@ -84,8 +82,7 @@ test_that("Poisson strata_single log_bound", {
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   #
   event <- "lung"
@@ -104,7 +101,7 @@ test_that("Poisson strata_single log_bound", {
         model_control <- list("strata" = i, "single" = k, "log_bound" = TRUE, "manual" = m)
         a_n <- c(-0.1, -0.1)
         control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-        expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
+        expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
       }
     }
   }
@@ -113,11 +110,11 @@ test_that("Poisson strata_single log_bound", {
       model_control <- list("strata" = FALSE, "single" = k, "log_bound" = TRUE, "manual" = m)
       a_n <- c(-0.1, -0.1)
       control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-      expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
+      expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
       model_control <- list("strata" = FALSE, "gradient" = k, "log_bound" = TRUE, "manual" = m)
       a_n <- c(-0.1, -0.1)
       control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-      expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
+      expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
     }
   }
 })
@@ -134,8 +131,7 @@ test_that("Coxph EPICURE validated answers, loglin", {
   keep_constant <- c(0, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   #
 
   a_n <- c(-0.6067, 5.019)
@@ -151,7 +147,7 @@ test_that("Coxph EPICURE validated answers, loglin", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 0)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
@@ -162,7 +158,7 @@ test_that("Coxph EPICURE validated answers, loglin", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
@@ -182,8 +178,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
   keep_constant <- c(0, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   #
 
   a_n <- c(-0.6067, 5.019)
@@ -199,7 +194,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 0, "manual" = TRUE)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
@@ -210,7 +205,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
     model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1, "manual" = TRUE)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
@@ -231,8 +226,7 @@ test_that("Coxph, lin both", {
   # a_n <- c(0.2462, 5.020, -0.5909)
   a_n <- c(-1.493177, 5.020007, 1.438377)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   #
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(2, 2), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
@@ -240,10 +234,10 @@ test_that("Coxph, lin both", {
   alpha <- 0.005
   a_n <- c(-1.493177, 5.020007, 1.438377)
   model_control <- list("basic" = FALSE, "maxstep" = 2, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control))
   a_n <- c(-1.493177, 5.020007, 1.438377)
   model_control <- list("basic" = FALSE, "maxstep" = 2, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control))
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
@@ -257,7 +251,7 @@ test_that("Coxph, lin both", {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
     model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
@@ -271,7 +265,7 @@ test_that("Coxph, lin both", {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
     model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = TRUE)
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
     # expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
@@ -290,8 +284,7 @@ test_that("Poisson, lin both", {
   keep_constant <- c(0, 0)
   a_n <- c(-2.917, 0.06526)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   #
   model_control <- list("basic" = FALSE, "maxstep" = 10, "log_bound" = FALSE, "alpha" = 0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
@@ -299,10 +292,10 @@ test_that("Poisson, lin both", {
   alpha <- 0.005
   a_n <- c(-2.917, 0.06526)
   model_control <- list("basic" = FALSE, "maxstep" = 3, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
   a_n <- c(-2.917, 0.06526)
   model_control <- list("basic" = FALSE, "maxstep" = 3, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control))
+  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
 })
 
 test_that("Coxph, lin both, check ordering", {
@@ -319,8 +312,7 @@ test_that("Coxph, lin both, check ordering", {
   # a_n <- c(0.2462, 5.020, -0.5909)
   a_n <- c(0.2462, 5.020, -0.7)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   #
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
@@ -328,10 +320,10 @@ test_that("Coxph, lin both, check ordering", {
   alpha <- 0.005
   a_n <- c(0.2462, 5.020, -0.599)
   model_control <- list("basic" = FALSE, "maxstep" = 5, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control))
   a_n <- c(0.2462, 5.020, -0.599)
   model_control <- list("basic" = FALSE, "maxstep" = 5, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control))
+  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control))
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
@@ -348,7 +340,7 @@ test_that("Coxph, lin both, check ordering", {
   tform <- c("loglin", "loglin", "lin")
   a_n <- c(0.2462, 5.020, -0.599)
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
   a <- e$Parameter_Limits
   expect_equal(a[1], v_lower[1], tolerance = 1e-4)
   expect_equal(a[2], v_upper[1], tolerance = 1e-4)
@@ -358,7 +350,7 @@ test_that("Coxph, lin both, check ordering", {
   tform <- c("loglin", "loglin", "lin")
   a_n <- c(5.020, 0.2462, -0.599)
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 0, "manual" = TRUE)
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
   a <- e$Parameter_Limits
   expect_equal(a[1], v_lower[1], tolerance = 1e-4)
   expect_equal(a[2], v_upper[1], tolerance = 1e-4)
@@ -368,7 +360,7 @@ test_that("Coxph, lin both, check ordering", {
   tform <- c("loglin", "lin", "loglin")
   a_n <- c(0.2462, -0.599, 5.020)
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = TRUE)
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+  e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
   a <- e$Parameter_Limits
   expect_equal(a[1], v_lower[1], tolerance = 1e-4)
   expect_equal(a[2], v_upper[1], tolerance = 1e-4)
@@ -387,8 +379,7 @@ test_that("Coxph, lin both, curve search", {
   # a_n <- c(0.2462, 5.020, -0.5909)
   a_n <- c(-1.493177, 5.020007, 1.438377)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   #
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.005)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
@@ -409,7 +400,7 @@ test_that("Coxph, lin both, curve search", {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
     model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = FALSE, "alpha" = alpha, "para_number" = 2, "step_size" = 0.5)
-    e <- CoxCurveSolver(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "nan", model_control = model_control)
+    e <- CoxCurveSolver(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-3)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-3)
@@ -427,8 +418,7 @@ test_that("Poisson, curve search", {
   keep_constant <- c(0, 0)
   a_n <- c(-2.917, 0.06526)
   modelform <- "M"
-  fir <- 0
-  der_iden <- 0
+
   #
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
@@ -443,7 +433,7 @@ test_that("Poisson, curve search", {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-2.917, 0.06526)
     model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
-    e <- PoissonCurveSolver(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, fir = fir, der_iden = der_iden, control = control, strat_col = "rand", model_control = model_control)
+    e <- PoissonCurveSolver(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control)
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-3)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-3)

@@ -15,8 +15,6 @@ RunCoxRegression_Omnibus_Multidose(
   keep_constant = c(0),
   a_n = c(0),
   modelform = "M",
-  fir = 0,
-  der_iden = 0,
   realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2),
   realization_index = c("temp0", "temp1"),
   control = list(),
@@ -47,10 +45,6 @@ RunCoxRegression_Omnibus_Multidose(
 \item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
-
-\item{fir}{term number for the initial term, used for models of the form T0*f(Ti) in which the order matters}
-
-\item{der_iden}{number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0}
 
 \item{realization_columns}{used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization}
 
@@ -105,8 +99,6 @@ realization_index <- c("rand")
 keep_constant <- c(1, 0)
 a_n <- c(0, 0)
 modelform <- "M"
-fir <- 0
-der_iden <- 0
 cens_weight <- c(0)
 event <- "lung"
 a_n <- c(-0.1, -0.1)
@@ -115,14 +107,14 @@ control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
   "halfmax" = 2, "epsilon" = 1e-6,
   "deriv_epsilon" = 1e-6, "abs_max" = 1.0,
-  "change_all" = TRUE, "dose_abs_max" = 100.0,
+  "dose_abs_max" = 100.0,
   "verbose" = 0, "ties" = "breslow", "double_step" = 1
 )
 e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
   names,
   term_n = term_n, tform = tform,
   keep_constant = keep_constant, a_n = a_n,
-  modelform = modelform, fir = fir, der_iden = der_iden,
+  modelform = modelform,
   realization_columns = realization_columns,
   realization_index = realization_index,
   control = control, strat_col = "fac",
