@@ -93,6 +93,6 @@ Interpret_Output(e)
 #> Iterations run: 100
 #> maximum step size: 1.00e+00, maximum first derivative: 1.92e-04
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.25 seconds
+#> Run finished in 0.29 seconds
 #> |-------------------------------------------------------------------|
 ```
