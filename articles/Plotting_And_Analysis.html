@@ -117,7 +117,7 @@ visualize the different plotting methods available in Colossus.</p>
 <p>After fitting a Cox proportional hazards model, one may be interested
 in what the baseline survival rate is. One method of doing so is by
 weighting the number of events at each event time by the total risk. In
-the absence of excess risk the hazard at any point in time is equal to
+the absence of excess risk, the hazard at any point in time is equal to
 the event rate and the hazard ratio of every row is equal to one, so
 this assumption holds for the case with negligible excess risk.</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -126,13 +126,12 @@ this assumption holds for the case with negligible excess risk.</p>
     \lambda(t) = \frac{d[t]}{n[t]} = \frac{d[t]}{\sum_{i=1}^n(1)} = \frac{d[t]}{\sum_{i=1}^n(r_i)}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Suppose every row at risk at a time were twice as likely to
-experience an event than the baseline. Then we would expect there to be
-twice as many events as there would be at baseline. The same logic
-applies for the case with every row at risk being half as likely. This
-generalizes to any average risk. Colossus allows the instantaneous
-hazard to be approximated for both stratified and non-stratified
-models.</p>
+<p>Suppose every row at risk at a time was twice as likely to experience
+an event than the baseline. Then we would expect there to be twice as
+many events as there would be at baseline. The same logic applies to the
+case with every row at risk being half as likely. This generalizes to
+any average risk. Colossus allows the instantaneous hazard to be
+approximated for both stratified and non-stratified models.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mi>/</mi><mn>2</mn></mrow><mrow><mi>n</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>*</mo><mn>2</mn></mrow><mrow><mi>n</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -203,21 +202,21 @@ time.</p>
 </h2>
 <p>The Cox proportional hazards model by definition assumes proportional
 hazards independent of time. If this is violated, then the results of a
-regression may be misleading. There are two functions that Colossus
+regression may be misleading. There are two checks that Colossus
 provides that can be used to test this assumption, the Schoenfeld
-residuals and Martingale residuals. In both cases the premise is that if
-the the hazard ratio were independent of time, then the residuals should
+residuals and Martingale residuals. In both cases, the premise is that
+if the hazard ratio were independent of time, then the residuals should
 also be independent of time.</p>
 <div class="section level3">
 <h3 id="schoenfeld-residuals">Schoenfeld Residuals<a class="anchor" aria-label="anchor" href="#schoenfeld-residuals"></a>
 </h3>
 <p>Schoenfeld residuals compare the average covariate value of rows with
-events with the risk weighted average of the covariate in rows at risk.
-Consistently high or low residuals may be due to hazard being much
+events with the risk-weighted average of the covariate in rows at risk.
+Consistently high or low residuals may be due to the hazard being much
 higher or lower than the model predicts. If these residuals are also
 correlated with event time, then the hazard ratio may be dependent on
 event time. There is also the option to scale the residuals by the
-standard-deviation.</p>
+standard deviation.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>s</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>i</mi><mo>∈</mo><mi>e</mi><mi>v</mi><mi>e</mi><mi>n</mi><mi>t</mi><mi>s</mi></mrow></munder><msub><mi>x</mi><mi>i</mi></msub></mrow><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac><mo>−</mo><mfrac><mrow><munderover><mo>∑</mo><mi>i</mi><mi>n</mi></munderover><msub><mi>x</mi><mi>i</mi></msub><mo>*</mo><msub><mi>r</mi><mi>i</mi></msub></mrow><mrow><munderover><mo>∑</mo><mi>i</mi><mi>n</mi></munderover><msub><mi>r</mi><mi>i</mi></msub></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -283,7 +282,7 @@ standard-deviation.</p>
 for each subject. The residual is bound in the open interval
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>∞</mi><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-\infty, 1)</annotation></semantics></math>.
 Negative residuals correspond with subjects that survive despite high
-cumulative hazard and residuals near unity correspond with subject that
+cumulative hazard and residuals near unity correspond with subjects that
 experienced an event despite low cumulative hazard. The distribution of
 residuals with event time can indicate if the model is over-predicting
 or under-predicting dependent on time.</p>
@@ -342,7 +341,6 @@ or under-predicting dependent on time.</p>
 </h2>
 <p>Colossus also offers scripts that plot the relative risk by parameter
 value for each parameter in the model, assuming every other parameter is
-constant. Any parameter with more than 10 values is assumed to be
 constant.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>

@@ -72,8 +72,8 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of Colossus is to provide an open-source means of performing survival analysis on big data with complex risk formula. Colossus is designed to perform Cox Proportional Hazard regressions and Poisson regressions on datasets loaded as data.tables or data.frames. The risk models allowed are sums or products of linear, log-linear, or several other radiation dose response formula highlighted in the vignettes. Additional plotting capabilities are available.</p>
-<p>By default a fully portable version of the code is compiled, which does not support OpenMP on every system. Note that Colossus requires OpenMP support to perform parallel calculations. The environment variable “R_COLOSSUS_NOT_CRAN” is checked to determine if OpenMP should be disabled for linux compiling with clang. The number of cores is set to 1 if the environment variable is empty, the operating system is detected as linux, and the default compiler or R compiler is clang. Colossus testing checks for the “NOT_CRAN” variable to determine if additional tests should be run. Setting “NOT_CRAN” to “false” will disable the longer tests. Currently OpenMP support is not configured for linux compiling with clang.</p>
+<p>The goal of Colossus is to provide an open-source means of performing survival analysis on big data with complex risk formulas. Colossus is designed to perform Cox Proportional Hazard regressions and Poisson regressions on datasets loaded as data.tables or data.frames. The risk models allowed are sums or products of linear, log-linear, or several other radiation dose response formulas highlighted in the vignettes. Additional plotting capabilities are available.</p>
+<p>By default, a fully portable version of the code is compiled, which does not support OpenMP on every system. Note that Colossus requires OpenMP support to perform parallel calculations. The environment variable “R_COLOSSUS_NOT_CRAN” is checked to determine if OpenMP should be disabled for linux compiling with clang. The number of cores is set to 1 if the environment variable is empty, the operating system is detected as linux, and the default compiler or R compiler is clang. Colossus testing checks for the “NOT_CRAN” variable to determine if additional tests should be run. Setting “NOT_CRAN” to “false” will disable the longer tests. Currently, OpenMP support is not configured for linux compiling with clang.</p>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
@@ -119,19 +119,19 @@
 <span><span class="fu"><a href="reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 1-tail p-value</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:         a  loglin           0         42.10452            NaN            NaN</span></span>
-<span><span class="co">#&gt; 2:         b     lin           1         98.72266    3781273.501      0.4999896</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1         96.82311    3698137.325      0.4999896</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2        101.10000       2326.871      0.4826718</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1         98.72266    3781273.501      0.9999792</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1         96.82311    3698137.325      0.9999791</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2        101.10000       2326.871      0.9653437</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 1.35,  AIC: 9.35</span></span>
 <span><span class="co">#&gt; Iterations run: 100</span></span>
 <span><span class="co">#&gt; maximum step size: 1.00e+00, maximum first derivative: 1.92e-04</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.28 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.25 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>

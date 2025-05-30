@@ -92,18 +92,21 @@ the score and both first and second derivatives. The second and third
 options correspond to the Gradient Descent and Newton-Raphson
 optimization approaches. The goal of this vignette is to discuss how
 these methods are different, and in what circumstances each might be
-most appropriate. In both cases the algorithm is designed to iteratively
-change the parameter estimates to approach a set of parameter values
-which optimize the score. The major difference is how much information
-is being calculated and used. The Newton-Raphson algorithm calculates
-the second derivative matrix, inverts it, and solves a linear system of
-equations to set the first derivative vector to zero. This method
-establishes both a magnitude and direction for every step. So every step
-has several time-intensive calculations, but the new parameter estimates
-are informed. In this algorithm Colossus uses both a learning rate
+most appropriate. In both cases, the algorithm is designed to
+iteratively change the parameter estimates to approach a set of
+parameter values that optimize the score. The major difference is how
+much information is being calculated and used. The Newton-Raphson
+algorithm calculates the second derivative matrix, inverts it, and
+solves a linear system of equations to set the first derivative vector
+to zero. This method establishes both a magnitude and direction for
+every step. So every step has several time-intensive calculations, but
+the new parameter estimates are informed. In this algorithm, Colossus
+uses both a learning rate
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>)
 and maximum allowable parameter change
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{max}</annotation></semantics></math>).</p>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{max}</annotation></semantics></math>).
+Colossus uses half-steps to slowly reduce the allowable step size as the
+solution approaches the optimum.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>×</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msup><mi>β</mi><mn>2</mn></msup></mrow></mfrac><mo>≈</mo><mo>−</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>=</mo><mo>−</mo><mi>η</mi><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>t</mi></msub></mrow></mfrac><mo>×</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msubsup><mi>β</mi><mi>t</mi><mn>2</mn></msubsup></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -114,17 +117,15 @@ and maximum allowable parameter change
 </annotation></semantics></math></p>
 <p>The alternative is a Gradient descent approach. In this algorithm,
 the first derivatives are calculated and used to determine the vector
-with highest change in score. This establishes a direction for the
+with the highest change in score. This establishes a direction for the
 change in parameters, which is multiplied by the learning rate
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>).
 Similar to the Newton-Raphson algorithm, the magnitude is normalized to
 the maximum allowable parameter change
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">\beta_{max}</annotation></semantics></math>).
-Colossus uses half-steps to slowly reduce the allowable step size as the
-solution approaches the optimum. The Gradient algorithm avoids the
-time-intensive second-derivative calculations, but takes less informed
-steps. So each iteration runs faster, but more iterations may be
-required.</p>
+The Gradient algorithm avoids the time-intensive second-derivative
+calculations but takes less informed steps. So each iteration runs
+faster, but more iterations may be required.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>Δ</mi><mi>β</mi><mo>=</mo><mi>η</mi><mo>*</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><mi>β</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>β</mi><mi>t</mi></msub><mo>+</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>Δ</mi><mi>β</mi><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo><msub><mi>β</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -139,8 +140,8 @@ adadelta, and adam, which use previous information about the gradient to
 inform the step size for future steps. The first method, momentum,
 applies a weighted sum
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>)
-of the current and previous step. This is done to speed up steps moving
-toward the optimum position and correct for when the algorithm
+of the current and the previous step. This is done to speed up steps
+moving toward the optimum position and correct for when the algorithm
 oversteps. This can avoid the issue of oscillation around an optimum
 value.</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -150,7 +151,7 @@ value.</p>
    \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
 \end{aligned}
 </annotation></semantics></math></p>
-<p>The next method, the adadelta method, applies a parameter specific
+<p>The next method, the adadelta method, applies a parameter-specific
 learning rate by tracking the root mean square (RMS) gradient and
 parameter updates within a window. Instead of tracking a true window of
 iteration, the old estimate of RMS is decayed by a weight
@@ -186,7 +187,7 @@ The learning rate
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>)
 and second moment vector provide the decaying learning rate from
 adadelta, and the first moment vector provides an effect similar to
-momentum. Combined these have generally been able to stabilize gradient
+momentum. Combined, these have generally been able to stabilize gradient
 descent algorithms without incurring a significant computational
 cost.</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -208,9 +209,9 @@ cost.</p>
 </h2>
 <p>The first thing to acknowledge is that the gradient descent method
 may require more hyperparameter tuning than the standard Newton-Raphson
-method. In general it may be necessary to run the analysis multiple
-times with different learning rates, decay terms, and offset. The
-following test example shows the basic usage for a simple model.</p>
+method. In general, it may be necessary to run the analysis multiple
+times with different learning rates, decay terms, and offsets. The
+following test example shows the basic usage with a simple model.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fname</span> <span class="op">&lt;-</span> <span class="st">"tests/testthat/ll_comp_0.csv"</span></span>
 <span><span class="va">colTypes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"integer"</span>, <span class="st">"integer"</span><span class="op">)</span></span>
@@ -257,15 +258,15 @@ following test example shows the basic usage for a simple model.</p>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Grad_Hess_files/figure-html/unnamed-chunk-3-1.png" width="384"></p>
 <p>Every gradient descent algorithm available was tested at the same
-starting point. In all cases the algorithm approaches the solution, at
-different rates. In this case there are no local extrema, so the
+starting point. In all cases, the algorithm approaches the solution at
+different rates. In this case, there are no local extrema, so the
 standard approach is fine. These show some fundamental differences
-between the methods. The effect of momentum is clearly visible compared
-to the standard option, the estimates do not oscillate as quickly. The
-differences between adadelta and adam is also visible, the adam method
-is able to converge quicker. These results are not necessarily using
-optimized hyperparameters however. This is not meant to prove which
-method was the best.</p>
+between the methods. The effect of momentum is apparent compared to the
+standard option, the estimates do not oscillate as quickly. The
+differences between adadelta and adam are also visible, the adam method
+converged quicker. These results did not necessarily use optimized
+hyperparameters, and this is not meant to prove which method was the
+best.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="fl">0.446528</span>, <span class="fl">0.839821</span>, <span class="fl">0.493552</span>, <span class="fl">0.799313</span>, <span class="fl">0.528609</span>, <span class="fl">0.768118</span>, <span class="fl">0.555872</span>, <span class="fl">0.743827</span>, <span class="fl">0.577191</span>, <span class="fl">0.724839</span>, <span class="fl">0.593904</span>, <span class="fl">0.70996</span>, <span class="fl">0.607026</span>, <span class="fl">0.698284</span>, <span class="fl">0.617337</span>, <span class="fl">0.689114</span>, <span class="fl">0.625445</span>, <span class="fl">0.681907</span>, <span class="fl">0.631822</span>, <span class="fl">0.67624</span>, <span class="fl">0.67624</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="fl">0.446528</span>, <span class="fl">0.431696</span>, <span class="fl">0.834161</span>, <span class="fl">0.857333</span>, <span class="fl">0.501858</span>, <span class="fl">0.477865</span>, <span class="fl">0.793264</span>, <span class="fl">0.814217</span>, <span class="fl">0.531039</span>, <span class="fl">0.511871</span>, <span class="fl">0.770217</span>, <span class="fl">0.78877</span>, <span class="fl">0.55277</span>, <span class="fl">0.530413</span>, <span class="fl">0.745479</span>, <span class="fl">0.771659</span>, <span class="fl">0.578773</span>, <span class="fl">0.54938</span>, <span class="fl">0.72037</span>, <span class="fl">0.750178</span>, <span class="fl">0.750178</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.0683777</span>, <span class="op">-</span><span class="fl">0.0236573</span>, <span class="fl">0.0204036</span>, <span class="fl">0.0631351</span>, <span class="fl">0.104199</span>, <span class="fl">0.143407</span>, <span class="fl">0.180661</span>, <span class="fl">0.215914</span>, <span class="fl">0.249159</span>, <span class="fl">0.280419</span>, <span class="fl">0.309735</span>, <span class="fl">0.337162</span>, <span class="fl">0.362769</span>, <span class="fl">0.386631</span>, <span class="fl">0.408828</span>, <span class="fl">0.429444</span>, <span class="fl">0.448562</span>, <span class="fl">0.466269</span>, <span class="fl">0.482647</span>, <span class="fl">0.497779</span>, <span class="fl">0.511745</span>, <span class="fl">0.511745</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.0999967</span>, <span class="fl">0.299992</span>, <span class="fl">0.49416</span>, <span class="fl">0.672686</span>, <span class="fl">0.818272</span>, <span class="fl">0.912721</span>, <span class="fl">0.951325</span>, <span class="fl">0.943139</span>, <span class="fl">0.900966</span>, <span class="fl">0.836339</span>, <span class="fl">0.759197</span>, <span class="fl">0.678706</span>, <span class="fl">0.6037</span>, <span class="fl">0.542181</span>, <span class="fl">0.50002</span>, <span class="fl">0.479848</span>, <span class="fl">0.481022</span>, <span class="fl">0.500511</span>, <span class="fl">0.53392</span>, <span class="fl">0.576232</span>, <span class="fl">0.622276</span>, <span class="fl">0.622276</span><span class="op">)</span></span>
@@ -308,13 +309,14 @@ method was the best.</p>
 <div class="section level3">
 <h3 id="hyper-parameter-tuning-examples">Hyper-parameter Tuning Examples<a class="anchor" aria-label="anchor" href="#hyper-parameter-tuning-examples"></a>
 </h3>
-<p>First a brief comparison of learning rates with the standard gradient
-descent method. For this analysis, the gradient was on the scale of
-(-2,2) so a learning rate on the scale of ~ 1/10 was appropriate. If the
-gradient were much larger then the learning rate would need to be
-correspondingly decreased. If the learning rate is too high, then the
-estimate will be unstable and oscillate. If the learning rate is too low
-then the estimate will not converge in a reasonable amount of time.</p>
+<p>First, a brief comparison of learning rates with the standard
+gradient descent method. For this analysis, the gradient was on the
+scale of (-2,2) so a learning rate on the scale of ~ 1/10 was
+appropriate. If the gradient were much larger then the learning rate
+would need to be correspondingly decreased. If the learning rate is too
+high, then the estimate will be unstable and oscillate. If the learning
+rate is too low then the estimate will not converge in a reasonable
+amount of time.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.0758866</span>, <span class="op">-</span><span class="fl">0.0524678</span>, <span class="op">-</span><span class="fl">0.0297801</span>, <span class="op">-</span><span class="fl">0.00784991</span>, <span class="fl">0.0133049</span>, <span class="fl">0.0336744</span>, <span class="fl">0.053255</span>, <span class="fl">0.0720488</span>, <span class="fl">0.0900628</span>, <span class="fl">0.107308</span>, <span class="fl">0.123797</span>, <span class="fl">0.139549</span>, <span class="fl">0.154581</span>, <span class="fl">0.168914</span>, <span class="fl">0.18257</span>, <span class="fl">0.195571</span>, <span class="fl">0.207941</span>, <span class="fl">0.219702</span>, <span class="fl">0.230879</span>, <span class="fl">0.241495</span>, <span class="fl">0.251573</span>, <span class="fl">0.251573</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.141134</span>, <span class="fl">0.305602</span>, <span class="fl">0.376672</span>, <span class="fl">0.406159</span>, <span class="fl">0.418355</span>, <span class="fl">0.423402</span>, <span class="fl">0.425492</span>, <span class="fl">0.426358</span>, <span class="fl">0.426717</span>, <span class="fl">0.426865</span>, <span class="fl">0.426927</span>, <span class="fl">0.426952</span>, <span class="fl">0.426963</span>, <span class="fl">0.426967</span>, <span class="fl">0.426969</span>, <span class="fl">0.42697</span>, <span class="fl">0.42697</span>, <span class="fl">0.42697</span>, <span class="fl">0.42697</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.382267</span>, <span class="fl">0.481728</span>, <span class="fl">0.371577</span>, <span class="fl">0.474396</span>, <span class="fl">0.383262</span>, <span class="fl">0.464408</span>, <span class="fl">0.392812</span>, <span class="fl">0.456452</span>, <span class="fl">0.40023</span>, <span class="fl">0.45019</span>, <span class="fl">0.406007</span>, <span class="fl">0.445259</span>, <span class="fl">0.41052</span>, <span class="fl">0.441374</span>, <span class="fl">0.414052</span>, <span class="fl">0.438314</span>, <span class="fl">0.416821</span>, <span class="fl">0.435902</span>, <span class="fl">0.418993</span>, <span class="fl">0.434002</span>, <span class="fl">0.420699</span>, <span class="fl">0.420699</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span><span class="op">)</span></span>
@@ -328,13 +330,13 @@ then the estimate will not converge in a reasonable amount of time.</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Second Parameter Convergence"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Grad_Hess_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
-<p>Next the momentum decay. The momentum decay term is helpful in
-particular when the standard method overshoots the solution. In this
-example the standard method at a learning rate of 0.1 has no issue
-overshooting the solution, so I tested the momentum method at a learning
-rate of 0.2 to induce oscillation. At a learning rate of 0.0 we have the
-standard gradient descent, and as we increase the momentum effect we see
-faster convergence.</p>
+<p>Next, the momentum decay. The momentum decay term is helpful
+particularly when the standard method overshoots the solution. In this
+example, the standard method at a learning rate of 0.1 has no issue
+overshooting the solution, so the momentum method was tested at a
+learning rate of 0.2 to induce oscillation. At a learning rate of 0.0,
+we have the standard gradient descent and as we increase the momentum
+effect we see faster convergence.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">20</span>, <span class="fl">21</span>, <span class="fl">22</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.382267</span>, <span class="fl">0.481728</span>, <span class="fl">0.371577</span>, <span class="fl">0.474396</span>, <span class="fl">0.383262</span>, <span class="fl">0.464408</span>, <span class="fl">0.392812</span>, <span class="fl">0.456452</span>, <span class="fl">0.40023</span>, <span class="fl">0.45019</span>, <span class="fl">0.406007</span>, <span class="fl">0.445259</span>, <span class="fl">0.41052</span>, <span class="fl">0.441374</span>, <span class="fl">0.414052</span>, <span class="fl">0.438314</span>, <span class="fl">0.416821</span>, <span class="fl">0.435902</span>, <span class="fl">0.418993</span>, <span class="fl">0.434002</span>, <span class="fl">0.420699</span>, <span class="fl">0.420699</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.382267</span>, <span class="fl">0.481728</span>, <span class="fl">0.391469</span>, <span class="fl">0.435244</span>, <span class="fl">0.429155</span>, <span class="fl">0.424804</span>, <span class="fl">0.427892</span>, <span class="fl">0.426568</span>, <span class="fl">0.427082</span>, <span class="fl">0.427015</span>, <span class="fl">0.426915</span>, <span class="fl">0.426992</span>, <span class="fl">0.426967</span>, <span class="fl">0.42697</span>, <span class="fl">0.426971</span>, <span class="fl">0.42697</span>, <span class="fl">0.426971</span>, <span class="fl">0.42697</span>, <span class="fl">0.42697</span>, <span class="fl">0.426971</span>, <span class="fl">0.426971</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.382267</span>, <span class="fl">0.481728</span>, <span class="fl">0.421307</span>, <span class="fl">0.389624</span>, <span class="fl">0.442182</span>, <span class="fl">0.445048</span>, <span class="fl">0.414796</span>, <span class="fl">0.420771</span>, <span class="fl">0.433596</span>, <span class="fl">0.427802</span>, <span class="fl">0.424361</span>, <span class="fl">0.427741</span>, <span class="fl">0.42752</span>, <span class="fl">0.426131</span>, <span class="fl">0.427168</span>, <span class="fl">0.427483</span>, <span class="fl">0.426655</span>, <span class="fl">0.426746</span>, <span class="fl">0.427195</span>, <span class="fl">0.427034</span>, <span class="fl">0.426856</span>, <span class="fl">0.426856</span><span class="op">)</span></span>
@@ -348,8 +350,8 @@ faster convergence.</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Second Parameter Convergence"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Grad_Hess_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
-<p>Finally we have the epsilon offset used in the adadelta method. In
-this example if the offset is too low the change in parameter value per
+<p>Finally, we have the epsilon offset used in the adadelta method. In
+this example, if the offset is too low the change in parameter value per
 iteration is near zero, then as it is increased the algorithm converges
 faster until the estimate oscillates.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">

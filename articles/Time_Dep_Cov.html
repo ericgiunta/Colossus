@@ -87,31 +87,30 @@
 <h2 id="general-usage">General Usage<a class="anchor" aria-label="anchor" href="#general-usage"></a>
 </h2>
 <p>For Cox Proportional Hazards regression, the model is generally
-assumed to be independent of event time. However for more complex
-models, Colossus has the capability to perform regression using
-covariates that change over time. These can be split into two general
-types of covariates, step functions changing with time and
-multiplicative interactions with time. Colossus generates the new
-dataset by splitting each row of the original dataset into smaller
-intervals. This assumes that over each interval the values of every
-covariate are approximately constant. For Cox Proportional Hazards, rows
-that do not contain a event time are not used for regression, so
-Colossus has an option to only use small intervals around each event
-time. With this option the time dependent covariate is evaluated only at
-event times. For data-sets with a small number of discrete event times
-this can save memory.</p>
+assumed to be independent of event time. However, for more complex
+models, Colossus can perform regressions using covariates that change
+over time. These can be split into two general types of covariates, step
+functions changing with time and multiplicative interactions with time.
+Colossus generates the new dataset by splitting each row of the original
+dataset into smaller intervals. This assumes that over each interval the
+values of every covariate are approximately constant. For Cox
+Proportional Hazards, rows that do not contain an event time are not
+used for regression, so Colossus has an option to only use small
+intervals around each event time. With this option, the time-dependent
+covariate is evaluated only at event times. For data-sets with a small
+number of discrete event times, this can save time and memory.</p>
 </div>
 <div class="section level2">
 <h2 id="multiplicative-interaction">Multiplicative Interaction<a class="anchor" aria-label="anchor" href="#multiplicative-interaction"></a>
 </h2>
-<p>The simplest type of time dependent covariate is an interaction term
+<p>The simplest type of time-dependent covariate is an interaction term
 between time and another covariate. Suppose we have a row in a dataset
 with a factor covariate “group” and some arbitrary endpoints to the time
-interval. Colossus starts by using a user provided function to calculate
-the value of the time dependent covariate at the endpoints. We assume
+interval. Colossus starts by using a user-provided function to calculate
+the value of the time-dependent covariate at the endpoints. We assume
 that the value of “group” is constant over the interval and time is
-changing linearly. Colossus calculates the value of the time dependent
-covariate over intervals by linearly interpolating between the value at
+changing linearly. Colossus calculates the value of the time-dependent
+covariate over intervals by linearly interpolating between the values at
 the endpoints. This process assumes that the interaction is linear or
 the interval is small enough for the interaction to be approximately
 linear.</p>
@@ -147,12 +146,12 @@ interpolated within each interval.</p>
 <div class="section level2">
 <h2 id="step-function-interaction">Step Function Interaction<a class="anchor" aria-label="anchor" href="#step-function-interaction"></a>
 </h2>
-<p>The second type of time dependent covariate is one which changes
-based on conditional statements. One example is a covariate to split
-data into bins by time. Colossus uses a string to identify where to
-change value. The user inputs a string of the form “#l?” for a time
-value “#”, a condition “l”, and a question mark as a delimiter. Colossus
-allows for four conditions:</p>
+<p>The second type of time-dependent covariate changes based on
+conditional statements. One example is a covariate to split data into
+bins by time. Colossus uses a string to identify where to change value.
+The user inputs a string of the form “#l?” for a time value “#”, a
+condition “l”, and a question mark as a delimiter. Colossus allows for
+four conditions:</p>
 <ul>
 <li>l: less than or equal to</li>
 <li>g: greater than or equal to</li>
@@ -206,6 +205,85 @@ believe that the effect of a covariate on events is not uniform over
 time despite the covariate being constant over each interval. This
 allows the user to generate a list of factors to interact with any
 covariate of interest.</p>
+</div>
+<div class="section level2">
+<h2 id="examples-of-use">Examples of Use<a class="anchor" aria-label="anchor" href="#examples-of-use"></a>
+</h2>
+<p>The following provide a basic example for each method listed above.
+We start by setting up the data, which for this example is the cancer
+data from the R survival package.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Setting up the data for use</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cancer</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="va">cancer</span><span class="op">)</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">UserID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span></span>
+<span><span class="va">t0</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
+<span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="st">"time"</span></span>
+<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"status"</span></span>
+<span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span>, <span class="st">"sex"</span>,<span class="st">"UserID"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>For the first example we will linearly interpolate the product of
+time and biological sex.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grt_f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">df</span>, <span class="va">time_col</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="op">(</span><span class="va">df</span><span class="op">[</span>, <span class="st">"sex"</span><span class="op">]</span> <span class="op">*</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="va">time_col</span><span class="op">)</span><span class="op">]</span><span class="op">/</span><span class="fl">400</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">func_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lin"</span><span class="op">)</span></span>
+<span><span class="va">iscox</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
+<span><span class="va">df_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gen_time_dep.html">gen_time_dep</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">iscox</span>, <span class="va">dt</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex_time"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">grt_f</span><span class="op">)</span>, <span class="st">"test_new.csv"</span>, <span class="va">func_form</span>, nthreads <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df_new</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">sex_time</span>, colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">.data</span><span class="op">$</span><span class="va">sex</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Time"</span>, y <span class="op">=</span> <span class="st">"Covariate Value"</span><span class="op">)</span></span>
+<span><span class="va">g</span></span></code></pre></div>
+<div class="figure">
+<img src="Time_Dep_Cov_files/figure-html/unnamed-chunk-6-1.png" alt="Linear Interpolation Example" width="700"><p class="caption">
+Linear Interpolation Example
+</p>
+</div>
+<p>For the second example we will use a step functions that increases at
+200, 500, and 700 days.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">func_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"step?0g?200g?500g?700g?"</span><span class="op">)</span></span>
+<span><span class="va">df_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gen_time_dep.html">gen_time_dep</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">iscox</span>, <span class="va">dt</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time_step"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">grt_f</span><span class="op">)</span>, <span class="st">"test_new.csv"</span>, <span class="va">func_form</span>, nthreads <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df_new</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time_step</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Time"</span>, y <span class="op">=</span> <span class="st">"Covariate Value"</span><span class="op">)</span></span>
+<span><span class="va">g</span></span></code></pre></div>
+<div class="figure">
+<img src="Time_Dep_Cov_files/figure-html/unnamed-chunk-7-1.png" alt="Monotonic Step Function Example" width="700"><p class="caption">
+Monotonic Step Function Example
+</p>
+</div>
+<p>For the third example we will use a step functions that increases at
+200, 400, and 700 days and decreases at 600 and 800 days.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">func_form</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"step?0g?200g?400g?600l?700g?800b?"</span><span class="op">)</span></span>
+<span><span class="va">df_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gen_time_dep.html">gen_time_dep</a></span><span class="op">(</span></span>
+<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">iscox</span>, <span class="va">dt</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time_step"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">grt_f</span><span class="op">)</span>, <span class="st">"test_new.csv"</span>, <span class="va">func_form</span>, nthreads <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df_new</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time_step</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Time"</span>, y <span class="op">=</span> <span class="st">"Covariate Value"</span><span class="op">)</span></span>
+<span><span class="va">g</span></span></code></pre></div>
+<div class="figure">
+<img src="Time_Dep_Cov_files/figure-html/unnamed-chunk-8-1.png" alt="Step Function Example" width="700"><p class="caption">
+Step Function Example
+</p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -99,9 +99,9 @@
 <div class="section level2">
 <h2 id="matched-case-control-modeling">Matched Case-Control Modeling<a class="anchor" aria-label="anchor" href="#matched-case-control-modeling"></a>
 </h2>
-<p>One upcoming regression method in Colossus is matched case-control
-logistic regression. The implementation is ongoing, but the theory is
-presented in the following section.</p>
+<p>One alternative regression method in Colossus is matched case-control
+logistic regression. The theory is presented in the following
+section.</p>
 <div class="section level3">
 <h3 id="general-theory">General Theory<a class="anchor" aria-label="anchor" href="#general-theory"></a>
 </h3>
@@ -177,10 +177,10 @@ their recursive formula.</p>
     \end{cases}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Finally these expressions for
+<p>Finally, these expressions for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">B(m,n)</annotation></semantics></math>
 can be substituted into the equations for the contribution of
-Log-Likelihood and it’s derivatives from each matched set. The model is
+Log-Likelihood and its derivatives from each matched set. The model is
 then optimized via the same methods as the other regression models.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>L</mi><mrow><mi>s</mi><mi>e</mi><mi>t</mi></mrow></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>L</mi><mrow><mi>s</mi><mi>e</mi><mi>t</mi></mrow><mi>μ</mi></msubsup><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>μ</mi></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><mrow><msup><mi>B</mi><mi>μ</mi></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>L</mi><mrow><mi>s</mi><mi>e</mi><mi>t</mi></mrow><mrow><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msubsup><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msubsup><mi>r</mi><mi>i</mi><mrow><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><msubsup><mi>r</mi><mi>i</mi><mi>μ</mi></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mfrac><msubsup><mi>r</mi><mi>i</mi><mrow><mi>n</mi><mi>u</mi></mrow></msubsup><msub><mi>r</mi><mi>i</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>B</mi><mrow><mi>μ</mi><mo>,</mo><mi>ν</mi></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>−</mo><mfrac><mrow><msup><mi>B</mi><mi>μ</mi></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mfrac><mrow><msup><mi>B</mi><mi>ν</mi></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
@@ -197,8 +197,8 @@ then optimized via the same methods as the other regression models.</p>
 <p>It is important to note that the recursive formula calculation can
 quickly become time-consuming, particularly if there is a large number
 of cases. To make the matched case-control method generally applicable,
-the likelihood function can be changed to a logistic regression model
-for matched sets with too many cases. In general the matched
+the likelihood function can be changed to a logistic regression model in
+matched sets with a large number of cases. In general, the matched
 case-control regression function adds an item to the model control list,
 “cond_thres”, to set the threshold to switch to a logistic regression
 model.</p>
@@ -236,9 +236,9 @@ odds ratios
 </h3>
 <p>The following provides a basic example of how to use the matched
 case-control regression function. The data used is from a lung cancer
-study, included with the survival library. Slight adjustments were made
+study, included in the R survival library. Slight adjustments were made
 to make the data line up with data included with 32-bit Epicure, for
-comparison. In short we want to model the effects of treatment and
+comparison. In short, we want to model the effects of treatment and
 Karnofsky performance score on sets matched by cancer cell type.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#</span></span>
@@ -261,7 +261,7 @@ Karnofsky performance score on sets matched by cancer cell type.</p>
 <span><span class="va">df</span><span class="op">$</span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="va">cell</span></span>
 <span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">karno50</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span> <span class="op">-</span> <span class="fl">50</span></span>
-<span><span class="co"># Convert the cell column into multiple factor columns</span></span>
+<span><span class="co"># Convert the cell column into factor columns</span></span>
 <span><span class="va">fcols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span><span class="op">)</span></span>
 <span><span class="va">val</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/factorize.html">factorize</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">fcols</span><span class="op">)</span> <span class="co"># Colossus function</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">val</span><span class="op">$</span><span class="va">df</span></span>
@@ -279,12 +279,13 @@ Karnofsky performance score on sets matched by cancer cell type.</p>
 <span></span>
 <span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
-<p>In the following examples we are using matching by strata and
-changing the conditional threshold. In the first case every matched set
-uses the recursive formula, in the second one set uses the simplified
-formula, and in the third every set uses the simplified formula. In all
-cases the regression returns the typical output and can be summarized
-similar to other regression function output.</p>
+<p>In the following examples, we are using matching by strata and
+changing the conditional threshold. In the first case, every matched set
+uses the recursive formula. In the second case, one set uses the
+simplified formula. Finally in the third case, every set uses the
+simplified formula. In all cases, the regression returns the typical
+output and can be summarized similarly to other regression function
+outputs.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">2</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"strata"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"conditional_threshold"</span> <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>

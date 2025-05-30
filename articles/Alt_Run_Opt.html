@@ -114,8 +114,8 @@ effects of stratified covariates</td>
 </tr>
 <tr class="even">
 <td align="center">Simplified Model</td>
-<td align="center">For a multiplicative Log-Linear model, there are
-simplifications that can be made to the code. These give a faster
+<td align="center">For a multiplicative Log-Linear model,
+simplifications can be made to the code. These give a faster
 version.</td>
 <td align="center">x</td>
 <td align="center"></td>
@@ -130,7 +130,7 @@ there is time and memory that can be saved</td>
 <tr class="even">
 <td align="center">Competing Risks</td>
 <td align="center">If there is a competing event, rows are weighted by
-an estimate of censoring rate to approximate a dataset without the
+an estimate of the censoring rate to approximate a dataset without the
 effect of a competing event</td>
 <td align="center">x</td>
 <td align="center"></td>
@@ -168,7 +168,7 @@ taking the ratio of the hazard ratio at each event to the sum of the
 hazard ratios of every other row at risk. This defines the risk group
 for every event time to be the intervals containing the event time.
 Intervals are assumed to be open on the left and closed on the right,
-and events are assumed to take place at the right end point. This gives
+and events are assumed to take place at the right endpoint. This gives
 the following common equation for the Log-Likelihood:</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>L</mi><mi>l</mi><mo>=</mo><munderover><mo>∏</mo><mi>i</mi><mi>n</mi></munderover><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>r</mi><mi>i</mi></msub><mrow><munder><mo>∑</mo><mrow><mi>j</mi><mo>:</mo><msub><mi>t</mi><mi>j</mi></msub><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mi>j</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>δ</mi><mi>i</mi></msub></msup></mtd></mtr></mtable><annotation encoding="application/x-tex">
@@ -182,12 +182,12 @@ raised to the power of 1 if the interval has an event and 0 otherwise.
 Different tie methods modify the denominator based on how the order of
 events is assumed, but the general form still stands. The goal is to
 compare each event interval to intervals within a similar time span.
-Stratification adds in an additional condition. If the user stratifies
-over a covariate “F” then each risk group is split into subgroups with
-the same value of “F”. So the goal becomes to compare event intervals to
-intervals with similar strata AND time. This is done to remove the
-influence of the stratification variables from the calculations.</p>
-<p>In code this is done by adding in an additional parameter for the
+Stratification adds a condition: if the user stratifies over a covariate
+“F” then each risk group is split into subgroups with the same value of
+“F”. So the goal becomes to compare event intervals to intervals with
+similar strata AND time. This is done to remove the influence of the
+stratification variables from the calculations.</p>
+<p>In code, this is done by adding an additional parameter for the
 stratification column and using a different function to call the
 regression.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -222,7 +222,7 @@ without stratification:</p>
 <p>Only results associated with the non-stratified parameters are
 returned by default. An average event rate is calculated for every
 strata level, which weights the calculated risks.</p>
-<p>In code this is done by adding in a list of stratification columns
+<p>In code, this is done by adding in a list of stratification columns
 and using a different function to call the regression. Colossus combines
 the list of stratification columns into a single interaction, so it does
 not matter if the user provides a list or combines them themselves.</p>
@@ -240,14 +240,13 @@ not matter if the user provides a list or combines them themselves.</p>
 </h2>
 <p>The inclusion of linear subterms, additive models, and multiple terms
 as options means that the Colossus calculates and stores every
-derivative. If the equation is log-linear with one term, then there are
-many simplifications that can be made. This option is designed to make
-those simplifications. In particular having only one subterm type means
-that the hazard ratios and their derivatives can be calculated directly,
-and the only subterm type being an exponential means that the logarithm
-of the hazard ratio in the Log-Likelihood calculation is simplified. In
-tests, using the simplified function was able to save approximately 40%
-time versus the full code being used.</p>
+derivative. If the equation is log-linear with one term, then many
+simplifications can be made. In particular, having only one subterm type
+means that the hazard ratios and their derivatives can be calculated
+directly, and the only subterm type being exponential means that the
+logarithm of the hazard ratio in the Log-Likelihood calculation is
+simplified. In tests, using the simplified function was able to save
+approximately 40% time versus the full code being used.</p>
 <p>Assuming the same general parameters in the other vignettes, the code
 is as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -256,10 +255,10 @@ is as follows:</p>
 <span>  <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
 <span>  control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>If the basic option is used in combination with incompatable model
+<p>If the basic option is used in combination with incompatible model
 options, then the model options will be overwritten. A warning is
-provided details what options were overwritten, and the final result
-will indiciate what model options were truly used.</p>
+provided with details of what options were overwritten, and the final
+result will indicate what model options were truly used.</p>
 </div>
 <div class="section level2">
 <h2 id="non-derivative-calculation">Non-Derivative Calculation<a class="anchor" aria-label="anchor" href="#non-derivative-calculation"></a>
@@ -269,9 +268,8 @@ become computationally intensive as the model becomes more complicated.
 So, Colossus contains functions to calculate only the scores for a
 parameter set and skip the derivative calculations. These results could
 be used to perform a bisection method of regression or plot the
-dependence of score on parameter values. Colossus in the current state
-does not use these functions, but they are left for the user’s
-convenience.</p>
+dependence between the score and parameter values. These functions are
+left for the user’s convenience.</p>
 <p>The code is similar to previous examples:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression_Single.html">RunCoxRegression_Single</a></span><span class="op">(</span></span>
@@ -293,16 +291,17 @@ convenience.</p>
 <h3 id="fine-gray">Fine-Gray<a class="anchor" aria-label="anchor" href="#fine-gray"></a>
 </h3>
 <p>In Cox PH there is an assumption that every individual is recorded
-until they have an event or they are naturally censored, and the same
-censoring rates are assumed to apply to every individual. These are
-violated when there is a competing event occurring. In sensitivity
-analysis there are two extremes that can be tested. Either every person
-with a competing event is treated as having the event of interest
-instead, or they are assumed to never experience the event of interest.
-However there are methods to find a more realistic alternative. Colossus
-applies the Fine-Gray model for competing risks, which instead weights
-the contribution of competing event intervals in future intervals by the
-probability they would not have been censored.</p>
+until they have an event or they are naturally censored. Censoring is
+assumed to be statistically independent with regard to the event being
+studied. These assumptions are violated when there is a competing event
+occurring. In sensitivity analysis, two extremes are generally tested.
+Either every person with a competing event is treated as having the
+event of interest instead, or they are assumed to never experience the
+event of interest. However, there are methods to find a more realistic
+alternative. Colossus applies the Fine-Gray model for competing risks,
+which instead weights the contribution of competing event intervals in
+future intervals by the probability they would not have been
+censored.</p>
 <p>As previously established, the risk groups are formed to measure the
 probability that an individual survived up to the time and experienced
 the event of interest, given that they did not experience an event up to
@@ -324,16 +323,16 @@ event:</p>
     \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta t)\text{ and }(k=1), (T \geq t)\text{ or }((T &lt; t)\text{ and }(k \neq 1)))}{\Delta t}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>This means that risks groups would contain both intervals actually at
+<p>This means that risk groups would contain both intervals actually at
 risk and intervals with competing events treated as if they were at
 risk. If we assume that no time-dependent covariates are being used,
-then all that remains is to weight the contribution of these competing
-events. In general a weighting column is provided prior to regression,
+then all that remains is to weigh the contribution of these competing
+events. In general, a weighting column is provided before regression,
 the values can be solved from a survival curve or by using the
 “finegray” function of the survival library.</p>
-<p>n code, the call is similar to the standard function. The process for
-finding a weighting is included below. In this example we assume the
-event column, lung, to contain a 0 for no events, 1 for the primary
+<p>In code, the call is similar to the standard function. The process
+for finding a weighting is included below. In this example, we assume
+the event column, lung, to contain a 0 for no events, 1 for the primary
 event, and 2 for the competing event.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pdata</span> <span class="op">&lt;-</span> <span class="fu">finegray</span><span class="op">(</span><span class="fu">Surv</span><span class="op">(</span><span class="va">time2</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">df</span><span class="op">)</span></span>
@@ -347,7 +346,7 @@ event, and 2 for the competing event.</p>
 <div class="section level3">
 <h3 id="poisson-joint-analysis">Poisson Joint Analysis<a class="anchor" aria-label="anchor" href="#poisson-joint-analysis"></a>
 </h3>
-<p>For a dataset with multiple outcomes there are often two ways that
+<p>For a dataset with multiple outcomes, there are often two ways that
 Poisson models are fit. Either multiple independent models are fit or
 the events are combined and one model is fit to several events. These
 methods limit models to be completely independent or identical. The true
@@ -441,11 +440,10 @@ solved at once allowing for shared and event-specific parameters.</p>
     \lambda(a,\alpha_y,\alpha_z) = \beta*\exp{(\mu_y*(a*\alpha_y) + \mu_z*(a*\alpha_z))}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Colossus includes several functions which apply this method, a
-function that produces input for a joint analysis regression and
-functions which additionally run the regressions. The most general
-converts a table and lists of model parameters into the input for a
-regression.</p>
+<p>Colossus includes several functions to apply this method, a function
+that produces input for a joint analysis regression and a function that
+also runs the regression. The most general converts a table and lists of
+model parameters into the input for a regression.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -459,8 +457,8 @@ regression.</p>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="st">"pyr"</span></span>
 <span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e0"</span>, <span class="st">"e1"</span><span class="op">)</span></span></code></pre></div>
 <p>Colossus generally accepts a series of vectors to describe the
-elements of model. For a joint analysis, Colossus instead expects lists.
-Each list is expected to contain vectors for shared elements and
+elements of the model. For a joint analysis, Colossus instead expects
+lists. Each list is expected to contain vectors for shared elements and
 elements specific to each event. Colossus expects the list names to be
 either “shared” or the event column names.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -487,7 +485,7 @@ either “shared” or the event column names.</p>
 <span>  <span class="st">"e0"</span> <span class="op">=</span> <span class="va">keep_constant_e0</span>, <span class="st">"e1"</span> <span class="op">=</span> <span class="va">keep_constant_e1</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">a_n_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"shared"</span> <span class="op">=</span> <span class="va">a_n_shared</span>, <span class="st">"e0"</span> <span class="op">=</span> <span class="va">a_n_e0</span>, <span class="st">"e1"</span> <span class="op">=</span> <span class="va">a_n_e1</span><span class="op">)</span></span></code></pre></div>
-<p>The function returns a list which contains the combined table and
+<p>The function returns a list containing the combined table and
 vectors.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/Joint_Multiple_Events.html">Joint_Multiple_Events</a></span><span class="op">(</span></span>
@@ -524,8 +522,8 @@ vectors.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $a_n</span></span>
 <span><span class="co">#&gt; [1]  0.001 -0.020 -0.100  0.100</span></span></code></pre></div>
-<p>These results could be then used as input for any of the available
-regression functions. Colossus also includes a wrapper functions to
+<p>These results could be used as input for any of the available
+regression functions. Colossus also includes a wrapper function to
 directly call the Poisson model regression function.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
@@ -551,7 +549,7 @@ directly call the Poisson model regression function.</p>
 <span><span class="co">#&gt; 2:    fac_e1     loglin           0       -1.0351456            NaN</span></span>
 <span><span class="co">#&gt; 3:        t0 loglin_top           0       -0.0200000            NaN</span></span>
 <span><span class="co">#&gt; 4:        t0 quad_slope           0       -0.1646768            NaN</span></span>
-<span><span class="co">#&gt;    1-tail p-value</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
 <span><span class="co">#&gt;             &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:            NaN</span></span>
 <span><span class="co">#&gt; 2:            NaN</span></span>
@@ -575,7 +573,7 @@ hazards and Poisson functions and allows the user to provide a list of
 multiple starting points. Regressions with 1 guess use the “maxiter”
 control option, while regressions with multiple guesses use the
 “maxiters” control option to pass a list of iterations per guess. By
-default Colossus runs each guess for 1 iteration, picks the best guess,
+default, Colossus runs each guess for 1 iteration, picks the best guess,
 and then runs the full number of iterations starting at the best guess.
 Advanced users can select a different number of iterations for each
 guess.</p>

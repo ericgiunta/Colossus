@@ -118,13 +118,13 @@ The default level is 2 and True/False is converted to 3/0.</td>
 <tr class="even">
 <td align="center">ncores</td>
 <td align="center">Number of cores used for parallel operations. The
-user can not assign more cores than available. Defaults to the number of
-detected cores</td>
+user can not assign more cores than are available. Defaults to the
+number of detected cores</td>
 </tr>
 <tr class="odd">
 <td align="center">lr</td>
 <td align="center">Learning rate used. Every step is multiplied by the
-learning rate. Default is 0.75.</td>
+learning rate. The default is 0.75.</td>
 </tr>
 <tr class="even">
 <td align="center">maxiter</td>
@@ -133,11 +133,11 @@ Defaults to 20.</td>
 </tr>
 <tr class="odd">
 <td align="center">maxiters</td>
-<td align="center">Used for multiple starting positions. List of maximum
-number of iterations per starting point and maximum number of iterations
-for final guess. Assumes N values for N guesses and 1 value for final
-solution. Defaults to c(1,maxiter), running 1 iteration per provided
-guess.</td>
+<td align="center">Used for multiple starting positions. List the
+maximum number of iterations per starting point and the maximum number
+of iterations for the final guess. Assumes N values for N guesses and 1
+value for the final solution. Defaults to c(1,maxiter), running 1
+iteration per provided guess.</td>
 </tr>
 <tr class="even">
 <td align="center">halfmax</td>
@@ -182,7 +182,7 @@ independently (0). Defaults to 1.</td>
 <div class="section level3">
 <h3 id="model-control-list">Model Control List<a class="anchor" aria-label="anchor" href="#model-control-list"></a>
 </h3>
-<p>This is the “model_control” variable used primarily by the omnibus
+<p>This is the “model_control” variable primarily used by the omnibus
 functions. The non-omnibus functions use this list to select
 non-standard modeling options.</p>
 <table class="table">
@@ -219,7 +219,7 @@ risks model options to use a Fine-Gray model. Defaults to FALSE.</td>
 </tr>
 <tr class="odd">
 <td align="center">constraint</td>
-<td align="center">Boolean used by both Cox and Poisson function to
+<td align="center">Boolean used by both Cox and Poisson functions to
 apply a system of linear constraints. Defaults to FALSE.</td>
 </tr>
 <tr class="even">
@@ -247,8 +247,8 @@ hazard ratio plotting by a single parameter. Defaults to FALSE</td>
 <tr class="even">
 <td align="center">unique_values</td>
 <td align="center">integer used by the risk plotting option to select
-how many values calculate risk at. Depending on function either defaults
-to the number of unique values in the column or 2.</td>
+how many values calculate risk at. Depending on function, either
+defaults to the number of unique values in the column or 2.</td>
 </tr>
 <tr class="odd">
 <td align="center">risk_subset</td>
@@ -303,7 +303,7 @@ options used:</p>
 </tr>
 <tr class="even">
 <td align="center">qchi</td>
-<td align="center">Two tailed Chi-squared value at one degree of freedom
+<td align="center">Two-tailed Chi-squared value at one degree of freedom
 and the provided alpha. Defaults to the value corresponding to
 alpha.</td>
 </tr>
@@ -446,11 +446,13 @@ is used</td>
 </tr>
 <tr class="odd">
 <td align="center">rmin</td>
-<td align="center">list of minimum change for each parameter</td>
+<td align="center">list of minimum changes below the central estimate
+for each parameter guess</td>
 </tr>
 <tr class="even">
 <td align="center">rmax</td>
-<td align="center">list of maximum change for each parameter</td>
+<td align="center">list of maximum changes above the central estimate
+for each parameter guess</td>
 </tr>
 <tr class="odd">
 <td align="center">verbose</td>
