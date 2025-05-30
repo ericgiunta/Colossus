@@ -33,7 +33,7 @@ Gather_Guesses_CPP(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{x_all}{covariate matrix}
 

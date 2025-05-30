@@ -11,7 +11,7 @@ interact_them(df, interactions, new_names, verbose = 0)
 
 \item{interactions}{array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits}
 
-\item{new_names}{list of new names to use instead of default, default used if entry is ''}
+\item{new_names}{list of new names to use instead of default, default used if entry is ''"}
 
 \item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 }

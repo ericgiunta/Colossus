@@ -50,6 +50,7 @@
 #' )
 #' @importFrom rlang .data
 Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, control, guesses_control, model_control = list()) {
+  df <- data.table(df)
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
@@ -592,6 +593,7 @@ Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, cons
 #' )
 #' df <- Replace_Missing(df, c("Starting_Age", "Ending_Age"), 70)
 Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
+  df <- data.table(df)
   verbose <- Check_Verbose(verbose)
   if (is.na(msv)) {
     stop("Error: The missing-value replacement is also NA")
@@ -682,6 +684,7 @@ Def_Control <- function(control) {
       control[nm] <- control_def[nm]
     }
   }
+  control["ties"] <- tolower(control["ties"])
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
     "halfmax" = 0, "epsilon" = 0.0,
@@ -1247,6 +1250,7 @@ factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detec
 #' df <- vals$df
 #' new_col <- vals$cols
 interact_them <- function(df, interactions, new_names, verbose = 0) {
+  df <- data.table(df)
   verbose <- Check_Verbose(verbose)
   cols <- c()
   for (i in seq_len(length(interactions))) {
@@ -1335,6 +1339,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
 #' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 #'
 Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FALSE) {
+  df <- data.table(df)
   verbose <- Check_Verbose(verbose)
   if (length(cols) > 1) {
     features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
@@ -1437,6 +1442,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #' ce <- val$ce
 #'
 Check_Trunc <- function(df, ce, verbose = 0) {
+  df <- data.table(df)
   verbose <- Check_Verbose(verbose)
   if (ce[1] == "%trunc%") {
     if (ce[2] == "%trunc%") {
@@ -1494,6 +1500,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' file.remove("test_new.csv")
 #'
 gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_cols, func_form, fname, tform, nthreads = as.numeric(detectCores())) {
+  df <- data.table(df)
   dfn <- names(df)
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
@@ -1590,6 +1597,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 #' df <- Date_Shift(df, c("m0", "d0", "y0"), c("m1", "d1", "y1"), "date_since")
 #'
 Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
+  df <- data.table(df)
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]],
     df[[match(dcol0[2], names(df))]],
@@ -1642,6 +1650,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
 #' df <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
 #'
 Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
+  df <- data.table(df)
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]], df[[match(
     dcol0[2],
@@ -1715,6 +1724,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
 #' )
 #'
 Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list()) {
+  df <- data.table(df)
   # filling missing values
   for (i in names(name_list)) {
     temp0 <- unlist(name_list[i], use.names = FALSE)
@@ -1963,6 +1973,7 @@ System_Version <- function() {
 #' @return null, prints to screen or saves to file
 #' @export
 Model_Results_Log <- function(log_file = "out.log", df = data.table(), out_list = list(), noprint = TRUE) {
+  df <- data.table(df)
   if (noprint) {
     try(message_file <- file(log_file, open = "wt"))
     sink(message_file, type = "message")
@@ -2638,6 +2649,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #' e <- Convert_Model_Eq(Model_Eq, table)
 #'
 Convert_Model_Eq <- function(Model_Eq, df) {
+  df <- data.table(df)
   # values to assign to
   term_n <- c()
   tform <- c()
@@ -2896,6 +2908,7 @@ Convert_Model_Eq <- function(Model_Eq, df) {
 #' Interpret_Output(e)
 #'
 Interpret_Output <- function(out_list, digits = 2) {
+  df <- data.table(df)
   # make sure the output isn't an error
   passed <- out_list$Status
   message("|-------------------------------------------------------------------|")
@@ -2977,14 +2990,14 @@ Interpret_Output <- function(out_list, digits = 2) {
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
         stdev <- out_list$Standard_Deviation
-        pval <- pnorm(-abs(beta_0 / stdev))
+        pval <- 2*pnorm(-abs(beta_0 / stdev))
         res_table <- data.table(
           "Covariate" = names,
           "Subterm" = tforms,
           "Term Number" = term_n,
           "Central Estimate" = beta_0,
           "Standard Error" = stdev,
-          "1-tail p-value" = pval
+          "2-tail p-value" = pval
         )
         message("Final Results")
         print(res_table)

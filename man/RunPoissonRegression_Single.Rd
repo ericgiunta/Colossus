@@ -30,7 +30,7 @@ RunPoissonRegression_Single(
 
 \item{tform}{list of string function identifiers, used for linear/step}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 

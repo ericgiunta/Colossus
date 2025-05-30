@@ -21,7 +21,7 @@ library(data.table)
 
 ## Dose Response Formula
 
-As previously discussed, Colossus features a term composed of the sum of multiple linear and non-linear term which can be used to define many dose response curves used in radiation epidemiology. These terms are referred to as dose response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formula are available, reproduced from the starting description vignette.
+As previously discussed, Colossus features a term composed of the sum of multiple linear and non-linear elements which can be used to define many dose-response curves used in radiation epidemiology. These terms are referred to as dose-response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formulae are available, reproduced from the starting description vignette.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -36,7 +36,7 @@ $$
 $$
 </p>
 
-For every subterm type there are between 1 and 3 parameters which fully define the curve. The Linear-Quadratic and Linear-Exponential curves are continuously-differentiable, so there are only 2-3 parameters which can be set.
+For every subterm type, there are between 1 and 3 parameters that fully define the curve. The Linear-Quadratic and Linear-Exponential curves are continuously differentiable, so there are only 2-3 parameters that can be set.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -66,9 +66,9 @@ $$
 | Linear-Quadratic | lin_quad_slope | Linear slope term, $\beta_i$|
 | Linear-Quadratic | lin_quad_int | Intercept between linear to quadratic, $\alpha_i$ |
 
-The linear-exponential and linear-quadratic curves must be either completely fixed or completely free. In contrast the exponential, linear threshold, and step function curves can be partially fixed. The exponential term can be provided with only the covariate in the exponent and assume the magnitude to be 1. The linear threshold and step functions can be provided a fixed threshold covariate, which can be used to define a linear-no-threshold model or a combination of linear and step functions with a known threshold.
+The linear-exponential and linear-quadratic curves must be either completely fixed or completely free. In contrast, the exponential, linear threshold, and step-function curves can be partially fixed. The exponential term can be provided with only the covariate in the exponent and assume the magnitude to be 1. The linear threshold and step functions can be provided a fixed threshold covariate, which can be used to define a linear-no-threshold model or a combination of linear and step functions with a known threshold.
 
-One issue with these dose response formulas is that the order is important. For instance, loglin_slope should be listed prior to loglin_top if both are used. The slope for the Linear Threshold and Step Functions should be given prior to the intercepts. Slopes are listed prior to intercept for the Linear-Quadratic and Linear-Exponential models and lin_exp_exp_slope is listed last. The "Correct_Formula_Order" function has been provided to handle the correct order. Colossus automatically calls this function prior to regression.
+One issue with these dose-response formulas is that the order of the subterms is important. For instance, loglin_slope should be listed before loglin_top if both are used. The slope for the Linear Threshold and Step Functions should be given before the intercepts. Slopes are listed before intercept for the Linear-Quadratic and Linear-Exponential models and lin_exp_exp_slope is listed last. The "Correct_Formula_Order" function has been provided to handle the correct order. Colossus automatically calls this function before regression, but the user should be aware that the subterms may be reordered when results are returned.
 
 ```{r}
 term_n <- c(0, 1, 1, 0, 0)

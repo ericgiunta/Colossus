@@ -22,11 +22,11 @@ library(parallel)
 
 ## General Purpose
 
-Before performing a regression on rate or hazard ratio, it is often important to look at a summary of the data. It can be very informative to break columns into categories and summarize the number of event or average column value in each category. Colossus offers two function designed to create summary tables, Event_Count_Gen and Event_Time_Gen which create person-count tables and person-time table respectively. The following sections will cover generally how to use each function and what different needs are met.
+Before performing a regression on rate or hazard ratio, it is often important to look at a summary of the data. It can be very informative to break columns into categories and summarize the number of events or average column values in each category. Colossus offers two functions designed to create summary tables, Event_Count_Gen and Event_Time_Gen which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
 
 ### Person-Count Tables
 
-A person count table is the simplest way to summarize a table. This assumes you have a columns you want to break into categories and columns you want to summarize. Lets start with a very simple example. Suppose we have a dataset tracking the number of apples and oranges people bought, the number of hands they used to carry their bag, and if the bag ripped or not.
+A person count table is the simplest way to summarize a table. This assumes you have columns you want to break into categories and columns you want to summarize. Let us start with a basic example. Suppose we have a dataset tracking the number of apples and oranges people bought, the number of hands they used to carry their bag, and whether the bag ripped or not.
 
 ```{r, eval=TRUE}
 apples <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
@@ -41,9 +41,9 @@ table <- data.table::data.table(
 )
 ```
 
-Suppose we want to split our dataset up by the number of each fruit, count the number of ripped bags in each category, and figure out the average number of hands used. We would start out by defining how we want to split the categories. There are two general ways to define the intervals, with a single string or a list of upper and lower bounds. Lets start with the string representation. The string is expected to alternate number and delimiter, either / or ], which split the upper and lower bounds for each interval. Every interval in this format includes the lower bound. The interval includes the upper bound if ] is used, and does not otherwise. So the interval [2,5) is equivalent to "2/5" and the interval [5,8] is equivalent to "5]8". This method uses each triplet sequentially, so the categories will cover every value that falls between the first and last number listed.
-The list notation is very similar. There are 2 values required in the list and 1 optional value. The list has to have vectors titled lower and upper, which are the lower and upper bounds for each interval. This method can include gaps. Similarly to the string version, the lower bound is always included and the upper bound is included if the upper bound entry includes ]. The list option allows the categories to be labeled instead of being automatically numbered. A third list titled name can be provided to label each category.
-Lets suppose we want to break the apples column into the intervals: [0, 3), [3, 5), [5,7] and break our oranges column into the intervals: [-1,3), [3,6), [6,10) with the labels: few, good, and excessive. That would look like the following code. This splits each category into 3 levels, and in total 9 combinations.
+Suppose we want to split our dataset up by the number of each fruit, count the number of ripped bags in each category, and figure out the average number of hands used. We would start by defining how we want to split the categories. There are two general ways to define the intervals, with a single string or a list of upper and lower bounds. Let us start with the string representation. The string is expected to alternate number and delimiter, either "/" or "]", which split the upper and lower bounds for each interval. Every interval in this format includes the lower bound. The interval includes the upper bound if "]" is used, and does not otherwise. So the interval [2,5) is equivalent to "2/5" and the interval [5,8] is equivalent to "5]8". This method uses each triplet sequentially, so the categories will cover every value that falls between the first and last number listed.
+The list notation is very similar. There are 2 values required in the list and 1 optional value. The list has to have vectors titled lower and upper, which are the lower and upper bounds for each interval. This method can include gaps. Similarly to the string version, the lower bound is always included and the upper bound is included if the upper bound entry includes "]". The list option allows the categories to be labeled instead of being automatically numbered. A third list titled name can be provided to label each category.
+Suppose we want to break the apple column into the intervals: [0, 3), [3, 5), [5,7] and break our oranges column into the intervals: [-1,3), [3,6), [6,10) with the labels: few, good, and excessive. That would look like the following code. This splits each category into 3 levels and in total 9 combinations.
 
 ```{r, eval=TRUE}
 apple_category <- "0/3/5]7"
@@ -58,13 +58,13 @@ categ <- list(
 )
 ```
 
-Now we define what summary variables we want. Once again, we define a list. Every item in the list is named with the column it is applied to and contains a string specifying what summary method to use. There are two options supported currently: count and mean, which will sum or mean of the column in each category. One can also provide a new name for the summary column by listing the method as "option AS name". Otherwise the grouped table will use the original column name for the summary column name. So lets suppose we wanted to take the sum of ripped bags and name it "dropped" and take the mean of the hands column.
+Now we define what summary variables we want. Once again, we define a list. Every item in the list is named with the column it is applied to and contains a string specifying what summary method to use. There are two options supported currently: count and mean, which will provide the sum or the mean of the column in each category. One can also provide a new name for the summary column by listing the method as "option AS name". Otherwise, the grouped table will use the original column name for the summary column name. Suppose we wanted to take the sum of ripped bags and name it "dropped" and take the mean of the hands column.
 
 ```{r, eval=TRUE}
 event <- list("rip" = "count AS dropped", "hands" = "mean")
 ```
 
-The final step is to run the function. The function returns two items, the grouped data and a summary of the category intervals. The category intervals should be checked to verify that the intervals match what are expected.
+The final step is to run the function. The function returns two items, the grouped data and a summary of the category intervals. The category intervals should be checked to verify that the intervals match what were expected.
 
 ```{r, eval=TRUE}
 Event_Count_Gen(table, categ, event)
@@ -72,7 +72,7 @@ Event_Count_Gen(table, categ, event)
 
 ### Person-Time Tables
 
-The previous method treats every row as being weighted the same. In many cases every row has some measure of time which we may want to use. That is the fundamental difference between the person count tables and person time tables, the inclusion of time. The code used to generate a person time table is very similar to the person count table, with several important differences. The first is that the data should have time columns. Similar to the Cox model options in Colossus, the data should have an entry column, exit column, or both. These would denote the scenario where every interval ends at the same point, starts at the same point, or have different start and stopping times. This method currently only supports day/month/year information which are combined into complete dates. The Event_Time_Gen function uses a list to input the time columns. This list should have entry and exit items if needed, each list should have a column name for the year, month, and day columns if needed. The dates will default to 1/1/1900 if not provided. The person-year list can also contain a unit, defaulted to years.
+The previous method treats every row as being weighted the same. In many cases, every row has some measure of time which we may want to use. That is the fundamental difference between the person count tables and person time tables, the inclusion of time. The code used to generate a person time table is very similar to the person count table, with several important differences. The first is that the data should have time columns. Similar to the Cox model options in Colossus, the data should have an entry column, exit column, or both. These would denote the scenario where every interval ends at the same point, starts at the same point, or has different start and stop times. This method currently only supports day/month/year information which are combined into complete dates. The Event_Time_Gen function uses a list to input the time columns. This list should have entry and exit items if needed, each list should have a column name for the year, month, and day columns if needed. The dates will default to 1/1/1900 if not provided. The person-year list can also contain a unit, defaulted to years.
 
 ```{r, eval=TRUE}
 a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
@@ -104,7 +104,7 @@ pyr <- list(
 )
 ```
 
-The second major difference is the possible use of time categories. Time categories are set by a vectors of of day, month, and year of each interval splitting point. So intervals changing every 2 days could be expressed by "day=c(1,3,5,...)". Time categories are unique in that each row can correspond to multiple time categories, so the duration of each row in each time category is kept to distinguish which rows are only partially in each time interval. If a time category is not provided, then the full duration of each row is used for person-year calculations.
+The second major difference is the possible use of time categories. Time categories are set by vectors of the day, month, and year of each interval splitting point. So intervals changing every 2 days could be expressed by "day=c(1,3,5,...)". Time categories are unique in that each row can correspond to multiple time categories, so the duration of each row in each time category is kept to distinguish which rows are only partially in each time interval. If a time category is not provided, then the full duration of each row is used for person-year calculations.
 
 ```{r, eval=TRUE}
 categ <- list(
@@ -128,7 +128,7 @@ summary <- list("c" = "count AS cases", "b" = "weighted_mean AS b_weighted")
 events <- list("c")
 ```
 
-Finally the function is run. Similar to the person-count table function, the function returns the grouped table and list of category boundaries.
+Finally, the function is run. Similar to the person-count table function, the function returns the grouped table and list of category boundaries.
 
 ```{r, eval=TRUE}
 pyr <- list(

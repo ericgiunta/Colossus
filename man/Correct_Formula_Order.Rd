@@ -23,13 +23,13 @@ Correct_Formula_Order(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{names}{columns for elements of the model, used to identify data columns}
 
-\item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
+\item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
-\item{cons_vec}{Vector containing constants for system of linear constraints, formatted as vector}
+\item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
 
 \item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 

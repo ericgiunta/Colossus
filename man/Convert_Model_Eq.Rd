@@ -7,7 +7,7 @@
 Convert_Model_Eq(Model_Eq, df)
 }
 \arguments{
-\item{Model_Eq}{String representation of a survival model. Left hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.}
+\item{Model_Eq}{String representation of a survival model. Left-hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right-hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.}
 
 \item{df}{a data.table containing the columns of interest}
 }

@@ -21,13 +21,13 @@ library(data.table)
 
 # Prospective feature, presented for user suggestion
 
-The default method to specify a survival model using a series of vectors can be overly complicated at times. I felt that it wasn't straight-forward for typical R users, and made it too complicated to translate from a model to a script input. My plan is to add two functions: a conversion from a simple string expression of the model into the regression call, and a function to plot the hazard ratio or rate equation in LaTeX.
+The default method to specify a survival model using a series of vectors can be overly complicated at times. This may not be straightforward for typical R users and made it complicated to translate from a model to a script input. A function is provided with Colossus to help this process by converting from a simple string expression of the model into the required vectors.
 
 ## Equation Expression
 
-The basic idea of the first function is to take a string expression, similar to the model objects in the Survival package, which contains all of the information required in a more easily read format. This is intended to serve three functions: simplify the required input, make it easier to add multiple elements to each subterm, and make it easier to add factors.
+The basic idea of this function is to take a string expression, similar to the model objects in the Survival package, which contains all of the information required in a more easily read format. This is intended to serve three functions: simplify the required input, make it easier to add multiple elements to each subterm, and make it easier to add factors.
 
-Generally a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox' or 'poisson'. Based on the number of entries, the format of the time interval is assumed. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally the method to combine terms is added as a separate item (multiplicative, additive). To prevent any issues with function definitions, the model equation is stored in a string.
+Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox' or 'poisson'. Based on the number of entries, the format of the time interval is assumed. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive). To prevent any issues with function definitions, the model equation is stored in a string.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -38,7 +38,7 @@ $$
 $$
 </p>
 
-The factor option can be used with or without a baseline specified. By default no baseline is used. A baseline can be added by changing 'factor(name)' to 'factor(name;baseline=level)'. If a valid baseline is used, the proper factor will not be included in the model expression or the final datatable returned. If an invalid baseline is used a warning is thrown and the functions runs without a baseline.
+The factor option can be used with or without a baseline specified. By default, no baseline is used. A baseline can be added by changing 'factor(name)' to 'factor(name;baseline=level)'. If a valid baseline is used, the proper factor will not be included in the model expression or the final datatable returned. If an invalid baseline is used a warning is thrown and no baseline is used.
 
 The following expressions are equivalent.
 
@@ -58,7 +58,7 @@ df <- data.table("dose0" = 1:4, "dose1" = 2:5, "dose2" = 3:6)
 Convert_Model_Eq(Model_Eq, df)
 ```
 
-Different model formulas and subterm types are being added as need. Please contact the developer if the methods you want to use are not yet added. The following tables cover the subterms and term models that are currently implemented. Every option listed has multiple equivalent aliases that all refer to the same subterm or model formula.
+Different model formulas and subterm types are being added as needed. Please contact the developer if the methods you want to use have not yet been added. The following tables cover the subterms and term models that are currently implemented. Every option listed has multiple equivalent aliases that all refer to the same subterm or model formula.
 
 | Subterm Type | Equivalent Aliases |
 | :---------: | :----------: |
@@ -81,7 +81,3 @@ Different model formulas and subterm types are being added as need. Please conta
 | GMIX | "gmix","geometric-mixture" |
 | GMIX-R | "gmix-r","relative-geometric-mixture" |
 | GMIX-E | "gmix-e","excess-geometric-mixture" |
-
-## Model Visualization
-
-The second function will be intended to display the equation. This function is currently being developed. Based on required packages the current formats being considered are: plain-text output, LaTeX code output, or directly plotting the equation in a graph display. This method is not currently implemented for use.

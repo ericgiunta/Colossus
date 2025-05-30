@@ -46,9 +46,9 @@ RunPoissonRegression_Joint_Omnibus(
 
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 
-\item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
+\item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
-\item{cons_vec}{Vector containing constants for system of linear constraints, formatted as vector}
+\item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
 }
 \value{
 returns a list of the final results

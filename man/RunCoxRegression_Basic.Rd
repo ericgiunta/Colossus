@@ -28,7 +28,7 @@ RunCoxRegression_Basic(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 }

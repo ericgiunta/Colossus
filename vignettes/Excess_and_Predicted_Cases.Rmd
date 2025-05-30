@@ -21,7 +21,7 @@ library(data.table)
 
 ## General Theory
 
-In the field of radiation epidemiology, a common question is "How many additional cancer cases occurred due to radiation exposures?". This is often generalized to the question of how many cases are background cases and how many cases are excess cases. These are calculated by splitting a poisson model into a background term and an excess term. In Colossus the background term is assumed to be the first term, and every other term is assumed to be causing excess cases. Colossus has a function, RunPoissonEventAssignment, which calculates the number of background/excess cases for both average predicted counts and true counts. Let us assume we have the following  model for event rate:
+In the field of radiation epidemiology, a common question is "How many additional cancer cases occurred due to radiation exposures?". This is often generalized to the question of how many cases are background cases and how many cases are excess cases. These are calculated by splitting a poisson model into a background term and an excess term. In Colossus, the background term is assumed to be the first term, and every other term is assumed to be causing excess cases. Colossus has a function, RunPoissonEventAssignment, which calculates the number of background/excess cases for both average predicted counts and true counts. Let us assume we have the following model for event rate:
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -40,7 +40,7 @@ modelform <- "M"
 a_n <- c(0.1, 0.1)
 ```
 
-Our total rate ($R$) is composed of a background rate ($R_{BK}$) and excess rate ($R_{EX}$). The cases each row have a total ($c$) and background/excess count ($c_{BK}, c_{EX}$). Additionally, every row has a measure of person-time ($t$). Colossus also computes the predicted number of total, background, and excess cases ($P, P_{BK}. P_{EX}$). For every model we assume the average number of background cases are the background rate multiplied by time, the remaining cases are excess, and the true number of background/excess cases are proportional to the predicted cases.
+Our total rate ($R$) is composed of a background rate ($R_{BK}$) and excess rate ($R_{EX}$). The cases each row have a total ($c$) and background/excess count ($c_{BK}, c_{EX}$). Additionally, every row has a measure of person-time ($t$). Colossus also computes the predicted number of total, background, and excess cases ($P, P_{BK}. P_{EX}$). For every model we assume the average number of background cases is the background rate multiplied by time, the remaining cases are excess, and the true number of background/excess cases is proportional to the predicted cases.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -58,7 +58,7 @@ $$
 $$
 </p>
 
-Colossus returns two matrices, one for the true cases and one for the predicted cases. Each matrix has three columns for the events assigned to background, excess, and total.
+Colossus returns two matrices, one for the true cases and one for the predicted cases. Each matrix has three columns for the events assigned to background, excess, and total. This provides information on both the relative amount of background and excess cases, as well as differences between the expected and true number of cases.
 
 ```{r, eval=FALSE}
 names <- c("x", "D")

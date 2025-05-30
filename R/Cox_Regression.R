@@ -1495,7 +1495,11 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
-  e$Survival_Type <- "Cox_Multidose"
+  if (model_control$MCML){
+    e$Survival_Type <- "Cox_Multidose"
+  } else {
+    e$Survival_Type <- "Cox_Multidose"
+  }
 
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start

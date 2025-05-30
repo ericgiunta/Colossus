@@ -40,7 +40,7 @@ RunCoxRegression_Omnibus(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
@@ -52,9 +52,9 @@ RunCoxRegression_Omnibus(
 
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 
-\item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
+\item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
-\item{cons_vec}{Vector containing constants for system of linear constraints, formatted as vector}
+\item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
 }
 \value{
 returns a list of the final results

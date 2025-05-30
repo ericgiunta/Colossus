@@ -25,10 +25,10 @@ This is the "control" variable used by every regression function. This list focu
 | Option | Description |
 | :---------: | :----------: |
 | verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
-| ncores  | Number of cores used for parallel operations. The user can not assign more cores than available. Defaults to the number of detected cores |
-| lr | Learning rate used. Every step is multiplied by the learning rate. Default is 0.75. |
+| ncores  | Number of cores used for parallel operations. The user can not assign more cores than are available. Defaults to the number of detected cores |
+| lr | Learning rate used. Every step is multiplied by the learning rate. The default is 0.75. |
 | maxiter  | Maximum iterations run for a single initial position. Defaults to 20.  |
-| maxiters | Used for multiple starting positions. List of maximum number of iterations per starting point and maximum number of iterations for final guess. Assumes N values for N guesses and 1 value for final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
+| maxiters | Used for multiple starting positions. List the maximum number of iterations per starting point and the maximum number of iterations for the final guess. Assumes N values for N guesses and 1 value for the final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
 | halfmax  | Maximum number of half-steps taken per iteration. Defaults to 5.  |
 | epsilon  | Minimum step size before convergence is assumed. Defaults to 1e-4  |
 | deriv_epsilon  | Smallest maximum first derivative before convergence is assumed. Defaults to 1e-4. |
@@ -39,7 +39,7 @@ This is the "control" variable used by every regression function. This list focu
 
 ### Model Control List
 
-This is the "model_control" variable used primarily by the omnibus functions. The non-omnibus functions use this list to select non-standard modeling options.
+This is the "model_control" variable primarily used by the omnibus functions. The non-omnibus functions use this list to select non-standard modeling options.
 
 | Option | Description |
 | :---------: | :----------: |
@@ -47,12 +47,12 @@ This is the "model_control" variable used primarily by the omnibus functions. Th
 | basic  | Boolean used by Cox functions to use the single-term log-linear model. This method can apply simplifications which reduce the time and memory requirements. Defaults to FALSE.  |
 | null  | Boolean used by Cox functions to calculate the null model, which assumes a constant hazard ratio. Defaults to FALSE.   |
 | cr  | Boolean used by Cox functions to apply competing risks model options to use a Fine-Gray model. Defaults to FALSE.  |
-| constraint  | Boolean used by both Cox and Poisson function to apply a system of linear constraints. Defaults to FALSE. |
+| constraint  | Boolean used by both Cox and Poisson functions to apply a system of linear constraints. Defaults to FALSE. |
 | strata  | Boolean used by both Cox and Poisson functions to apply stratification. Cox functions use stratified risk groups and Poisson functions apply an average event rate per strata. Defaults to FALSE.  |
 | surv  | Boolean used by Cox plotting function to choose survival curve plotting. Defaults to FALSE  |
 | schoenfeld  | Boolean used by Cox plotting function to choose schoenfeld residual curve plotting. Defaults to FALSE   |
 | risk  | Boolean used by Cox plotting function to choose hazard ratio plotting by a single parameter. Defaults to FALSE   |
-| unique_values | integer used by the risk plotting option to select how many values calculate risk at. Depending on function either defaults to the number of unique values in the column or 2. |
+| unique_values | integer used by the risk plotting option to select how many values calculate risk at. Depending on function, either defaults to the number of unique values in the column or 2. |
 | risk_subset  | Boolean used by Cox_Relative_Risk function to calculate a relative risk for every row. Not directly used by the user, Defaults to FALSE.  |
 | log_bound  | Boolean used by Cox and Poisson functions to select calculating likelihood-based confidence bounds. Defaults to FALSE.  |
 | pearson  | Boolean used by RunPoissonRegression_Residual to select calculating pearson residuals. Defaults to FALSE.   |
@@ -65,7 +65,7 @@ If the log_bound method is used, there are several additional control options us
 | Option | Description |
 | :---------: | :----------: |
 | alpha | Confidence level to use, valued 0-1. Defaults to 0.05. |
-| qchi | Two tailed Chi-squared value at one degree of freedom and the provided alpha. Defaults to the value corresponding to alpha. |
+| qchi | Two-tailed Chi-squared value at one degree of freedom and the provided alpha. Defaults to the value corresponding to alpha. |
 | para_number | Parameter number to solve the boundary for. Indexed starting at 0. Defaults to 0. |
 | manual | Boolean which selects if the standard Venzon-Moolgavkar algorithm (FALSE) or if a modified version is used which starts by optimizing multiple points (TRUE). The manual mode is beneficial for problems with linear terms, which may have issues with local optimums. Defaults to FALSE. |
 | maxstep | Integer used by the manual search option, splits the initial step into maxstep points. Then each point is optimized with a constant boundary parameter. This is done to find the closest estimate for the boundary point. Defaults to 10. |
@@ -99,8 +99,8 @@ This is the "guesses_control" variable used by the distributed start functions. 
 | exp_slope_max | maximum linear-exponential, exponential slope parameter change |
 | strata | True/False if stratification is used |
 | term_initial | List of term numbers to run first if Tiered guessing is used |
-| rmin | list of minimum change for each parameter |
-| rmax | list of maximum change for each parameter |
+| rmin | list of minimum changes below the central estimate for each parameter guess |
+| rmax | list of maximum changes above the central estimate for each parameter guess |
 | verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
 
 

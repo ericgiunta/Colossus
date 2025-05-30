@@ -25,7 +25,7 @@ library(dplyr)
 
 ## Matched Case-Control Modeling
 
-One upcoming regression method in Colossus is matched case-control logistic regression. The implementation is ongoing, but the theory is presented in the following section.
+One alternative regression method in Colossus is matched case-control logistic regression. The theory is presented in the following section.
 
 ### General Theory
 
@@ -88,7 +88,7 @@ $$
 $$
 </p>
 
-Finally these expressions for $B(m,n)$ can be substituted into the equations for the contribution of Log-Likelihood and it's derivatives from each matched set. The model is then optimized via the same methods as the other regression models.
+Finally, these expressions for $B(m,n)$ can be substituted into the equations for the contribution of Log-Likelihood and its derivatives from each matched set. The model is then optimized via the same methods as the other regression models.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -102,7 +102,7 @@ $$
 
 #### Unconditional Logistic Regression
 
-It is important to note that the recursive formula calculation can quickly become time-consuming, particularly if there is a large number of cases. To make the matched case-control method generally applicable, the likelihood function can be changed to a logistic regression model for matched sets with too many cases. In general the matched case-control regression function adds an item to the model control list, "cond_thres", to set the threshold to switch to a logistic regression model.
+It is important to note that the recursive formula calculation can quickly become time-consuming, particularly if there is a large number of cases. To make the matched case-control method generally applicable, the likelihood function can be changed to a logistic regression model in matched sets with a large number of cases. In general, the matched case-control regression function adds an item to the model control list, "cond_thres", to set the threshold to switch to a logistic regression model.
 
 The logistic loglikelihood is defined by treating the matched case-control data as single trial data. The likelihood is a function of the event status ($\theta_i$) and odds ratio ($O_i$). The odds ratio for any row is calculated as the product of the odds ratio for the matched set ($O_s$) and the relative risk for the row ($r_i$). Behind the scenes, Colossus optimizes both the model parameters ($\vec{\beta}$) for the relative risk as well as a logistic model for the matched set odds ratios ($O_s=e^{\alpha_s}$).
 
@@ -121,7 +121,7 @@ $$
 
 ### Examples of Use
 
-The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included with the survival library. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
+The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included in the R survival library. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short, we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
 
 ```{r}
 #
@@ -144,7 +144,7 @@ cell <- case_when(
 df$cell <- cell
 
 df$karno50 <- df$karno - 50
-# Convert the cell column into multiple factor columns
+# Convert the cell column into factor columns
 fcols <- c("cell")
 val <- factorize(df, fcols) # Colossus function
 df <- val$df
@@ -164,7 +164,7 @@ term_n <- c(0, 0)
 a_n <- c(0.1, 0.1)
 ```
 
-In the following examples we are using matching by strata and changing the conditional threshold. In the first case every matched set uses the recursive formula, in the second one set uses the simplified formula, and in the third every set uses the simplified formula. In all cases the regression returns the typical output and can be summarized similar to other regression function output.
+In the following examples, we are using matching by strata and changing the conditional threshold. In the first case, every matched set uses the recursive formula. In the second case, one set uses the simplified formula. Finally in the third case, every set uses the simplified formula. In all cases, the regression returns the typical output and can be summarized similarly to other regression function outputs.
 
 ```{r}
 control <- list(verbose = 2, maxiters = c(25, 25))

@@ -25,7 +25,7 @@ RunPoissonEventAssignment_bound(
 
 \item{event0}{column used for event status}
 
-\item{alternative_model}{the new model of interest in list form, output from a poisson regression}
+\item{alternative_model}{the new model of interest in list form, output from a Poisson regression}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 

@@ -42,13 +42,13 @@ RunCoxRegression_Omnibus_Multidose(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
 \item{realization_columns}{used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization}
 
-\item{realization_index}{used for multi-realization regressions. Vector of column names, one for each column with realizations. each name should be used in the "names" variable in the equation definition}
+\item{realization_index}{used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition}
 
 \item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
 
@@ -58,9 +58,9 @@ RunCoxRegression_Omnibus_Multidose(
 
 \item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
 
-\item{cons_mat}{Matrix containing coefficients for system of linear constraints, formatted as matrix}
+\item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
-\item{cons_vec}{Vector containing constants for system of linear constraints, formatted as vector}
+\item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
 }
 \value{
 returns a list of the final results for each realization

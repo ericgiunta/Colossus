@@ -1,8 +1,8 @@
 #' @param a0  linear slope
 #' @param a1_goal  exponential maximum desired
-#' @param a_n  list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.
+#' @param a_n  list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.
 #' @param age_unit  age unit
-#' @param alternative_model  the new model of interest in list form, output from a poisson regression
+#' @param alternative_model  the new model of interest in list form, output from a Poisson regression
 #' @param b  optimum parameter values used
 #' @param ce  columns to check for truncation, (t0, t1, event)
 #' @param cens_weight  column containing the row weights
@@ -11,16 +11,15 @@
 #' @param col_name  vector of new column names
 #' @param cols  columns to check
 #' @param control  list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")
-#' @param cons_mat Matrix containing coefficients for system of linear constraints, formatted as matrix
-#' @param cons_vec Vector containing constants for system of linear constraints, formatted as vector
+#' @param cons_mat Matrix containing coefficients for a system of linear constraints, formatted as matrix
+#' @param cons_vec Vector containing constants for a system of linear constraints, formatted as vector
 #' @param dep_cols  columns that are not needed in the new dataframe
-#' @param der_iden  number for the subterm to test derivative at, only used for testing runs with a single varying parameter, should be smaller than total number of parameters. indexed starting at 0
 #' @param df  a data.table containing the columns of interest
 #' @param digits  digits used for printing results
 #' @param dnames  list of covariate columns to plot by
 #' @param dt  spacing in time for new rows
 #' @param e  output from a baseline calculation
-#' @param er  standard deviation for the parameters
+#' @param er  standard error for the parameters
 #' @param event0  column used for event status
 #' @param factor_check  a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns
 #' @param fname  filename used for new dataframe
@@ -32,12 +31,12 @@
 #' @param keep_constant  binary values to denote which parameters to change
 #' @param log_file file to save log to
 #' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details
-#' @param Model_Eq  String representation of a survival model. Left hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.
+#' @param Model_Eq  String representation of a survival model. Left-hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right-hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
 #' @param msv  value to replace na with, same used for every column used
 #' @param name_list  vector of string column names to check
 #' @param names  columns for elements of the model, used to identify data columns
-#' @param new_names  list of new names to use instead of default, default used if entry is ''
+#' @param new_names  list of new names to use instead of default, default used if entry is ''"
 #' @param nthreads  number of threads to use, do not use more threads than available on your machine
 #' @param null_model  a model to compare against, in list form
 #' @param out_list  list output from a regression, used to build results table and pull out convergence values
@@ -47,7 +46,7 @@
 #' @param plot_type  list of parameters controlling the plot options: surv, risk, schoenfeld
 #' @param pyr0  column used for person-years per row
 #' @param realization_columns  used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization
-#' @param realization_index  used for multi-realization regressions. Vector of column names, one for each column with realizations. each name should be used in the "names" variable in the equation definition
+#' @param realization_index  used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition
 #' @param strat_col  column to stratify by if needed
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
@@ -109,15 +108,15 @@ NULL
 #' @param basic_bool  boolean for multiplicative log-linear model
 #' @param beta_0  parameter estimates
 #' @param cens_cutoff  double threshold for adding competing risk to risk group, not implemented
-#' @param cens_thres  threshold to add competing event to risk group
+#' @param cens_thres  threshold to add a competing event to risk group
 #' @param cens_vec  censoring weight list
 #' @param cens_weight  vector of censoring weights
 #' @param change_all  boolean if every parameter is being updated
 #' @param colToRemove  column index to remove
 #' @param cols  list of column identifiers, single continuous list
-#' @param constraint_bool  boolean for system of linear equality constraints used
-#' @param cons_mat Matrix containing coefficients for system of linear constraints
-#' @param cons_vec Vector containing constants for system of linear constraints
+#' @param constraint_bool  boolean for a system of linear equality constraints used
+#' @param cons_mat Matrix containing coefficients for a system of linear constraints
+#' @param cons_vec Vector containing constants for a system of linear constraints
 #' @param dbeta  parameter change vector
 #' @param dbeta_cap  learning rate for newton step toward 0 log-likelihood
 #' @param debugging  additional boolean for verbosity in testing
@@ -130,7 +129,7 @@ NULL
 #' @param df0_event  matrix with event status, zero up to the last entry for each original row
 #' @param df_groups  matrix with time and event information
 #' @param df_m  event/time matrix
-#' @param dfc  vector matching subterm number to matrix column
+#' @param dfc  vector matching subterm number to a matrix column
 #' @param dfe  Matrix with person-year/event count information
 #' @param dfs  Matrix with stratification columns, assumed to be binary and mutually exclusive
 #' @param dint  value used for threshold derivative finite step
@@ -142,16 +141,16 @@ NULL
 #' @param filename  file to save the data to
 #' @param gmix_term list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)
 #' @param gmix_theta theta value for geometric-mixture model
-#' @param guesses  number of initial
+#' @param guesses  the number of initial guesses
 #' @param halfmax  maximum number of half steps
 #' @param iscox  boolean of cox formatting is used
 #' @param iter_stop  binary value used to tell the function not to continue iteration
-#' @param Lin_Res Vector containing constants for system of linear constraints
-#' @param Lin_Sys Matrix containing coefficients for system of linear constraints
+#' @param Lin_Res Vector containing constants for a system of linear constraints
+#' @param Lin_Sys Matrix containing coefficients for a system of linear constraints
 #' @param lr  learning rate for newton step toward 0 derivative
 #' @param matrix_modify matrix to remove rows or columns from
-#' @param maxiter   integer of maximum number of iterations
-#' @param maxiters  list of maximum number of iterations
+#' @param maxiter   integer of the maximum number of iterations
+#' @param maxiters  list of the maximum number of iterations for each guess and final guess
 #' @param model_control  controls which alternative model options are used
 #' @param modelform  string model identifier
 #' @param nonDose  term matrix
@@ -160,7 +159,7 @@ NULL
 #' @param nonDose_PLIN  Product linear term matrix
 #' @param nthreads  number of threads available
 #' @param ntime  number of risk groups
-#' @param null_bool  boolean for null model
+#' @param null_bool  boolean for a null model
 #' @param reqrdnum  total number of free parameters
 #' @param rowToRemove  row index to remove
 #' @param s_weights  vector of weights for every row
@@ -169,7 +168,7 @@ NULL
 #' @param strata_bool  boolean for stratification
 #' @param term_tot  total number of terms
 #' @param tform  subterm types
-#' @param tform_tdep  vector with types of time dependent variables
+#' @param tform_tdep  vector with types of time-dependent variables
 #' @param ties_method  Ties method
 #' @param totalnum  total number of parameters
 #' @param tu  Event time vector
@@ -177,7 +176,7 @@ NULL
 #' @param vals  list of values for each column, single continuous list
 #' @param verbose  boolean for additional printing
 #' @param vm_usage  double to store peak usage at
-#' @param x  std::vector to take norm of, assumed doubles
+#' @param x  std::vector to take the norm of, assumed doubles
 #' @param x_all  covariate matrix
 #'
 #' @name CPP_template

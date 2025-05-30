@@ -49,7 +49,7 @@ modelform <- "M"
 
 ## Survival Function Approximation
 
-After fitting a Cox proportional hazards model, one may be interested in what the baseline survival rate is. One method of doing so is by weighting the number of events at each event time by the total risk. In the absence of excess risk the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one, so this assumption holds for the case with negligible excess risk.
+After fitting a Cox proportional hazards model, one may be interested in what the baseline survival rate is. One method of doing so is by weighting the number of events at each event time by the total risk. In the absence of excess risk, the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one, so this assumption holds for the case with negligible excess risk.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -59,7 +59,7 @@ $$
 $$
 </p>
 
-Suppose every row at risk at a time were twice as likely to experience an event than the baseline. Then we would expect there to be twice as many events as there would be at baseline. The same logic applies for the case with every row at risk being half as likely. This generalizes to any average risk. Colossus allows the instantaneous hazard to be approximated for both stratified and non-stratified models. 
+Suppose every row at risk at a time was twice as likely to experience an event than the baseline. Then we would expect there to be twice as many events as there would be at baseline. The same logic applies to the case with every row at risk being half as likely. This generalizes to any average risk. Colossus allows the instantaneous hazard to be approximated for both stratified and non-stratified models. 
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -124,11 +124,11 @@ g
 
 ## Cox Proportional Hazards model assumptions
 
-The Cox proportional hazards model by definition assumes proportional hazards independent of time. If this is violated, then the results of a regression may be misleading. There are two functions that Colossus provides that can be used to test this assumption, the Schoenfeld residuals and Martingale residuals. In both cases the premise is that if the the hazard ratio were independent of time, then the residuals should also be independent of time.
+The Cox proportional hazards model by definition assumes proportional hazards independent of time. If this is violated, then the results of a regression may be misleading. There are two checks that Colossus provides that can be used to test this assumption, the Schoenfeld residuals and Martingale residuals. In both cases, the premise is that if the hazard ratio were independent of time, then the residuals should also be independent of time.
 
 ### Schoenfeld Residuals
 
-Schoenfeld residuals compare the average covariate value of rows with events with the risk weighted average of the covariate in rows at risk. Consistently high or low residuals may be due to hazard being much higher or lower than the model predicts. If these residuals are also correlated with event time, then the hazard ratio may be dependent on event time. There is also the option to scale the residuals by the standard-deviation.
+Schoenfeld residuals compare the average covariate value of rows with events with the risk-weighted average of the covariate in rows at risk. Consistently high or low residuals may be due to the hazard being much higher or lower than the model predicts. If these residuals are also correlated with event time, then the hazard ratio may be dependent on event time. There is also the option to scale the residuals by the standard deviation.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -186,7 +186,7 @@ g
 
 ### Martingale Residuals
 
-Martingale residuals compare the event status and cumulative hazard for each subject. The residual is bound in the open interval $(-\infty, 1)$. Negative residuals correspond with subjects that survive despite high cumulative hazard and residuals near unity correspond with subject that experienced an event despite low cumulative hazard. The distribution of residuals with event time can indicate if the model is over-predicting or under-predicting dependent on time.
+Martingale residuals compare the event status and cumulative hazard for each subject. The residual is bound in the open interval $(-\infty, 1)$. Negative residuals correspond with subjects that survive despite high cumulative hazard and residuals near unity correspond with subjects that experienced an event despite low cumulative hazard. The distribution of residuals with event time can indicate if the model is over-predicting or under-predicting dependent on time.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -237,7 +237,7 @@ g
 
 ## General Evaluation of Risk
 
-Colossus also offers scripts that plot the relative risk by parameter value for each parameter in the model, assuming every other parameter is constant. Any parameter with more than 10 values is assumed to be constant.
+Colossus also offers scripts that plot the relative risk by parameter value for each parameter in the model, assuming every other parameter is constant.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(

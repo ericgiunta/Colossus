@@ -9,7 +9,7 @@ Def_Control_Guess(guesses_control, a_n)
 \arguments{
 \item{guesses_control}{list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Control_Options")}
 
-\item{a_n}{list of initial parameter values, used to determine number of parameters. May be either a list of vectors or a single vector.}
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 }
 \value{
 returns a filled list

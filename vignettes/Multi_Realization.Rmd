@@ -21,11 +21,11 @@ library(data.table)
 
 ## Available Methods
 
-There are many instances in which a user may want to use data that is known up to a distribution, in these cases it may not be sufficient to use a single realization. Colossus provides two ways to use multiple realizations. The first runs multiple regressions in a row, each with a different realization. The second optimizes the average Log-Likelihood over the realizations. This method was designed to assist in circumstances in which combinations of shared and unshared error are present, and a two-dimensional Monte Carlo method is used to generate realizations for at least one covariate column. Note that this method does not apply to the event/cases or interval/duration columns.
+There are many instances in which a user may want to use data that is known up to a distribution, in these cases it may not be sufficient to use a single realization. Colossus provides two ways to use multiple realizations. The first runs multiple regressions in a row, each with a different realization. The second optimizes the average Log-Likelihood over the realizations. These methods were designed to assist in circumstances in which combinations of shared and unshared errors are present, and a two-dimensional Monte Carlo method is used to generate realizations for at least one covariate column. Note that this method does not apply to uncertainties in the event/cases or interval/duration columns.
 
 ### Specifics of Use
 
-Let us suppose that we are interested in performing a regression with three covariates: an age bin, amount of exposure to a radioisotope during an interval, and average sleep during an interval. Age bin is known, exposure is known up to a distribution which could be shared among individuals, and sleep is randomly distributed and independent each interval.
+Let us suppose that we are interested in performing a regression with three covariates: an age bin, amount of exposure to a radioisotope during an interval, and average sleep during an interval. Age bin is known, exposure is known up to a distribution that could be shared among individuals, and sleep is randomly distributed and independent in each interval.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -36,21 +36,21 @@ $$
 </p>
 
 ```{r}
-names <- c("a", "r", "s")
+names <- c("a", "r0", "s0")
 term_n <- c(0, 0, 0)
 tform <- c("loglin", "loglin", "loglin")
 modelform <- "M"
 
 a_n <- c(0.1, 0.1, 0.1)
 model_control <- list("mcml" = FALSE)
-# setting to true uses the Monte-Carlo Maximum Likelihood option and optimizes the average log-likelihood, setting to false optimizes each realization seperately.
+# Setting to true uses the Monte-Carlo Maximum Likelihood option and optimizes the average log-likelihood, setting to false optimizes each realization separately.
 ```
 
-Colossus requires two items to apply multiple realizations, a list of columns to replace and a matrix of columns for each realization. Suppose the user generates 5 realizations. Then there are two distributed columns and five realizations.
+Colossus requires two items to apply multiple realizations, a list of columns to replace, and a matrix of columns for each realization. Suppose the user generates 5 realizations. Then there are two distributed columns and five realizations. Similar to other regression options, Colossus always expects column names listed in the model to be in the table.
 
 ```{r, eval=FALSE}
-dose_index <- c("r", "s")
-# the two columns in the model to replace are the radiation and sleeping covariates
+dose_index <- c("r0", "s0")
+# The two columns in the model to replace are the radiation and sleeping covariates
 dose_realizations <- matrix(
   c("r0", "r1", "r2", "r3", "r4", "s0", "s1", "s2", "s3", "s4"),
   nrow = 2
@@ -58,6 +58,6 @@ dose_realizations <- matrix(
 # columns to be used for realizations 0-4, rows for each column being replaced
 ```
 
-The first method runs each regression and returns matrices for the final parameter estimates, standard deviations, and final log-likelihoods of each regression. These results can be used to create likelihood-weighted parameter distributions, to account for uncertainty in the final parameter estimates. The second method returns the standard regression output, only using the average log-likelihood.
+The first method runs each regression and returns matrices for the final parameter estimates, standard deviations, and log-likelihoods/AIC of each regression. These results can be used to create likelihood-weighted parameter distributions, to account for uncertainty in the final parameter estimates. The second method returns the standard regression output, only using the average log-likelihood.
 
-Note that there is no strict requirement for the realization columns to actually be realizations of a distributed column. A user could use this method to compare models with the same formula but different covariates. The only difficulty is that Colossus does not refresh the parameter estimates between realization regressions, so the user may need to keep in mind feasible parameter space. In the event that individual realizations are being optimized and the initial parameter estimate is infeasible, the parameter estimates associated with the negative term are reduced in magnitude. In most cases this is enough to find a nearby feasible space to start at.
+Note that there is no strict requirement for the realization columns to be realizations of a distributed column. A user could use this method to compare models with the same formula but different covariates. The only difficulty is that Colossus does not refresh the parameter estimates between realization regressions, so the user may need to keep in mind feasible parameter space. If individual realizations are being optimized and the initial parameter estimate is infeasible, the parameter estimates associated with the negative term are reduced in magnitude. In most cases, this is enough to find a nearby feasible space to start at.
