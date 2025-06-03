@@ -635,7 +635,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
 #' cens_weight <- approx(t_ref, surv_ref, t_c, rule = 2)$y
 #'
 GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options, model_control = list(), strat_col = "e") {
-  df <- data.table(df)
+  df <- setDT(df)
   if (plot_options$verbose >= 3) {
     message("Note: Starting Censoring weight Plot Function") # nocov
   }

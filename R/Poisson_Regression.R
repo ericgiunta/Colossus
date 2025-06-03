@@ -54,7 +54,15 @@
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
+  #  df <- setDT(df)
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   val <- Correct_Formula_Order(
@@ -227,6 +235,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  # df <- copy(df)
   return(e)
 }
 
@@ -310,7 +319,14 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
 #' )
 #' @importFrom rlang .data
 RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list(), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   val <- Joint_Multiple_Events(
     df, events, name_list,
     term_n_list, tform_list,
@@ -328,6 +344,7 @@ RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term
     a_n, modelform, control,
     strat_col
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -430,7 +447,14 @@ RunPoissonRegression <- function(df, pyr0 = "pyr", event0 = "event", names = c("
 #' @export
 #'
 RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -507,6 +531,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     modelform, control, keep_constant,
     term_tot, model_control
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -567,7 +592,14 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
 #' @export
 #'
 RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", alternative_model = list(), keep_constant = c(0), modelform = "M", check_num = 1, z = 2, control = list(), strat_col = "null", model_control = list()) {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   names <- alternative_model$Parameter_Lists$names
   term_n <- alternative_model$Parameter_Lists$term_n
   tform <- alternative_model$Parameter_Lists$tforms
@@ -600,6 +632,7 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
     "lower_limit" = e_low, "midpoint" = e_mid,
     "upper_limit" = e_high
   )
+  # df <- copy(df)
   return(bound_results)
 }
 
@@ -771,7 +804,14 @@ RunPoissonRegression_Strata <- function(df, pyr0 = "pyr", event0 = "event", name
 #'
 #' @importFrom rlang .data
 RunPoissonRegression_Tier_Guesses <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list()) {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   guesses_control <- Def_Control_Guess(guesses_control, a_n)
   t_initial <- guesses_control$term_initial
@@ -837,6 +877,7 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0 = "pyr", event0 = "event"
     keep_constant, a_n, modelform,
     control, guesses_control, strat_col, model_control
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -894,7 +935,14 @@ RunPoissonRegression_Tier_Guesses <- function(df, pyr0 = "pyr", event0 = "event"
 #' )
 #' @importFrom rlang .data
 RunPoissonRegression_Guesses_CPP <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list()) {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
@@ -952,6 +1000,7 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0 = "pyr", event0 = "event",
     model_control = model_control,
     strat_col = strat_col
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -1010,7 +1059,14 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0 = "pyr", event0 = "event",
 #' )
 #' @importFrom rlang .data
 RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   cons_mat <- as.matrix(c(0))
   cons_vec <- c(0)
   control <- Def_Control(control)
@@ -1096,6 +1152,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ]),
     model_control
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -1112,7 +1169,14 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' @importFrom rlang .data
 PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   val <- Correct_Formula_Order(
@@ -1263,5 +1327,6 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e$Survival_Type <- "Poisson"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  # df <- copy(df)
   return(e)
 }

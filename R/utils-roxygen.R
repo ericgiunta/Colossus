@@ -183,7 +183,7 @@ NULL
 NULL
 
 #' @importFrom Rcpp evalCpp
-#' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD
+#' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD setDT
 #' @importFrom parallel detectCores
 #' @importFrom stats runif weighted.mean pnorm
 #' @importFrom utils combn head sessionInfo

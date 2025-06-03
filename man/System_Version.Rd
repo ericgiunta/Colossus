@@ -14,7 +14,6 @@ returns a list of results
 }
 \seealso{
 Other Output and Information Functions: 
-\code{\link{Interpret_Output}()},
-\code{\link{Model_Results_Log}()}
+\code{\link{Interpret_Output}()}
 }
 \concept{Output and Information Functions}

@@ -54,7 +54,14 @@
 #' @importFrom rlang .data
 RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   val <- Correct_Formula_Order(
@@ -135,22 +142,6 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
         use.names = FALSE
       )
       df <- df[get(strat_col) %in% uniq_end, ]
-      #      uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
-      #        use.names = FALSE
-      #      ))
-      #      for (i in seq_along(uniq)) {
-      #        df0 <- dfend[get(strat_col) == uniq[i], ]
-      #        tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-      #        if (length(tu0) == 0) {
-      #          if (control$verbose >= 2) {
-      #            warning(paste("Warning: no events for strata group:",
-      #              uniq[i],
-      #              sep = " "
-      #            ))
-      #          }
-      #          df <- df[get(strat_col) != uniq[i], ]
-      #        }
-      #      }
       uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
         use.names = FALSE
       ))
@@ -308,5 +299,6 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   e$Survival_Type <- "CaseControl"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  # df <- copy(df)
   return(e)
 }

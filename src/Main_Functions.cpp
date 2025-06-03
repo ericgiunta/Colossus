@@ -287,6 +287,11 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     double Lstar = 0.0;
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     //
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "Prep step: " << ending - start << endl;
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     //
     for (int guess = 0; guess <guesses; guess++) {
         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
@@ -685,6 +690,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             }
         }
     }
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     //
     if (model_bool["basic"]) {
         res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");

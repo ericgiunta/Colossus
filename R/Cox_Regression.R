@@ -54,23 +54,14 @@
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  df <- data.table(df)
-  ce <- c(time1, time2, event0)
-  t_check <- Check_Trunc(df, ce)
-  df <- t_check$df
-  ce <- t_check$ce
-  ## Cox regression only uses intervals which contain an event time
-  time1 <- ce[1]
-  time2 <- ce[2]
-  dfend <- df[get(event0) == 1, ]
-  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
-  if (length(tu) == 0) {
-    stop("Error: no events")
-  }
-  # remove rows that end before first event
-  df <- df[get(time2) >= tu[1], ]
-  # remove rows that start after the last event
-  df <- df[get(time1) <= tu[length(tu)], ]
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   val <- Correct_Formula_Order(
@@ -99,6 +90,37 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
   model_control <- val$model_control
+  #
+  to_remove <- c("CONST", "%trunc%")
+  to_keep <- c(time1, time2, event0, names)
+  if (model_control$cr == TRUE) {
+    to_keep <- c(to_keep, cens_weight)
+  }
+  if (model_control$strata == TRUE) {
+    to_keep <- c(to_keep, strat_col)
+  }
+  to_keep <- unique(to_keep)
+  to_keep <- to_keep[!to_keep %in% to_remove]
+  to_keep <- to_keep[to_keep %in% names(df)]
+  df <- df[, to_keep, with = FALSE]
+  #
+  ce <- c(time1, time2, event0)
+  t_check <- Check_Trunc(df, ce)
+  df <- t_check$df
+  ce <- t_check$ce
+  time1 <- ce[1]
+  time2 <- ce[2]
+  ## Cox regression only uses intervals which contain an event time
+  dfend <- df[get(event0) == 1, ]
+  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+  if (length(tu) == 0) {
+    stop("Error: no events")
+  }
+  # remove rows that end before first event
+  df <- df[get(time2) >= tu[1], ]
+  # remove rows that start after the last event
+  df <- df[get(time1) <= tu[length(tu)], ]
+  #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine
@@ -163,26 +185,10 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     ce <- c(time1, time2, event0)
   } else {
     dfend <- df[get(event0) == 1, ]
-    #    uniq <- unlist(unique(df[, strat_col, with = FALSE]),
-    #      use.names = FALSE
-    #    )
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
     )
     df <- df[get(strat_col) %in% uniq_end, ]
-    #    for (i in seq_along(uniq)) {
-    #      df0 <- dfend[get(strat_col) == uniq[i], ]
-    #      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-    #      if (length(tu0) == 0) {
-    #        if (control$verbose >= 2) {
-    #          warning(paste("Warning: no events for strata group:",
-    #            uniq[i],
-    #            sep = " "
-    #          ))
-    #        }
-    #        df <- df[get(strat_col) != uniq[i], ]
-    #      }
-    #    }
     uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
       use.names = FALSE
     ))
@@ -323,6 +329,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   e$Survival_Type <- "Cox"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  # df <- copy(df)
   return(e)
 }
 
@@ -594,7 +601,14 @@ RunCoxRegression_Strata <- function(df, time1 = "%trunc%", time2 = "%trunc%", ev
 #' )
 #'
 Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
@@ -627,6 +641,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
     c(1), keep_constant, term_tot, c(0),
     c(0), model_control
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -724,7 +739,14 @@ RunCoxNull <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event
 #'
 RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list()) {
   names(plot_options) <- tolower(names(plot_options))
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   plot_options$verbose <- Check_Verbose(plot_options$verbose)
   if (min(keep_constant) > 0) {
@@ -961,6 +983,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       control, age_unit, plot_type[2]
     )
   }
+  # df <- copy(df)
   return(plot_table)
 }
 
@@ -1023,7 +1046,14 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
 #'
 #' @importFrom rlang .data
 RunCoxRegression_Tier_Guesses <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   control <- Def_Control(control)
   guesses_control <- Def_Control_Guess(guesses_control, a_n)
   if (min(keep_constant) > 0) {
@@ -1095,6 +1125,7 @@ RunCoxRegression_Tier_Guesses <- function(df, time1 = "%trunc%", time2 = "%trunc
     cens_weight = cens_weight,
     model_control = model_control
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -1218,7 +1249,14 @@ RunCoxRegression_CR <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0
 #' )
 #' @importFrom rlang .data
 RunCoxRegression_Guesses_CPP <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
@@ -1283,6 +1321,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1 = "%trunc%", time2 = "%trunc%
     model_control = model_control,
     cens_weight = cens_weight
   )
+  # df <- copy(df)
   return(e)
 }
 
@@ -1350,7 +1389,14 @@ RunCoxRegression_Guesses_CPP <- function(df, time1 = "%trunc%", time2 = "%trunc%
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   #
   control <- Def_Control(control)
   val <- Correct_Formula_Order(
@@ -1379,6 +1425,37 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
+  #
+  to_remove <- c("CONST", "%trunc%")
+  to_keep <- c(time1, time2, event0, names, realization_index, as.vector(realization_columns))
+  if (model_control$cr == TRUE) {
+    to_keep <- c(to_keep, cens_weight)
+  }
+  if (model_control$strata == TRUE) {
+    to_keep <- c(to_keep, strat_col)
+  }
+  to_keep <- unique(to_keep)
+  to_keep <- to_keep[!to_keep %in% to_remove]
+  to_keep <- to_keep[to_keep %in% names(df)]
+  df <- df[, to_keep, with = FALSE]
+  #
+  ce <- c(time1, time2, event0)
+  t_check <- Check_Trunc(df, ce)
+  df <- t_check$df
+  ce <- t_check$ce
+  time1 <- ce[1]
+  time2 <- ce[2]
+  ## Cox regression only uses intervals which contain an event time
+  dfend <- df[get(event0) == 1, ]
+  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+  if (length(tu) == 0) {
+    stop("Error: no events")
+  }
+  # remove rows that end before first event
+  df <- df[get(time2) >= tu[1], ]
+  # remove rows that start after the last event
+  df <- df[get(time1) <= tu[length(tu)], ]
+  #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine
@@ -1410,22 +1487,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       use.names = FALSE
     )
     df <- df[get(strat_col) %in% uniq_end, ]
-    #    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
-    #      use.names = FALSE
-    #    ))
-    #    for (i in seq_along(uniq)) {
-    #      df0 <- dfend[get(strat_col) == uniq[i], ]
-    #      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-    #      if (length(tu0) == 0) {
-    #        if (control$verbose >= 2) {
-    #          warning(paste("Warning: no events for strata group:",
-    #            uniq[i],
-    #            sep = " "
-    #          ))
-    #        }
-    #        df <- df[get(strat_col) != uniq[i], ]
-    #      }
-    #    }
     uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
       use.names = FALSE
     ))
@@ -1477,9 +1538,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   dose_all <- as.matrix(df[, dose_names, with = FALSE])
-  t_check <- Check_Trunc(df, ce)
-  df <- t_check$df
-  ce <- t_check$ce
   e <- cox_ph_multidose_Omnibus_transition(
     term_n, tform, a_n,
     as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all, dose_all,
@@ -1495,7 +1553,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
-  if (model_control$MCML){
+  if (model_control$MCML) {
     e$Survival_Type <- "Cox_Multidose"
   } else {
     e$Survival_Type <- "Cox_Multidose"
@@ -1503,6 +1561,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
 
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  # df <- copy(df)
   return(e)
 }
 
@@ -1519,7 +1578,14 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
 #' @importFrom rlang .data
 CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  df <- data.table(df)
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
   df <- t_check$df
@@ -1611,22 +1677,6 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
       use.names = FALSE
     )
     df <- df[get(strat_col) %in% uniq_end, ]
-    #    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
-    #      use.names = FALSE
-    #    ))
-    #    for (i in seq_along(uniq)) {
-    #      df0 <- dfend[get(strat_col) == uniq[i], ]
-    #      tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
-    #      if (length(tu0) == 0) {
-    #        if (control$verbose >= 2) {
-    #          warning(paste("Warning: no events for strata group:",
-    #            uniq[i],
-    #            sep = " "
-    #          ))
-    #        }
-    #        df <- df[get(strat_col) != uniq[i], ]
-    #      }
-    #    }
     uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
       use.names = FALSE
     ))
@@ -1745,5 +1795,6 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   e$Survival_Type <- "Cox"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  # df <- copy(df)
   return(e)
 }
