@@ -4,6 +4,8 @@
 #endif
 #include "R_Interface.h"
 #include "Main_Functions.h"
+#include "Main_Bound.h"
+#include "Main_Multi.h"
 #include "Plot_Extensions.h"
 #include <fstream>
 #include <sstream>

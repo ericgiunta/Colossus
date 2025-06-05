@@ -1586,22 +1586,6 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
       df <- data.table(df)
     }
   )
-  ce <- c(time1, time2, event0)
-  t_check <- Check_Trunc(df, ce)
-  df <- t_check$df
-  ce <- t_check$ce
-  ## Cox regression only uses intervals which contain an event time
-  time1 <- ce[1]
-  time2 <- ce[2]
-  dfend <- df[get(event0) == 1, ]
-  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
-  if (length(tu) == 0) {
-    stop("Error: no events")
-  }
-  # remove rows that end before first event
-  df <- df[get(time2) >= tu[1], ]
-  # remove rows that start after the last event
-  df <- df[get(time1) <= tu[length(tu)], ]
   control <- Def_Control(control)
   model_control$log_bound <- TRUE
   model_control <- Def_model_control(model_control)
@@ -1631,6 +1615,37 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   val <- Def_modelform_fix(control, model_control, modelform, term_n)
   modelform <- val$modelform
   model_control <- val$model_control
+  #
+  to_remove <- c("CONST", "%trunc%")
+  to_keep <- c(time1, time2, event0, names)
+  if (model_control$cr == TRUE) {
+    to_keep <- c(to_keep, cens_weight)
+  }
+  if (model_control$strata == TRUE) {
+    to_keep <- c(to_keep, strat_col)
+  }
+  to_keep <- unique(to_keep)
+  to_keep <- to_keep[!to_keep %in% to_remove]
+  to_keep <- to_keep[to_keep %in% names(df)]
+  df <- df[, to_keep, with = FALSE]
+  #
+  ce <- c(time1, time2, event0)
+  t_check <- Check_Trunc(df, ce)
+  df <- t_check$df
+  ce <- t_check$ce
+  ## Cox regression only uses intervals which contain an event time
+  time1 <- ce[1]
+  time2 <- ce[2]
+  dfend <- df[get(event0) == 1, ]
+  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+  if (length(tu) == 0) {
+    stop("Error: no events")
+  }
+  # remove rows that end before first event
+  df <- df[get(time2) >= tu[1], ]
+  # remove rows that start after the last event
+  df <- df[get(time1) <= tu[length(tu)], ]
+  
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine

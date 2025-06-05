@@ -675,108 +675,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// Check_Risk
-bool Check_Risk(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term);
-RcppExport SEXP _Colossus_Check_Risk(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
-    rcpp_result_gen = Rcpp::wrap(Check_Risk(term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term));
-    return rcpp_result_gen;
-END_RCPP
-}
-// LogLik_Cox_PH_Omnibus
-List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
-RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type a_ns(a_nsSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type maxiters(maxitersSEXP);
-    Rcpp::traits::input_parameter< int >::type guesses(guessesSEXP);
-    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
-    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
-    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
-    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
-    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
-    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
-    return rcpp_result_gen;
-END_RCPP
-}
-// LogLik_Pois_Omnibus
-List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
-RcppExport SEXP _Colossus_LogLik_Pois_Omnibus(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP dfsSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const MatrixXd& >::type PyrC(PyrCSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type a_ns(a_nsSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type maxiters(maxitersSEXP);
-    Rcpp::traits::input_parameter< int >::type guesses(guessesSEXP);
-    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
-    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
-    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
-    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd& >::type dfs(dfsSEXP);
-    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
-    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Pois_Omnibus(PyrC, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, double_step, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
-    return rcpp_result_gen;
-END_RCPP
-}
 // LogLik_Cox_PH_Omnibus_Log_Bound
 List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult);
 RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus_Log_Bound(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP maxstepSEXP, SEXP multSEXP) {
@@ -943,92 +841,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// LogLik_Cox_PH_Multidose_Omnibus_Serial
-List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
-RcppExport SEXP _Colossus_LogLik_Cox_PH_Multidose_Omnibus_Serial(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dose_allSEXP, SEXP dose_colsSEXP, SEXP dose_indexSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type dose_all(dose_allSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix >::type dose_cols(dose_colsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dose_index(dose_indexSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
-    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
-    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
-    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
-    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
-    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
-    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Multidose_Omnibus_Serial(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
-    return rcpp_result_gen;
-END_RCPP
-}
-// LogLik_Cox_PH_Multidose_Omnibus_Integrated
-List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
-RcppExport SEXP _Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dose_allSEXP, SEXP dose_colsSEXP, SEXP dose_indexSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type dose_all(dose_allSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix >::type dose_cols(dose_colsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dose_index(dose_indexSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
-    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
-    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
-    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
-    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
-    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
-    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
-    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
-    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
-    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
-    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Multidose_Omnibus_Integrated(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
-    return rcpp_result_gen;
-END_RCPP
-}
 // LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch
 List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int double_step, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size);
 RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxiterSEXP, SEXP double_stepSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP, SEXP qchiSEXP, SEXP para_numberSEXP, SEXP maxstepSEXP, SEXP step_sizeSEXP) {
@@ -1114,6 +926,108 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Check_Risk
+bool Check_Risk(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term);
+RcppExport SEXP _Colossus_Check_Risk(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
+    rcpp_result_gen = Rcpp::wrap(Check_Risk(term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term));
+    return rcpp_result_gen;
+END_RCPP
+}
+// LogLik_Cox_PH_Omnibus
+List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
+RcppExport SEXP _Colossus_LogLik_Cox_PH_Omnibus(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type a_ns(a_nsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type maxiters(maxitersSEXP);
+    Rcpp::traits::input_parameter< int >::type guesses(guessesSEXP);
+    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
+    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
+    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
+    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
+    return rcpp_result_gen;
+END_RCPP
+}
+// LogLik_Pois_Omnibus
+List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
+RcppExport SEXP _Colossus_LogLik_Pois_Omnibus(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP nthreadsSEXP, SEXP dfsSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const MatrixXd& >::type PyrC(PyrCSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type a_ns(a_nsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type maxiters(maxitersSEXP);
+    Rcpp::traits::input_parameter< int >::type guesses(guessesSEXP);
+    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
+    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type dfs(dfsSEXP);
+    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
+    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Pois_Omnibus(PyrC, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, double_step, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
+    return rcpp_result_gen;
+END_RCPP
+}
 // LogLik_CaseCon_Omnibus
 List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
 RcppExport SEXP _Colossus_LogLik_CaseCon_Omnibus(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP x_allSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxitersSEXP, SEXP guessesSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
@@ -1151,6 +1065,92 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
     Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
     rcpp_result_gen = Rcpp::wrap(LogLik_CaseCon_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
+    return rcpp_result_gen;
+END_RCPP
+}
+// LogLik_Cox_PH_Multidose_Omnibus_Serial
+List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
+RcppExport SEXP _Colossus_LogLik_Cox_PH_Multidose_Omnibus_Serial(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dose_allSEXP, SEXP dose_colsSEXP, SEXP dose_indexSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type dose_all(dose_allSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type dose_cols(dose_colsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dose_index(dose_indexSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
+    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
+    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
+    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Multidose_Omnibus_Serial(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
+    return rcpp_result_gen;
+END_RCPP
+}
+// LogLik_Cox_PH_Multidose_Omnibus_Integrated
+List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int double_step, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res);
+RcppExport SEXP _Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP x_allSEXP, SEXP dose_allSEXP, SEXP dose_colsSEXP, SEXP dose_indexSEXP, SEXP dfcSEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP lrSEXP, SEXP optim_paraSEXP, SEXP maxiterSEXP, SEXP halfmaxSEXP, SEXP epsilonSEXP, SEXP abs_maxSEXP, SEXP dose_abs_maxSEXP, SEXP deriv_epsilonSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP double_stepSEXP, SEXP verboseSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP ties_methodSEXP, SEXP nthreadsSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_boolSEXP, SEXP gmix_thetaSEXP, SEXP gmix_termSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_all(x_allSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type dose_all(dose_allSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type dose_cols(dose_colsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dose_index(dose_indexSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< double >::type lr(lrSEXP);
+    Rcpp::traits::input_parameter< List >::type optim_para(optim_paraSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< int >::type halfmax(halfmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< double >::type abs_max(abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type dose_abs_max(dose_abs_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type deriv_epsilon(deriv_epsilonSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type df_groups(df_groupsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tu(tuSEXP);
+    Rcpp::traits::input_parameter< int >::type double_step(double_stepSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< string >::type ties_method(ties_methodSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type Strata_vals(Strata_valsSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type cens_weight(cens_weightSEXP);
+    Rcpp::traits::input_parameter< List >::type model_bool(model_boolSEXP);
+    Rcpp::traits::input_parameter< const double >::type gmix_theta(gmix_thetaSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type gmix_term(gmix_termSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd >::type Lin_Sys(Lin_SysSEXP);
+    Rcpp::traits::input_parameter< const VectorXd >::type Lin_Res(Lin_ResSEXP);
+    rcpp_result_gen = Rcpp::wrap(LogLik_Cox_PH_Multidose_Omnibus_Integrated(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -2823,18 +2823,18 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Calc_Null_LogLik_Strata", (DL_FUNC) &_Colossus_Calc_Null_LogLik_Strata, 10},
     {"_Colossus_Calculate_Recursive", (DL_FUNC) &_Colossus_Calculate_Recursive, 14},
     {"_Colossus_Calc_Recur_LogLik", (DL_FUNC) &_Colossus_Calc_Recur_LogLik, 25},
-    {"_Colossus_Check_Risk", (DL_FUNC) &_Colossus_Check_Risk, 13},
-    {"_Colossus_LogLik_Cox_PH_Omnibus", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus, 31},
-    {"_Colossus_LogLik_Pois_Omnibus", (DL_FUNC) &_Colossus_LogLik_Pois_Omnibus, 28},
     {"_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound, 33},
     {"_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_Search, 33},
     {"_Colossus_LogLik_Poisson_Omnibus_Log_Bound", (DL_FUNC) &_Colossus_LogLik_Poisson_Omnibus_Log_Bound, 30},
     {"_Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search", (DL_FUNC) &_Colossus_LogLik_Poisson_Omnibus_Log_Bound_Search, 30},
-    {"_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Serial", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Serial, 33},
-    {"_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated, 33},
     {"_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch, 34},
     {"_Colossus_LogLik_Poisson_Omnibus_Log_Bound_CurveSearch", (DL_FUNC) &_Colossus_LogLik_Poisson_Omnibus_Log_Bound_CurveSearch, 31},
+    {"_Colossus_Check_Risk", (DL_FUNC) &_Colossus_Check_Risk, 13},
+    {"_Colossus_LogLik_Cox_PH_Omnibus", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Omnibus, 31},
+    {"_Colossus_LogLik_Pois_Omnibus", (DL_FUNC) &_Colossus_LogLik_Pois_Omnibus, 28},
     {"_Colossus_LogLik_CaseCon_Omnibus", (DL_FUNC) &_Colossus_LogLik_CaseCon_Omnibus, 30},
+    {"_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Serial", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Serial, 33},
+    {"_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated", (DL_FUNC) &_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated, 33},
     {"_Colossus_Cox_Refresh_R_TERM", (DL_FUNC) &_Colossus_Cox_Refresh_R_TERM, 24},
     {"_Colossus_Cox_Refresh_R_SIDES", (DL_FUNC) &_Colossus_Cox_Refresh_R_SIDES, 10},
     {"_Colossus_Cox_Term_Risk_Calc", (DL_FUNC) &_Colossus_Cox_Term_Risk_Calc, 32},
