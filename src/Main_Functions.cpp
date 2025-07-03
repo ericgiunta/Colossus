@@ -152,6 +152,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     //
     double Lld_worst = 0.0;  // stores derivative value used to determine if every parameter is near convergence
+    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -414,15 +415,24 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 }
             }
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                    iter_stop = 1;
-                }
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+            iter_check = 0;
+            if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+                iter_stop = 1;
+            }
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//            }
         }
         // -----------------------------------------------
         // Performing Full Calculation to get full second derivative matrix
@@ -499,6 +509,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     // -------------------------------------------------------------------------------------------
     // Calculates the side sum terms used
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    List res_list;
+    //
+    if (model_bool["single"]) {
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
+        // returns a list of results
+        return res_list;
+    }
     //
     for (int i = 0; i < beta_0.size(); i++) {
         beta_c[i] = beta_0[i];
@@ -573,19 +590,28 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                 Lld_worst = abs(Lld[ij]);
             }
         }
-        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                    iter_stop = 1;
-                    convgd = TRUE;
-                }
-                Ll_comp[1] = Ll[0];
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
-                }
+        dbeta_max = abs(dbeta[0]);
+        for (int ij = 1; ij < totalnum; ij++) {
+            if (abs(dbeta[ij]) > dbeta_max) {
+                dbeta_max = abs(dbeta[ij]);
             }
         }
+//        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+        iter_check = 0;
+        if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+            iter_stop = 1;
+            convgd = TRUE;
+        }
+        Ll_comp[1] = Ll[0];
+        if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+        if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+//            }
+//        }
     }
     if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
         iter_stop = 1;
@@ -606,18 +632,11 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         beta_abs_best = beta_c;
     }
     //
-    List res_list;
-    //
-    if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
-        // returns a list of results
-        return res_list;
-    }
     List para_list;
     if (!model_bool["basic"]) {
         para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  // stores the term information
     }
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= dbeta_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
     if (model_bool["gradient"]) {
         res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
@@ -738,6 +757,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //
     //
     double Lld_worst = 0.0;  // stores derivative value used to determine if every parameter is near convergence
+    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -982,18 +1002,27 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     Lld_worst = abs(Lld[ij]);
                 }
             }
-            if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
-                if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                    iter_check = 0;
-                    if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                        iter_stop = 1;
-                    }
-                    Ll_comp[1] = Ll[0];
-                    if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                        iter_stop = 1;
-                    }
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+//            if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
+//                if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            iter_check = 0;
+            if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+                iter_stop = 1;
+            }
+            Ll_comp[1] = Ll[0];
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//                }
+//            }
             if (model_bool["single"]) {
                 iter_stop = 1;
             } else {}
@@ -1074,6 +1103,13 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     // Calculates log-likelihood
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
     //
+    List res_list;
+    //
+    if (model_bool["single"]) {
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
+        // returns a list of results
+        return res_list;
+    }
     for (int i = 0; i < beta_0.size(); i++) {
         beta_c[i] = beta_0[i];
     }
@@ -1144,19 +1180,28 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 Lld_worst = abs(Lld[ij]);
             }
         }
-        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                    iter_stop = 1;
-                    convgd = TRUE;
-                }
-                Ll_comp[1] = Ll[0];
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
-                }
+        dbeta_max = abs(dbeta[0]);
+        for (int ij = 1; ij < totalnum; ij++) {
+            if (abs(dbeta[ij]) > dbeta_max) {
+                dbeta_max = abs(dbeta[ij]);
             }
         }
+//        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+        iter_check = 0;
+        if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+            iter_stop = 1;
+            convgd = TRUE;
+        }
+        Ll_comp[1] = Ll[0];
+        if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+        if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+//            }
+//        }
         if (model_bool["single"]) {
             iter_stop = 1;
         }
@@ -1175,13 +1220,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         beta_abs_best = beta_c;
     }
     //
-    List res_list;
-    //
-    if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
-        // returns a list of results
-        return res_list;
-    }
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  // stores the term information
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
@@ -1305,6 +1343,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     //
     double Lld_worst = 0.0;  // stores derivative value used to determine if every parameter is near convergence
+    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -1718,15 +1757,29 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                     Lld_worst = abs(Lld[ij]);
                 }
             }
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                    iter_stop = 1;
-                }
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+            for (int ij = 0; ij < group_num; ij++) {
+                if (abs(dstrata[ij]) > dbeta_max) {
+                    dbeta_max = abs(dstrata[ij]);
+                }
+            }
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            iter_check = 0;
+            if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+                iter_stop = 1;
+            }
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//            }
         }
         // -----------------------------------------------
         // Performing Full Calculation to get full second derivative matrix
@@ -1827,14 +1880,15 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta);
     Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
+    List res_list;
+    //
+    if (model_bool["single"]) {
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
+        // returns a list of results
+        return res_list;
+    }
     //
     while ((iteration < maxiter) && (iter_stop == 0)) {
-//        Rcout << " " << endl;
-//        Rcout << "Strata val:";
-//        for (int ij = 0; ij < group_num; ij++) {
-//             Rcout << " " << strata_odds[ij];
-//        }
-//        Rcout << " " << endl;
         iteration++;
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
@@ -1850,16 +1904,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             Calc_Change_Background(double_step, nthreads, totalnum, group_num, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         }
-//        Rcout << "Beta change:";
-//        for (int ij = 0; ij < totalnum; ij++) {
-//            Rcout << " " << dbeta[ij];
-//        }
-//        Rcout << " " << endl;
-//        Rcout << "Strata change:";
-//        for (int ij = 0; ij < group_num; ij++) {
-//             Rcout << " " << dstrata[ij];
-//        }
-//        Rcout << " " << endl;
         if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
             Ll_iter_best = Ll[ind0];
         }
@@ -1947,16 +1991,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                     strata_odds[ij] = strata_a[ij] + dstrata[ij];
                     strata_c[ij] = strata_odds[ij];
                 }
-//                Rcout << "Beta val:";
-//                for (int ij = 0; ij < totalnum; ij++) {
-//                    Rcout << " " << beta_0[ij];
-//                }
-//                Rcout << " " << endl;
-//                Rcout << "Strata val:";
-//                for (int ij = 0; ij < group_num; ij++) {
-//                     Rcout << " " << strata_odds[ij];
-//                }
-//                Rcout << " " << endl;
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -2051,15 +2085,29 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 Lld_worst = abs(Lld[ij]);
             }
         }
-        if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
-            if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                iter_stop = 1;
-            }
-            if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                iter_stop = 1;
+        dbeta_max = abs(dbeta[0]);
+        for (int ij = 1; ij < totalnum; ij++) {
+            if (abs(dbeta[ij]) > dbeta_max) {
+                dbeta_max = abs(dbeta[ij]);
             }
         }
+        for (int ij = 0; ij < group_num; ij++) {
+            if (abs(dstrata[ij]) > dbeta_max) {
+                dbeta_max = abs(dstrata[ij]);
+            }
+        }
+//        if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+        iter_check = 0;
+        if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+            iter_stop = 1;
+        }
+        if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+        if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+//        }
     }
     // ----------------------------------------------------------------------------------- //
     //               NOW WE WRAP UP
@@ -2084,19 +2132,11 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
     //
-    //
-    List res_list;
-    //
-    if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");
-        // returns a list of results
-        return res_list;
-    }
     List para_list;
     if (!model_bool["basic"]) {
         para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  // stores the term information
     }
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= dbeta_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
     if (model_bool["gradient"]) {
         res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["StrataOdds"]=wrap(strata_odds), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"]=wrap(reqrdnum), _["FreeSets"]=wrap(reqrdcond), _["Status"] = "PASSED");

@@ -120,3 +120,9 @@
 
 * Multiple realization code updated to improve speed
 * lingering debugging variables removed: fir and der_iden
+
+# Colossus 1.3.1
+
+* Convergence check performed more often
+* Checks the actual maximum step taken to compare to threshold
+* Previous versions may have run more iterations than necessary to meet derivative and step size thresholds

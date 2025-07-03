@@ -539,6 +539,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     // nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7);  // forces higher precision numbers printed to terminal
+    double dbeta_max = 0.0;
     // ------------------------------------------------------------------------- // initialize
     Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     VectorXd beta_max = beta_0;
@@ -807,12 +808,21 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 }
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            iter_check = 0;
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//            }
         }
         // -----------------------------------------------
         // Performing Full Calculation to get full second derivative matrix
@@ -1157,12 +1167,21 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 }
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            iter_check = 0;
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//            }
         }
         // -----------------------------------------------
         // Performing Full Calculation to get full second derivative matrix
@@ -1818,6 +1837,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
     //
+    double dbeta_max = 0.0;
     Rcout.precision(7);  // forces higher precision numbers printed to terminal
     // ------------------------------------------------------------------------- // initialize
     Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
@@ -2078,12 +2098,21 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 }
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            iter_check = 0;
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//            }
         }
         // -----------------------------------------------
         // Performing Full Calculation to get full second derivative matrix
@@ -2412,12 +2441,21 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 }
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            iter_check = 0;
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//            }
         }
         // -----------------------------------------------
         // Performing Full Calculation to get full second derivative matrix
@@ -2670,6 +2708,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     Rcout.precision(7);  // forces higher precision numbers printed to terminal
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
+    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------

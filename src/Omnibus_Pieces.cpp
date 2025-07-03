@@ -327,7 +327,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
         //     Rcout << " " << endl;
         // }
     } else {
-        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
+//        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
 //        if (verbose >= 4) {
 //            Rcout << "C++ Note: df101 ";  // prints the log-likelihoods
 //            for (int ij = 0; ij < reqrdnum; ij++) {

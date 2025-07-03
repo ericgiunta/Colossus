@@ -108,6 +108,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
     double Lld_worst = 0.0;  // stores derivative value used to determine if every parameter is near convergence
+    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -411,21 +412,30 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 }
             }
-            Lld_worst = 0;
-            for (int ij = 0; ij < reqrdnum; ij++) {
+            Lld_worst = abs(Lld[0]);
+            for (int ij = 1; ij < reqrdnum; ij++) {
                 if (abs(Lld[ij]) > Lld_worst) {
                     Lld_worst = abs(Lld[ij]);
                 }
             }
-            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-                iter_check = 0;
-                if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                    iter_stop = 1;
-                }
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                    iter_stop = 1;
+            dbeta_max = abs(dbeta[0]);
+            for (int ij = 1; ij < totalnum; ij++) {
+                if (abs(dbeta[ij]) > dbeta_max) {
+                    dbeta_max = abs(dbeta[ij]);
                 }
             }
+//            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+            iter_check = 0;
+            if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+                iter_stop = 1;
+            }
+            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+            if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+                iter_stop = 1;
+            }
+//            }
         }
         if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
             iter_stop = 1;
@@ -617,6 +627,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     // ntime: number of event times for Cox PH
     // totalnum: number of terms used
     //
+    time_point<system_clock> start_point, end_point;
+    start_point = system_clock::now();
+    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    end_point = system_clock::now();
+    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     // ------------------------------------------------------------------------- // initialize
     Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
@@ -654,6 +669,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
     double Lld_worst = 0.0;  // stores derivative value used to determine if every parameter is near convergence
+    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
     //
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
@@ -787,6 +803,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     Ll_abs_best = 10;
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
     iter_check = 0;  // signal to check for convergence
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "Prep step: " << ending - start << endl;
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     for (int i = 0; i < beta_0.size(); i++) {
         beta_0[i] = beta_best[i];
     }
@@ -828,6 +849,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
             return temp_list;
         }
     }
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "First Check " << ending - start << endl;
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     fill(Ll_Total.begin(), Ll_Total.end(), 0.0);
     fill(Lld_Total.begin(), Lld_Total.end(), 0.0);
     if (!model_bool["gradient"]){
@@ -852,13 +878,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         //
         for (int i=0; i < reqrdnum; i ++){
-            Ll_Total[i] += Ll[i] / guesses;
-            Lld_Total[i] += Lld[i] / guesses;
+            Ll_Total[i] += Ll[i] / double(guesses);
+            Lld_Total[i] += Lld[i] / double(guesses);
         }
         for (int i=0; i < pow(reqrdnum,2); i ++){
-            Lldd_Total[i] += Lldd[i] / guesses;
+            Lldd_Total[i] += Lldd[i] / double(guesses);
         }
     }
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "First Score: " << ending - start << endl;
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     //
     Print_LL(reqrdnum, totalnum, beta_0, Ll_Total, Lld_Total, Lldd_Total, verbose, model_bool);
     //
@@ -866,6 +897,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         beta_c[i] = beta_0[i];
     }
     while ((iteration < maxiter) && (iter_stop == 0)) {
+        start_point = system_clock::now();
+        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         iteration++;
         beta_p = beta_c;  //
         beta_a = beta_c;  //
@@ -955,11 +988,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
                     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
                     for (int i=0; i < reqrdnum; i ++){
-                        Ll_Total[i] += Ll[i] / guesses;
-                        Lld_Total[i] += Lld[i] / guesses;
+                        Ll_Total[i] += Ll[i] / double(guesses);
+                        Lld_Total[i] += Lld[i] / double(guesses);
                     }
                     for (int i=0; i < pow(reqrdnum,2); i ++){
-                        Lldd_Total[i] += Lldd[i] / guesses;
+                        Lldd_Total[i] += Lldd[i] / double(guesses);
                     }
                 }
                 Print_LL(reqrdnum, totalnum, beta_0, Ll_Total, Lld_Total, Lldd_Total, verbose, model_bool);
@@ -1028,11 +1061,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
                         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
                         for (int i=0; i < reqrdnum; i ++){
-                            Ll_Total[i] += Ll[i] / guesses;
-                            Lld_Total[i] += Lld[i] / guesses;
+                            Ll_Total[i] += Ll[i] / double(guesses);
+                            Lld_Total[i] += Lld[i] / double(guesses);
                         }
                         for (int i=0; i < pow(reqrdnum,2); i ++){
-                            Lldd_Total[i] += Lldd[i] / guesses;
+                            Lldd_Total[i] += Lldd[i] / double(guesses);
                         }
                     }
                     Print_LL(reqrdnum, totalnum, beta_0, Ll_Total, Lld_Total, Lldd_Total, verbose, model_bool);
@@ -1066,22 +1099,36 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                 }
             }
         }
-        Lld_worst = 0;
-        for (int ij = 0; ij < reqrdnum; ij++) {
+//        end_point = system_clock::now();
+//        ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//        Rcout << "Calc Iteration " << iteration << " : " << ending - start << endl;
+        Lld_worst = abs(Lld_Total[0]);
+        for (int ij = 1; ij < reqrdnum; ij++) {
             if (abs(Lld_Total[ij]) > Lld_worst) {
                 Lld_worst = abs(Lld_Total[ij]);
             }
         }
-        if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
-            if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
-                iter_stop = 1;
-            }
-            if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
-                iter_stop = 1;
+        dbeta_max = abs(dbeta[0]);
+        for (int ij = 1; ij < totalnum; ij++) {
+            if (abs(dbeta[ij]) > dbeta_max) {
+                dbeta_max = abs(dbeta[ij]);
             }
         }
+//        if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
+        iter_check = 0;
+        if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
+            iter_stop = 1;
+        }
+        if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+        if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
+            iter_stop = 1;
+        }
+//        }
     }
+//    start_point = system_clock::now();
+//    start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
     if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
         iter_stop = 1;
         convgd = TRUE;
@@ -1109,11 +1156,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         for (int i=0; i < reqrdnum; i ++){
-            Ll_Total[i] += Ll[i] / guesses;
-            Lld_Total[i] += Lld[i] / guesses;
+            Ll_Total[i] += Ll[i] / double(guesses);
+            Lld_Total[i] += Lld[i] / double(guesses);
         }
         for (int i=0; i < pow(reqrdnum,2); i ++){
-            Lldd_Total[i] += Lldd[i] / guesses;
+            Lldd_Total[i] += Lldd[i] / double(guesses);
         }
     }
     Print_LL(reqrdnum, totalnum, beta_0, Ll_Total, Lld_Total, Lldd_Total, verbose, model_bool);
@@ -1133,7 +1180,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     if (!model_bool["basic"]) {
         para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  // stores the term information
     }
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= abs_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"]= dbeta_max, _["Derivative Limiting"] = Lld_worst);  // stores the total number of iterations used
     //
     if (model_bool["gradient"]) {
         res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
@@ -1207,6 +1254,9 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
             }
         }
     }
+//    end_point = system_clock::now();
+//    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
+//    Rcout << "final calc: " << ending - start << endl;
     //
     if (model_bool["basic"]) {
         res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");

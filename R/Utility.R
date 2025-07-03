@@ -3001,17 +3001,26 @@ Interpret_Output <- function(out_list, digits = 2) {
         tforms <- out_list$Parameter_Lists$tforms
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
-        stdev <- out_list$Standard_Deviation
-        pval <- pnorm(-abs(beta_0 / stdev))
         strata_odds <- out_list$StrataOdds
-        res_table <- data.table(
-          "Covariate" = names,
-          "Subterm" = tforms,
-          "Term Number" = term_n,
-          "Central Estimate" = beta_0,
-          "Standard Error" = stdev,
-          "1-tail p-value" = pval
-        )
+        if ("Standard_Deviation" %in% names(out_list)){
+            stdev <- out_list$Standard_Deviation
+            pval <- 2*pnorm(-abs(beta_0 / stdev))
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Central Estimate" = beta_0,
+              "Standard Error" = stdev,
+              "2-tail p-value" = pval
+            )
+        } else {
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Central Estimate" = beta_0
+            )
+        }
         message("Final Results")
         print(res_table)
         deviance <- out_list$Deviance
@@ -3040,16 +3049,25 @@ Interpret_Output <- function(out_list, digits = 2) {
         tforms <- out_list$Parameter_Lists$tforms
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
-        stdev <- out_list$Standard_Deviation
-        pval <- 2 * pnorm(-abs(beta_0 / stdev))
-        res_table <- data.table(
-          "Covariate" = names,
-          "Subterm" = tforms,
-          "Term Number" = term_n,
-          "Central Estimate" = beta_0,
-          "Standard Error" = stdev,
-          "2-tail p-value" = pval
-        )
+        if ("Standard_Deviation" %in% names(out_list)){
+            stdev <- out_list$Standard_Deviation
+            pval <- 2 * pnorm(-abs(beta_0 / stdev))
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Central Estimate" = beta_0,
+              "Standard Error" = stdev,
+              "2-tail p-value" = pval
+            )
+        } else {
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Central Estimate" = beta_0
+            )
+        }
         message("Final Results")
         print(res_table)
         # get the model results

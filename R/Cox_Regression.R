@@ -1389,6 +1389,7 @@ RunCoxRegression_Guesses_CPP <- function(df, time1 = "%trunc%", time2 = "%trunc%
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  t_bench_s <- Sys.time()
   tryCatch(
     {
       df <- setDT(df)
@@ -1397,6 +1398,9 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       df <- data.table(df)
     }
   )
+  t_bench_e <- Sys.time()
+#  print(t_bench_e - t_bench_s)
+  t_bench_s <- Sys.time()
   #
   control <- Def_Control(control)
   val <- Correct_Formula_Order(
@@ -1538,6 +1542,8 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   dose_all <- as.matrix(df[, dose_names, with = FALSE])
+  t_bench_e <- Sys.time()
+  t_bench_s <- Sys.time()
   e <- cox_ph_multidose_Omnibus_transition(
     term_n, tform, a_n,
     as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all, dose_all,
@@ -1558,7 +1564,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   } else {
     e$Survival_Type <- "Cox_Multidose"
   }
-
+  t_bench_e <- Sys.time()
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   # df <- copy(df)
