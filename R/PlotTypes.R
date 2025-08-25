@@ -217,9 +217,6 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
     message("Note: Plotting Kaplan-Meier Curve") # nocov
   }
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   base <- NULL
   all_names <- unique(names)
   dfc <- match(names, all_names)
@@ -280,9 +277,6 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
 CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, modelform, control, keep_constant, plot_type, b, er, model_control = list()) {
   fir_KM <- 0
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   dfend <- df[get(event0) == 1, ]
   ce <- c(time1, time2, event0)
   all_names <- unique(names)
@@ -373,9 +367,6 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   data.table::setkeyv(df, c(strat_col, event0, time2, time1))
   ce <- c(time1, time2, event0, strat_col)
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   base <- NULL
   ce <- c(time1, time2, event0, strat_col)
   all_names <- unique(names)
@@ -488,9 +479,6 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
 PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, age_unit, plot_name, model_control = list()) {
   data.table::setkeyv(df, c(event0, time2, time1))
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (length(tu) == 0) {
@@ -499,15 +487,6 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
   if (control$verbose >= 3) {
     message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
   }
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
   all_names <- unique(names)
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
@@ -580,157 +559,4 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
     }
   }
   return(table_out)
-}
-
-#' Calculates and returns data for time by hazard and survival to estimate censoring rate
-#'
-#' \code{GetCensWeight} uses user provided data, time/event columns, vectors specifying the model, and options generate an estimate of the censoring rate, plots, and returns the data
-#'
-#' @inheritParams R_template
-#' @family Plotting Functions
-#' @return saves the plots in the current directory and returns a data.table of time and corresponding hazard, cumulative hazard, and survival
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' keep_constant <- c(0, 0, 0, 0)
-#' df$censor <- (df$Cancer_Status == 0)
-#' event <- "censor"
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5,
-#'   "epsilon" = 1e-6, "deriv_epsilon" = 1e-6,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0, "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' plot_options <- list(
-#'   "name" = paste(tempfile(), "run_06", sep = ""), "verbose" = FALSE,
-#'   "studyID" = "studyID", "age_unit" = "years"
-#' )
-#' dft <- GetCensWeight(
-#'   df, time1, time2, event, names, term_n, tform,
-#'   keep_constant, a_n, modelform, control, plot_options
-#' )
-#' t_ref <- dft$t
-#' surv_ref <- dft$surv
-#' t_c <- df$t1
-#' cens_weight <- approx(t_ref, surv_ref, t_c, rule = 2)$y
-#'
-GetCensWeight <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options, model_control = list(), strat_col = "e") {
-  df <- setDT(df)
-  if (plot_options$verbose >= 3) {
-    message("Note: Starting Censoring weight Plot Function") # nocov
-  }
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free") # nocov
-  }
-  model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
-  data.table::setkeyv(df, c(event0, time2, time1))
-  base <- NULL
-  plot_name <- plot_options$name
-  dfend <- df[get(event0) == 1, ]
-  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
-  if (length(tu) == 0) {
-    stop("Error: no events")
-  }
-  if (plot_options$verbose >= 3) {
-    message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
-  }
-  if ("age_unit" %in% names(plot_options)) {
-    # fine
-  } else {
-    plot_options$age_unit <- "unitless"
-  }
-  for (iden_col in c("verbose")) {
-    if (iden_col %in% names(plot_options)) {
-      # fine
-    } else {
-      plot_options[iden_col] <- 0
-    }
-  }
-  control <- Def_Control(control)
-  verbose <- data.table::copy(plot_options$verbose)
-  maxiterc <- data.table::copy(control$maxiter)
-  all_names <- unique(names)
-  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-  dfc <- match(names, all_names)
-  term_tot <- max(term_n) + 1
-  x_all <- as.matrix(df[, all_names, with = FALSE])
-  ce <- c(time1, time2, event0)
-  t_check <- Check_Trunc(df, ce)
-  df <- t_check$df
-  ce <- t_check$ce
-  time1 <- ce[1]
-  time2 <- ce[2]
-  control$maxiter <- -1
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names,
-    term_n, tform, keep_constant,
-    a_n, modelform, control,
-    strat_col = strat_col,
-    model_control = model_control
-  )
-  control$maxiter <- maxiterc
-  model_control$surv <- TRUE
-  e <- Plot_Omnibus_transition(
-    term_n, tform, a_n, dfc, x_all, 0, 0,
-    modelform, control,
-    as.matrix(df[, ce, with = FALSE]),
-    tu, keep_constant, term_tot,
-    c(0), c(0), model_control
-  )
-  t <- c()
-  h <- c()
-  ch <- c()
-  surv <- c()
-  dft <- data.table::data.table(
-    "time" = tu, "base" = e$baseline,
-    "basehaz" = e$standard_error
-  )
-  for (i in tu) {
-    t <- c(t, i)
-    temp <- sum(dft[time < i, base])
-    ch <- c(ch, temp)
-    if (length(h) == 0) {
-      h <- c(temp)
-    } else {
-      h <- c(h, ch[length(ch)] - ch[length(ch) - 1])
-    }
-    surv <- c(surv, exp(-1 * temp))
-  }
-  age_unit <- plot_options$age_unit
-  dft <- data.table::data.table("t" = t, "h" = h, "ch" = ch, "surv" = surv)
-  data.table::setkeyv(dft, "t")
-  if (system.file(package = "ggplot2") != "") {
-    g <- ggplot2::ggplot(dft, ggplot2::aes(x = .data$t, y = .data$surv)) +
-      ggplot2::geom_point(color = "black") +
-      ggplot2::labs(
-        x = paste("age (", age_unit, ")", sep = ""),
-        y = "Survival"
-      )
-    ggplot2::ggsave(paste(plot_name, "_weight_surv_plot.jpeg", sep = ""),
-      device = "jpeg", dpi = "retina", width = 7, height = 7
-    )
-  }
-  return(dft)
 }

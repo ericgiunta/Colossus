@@ -44,7 +44,7 @@ template <typename T> int sign(T val) {
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp, double& dose_abs_max, double& abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, List& model_bool) {
+void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp, double& thres_step_max, double& step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, List& model_bool) {
     const int mat_row = df0.rows();
     T0 = MatrixXd::Zero(mat_row, totalnum);  // preallocates matrix for Term column
     if (model_bool["basic"]) {
@@ -96,8 +96,8 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Loglinear subterm values
         nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  // matrix of Product linear subterm values
         TTerm = MatrixXd::Zero(mat_row, term_tot);  // matrix of term values
-        dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
-        dslp = abs_max;
+        dint = thres_step_max;  // the amount of change used to calculate derivatives in threshold paramters
+        dslp = step_max;
         RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
         RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
@@ -690,7 +690,7 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, vector<double>& dbeta, const MatrixXd& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& dose_abs_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check, const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, VectorXd& s_weights, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose) {
+void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, vector<double>& dbeta, const MatrixXd& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& thres_step_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check, const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, VectorXd& s_weights, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose) {
     while ((R.minCoeff() <= 0) || (R.hasNaN())) {
         half_check++;
         if (half_check>halfmax) {
@@ -715,7 +715,7 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
                 beta_c[ij] = beta_0[ij];
             }
             if (model_bool["cox"]) {
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             } else {
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
@@ -733,7 +733,7 @@ void Cox_Pois_Log_Loop(double& abs_max, List& model_bool, VectorXd beta_0, vecto
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double dose_abs_max, double abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, int double_step, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, int double_step, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
@@ -761,7 +761,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
     double Lstar = 0.0;
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     // Calculates the subterm and term values
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
         if (verbose >= 1) {
             Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
@@ -789,14 +789,14 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
         //
         // calculates the initial change in parameter
         if (model_bool["basic"]) {
-            Calc_Change_Basic(double_step, nthreads, totalnum, lr, abs_max, Ll, Lld, Lldd, dbeta, KeepConstant);
+            Calc_Change_Basic(double_step, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
         } else if (model_bool["gradient"]) {
-                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
         } else {
             if (model_bool["constraint"]) {
-                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant);
+                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             } else {
-                Calc_Change(double_step, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant);
+                Calc_Change(double_step, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             }
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         }
@@ -813,7 +813,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                 beta_c[ij] = beta_0[ij];
             }
             //
-            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             //
             Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
         } else {
@@ -826,13 +826,13 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             }
             if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
-                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
-                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
+                thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -840,7 +840,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_best[ij];
                 }
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 //
             }
         }
@@ -859,7 +859,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                     convgd = TRUE;
                 }
                 Ll_comp[1] = Ll[0];
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
+                if (step_max < epsilon/10) {  // if the maximum change is too low, then it ends
                     iter_stop = 1;
                 }
             }
@@ -883,7 +883,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double dose_abs_max, double abs_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, int double_step, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, int double_step, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
@@ -954,14 +954,14 @@ List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector
         //
         // calculates the initial change in parameter
         if (model_bool["basic"]) {
-            Calc_Change_Basic(double_step, nthreads, totalnum, lr, abs_max, Ll, Lld, Lldd, dbeta, KeepConstant);
+            Calc_Change_Basic(double_step, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
         } else if (model_bool["gradient"]) {
-                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, abs_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
         } else {
             if (model_bool["constraint"]) {
-                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant);
+                Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             } else {
-                Calc_Change(double_step, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant);
+                Calc_Change(double_step, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             }
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         }
@@ -996,8 +996,8 @@ List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector
             }
             if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
-                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
-                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
+                thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -1024,7 +1024,7 @@ List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector
                     convgd = TRUE;
                 }
                 Ll_comp[1] = Ll[0];
-                if (abs_max < epsilon/10) {  // if the maximum change is too low, then it ends
+                if (step_max < epsilon/10) {  // if the maximum change is too low, then it ends
                     iter_stop = 1;
                 }
             }

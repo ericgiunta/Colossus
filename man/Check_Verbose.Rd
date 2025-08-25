@@ -19,13 +19,9 @@ returns correct verbose value
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
-\code{\link{Convert_Model_Eq}()},
-\code{\link{Correct_Formula_Order}()},
 \code{\link{Date_Shift}()},
 \code{\link{Def_Control}()},
-\code{\link{Def_Control_Guess}()},
 \code{\link{Def_model_control}()},
-\code{\link{Def_modelform_fix}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},

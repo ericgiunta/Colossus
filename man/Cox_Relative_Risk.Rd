@@ -77,8 +77,8 @@ keep_constant <- c(0, 0, 0, 0)
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
   "epsilon" = 1e-3,
-  "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-  "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
+  "deriv_epsilon" = 1e-3, "step_max" = 1.0,
+  "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
   "double_step" = 1
 )
 e <- Cox_Relative_Risk(
@@ -89,6 +89,7 @@ e <- Cox_Relative_Risk(
 }
 \seealso{
 Other Plotting Wrapper Functions: 
-\code{\link{RunCoxPlots}()}
+\code{\link{RunCoxPlots}()},
+\code{\link{plot.coxres}()}
 }
 \concept{Plotting Wrapper Functions}

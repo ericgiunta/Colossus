@@ -68,22 +68,6 @@ $$
 
 The linear-exponential and linear-quadratic curves must be either completely fixed or completely free. In contrast, the exponential, linear threshold, and step-function curves can be partially fixed. The exponential term can be provided with only the covariate in the exponent and assume the magnitude to be 1. The linear threshold and step functions can be provided a fixed threshold covariate, which can be used to define a linear-no-threshold model or a combination of linear and step functions with a known threshold.
 
-One issue with these dose-response formulas is that the order of the subterms is important. For instance, loglin_slope should be listed before loglin_top if both are used. The slope for the Linear Threshold and Step Functions should be given before the intercepts. Slopes are listed before intercept for the Linear-Quadratic and Linear-Exponential models and lin_exp_exp_slope is listed last. The "Correct_Formula_Order" function has been provided to handle the correct order. Colossus automatically calls this function before regression, but the user should be aware that the subterms may be reordered when results are returned.
-
-```{r}
-term_n <- c(0, 1, 1, 0, 0)
-tform <- c("loglin", "quad_slope", "lin", "lin_int", "lin_slope")
-keep_constant <- c(0, 0, 0, 1, 0)
-a_n <- c(1, 2, 3, 4, 5)
-names <- c("a", "a", "a", "a", "a")
-val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n, names)
-term_n <- val$term_n
-tform <- val$tform
-keep_constant <- val$keep_constant
-a_n <- val$a_n
-names <- val$names
-```
-
 
 
 

@@ -45,7 +45,7 @@ keep_constant <- c(0, 0, 0, 0)
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-  "abs_max" = 1.0, "dose_abs_max" = 100.0,
+  "step_max" = 1.0, "thres_step_max" = 100.0,
   "verbose" = FALSE,
   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 )
@@ -62,6 +62,8 @@ Interpret_Output(e)
 }
 \seealso{
 Other Output and Information Functions: 
-\code{\link{System_Version}()}
+\code{\link{System_Version}()},
+\code{\link{print.coxres}()},
+\code{\link{print.poisres}()}
 }
 \concept{Output and Information Functions}

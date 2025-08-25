@@ -104,7 +104,7 @@ NULL
 #' @param a_er  Optimal value standard error
 #' @param a_n  starting values
 #' @param a_ns  matrix of starting values
-#' @param abs_max  Maximum allowed parameter change
+#' @param step_max  Maximum allowed parameter change
 #' @param basic_bool  boolean for multiplicative log-linear model
 #' @param beta_0  parameter estimates
 #' @param cens_cutoff  double threshold for adding competing risk to risk group, not implemented
@@ -133,7 +133,7 @@ NULL
 #' @param dfe  Matrix with person-year/event count information
 #' @param dfs  Matrix with stratification columns, assumed to be binary and mutually exclusive
 #' @param dint  value used for threshold derivative finite step
-#' @param dose_abs_max  Maximum allowed threshold parameter change
+#' @param thres_step_max  Maximum allowed threshold parameter change
 #' @param double_step  controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param dslp  value used for slope derivative finite step
 #' @param dt  spacing in time

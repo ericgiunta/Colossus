@@ -19,21 +19,31 @@ library(Colossus)
 library(data.table)
 ```
 
-# Prospective feature, presented for user suggestion
-
-The default method to specify a survival model using a series of vectors can be overly complicated at times. This may not be straightforward for typical R users and made it complicated to translate from a model to a script input. A function is provided with Colossus to help this process by converting from a simple string expression of the model into the required vectors.
+The underlying functions in Colossus specify a survival model using a series of vectors, which can be overly complicated at times. Colossus includes functions to interpret formulas, and then call the underlying functions.
 
 ## Equation Expression
 
-The basic idea of this function is to take a string expression, similar to the model objects in the Survival package, which contains all of the information required in a more easily read format. This is intended to serve three functions: simplify the required input, make it easier to add multiple elements to each subterm, and make it easier to add factors.
 
-Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox' or 'poisson'. Based on the number of entries, the format of the time interval is assumed. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive). To prevent any issues with function definitions, the model equation is stored in a string.
+Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a stata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
     \text{Surv(interval, event) ~ name + ... + factor(name)} \\
     \text{'Survival(interval, event) ~ subterm(name, factor(name), term_number) + ... + term_model()'}
+\end{aligned}
+$$
+</p>
+
+Based on the number of entries, the format of the time interval is assumed. Cox models used an entry, exit, and event time. These can be either named 'start', 'tend', and 'event' or icluded in order. If none are named, a left truncated interval is assumed. A stratified cox model includes the named entry 'strata' or the right-most entry is assumed to be the stratification column. A Fine-Gray model adds a weighting column to the standard Cox interval representation, assumed to be an entry named 'weight' or the right-most entry. In total, the assumed order is: entry time, exit time, strata column, and weighting column.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \text{'Cox(tstart, tend, event) ~ ...'} \\
+    \text{'Cox_Strata(tstart, tend, event, strata) ~ ...'} \\
+    \text{'FineGray(tstart, tend, event, weight) ~ ...'} \\
+    \text{'FineGray_Strata(tstart, tend, event, strata, weight) ~ ...'}
 \end{aligned}
 $$
 </p>
@@ -51,14 +61,23 @@ tstart <- "t0"
 tend <- "t1"
 event <- "lung"
 
-Model_Eq <- "cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative()"
-Model_Eq <- "cox(t0, t1, lung) ~ loglinear(dose0, dose1) + linear(dose2, 1)"
+Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative()
+Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1) + linear(dose2, 1)
 
 df <- data.table("dose0" = 1:4, "dose1" = 2:5, "dose2" = 3:6)
-Convert_Model_Eq(Model_Eq, df)
+get_form(Model_Eq, df)
 ```
 
-Different model formulas and subterm types are being added as needed. Please contact the developer if the methods you want to use have not yet been added. The following tables cover the subterms and term models that are currently implemented. Every option listed has multiple equivalent aliases that all refer to the same subterm or model formula.
+The following tables cover the subterms and term models that are currently implemented. Every option listed has multiple equivalent aliases that all refer to the same subterm or model formula.
+
+| Survival Type | Equivalent Aliases |
+| :---------: | :----------: |
+| Cox | "cox", "coxph" |
+| Cox stratafied | "cox_strata", "coxph_strata" |
+| Poisson | "poisson", "pois" |
+| Poisson stratafied | "poisson_strata", "pois_strata"  |
+| Fine-Gray | "finegray", "fg" |
+| Fine-Gray stratafied | "finegray_strata", "fg_strata" |
 
 | Subterm Type | Equivalent Aliases |
 | :---------: | :----------: |

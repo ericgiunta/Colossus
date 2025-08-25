@@ -39,7 +39,7 @@
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
 #'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
+#'   "step_max" = 1.0, "thres_step_max" = 100.0,
 #'   "verbose" = FALSE,
 #'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 #' )
@@ -64,18 +64,6 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   )
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose, model_control
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
   if (model_control$time_risk == TRUE) {
     ce <- c(time1, time2, event0)
     t_check <- Check_Trunc(df, ce)
@@ -105,9 +93,6 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       warning("Warning: model covariate order changed")
     }
   }
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine

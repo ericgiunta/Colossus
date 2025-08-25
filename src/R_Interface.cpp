@@ -67,8 +67,8 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     int nthreads = Control["ncores"];
@@ -110,7 +110,7 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -139,8 +139,8 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVect
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     int nthreads = Control["ncores"];
     //
@@ -179,7 +179,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVect
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Pois_Omnibus(PyrC, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, double_step, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_Pois_Omnibus(PyrC, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, double_step, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -238,8 +238,8 @@ List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0, Int
 List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control) {
     int verbose = Control["verbose"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     string ties_method =Control["ties"];
     int nthreads = Control["ncores"];
     //
@@ -276,7 +276,7 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
         return res;
     }
     //----------------------------------------------------------------------------------------------------------------//
-    res = Plot_Omnibus(term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, abs_max, dose_abs_max, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, uniq_v, model_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
+    res = Plot_Omnibus(term_n, tform, a_n, x_all, dfc, fir, der_iden, modelform, step_max, thres_step_max, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, uniq_v, model_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -299,8 +299,8 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     int nthreads = Control["ncores"];
@@ -343,9 +343,9 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     if (manual) {
-        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+        res = LogLik_Cox_PH_Omnibus_Log_Bound_Search(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     } else {
-        res = LogLik_Cox_PH_Omnibus_Log_Bound(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+        res = LogLik_Cox_PH_Omnibus_Log_Bound(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -368,8 +368,8 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     int nthreads = Control["ncores"];
@@ -411,7 +411,7 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     // if (manual) {
-    res = LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, double_step, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
+    res = LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, double_step, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -437,8 +437,8 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     int nthreads = Control["ncores"];
     //
@@ -478,12 +478,12 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res;
-    res = LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, double_step, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
-    //    LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, doublestep, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
+    res = LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, double_step, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
+    //    LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, doublestep, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
     // if (manual) {
-    //     res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+    //     res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     // } else {
-    //     res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+    //     res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     // }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -510,8 +510,8 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, Str
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     int nthreads = Control["ncores"];
     //
@@ -552,9 +552,9 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, Str
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     if (manual) {
-        res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+        res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     } else {
-        res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
+        res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
     }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -576,8 +576,8 @@ List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVec
     //
     int verbose = Control["verbose"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     int nthreads = Control["ncores"];
     //
     double gmix_theta = model_control["gmix_theta"];
@@ -602,7 +602,7 @@ List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVec
     );
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = Poisson_Residuals(PyrC, term_n, tform, a_n, x_all, dfc, fir, modelform, abs_max, dose_abs_max, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Pearson_bool, Deviance_bool);
+    List res = Poisson_Residuals(PyrC, term_n, tform, a_n, x_all, dfc, fir, modelform, step_max, thres_step_max, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Pearson_bool, Deviance_bool);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -626,8 +626,8 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     int nthreads = Control["ncores"];
@@ -672,9 +672,9 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     List res;
     bool IntegratedSerial = model_control["mcml"];
     if (IntegratedSerial) {
-        res = LogLik_Cox_PH_Multidose_Omnibus_Integrated(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+        res = LogLik_Cox_PH_Multidose_Omnibus_Integrated(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     } else {
-        res = LogLik_Cox_PH_Multidose_Omnibus_Serial(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+        res = LogLik_Cox_PH_Multidose_Omnibus_Serial(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -700,8 +700,8 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
     int halfmax = Control["halfmax"];
     double epsilon = Control["epsilon"];
     //
-    double abs_max = Control["abs_max"];
-    double dose_abs_max = Control["dose_abs_max"];
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
     double deriv_epsilon =Control["deriv_epsilon"];
     string ties_method =Control["ties"];
     int nthreads = Control["ncores"];
@@ -743,7 +743,7 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
     //
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_CaseCon_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, abs_max, dose_abs_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_CaseCon_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

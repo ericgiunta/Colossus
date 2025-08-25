@@ -84,7 +84,7 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
+void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     //
     int kept_covs = totalnum - sum(KeepConstant);
     //
@@ -164,12 +164,12 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
             }
             //
             if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                if (abs(dbeta[ijk]) > dose_abs_max) {
-                    dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                if (abs(dbeta[ijk]) > thres_step_max) {
+                    dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                 }
             }else{
-                if (abs(dbeta[ijk]) > abs_max) {
-                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                if (abs(dbeta[ijk]) > step_max) {
+                    dbeta[ijk] = step_max * sign(dbeta[ijk]);
                 }
             }
         } else {
@@ -188,7 +188,7 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
+void Calc_Change(const int& double_step, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     if (double_step == 1) {
         int kept_covs = totalnum - sum(KeepConstant);
         NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -240,12 +240,12 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                 }
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -267,12 +267,12 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
                 }
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -292,7 +292,7 @@ void Calc_Change(const int& double_step, const int& nthreads, const int& totalnu
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& abs_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant) {
+void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lld_vec(kept_covs);
     for (int ij = 0; ij < kept_covs; ij++) {
@@ -316,8 +316,8 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 dbeta[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                 m_g_store[pjk_ind] = dbeta[ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -331,8 +331,8 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*pow(Lld_vec[pjk_ind],2);
                 v_beta_store[pjk_ind] = decay1 * v_beta_store[pjk_ind] + (1-decay1)*pow(dbeta[ijk],2);
                 dbeta[ijk] = pow((v_beta_store[pjk_ind] + epsilon_momentum) / (m_g_store[pjk_ind] +epsilon_momentum ),0.5)* Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -350,8 +350,8 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2,iteration));
                 //
                 dbeta[ijk] = lr / (pow(v_t_bias,0.5)+epsilon_momentum) * m_t_bias;  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -366,8 +366,8 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 dbeta[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -386,7 +386,7 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant) {
+void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& totalnum, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant) {
     if (double_step == 1) {
         //
         int kept_covs = totalnum - sum(KeepConstant);
@@ -439,8 +439,8 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
                 }
                 //
                 //
-                if (abs(dbeta[ijk]) > abs_max) {
-                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                if (abs(dbeta[ijk]) > step_max) {
+                    dbeta[ijk] = step_max * sign(dbeta[ijk]);
                 }
             } else {
                 dbeta[ijk] = 0;
@@ -467,8 +467,8 @@ void Calc_Change_Basic(const int& double_step, const int& nthreads, const int& t
                 if (abs(dbeta[ijk])>dbeta_max) {
                     dbeta[ijk] = dbeta_max * sign(dbeta[ijk]);
                 }
-                if (abs(dbeta[ijk]) > abs_max) {
-                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                if (abs(dbeta[ijk]) > step_max) {
+                    dbeta[ijk] = step_max * sign(dbeta[ijk]);
                 }
             } else {
                 dbeta[ijk] = 0;
@@ -613,7 +613,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble) {
+void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble) {
     int kept_covs = totalnum - sum(KeepConstant_trouble);
     NumericVector Lldd_vec(kept_covs * kept_covs);
     NumericVector Lld_vec(kept_covs);
@@ -671,12 +671,12 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
             }
            //
             if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                if (abs(dbeta[ijk]) > dose_abs_max) {
-                    dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                if (abs(dbeta[ijk]) > thres_step_max) {
+                    dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                 }
             }else{
-                if (abs(dbeta[ijk]) > abs_max) {
-                    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                if (abs(dbeta[ijk]) > step_max) {
+                    dbeta[ijk] = step_max * sign(dbeta[ijk]);
                 }
             }
         } else {
@@ -696,7 +696,7 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Background(const int& double_step, const int& nthreads, const int& totalnum, const int& group_num, const double& dose_abs_max, const double& lr, const double& abs_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
+void Calc_Change_Background(const int& double_step, const int& nthreads, const int& totalnum, const int& group_num, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
     if (double_step == 1) {
         int kept_covs = totalnum - sum(KeepConstant);
         int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
@@ -782,12 +782,12 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
                 }
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -811,8 +811,8 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
                 } else {
                     dstrata[ijk] = lr * Lldd_strata_solve(ijk);
                 }
-                if (abs(dstrata[ijk]) > abs_max) {
-                    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+                if (abs(dstrata[ijk]) > step_max) {
+                    dstrata[ijk] = step_max * sign(dstrata[ijk]);
                 }
                 //
             } else {
@@ -835,12 +835,12 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
                 }
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -861,8 +861,8 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
                 } else {
                     dstrata[ijk] = 0;
                 }
-                if (abs(dstrata[ijk]) > abs_max) {
-                    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+                if (abs(dstrata[ijk]) > step_max) {
+                    dstrata[ijk] = step_max * sign(dstrata[ijk]);
                 }
             } else {
                 dstrata[ijk] = 0;
@@ -881,7 +881,7 @@ void Calc_Change_Background(const int& double_step, const int& nthreads, const i
 //' @noRd
 //'
 // [[Rcpp::export]]
-void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& abs_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata) {
+void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata) {
     int kept_covs = totalnum - sum(KeepConstant);
     int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
     int total_val = kept_covs + kept_strata;
@@ -910,8 +910,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 dbeta[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                 m_g_store[pjk_ind] = dbeta[ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -924,8 +924,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
                 dstrata[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
                 m_g_store[pjk_ind] = dstrata[ijk];
-			    if (abs(dstrata[ijk]) > abs_max) {
-				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    if (abs(dstrata[ijk]) > step_max) {
+				    dstrata[ijk] = step_max * sign(dstrata[ijk]);
 			    }
             } else {
                 dstrata[ijk] = 0;
@@ -939,8 +939,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*pow(Lld_vec[pjk_ind],2);
                 v_beta_store[pjk_ind] = decay1 * v_beta_store[pjk_ind] + (1-decay1)*pow(dbeta[ijk],2);
                 dbeta[ijk] = pow((v_beta_store[pjk_ind] + epsilon_momentum) / (m_g_store[pjk_ind] +epsilon_momentum ),0.5)* Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -954,8 +954,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*pow(Lld_vec[pjk_ind],2);
                 v_beta_store[pjk_ind] = decay1 * v_beta_store[pjk_ind] + (1-decay1)*pow(dstrata[ijk],2);
                 dstrata[ijk] = pow((v_beta_store[pjk_ind] + epsilon_momentum) / (m_g_store[pjk_ind] +epsilon_momentum ),0.5)* Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dstrata[ijk]) > abs_max) {
-				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    if (abs(dstrata[ijk]) > step_max) {
+				    dstrata[ijk] = step_max * sign(dstrata[ijk]);
 			    }
             } else {
                 dstrata[ijk] = 0;
@@ -973,8 +973,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2,iteration));
                 //
                 dbeta[ijk] = lr / (pow(v_t_bias,0.5)+epsilon_momentum) * m_t_bias;  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -992,8 +992,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2,iteration));
                 //
                 dstrata[ijk] = lr / (pow(v_t_bias,0.5)+epsilon_momentum) * m_t_bias;  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dstrata[ijk]) > abs_max) {
-				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    if (abs(dstrata[ijk]) > step_max) {
+				    dstrata[ijk] = step_max * sign(dstrata[ijk]);
 			    }
             } else {
                 dstrata[ijk] = 0;
@@ -1008,8 +1008,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 dbeta[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dbeta[ijk]) > abs_max) {
-				    dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+			    if (abs(dbeta[ijk]) > step_max) {
+				    dbeta[ijk] = step_max * sign(dbeta[ijk]);
 			    }
             } else {
                 dbeta[ijk] = 0;
@@ -1021,8 +1021,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 std::advance( it_end, ijk);
                 int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
                 dstrata[ijk] = lr * Lld_vec[pjk_ind];  //-lr * Lld[ijk] / Lldd[ijk*totalnum+ijk];
-			    if (abs(dstrata[ijk]) > abs_max) {
-				    dstrata[ijk] = abs_max * sign(dstrata[ijk]);
+			    if (abs(dstrata[ijk]) > step_max) {
+				    dstrata[ijk] = step_max * sign(dstrata[ijk]);
 			    }
             } else {
                 dstrata[ijk] = 0;

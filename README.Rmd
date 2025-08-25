@@ -67,7 +67,7 @@ der_iden <- 0
 
 control <- list(
   "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,
-  "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
+  "deriv_epsilon" = 1e-9, "step_max" = 1.0,
   "verbose" = 2, "ties" = "breslow"
 )
 

@@ -282,7 +282,7 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  Ma
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double abs_max, double dose_abs_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double step_max, double thres_step_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  // used as a dummy return value for code checking
     //
@@ -366,7 +366,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     // ---------------------------------------------
     //
     T0 = MatrixXd::Zero(df0.rows(), totalnum);  // preallocates matrix for Term column
-    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
+    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     // ------------------------------------------------------------------------- // initialize
     // ------------------------------------------------------------------------- // initialize
     MatrixXd Rls1;
@@ -543,7 +543,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector 
 //' @noRd
 //'
 // [[Rcpp::export]]
-List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double abs_max, double dose_abs_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
+List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
@@ -589,8 +589,8 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     double dslp = 0;
     ColXd RdR;
     ColXd RddR;
-    dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
-    dslp = abs_max;
+    dint = thres_step_max;  // the amount of change used to calculate derivatives in threshold paramters
+    dslp = step_max;
     RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  // preallocates matrix for Risk to derivative ratios
     RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     VectorXd s_weights;

@@ -217,8 +217,8 @@ modelform <- "M"
 model_control <- list()
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiters" = c(100, 100), "halfmax" = 5,
-  "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0,
-  "dose_abs_max" = 100.0, "verbose" = 2,
+  "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0,
+  "thres_step_max" = 100.0, "verbose" = 2,
   "ties" = "breslow"
 )
 

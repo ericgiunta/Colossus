@@ -84,8 +84,8 @@ keep_constant <- c(0, 0, 0, 0)
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
   "halfmax" = 5, "epsilon" = 1e-3,
-  "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-  "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
+  "deriv_epsilon" = 1e-3, "step_max" = 1.0,
+  "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
   "double_step" = 1
 )
 guesses_control <- list(
@@ -103,15 +103,11 @@ e <- RunPoissonRegression_Omnibus(
 }
 \seealso{
 Other Poisson Wrapper Functions: 
+\code{\link{PoisRun}()},
 \code{\link{PoissonCurveSolver}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonEventAssignment_bound}()},
-\code{\link{RunPoissonRegression}()},
-\code{\link{RunPoissonRegression_Guesses_CPP}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},
-\code{\link{RunPoissonRegression_Residual}()},
-\code{\link{RunPoissonRegression_Single}()},
-\code{\link{RunPoissonRegression_Strata}()},
-\code{\link{RunPoissonRegression_Tier_Guesses}()}
+\code{\link{RunPoissonRegression_Residual}()}
 }
 \concept{Poisson Wrapper Functions}

@@ -80,7 +80,7 @@ keep_constant <- c(0, 0, 0, 0)
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5,
   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-  "abs_max" = 1.0, "dose_abs_max" = 100.0,
+  "step_max" = 1.0, "thres_step_max" = 100.0,
   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
 )
 # setting maxiter below 0 forces the function to calculate the score
@@ -100,6 +100,7 @@ RunCoxPlots(
 }
 \seealso{
 Other Plotting Wrapper Functions: 
-\code{\link{Cox_Relative_Risk}()}
+\code{\link{Cox_Relative_Risk}()},
+\code{\link{plot.coxres}()}
 }
 \concept{Plotting Wrapper Functions}

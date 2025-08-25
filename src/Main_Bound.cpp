@@ -58,7 +58,7 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
@@ -95,13 +95,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    if (model_bool["constraint"]) {
-        if (verbose >= 1) {
-            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+//    if (model_bool["constraint"]) {
+//        if (verbose >= 1) {
+//            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+//        }
+//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+//        return temp_list;
+//    }
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
@@ -139,7 +139,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     //
-    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
+    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     // ------------------------------------------------------------------------- // initialize
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
@@ -179,8 +179,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     // the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
-    double abs_max0 = abs_max;
-    double dose_abs_max0 = dose_abs_max;
+    double step_max0 = step_max;
+    double thres_step_max0 = thres_step_max;
     //
     vector<double> dbeta(totalnum, 0.0);
     //
@@ -209,13 +209,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
         beta_0[i] = a_n[i];
     }
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
@@ -275,7 +275,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         half_check = 0;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         beta_p = beta_c;  //
         beta_a = beta_c;  //
@@ -283,12 +283,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -313,9 +313,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[1]) {
             limits[1] = 0;
             ll_final[1] = 0;
@@ -362,7 +362,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     }
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     //
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     //
     // -------------------------------------------------------------------------------------------
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -386,8 +386,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
     Lld_vec = as<Map<VectorXd> >(Lld_vecc);
     //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     //
     upper = false;
     step = -1;
@@ -398,7 +398,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         half_check = 0;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
         beta_p = beta_c;  //
@@ -408,12 +408,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -438,9 +438,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[0]) {
             limits[0] = 0;
             ll_final[0] = 0;
@@ -491,7 +491,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
@@ -527,13 +527,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    if (model_bool["constraint"]) {
-        if (verbose >= 1) {
-            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+//    if (model_bool["constraint"]) {
+//        if (verbose >= 1) {
+//            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+//        }
+//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+//        return temp_list;
+//    }
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
@@ -567,7 +567,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     //
-    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
+    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     // ------------------------------------------------------------------------- // initialize
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
@@ -605,8 +605,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     // the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
-    double abs_max0 = abs_max;
-    double dose_abs_max0 = dose_abs_max;
+    double step_max0 = step_max;
+    double thres_step_max0 = thres_step_max;
     //
     vector<double> dbeta(totalnum, 0.0);
     vector<double> dbeta_start(totalnum, 0.0);
@@ -634,13 +634,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
         beta_0[i] = a_n[i];
     }
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
@@ -739,8 +739,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         beta_p = beta_peak;  //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
-        abs_max = abs_max0;
-        dose_abs_max = dose_abs_max0;
+        step_max = step_max0;
+        thres_step_max = thres_step_max0;
         iter_stop = 0;
         halves = 0;
         iteration = 0;
@@ -757,7 +757,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
         }
-        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             iter_stop = 1;
             Ll[0] = 404;  // note to consider this point too far
@@ -774,7 +774,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             beta_best = beta_c;  //
             //
             // calculates the initial change in parameter
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             //
             if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
@@ -791,13 +791,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_iter_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             }
             if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
-                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
-                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
+                thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
                 //
                 beta_p = beta_best;  //
@@ -806,7 +806,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_best[ij];
                 }
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
             dbeta_max = abs(dbeta[0]);
             for (int ij = 1; ij < totalnum; ij++) {
@@ -816,7 +816,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
             iter_check = 0;
-            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
             if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
@@ -849,8 +849,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     beta_p = beta_best;  //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     iter_stop = 0;
     halves = 0;
     iteration = 0;
@@ -911,7 +911,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     //
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     // Calculates the subterm and term values
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     //
     // -------------------------------------------------------------------------------------------
     // Calculates the side sum terms used
@@ -950,7 +950,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         trouble = false;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
         beta_p = beta_c;  //
@@ -961,12 +961,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             if (KeepConstant[ijk] == 0) {
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -992,9 +992,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[1]) {
             limits[1] = 0;
             ll_final[1] = 0;
@@ -1036,13 +1036,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     for (int ij = 0; ij < totalnum; ij++) {
         beta_0[ij] = beta_a[ij];
     }
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
     upper = false;
     #ifdef _OPENMP
@@ -1103,8 +1103,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         beta_p = beta_peak;  //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
-        abs_max = abs_max0;
-        dose_abs_max = dose_abs_max0;
+        step_max = step_max0;
+        thres_step_max = thres_step_max0;
         iter_stop = 0;
         halves = 0;
         iteration = 0;
@@ -1119,7 +1119,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
         }
-        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             iter_stop = 1;
             Ll[0] = 404;  // note to consider this point too far
@@ -1135,7 +1135,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             // calculates the initial change in parameter
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
                 Ll_iter_best = Ll[ind0];
@@ -1150,13 +1150,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_iter_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             }
             if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
-                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
-                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
+                thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
                 //
                 beta_p = beta_best;  //
@@ -1165,7 +1165,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_best[ij];
                 }
-                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
             dbeta_max = abs(dbeta[0]);
             for (int ij = 1; ij < totalnum; ij++) {
@@ -1175,7 +1175,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
             iter_check = 0;
-            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
             if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
@@ -1208,8 +1208,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     beta_p = beta_best;  //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     iter_stop = 0;
     halves = 0;
     iteration = 0;
@@ -1264,7 +1264,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         beta_c[i] = beta_0[i];
     }
     // Calculates the subterm and term values
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     // Calculates the side sum terms used
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
     //
@@ -1295,7 +1295,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         trouble = false;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         beta_p = beta_c;  //
         beta_a = beta_c;  //
@@ -1305,12 +1305,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             if (KeepConstant[ijk] == 0) {
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -1336,9 +1336,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         // The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[0]) {
             limits[0] = 0;
             ll_final[0] = 0;
@@ -1389,7 +1389,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     //
@@ -1418,13 +1418,13 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    if (model_bool["constraint"]) {
-        if (verbose >= 1) {
-            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+//    if (model_bool["constraint"]) {
+//        if (verbose >= 1) {
+//            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+//        }
+//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+//        return temp_list;
+//    }
     //
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
@@ -1472,8 +1472,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
         //
-        dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
-        dslp = abs_max;
+        dint = thres_step_max;  // the amount of change used to calculate derivatives in threshold paramters
+        dslp = step_max;
         RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
         RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
@@ -1490,8 +1490,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     double dev = 0;
     // the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
-    double abs_max0 = abs_max;
-    double dose_abs_max0 = dose_abs_max;
+    double step_max0 = step_max;
+    double thres_step_max0 = thres_step_max;
     //
     vector<double> dbeta(totalnum, 0.0);
     //
@@ -1517,8 +1517,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
         beta_0[i] = a_n[i];
@@ -1582,7 +1582,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         half_check = 0;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
         beta_p = beta_c;  //
@@ -1593,12 +1593,12 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
             if (KeepConstant[ijk] == 0) {
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -1627,7 +1627,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
 
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[1]) {
             limits[1] = 0;
             ll_final[1] = 0;
@@ -1694,8 +1694,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
     Lld_vec = as<Map<VectorXd> >(Lld_vecc);
     //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     //
     upper = false;
     step = -1;
@@ -1706,7 +1706,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         half_check = 0;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         beta_p = beta_c;  //
         beta_a = beta_c;  //
@@ -1714,12 +1714,12 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
             if (KeepConstant[ijk] == 0) {
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -1747,7 +1747,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[0]) {
             limits[0] = 0;
             ll_final[0] = 0;
@@ -1797,7 +1797,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     //
@@ -1827,13 +1827,13 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    if (model_bool["constraint"]) {
-        if (verbose >= 1) {
-            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+//    if (model_bool["constraint"]) {
+//        if (verbose >= 1) {
+//            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+//        }
+//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+//        return temp_list;
+//    }
     // cout.precision: controls the number of significant digits printed
     // nthreads: number of threads used for parallel operations
     //
@@ -1882,8 +1882,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
         Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
-        dslp = abs_max;
+        dint = thres_step_max;  // the amount of change used to calculate derivatives in threshold paramters
+        dslp = step_max;
         RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
         RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
@@ -1907,8 +1907,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     // ------------------------------------------------------------------------- // initialize
     // the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
-    double abs_max0 = abs_max;
-    double dose_abs_max0 = dose_abs_max;
+    double step_max0 = step_max;
+    double thres_step_max0 = thres_step_max;
     //
     vector<double> dbeta(totalnum, 0.0);
     vector<double> dbeta_start(totalnum, 0.0);
@@ -1934,8 +1934,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     for (int i = 0; i < beta_0.size(); i++) {
         beta_0[i] = a_n[i];
     }
@@ -2033,8 +2033,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         beta_p = beta_peak;  //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
-        abs_max = abs_max0;
-        dose_abs_max = dose_abs_max0;
+        step_max = step_max0;
+        thres_step_max = thres_step_max0;
         iter_stop = 0;
         halves = 0;
         iteration = 0;
@@ -2065,7 +2065,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             // calculates the initial change in parameter
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             //
             if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
@@ -2086,8 +2086,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
             if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
-                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
-                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
+                thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
                 //
                 beta_p = beta_best;  //
@@ -2106,7 +2106,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
             iter_check = 0;
-            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
             if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
@@ -2135,8 +2135,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     iter_stop = 0;
     halves = 0;
     iteration = 0;
@@ -2231,7 +2231,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         trouble = false;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         beta_p = beta_c;  //
         beta_a = beta_c;  //
@@ -2239,12 +2239,12 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             if (KeepConstant[ijk] == 0) {
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -2272,7 +2272,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[1]) {
             limits[1] = 0;
             ll_final[1] = 0;
@@ -2314,8 +2314,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     for (int ij = 0; ij < totalnum; ij++) {
         beta_0[ij] = beta_a[ij];
     }
@@ -2378,8 +2378,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         beta_p = beta_peak;  //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
-        abs_max = abs_max0;
-        dose_abs_max = dose_abs_max0;
+        step_max = step_max0;
+        thres_step_max = thres_step_max0;
         iter_stop = 0;
         halves = 0;
         iteration = 0;
@@ -2410,7 +2410,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             // calculates the initial change in parameter
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
                 Ll_iter_best = Ll[ind0];
@@ -2430,8 +2430,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
             if (beta_best != beta_c) {  // if the risk matrices aren't the optimal values, then they must be recalculated
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
-                abs_max = abs_max*pow(0.5, halfmax);  // reduces the step sizes
-                dose_abs_max = dose_abs_max*pow(0.5, halfmax);
+                step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
+                thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -2449,7 +2449,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
             iter_check = 0;
-            if (abs_max < epsilon) {  // if the maximum change is too low, then it ends
+            if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
             if (dbeta_max < epsilon) {  // if the maximum change is too low, then it ends
@@ -2478,8 +2478,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     beta_p = beta_best;  //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     iter_stop = 0;
     halves = 0;
     iteration = 0;
@@ -2564,7 +2564,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         trouble = false;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
         if (trouble) {
-            Calc_Change_trouble(para_number, nthreads, totalnum, dose_abs_max, lr, abs_max, Ll, Lld, Lldd, dbeta, tform, dose_abs_max, abs_max, KeepConstant_trouble);
+            Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
         beta_p = beta_c;  //
@@ -2574,12 +2574,12 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             if (KeepConstant[ijk] == 0) {
                 //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  // the threshold values use different maximum deviation values
-                    if (abs(dbeta[ijk]) > dose_abs_max) {
-                        dbeta[ijk] = dose_abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
                     }
                 }else{
-                    if (abs(dbeta[ijk]) > abs_max) {
-                        dbeta[ijk] = abs_max * sign(dbeta[ijk]);
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
                     }
                 }
             } else {
@@ -2607,7 +2607,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
-        Cox_Pois_Log_Loop(abs_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, dose_abs_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
         if (limit_hit[0]) {
             limits[0] = 0;
             ll_final[0] = 0;
@@ -2658,7 +2658,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int double_step, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
+List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int double_step, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
@@ -2739,7 +2739,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
     //
-    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
+    Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     // ------------------------------------------------------------------------- // initialize
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
@@ -2779,8 +2779,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     // the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
-    double abs_max0 = abs_max;
-    double dose_abs_max0 = dose_abs_max;
+    double step_max0 = step_max;
+    double thres_step_max0 = thres_step_max;
     //
     vector<double> dbeta(totalnum, 0.0);
     //
@@ -2809,13 +2809,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
         beta_0[i] = a_n[i];
     }
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dose_abs_max, abs_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
@@ -2898,7 +2898,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         }
         temp_step = temp_step * 0.5;
         //
-        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         temp_L[0] = reg_out["LogLik"];
         if (!is_nan(temp_L)[0]){
         // if (reg_status == "PASSED"){
@@ -2922,7 +2922,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
             beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
             beta_0[ij] = beta_M[ij];
         }
-        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
@@ -2973,7 +2973,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     }
                     temp_step = temp_step * 0.5;
                     //
-                    reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                    reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                     temp_L[0] = reg_out["LogLik"];
                     if (!is_nan(temp_L)[0]){
                         loop_check = false;
@@ -2998,7 +2998,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
                     beta_0[ij] = beta_M[ij];
                 }
-                reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                 reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];
@@ -3033,7 +3033,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         }
         temp_step = temp_step * 0.5;
         //
-        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         temp_L[0] = reg_out["LogLik"];
         if (!is_nan(temp_L)[0]){
             loop_check = false;
@@ -3056,7 +3056,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
             beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
             beta_0[ij] = beta_M[ij];
         }
-        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
@@ -3107,7 +3107,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     }
                     temp_step = temp_step * 0.5;
                     //
-                    reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                    reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                     temp_L[0] = reg_out["LogLik"];
                     if (!is_nan(temp_L)[0]){
                         loop_check = false;
@@ -3132,7 +3132,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
                     beta_0[ij] = beta_M[ij];
                 }
-                reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                 reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];
@@ -3163,7 +3163,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
 //' @noRd
 //'
 // [[Rcpp::export]]
-List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int doublestep, int halfmax, double epsilon, double abs_max, double dose_abs_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
+List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int doublestep, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
@@ -3261,8 +3261,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Term second derivative columns
         Rd = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk second derivatives
-        dint = dose_abs_max;  // the amount of change used to calculate derivatives in threshold paramters
-        dslp = abs_max;
+        dint = thres_step_max;  // the amount of change used to calculate derivatives in threshold paramters
+        dslp = step_max;
         RdR = MatrixXd::Zero(mat_row, reqrdnum);  // preallocates matrix for Risk to derivative ratios
         RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  // preallocates matrix for Risk to second derivative ratios
     }
@@ -3286,8 +3286,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     // ------------------------------------------------------------------------- // initialize
     // the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  // vector to compare values
-    double abs_max0 = abs_max;
-    double dose_abs_max0 = dose_abs_max;
+    double step_max0 = step_max;
+    double thres_step_max0 = thres_step_max;
     //
     vector<double> dbeta(totalnum, 0.0);
     vector<double> dbeta_start(totalnum, 0.0);
@@ -3313,8 +3313,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
-    abs_max = abs_max0;
-    dose_abs_max = dose_abs_max0;
+    step_max = step_max0;
+    thres_step_max = thres_step_max0;
     for (int i = 0; i < beta_0.size(); i++) {
         beta_0[i] = a_n[i];
     }
@@ -3402,7 +3402,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         }
         temp_step = temp_step * 0.5;
         //
-        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         temp_L[0] = reg_out["LogLik"];
         if (!is_nan(temp_L)[0]){
         // if (reg_status == "PASSED"){
@@ -3426,7 +3426,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
             beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
             beta_0[ij] = beta_M[ij];
         }
-        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
@@ -3477,7 +3477,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     }
                     temp_step = temp_step * 0.5;
                     //
-                    reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                    reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                     temp_L[0] = reg_out["LogLik"];
                     if (!is_nan(temp_L)[0]){
                         loop_check = false;
@@ -3502,7 +3502,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
                     beta_0[ij] = beta_M[ij];
                 }
-                reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                 reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];
@@ -3534,7 +3534,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
         }
         temp_step = temp_step * 0.5;
         //
-        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         temp_L[0] = reg_out["LogLik"];
         if (!is_nan(temp_L)[0]){
             loop_check = false;
@@ -3557,7 +3557,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
             beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
             beta_0[ij] = beta_M[ij];
         }
-        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+        reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
         reg_beta = reg_out["beta_0"];
         for (int ij = 0; ij < totalnum; ij++) {
             beta_M[ij] = reg_beta[ij];
@@ -3608,7 +3608,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     }
                     temp_step = temp_step * 0.5;
                     //
-                    reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                    reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                     temp_L[0] = reg_out["LogLik"];
                     if (!is_nan(temp_L)[0]){
                         loop_check = false;
@@ -3633,7 +3633,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
                     beta_M[ij] = (beta_H[ij] + beta_L[ij])/2;
                     beta_0[ij] = beta_M[ij];
                 }
-                reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, dose_abs_max, abs_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
+                reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, double_step, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon);
                 reg_beta = reg_out["beta_0"];
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_M[ij] = reg_beta[ij];

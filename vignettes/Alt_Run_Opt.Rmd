@@ -54,10 +54,8 @@ In code, this is done by adding an additional parameter for the stratification c
 
 ```{r, eval=FALSE}
 Strat_Col <- "e"
-e <- RunCoxRegression_Strata(
-  df, time1, time2, event, names, term_n, tform, keep_constant,
-  a_n, modelform,
-  control = control, strat_col = Strat_Col
+e <- CoxRun_Strata(Cox(time1, time2, event, e) ~ loglinear(dose), df,
+            a_n = a_n, control = control
 )
 ```
 
@@ -89,45 +87,19 @@ In code, this is done by adding in a list of stratification columns and using a 
 
 ```{r, eval=FALSE}
 Strat_Col <- c("e")
-e <- RunPoissonRegression_Strata(
-  df, pyr, event, names, term_n, tform, keep_constant,
-  a_n, modelform,
-  control = control, strat_col = Strat_Col
+e <- PoisRun(Poisson_Strata(pyr, event, e) ~ loglinear(dose), df,
+    a_n = a_n, control = control
 )
 ```
-
-## Simplified Model
-
-The inclusion of linear subterms, additive models, and multiple terms as options means that the Colossus calculates and stores every derivative. If the equation is log-linear with one term, then many simplifications can be made. In particular, having only one subterm type means that the hazard ratios and their derivatives can be calculated directly, and the only subterm type being exponential means that the logarithm of the hazard ratio in the Log-Likelihood calculation is simplified. In tests, using the simplified function was able to save approximately 40% time versus the full code being used.
-
-Assuming the same general parameters in the other vignettes, the code is as follows:
-
-```{r, eval=FALSE}
-e <- RunCoxRegression_Basic(
-  df, time1, time2, event, names,
-  keep_constant, a_n,
-  control = control
-)
-```
-
-If the basic option is used in combination with incompatible model options, then the model options will be overwritten. A warning is provided with details of what options were overwritten, and the final result will indicate what model options were truly used.
 
 ## Non-Derivative Calculation
 
-Colossus uses Newton's method to perform the regression, which can become computationally intensive as the model becomes more complicated. So, Colossus contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. These functions are left for the user's convenience.
+Colossus uses Newton's method to perform the regression, which can become computationally intensive as the model becomes more complicated. So, Colossus contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. Theis ability is left for the user's convenience.
 
 The code is similar to previous examples:
 ```{r, eval=FALSE}
-e <- RunCoxRegression_Single(
-  df, time1, time2, event, names, term_n, tform,
-  a_n, modelform,
-  control = control
-)
-
-e <- RunPoissonRegression_Single(
-  df, pyr, event, names, term_n, tform,
-  a_n, modelform,
-  control = control
+e <- CoxRun(Cox(time1, time2, event) ~ loglinear(dose), df,
+            a_n = a_n, control = control, single = TRUE
 )
 ```
 
@@ -165,10 +137,8 @@ In code, the call is similar to the standard function. The process for finding a
 ```{r, eval=FALSE}
 pdata <- finegray(Surv(time2, event) ~ ., data = df)
 
-e <- RunCoxRegression_CR(
-  pdata, "fgstart", "fgstop", "fgstatus", names, term_n, tform, keep_constant,
-  a_n, modelform,
-  control = control, cens_weight = "fgwt"
+e <- CoxRun(FineGray(fgstart, fgstop, fgstatus, fgwt) ~ loglinear(dose), pdata,
+  a_n = a_n, control = control
 )
 ```
 
@@ -276,29 +246,6 @@ e <- RunPoissonRegression_Joint_Omnibus(
   control = control, strat_col = Strat_Col
 )
 Interpret_Output(e)
-```
-
-
-## Distributed starts
-
-The distributed start framework is built into both Cox proportional hazards and Poisson functions and allows the user to provide a list of multiple starting points. Regressions with 1 guess use the "maxiter" control option, while regressions with multiple guesses use the "maxiters" control option to pass a list of iterations per guess. By default, Colossus runs each guess for 1 iteration, picks the best guess, and then runs the full number of iterations starting at the best guess. Advanced users can select a different number of iterations for each guess.
-
-
-```{r, eval=FALSE}
-a_n <- list(c(1, 1, 1), c(1, 2, 1), c(1, 2, 2), c(2, 1, 1))
-
-# runs each (4) starts 1 iteration, and then runs the best 5 iterations
-control$maxiter <- 5
-# runs each (4) starts 1 iteration, and then runs the best 5 iterations
-control$maxiters <- c(1, 1, 1, 1, 5)
-# runs each (4) starts 5 iterations, and then runs the best 5 iterations
-control$maxiters <- c(5, 5, 5, 5, 5)
-
-e <- RunCoxRegression_Omnibus(df, time1, time2, event,
-  names, term_n, tform, keep_constant,
-  a_n, modelform,
-  control = control
-)
 ```
 
 

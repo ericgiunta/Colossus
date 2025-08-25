@@ -106,8 +106,8 @@ keep_constant <- c(0, 0)
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
   "halfmax" = 2, "epsilon" = 1e-6,
-  "deriv_epsilon" = 1e-6, "abs_max" = 1.0,
-  "dose_abs_max" = 100.0,
+  "deriv_epsilon" = 1e-6, "step_max" = 1.0,
+  "thres_step_max" = 100.0,
   "verbose" = 0, "ties" = "breslow", "double_step" = 1
 )
 e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
@@ -124,15 +124,11 @@ e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxCurveSolver}()},
+\code{\link{CoxRun}()},
+\code{\link{CoxRunMulti}()},
+\code{\link{LikelihoodBound.coxres}()},
+\code{\link{LikelihoodBound.poisres}()},
 \code{\link{RunCaseControlRegression_Omnibus}()},
-\code{\link{RunCoxNull}()},
-\code{\link{RunCoxRegression}()},
-\code{\link{RunCoxRegression_Basic}()},
-\code{\link{RunCoxRegression_CR}()},
-\code{\link{RunCoxRegression_Guesses_CPP}()},
-\code{\link{RunCoxRegression_Omnibus}()},
-\code{\link{RunCoxRegression_Single}()},
-\code{\link{RunCoxRegression_Strata}()},
-\code{\link{RunCoxRegression_Tier_Guesses}()}
+\code{\link{RunCoxRegression_Omnibus}()}
 }
 \concept{Cox Wrapper Functions}

@@ -1,586 +1,3 @@
-#' Performs checks to gather a list of guesses and iterations
-#'
-#' \code{Gather_Guesses_CPP} called from within R, uses a list of options and the model definition to generate a list of parameters and iterations that do not produce errors
-#'
-#' @inheritParams R_template
-#' @param a_n_default center of parameter distribution guessing scope
-#' @param dfc vector matching subterm number to matrix column
-#' @param x_all covariate matrix
-#'
-#' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' a <- c(0, 1, 2, 3, 4, 5, 6)
-#' b <- c(1, 2, 3, 4, 5, 6, 7)
-#' c <- c(0, 1, 0, 0, 0, 1, 0)
-#' d <- c(3, 4, 5, 6, 7, 8, 9)
-#' df <- data.table::data.table("a" = a, "b" = b, "c" = c, "d" = d)
-#' time1 <- "a"
-#' time2 <- "b"
-#' event <- "c"
-#' names <- c("d")
-#' term_n <- c(0)
-#' tform <- c("loglin")
-#' keep_constant <- c(0)
-#' a_n <- c(-0.1)
-#' a_n_default <- a_n
-#' modelform <- "M"
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = -1,
-#'   "halfmax" = 5, "epsilon" = 1e-9,
-#'   "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' guesses_control <- list()
-#' model_control <- list()
-#' all_names <- unique(names(df))
-#' dfc <- match(names, all_names)
-#' term_tot <- max(term_n) + 1
-#' x_all <- as.matrix(df[, all_names, with = FALSE])
-#' control <- Def_Control(control)
-#' guesses_control <- Def_Control_Guess(guesses_control, a_n)
-#' model_control <- Def_model_control(model_control)
-#' options(warn = -1)
-#' Gather_Guesses_CPP(
-#'   df, dfc, names, term_n, tform, keep_constant,
-#'   a_n, x_all, a_n_default,
-#'   modelform, control, guesses_control
-#' )
-#' @importFrom rlang .data
-Gather_Guesses_CPP <- function(df, dfc, names, term_n, tform, keep_constant, a_n, x_all, a_n_default, modelform, control, guesses_control, model_control = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  if (typeof(a_n) != "list") {
-    a_n <- list(a_n)
-  }
-  term_tot <- max(term_n) + 1
-  a_ns <- c(NaN)
-  maxiters <- c(NaN)
-  model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n_default,
-    names
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n_default <- val$a_n
-  names <- val$names
-  if (length(a_n_default) != length(names)) {
-    stop(paste("Error: Default Parameters used: ", length(a_n_default),
-      ", Covariates used: ", length(names),
-      sep = ""
-    ))
-  }
-  for (i in seq_along(tform)) {
-    if (grepl("_int", tform[i], fixed = FALSE)) {
-      # fine
-    } else if (grepl("lin_exp_exp_slope", tform[i], fixed = FALSE)) {
-      # fine
-    } else if (grepl("_slope", tform[i], fixed = FALSE)) {
-      # fine
-    } else if (grepl("loglin", tform[i], fixed = FALSE)) {
-      # fine
-    } else if (grepl("lin", tform[i], fixed = FALSE)) {
-      # fine
-    } else {
-      stop(paste("Error: tform not implemented ", tform[i], sep = ""))
-    }
-  }
-  for (i in seq_len(length(a_n))) {
-    a_n0 <- a_n[[i]]
-    if (length(a_n0) != length(names)) {
-      stop(paste("Error: Parameters used: ", length(a_n0),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    if (length(term_n) < length(names)) {
-      stop(paste("Error: Terms used: ", length(term_n),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    } else if (length(term_n) > length(names)) {
-      stop(paste("Error: Terms used: ", length(term_n),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    if (length(tform) < length(names)) {
-      stop(paste("Error: Term types used: ", length(tform),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    } else if (length(tform) > length(names)) {
-      stop(paste("Error: Term types used: ", length(tform),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    if (length(keep_constant) < length(names)) {
-      keep_constant <- c(keep_constant, rep(
-        0.0,
-        length(names) - length(keep_constant)
-      ))
-    } else if (length(keep_constant) > length(names)) {
-      keep_constant <- keep_constant[seq_len(length(names))]
-    }
-    rmin <- guesses_control$rmin
-    rmax <- guesses_control$rmax
-    if (length(rmin) != length(rmax)) {
-      warning("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
-    }
-    keep <- risk_check_transition(
-      term_n, tform, a_n0, dfc, x_all,
-      0, modelform,
-      control, model_control,
-      keep_constant, term_tot
-    )
-    if (keep) {
-      if (is.nan(maxiters[1])) {
-        a_ns <- c(a_n0)
-        maxiters <- c(guesses_control$maxiter)
-      } else {
-        a_ns <- c(a_ns, a_n0)
-        maxiters <- c(maxiters, guesses_control$maxiter)
-      }
-    }
-  }
-  while (length(maxiters) - length(a_n) < guesses_control$guesses - 1) {
-    if (guesses_control$verbose >= 3) {
-      message(paste("Note: ", length(maxiters), " valid guesses",
-        sep = ""
-      )) # nocov
-    }
-    if (length(rmin) != length(rmax)) {
-      for (i in seq_along(tform)) {
-        if (guesses_control$guess_constant[i] == 0) {
-          if (grepl("_int", tform[i], fixed = FALSE)) {
-            a_n0[i] <- runif(1,
-              min = guesses_control$intercept_min,
-              max = guesses_control$intercept_max
-            ) +
-              a_n_default[i]
-          } else if (grepl("lin_exp_exp_slope", tform[i],
-            fixed = FALSE
-          )) {
-            a_n0[i] <- runif(1,
-              min = guesses_control$exp_slope_min,
-              max = guesses_control$exp_slope_max
-            ) +
-              a_n_default[i]
-          } else if (grepl("_slope", tform[i], fixed = FALSE)) {
-            a_n0[i] <- runif(1,
-              min = guesses_control$lin_min,
-              max = guesses_control$lin_max
-            ) +
-              a_n_default[i]
-          } else if (grepl("loglin", tform[i], fixed = FALSE)) {
-            a_n0[i] <- runif(1,
-              min = guesses_control$exp_min,
-              max = guesses_control$exp_max
-            ) +
-              a_n_default[i]
-          } else if (grepl("lin", tform[i], fixed = FALSE)) {
-            a_n0[i] <- runif(1,
-              min = guesses_control$lin_min,
-              max = guesses_control$lin_max
-            ) +
-              a_n_default[i]
-          } else {
-            stop(paste("Error: tform not implemented ", tform[i],
-              sep = ""
-            ))
-          }
-        } else {
-          a_n0[i] <- a_n_default[i]
-        }
-      }
-    } else {
-      for (i in seq_along(tform)) {
-        if (guesses_control$guess_constant[i] == 0) {
-          a_n0[i] <- runif(1,
-            min = guesses_control$rmin[i],
-            max = guesses_control$rmax[i]
-          ) +
-            a_n_default[i]
-        } else {
-          a_n0[i] <- a_n_default[i]
-        }
-      }
-    }
-    keep <- risk_check_transition(
-      term_n, tform, a_n0, dfc, x_all,
-      0, modelform, control, model_control,
-      keep_constant, term_tot
-    )
-    if (keep) {
-      if (is.nan(maxiters[1])) {
-        a_ns <- c(a_n0)
-        maxiters <- c(guesses_control$maxiter)
-      } else {
-        a_ns <- c(a_ns, a_n0)
-        maxiters <- c(maxiters, guesses_control$maxiter)
-      }
-    }
-  }
-  list("a_ns" = a_ns, "maxiters" = maxiters)
-}
-
-#' Corrects the order of terms/formula/etc
-#'
-#' \code{Correct_Formula_Order} checks the order of formulas given and corrects any ordering issues, orders alphabetically, by term number, etc.
-#'
-#' @inheritParams R_template
-#'
-#' @return returns the corrected lists
-#' @export
-#' @family Data Cleaning Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' term_n <- c(0, 1, 1, 0, 0)
-#' tform <- c("loglin", "quad_slope", "lin", "lin_int", "lin_slope")
-#' keep_constant <- c(0, 0, 0, 1, 0)
-#' a_n <- c(1, 2, 3, 4, 5)
-#' names <- c("a", "a", "a", "a", "a")
-#' val <- Correct_Formula_Order(term_n, tform, keep_constant,
-#'   a_n, names,
-#'   cons_mat = matrix(c(0)),
-#'   cons_vec = c(0)
-#' )
-#' term_n <- val$term_n
-#' tform <- val$tform
-#' keep_constant <- val$keep_constant
-#' a_n <- val$a_n
-#' names <- val$names
-#'
-Correct_Formula_Order <- function(term_n, tform, keep_constant, a_n, names, cons_mat = matrix(c(0)), cons_vec = c(0), verbose = FALSE, model_control = list()) {
-  #
-  verbose <- Check_Verbose(verbose)
-  if ("para_number" %in% names(model_control)) {
-    # pass
-  } else {
-    model_control["para_number"] <- 0
-  }
-  if (is.matrix(cons_mat)) {
-    # pass
-  } else {
-    cons_mat <- as.matrix(cons_mat)
-    warning("Warning: Constraint Matrix was not a matrix, converted")
-  }
-  #
-  if (min(keep_constant) < 0) {
-    stop(paste("Error: keep_constant expects 0/1 values, minimum value was ",
-      min(keep_constant),
-      sep = ""
-    ))
-  }
-  if (max(keep_constant) > 1) {
-    stop(paste("Error: keep_constant expects 0/1 values, maximum value was ",
-      max(keep_constant),
-      sep = ""
-    ))
-  }
-  if (any(keep_constant != round(keep_constant))) {
-    stop(paste("Error: keep_constant expects 0/1 values, atleast one value was noninteger",
-      sep = ""
-    ))
-  }
-  if (any(term_n != round(term_n))) {
-    stop(paste("Error: term_n expects integer values, atleast one value was noninteger",
-      sep = ""
-    ))
-  }
-  if (min(term_n) != 0) {
-    if (verbose >= 2) {
-      warning(paste("Warning: term_n expects nonnegative integer values and a minimum of 0, minimum value was ",
-        min(term_n),
-        ". Minimum value set to 0, others shifted by ",
-        -1 * min(term_n),
-        sep = ""
-      ))
-    }
-    term_n <- term_n - min(term_n)
-  }
-  if (length(sort(unique(term_n))) != length(min(term_n):max(term_n))) {
-    stop(paste("Error: term_n expects no missing integer values. Term numbers range from ", min(term_n),
-      " to ", max(term_n), " but term_n has ",
-      length(unique(term_n)), " unique values instead of ",
-      length(min(term_n):max(term_n)),
-      sep = ""
-    ))
-  }
-  if (length(keep_constant) < length(names)) {
-    keep_constant <- c(keep_constant, rep(0.0, length(names) -
-      length(keep_constant)))
-  } else if (length(keep_constant) > length(names)) {
-    keep_constant <- keep_constant[seq_len(length(names))]
-  }
-  if (length(term_n) < length(names)) {
-    if (verbose >= 2) {
-      warning(paste("Warning: Terms used: ", length(term_n),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    term_n <- c(term_n, rep(0, length(names) -
-      length(term_n)))
-  } else if (length(term_n) > length(names)) {
-    if (verbose >= 2) {
-      warning(paste("Warning: Terms used: ", length(term_n),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    term_n <- term_n[seq_len(length(names))]
-  }
-  if (length(tform) < length(names)) {
-    if (verbose >= 2) {
-      warning(paste("Warning: Term types used: ", length(tform),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    tform <- c(tform, rep("loglin", length(names) -
-      length(tform)))
-  } else if (length(tform) > length(names)) {
-    if (verbose >= 2) {
-      warning(paste("Warning: Term types used: ", length(tform),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    tform <- tform[seq_len(length(names))]
-  }
-  col_to_cons <- c()
-  for (i in keep_constant) {
-    if (i == 0) {
-      if (length(col_to_cons) == 0) {
-        col_to_cons <- c(1)
-      } else {
-        col_to_cons <- c(col_to_cons, max(col_to_cons) + 1)
-      }
-    } else {
-      col_to_cons <- c(col_to_cons, 0)
-    }
-  }
-  if (ncol(cons_mat) > 1) {
-    if (ncol(cons_mat) != (length(keep_constant) - sum(keep_constant))) {
-      stop("Error: Constraint matrix has incorrect number of columns")
-    }
-    if (nrow(cons_mat) != length(cons_vec)) {
-      stop("Error: Constraint rows and constant lengths do not match")
-    }
-  }
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
-  }
-  tform <- tolower(tform)
-  for (i in 1:length(tform)) {
-    if (tform[i] %in% c("plin", "plinear", "product-linear")) {
-      tform[i] <- "plin"
-    } else if (tform[i] %in% c("lin", "linear")) {
-      tform[i] <- "lin"
-    } else if (tform[i] %in% c("loglin", "loglinear", "log-linear")) {
-      tform[i] <- "loglin"
-    }
-  }
-  tform_order <- c(
-    "loglin", "lin", "plin", "loglin_slope", "loglin_top",
-    "lin_slope", "lin_int", "quad_slope",
-    "step_slope", "step_int",
-    "lin_quad_slope", "lin_quad_int", "lin_exp_slope",
-    "lin_exp_int", "lin_exp_exp_slope"
-  )
-  tform_iden <- match(tform, tform_order)
-  if (any(is.na(tform_iden))) {
-    stop(paste("Missing tform option ", tform[is.na(tform_iden)],
-      ", ",
-      sep = ""
-    ))
-  }
-  if (((typeof(a_n) == "list") && (length(a_n) == 1)) || (typeof(a_n) != "list")) {
-    if (typeof(a_n) == "list") {
-      a_n <- a_n[[1]]
-    }
-    if (length(a_n) < length(names)) {
-      if (verbose >= 2) {
-        warning(paste("Warning: Parameters used: ",
-          length(a_n), ", Covariates used: ",
-          length(names), ", Remaining filled with 0.01",
-          sep = ""
-        ))
-      }
-      a_n <- c(a_n, rep(0.01, length(names) - length(a_n)))
-    } else if (length(a_n) > length(names)) {
-      stop(paste("Error: Parameters used: ", length(a_n),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    df <- data.table::data.table(
-      "term_n" = term_n, "tform" = tform,
-      "keep_constant" = keep_constant,
-      "a_n" = a_n, "names" = names,
-      "iden_const" = rep(0, length(names)),
-      "para_num" = rep(0, length(names)),
-      "current_order" = seq_len(length(tform)),
-      "constraint_order" = col_to_cons
-    )
-    df$para_num[[model_control[["para_number"]] + 1]] <- 1
-    df$tform_order <- tform_iden
-    keycol <- c("term_n", "names", "tform_order")
-    data.table::setorderv(df, keycol)
-    a_n <- df$a_n
-  } else {
-    a_0 <- a_n[[1]]
-    for (a_i in a_n) {
-      if (length(a_i) != length(a_0)) {
-        stop(paste("Error: Parameters used in first option: ",
-          length(a_0),
-          ", Parameters used in different option: ",
-          length(a_i),
-          ", please fix parameter length",
-          sep = ""
-        ))
-      }
-    }
-    if (length(a_0) < length(names)) {
-      if (verbose >= 2) {
-        warning(paste("Warning: Parameters used: ", length(a_0),
-          ", Covariates used: ", length(names),
-          ", Remaining filled with 0.01",
-          sep = ""
-        ))
-      }
-      for (i in seq_len(length(a_n))) {
-        a_n[[i]] <- c(
-          a_n[[i]],
-          rep(0.01, length(names) - length(a_n[[i]]))
-        )
-      }
-    } else if (length(a_0) > length(names)) {
-      stop(paste("Error: Parameters used: ", length(a_0),
-        ", Covariates used: ", length(names),
-        sep = ""
-      ))
-    }
-    df <- data.table::data.table(
-      "term_n" = term_n, "tform" = tform,
-      "keep_constant" = keep_constant,
-      "names" = names, "iden_const" = rep(0, length(names)),
-      "para_num" = rep(0, length(names)),
-      "current_order" = seq_along(tform),
-      "constraint_order" = col_to_cons
-    )
-    df$para_num[[model_control[["para_number"]] + 1]] <- 1
-    for (i in seq_len(length(a_n))) {
-      df[[paste("a_", i, sep = "")]] <- a_n[[i]]
-    }
-    df$tform_order <- tform_iden
-    keycol <- c("term_n", "names", "tform_order")
-    data.table::setorderv(df, keycol)
-    for (i in seq_len(length(a_n))) {
-      a_n[[i]] <- df[[paste("a_", i, sep = "")]]
-    }
-  }
-  a <- df$tform
-  for (i in seq_len(length(a))) {
-    if (i < length(a)) {
-      if ((a[i] == "loglin_slope")) {
-        if (a[i + 1] != "loglin_top") {
-          stop("Error: loglin_top missing")
-        }
-      } else if ((a[i] == "lin_slope")) {
-        if (a[i + 1] != "lin_int") {
-          stop("Error: lin_int missing")
-        }
-      } else if ((a[i] == "step_slope")) {
-        if (a[i + 1] != "step_int") {
-          stop("Error: step_int missing")
-        }
-      } else if ((a[i] == "lin_quad_slope")) {
-        if (a[i + 1] != "lin_quad_int") {
-          stop("Error: lin_quad_int missing")
-        }
-      } else if ((a[i] == "lin_exp_slope")) {
-        if (a[i + 1] != "lin_exp_int") {
-          stop("Error: lin_exp_int missing")
-        }
-      } else if ((a[i] == "lin_exp_int")) {
-        if (a[i + 1] != "lin_exp_exp_slope") {
-          stop("Error: lin_exp_exp_slope missing")
-        }
-      }
-    }
-    if (i > 1) {
-      if ((a[i] == "lin_int")) {
-        if (a[i - 1] != "lin_slope") {
-          stop("Error: lin_slope missing")
-        }
-      } else if ((a[i] == "step_int")) {
-        if (a[i - 1] != "step_slope") {
-          stop("Error: step_slope missing")
-        }
-      } else if ((a[i] == "lin_quad_int")) {
-        if (a[i - 1] != "lin_quad_slope") {
-          stop("Error: lin_quad_slope missing")
-        }
-      } else if ((a[i] == "lin_exp_int")) {
-        if (a[i - 1] != "lin_exp_slope") {
-          stop("Error: lin_exp_slope missing")
-        }
-      } else if ((a[i] == "lin_exp_exp_slope")) {
-        if (a[i - 1] != "lin_exp_int") {
-          stop("Error: lin_exp_int missing")
-        }
-      }
-    }
-  }
-  col_to_cons <- df$constraint_order
-  cons_order <- c()
-  for (i in col_to_cons) {
-    if (i > 0) {
-      cons_order <- c(cons_order, i)
-    }
-  }
-  if (ncol(cons_mat) > 1) {
-    colnames(cons_mat) <- seq_len(ncol(cons_mat))
-    r0 <- nrow(cons_mat)
-    c0 <- ncol(cons_mat)
-    cons_mat <- as.matrix(cons_mat[, cons_order])
-    if ((nrow(cons_mat) == r0) && (ncol(cons_mat) == c0)) {
-      # all good
-    } else if ((nrow(cons_mat) == c0) && (ncol(cons_mat) == r0)) {
-      cons_mat <- t(cons_mat)
-    } else {
-      stop("Matrix reordering failed") # nocov
-    }
-  }
-  a_temp <- df$iden_const
-  b_temp <- df$para_num
-  para_num <- which(b_temp == 1) - 1
-  list(
-    "term_n" = df$term_n, "tform" = df$tform, "keep_constant" = df$keep_constant,
-    "a_n" = a_n, "names" = df$names,
-    "Permutation" = df$current_order,
-    "cons_mat" = unname(cons_mat), "cons_vec" = cons_vec,
-    "para_num" = para_num
-  )
-}
-
 #' Automatically assigns missing values in listed columns
 #'
 #' \code{Replace_Missing} checks each column and fills in NA values
@@ -651,8 +68,8 @@ Def_Control <- function(control) {
   control_def <- list(
     "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
     "halfmax" = 5, "epsilon" = 1e-4,
-    "deriv_epsilon" = 1e-4, "abs_max" = 1.0,
-    "change_all" = TRUE, "dose_abs_max" = 100.0,
+    "deriv_epsilon" = 1e-4, "step_max" = 1.0,
+    "change_all" = TRUE, "thres_step_max" = 100.0,
     "ties" = "breslow", "double_step" = 1,
     "ncores" = as.numeric(detectCores())
   )
@@ -702,8 +119,8 @@ Def_Control <- function(control) {
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
     "halfmax" = 0, "epsilon" = 0.0,
-    "deriv_epsilon" = 0.0, "abs_max" = 0.0,
-    "dose_abs_max" = 0.0
+    "deriv_epsilon" = 0.0, "step_max" = 0.0,
+    "thres_step_max" = 0.0
   )
   for (nm in names(control_min)) {
     if (control[[nm]] < control_min[[nm]]) {
@@ -718,72 +135,6 @@ Def_Control <- function(control) {
     control[nm] <- as.integer(control[nm])
   }
   return(control)
-}
-
-#' Automatically assigns geometric-mixture values and checks that a valid modelform is used
-#'
-#' \code{Def_modelform_fix} checks and assigns default values for modelform options
-#'
-#' @inheritParams R_template
-#' @family Data Cleaning Functions
-#' @return returns a filled list
-#' @export
-#' @examples
-#' library(data.table)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' control <- Def_Control(control)
-#' model_control <- list("single" = TRUE)
-#' model_control <- Def_model_control(model_control)
-#' term_n <- c(0, 1, 1)
-#' modelform <- "a"
-#' val <- Def_modelform_fix(control, model_control, modelform, term_n)
-#' model_control <- val$model_control
-#' modelform <- val$modelform
-#'
-Def_modelform_fix <- function(control, model_control, modelform, term_n) {
-  term_tot <- max(term_n) + 1
-  modelform <- toupper(modelform)
-  acceptable <- toupper(c(
-    "A", "PA", "PAE", "M", "ME", "GMIX", "GMIX-R", "GMIX-E",
-    "multiplicative", "multiplicative-excess", "additive",
-    "product-additive", "product-additive-excess"
-  ))
-  if (modelform %in% acceptable) {
-    if (modelform %in% c("ME", "MULTIPLICATIVE", "MULTIPLICATIVE-EXCESS")) {
-      modelform <- "M"
-    } else if (modelform == "ADDITIVE") {
-      modelform <- "A"
-    } else if (modelform == "PRODUCT-ADDITIVE") {
-      modelform <- "PA"
-    } else if (modelform == "PRODUCT-ADDITIVE-EXCESS") {
-      modelform <- "PAE"
-    } else if (modelform == "GMIX-R") {
-      model_control$gmix_term <- rep(0, term_tot)
-      modelform <- "GMIX"
-    } else if (modelform == "GMIX-E") {
-      model_control$gmix_term <- rep(1, term_tot)
-      modelform <- "GMIX"
-    }
-  } else {
-    stop(paste("Error: Model formula ", modelform,
-      " not in acceptable list",
-      sep = ""
-    ))
-  }
-  if (modelform == "GMIX") {
-    gmix_term <- model_control$gmix_term
-    if (length(gmix_term) != term_tot) {
-      stop(paste("Error: Terms used:", term_tot,
-        ", Terms with gmix types available:",
-        length(gmix_term),
-        sep = " "
-      ))
-    }
-  }
-  return(list("modelform" = modelform, "model_control" = model_control))
 }
 
 #' Automatically assigns missing model control values
@@ -913,118 +264,6 @@ Def_model_control <- function(control) {
     }
   }
   return(control)
-}
-
-#' Automatically assigns missing guessing control values
-#'
-#' \code{Def_Control_Guess} checks and assigns default values
-#'
-#' @inheritParams R_template
-#' @family Data Cleaning Functions
-#' @return returns a filled list
-#' @export
-#' @examples
-#' library(data.table)
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10,
-#'   "loglin_min" = -1, "loglin_max" = 1, "loglin_method" = "uniform"
-#' )
-#' a_n <- c(0.1, 2, 1.3)
-#' guesses_control <- Def_Control_Guess(guesses_control, a_n)
-#'
-Def_Control_Guess <- function(guesses_control, a_n) {
-  names(guesses_control) <- tolower(names(guesses_control))
-  if ("verbose" %in% names(guesses_control)) { # determines extra printing
-    guesses_control$verbose <- Check_Verbose(guesses_control$verbose)
-  } else {
-    guesses_control$verbose <- 0
-  }
-  if ("maxiter" %in% names(guesses_control)) { # determines the iterations for each guess
-    # fine
-  } else {
-    guesses_control$maxiter <- 5
-  }
-  if ("guesses" %in% names(guesses_control)) { # determines the number of guesses
-    # fine
-  } else {
-    guesses_control$guesses <- 10
-  }
-  if ("exp_min" %in% names(guesses_control)) { # minimum exponential parameter change
-    # fine
-  } else {
-    guesses_control$exp_min <- -1
-  }
-  if ("exp_max" %in% names(guesses_control)) { # maximum exponential parameter change
-    # fine
-  } else {
-    guesses_control$exp_max <- 1
-  }
-  if ("intercept_min" %in% names(guesses_control)) { # minimum intercept parameter change
-    # fine
-  } else {
-    guesses_control$intercept_min <- -1
-  }
-  if ("intercept_max" %in% names(guesses_control)) { # maximum intercept parameter change
-    # fine
-  } else {
-    guesses_control$intercept_max <- 1
-  }
-  if ("lin_min" %in% names(guesses_control)) { # minimum linear parameter change
-    # fine
-  } else {
-    guesses_control$lin_min <- 0.1
-  }
-  if ("lin_max" %in% names(guesses_control)) { # maximum linear parameter change
-    # fine
-  } else {
-    guesses_control$lin_max <- 1
-  }
-  if ("exp_slope_min" %in% names(guesses_control)) { # minimum exp_slope parameter change
-    # fine
-  } else {
-    guesses_control$exp_slope_min <- 0.001
-  }
-  if ("exp_slope_max" %in% names(guesses_control)) { # maximum exp_slope parameter change
-    # fine
-  } else {
-    guesses_control$exp_slope_max <- 2
-  }
-  if ("term_initial" %in% names(guesses_control)) { # list of term numbers for tiered guessing
-    # fine
-  } else {
-    guesses_control$term_initial <- c(0)
-  }
-  if ("guess_constant" %in% names(guesses_control)) {
-    # binary values for if a parameter is distributed (0) or not (1)
-    if (length(guesses_control$guess_constant) < length(a_n)) {
-      guesses_control$guess_constant <- c(
-        guesses_control$guess_constant,
-        rep(0, length(a_n) - length(guesses_control$guess_constant))
-      )
-    }
-  } else {
-    guesses_control$guess_constant <- rep(0, length(a_n))
-  }
-  if ("guesses_start" %in% names(guesses_control)) {
-    # number of guesses for first part of tiered guessing
-    # fine
-  } else {
-    guesses_control$guesses_start <- guesses_control$guesses
-  }
-  if ("strata" %in% names(guesses_control)) { # if stratification is used
-    # fine
-  } else {
-    guesses_control$strata <- FALSE
-  }
-  if (("rmin" %in% names(guesses_control)) && ("rmax" %in% names(guesses_control))) {
-    # if rmin/rmax used is used
-    # fine
-  } else {
-    # if they are unequal length, the default is used
-    guesses_control$rmin <- c(-1)
-    guesses_control$rmax <- c(-1, -1)
-  }
-  return(guesses_control)
 }
 
 #' Calculates Full Parameter list for Special Dose Formula
@@ -1349,9 +588,12 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
 #'
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
-    return(2 * (unlist(alternative_model["LogLik"], use.names = FALSE) - unlist(null_model["LogLik"], use.names = FALSE)))
+    val <- 2 * (unlist(alternative_model["LogLik"], use.names = FALSE) - unlist(null_model["LogLik"], use.names = FALSE))
+    pval <- pchisq(val, 1)
+    return(list("value" = val, "p value" = pval))
+  } else {
+    stop("Error: models input did not contain LogLik values")
   }
-  stop("Error: models input did not contain LogLik values")
   return(NULL) # nocov
 }
 
@@ -1534,8 +776,8 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' event <- "c"
 #' control <- list(
 #'   "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9,
-#'   "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0,
+#'   "deriv_epsilon" = 1e-9, "step_max" = 1.0,
+#'   "thres_step_max" = 100.0,
 #'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
 #' )
 #' grt_f <- function(df, time_col) {
@@ -2662,242 +1904,30 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
   list(df = as.data.table(df_group), bounds = categ_bounds)
 }
 
-#' Converts a string equation to regression model inputs
+#' Prints a cox regression output clearly
 #'
-#' \code{Convert_Model_Eq} Converts a string expression of a risk model into the vectors used by different Colossus regression functions
+#' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
 #' @inheritParams R_template
 #'
-#' @return returns a list of regression inputs
+#' @return return nothing, prints the results to console
 #' @export
-#' @family Data Cleaning Functions
-#' @examples
-#' library(data.table)
-#' a <- c(0, 1, 2, 3, 4, 5, 6)
-#' b <- c(1, 2, 3, 4, 5, 6, 7)
-#' c <- c(0, 1, 0, 0, 0, 1, 0)
-#' d <- c(1, 2, 3, 4, 5, 6, 7)
-#' e <- c(2, 3, 4, 5, 6, 7, 8)
-#' table <- data.table::data.table(
-#'   "a" = a, "b" = b, "c" = c,
-#'   "d" = d, "e" = e
-#' )
-#' Model_Eq <- "cox(a,b, c) ~ loglinear(d, factor(e), 0) + multiplicative()"
-#' e <- Convert_Model_Eq(Model_Eq, table)
+#' @family Output and Information Functions
+print.coxres <- function(object, digits = 2){
+  Interpret_Output(object, digits)
+}
+
+#' Prints a poisson regression output clearly
 #'
-Convert_Model_Eq <- function(Model_Eq, df) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  # values to assign to
-  term_n <- c()
-  tform <- c()
-  names <- c()
-  modelform <- "NONE"
-  surv_model_type <- "NONE"
-  tstart <- "NONE"
-  tend <- "NONE"
-  pyr <- "NONE"
-  event <- "NONE"
-  strata <- "NONE"
-  # split into the survival model type and the rest of the model terms
-  Model_Eq <- gsub(" ", "", Model_Eq)
-  first_split <- lapply(strsplit(Model_Eq, ""), function(x) which(x == "~"))[[1]]
-  if (length(first_split) == 0) {
-    stop("Error: The model equation did not contain ~")
-  }
-  surv_obj <- substr(Model_Eq, 1, first_split - 1)
-  model_obj <- substr(Model_Eq, first_split + 1, nchar(Model_Eq))
-  # split the survival model type
-  second_split <- lapply(strsplit(surv_obj, ""), function(x) which(x == "("))[[1]]
-  if (length(second_split) == 0) {
-    stop("Error: The left hand side did not contain (")
-  }
-  surv_type <- tolower(substr(surv_obj, 1, second_split - 1))
-  surv_paras <- substr(surv_obj, second_split + 1, nchar(surv_obj) - 1)
-  surv_paras <- strsplit(surv_paras, ",")[[1]]
-  # assign survival model values
-  surv_model_type <- surv_type
-  if (surv_type == "cox") {
-    if (length(surv_paras) == 2) {
-      # tend and event
-      tend <- surv_paras[1]
-      event <- surv_paras[2]
-    } else if (length(surv_paras) == 3) {
-      # tstart, tend, and event
-      tstart <- surv_paras[1]
-      tend <- surv_paras[2]
-      event <- surv_paras[3]
-    } else {
-      stop("Error: Invalid number of parameters for cox model")
-    }
-  } else if (surv_type == "cox_strata") {
-    if (length(surv_paras) == 3) {
-      # tend and event, then strata
-      tend <- surv_paras[1]
-      event <- surv_paras[2]
-      strata <- surv_paras[3]
-    } else if (length(surv_paras) == 4) {
-      # tstart, tend, and event, then strata
-      tstart <- surv_paras[1]
-      tend <- surv_paras[2]
-      event <- surv_paras[3]
-      strata <- surv_paras[4]
-    } else {
-      stop("Error: Invalid number of parameters for cox_strata model")
-    }
-  } else if (surv_type == "poisson") {
-    if (length(surv_paras) == 2) {
-      pyr <- surv_paras[1]
-      event <- surv_paras[2]
-    } else {
-      stop("Error: Invalid number of parameters for poisson model")
-    }
-  } else if (surv_type == "poisson_strata") {
-    if (length(surv_paras) > 2) {
-      pyr <- surv_paras[1]
-      event <- surv_paras[2]
-      strata <- surv_paras[3:length(surv_paras)]
-    } else {
-      stop("Error: Invalid number of parameters for poisson model with stratification")
-    }
-  } else {
-    stop("Error: Invalid survival model type for poisson")
-  }
-  #
-  right_model_terms <- strsplit(model_obj, "\\+")[[1]]
-  for (term_i in seq_along(right_model_terms)) {
-    # seperate the term type or model-formula from parameters
-    third_split <- lapply(strsplit(right_model_terms[term_i], ""), function(x) which(x == "("))[[1]]
-    if (length(third_split) == 0) {
-      stop(paste('Error: right hand side element "', right_model_terms[term_i], '" did not contain (', sep = ""))
-    }
-    model_type <- tolower(substr(right_model_terms[term_i], 1, third_split - 1))
-    model_type <- gsub("_", "-", model_type)
-    tform_acceptable <- c(
-      "plin", "lin", "loglin", "loglin-dose", "lin-dose",
-      "lin-quad-dose", "lin-exp-dose", "plinear", "product-linear", "linear",
-      "loglinear", "log-linear", "loglinear-dose", "log-linear-dose", "linear-dose", "linear-piecewise",
-      "quadratic", "quad", "quad-dose", "quadratic-dose",
-      "step-dose", "step-piecewise",
-      "linear-quadratic-dose", "linear-quadratic-piecewise",
-      "linear-exponential-dose", "linear-exponential-piecewise"
-    )
-    modelform_acceptable <- c(
-      "multiplicative", "multiplicative-excess", "additive", "product-additive",
-      "product-additive-excess", "a", "pa", "pae", "m", "me",
-      "gmix", "geometric-mixture", "gmix-r", "relative-geometric-mixture",
-      "gmix-e", "excess-geometric-mixture"
-    )
-    if (model_type %in% tform_acceptable) {
-      model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-      model_paras <- strsplit(model_paras, ",")[[1]]
-      last_entry <- model_paras[length(model_paras)]
-      if (is.na(suppressWarnings(as.integer(last_entry)))) {
-        # the last element isn't an integer
-        term_num <- 0
-      } else {
-        model_paras <- model_paras[1:(length(model_paras) - 1)]
-        term_num <- as.integer(last_entry)
-      }
-      for (subterm_i in seq_along(model_paras)) {
-        # add element
-        if (substr(model_paras[subterm_i], 1, 7) == "factor(") {
-          # baseline is set by using factor(column;baseline=level)
-          col_name <- substr(model_paras[subterm_i], 8, nchar(model_paras[subterm_i]) - 1)
-          base_split <- lapply(strsplit(col_name, ""), function(x) which(x == ";"))[[1]]
-          if (length(base_split) == 1) {
-            col_names <- substr(col_name, 1, base_split - 1)
-            base_line <- substr(col_name, base_split + 1 + 9, nchar(col_name))
-            base_level <- paste(col_names, base_line, sep = "_")
-            #
-            val <- factorize(df, col_names)
-            df <- val$df
-            col_name <- val$cols
-            if (base_level %in% names(df)) {
-              df <- df[, (base_level) := NULL]
-              col_name <- col_name[!col_name == base_level]
-            } else {
-              warning(paste("Warning: Baseline level ", base_level, " not found.", sep = ""))
-            }
-          } else {
-            val <- factorize(df, col_name)
-            df <- val$df
-            col_name <- val$cols
-          }
-        } else {
-          col_name <- c(model_paras[subterm_i])
-        }
-        # convert subterm formula
-        model_terms <- c(model_type)
-        if (model_type %in% c("plin", "plinear", "product-linear")) {
-          model_terms <- c("plin")
-        } else if (model_type %in% c("lin", "linear")) {
-          model_terms <- c("lin")
-        } else if (model_type %in% c("loglin", "loglinear", "log-linear")) {
-          model_terms <- c("loglin")
-        } else if (model_type %in% c("loglin-dose", "loglinear-dose", "log-linear-dose")) {
-          model_terms <- c("loglin_slope", "loglin_top")
-        } else if (model_type %in% c("lin-dose", "linear-dose", "linear-piecewise")) {
-          model_terms <- c("lin_slope", "lin_int")
-        } else if (model_type %in% c("quadratic", "quad", "quad-dose", "quadratic-dose")) {
-          model_terms <- c("quad_slope")
-        } else if (model_type %in% c("step-dose", "step-piecewise")) {
-          model_terms <- c("step_slope", "step_int")
-        } else if (model_type %in% c("lin-quad-dose", "linear-quadratic-dose", "linear-quadratic-piecewise")) {
-          model_terms <- c("lin_quad_slope", "lin_quad_int")
-        } else if (model_type %in% c("lin-exp-dose", "linear-exponential-dose", "linear-exponential-piecewise")) {
-          model_terms <- c("lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
-        } else {
-          stop(paste("Error: Unknown subterm type used, ", model_type, sep = ""))
-        }
-        for (col in col_name) {
-          for (model_term in model_terms) {
-            names <- c(names, col)
-            tform <- c(tform, model_term)
-            term_n <- c(term_n, term_num)
-          }
-        }
-      }
-    } else if (model_type %in% modelform_acceptable) {
-      if (model_type %in% c("m", "me", "multiplicative", "multiplicative-excess")) {
-        model_type <- "M"
-      } else if (model_type %in% c("a", "additive")) {
-        model_type <- "A"
-      } else if (model_type %in% c("pa", "product-additive")) {
-        model_type <- "PA"
-      } else if (model_type %in% c("pae", "product-additive-excess")) {
-        model_type <- "PAE"
-      } else if (model_type %in% c("gmix", "geometric-mixture")) {
-        model_type <- "GMIX"
-      } else if (model_type %in% c("gmix-r", "relative-geometric-mixture")) {
-        model_type <- "GMIX-R"
-      } else if (model_type %in% c("gmix-e", "excess-geometric-mixture")) {
-        model_type <- "GMIX-E"
-      }
-      if (modelform == "NONE") {
-        modelform <- model_type
-      } else {
-        stop("Error: modelform defined twice")
-      }
-    } else {
-      stop(paste("Error: Unknown option encountered, ", model_type, sep = ""))
-    }
-  }
-  if (modelform == "NONE") {
-    modelform <- "M"
-  }
-  return(list(
-    "term_n" = term_n, "tform" = tform, "names" = names, "modelform" = modelform,
-    "survival_model_type" = surv_model_type,
-    "start_age" = tstart, "end_age" = tend, "person_year" = pyr, "event" = event, "strata" = strata,
-    "data" = df
-  ))
+#' \code{print.poisres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @inheritParams R_template
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.poisres <- function(object, digits = 2){
+  Interpret_Output(object, digits)
 }
 
 #' Prints a regression output clearly
@@ -2937,7 +1967,7 @@ Convert_Model_Eq <- function(Model_Eq, df) {
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
 #'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
+#'   "step_max" = 1.0, "thres_step_max" = 100.0,
 #'   "verbose" = FALSE,
 #'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 #' )
@@ -2952,14 +1982,6 @@ Convert_Model_Eq <- function(Model_Eq, df) {
 #' Interpret_Output(e)
 #'
 Interpret_Output <- function(out_list, digits = 2) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
   # make sure the output isn't an error
   passed <- out_list$Status
   message("|-------------------------------------------------------------------|")
@@ -3002,24 +2024,24 @@ Interpret_Output <- function(out_list, digits = 2) {
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
         strata_odds <- out_list$StrataOdds
-        if ("Standard_Deviation" %in% names(out_list)){
-            stdev <- out_list$Standard_Deviation
-            pval <- 2*pnorm(-abs(beta_0 / stdev))
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Central Estimate" = beta_0,
-              "Standard Error" = stdev,
-              "2-tail p-value" = pval
-            )
+        if ("Standard_Deviation" %in% names(out_list)) {
+          stdev <- out_list$Standard_Deviation
+          pval <- 2 * pnorm(-abs(beta_0 / stdev))
+          res_table <- data.table(
+            "Covariate" = names,
+            "Subterm" = tforms,
+            "Term Number" = term_n,
+            "Central Estimate" = beta_0,
+            "Standard Error" = stdev,
+            "2-tail p-value" = pval
+          )
         } else {
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Central Estimate" = beta_0
-            )
+          res_table <- data.table(
+            "Covariate" = names,
+            "Subterm" = tforms,
+            "Term Number" = term_n,
+            "Central Estimate" = beta_0
+          )
         }
         message("Final Results")
         print(res_table)
@@ -3049,24 +2071,24 @@ Interpret_Output <- function(out_list, digits = 2) {
         tforms <- out_list$Parameter_Lists$tforms
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
-        if ("Standard_Deviation" %in% names(out_list)){
-            stdev <- out_list$Standard_Deviation
-            pval <- 2 * pnorm(-abs(beta_0 / stdev))
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Central Estimate" = beta_0,
-              "Standard Error" = stdev,
-              "2-tail p-value" = pval
-            )
+        if ("Standard_Deviation" %in% names(out_list)) {
+          stdev <- out_list$Standard_Deviation
+          pval <- 2 * pnorm(-abs(beta_0 / stdev))
+          res_table <- data.table(
+            "Covariate" = names,
+            "Subterm" = tforms,
+            "Term Number" = term_n,
+            "Central Estimate" = beta_0,
+            "Standard Error" = stdev,
+            "2-tail p-value" = pval
+          )
         } else {
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Central Estimate" = beta_0
-            )
+          res_table <- data.table(
+            "Covariate" = names,
+            "Subterm" = tforms,
+            "Term Number" = term_n,
+            "Central Estimate" = beta_0
+          )
         }
         message("Final Results")
         print(res_table)
