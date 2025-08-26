@@ -69,13 +69,6 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
-  if (control$verbose >= 2) {
-    if (any(val$Permutation != seq_along(tform))) {
-      if (control$verbose >= 2) {
-        warning("Warning: model covariate order changed")
-      }
-    }
-  }
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
@@ -283,12 +276,6 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
 #'   "deriv_epsilon" = 1e-3, "step_max" = 1.0,
 #'   "thres_step_max" = 100.0, "verbose" = FALSE,
 #'   "ties" = "breslow", "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10,
-#'   "lin_min" = 0.001, "lin_max" = 1,
-#'   "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
 #' )
 #' strat_col <- "f"
 #' e <- RunPoissonRegression_Joint_Omnibus(
@@ -709,13 +696,6 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
-  if (control$verbose >= 2) {
-    if (any(val$Permutation != seq_along(tform))) {
-      if (control$verbose >= 2) {
-        warning("Warning: model covariate order changed")
-      }
-    }
-  }
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }

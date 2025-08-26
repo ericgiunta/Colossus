@@ -58,6 +58,6 @@ The first method runs each regression and returns matrices for the final paramet
 Note that there is no strict requirement for the realization columns to be realizations of a distributed column. A user could use this method to compare models with the same formula but different covariates. The only difficulty is that Colossus does not refresh the parameter estimates between realization regressions, so the user may need to keep in mind feasible parameter space. If individual realizations are being optimized and the initial parameter estimate is infeasible, the parameter estimates associated with the negative term are reduced in magnitude. In most cases, this is enough to find a nearby feasible space to start at.
 
 ```{r, eval=FALSE}
-e_mcml <- CoxRunMulti(model, df, a_n  = a_n, realization_columns = realization_columns, realization_index = realization_index, mcml = TRUE)
-e_fma <- CoxRunMulti(model, df, a_n  = a_n, realization_columns = realization_columns, realization_index = realization_index, fma = TRUE)
+e_mcml <- CoxRunMulti(model, df, a_n = a_n, realization_columns = realization_columns, realization_index = realization_index, mcml = TRUE)
+e_fma <- CoxRunMulti(model, df, a_n = a_n, realization_columns = realization_columns, realization_index = realization_index, fma = TRUE)
 ```

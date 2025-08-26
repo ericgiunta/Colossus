@@ -385,7 +385,7 @@ validate_poissurv <- function(x, df) {
   }
 }
 
-validate_coxres <- function(x, df){
+validate_coxres <- function(x, df) {
   coxmodel <- x$model
   null <- coxmodel$null
   control <- x$control
@@ -399,7 +399,7 @@ validate_coxres <- function(x, df){
   x
 }
 
-validate_poisres <- function(x, df){
+validate_poisres <- function(x, df) {
   poismodel <- x$model
   null <- poismodel$null
   control <- x$control

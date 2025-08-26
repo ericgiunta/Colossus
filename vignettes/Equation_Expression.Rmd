@@ -24,7 +24,7 @@ The underlying functions in Colossus specify a survival model using a series of 
 ## Equation Expression
 
 
-Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a stata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive).
+Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a strata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -35,7 +35,7 @@ $$
 $$
 </p>
 
-Based on the number of entries, the format of the time interval is assumed. Cox models used an entry, exit, and event time. These can be either named 'start', 'tend', and 'event' or icluded in order. If none are named, a left truncated interval is assumed. A stratified cox model includes the named entry 'strata' or the right-most entry is assumed to be the stratification column. A Fine-Gray model adds a weighting column to the standard Cox interval representation, assumed to be an entry named 'weight' or the right-most entry. In total, the assumed order is: entry time, exit time, strata column, and weighting column.
+Based on the number of entries, the format of the time interval is assumed. Cox models used an entry, exit, and event time. These can be either named 'start', 'tend', and 'event' or included in order. If none are named, a left truncated interval is assumed. A stratified cox model includes the named entry 'strata' or the right-most entry is assumed to be the stratification column. A Fine-Gray model adds a weighting column to the standard Cox interval representation, assumed to be an entry named 'weight' or the right-most entry. In total, the assumed order is: entry time, exit time, strata column, and weighting column.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -64,7 +64,10 @@ event <- "lung"
 Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative()
 Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1) + linear(dose2, 1)
 
-df <- data.table("dose0" = 1:4, "dose1" = 2:5, "dose2" = 3:6)
+df <- data.table(
+  "dose0" = 1:4, "dose1" = 2:5, "dose2" = 3:6,
+  "t0" = c(0, 0, 1, 0), "t1" = 5:8, "lung" = c(1, 0, 0, 1)
+)
 get_form(Model_Eq, df)
 ```
 
@@ -73,11 +76,11 @@ The following tables cover the subterms and term models that are currently imple
 | Survival Type | Equivalent Aliases |
 | :---------: | :----------: |
 | Cox | "cox", "coxph" |
-| Cox stratafied | "cox_strata", "coxph_strata" |
+| Cox stratified  | "cox_strata", "coxph_strata" |
 | Poisson | "poisson", "pois" |
-| Poisson stratafied | "poisson_strata", "pois_strata"  |
+| Poisson stratified  | "poisson_strata", "pois_strata"  |
 | Fine-Gray | "finegray", "fg" |
-| Fine-Gray stratafied | "finegray_strata", "fg_strata" |
+| Fine-Gray stratified  | "finegray_strata", "fg_strata" |
 
 | Subterm Type | Equivalent Aliases |
 | :---------: | :----------: |

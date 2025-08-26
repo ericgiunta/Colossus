@@ -49,42 +49,23 @@ cancer$erate <- 0.5
 The analysis proceeds identically to a standard Poisson regression. We are interested in a linear relationship between the expected event rate and true event rate, and set the initial parameter estimate to 1.
 
 ```{r, eval=TRUE}
-pyr <- "time"
-event <- "status"
-names <- c("erate")
-term_n <- c(0)
-tform <- c("lin")
-keep_constant <- c(0)
 a_n <- c(1)
-modelform <- "M"
 control <- list(
   "ncores" = 1, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-9,
   "deriv_epsilon" = 1e-9, "verbose" = 2
 )
-e <- RunPoissonRegression_Omnibus(
-  cancer, pyr, event, names, term_n, tform,
-  keep_constant, a_n, modelform, control
-)
-
-Interpret_Output(e)
+e <- PoisRun(Poisson(time, status) ~ linear(erate), a_n = a_n, control = control)
+print(e)
 ```
 
 In this case, we found the SMR to be 0.474, analysis of the confidence interval (either Wald or Likelihood-based) could be performed to check if the results are statistically significant. Suppose we wanted to take the analysis a step further and investigate the effect of difference covariates. The SMR equation can be adjusted to either an additive or multiplicative effect, similar to any other Poisson regression model. Let us assume we are interested in the effects of biological sex. We can add another element to our model and rerun the regression.
 
 
 ```{r, eval=TRUE}
-names <- c("erate", "sex")
-term_n <- c(0, 1)
-tform <- c("lin", "lin")
-keep_constant <- c(0, 0)
 a_n <- c(1, 1)
 
-e <- RunPoissonRegression_Omnibus(
-  cancer, pyr, event, names, term_n, tform,
-  keep_constant, a_n, modelform,
-  control = control
-)
-Interpret_Output(e)
+e <- PoisRun(Poisson(time, status) ~ linear(erate, 0) + linear(sex, 1), a_n = a_n, control = control)
+print(e)
 ```
 In this case, we found the SMR for sex=0 to be 0.37 and the SMR for sex=1 to be 0.56. Once again we could further investigate the confidence intervals to determine if these estimates are statistically significant. This demonstrates how one can use Poisson regressions and external event rates to estimate differences in event rates between external populations and studied populations.
 

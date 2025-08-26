@@ -181,7 +181,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
   }
   all_names <- unique(names)
-  if (!model_control$null){
+  if (!model_control$null) {
     df <- Replace_Missing(df, all_names, 0.0, control$verbose)
     # make sure any constant 0 columns are constant
     for (i in seq_along(keep_constant)) {

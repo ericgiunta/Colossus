@@ -1913,7 +1913,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #' @return return nothing, prints the results to console
 #' @export
 #' @family Output and Information Functions
-print.coxres <- function(object, digits = 2){
+print.coxres <- function(object, digits = 2) {
   Interpret_Output(object, digits)
 }
 
@@ -1926,7 +1926,7 @@ print.coxres <- function(object, digits = 2){
 #' @return return nothing, prints the results to console
 #' @export
 #' @family Output and Information Functions
-print.poisres <- function(object, digits = 2){
+print.poisres <- function(object, digits = 2) {
   Interpret_Output(object, digits)
 }
 

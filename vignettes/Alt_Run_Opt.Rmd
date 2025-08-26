@@ -55,7 +55,7 @@ In code, this is done by adding an additional parameter for the stratification c
 ```{r, eval=FALSE}
 Strat_Col <- "e"
 e <- CoxRun_Strata(Cox(time1, time2, event, e) ~ loglinear(dose), df,
-            a_n = a_n, control = control
+  a_n = a_n, control = control
 )
 ```
 
@@ -88,18 +88,18 @@ In code, this is done by adding in a list of stratification columns and using a 
 ```{r, eval=FALSE}
 Strat_Col <- c("e")
 e <- PoisRun(Poisson_Strata(pyr, event, e) ~ loglinear(dose), df,
-    a_n = a_n, control = control
+  a_n = a_n, control = control
 )
 ```
 
 ## Non-Derivative Calculation
 
-Colossus uses Newton's method to perform the regression, which can become computationally intensive as the model becomes more complicated. So, Colossus contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. Theis ability is left for the user's convenience.
+Colossus uses Newton's method to perform the regression, which can become computationally intensive as the model becomes more complicated. So, Colossus contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. This ability is left for the user's convenience.
 
 The code is similar to previous examples:
 ```{r, eval=FALSE}
 e <- CoxRun(Cox(time1, time2, event) ~ loglinear(dose), df,
-            a_n = a_n, control = control, single = TRUE
+  a_n = a_n, control = control, single = TRUE
 )
 ```
 

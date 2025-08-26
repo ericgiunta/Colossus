@@ -34,17 +34,17 @@ CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control
     res <- get_form(model, table)
     coxmodel <- res$model
     df <- res$data
-  # } else if (class(formula) == "function") {
-  #   # using a formula class
-  #   res <- get_form(as.formula(formula), table)
-  #   coxmodel <- res$model
-  #   df <- res$data
+    # } else if (class(formula) == "function") {
+    #   # using a formula class
+    #   res <- get_form(as.formula(formula), table)
+    #   coxmodel <- res$model
+    #   df <- res$data
   } else {
     print(model)
     stop(gettextf(
-        "Incorrect type used for formula, '%s', must be formula or coxmodel class",
-        class(model)
-      ))
+      "Incorrect type used for formula, '%s', must be formula or coxmodel class",
+      class(model)
+    ))
   }
   # ------------------------------------------------------------------------------ #
   # we want to let the user add in control arguements to their call
@@ -113,7 +113,7 @@ CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control
       } else if (all(sort(unique(tform)) == c("loglin", "plin")) && sum(tform == "plin") == 1) {
         model_control[["linear_err"]] <- TRUE
       }
-    } else if (modelform == "GMIX"){
+    } else if (modelform == "GMIX") {
       model_control[["gmix_term"]] <- coxmodel$gmix_term
       model_control[["gmix_theta"]] <- coxmodel$gmix_theta
     }
@@ -149,7 +149,7 @@ CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
-  if (model_control[["constraint"]]){
+  if (model_control[["constraint"]]) {
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
@@ -195,9 +195,9 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
     df <- res$data
   } else {
     stop(gettextf(
-        "Incorrect type used for formula, '%s', must be formula or poismodel class",
-        class(model)
-      ))
+      "Incorrect type used for formula, '%s', must be formula or poismodel class",
+      class(model)
+    ))
   }
   # ------------------------------------------------------------------------------ #
   # we want to let the user add in control arguements to their call
@@ -251,7 +251,7 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
     # check for basic and linear_err
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
-    } else if (modelform == "GMIX"){
+    } else if (modelform == "GMIX") {
       model_control["gmix_term"] <- coxmodel$gmix_term
       model_control["gmix_theta"] <- coxmodel$gmix_theta
     }
@@ -289,13 +289,15 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
   poisres
 }
 
+# PoisRunJoint <- function(model0, model1, table, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, ...)
+
 #' @export
-RelativeRisk <- function(object, df){
+RelativeRisk <- function(object, df) {
   UseMethod("RelativeRisk", object)
 }
 
 #' @export
-RelativeRisk.default <- function(object, df){
+RelativeRisk.default <- function(object, df) {
   return(object)
 }
 
@@ -325,7 +327,7 @@ RelativeRisk.default <- function(object, df){
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 #' RelativeRisk(res, df)
-RelativeRisk.coxres <- function(object, df){
+RelativeRisk.coxres <- function(object, df) {
   #
   coxmodel <- object$model
   time1 <- coxmodel$start_age
@@ -385,7 +387,7 @@ RelativeRisk.coxres <- function(object, df){
 #'   "verbose" = FALSE
 #' )
 #' plot(res, df, plot_options)
-plot.coxres <- function(object, df, plot_options, ...){
+plot.coxres <- function(object, df, plot_options, ...) {
   #
   coxmodel <- object$model
   time1 <- coxmodel$start_age
@@ -482,9 +484,9 @@ CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), re
   } else {
     print(model)
     stop(gettextf(
-        "Incorrect type used for formula, '%s', must be formula or coxmodel class",
-        class(model)
-      ))
+      "Incorrect type used for formula, '%s', must be formula or coxmodel class",
+      class(model)
+    ))
   }
   # ------------------------------------------------------------------------------ #
   # we want to let the user add in control arguements to their call
@@ -553,7 +555,7 @@ CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), re
       } else if (all(sort(unique(tform)) == c("loglin", "plin")) && sum(tform == "plin") == 1) {
         model_control[["linear_err"]] <- TRUE
       }
-    } else if (modelform == "GMIX"){
+    } else if (modelform == "GMIX") {
       model_control[["gmix_term"]] <- coxmodel$gmix_term
       model_control[["gmix_theta"]] <- coxmodel$gmix_theta
     }
@@ -573,10 +575,10 @@ CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), re
       model_control[nm] <- gradient_control[nm]
     }
   }
-  if (fma != mcml){
+  if (fma != mcml) {
     model_control["mcml"] <- mcml
   } else {
-    if (fma){
+    if (fma) {
       stop("Do not select both fma and mcml, only pick one")
     } else {
       model_control["mcml"] <- mcml
@@ -599,7 +601,7 @@ CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), re
   res$modelcontrol <- model_control
   res$control <- control
   # ------------------------------------------------------------------------------ #
-  if (fma){
+  if (fma) {
     coxres <- new_coxresfma(res)
   } else {
     coxres <- new_coxres(res)
@@ -608,12 +610,12 @@ CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), re
 }
 
 #' @export
-LikelihoodBound <- function(object, df, curve_control = list(), control = list()){
+LikelihoodBound <- function(object, df, curve_control = list(), control = list()) {
   UseMethod("LikelihoodBound", object)
 }
 
 #' @export
-LikelihoodBound.default <- function(object, df, curve_control = list(), control = list()){
+LikelihoodBound.default <- function(object, df, curve_control = list(), control = list()) {
   return(object)
 }
 
@@ -627,7 +629,7 @@ LikelihoodBound.default <- function(object, df, curve_control = list(), control 
 #' @return returns a list of the final results
 #' @export
 #' @family Cox Wrapper Functions
-LikelihoodBound.coxres <- function(object, df, curve_control = list(), control = list(), ...){
+LikelihoodBound.coxres <- function(object, df, curve_control = list(), control = list(), ...) {
   coxmodel <- object$model
   time1 <- coxmodel$start_age
   time2 <- coxmodel$end_age
@@ -652,12 +654,12 @@ LikelihoodBound.coxres <- function(object, df, curve_control = list(), control =
   object <- validate_coxres(object, df)
   #
   a_n <- object$beta_0
-  if (missing(control)){
-      control <- object$control
+  if (missing(control)) {
+    control <- object$control
   }
   model_control <- object$modelcontrol
   #
-  if (model_control[["constraint"]]){
+  if (model_control[["constraint"]]) {
     cons_mat <- res$constraint_matrix
     cons_vec <- res$constraint_vector
   }
@@ -705,7 +707,7 @@ LikelihoodBound.coxres <- function(object, df, curve_control = list(), control =
 #' @return returns a list of the final results
 #' @export
 #' @family Cox Wrapper Functions
-LikelihoodBound.poisres <- function(object, df, curve_control = list(), control = list(), ...){
+LikelihoodBound.poisres <- function(object, df, curve_control = list(), control = list(), ...) {
   poismodel <- object$model
   pyr0 <- poismodel$person_year
   event0 <- poismodel$event
@@ -728,12 +730,12 @@ LikelihoodBound.poisres <- function(object, df, curve_control = list(), control 
   object <- validate_poisres(object, df)
   #
   a_n <- object$beta_0
-  if (missing(control)){
-      control <- object$control
+  if (missing(control)) {
+    control <- object$control
   }
   model_control <- object$modelcontrol
   #
-  if (model_control[["constraint"]]){
+  if (model_control[["constraint"]]) {
     cons_mat <- res$constraint_matrix
     cons_vec <- res$constraint_vector
   }

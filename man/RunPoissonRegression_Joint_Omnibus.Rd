@@ -104,12 +104,6 @@ control <- list(
   "thres_step_max" = 100.0, "verbose" = FALSE,
   "ties" = "breslow", "double_step" = 1
 )
-guesses_control <- list(
-  "maxiter" = 10, "guesses" = 10,
-  "lin_min" = 0.001, "lin_max" = 1,
-  "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-  "loglin_method" = "uniform", strata = FALSE
-)
 strat_col <- "f"
 e <- RunPoissonRegression_Joint_Omnibus(
   df, pyr, events, name_list,

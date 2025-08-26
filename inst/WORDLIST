@@ -10,6 +10,7 @@ codecov
 cond
 config
 CoxCurveSolver
+coxph
 cr
 csv
 CurveSolve
@@ -24,6 +25,7 @@ DMC
 efron
 et
 extrema
+fg
 FITOPT
 finegray
 func
@@ -57,6 +59,7 @@ mult
 na
 ncores
 NL
+nonCLL
 NSSC
 omp
 OMP
@@ -67,6 +70,7 @@ pearson
 pkgdown
 plin
 plinear
+pois
 poisson
 pyr
 qchi

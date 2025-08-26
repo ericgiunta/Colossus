@@ -39,6 +39,9 @@ Other Formula Interpretation:
 \code{\link{ColossusCoxSurv}()},
 \code{\link{ColossusFineGrayStrataSurv}()},
 \code{\link{ColossusFineGraySurv}()},
-\code{\link{ColossusPoisSurv}()}
+\code{\link{ColossusPoisSurv}()},
+\code{\link{get_form_list}()},
+\code{\link{get_form_risk}()},
+\code{\link{get_form_surv}()}
 }
 \concept{Formula Interpretation}

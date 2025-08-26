@@ -1,8 +1,7 @@
 ---
 title: "Matched Case-Control Logistic Regression"
 output:
-  rmarkdown::html_vignette:
-    css: mystyle.css
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Matched Case-Control Logistic Regression}
   %\VignetteEngine{knitr::rmarkdown}

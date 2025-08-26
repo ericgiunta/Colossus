@@ -1,3 +1,127 @@
+get_form_joint <- function(formula_1, formula_2, formula_shared, df) {
+  #
+  res <- get_form(formula_1, table)
+  model_1 <- res$model
+  df <- res$data
+  #
+  res <- get_form(formula_2, df)
+  model_2 <- res$model
+  df <- res$data
+  #
+  res <- get_form_risk(formula_shared, df)
+  model_share <- res$model
+  df <- res$data
+  #
+  # Now we need to check that the values are similar
+  # The pyr should all be the same
+  if (model_1$person_year != model_2$person_year) {
+    stop(paste("The joint models need to use the same person-year column. Instead they use ", model_1$person_year, " and ", model_2$person_year, ".", sep = ""))
+  }
+  # The strata should match
+  if (model_1$strata != model_2$strata) {
+    stop(paste("The joint models need to use the same stratification.", sep = ""))
+  }
+  # The modelform should match
+  if (model_1$modelform != model_2$modelform) {
+    stop(paste("The joint models need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_2$modelform, ".", sep = ""))
+  }
+  if (model_1$gmix_theta != model_2$gmix_theta) {
+    stop(paste("The joint models need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_2$gmix_theta, ".", sep = ""))
+  }
+  if (model_share$tform != c()) {
+    if (model_1$modelform != model_share$modelform) {
+      stop(paste("The joint models and the shared model need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_share$modelform, ".", sep = ""))
+    }
+    if (model_1$gmix_theta != model_share$gmix_theta) {
+      stop(paste("The joint models and the shared model need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_share$gmix_theta, ".", sep = ""))
+    }
+  } else {
+    model_share$modelform <- model_1$modelform
+    model_share$gmix_theta <- model_1$gmix_theta
+  }
+  # Now we pull everything out and get the joint model built
+  # Pull it all out
+  events <- c(model_1$event, model_2$event)
+  name_list <- list(
+    "shared" = model_share$names,
+    "e0" = model_1$names,
+    "e1" = model_2$names
+  )
+  term_n_list <- list(
+    "shared" = model_share$term_n,
+    "e0" = model_1$term_n,
+    "e1" = model_2$term_n
+  )
+  tform_list <- list(
+    "shared" = model_share$tform,
+    "e0" = model_1$tform,
+    "e1" = model_2$tform
+  )
+  keep_constant_list <- list(
+    "shared" = c(),
+    "e0" = c(),
+    "e1" = c()
+  )
+  a_n_list <- list(
+    "shared" = c(),
+    "e0" = c(),
+    "e1" = c()
+  )
+  # Combine it
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
+  val <- Joint_Multiple_Events(
+    df, events, name_list,
+    term_n_list, tform_list,
+    keep_constant_list, a_n_list
+  )
+  df <- val$df
+  names <- val$names
+  term_n <- val$term_n
+  tform <- val$tform
+  keep_constant <- val$keep_constant
+  a_n <- val$a_n
+  #
+  pyr <- model_1$person_year
+  strata <- model_1$strata
+  null <- model_1$null
+  modelform <- model_1$modelform
+  if (modelform == "GMIX") {
+    # We need to combine the results
+    gmix_term_1 <- model_1$gmix_term
+    gmix_term_2 <- model_2$gmix_term
+    gmix_term_s <- model_share$gmix_term
+    #
+    len_1 <- length(gmix_term_1)
+    len_2 <- length(gmix_term_2)
+    len_s <- length(gmix_term_s)
+    if (len_1 < len_2) {
+      if (len_s < len_1) {
+        # 2 is longest
+        if (gmix_term_s != gmix_term_2[1:len_s]) {
+          stop("Second model and shared model have different geometric mixture term values.")
+        }
+        if (gmix_term_1 != gmix_term_2[1:len_1]) {
+          stop("Second model and first model have different geometric mixture term values.")
+        }
+        gmix_term <- gmix_term_2
+      }
+    }
+  }
+  #
+  model <- poismodel(pyr, "events", strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
+  list(
+    "model" = model, "data" = df
+  )
+}
+
+
 #' Interprets a Colossus formula and makes necessary changes to data
 #'
 #' \code{get_form} uses a formula and data.table, to fully describe the model
@@ -6,8 +130,8 @@
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the updated data
-#' @export
 #' @family Formula Interpretation
+#' @export
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -29,12 +153,91 @@ get_form <- function(formula, df) {
   model_obj <- paste(format(formula[[3]]), collapse = " ")
   surv_obj <- gsub(" ", "", surv_obj)
   model_obj <- gsub(" ", "", model_obj)
-  term_n <- c()
-  tform <- c()
-  names <- c()
-  gmix_theta <- 0
-  gmix_term <- c()
-  modelform <- "NONE"
+  res <- get_form_list(surv_obj, model_obj, df)
+  model <- res$model
+  df <- res$df
+  #
+  surv_model_type <- model$surv_model_type
+  tstart <- model$tstart
+  tend <- model$tend
+  pyr <- model$pyr
+  event <- model$event
+  strata <- model$strata
+  weight <- model$weight
+  #
+  term_n <- model$term_n
+  tform <- model$tform
+  names <- model$names
+  modelform <- model$modelform
+  gmix_term <- model$gmix_term
+  gmix_theta <- model$gmix_theta
+  null <- model$null
+  #
+  if (grepl("cox", surv_model_type)) {
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+  } else if (grepl("finegray", surv_model_type)) {
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+  } else if (grepl("pois", surv_model_type)) {
+    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+  } else {
+    stop("Bad survival model type passed")
+  }
+  list(
+    "model" = model, "data" = df
+  )
+}
+
+#' @return returns the left hand side of the formula reading
+#' @family Formula Interpretation
+get_form_list <- function(surv_obj, model_obj, df) {
+  surv_obj <- gsub(" ", "", surv_obj)
+  model_obj <- gsub(" ", "", model_obj)
+  #
+  surv_vals <- get_form_surv(surv_obj)
+  surv_model_type <- surv_vals$surv_model_type
+  tstart <- surv_vals$tstart
+  tend <- surv_vals$tend
+  pyr <- surv_vals$pyr
+  event <- surv_vals$event
+  strata <- surv_vals$strata
+  weight <- surv_vals$weight
+  #
+  model_vals <- get_form_risk(model_obj, df)
+  model <- model_vals$model
+  term_n <- model$term_n
+  tform <- model$tform
+  names <- model$names
+  modelform <- model$modelform
+  gmix_term <- model$gmix_term
+  gmix_theta <- model$gmix_theta
+  null <- model$null
+  df <- model_vals$data
+  #
+  list(
+    model = list(
+      surv_model_type = surv_model_type,
+      tstart = tstart,
+      tend = tend,
+      pyr = pyr,
+      event = event,
+      strata = strata,
+      weight = weight,
+      term_n = term_n,
+      tform = tform,
+      names = names,
+      modelform = modelform,
+      gmix_term = gmix_term,
+      gmix_theta = gmix_theta,
+      null = null
+    ),
+    df = df
+  )
+}
+
+#' @return returns the left hand side of the formula reading
+#' @family Formula Interpretation
+get_form_surv <- function(surv_obj) {
+  surv_obj <- gsub(" ", "", surv_obj)
   surv_model_type <- "NONE"
   tstart <- "NONE"
   tend <- "NONE"
@@ -42,7 +245,6 @@ get_form <- function(formula, df) {
   event <- "NONE"
   strata <- "NONE"
   weight <- "NONE"
-  null <- FALSE
   #
   # split the survival model type
   second_split <- lapply(strsplit(surv_obj, ""), function(x) which(x == "("))[[1]]
@@ -67,18 +269,18 @@ get_form <- function(formula, df) {
       surv_para_list[[item_name]] <- item_value
     }
   }
-  if (surv_type %in% c("cox","coxph")) {
+  if (surv_type %in% c("cox", "coxph")) {
     res <- do.call(ColossusCoxSurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
     event <- res$event
-  } else if (surv_type %in% c("cox_strata","coxph_strata")) {
+  } else if (surv_type %in% c("cox_strata", "coxph_strata")) {
     res <- do.call(ColossusCoxStrataSurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
     event <- res$event
     strata <- res$strata
-  } else if (surv_type %in% c("finegray","fg")) {
+  } else if (surv_type %in% c("finegray", "fg")) {
     res <- do.call(ColossusFineGraySurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
@@ -91,7 +293,7 @@ get_form <- function(formula, df) {
     event <- res$event
     strata <- res$strata
     weight <- res$weight
-  } else if (surv_type %in% c("poisson","pois")) {
+  } else if (surv_type %in% c("poisson", "pois")) {
     res <- do.call(ColossusPoisSurv, surv_para_list)
     pyr <- res$pyr
     event <- res$event
@@ -103,6 +305,28 @@ get_form <- function(formula, df) {
   } else {
     stop("Error: Invalid survival model type")
   }
+  list(
+    surv_model_type = surv_model_type,
+    tstart = tstart,
+    tend = tend,
+    pyr = pyr,
+    event = event,
+    strata = strata,
+    weight = weight
+  )
+}
+
+#' @return returns the right hand side of a formula reading
+#' @family Formula Interpretation
+get_form_risk <- function(model_obj, df) {
+  model_obj <- gsub(" ", "", model_obj)
+  term_n <- c()
+  tform <- c()
+  names <- c()
+  gmix_theta <- 0
+  gmix_term <- c()
+  modelform <- "NONE"
+  null <- FALSE
   #
   right_model_terms <- strsplit(model_obj, "\\+")[[1]]
   for (term_i in seq_along(right_model_terms)) {
@@ -254,15 +478,15 @@ get_form <- function(formula, df) {
       gmix_term <- rep(1, term_tot)
     }
   }
-  if (grepl("cox", surv_model_type)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
-  } else if (grepl("finegray", surv_model_type)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
-  } else if (grepl("pois", surv_model_type)) {
-    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
-  } else {
-    stop("Bad survival model type passed")
-  }
+  model <- list(
+    "term_n" = term_n,
+    "tform" = tform,
+    "names" = names,
+    "modelform" = modelform,
+    "gmix_term" = gmix_term,
+    "gmix_theta" = gmix_theta,
+    "null" = null
+  )
   list(
     "model" = model, "data" = df
   )

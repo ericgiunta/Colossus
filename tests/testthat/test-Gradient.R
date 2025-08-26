@@ -24,7 +24,7 @@ test_that("Coxph strata_gradient_CR", {
   # surv_ref <- dft$surv
   # t_c <- df$t1
   # cens_weight <- approx(t_ref, surv_ref, t_c, rule = 2)$y
-  df$weighting <- df$t1/20
+  df$weighting <- df$t1 / 20
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)

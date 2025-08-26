@@ -17,7 +17,7 @@ test_that("Poisson time column missing", {
 
   control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0, "double_step" = 1)
   expect_error(PoisRun(Poisson(a_bad, c) ~ loglinear(d, 0), df, control = control, a_n = a_n))
-#   expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control))
+  #   expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control))
 })
 test_that("Poisson no events", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
