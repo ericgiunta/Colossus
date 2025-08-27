@@ -66,10 +66,10 @@ control <- list("Ncores" = 1, "maxiter" = 100, "verbose" = 2)
 
 a_n <- c(0.01, 0.01)
 
-e1 <- CoxRun(Cox(time, status) ~ loglinear(temperature, voltage, 0), a_n = a_n, control = control)
+e1 <- CoxRun(Cox(time, status) ~ loglinear(temperature, voltage, 0), df, a_n = a_n, control = control)
 print(e1, 5)
 
-e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0), a_n = a_n, control = control)
+e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0), df, a_n = a_n, control = control)
 print(e2, 5)
 ```
 

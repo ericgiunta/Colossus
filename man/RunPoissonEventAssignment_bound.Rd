@@ -96,6 +96,7 @@ e <- RunPoissonEventAssignment_bound(
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{PoisRun}()},
+\code{\link{PoisRunJoint}()},
 \code{\link{PoissonCurveSolver}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},

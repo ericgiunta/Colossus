@@ -60,6 +60,7 @@ iteratively optimizing each point to using the bisection method
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{PoisRun}()},
+\code{\link{PoisRunJoint}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonEventAssignment_bound}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},

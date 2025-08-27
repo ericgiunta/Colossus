@@ -181,7 +181,7 @@ $$
 $$
 </p>
 
-Colossus includes several functions to apply this method, a function that produces input for a joint analysis regression and a function that also runs the regression. The most general converts a table and lists of model parameters into the input for a regression.
+Colossus includes several functions to apply this method, a function that produces input for a joint analysis regression and a function that also runs the regression. The most general converts a table and lists of formula into the input for a regression.
 
 ```{r, eval=TRUE}
 a <- c(0, 0, 0, 1, 1, 1)
@@ -196,56 +196,27 @@ df$pyr <- df$t1 - df$t0
 pyr <- "pyr"
 events <- c("e0", "e1")
 ```
-Colossus generally accepts a series of vectors to describe the elements of the model. For a joint analysis, Colossus instead expects lists. Each list is expected to contain vectors for shared elements and elements specific to each event. Colossus expects the list names to be either "shared" or the event column names.
+Colossus generally accepts a formula to describe the elements of the model. For a joint analysis, Colossus instead expects a list of formula. The formula are expect to cover the model elements specific to each event, and potentially a model for shared elements. Colossus expects name of the shared model to be "shared". The left hand side of the shared model is not used.
 
 ```{r, eval=TRUE}
-names_e0 <- c("fac")
-names_e1 <- c("fac")
-names_shared <- c("t0", "t0")
-term_n_e0 <- c(0)
-term_n_e1 <- c(0)
-term_n_shared <- c(0, 0)
-tform_e0 <- c("loglin")
-tform_e1 <- c("loglin")
-tform_shared <- c("quad_slope", "loglin_top")
-keep_constant_e0 <- c(0)
-keep_constant_e1 <- c(0)
-keep_constant_shared <- c(0, 0)
-a_n_e0 <- c(-0.1)
-a_n_e1 <- c(0.1)
-a_n_shared <- c(0.001, -0.02)
-name_list <- list("shared" = names_shared, "e0" = names_e0, "e1" = names_e1)
-term_n_list <- list("shared" = term_n_shared, "e0" = term_n_e0, "e1" = term_n_e1)
-tform_list <- list("shared" = tform_shared, "e0" = tform_e0, "e1" = tform_e1)
-keep_constant_list <- list(
-  "shared" = keep_constant_shared,
-  "e0" = keep_constant_e0, "e1" = keep_constant_e1
-)
-a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
+model_1 <- Pois(pyr, e0) ~ loglin(fac, 0)
+model_2 <- Pois(pyr, e1) ~ loglin(fac, 0)
+model_s <- Pois(pyr) ~ plinear(t0, 0)
+formula_list <- list(model_1, model_2, "shared" = model_s)
 ```
-The function returns a list containing the combined table and vectors.
+The function returns a list containing the combined table and model object.
 ```{r, eval=TRUE}
-Joint_Multiple_Events(
-  df, events, name_list, term_n_list,
-  tform_list, keep_constant_list, a_n_list
-)
+get_form_joint(formula_list, df)
 ```
 
 These results could be used as input for any of the available regression functions. Colossus also includes a wrapper function to directly call the Poisson model regression function.
 ```{r, eval=TRUE}
-modelform <- "M"
 control <- list(
   "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-6,
   "deriv_epsilon" = 1e-6, "verbose" = 2
 )
-Strat_Col <- "f"
-e <- RunPoissonRegression_Joint_Omnibus(
-  df, pyr, events, name_list, term_n_list,
-  tform_list, keep_constant_list, a_n_list,
-  modelform,
-  control = control, strat_col = Strat_Col
-)
-Interpret_Output(e)
+e <- PoisRunJoint( formula_list, df, control = control)
+print(e)
 ```
 
 

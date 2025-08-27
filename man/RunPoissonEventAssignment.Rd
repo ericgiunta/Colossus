@@ -88,6 +88,7 @@ e <- RunPoissonEventAssignment(
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{PoisRun}()},
+\code{\link{PoisRunJoint}()},
 \code{\link{PoissonCurveSolver}()},
 \code{\link{RunPoissonEventAssignment_bound}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},

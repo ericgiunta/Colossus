@@ -182,7 +182,7 @@ CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' formula <- Pois(Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+#' res <- PoisRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   if (class(model) == "poismodel") {
     # using already prepped formula and data
@@ -289,7 +289,140 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
   poisres
 }
 
-# PoisRunJoint <- function(model0, model1, table, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, ...)
+#' Fully runs a joint poisson regression model, returning the model and results
+#'
+#' \code{PoisRunJoint} uses a list of formula, data.table, and list of controls to prepare and
+#' run a Colossus poisson regression function on a joint dataset
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Poisson Wrapper Functions
+#' @examples
+#' library(data.table)
+#' df <- data.table::data.table(
+#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
+#'   "Flu_Status"    = c(0, 1, 0, 0, 1, 0, 1),
+#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
+#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
+#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
+#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#' )
+#' formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
+#'                      Pois(Ending_Age, Flu_Status)    ~ loglinear(d, 0),
+#'                  "shared" = Pois(Ending_Age)    ~ loglinear(a, b, c, 0)
+#' )
+#' res <- PoisRunJoint(formula_list, df)
+PoisRunJoint <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...){
+  if (class(model) == "poismodel") {
+    # using already prepped formula and data
+    poismodel <- copy(model)
+    df <- copy(table)
+  } else if (is.list(model)) {
+    # using a list of formula
+    res <- get_form_joint(model, table)
+    poismodel <- res$model
+    df <- res$data
+  } else {
+    stop(gettextf(
+      "Incorrect type used for formula, '%s', must be list of formula or poismodel class",
+      class(model)
+    ))
+  }
+  # ------------------------------------------------------------------------------ #
+  # we want to let the user add in control arguements to their call
+  # code copied from survival/R/coxph.R github and modified for our purpose
+  extraArgs <- list(...) # gather additional arguements
+  if (length(extraArgs)) {
+    controlargs <- names(formals(ColossusControl)) # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(control)) {
+    control <- ColossusControl(...)
+  } else if (is.list(control)) {
+    control_args <- intersect(names(control), names(formals(ColossusControl)))
+    control <- do.call(ColossusControl, control[control_args])
+  } else {
+    stop("control argument must be a list")
+  }
+  # ------------------------------------------------------------------------------ #
+  if (!missing(a_n)) {
+    poismodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (!missing(keep_constant)) { # assigns the paramter constant values if given
+    poismodel$keep_constant <- keep_constant
+  }
+  # Checks that the current coxmodel is valid
+  validate_poissurv(poismodel, df)
+  poismodel <- validate_formula(poismodel, df, control$verbose)
+  # ------------------------------------------------------------------------------ #
+  # Pull out the actual model vectors and values
+  pyr0 <- poismodel$person_year
+  event0 <- poismodel$event
+  names <- poismodel$names
+  term_n <- poismodel$term_n
+  tform <- poismodel$tform
+  keep_constant <- poismodel$keep_constant
+  a_n <- poismodel$a_n
+  modelform <- poismodel$modelform
+  strat_col <- poismodel$strata
+  # ------------------------------------------------------------------------------ #
+  # We want to create the previously used model_control list, based on the input
+  model_control <- list()
+  if (poismodel$null) {
+    stop("Null model is not valid for poisson regression")
+  } else {
+    # check for basic and linear_err
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+    } else if (modelform == "GMIX") {
+      model_control["gmix_term"] <- coxmodel$gmix_term
+      model_control["gmix_theta"] <- coxmodel$gmix_theta
+    }
+  }
+  if (poismodel$strata != "NONE") {
+    model_control["strata"] <- TRUE
+  }
+  if (cons_vec != c(0)) {
+    model_control["constraint"] <- TRUE
+  }
+  if (!missing(gradient_control)) {
+    model_control["gradient"] <- TRUE
+    for (nm in names(gradient_control)) {
+      model_control[nm] <- gradient_control[nm]
+    }
+  }
+  model_control["single"] <- single
+  model_control["oberved_info"] <- oberved_info
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "oberved_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  # ------------------------------------------------------------------------------ #
+  res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
+  res$model <- poismodel
+  res$modelcontrol <- model_control
+  res$control <- control
+  # ------------------------------------------------------------------------------ #
+  poisres <- new_poisres(res)
+  poisres
+}
 
 #' @export
 RelativeRisk <- function(object, df) {
@@ -346,6 +479,15 @@ RelativeRisk.coxres <- function(object, df) {
       df$CONST <- 1
     }
   }
+  ce <- c(time1, time2, event0)
+  val <- Check_Trunc(df, ce)
+  if (any(val$ce != ce)){
+      df <- val$df
+      ce <- val$ce
+      time1 <- ce[1]
+      time2 <- ce[1]
+  }
+  #
   object <- validate_coxres(object, df)
   #
   a_n <- object$beta_0
@@ -364,6 +506,7 @@ RelativeRisk.coxres <- function(object, df) {
 #'
 #' @return saves the plots in the current directory and returns the data used for plots
 #' @family Plotting Wrapper Functions
+#' @export
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -406,6 +549,15 @@ plot.coxres <- function(object, df, plot_options, ...) {
       df$CONST <- 1
     }
   }
+  ce <- c(time1, time2, event0)
+  val <- Check_Trunc(df, ce)
+  if (any(val$ce != ce)){
+      df <- val$df
+      ce <- val$ce
+      time1 <- ce[1]
+      time2 <- ce[1]
+  }
+  #
   object <- validate_coxres(object, df)
   #
   a_n <- object$beta_0
@@ -651,6 +803,15 @@ LikelihoodBound.coxres <- function(object, df, curve_control = list(), control =
       df$CONST <- 1
     }
   }
+  ce <- c(time1, time2, event0)
+  val <- Check_Trunc(df, ce)
+  if (any(val$ce != ce)){
+      df <- val$df
+      ce <- val$ce
+      time1 <- ce[1]
+      time2 <- ce[1]
+  }
+  #
   object <- validate_coxres(object, df)
   #
   a_n <- object$beta_0

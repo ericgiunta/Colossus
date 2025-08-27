@@ -1,34 +1,83 @@
-get_form_joint <- function(formula_1, formula_2, formula_shared, df) {
+#' Interprets a Poisson joint formula and makes necessary changes to data
+#'
+#' \code{get_form_joint} uses two event formula, a shared formula,
+#' and data.table, to fully describe the model for a joint Poisson model.
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the updated data
+#' @family Formula Interpretation
+#' @export
+get_form_joint <- function(formula_list, df) {
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
+  if (is.list(formula_list)){
+    if ("shared" %in% names(formula_list)){
+        formula_shared <- formula_list$shared
+        formula_list <- formula_list[names(formula_list) != "shared"]
+    } else {
+        formula_shared <- .~.
+    }
+  } else if (class(formula_list) == "formula"){
+    formula_list <- list(formula_list)
+    formula_shared <- .~.
+  } else {
+    stop("Joint formula list wasn't a list or a formula")
+  }
+  model_list <- list()
+  for (formula_i in 1:length(formula_list)){
+      #
+      formula <- formula_list[[formula_i]]
+      surv_obj <- format(formula[[2]])
+      model_obj <- paste(format(formula[[3]]), collapse = " ")
+      surv_obj <- gsub(" ", "", surv_obj)
+      model_obj <- gsub(" ", "", model_obj)
+      res <- get_form_list(surv_obj, model_obj, df)
+      model <- res$model
+      df <- res$data
+      if (!grepl("pois", model$surv_model_type)){
+        stop("Atleast one model was not a poisson model")
+      }
+      model_temp <- list(model)
+      model_list <- c(model_list, model_temp)
+  }
   #
-  res <- get_form(formula_1, table)
-  model_1 <- res$model
-  df <- res$data
-  #
-  res <- get_form(formula_2, df)
-  model_2 <- res$model
-  df <- res$data
-  #
-  res <- get_form_risk(formula_shared, df)
-  model_share <- res$model
-  df <- res$data
+  model_obj <- paste(format(formula_shared[[3]]), collapse = " ")
+  if (model_obj != "."){
+      res <- get_form_risk(model_obj, df)
+      model_share <- res$model
+      df <- res$data
+  } else {
+    model_share <- list(tform = c(), term_n = c(), names = c(), modelform = "M", gmix_theta = 0, gmix_term = c())
+  }
   #
   # Now we need to check that the values are similar
-  # The pyr should all be the same
-  if (model_1$person_year != model_2$person_year) {
-    stop(paste("The joint models need to use the same person-year column. Instead they use ", model_1$person_year, " and ", model_2$person_year, ".", sep = ""))
+  model_1 <- model_list[[1]]
+  for (model_i in 2:length(model_list)){
+      model_2 <- model_list[[model_i]]
+      # The pyr should all be the same
+      if (model_1$pyr != model_2$pyr) {
+        stop(paste("The joint models need to use the same person-year column. Instead they use ", model_1$pyr, " and ", model_2$pyr, ".", sep = ""))
+      }
+      # The strata should match
+      if (model_1$strata != model_2$strata) {
+        stop(paste("The joint models need to use the same stratification.", sep = ""))
+      }
+      # The modelform should match
+      if (model_1$modelform != model_2$modelform) {
+        stop(paste("The joint models need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_2$modelform, ".", sep = ""))
+      }
+      if (model_1$gmix_theta != model_2$gmix_theta) {
+        stop(paste("The joint models need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_2$gmix_theta, ".", sep = ""))
+      }
   }
-  # The strata should match
-  if (model_1$strata != model_2$strata) {
-    stop(paste("The joint models need to use the same stratification.", sep = ""))
-  }
-  # The modelform should match
-  if (model_1$modelform != model_2$modelform) {
-    stop(paste("The joint models need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_2$modelform, ".", sep = ""))
-  }
-  if (model_1$gmix_theta != model_2$gmix_theta) {
-    stop(paste("The joint models need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_2$gmix_theta, ".", sep = ""))
-  }
-  if (model_share$tform != c()) {
+  if (length(model_share$tform) != 0) {
     if (model_1$modelform != model_share$modelform) {
       stop(paste("The joint models and the shared model need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_share$modelform, ".", sep = ""))
     }
@@ -41,41 +90,34 @@ get_form_joint <- function(formula_1, formula_2, formula_shared, df) {
   }
   # Now we pull everything out and get the joint model built
   # Pull it all out
-  events <- c(model_1$event, model_2$event)
+  events <- c()
   name_list <- list(
-    "shared" = model_share$names,
-    "e0" = model_1$names,
-    "e1" = model_2$names
+    "shared" = model_share$names
   )
   term_n_list <- list(
-    "shared" = model_share$term_n,
-    "e0" = model_1$term_n,
-    "e1" = model_2$term_n
+    "shared" = model_share$term_n
   )
   tform_list <- list(
-    "shared" = model_share$tform,
-    "e0" = model_1$tform,
-    "e1" = model_2$tform
+    "shared" = model_share$tform
   )
-  keep_constant_list <- list(
-    "shared" = c(),
-    "e0" = c(),
-    "e1" = c()
-  )
-  a_n_list <- list(
-    "shared" = c(),
-    "e0" = c(),
-    "e1" = c()
-  )
+  for (model_i in 1:length(model_list)){
+    model <- model_list[[model_i]]
+    event_temp <- model$event
+    name_temp <- list()
+    termn_temp <- list()
+    tform_temp <- list()
+    name_temp[[event_temp]] <- model$names
+    termn_temp[[event_temp]] <- model$term_n
+    tform_temp[[event_temp]] <- model$tform
+    #
+    events <- c(events, event_temp)
+    term_n_list <- c(term_n_list, termn_temp)
+    name_list <- c(name_list, name_temp)
+    tform_list <- c(tform_list, tform_temp)
+  }
+  keep_constant_list <- list()
+  a_n_list <- list()
   # Combine it
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
   val <- Joint_Multiple_Events(
     df, events, name_list,
     term_n_list, tform_list,
@@ -88,10 +130,13 @@ get_form_joint <- function(formula_1, formula_2, formula_shared, df) {
   keep_constant <- val$keep_constant
   a_n <- val$a_n
   #
-  pyr <- model_1$person_year
+  pyr <- model_1$pyr
   strata <- model_1$strata
   null <- model_1$null
   modelform <- model_1$modelform
+  #
+  gmix_term <- model_1$gmix_term
+  gmix_theta <- model_1$gmix_theta
   if (modelform == "GMIX") {
     # We need to combine the results
     gmix_term_1 <- model_1$gmix_term
@@ -155,7 +200,7 @@ get_form <- function(formula, df) {
   model_obj <- gsub(" ", "", model_obj)
   res <- get_form_list(surv_obj, model_obj, df)
   model <- res$model
-  df <- res$df
+  df <- res$data
   #
   surv_model_type <- model$surv_model_type
   tstart <- model$tstart
@@ -187,13 +232,27 @@ get_form <- function(formula, df) {
   )
 }
 
-#' @return returns the left hand side of the formula reading
+#' Interprets a Colossus formula and makes necessary changes to data, returns list not class
+#'
+#' \code{get_form_list} uses a formula and data.table, to fully describe the model
+#' for a Colossus regression function and returns a list
+#' @return returns the list of model values
 #' @family Formula Interpretation
 get_form_list <- function(surv_obj, model_obj, df) {
+  tryCatch(
+    {
+      df <- setDT(df)
+    },
+    error = function(e) {
+      df <- data.table(df)
+    }
+  )
   surv_obj <- gsub(" ", "", surv_obj)
   model_obj <- gsub(" ", "", model_obj)
   #
-  surv_vals <- get_form_surv(surv_obj)
+  surv_list <- get_form_surv(surv_obj, df)
+  df <- surv_list$data
+  surv_vals <- surv_list$surv
   surv_model_type <- surv_vals$surv_model_type
   tstart <- surv_vals$tstart
   tend <- surv_vals$tend
@@ -214,7 +273,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
   df <- model_vals$data
   #
   list(
-    model = list(
+    "model" = list(
       surv_model_type = surv_model_type,
       tstart = tstart,
       tend = tend,
@@ -230,13 +289,16 @@ get_form_list <- function(surv_obj, model_obj, df) {
       gmix_theta = gmix_theta,
       null = null
     ),
-    df = df
+    "data" = df
   )
 }
 
+#' Interprets the survival side of a formula
+#'
+#' \code{get_form_surv} interprets the LHS of a formula
 #' @return returns the left hand side of the formula reading
 #' @family Formula Interpretation
-get_form_surv <- function(surv_obj) {
+get_form_surv <- function(surv_obj, df) {
   surv_obj <- gsub(" ", "", surv_obj)
   surv_model_type <- "NONE"
   tstart <- "NONE"
@@ -305,7 +367,25 @@ get_form_surv <- function(surv_obj) {
   } else {
     stop("Error: Invalid survival model type")
   }
-  list(
+  #
+  if (tstart == "%trunc%") {
+    if (tend == "%trunc%") {
+      stop("Error: Both endpoints are truncated, not acceptable")
+    }
+    tmin <- min(df[, get(tend)]) - 1
+    if (!("right_trunc" %in% names(df))) {
+      df[, ":="(right_trunc = tmin)]
+    }
+    tstart <- "right_trunc"
+  } else if (tend == "%trunc%") {
+    tmax <- max(df[, get(tstart)]) + 1
+    if (!("left_trunc" %in% names(df))) {
+      df[, ":="(left_trunc = tmax)]
+    }
+    tend <- "left_trunc"
+  }
+  #
+  list("surv" =  list(
     surv_model_type = surv_model_type,
     tstart = tstart,
     tend = tend,
@@ -313,9 +393,14 @@ get_form_surv <- function(surv_obj) {
     event = event,
     strata = strata,
     weight = weight
+      ),
+      "data" = df
   )
 }
 
+#' Interprets the risk factor side of a formula
+#'
+#' \code{get_form_risk} interprets the RHS of a formula
 #' @return returns the right hand side of a formula reading
 #' @family Formula Interpretation
 get_form_risk <- function(model_obj, df) {
@@ -494,10 +579,17 @@ get_form_risk <- function(model_obj, df) {
 
 #' Interprets basic cox survival formula RHS
 #'
-#' \code{ColossusCoxSurv} assigns and interprets interval columns for cox model
+#' \code{ColossusCoxSurv} assigns and interprets interval columns for cox model.
+#' This functions is called using the arguements for Cox in the right-hand side of
+#' the formula. Uses an interval start time, end time, and event status. These are
+#' expected to be in order or named: tstart, tsend, and event.
+#' The Fine-Gray and Stratified versions use strata and weight named options
+#' or the last two entries.
+#' 
 #'
 #' @inheritParams R_template
 #'
+#' @export
 #' @return returns list with interval endpoints and event
 #' @family Formula Interpretation
 ColossusCoxSurv <- function(...) {
@@ -695,10 +787,15 @@ ColossusFineGrayStrataSurv <- function(...) {
 # --------------------------------------------------------------------------------- #
 #' Interprets basic poisson survival formula RHS
 #'
-#' \code{ColossusPoisSurv} assigns and interprets interval columns for poisson model
+#' \code{ColossusPoisSurv} assigns and interprets interval columns for poisson model.
+#' This functions is called using the arguements for Poisson or Poisson_Strata in the
+#' right-hand side of the formula. Uses an person-year column, number of events, and
+#' any strata columns. The first two are expected to be in order or named: pyr and event.
+#' Anything beyond the event name is assumed to be strata if Poisson_Strata is used.
 #'
 #' @inheritParams R_template
 #'
+#' @export
 #' @return returns list with duration, strata if used, and event
 #' @family Formula Interpretation
 ColossusPoisSurv <- function(...) {

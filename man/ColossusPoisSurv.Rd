@@ -10,7 +10,11 @@ ColossusPoisSurv(...)
 returns list with duration, strata if used, and event
 }
 \description{
-\code{ColossusPoisSurv} assigns and interprets interval columns for poisson model
+\code{ColossusPoisSurv} assigns and interprets interval columns for poisson model.
+This functions is called using the arguements for Poisson or Poisson_Strata in the
+right-hand side of the formula. Uses an person-year column, number of events, and
+any strata columns. The first two are expected to be in order or named: pyr and event.
+Anything beyond the event name is assumed to be strata if Poisson_Strata is used.
 }
 \seealso{
 Other Formula Interpretation: 
@@ -19,6 +23,7 @@ Other Formula Interpretation:
 \code{\link{ColossusFineGrayStrataSurv}()},
 \code{\link{ColossusFineGraySurv}()},
 \code{\link{get_form}()},
+\code{\link{get_form_joint}()},
 \code{\link{get_form_list}()},
 \code{\link{get_form_risk}()},
 \code{\link{get_form_surv}()}

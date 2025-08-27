@@ -33,6 +33,7 @@ df$UserID <- seq_len(nrow(df))
 df$status <- df$status - 1
 df$sex <- df$sex - 1
 
+control <- list(ncore = 2)
 a_n <- c(0.01701289, -0.51256478)
 coxres <- CoxRun(Cox(time, status) ~ loglinear(age, sex, 0), df, control = control, a_n = a_n)
 ```

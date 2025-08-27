@@ -10,7 +10,12 @@ ColossusCoxSurv(...)
 returns list with interval endpoints and event
 }
 \description{
-\code{ColossusCoxSurv} assigns and interprets interval columns for cox model
+\code{ColossusCoxSurv} assigns and interprets interval columns for cox model.
+This functions is called using the arguements for Cox in the right-hand side of
+the formula. Uses an interval start time, end time, and event status. These are
+expected to be in order or named: tstart, tsend, and event.
+The Fine-Gray and Stratified versions use strata and weight named options
+or the last two entries.
 }
 \seealso{
 Other Formula Interpretation: 
@@ -19,6 +24,7 @@ Other Formula Interpretation:
 \code{\link{ColossusFineGraySurv}()},
 \code{\link{ColossusPoisSurv}()},
 \code{\link{get_form}()},
+\code{\link{get_form_joint}()},
 \code{\link{get_form_list}()},
 \code{\link{get_form_risk}()},
 \code{\link{get_form_surv}()}
