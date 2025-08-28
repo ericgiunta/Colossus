@@ -7,6 +7,8 @@
 get_form(formula, df)
 }
 \arguments{
+\item{formula}{a formula object, written in Colossus notation. See the Unified Equation Representation vignette for details.}
+
 \item{df}{a data.table containing the columns of interest}
 }
 \value{
@@ -30,7 +32,8 @@ df <- data.table::data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1),
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
-formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+  loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 model <- get_form(formula, df)
 }
 \seealso{

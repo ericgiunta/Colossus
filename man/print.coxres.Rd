@@ -4,10 +4,12 @@
 \alias{print.coxres}
 \title{Prints a cox regression output clearly}
 \usage{
-\method{print}{coxres}(object, digits = 2)
+\method{print}{coxres}(x, ...)
 }
 \arguments{
-\item{digits}{digits used for printing results}
+\item{x}{result object from a regression, class coxres or poisres}
+
+\item{...}{can include the number of digits, named digit, or an unnamed integer entry assumed to be digits}
 }
 \value{
 return nothing, prints the results to console

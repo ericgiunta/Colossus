@@ -6,6 +6,9 @@
 \usage{
 ColossusFineGrayStrataSurv(...)
 }
+\arguments{
+\item{...}{entries for a Fine_Gray object with strata, tstart, tend, event, strata, and weighting. Either in order or named. If unnamed, the last is assumed to be weighting and the rest are passed to ColossusCoxStrataSurv.}
+}
 \value{
 returns list with interval endpoints, event, strata, and weighting columns
 }

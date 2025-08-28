@@ -4,9 +4,11 @@
 \alias{RelativeRisk.coxres}
 \title{Calculates hazard ratios for a reference vector}
 \usage{
-\method{RelativeRisk}{coxres}(object, df)
+\method{RelativeRisk}{coxres}(x, df)
 }
 \arguments{
+\item{x}{result object from a regression, class coxres}
+
 \item{df}{a data.table containing the columns of interest}
 }
 \value{
@@ -29,7 +31,8 @@ df <- data.table::data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1),
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
-formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+  loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 RelativeRisk(res, df)
 }

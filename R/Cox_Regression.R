@@ -320,41 +320,6 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
 #' @inheritParams R_template
 #' @family Plotting Wrapper Functions
 #' @return returns a list of the final results
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(1.1, 0.1, 0.2, 0.5) # used to test at a specific point
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "step_max" = 1.0,
-#'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' e <- Cox_Relative_Risk(
-#'   df, time1, time2, event, names, term_n, tform,
-#'   keep_constant, a_n, modelform, control
-#' )
-#'
 Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
   tryCatch(
     {
@@ -400,49 +365,6 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
 #'
 #' @return saves the plots in the current directory and returns the data used for plots
 #' @family Plotting Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(-0.1, 0.5, 1.1, -0.3)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "step_max" = 1.0, "thres_step_max" = 100.0,
-#'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
-#' )
-#' # setting maxiter below 0 forces the function to calculate the score
-#' # and return
-#' plot_options <- list(
-#'   "type" = c("surv", paste(tempfile(),
-#'     "run",
-#'     sep = ""
-#'   )), "studyid" = "UserID",
-#'   "verbose" = FALSE
-#' )
-#' RunCoxPlots(
-#'   df, time1, time2, event, names, term_n, tform, keep_constant,
-#'   a_n, modelform, control, plot_options
-#' )
-#'
 RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list()) {
   names(plot_options) <- tolower(names(plot_options))
   tryCatch(
@@ -712,54 +634,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results for each realization
-#' @export
 #' @family Cox Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "t0" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "t1" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "lung" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "dose" = c(0, 1, 1, 0, 1, 0, 1)
-#' )
-#' set.seed(3742)
-#' df$rand <- floor(runif(nrow(df), min = 0, max = 5))
-#' df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
-#' df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
-#' df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
-#' time1 <- "t0"
-#' time2 <- "t1"
-#' names <- c("dose", "rand")
-#' term_n <- c(0, 0)
-#' tform <- c("loglin", "loglin")
-#' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-#' realization_index <- c("rand")
-#' keep_constant <- c(1, 0)
-#' a_n <- c(0, 0)
-#' modelform <- "M"
-#' cens_weight <- c(0)
-#' event <- "lung"
-#' a_n <- c(-0.1, -0.1)
-#' keep_constant <- c(0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
-#'   "halfmax" = 2, "epsilon" = 1e-6,
-#'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
-#'   "thres_step_max" = 100.0,
-#'   "verbose" = 0, "ties" = "breslow", "double_step" = 1
-#' )
-#' e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
-#'   names,
-#'   term_n = term_n, tform = tform,
-#'   keep_constant = keep_constant, a_n = a_n,
-#'   modelform = modelform,
-#'   realization_columns = realization_columns,
-#'   realization_index = realization_index,
-#'   control = control, strat_col = "fac",
-#'   model_control = list(), cens_weight = "null"
-#' )
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()

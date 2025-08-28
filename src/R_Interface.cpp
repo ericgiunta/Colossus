@@ -91,7 +91,7 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
             _["cox"] = true
     );
@@ -160,7 +160,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVect
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
             _["cox"] = false
     );
@@ -252,7 +252,7 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
             _["strata"] = model_control["strata"],
             _["basic"] = model_control["basic"],
             _["linear_err"] = model_control["linear_err"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["null"] =false,
             _["cr"] = model_control["cr"],
             _["single"] = false,
@@ -324,7 +324,7 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = true,
             _["cox"] = true
     );
@@ -392,7 +392,7 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = true,
             _["cox"] = true
     );
@@ -459,7 +459,7 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
             _["cox"] = false
     );
@@ -533,7 +533,7 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, Str
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
             _["cox"] = false
     );
@@ -650,7 +650,7 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
             _["gradient"] = model_control["gradient"],
             _["outcome_prob"] = false,
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = model_control["oberved_info"],
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
             _["cox"] = true
     );
@@ -724,7 +724,7 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
             _["outcome_prob"] = false,
             _["cond_thres"] = model_control["conditional_threshold"],
             _["constraint"] = model_control["constraint"],
-            _["oberved_info"] = true,
+            _["observed_info"] = true,
             _["log_bound"] = false,
             _["cox"] = false
     );

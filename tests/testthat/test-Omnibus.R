@@ -612,7 +612,7 @@ test_that("check deviation calc, Observed cox", {
   devs <- c()
 
   modelform <- "M"
-  model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE, "oberved_info" = TRUE)
+  model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE, "observed_info" = TRUE)
   for (i in 1:3) {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     keep_constant <- c(0, 0, 0)
@@ -716,7 +716,7 @@ test_that("check deviation calc, poisson", {
 
   modelform <- "M"
   for (inma_type in c(T, F)) {
-    model_control <- list("oberved_info" = inma_type)
+    model_control <- list("observed_info" = inma_type)
     for (i in 1:3) {
       a_n <- c(0.6465390, 0.4260961, 0.1572781)
       keep_constant <- c(0, 0, 0)

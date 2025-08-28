@@ -6,6 +6,13 @@
 \usage{
 get_form_list(surv_obj, model_obj, df)
 }
+\arguments{
+\item{surv_obj}{output from get_form_surv, list of survival values}
+
+\item{model_obj}{output from get_form_risk, list of risk factor model values}
+
+\item{df}{a data.table containing the columns of interest}
+}
 \value{
 returns the list of model values
 }

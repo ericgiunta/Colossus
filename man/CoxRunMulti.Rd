@@ -6,7 +6,7 @@
 \usage{
 CoxRunMulti(
   model,
-  table,
+  df,
   a_n = list(c(0)),
   keep_constant = c(0),
   realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2),
@@ -14,7 +14,7 @@ CoxRunMulti(
   control = list(),
   gradient_control = list(),
   single = FALSE,
-  oberved_info = FALSE,
+  observed_info = FALSE,
   fma = FALSE,
   mcml = FALSE,
   cons_mat = as.matrix(c(0)),
@@ -23,6 +23,10 @@ CoxRunMulti(
 )
 }
 \arguments{
+\item{model}{either a formula written for the get_form function, or the model result from the get_form function.}
+
+\item{df}{a data.table containing the columns of interest}
+
 \item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{keep_constant}{binary values to denote which parameters to change}
@@ -31,11 +35,23 @@ CoxRunMulti(
 
 \item{realization_index}{used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
+
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the Control_Options vignette for details}
+
+\item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
+
+\item{observed_info}{a boolean to denote that the observed information matrix should be used to calculate the standard error for parameters, not the expected information matrix}
+
+\item{fma}{a boolean to denote that the Frequentist Model Averaging method should be used}
+
+\item{mcml}{a boolean to denote that the Monte Carlo Maximum Likelihood method should be used}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
 \item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
+
+\item{...}{can include the named entries for the control list parameter}
 }
 \value{
 returns a class fully describing the model and the regression results
@@ -69,14 +85,13 @@ control <- list(
   "verbose" = 0, "ties" = "breslow", "double_step" = 1
 )
 formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-res <- CoxRun(formula, df, a_n = a_n, control = control)
+res <- CoxRun(formula, df, control = control)
 }
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxCurveSolver}()},
 \code{\link{CoxRun}()},
 \code{\link{LikelihoodBound.coxres}()},
-\code{\link{LikelihoodBound.poisres}()},
 \code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus_Multidose}()}

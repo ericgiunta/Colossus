@@ -44,13 +44,13 @@ RunCoxRegression_Omnibus(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
 \item{strat_col}{column to stratify by if needed}
 
 \item{cens_weight}{column containing the row weights}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
+\item{model_control}{controls which alternative model options are used, see the Control_Options vignette for further details}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
@@ -113,7 +113,6 @@ Other Cox Wrapper Functions:
 \code{\link{CoxRun}()},
 \code{\link{CoxRunMulti}()},
 \code{\link{LikelihoodBound.coxres}()},
-\code{\link{LikelihoodBound.poisres}()},
 \code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus_Multidose}()}
 }

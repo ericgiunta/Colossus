@@ -6,6 +6,9 @@
 \usage{
 ColossusFineGraySurv(...)
 }
+\arguments{
+\item{...}{entries for a Fine_Gray object, tstart, tend, event, and weighting. Either in order or named. If unnamed, the last is assumed to be weighting and the rest are passed to ColossusCoxSurv.}
+}
 \value{
 returns list with interval endpoints, event, and weighting columns
 }

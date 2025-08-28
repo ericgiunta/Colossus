@@ -513,7 +513,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
         AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
         MatrixXd cov;
         NumericVector stdev(totalnum);
-        if (model_bool["oberved_info"]){
+        if (model_bool["observed_info"]){
             NumericVector Lldd_vec(reqrdnum * reqrdnum);  // simplfied information matrix
             #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1204,7 +1204,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
-    if (model_bool["oberved_info"]){
+    if (model_bool["observed_info"]){
         const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         //
         cov = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation

@@ -4,12 +4,18 @@
 \alias{LikelihoodBound.coxres}
 \title{Calculates the likelihood boundary for a completed cox model}
 \usage{
-\method{LikelihoodBound}{coxres}(object, df, curve_control = list(), control = list(), ...)
+\method{LikelihoodBound}{coxres}(x, df, curve_control = list(), control = list(), ...)
 }
 \arguments{
+\item{x}{result object from a regression, class coxres}
+
 \item{df}{a data.table containing the columns of interest}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{curve_control}{a list of control options for the likelihood boundary regression. See the Control_Options vignette for details.}
+
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
+
+\item{...}{can include the named entries for the curve_control list parameter}
 }
 \value{
 returns a list of the final results
@@ -23,7 +29,6 @@ Other Cox Wrapper Functions:
 \code{\link{CoxCurveSolver}()},
 \code{\link{CoxRun}()},
 \code{\link{CoxRunMulti}()},
-\code{\link{LikelihoodBound.poisres}()},
 \code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus_Multidose}()}

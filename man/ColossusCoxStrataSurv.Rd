@@ -6,6 +6,9 @@
 \usage{
 ColossusCoxStrataSurv(...)
 }
+\arguments{
+\item{...}{entries for a cox survival object with strata, tstart, tend, event, and strata. Either in order or named. If unnamed, the last is assumed to be strata and the rest are passed to ColossusCoxSurv.}
+}
 \value{
 returns list with interval endpoints, event, and strata column
 }

@@ -334,7 +334,7 @@ validate_formula <- function(x, df, verbose = FALSE) {
 }
 
 validate_coxsurv <- function(x, df) {
-  if (class(x) != "coxmodel") {
+  if (!is(x, "coxmodel")) {
     stop("Non cox formula used in cox regression")
   }
   if (x$start_age == x$end_age) {
@@ -365,7 +365,7 @@ validate_coxsurv <- function(x, df) {
 }
 
 validate_poissurv <- function(x, df) {
-  if (class(x) != "poismodel") {
+  if (!is(x, "poismodel")) {
     stop("Non Poisson formula used in Poisson regression")
   }
   if (x$event == "") {

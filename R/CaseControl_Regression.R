@@ -82,16 +82,8 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     # remove rows that start after the last event
     df <- df[get(time1) <= tu[length(tu)], ]
   }
-  if ("para_number" %in% names(model_control)) {
-    model_control$para_number <- val$para_num
-  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
-  }
-  if (any(val$Permutation != seq_along(tform))) {
-    if (control$verbose >= 2) {
-      warning("Warning: model covariate order changed")
-    }
   }
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {

@@ -9,8 +9,11 @@ CMD
 codecov
 cond
 config
+ColossusCoxSurv
+ColossusCoxStrataSurv
 CoxCurveSolver
 coxph
+coxres
 cr
 csv
 CurveSolve
@@ -71,6 +74,7 @@ pkgdown
 plin
 plinear
 pois
+poisres
 poisson
 pyr
 qchi
@@ -93,6 +97,8 @@ surv
 Surv
 tform
 thres
+tstart
+tend
 trunc
 unshared
 UserID

@@ -31,13 +31,10 @@ $$
 $$
 </p>
 
-```{r}
-names <- c("x", "D")
-term_n <- c(0, 1)
-tform <- c("loglin", "lin")
-modelform <- "M"
-
+```{r, eval=FALSE}
 a_n <- c(0.1, 0.1)
+model <- Pois(pyr, event) ~ loglinear(x, 0) + linear(D, 1) + Multiplicative()
+poisres <- PoisRun(model, df, a_n = a_n)
 ```
 
 Our total rate ($R$) is composed of a background rate ($R_{BK}$) and excess rate ($R_{EX}$). The cases each row have a total ($c$) and background/excess count ($c_{BK}, c_{EX}$). Additionally, every row has a measure of person-time ($t$). Colossus also computes the predicted number of total, background, and excess cases ($P, P_{BK}. P_{EX}$). For every model we assume the average number of background cases is the background rate multiplied by time, the remaining cases are excess, and the true number of background/excess cases is proportional to the predicted cases.
@@ -61,14 +58,7 @@ $$
 Colossus returns two matrices, one for the true cases and one for the predicted cases. Each matrix has three columns for the events assigned to background, excess, and total. This provides information on both the relative amount of background and excess cases, as well as differences between the expected and true number of cases.
 
 ```{r, eval=FALSE}
-names <- c("x", "D")
-term_n <- c(0, 1)
-tform <- c("loglin", "lin")
-modelform <- "M"
-a_n <- c(0.1, 0.1)
-keep_constant <- rep(0, length(names))
-control <- list("Ncores" = 2, "verbose" = 2)
-e <- RunPoissonEventAssignment(df, pyr, event, names, Term_n, tform, keep_constant, a_n, modelform, control = control)
+e <- EventAssignment(poisres, df)
 
 e0 <- e$predict
 e1 <- e$caused

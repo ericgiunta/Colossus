@@ -38,11 +38,11 @@ RunPoissonRegression_Residual(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
 \item{strat_col}{column to stratify by if needed}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
+\item{model_control}{controls which alternative model options are used, see the Control_Options vignette for further details}
 }
 \value{
 returns a list of the final results
@@ -97,6 +97,8 @@ e <- RunPoissonRegression_Residual(
 }
 \seealso{
 Other Poisson Wrapper Functions: 
+\code{\link{EventAssignment.poisres}()},
+\code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
 \code{\link{PoissonCurveSolver}()},

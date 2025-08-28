@@ -6,6 +6,11 @@
 \usage{
 get_form_surv(surv_obj, df)
 }
+\arguments{
+\item{surv_obj}{output from get_form_surv, list of survival values}
+
+\item{df}{a data.table containing the columns of interest}
+}
 \value{
 returns the left hand side of the formula reading
 }

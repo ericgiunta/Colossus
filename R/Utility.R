@@ -157,7 +157,7 @@ Def_model_control <- function(control) {
     "gradient", "constraint", "strata", "surv",
     "schoenfeld", "risk",
     "risk_subset", "log_bound", "pearson", "deviance",
-    "mcml", "oberved_info", "time_risk"
+    "mcml", "observed_info", "time_risk"
   )
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
@@ -289,17 +289,17 @@ Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
       a0 <- plist[1]
       y <- plist[2]
       if (a0 < 0) {
-        stop("Error: a0 arguement was negative")
+        stop("Error: a0 argument was negative")
       }
       if (is.numeric(a0)) {
         # fine
       } else {
-        stop("Error: a0 arguement was not a number")
+        stop("Error: a0 argument was not a number")
       }
       if (is.numeric(y)) {
         # fine
       } else {
-        stop("Error: threshold arguement was not a number") # nocov
+        stop("Error: threshold argument was not a number") # nocov
       }
       a1 <- a0 / 2 / y
       b1 <- a0 * y / 2
@@ -310,22 +310,22 @@ Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
       y <- plist[2]
       b1 <- plist[3]
       if (a0 < 0) {
-        stop("Error: a0 arguement was negative")
+        stop("Error: a0 argument was negative")
       }
       if (is.numeric(a0)) {
         # fine
       } else {
-        stop("Error: a0 arguement was not a number") # nocov
+        stop("Error: a0 argument was not a number") # nocov
       }
       if (is.numeric(y)) {
         # fine
       } else {
-        stop("Error: threshold arguement was not a number") # nocov
+        stop("Error: threshold argument was not a number") # nocov
       }
       if (is.numeric(b1)) {
         # fine
       } else {
-        stop("Error: exponential arguement was not a number") # nocov
+        stop("Error: exponential argument was not a number") # nocov
       }
       c1 <- log(a0) - log(b1) + b1 * y
       a1 <- a0 * y + exp(c1 - b1 * y)
@@ -355,7 +355,7 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
   b1 <- 10
   lr <- 1.0
   if (a0 < 0) {
-    stop("Error: a0 arguement was negative")
+    stop("Error: a0 argument was negative")
   }
   if (a1_goal > y * a0) {
     # fine
@@ -735,8 +735,8 @@ Check_Trunc <- function(df, ce, verbose = 0) {
     }
   )
   verbose <- Check_Verbose(verbose)
-  if (ce[1] == "%trunc%") {
-    if (ce[2] == "%trunc%") {
+  if (ce[1] %in% c("%trunc%", "right_trunc")) {
+    if (ce[2] %in% c("%trunc%", "left_trunc")) {
       stop("Error: Both endpoints are truncated, not acceptable")
     }
     tname <- ce[2]
@@ -745,7 +745,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
       df[, ":="(right_trunc = tmin)]
     }
     ce[1] <- "right_trunc"
-  } else if (ce[2] == "%trunc%") {
+  } else if (ce[2] %in% c("%trunc%", "left_trunc")) {
     tname <- ce[1]
     tmax <- max(df[, get(tname)]) + 1
     if (!("left_trunc" %in% names(df))) {
@@ -1300,7 +1300,7 @@ Check_Verbose <- function(verbose) {
       verbose <- 0 # nocov
     }
   } else {
-    stop("Error: verbosity arguement not valid")
+    stop("Error: verbosity argument not valid")
   }
   verbose
 }
@@ -1908,26 +1908,50 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #'
 #' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @inheritParams R_template
+#' @param x result object from a regression, class coxres or poisres
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
 #' @export
 #' @family Output and Information Functions
-print.coxres <- function(object, digits = 2) {
-  Interpret_Output(object, digits)
+print.coxres <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
 }
 
 #' Prints a poisson regression output clearly
 #'
 #' \code{print.poisres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @inheritParams R_template
+#' @param x result object from a regression, class coxres or poisres
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
 #' @export
 #' @family Output and Information Functions
-print.poisres <- function(object, digits = 2) {
-  Interpret_Output(object, digits)
+print.poisres <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
 }
 
 #' Prints a regression output clearly

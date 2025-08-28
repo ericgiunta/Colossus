@@ -87,38 +87,23 @@ ci_2 <- c(
   e1$beta_0[2] + 1.96 * e1$Standard_Deviation[2]
 )
 
-a_n <- c(0.7599511, 1.9884051)
-term_n <- c(0, 0)
-keep_constant <- c(0, 0)
-modelform <- "M"
 
-model_control <- list(
-  "basic" = FALSE, "maxstep" = 100,
-  "log_bound" = TRUE, "alpha" = 0.05,
+curve_control <- list(
+  "maxstep" = 100,
+  "alpha" = 0.05,
   "para_number" = 0, "manual" = TRUE
 )
-e <- RunCoxRegression_Omnibus(df, t0, t1, event, names,
-  term_n = term_n,
-  tform = tform, keep_constant = keep_constant,
-  a_n = a_n, modelform = modelform,
-  control = control, model_control = model_control
-)
+e <- LikelihoodBound(e1, df, curve_control, control = control)
 print("|------------------- Wald Estimate -------------------|")
 print(ci_1)
 Interpret_Output(e, 5)
 
-a_n <- c(0.7599511, 1.9884051)
-model_control <- list(
-  "basic" = FALSE, "maxstep" = 100,
-  "log_bound" = TRUE, "alpha" = 0.05,
+curve_control <- list(
+  "maxstep" = 100,
+  "alpha" = 0.05,
   "para_number" = 1, "manual" = TRUE
 )
-e <- RunCoxRegression_Omnibus(df, t0, t1, event, names,
-  term_n = term_n,
-  tform = tform, keep_constant = keep_constant,
-  a_n = a_n, modelform = modelform,
-  control = control, model_control = model_control
-)
+e <- LikelihoodBound(e1, df, curve_control, control = control)
 print("|------------------- Likelihood Bound Estimate -------------------|")
 print(ci_2)
 Interpret_Output(e, 5)

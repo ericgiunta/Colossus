@@ -271,7 +271,7 @@ e <- CoxRun(model_cox, df, a_n = a_n, control = control)
 print(e)
 
 # or a Poisson model regression
-model_pois <- Poisson(Person_Years, event)  ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
+model_pois <- Poisson(Person_Years, Cancer_Status)  ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
 e <- PoisRun(model_pois, df, a_n = a_n, control = control)
 print(e)
 ```

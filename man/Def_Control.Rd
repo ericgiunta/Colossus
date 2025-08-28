@@ -7,7 +7,7 @@
 Def_Control(control)
 }
 \arguments{
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 }
 \value{
 returns a filled list

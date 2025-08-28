@@ -3,6 +3,7 @@
 #' \code{CoxRun} uses a formula, data.table, and list of controls to prepare and
 #' run a Colossus cox or fine-gray regression function
 #'
+#' @param ... can include the named entries for the control list parameter
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the regression results
@@ -21,35 +22,29 @@
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
-#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
-CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
-  if (class(model) == "coxmodel") {
+CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  if (is(model, "coxmodel")) {
     # using already prepped formula and data
     coxmodel <- copy(model)
-    df <- copy(table)
     #
-  } else if (class(model) == "formula") {
+  } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, table)
+    res <- get_form(model, df)
     coxmodel <- res$model
     df <- res$data
-    # } else if (class(formula) == "function") {
-    #   # using a formula class
-    #   res <- get_form(as.formula(formula), table)
-    #   coxmodel <- res$model
-    #   df <- res$data
   } else {
-    print(model)
     stop(gettextf(
       "Incorrect type used for formula, '%s', must be formula or coxmodel class",
       class(model)
     ))
   }
   # ------------------------------------------------------------------------------ #
-  # we want to let the user add in control arguements to their call
+  # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
-  extraArgs <- list(...) # gather additional arguements
+  extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
     controlargs <- names(formals(ColossusControl)) # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -134,10 +129,10 @@ CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control
     }
   }
   model_control["single"] <- single
-  model_control["oberved_info"] <- oberved_info
+  model_control["observed_info"] <- observed_info
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
-    "gradient", "constraint", "strata", "oberved_info"
+    "gradient", "constraint", "strata", "observed_info"
   )
   for (nm in control_def_names) {
     if (!(nm %in% names(model_control))) {
@@ -163,6 +158,7 @@ CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control
 #' \code{PoisRun} uses a formula, data.table, and list of controls to prepare and
 #' run a Colossus poisson regression function
 #'
+#' @param ... can include the named entries for the control list parameter
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the regression results
@@ -181,16 +177,16 @@ CoxRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
-#' formula <- Pois(Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' formula <- Pois(Ending_Age, Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- PoisRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
-PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
-  if (class(model) == "poismodel") {
+PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  if (is(model, "poismodel")) {
     # using already prepped formula and data
     poismodel <- copy(model)
-    df <- copy(table)
-  } else if (class(model) == "formula") {
+  } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, table)
+    res <- get_form(model, df)
     poismodel <- res$model
     df <- res$data
   } else {
@@ -200,9 +196,9 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
     ))
   }
   # ------------------------------------------------------------------------------ #
-  # we want to let the user add in control arguements to their call
+  # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
-  extraArgs <- list(...) # gather additional arguements
+  extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
     controlargs <- names(formals(ColossusControl)) # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -269,10 +265,10 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
     }
   }
   model_control["single"] <- single
-  model_control["oberved_info"] <- oberved_info
+  model_control["observed_info"] <- observed_info
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
-    "gradient", "constraint", "strata", "oberved_info"
+    "gradient", "constraint", "strata", "observed_info"
   )
   for (nm in control_def_names) {
     if (!(nm %in% names(model_control))) {
@@ -294,6 +290,7 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
 #' \code{PoisRunJoint} uses a list of formula, data.table, and list of controls to prepare and
 #' run a Colossus poisson regression function on a joint dataset
 #'
+#' @param ... can include the named entries for the control list parameter
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the regression results
@@ -306,7 +303,7 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
 #'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
 #'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
 #'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "Flu_Status"    = c(0, 1, 0, 0, 1, 0, 1),
+#'   "Flu_Status" = c(0, 1, 0, 0, 1, 0, 1),
 #'   "a" = c(0, 1, 1, 0, 1, 0, 1),
 #'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
 #'   "c" = c(10, 11, 10, 11, 12, 9, 11),
@@ -314,18 +311,17 @@ PoisRun <- function(model, table, a_n = list(c(0)), keep_constant = c(0), contro
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
-#'                      Pois(Ending_Age, Flu_Status)    ~ loglinear(d, 0),
-#'                  "shared" = Pois(Ending_Age)    ~ loglinear(a, b, c, 0)
+#'   Pois(Ending_Age, Flu_Status) ~ loglinear(d, 0),
+#'   "shared" = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 #' )
 #' res <- PoisRunJoint(formula_list, df)
-PoisRunJoint <- function(model, table, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...){
-  if (class(model) == "poismodel") {
+PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  if (is(model, "poismodel")) {
     # using already prepped formula and data
     poismodel <- copy(model)
-    df <- copy(table)
   } else if (is.list(model)) {
     # using a list of formula
-    res <- get_form_joint(model, table)
+    res <- get_form_joint(model, df)
     poismodel <- res$model
     df <- res$data
   } else {
@@ -335,9 +331,9 @@ PoisRunJoint <- function(model, table, a_n = list(c(0)), keep_constant = c(0), c
     ))
   }
   # ------------------------------------------------------------------------------ #
-  # we want to let the user add in control arguements to their call
+  # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
-  extraArgs <- list(...) # gather additional arguements
+  extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
     controlargs <- names(formals(ColossusControl)) # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -404,10 +400,10 @@ PoisRunJoint <- function(model, table, a_n = list(c(0)), keep_constant = c(0), c
     }
   }
   model_control["single"] <- single
-  model_control["oberved_info"] <- oberved_info
+  model_control["observed_info"] <- observed_info
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
-    "gradient", "constraint", "strata", "oberved_info"
+    "gradient", "constraint", "strata", "observed_info"
   )
   for (nm in control_def_names) {
     if (!(nm %in% names(model_control))) {
@@ -424,14 +420,26 @@ PoisRunJoint <- function(model, table, a_n = list(c(0)), keep_constant = c(0), c
   poisres
 }
 
+#' Generic relative risk calculation function
+#'
+#' \code{RelativeRisk} Generic relative risk calculation function
+#' @param x result object from a regression, class coxres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
 #' @export
-RelativeRisk <- function(object, df) {
-  UseMethod("RelativeRisk", object)
+RelativeRisk <- function(x, df, ...) {
+  UseMethod("RelativeRisk", x)
 }
 
+#' Generic relative risk calculation function, default option
+#'
+#' \code{RelativeRisk.default} Generic relative risk calculation function, by default nothing happens
+#' @param x result object from a regression, class coxres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
 #' @export
-RelativeRisk.default <- function(object, df) {
-  return(object)
+RelativeRisk.default <- function(x, df, ...) {
+  return(x)
 }
 
 #' Calculates hazard ratios for a reference vector
@@ -439,6 +447,7 @@ RelativeRisk.default <- function(object, df) {
 #' \code{coxres.RelativeRisk} uses a cox result object and data, to evaluate
 #' relative risk in the data using the risk model from the result
 #'
+#' @param x result object from a regression, class coxres
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the regression results
@@ -457,12 +466,13 @@ RelativeRisk.default <- function(object, df) {
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
-#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 #' RelativeRisk(res, df)
-RelativeRisk.coxres <- function(object, df) {
+RelativeRisk.coxres <- function(x, df) {
   #
-  coxmodel <- object$model
+  coxmodel <- x$model
   time1 <- coxmodel$start_age
   time2 <- coxmodel$end_age
   event0 <- coxmodel$event
@@ -481,14 +491,14 @@ RelativeRisk.coxres <- function(object, df) {
   }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
-  if (any(val$ce != ce)){
-      df <- val$df
-      ce <- val$ce
-      time1 <- ce[1]
-      time2 <- ce[1]
+  if (any(val$ce != ce)) {
+    df <- val$df
+    ce <- val$ce
+    time1 <- ce[1]
+    time2 <- ce[1]
   }
   #
-  object <- validate_coxres(object, df)
+  object <- validate_coxres(x, df)
   #
   a_n <- object$beta_0
   control <- object$control
@@ -502,6 +512,8 @@ RelativeRisk.coxres <- function(object, df) {
 #' \code{plot.coxres} uses user provided data, time/event columns,
 #' vectors specifying the model, and options to choose and save plots
 #'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns the data used for plots
@@ -520,7 +532,8 @@ RelativeRisk.coxres <- function(object, df) {
 #'   "c" = c(10, 11, 10, 11, 12, 9, 11),
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1)
 #' )
-#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 #' plot_options <- list(
 #'   "type" = c("surv", paste(tempfile(),
@@ -530,9 +543,9 @@ RelativeRisk.coxres <- function(object, df) {
 #'   "verbose" = FALSE
 #' )
 #' plot(res, df, plot_options)
-plot.coxres <- function(object, df, plot_options, ...) {
+plot.coxres <- function(x, df, plot_options, ...) {
   #
-  coxmodel <- object$model
+  coxmodel <- x$model
   time1 <- coxmodel$start_age
   time2 <- coxmodel$end_age
   event0 <- coxmodel$event
@@ -551,20 +564,22 @@ plot.coxres <- function(object, df, plot_options, ...) {
   }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
-  if (any(val$ce != ce)){
-      df <- val$df
-      ce <- val$ce
-      time1 <- ce[1]
-      time2 <- ce[1]
+  df <- val$df
+  if (any(val$ce != ce)) {
+    ce <- val$ce
+    time1 <- ce[1]
+    time2 <- ce[1]
+    x$model$start_age <- time1
+    x$model$end_age <- time2
   }
   #
-  object <- validate_coxres(object, df)
+  object <- validate_coxres(x, df)
   #
   a_n <- object$beta_0
   control <- object$control
   model_control <- object$modelcontrol
   #
-  extraArgs <- list(...) # gather additional arguements
+  extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
     controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid") # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -591,6 +606,7 @@ plot.coxres <- function(object, df, plot_options, ...) {
 #' \code{CoxRunMulti} uses a formula, data.table, and list of controls to prepare and
 #' run a Colossus cox or fine-gray regression function
 #'
+#' @param ... can include the named entries for the control list parameter
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the regression results
@@ -621,29 +637,27 @@ plot.coxres <- function(object, df, plot_options, ...) {
 #'   "verbose" = 0, "ties" = "breslow", "double_step" = 1
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-#' res <- CoxRun(formula, df, a_n = a_n, control = control)
-CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, oberved_info = FALSE, fma = FALSE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
-  if (class(model) == "coxmodel") {
+#' res <- CoxRun(formula, df, control = control)
+CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = FALSE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  if (is(model, "coxmodel")) {
     # using already prepped formula and data
     coxmodel <- copy(model)
-    df <- copy(table)
     #
-  } else if (class(model) == "formula") {
+  } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, table)
+    res <- get_form(model, df)
     coxmodel <- res$model
     df <- res$data
   } else {
-    print(model)
     stop(gettextf(
       "Incorrect type used for formula, '%s', must be formula or coxmodel class",
       class(model)
     ))
   }
   # ------------------------------------------------------------------------------ #
-  # we want to let the user add in control arguements to their call
+  # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
-  extraArgs <- list(...) # gather additional arguements
+  extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
     controlargs <- names(formals(ColossusControl)) # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -737,10 +751,10 @@ CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), re
     }
   }
   model_control["single"] <- single
-  model_control["oberved_info"] <- oberved_info
+  model_control["observed_info"] <- observed_info
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
-    "gradient", "constraint", "strata", "oberved_info"
+    "gradient", "constraint", "strata", "observed_info"
   )
   for (nm in control_def_names) {
     if (!(nm %in% names(model_control))) {
@@ -761,14 +775,26 @@ CoxRunMulti <- function(model, table, a_n = list(c(0)), keep_constant = c(0), re
   coxres
 }
 
+#' Generic likelihood boundary calculation function
+#'
+#' \code{LikelihoodBound} Generic likelihood boundary calculation function
+#' @param x result object from a regression, class coxres or poisres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
 #' @export
-LikelihoodBound <- function(object, df, curve_control = list(), control = list()) {
-  UseMethod("LikelihoodBound", object)
+LikelihoodBound <- function(x, df, curve_control = list(), control = list(), ...) {
+  UseMethod("LikelihoodBound", x)
 }
 
+#' Generic likelihood boundary calculation function, default option
+#'
+#' \code{LikelihoodBound} Generic likelihood boundary calculation function, by default nothing happens
+#' @param x result object from a regression, class coxres or poisres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
 #' @export
-LikelihoodBound.default <- function(object, df, curve_control = list(), control = list()) {
-  return(object)
+LikelihoodBound.default <- function(x, df, curve_control = list(), control = list(), ...) {
+  return(x)
 }
 
 #' Calculates the likelihood boundary for a completed cox model
@@ -776,13 +802,15 @@ LikelihoodBound.default <- function(object, df, curve_control = list(), control 
 #' \code{LikelihoodBound.coxres} solves the confidence interval for a cox model, starting at the optimum point and
 #' iteratively optimizing end-points of intervals.
 #'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the curve_control list parameter
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
 #' @family Cox Wrapper Functions
-LikelihoodBound.coxres <- function(object, df, curve_control = list(), control = list(), ...) {
-  coxmodel <- object$model
+LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list(), ...) {
+  coxmodel <- x$model
   time1 <- coxmodel$start_age
   time2 <- coxmodel$end_age
   event0 <- coxmodel$event
@@ -805,14 +833,16 @@ LikelihoodBound.coxres <- function(object, df, curve_control = list(), control =
   }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
-  if (any(val$ce != ce)){
-      df <- val$df
-      ce <- val$ce
-      time1 <- ce[1]
-      time2 <- ce[1]
+  df <- val$df
+  if (any(val$ce != ce)) {
+    ce <- val$ce
+    time1 <- ce[1]
+    time2 <- ce[1]
+    x$model$start_age <- time1
+    x$model$end_age <- time2
   }
   #
-  object <- validate_coxres(object, df)
+  object <- validate_coxres(x, df)
   #
   a_n <- object$beta_0
   if (missing(control)) {
@@ -826,7 +856,7 @@ LikelihoodBound.coxres <- function(object, df, curve_control = list(), control =
   }
   #
   model_control["log_bound"] <- TRUE
-  extraArgs <- list(...) # gather additional arguements
+  extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
     controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -863,13 +893,15 @@ LikelihoodBound.coxres <- function(object, df, curve_control = list(), control =
 #' \code{LikelihoodBound.poisres} solves the confidence interval for a Poisson model, starting at the optimum point and
 #' iteratively optimizing end-points of intervals.
 #'
+#' @param x result object from a regression, class poisres
+#' @param ... can include the named entries for the curve_control list parameter
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Cox Wrapper Functions
-LikelihoodBound.poisres <- function(object, df, curve_control = list(), control = list(), ...) {
-  poismodel <- object$model
+#' @family Poisson Wrapper Functions
+LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = list(), ...) {
+  poismodel <- x$model
   pyr0 <- poismodel$person_year
   event0 <- poismodel$event
   names <- poismodel$names
@@ -888,7 +920,7 @@ LikelihoodBound.poisres <- function(object, df, curve_control = list(), control 
       df$CONST <- 1
     }
   }
-  object <- validate_poisres(object, df)
+  object <- validate_poisres(x, df)
   #
   a_n <- object$beta_0
   if (missing(control)) {
@@ -902,7 +934,7 @@ LikelihoodBound.poisres <- function(object, df, curve_control = list(), control 
   }
   #
   model_control["log_bound"] <- TRUE
-  extraArgs <- list(...) # gather additional arguements
+  extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
     controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -932,4 +964,110 @@ LikelihoodBound.poisres <- function(object, df, curve_control = list(), control 
   }
   poisres <- new_poisresbound(res)
   poisres
+}
+
+
+#' Generic background/excess event calculation function
+#'
+#' \code{EventAssignment} Generic ackground/excess event calculation function
+#' @param x result object from a regression, class poisres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
+#' @export
+EventAssignment <- function(x, df, curve_control = list(), control = list(), ...) {
+  UseMethod("EventAssignment", x)
+}
+
+#' Predicts how many events are due to baseline vs excess
+#'
+#' \code{EventAssignment} Generic lackground/excess event calculation function, by default nothing happens
+#' @param x result object from a regression, class poisres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
+#' @export
+EventAssignment.default <- function(x, df, curve_control = list(), control = list(), ...) {
+  return(x)
+}
+
+#' Calculates the likelihood boundary for a completed cox model
+#'
+#' \code{LikelihoodBound.coxres} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate background and excess events for a solved Poisson regression
+#'
+#' @param x result object from a regression, class poisres
+#' @param assign_control control list for bounds calculated
+#' @param ... can include the named entries for the assign_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Poisson Wrapper Functions
+EventAssignment.poisres <- function(x, df, assign_control = list(), control = list(), ...) {
+  poismodel <- x$model
+  pyr0 <- poismodel$person_year
+  event0 <- poismodel$event
+  names <- poismodel$names
+  term_n <- poismodel$term_n
+  tform <- poismodel$tform
+  keep_constant <- poismodel$keep_constant
+  modelform <- poismodel$modelform
+  cons_mat <- as.matrix(c(0))
+  cons_vec <- c(0)
+  strat_col <- poismodel$strata
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  object <- validate_poisres(x, df)
+  #
+  a_n <- object$beta_0
+  if (missing(control)) {
+    control <- object$control
+  }
+  model_control <- object$modelcontrol
+  #
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- c("bound", "check_num", "z") # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(assign_control)) {
+    assign_control <- extraArgs
+  } else if (is.list(assign_control)) {
+    assign_control <- c(assign_control, extraArgs)
+  } else {
+    stop("control argument must be a list")
+  }
+  #
+  check_num <- 1
+  z <- 2
+  if (length(assign_control) > 0) {
+    assign_control$bound <- TRUE
+    if ("check_num" %in% names(assign_control)) {
+      check_num <- assign_control$check_num
+    }
+    if ("z" %in% names(assign_control)) {
+      z <- assign_control$z
+    }
+  } else {
+    assign_control$bound <- FALSE
+  }
+  if (!assign_control$bound) {
+    # Just a basic event assignment
+    res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
+  } else {
+    # running a boundary solution
+    res <- RunPoissonEventAssignment_bound(df, pyr0, event0, x, keep_constant, modelform, check_num, z, control, strat_col, model_control)
+  }
+  res
 }

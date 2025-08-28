@@ -6,28 +6,40 @@
 \usage{
 PoisRunJoint(
   model,
-  table,
+  df,
   a_n = list(c(0)),
   keep_constant = c(0),
   control = list(),
   gradient_control = list(),
   single = FALSE,
-  oberved_info = FALSE,
+  observed_info = FALSE,
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0),
   ...
 )
 }
 \arguments{
+\item{model}{either a formula written for the get_form function, or the model result from the get_form function.}
+
+\item{df}{a data.table containing the columns of interest}
+
 \item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
+
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the Control_Options vignette for details}
+
+\item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
+
+\item{observed_info}{a boolean to denote that the observed information matrix should be used to calculate the standard error for parameters, not the expected information matrix}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
 \item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
+
+\item{...}{can include the named entries for the control list parameter}
 }
 \value{
 returns a class fully describing the model and the regression results
@@ -43,7 +55,7 @@ df <- data.table::data.table(
   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-  "Flu_Status"    = c(0, 1, 0, 0, 1, 0, 1),
+  "Flu_Status" = c(0, 1, 0, 0, 1, 0, 1),
   "a" = c(0, 1, 1, 0, 1, 0, 1),
   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
   "c" = c(10, 11, 10, 11, 12, 9, 11),
@@ -51,13 +63,15 @@ df <- data.table::data.table(
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
 formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
-                     Pois(Ending_Age, Flu_Status)    ~ loglinear(d, 0),
-                 "shared" = Pois(Ending_Age)    ~ loglinear(a, b, c, 0)
+  Pois(Ending_Age, Flu_Status) ~ loglinear(d, 0),
+  "shared" = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 )
 res <- PoisRunJoint(formula_list, df)
 }
 \seealso{
 Other Poisson Wrapper Functions: 
+\code{\link{EventAssignment.poisres}()},
+\code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoissonCurveSolver}()},
 \code{\link{RunPoissonEventAssignment}()},

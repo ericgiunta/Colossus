@@ -4,12 +4,16 @@
 \alias{plot.coxres}
 \title{Performs Cox Proportional Hazard model plots}
 \usage{
-\method{plot}{coxres}(object, df, plot_options, ...)
+\method{plot}{coxres}(x, df, plot_options, ...)
 }
 \arguments{
+\item{x}{result object from a regression, class coxres}
+
 \item{df}{a data.table containing the columns of interest}
 
 \item{plot_options}{list of parameters controlling the plot options, see RunCoxPlots() for different options}
+
+\item{...}{can include the named entries for the plot_options parameter}
 }
 \value{
 saves the plots in the current directory and returns the data used for plots
@@ -31,7 +35,8 @@ df <- data.table::data.table(
   "c" = c(10, 11, 10, 11, 12, 9, 11),
   "d" = c(0, 0, 0, 1, 1, 1, 1)
 )
-formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+  loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 plot_options <- list(
   "type" = c("surv", paste(tempfile(),

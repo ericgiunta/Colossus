@@ -6,6 +6,11 @@
 \usage{
 get_form_risk(model_obj, df)
 }
+\arguments{
+\item{model_obj}{output from get_form_risk, list of risk factor model values}
+
+\item{df}{a data.table containing the columns of interest}
+}
 \value{
 returns the right hand side of a formula reading
 }

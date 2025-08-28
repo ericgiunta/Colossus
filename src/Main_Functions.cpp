@@ -662,7 +662,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
-    if (model_bool["oberved_info"]){
+    if (model_bool["observed_info"]){
         cov = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
@@ -1247,7 +1247,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
-    if (model_bool["oberved_info"]){
+    if (model_bool["observed_info"]){
         cov = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
@@ -2162,7 +2162,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
-    if (model_bool["oberved_info"]){
+    if (model_bool["observed_info"]){
         cov = - 1 * Lldd_mat.inverse().matrix();  // uses inverse information matrix to calculate the standard deviation
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
