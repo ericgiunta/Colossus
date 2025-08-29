@@ -22,6 +22,10 @@ or the last two entries.
 }
 \seealso{
 Other Formula Interpretation: 
+\code{\link{ColossusCaseConStrataSurv}()},
+\code{\link{ColossusCaseConSurv}()},
+\code{\link{ColossusCaseConTimeStrataSurv}()},
+\code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusFineGrayStrataSurv}()},
 \code{\link{ColossusFineGraySurv}()},

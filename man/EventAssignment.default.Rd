@@ -4,19 +4,15 @@
 \alias{EventAssignment.default}
 \title{Predicts how many events are due to baseline vs excess}
 \usage{
-\method{EventAssignment}{default}(x, df, curve_control = list(), control = list(), ...)
+\method{EventAssignment}{default}(x, df, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class poisres}
 
 \item{df}{a data.table containing the columns of interest}
 
-\item{curve_control}{a list of control options for the likelihood boundary regression. See the Control_Options vignette for details.}
-
-\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
-
 \item{...}{extended for other necessary parameters}
 }
 \description{
-\code{EventAssignment} Generic lackground/excess event calculation function, by default nothing happens
+\code{EventAssignment} Generic background/excess event calculation function, by default nothing happens
 }

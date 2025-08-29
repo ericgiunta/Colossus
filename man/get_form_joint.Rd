@@ -20,6 +20,10 @@ and data.table, to fully describe the model for a joint Poisson model.
 }
 \seealso{
 Other Formula Interpretation: 
+\code{\link{ColossusCaseConStrataSurv}()},
+\code{\link{ColossusCaseConSurv}()},
+\code{\link{ColossusCaseConTimeStrataSurv}()},
+\code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
 \code{\link{ColossusFineGrayStrataSurv}()},

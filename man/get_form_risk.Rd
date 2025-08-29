@@ -19,6 +19,10 @@ returns the right hand side of a formula reading
 }
 \seealso{
 Other Formula Interpretation: 
+\code{\link{ColossusCaseConStrataSurv}()},
+\code{\link{ColossusCaseConSurv}()},
+\code{\link{ColossusCaseConTimeStrataSurv}()},
+\code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
 \code{\link{ColossusFineGrayStrataSurv}()},

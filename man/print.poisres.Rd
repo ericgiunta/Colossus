@@ -21,6 +21,7 @@ return nothing, prints the results to console
 Other Output and Information Functions: 
 \code{\link{Interpret_Output}()},
 \code{\link{System_Version}()},
+\code{\link{print.caseconres}()},
 \code{\link{print.coxres}()}
 }
 \concept{Output and Information Functions}

@@ -10,7 +10,7 @@
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Cox Wrapper Functions
+#' @family Case Control Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette

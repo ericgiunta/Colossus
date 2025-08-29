@@ -21,6 +21,10 @@ Anything beyond the event name is assumed to be strata if Poisson_Strata is used
 }
 \seealso{
 Other Formula Interpretation: 
+\code{\link{ColossusCaseConStrataSurv}()},
+\code{\link{ColossusCaseConSurv}()},
+\code{\link{ColossusCaseConTimeStrataSurv}()},
+\code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
 \code{\link{ColossusFineGrayStrataSurv}()},

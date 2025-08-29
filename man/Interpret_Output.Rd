@@ -63,6 +63,7 @@ Interpret_Output(e)
 \seealso{
 Other Output and Information Functions: 
 \code{\link{System_Version}()},
+\code{\link{print.caseconres}()},
 \code{\link{print.coxres}()},
 \code{\link{print.poisres}()}
 }

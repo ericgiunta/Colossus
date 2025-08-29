@@ -4,7 +4,7 @@
 \alias{plot.coxres}
 \title{Performs Cox Proportional Hazard model plots}
 \usage{
-\method{plot}{coxres}(x, df, plot_options, ...)
+\method{plot}{coxres}(x, df, plot_options, a_n = c(), ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}
@@ -12,6 +12,8 @@
 \item{df}{a data.table containing the columns of interest}
 
 \item{plot_options}{list of parameters controlling the plot options, see RunCoxPlots() for different options}
+
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{...}{can include the named entries for the plot_options parameter}
 }

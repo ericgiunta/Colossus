@@ -1954,6 +1954,31 @@ print.poisres <- function(x, ...) {
   Interpret_Output(x, digits)
 }
 
+#' Prints a case-control regression output clearly
+#'
+#' \code{print.caseconres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxres,  poisres, or caseconres
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.caseconres <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
 #' Prints a regression output clearly
 #'
 #' \code{Interpret_Output} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.

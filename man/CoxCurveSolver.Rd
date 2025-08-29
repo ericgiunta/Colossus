@@ -68,7 +68,6 @@ Other Cox Wrapper Functions:
 \code{\link{CoxRun}()},
 \code{\link{CoxRunMulti}()},
 \code{\link{LikelihoodBound.coxres}()},
-\code{\link{RunCaseControlRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus}()},
 \code{\link{RunCoxRegression_Omnibus_Multidose}()}
 }

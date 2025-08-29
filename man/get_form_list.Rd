@@ -22,6 +22,10 @@ for a Colossus regression function and returns a list
 }
 \seealso{
 Other Formula Interpretation: 
+\code{\link{ColossusCaseConStrataSurv}()},
+\code{\link{ColossusCaseConSurv}()},
+\code{\link{ColossusCaseConTimeStrataSurv}()},
+\code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
 \code{\link{ColossusFineGrayStrataSurv}()},

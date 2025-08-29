@@ -17,6 +17,10 @@ returns list with interval endpoints, event, strata, and weighting columns
 }
 \seealso{
 Other Formula Interpretation: 
+\code{\link{ColossusCaseConStrataSurv}()},
+\code{\link{ColossusCaseConSurv}()},
+\code{\link{ColossusCaseConTimeStrataSurv}()},
+\code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
 \code{\link{ColossusFineGraySurv}()},

@@ -160,7 +160,7 @@ get_form_joint <- function(formula_list, df) {
     }
   }
   #
-  model <- poismodel(pyr, "events", strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
+  model <- poismodel(pyr, "events", strata, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
   list(
     "model" = model, "data" = df
   )
@@ -224,7 +224,9 @@ get_form <- function(formula, df) {
   } else if (grepl("finegray", surv_model_type)) {
     model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
   } else if (grepl("pois", surv_model_type)) {
-    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+    model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+  } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
+    model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
   } else {
     stop("Bad survival model type passed")
   }
@@ -350,13 +352,13 @@ get_form_surv <- function(surv_obj, df) {
     tend <- res$tend
     event <- res$event
     strata <- res$strata
-  } else if (surv_type %in% c("finegray", "fg")) {
+  } else if (surv_type %in% c("finegray", "fine_gray", "fg")) {
     res <- do.call(ColossusFineGraySurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
     event <- res$event
     weight <- res$weight
-  } else if (surv_type %in% c("finegray_strata", "fg_strata")) {
+  } else if (surv_type %in% c("finegray_strata", "fine_gray_strata", "fg_strata")) {
     res <- do.call(ColossusFineGrayStrataSurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
@@ -370,6 +372,24 @@ get_form_surv <- function(surv_obj, df) {
   } else if (surv_type %in% c("poisson_strata", "pois_strata")) {
     res <- do.call(ColossusPoisSurv, surv_para_list)
     pyr <- res$pyr
+    event <- res$event
+    strata <- res$strata
+  } else if (surv_type %in% c("casecon", "casecontrol", "case_control")) {
+    res <- do.call(ColossusCaseConSurv, surv_para_list)
+    event <- res$event
+  } else if (surv_type %in% c("casecon_time", "casecontrol_time", "case_control_time")) {
+    res <- do.call(ColossusCaseConTimeSurv, surv_para_list)
+    tstart <- res$tstart
+    tend <- res$tend
+    event <- res$event
+  } else if (surv_type %in% c("casecon_strata", "casecontrol_strata", "case_control_strata")) {
+    res <- do.call(ColossusCaseConStrataSurv, surv_para_list)
+    event <- res$event
+    strata <- res$strata
+  } else if (surv_type %in% c("casecon_strata_time", "casecontrol_strata_time", "case_control_strata_time", "casecon_time_strata", "casecontrol_time_strata", "case_control_time_strata")) {
+    res <- do.call(ColossusCaseConTimeStrataSurv, surv_para_list)
+    tstart <- res$tstart
+    tend <- res$tend
     event <- res$event
     strata <- res$strata
   } else {
@@ -867,4 +887,202 @@ ColossusPoisSurv <- function(...) {
     event <- args$event
   }
   list("pyr" = pyr, "event" = event, "strata" = strata)
+}
+
+# --------------------------------------------------------------------------------- #
+#' Interprets basic case-control survival formula RHS with no grouping
+#'
+#' \code{ColossusCaseConSurv} assigns and interprets interval columns for case-control model without grouping.
+#'
+#' @param ... entries for a Case-Control object, only the event column
+#'
+#' @export
+#' @return returns list with event
+#' @family Formula Interpretation
+ColossusCaseConSurv <- function(...) {
+  # expects one arguement, as the event column
+  args <- list(...)
+  argName <- names(args)
+  if (length(args) < 1) {
+    stop("Too few entries in Case-Control survival object")
+  }
+  if (length(args) > 1) {
+    stop("Too many entries in Case-Control survival object")
+  }
+  if ((argName[[1]] == "event") || is.null(argName[[1]])) {
+    event <- args[[1]]
+  } else {
+    stop("Entry must be unnamed or named 'event'")
+  }
+  list("event" = event)
+}
+
+#' Interprets basic case-control survival formula RHS with grouping by risk group
+#'
+#' \code{ColossusCaseConTimeSurv} assigns and interprets interval columns for case-control model with grouping by risk group.
+#'
+#' @param ... entries for a Case-Control object, with risk group info. Similar to basic Cox survival, interval start, end, and the event column. Either named or in order.
+#'
+#' @export
+#' @return returns list with event
+#' @family Formula Interpretation
+ColossusCaseConTimeSurv <- function(...) {
+  # expects time and event arguements
+  args <- list(...)
+  argName <- names(args)
+  if (length(args) < 2) {
+    stop("Too few entries in Case-Control survival object matched on time")
+  }
+  if (length(args) > 3) {
+    stop("Too many entries in Case-Control survival object matched on time")
+  }
+  tstart <- "%trunc%"
+  tend <- "%trunc%"
+  event <- "NULL"
+  indx <- pmatch(argName[argName != ""], c("tstart", "tend", "event"), nomatch = 0L)
+  if (any(indx == 0L)) {
+    stop(gettextf(
+      "Argument '%s' not matched in survival object",
+      argName[argName != ""][indx == 0L]
+    ), domain = NA)
+  }
+  if (all(argName == "")) {
+    # If none have names, assume (start, end, event) or (end, event)
+    if (length(args) == 2) {
+      tstart <- "%trunc%"
+      tend <- args[[1]]
+      event <- args[[2]]
+    } else if (length(args) == 3) {
+      tstart <- args[[1]]
+      tend <- args[[2]]
+      event <- args[[3]]
+    } else {
+      stop("Incorrect number of arguments to survival object")
+    }
+  } else if (any(argName == "")) {
+    # start by directly assigning what is available
+    if ("tstart" %in% argName) {
+      tstart <- args$tstart
+    }
+    if ("tend" %in% argName) {
+      tend <- args$tend
+    }
+    if ("event" %in% argName) {
+      event <- args$event
+    }
+    # now determine what is left
+    # start by guessing by position
+    if (length(args) == 2) {
+      # either end/event or start/event
+      if (event != "NULL") {
+        # assume end/event
+        tstart <- "%trunc%"
+        tend <- args[[1]]
+      } else {
+        event <- args[[2]]
+      }
+    } else if (length(args) == 3) {
+      if ((tstart == "%trunc%") && (argName[1] == "")) {
+        tstart <- args[[1]]
+      }
+      if ((tend == "%trunc%") && (argName[2] == "")) {
+        tend <- args[[2]]
+      }
+      if ((event == "NULL") && (argName[3] == "")) {
+        event <- args[[3]]
+      }
+    } else {
+      stop("Incorrect number of arguments to survival object")
+    }
+  } else {
+    if ("tstart" %in% argName) {
+      tstart <- args$tstart
+    }
+    if ("tend" %in% argName) {
+      tend <- args$tend
+    }
+    if ("event" %in% argName) {
+      event <- args$event
+    }
+  }
+  list("tstart" = tstart, "tend" = tend, "event" = event)
+}
+
+#' Interprets basic case-control survival formula RHS with grouping by strata
+#'
+#' \code{ColossusCaseConStrataSurv} assigns and interprets interval columns for case-control model with grouping by strata.
+#'
+#' @param ... entries for a Case-Control object, with strata. Expects an event column and strata column, either named or in order.
+#'
+#' @export
+#' @return returns list with event
+#' @family Formula Interpretation
+ColossusCaseConStrataSurv <- function(...) {
+  # expects two arguements, the event and strata columns
+  args <- list(...)
+  argName <- names(args)
+  if (length(args) < 2) {
+    stop("Too few entries in Case-Control survival object matched on strata")
+  }
+  if (length(args) > 2) {
+    stop("Too many entries in Case-Control survival object matched on strata")
+  }
+  indx <- pmatch(argName[argName != ""], c("strata", "event"), nomatch = 0L)
+  if (any(indx == 0L)) {
+    stop(gettextf(
+      "Argument '%s' not matched in survival object",
+      argName[argName != ""][indx == 0L]
+    ), domain = NA)
+  }
+  #
+  if ("event" %in% argName) {
+    event <- args$event
+    strata <- args[names(args) != "event"][[1]]
+  } else if ("strata" %in% argName) {
+    strata <- args$strata
+    event <- args[names(args) != "strata"][[1]]
+  } else {
+    event <- args[[1]]
+    strata <- args[[2]]
+  }
+  #
+  list("event" = event, "strata" = strata)
+}
+
+#' Interprets basic case-control survival formula RHS with grouping by strata and risk group
+#'
+#' \code{ColossusCaseConTimeStrataSurv} assigns and interprets interval columns for case-control model with grouping by strata and risk group.
+#'
+#' @param ... entries for a Case-Control object, with strata and interval info. Similar to the stratafied Cox survival object. Expects interval start, end, event, and strata in order or named. Removes strata and calls the standard Case-Control survival object grouped by risk group.
+#'
+#' @export
+#' @return returns list with event
+#' @family Formula Interpretation
+ColossusCaseConTimeStrataSurv <- function(...) {
+  args <- list(...)
+  argName <- names(args)
+  if (length(args) < 3) {
+    stop("Too few entries in Case-Control survival object matched on strata and time")
+  }
+  if (length(args) > 4) {
+    stop("Too many entries in Case-Control survival object matched on strata and time")
+  }
+  strata <- "NULL"
+  # Is stata a named entry?
+  if ("strata" %in% argName) {
+    strata <- args$strata
+    res <- do.call(ColossusCaseConTimeSurv, args[names(args) != "strata"])
+  } else if (all(argName == "")) {
+    strata <- args[[length(args)]]
+    res <- do.call(ColossusCaseConTimeSurv, args[1:length(args) - 1])
+  } else {
+    if (argName[length(args)] == "") {
+      strata <- args[[length(args)]]
+      res <- do.call(ColossusCaseConTimeSurv, args[1:length(args) - 1])
+    } else {
+      stop("Final entry of Case Control Strata and Time object was not named correctly")
+    }
+  }
+  res["strata"] <- strata
+  res
 }

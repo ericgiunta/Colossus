@@ -108,12 +108,7 @@ e <- RunCaseControlRegression_Omnibus(df, time1, time2, event,
 )
 }
 \seealso{
-Other Cox Wrapper Functions: 
-\code{\link{CoxCurveSolver}()},
-\code{\link{CoxRun}()},
-\code{\link{CoxRunMulti}()},
-\code{\link{LikelihoodBound.coxres}()},
-\code{\link{RunCoxRegression_Omnibus}()},
-\code{\link{RunCoxRegression_Omnibus_Multidose}()}
+Other Case Control Wrapper Functions: 
+\code{\link{CaseControlRun}()}
 }
-\concept{Cox Wrapper Functions}
+\concept{Case Control Wrapper Functions}

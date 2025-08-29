@@ -96,7 +96,7 @@ curve_control <- list(
 e <- LikelihoodBound(e1, df, curve_control, control = control)
 print("|------------------- Wald Estimate -------------------|")
 print(ci_1)
-Interpret_Output(e, 5)
+print(e, 5)
 
 curve_control <- list(
   "maxstep" = 100,
@@ -106,7 +106,7 @@ curve_control <- list(
 e <- LikelihoodBound(e1, df, curve_control, control = control)
 print("|------------------- Likelihood Bound Estimate -------------------|")
 print(ci_2)
-Interpret_Output(e, 5)
+print(e, 5)
 ```
 
 Next, we analyze a model with a linear effect. We would expect the predictions to be further off. The boundaries for temperature are (-0.523, 2.800) and (-0.010, 3.758), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The estimates for the voltage boundary are the same, but the estimates for the temperature boundary are much further off.

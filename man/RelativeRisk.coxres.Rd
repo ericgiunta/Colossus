@@ -4,12 +4,14 @@
 \alias{RelativeRisk.coxres}
 \title{Calculates hazard ratios for a reference vector}
 \usage{
-\method{RelativeRisk}{coxres}(x, df)
+\method{RelativeRisk}{coxres}(x, df, a_n = c(), ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}
 
 \item{df}{a data.table containing the columns of interest}
+
+\item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 }
 \value{
 returns a class fully describing the model and the regression results

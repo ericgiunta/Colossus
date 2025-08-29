@@ -63,6 +63,7 @@ Other Poisson Wrapper Functions:
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
+\code{\link{Residual.poisres}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonEventAssignment_bound}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},

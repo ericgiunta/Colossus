@@ -65,6 +65,23 @@ new_poisresbound <- function(x = list()) {
   )
 }
 
+new_caseconmodel <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "caseconmodel"
+  )
+}
+
+new_caseconres <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "caseconres"
+  )
+}
+
+
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
   if (any(x$term_n != round(x$term_n))) {
@@ -385,6 +402,42 @@ validate_poissurv <- function(x, df) {
   }
 }
 
+validate_caseconsurv <- function(x, df) {
+  if (!is(x, "caseconmodel")) {
+    stop("Non Case-Control formula used in Case_Control regression")
+  }
+  #  print(x)
+  #  print(names(df))
+  if (x$start_age == x$end_age) {
+    if (x$start != "NONE") {
+      stop(
+        "The starting and ending interval times were set to the same column, they must be different or both '%trunc%'"
+      )
+    }
+  } else {
+    if (!(x$start_age %in% names(df))) {
+      stop(
+        "Interval start column not in the data"
+      )
+    }
+    if (!(x$end_age %in% names(df))) {
+      stop(
+        "Interval end column not in the data"
+      )
+    }
+  }
+  if (x$event == "") {
+    stop(
+      "The event column must not be empty"
+    )
+  }
+  if (!(x$event %in% names(df))) {
+    stop(
+      "Event column not in the data"
+    )
+  }
+}
+
 validate_coxres <- function(x, df) {
   coxmodel <- x$model
   null <- coxmodel$null
@@ -401,14 +454,11 @@ validate_coxres <- function(x, df) {
 
 validate_poisres <- function(x, df) {
   poismodel <- x$model
-  null <- poismodel$null
   control <- x$control
   verbose <- control$verbose
   #
   validate_poissurv(poismodel, df)
-  if (!null) {
-    poismodel <- validate_formula(poismodel, df, verbose)
-  }
+  poismodel <- validate_formula(poismodel, df, verbose)
   x$model <- poismodel
   x
 }
@@ -445,7 +495,6 @@ coxmodel <- function(start_age = "",
 poismodel <- function(person_year = "",
                       event = "",
                       strata = "",
-                      null = FALSE,
                       term_n = c(),
                       tform = c(),
                       names = c(),
@@ -457,16 +506,42 @@ poismodel <- function(person_year = "",
                       df = data.table(),
                       verbose = FALSE) {
   pois_obj <- list(
-    "person_year" = person_year, "event" = event, "strata" = strata, "null" = null,
+    "person_year" = person_year, "event" = event, "strata" = strata,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
     "gmix_term" = gmix_term, "gmix_theta" = gmix_theta
   )
   pois_obj <- new_poismodel(pois_obj)
   validate_poissurv(pois_obj, df)
-  if (!null) {
-    pois_obj <- validate_formula(pois_obj, df, verbose)
-  }
+  pois_obj <- validate_formula(pois_obj, df, verbose)
   pois_obj
+}
+
+caseconmodel <- function(start_age = "",
+                         end_age = "",
+                         event = "",
+                         strata = "",
+                         null = FALSE,
+                         term_n = c(),
+                         tform = c(),
+                         names = c(),
+                         modelform = "",
+                         gmix_term = c(),
+                         gmix_theta = 0,
+                         a_n = list(),
+                         keep_constant = c(),
+                         df = data.table(),
+                         verbose = FALSE) {
+  casecon_obj <- list(
+    "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "null" = null,
+    "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
+    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta
+  )
+  casecon_obj <- new_caseconmodel(casecon_obj)
+  validate_caseconsurv(casecon_obj, df)
+  if (!null) {
+    casecon_obj <- validate_formula(casecon_obj, df, verbose)
+  }
+  casecon_obj
 }
 
 # ------------------------------------------------------------------------ #

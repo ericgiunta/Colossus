@@ -4,19 +4,15 @@
 \alias{EventAssignment}
 \title{Generic background/excess event calculation function}
 \usage{
-EventAssignment(x, df, curve_control = list(), control = list(), ...)
+EventAssignment(x, df, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class poisres}
 
 \item{df}{a data.table containing the columns of interest}
 
-\item{curve_control}{a list of control options for the likelihood boundary regression. See the Control_Options vignette for details.}
-
-\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
-
 \item{...}{extended for other necessary parameters}
 }
 \description{
-\code{EventAssignment} Generic ackground/excess event calculation function
+\code{EventAssignment} Generic background/excess event calculation function
 }

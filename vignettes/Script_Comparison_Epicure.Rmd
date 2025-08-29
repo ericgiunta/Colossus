@@ -100,7 +100,7 @@ Finally, the regression is run and a list of the results is returned to a variab
 
 ```{r, eval=FALSE}
 e <- CoxRun(model_ERR, df_dose, control = control)
-Interpret_Output(e)
+print(e)
 ```
 
 A similar process is run for the two hazard ratio regressions.

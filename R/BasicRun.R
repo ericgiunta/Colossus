@@ -241,16 +241,11 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
-  if (poismodel$null) {
-    stop("Null model is not valid for poisson regression")
-  } else {
-    # check for basic and linear_err
-    if (length(unique(term_n)) == 1) {
-      modelform <- "M"
-    } else if (modelform == "GMIX") {
-      model_control["gmix_term"] <- coxmodel$gmix_term
-      model_control["gmix_theta"] <- coxmodel$gmix_theta
-    }
+  if (length(unique(term_n)) == 1) {
+    modelform <- "M"
+  } else if (modelform == "GMIX") {
+    model_control["gmix_term"] <- coxmodel$gmix_term
+    model_control["gmix_theta"] <- coxmodel$gmix_theta
   }
   if (poismodel$strata != "NONE") {
     model_control["strata"] <- TRUE
@@ -283,6 +278,158 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # ------------------------------------------------------------------------------ #
   poisres <- new_poisres(res)
   poisres
+}
+
+#' Fully runs a case-control regression model, returning the model and results
+#'
+#' \code{CaseControlRun} uses a formula, data.table, and list of controls to prepare and
+#' run a Colossus matched case-control regression function
+#'
+#' @param conditional_threshold threshold above which unconditional logistic regression is used to calculate likelihoods in a matched group
+#' @param ... can include the named entries for the control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Case Control Wrapper Functions
+#' @examples
+#' library(data.table)
+#' df <- data.table::data.table(
+#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
+#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
+#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
+#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
+#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#' )
+#' formula <- CaseCon_Strata(Cancer_Status, e) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' res <- CaseControlRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), conditional_threshold = 50, gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  if (is(model, "caseconmodel")) {
+    # using already prepped formula and data
+    caseconmodel <- copy(model)
+    #
+  } else if (is(model, "formula")) {
+    # using a formula class
+    res <- get_form(model, df)
+    caseconmodel <- res$model
+    df <- res$data
+  } else {
+    stop(gettextf(
+      "Incorrect type used for formula, '%s', must be formula or caseconmodel class",
+      class(model)
+    ))
+  }
+  # ------------------------------------------------------------------------------ #
+  # we want to let the user add in control arguments to their call
+  # code copied from survival/R/coxph.R github and modified for our purpose
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- names(formals(ColossusControl)) # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(control)) {
+    control <- ColossusControl(...)
+  } else if (is.list(control)) {
+    control_args <- intersect(names(control), names(formals(ColossusControl)))
+    control <- do.call(ColossusControl, control[control_args])
+  } else {
+    stop("control argument must be a list")
+  }
+  # ------------------------------------------------------------------------------ #
+  if (!missing(a_n)) {
+    caseconmodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (!missing(keep_constant)) { # assigns the paramter constant values if given
+    caseconmodel$keep_constant <- keep_constant
+  }
+  # Checks that the current coxmodel is valid
+  validate_caseconsurv(caseconmodel, df)
+  if (!caseconmodel$null) {
+    caseconmodel <- validate_formula(caseconmodel, df, control$verbose)
+  }
+  # ------------------------------------------------------------------------------ #
+  # Pull out the actual model vectors and values
+  time1 <- caseconmodel$start_age
+  time2 <- caseconmodel$end_age
+  event0 <- caseconmodel$event
+  names <- caseconmodel$names
+  term_n <- caseconmodel$term_n
+  tform <- caseconmodel$tform
+  keep_constant <- caseconmodel$keep_constant
+  a_n <- caseconmodel$a_n
+  modelform <- caseconmodel$modelform
+  strat_col <- caseconmodel$strata
+  cens_weight <- caseconmodel$weight
+  # ------------------------------------------------------------------------------ #
+  # We want to create the previously used model_control list, based on the input
+  model_control <- list()
+  if (caseconmodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
+  } else {
+    # check for basic and linear_err
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+    } else if (modelform == "GMIX") {
+      model_control["gmix_term"] <- caseconmodel$gmix_term
+      model_control["gmix_theta"] <- caseconmodel$gmix_theta
+    }
+  }
+  if (caseconmodel$strata != "NONE") {
+    model_control[["strata"]] <- TRUE
+  }
+  if (time1 != time2) {
+    model_control[["time_risk"]] <- TRUE
+  }
+  if (cons_vec != c(0)) {
+    model_control[["constraint"]] <- TRUE
+  }
+  if (!missing(gradient_control)) {
+    model_control["gradient"] <- TRUE
+    for (nm in names(gradient_control)) {
+      model_control[nm] <- gradient_control[nm]
+    }
+  }
+  model_control["single"] <- single
+  model_control["observed_info"] <- observed_info
+  model_control["conditional_threshold"] <- conditional_threshold
+  control_def_names <- c(
+    "single", "basic", "null", "time_risk",
+    "gradient", "constraint", "strata", "observed_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  # ------------------------------------------------------------------------------ #
+  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
+  res$model <- caseconmodel
+  res$modelcontrol <- model_control
+  res$control <- control
+  if (model_control[["constraint"]]) {
+    res$constraint_matrix <- cons_mat
+    res$constraint_vector <- cons_vec
+  }
+  # ------------------------------------------------------------------------------ #
+  caseconres <- new_caseconres(res)
+  caseconres
 }
 
 #' Fully runs a joint poisson regression model, returning the model and results
@@ -376,16 +523,11 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
-  if (poismodel$null) {
-    stop("Null model is not valid for poisson regression")
-  } else {
-    # check for basic and linear_err
-    if (length(unique(term_n)) == 1) {
-      modelform <- "M"
-    } else if (modelform == "GMIX") {
-      model_control["gmix_term"] <- coxmodel$gmix_term
-      model_control["gmix_theta"] <- coxmodel$gmix_theta
-    }
+  if (length(unique(term_n)) == 1) {
+    modelform <- "M"
+  } else if (modelform == "GMIX") {
+    model_control["gmix_term"] <- coxmodel$gmix_term
+    model_control["gmix_theta"] <- coxmodel$gmix_theta
   }
   if (poismodel$strata != "NONE") {
     model_control["strata"] <- TRUE
@@ -448,6 +590,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #' relative risk in the data using the risk model from the result
 #'
 #' @param x result object from a regression, class coxres
+#' @param ... extended to match any future parameters needed
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the regression results
@@ -470,7 +613,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 #' RelativeRisk(res, df)
-RelativeRisk.coxres <- function(x, df) {
+RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   #
   coxmodel <- x$model
   time1 <- coxmodel$start_age
@@ -500,7 +643,9 @@ RelativeRisk.coxres <- function(x, df) {
   #
   object <- validate_coxres(x, df)
   #
-  a_n <- object$beta_0
+  if (missing(a_n)) {
+    a_n <- object$beta_0
+  }
   control <- object$control
   model_control <- object$modelcontrol
   # Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list())
@@ -543,7 +688,7 @@ RelativeRisk.coxres <- function(x, df) {
 #'   "verbose" = FALSE
 #' )
 #' plot(res, df, plot_options)
-plot.coxres <- function(x, df, plot_options, ...) {
+plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   #
   coxmodel <- x$model
   time1 <- coxmodel$start_age
@@ -575,7 +720,9 @@ plot.coxres <- function(x, df, plot_options, ...) {
   #
   object <- validate_coxres(x, df)
   #
-  a_n <- object$beta_0
+  if (missing(a_n)) {
+    a_n <- object$beta_0
+  }
   control <- object$control
   model_control <- object$modelcontrol
   #
@@ -969,23 +1116,23 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
 
 #' Generic background/excess event calculation function
 #'
-#' \code{EventAssignment} Generic ackground/excess event calculation function
+#' \code{EventAssignment} Generic background/excess event calculation function
 #' @param x result object from a regression, class poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
-EventAssignment <- function(x, df, curve_control = list(), control = list(), ...) {
+EventAssignment <- function(x, df, ...) {
   UseMethod("EventAssignment", x)
 }
 
 #' Predicts how many events are due to baseline vs excess
 #'
-#' \code{EventAssignment} Generic lackground/excess event calculation function, by default nothing happens
+#' \code{EventAssignment} Generic background/excess event calculation function, by default nothing happens
 #' @param x result object from a regression, class poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
-EventAssignment.default <- function(x, df, curve_control = list(), control = list(), ...) {
+EventAssignment.default <- function(x, df, ...) {
   return(x)
 }
 
@@ -1002,7 +1149,7 @@ EventAssignment.default <- function(x, df, curve_control = list(), control = lis
 #' @return returns a list of the final results
 #' @export
 #' @family Poisson Wrapper Functions
-EventAssignment.poisres <- function(x, df, assign_control = list(), control = list(), ...) {
+EventAssignment.poisres <- function(x, df, assign_control = list(), control = list(), a_n = c(), ...) {
   poismodel <- x$model
   pyr0 <- poismodel$person_year
   event0 <- poismodel$event
@@ -1024,7 +1171,9 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   }
   object <- validate_poisres(x, df)
   #
-  a_n <- object$beta_0
+  if (missing(a_n)) {
+    a_n <- object$beta_0
+  }
   if (missing(control)) {
     control <- object$control
   }
@@ -1069,5 +1218,86 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     # running a boundary solution
     res <- RunPoissonEventAssignment_bound(df, pyr0, event0, x, keep_constant, modelform, check_num, z, control, strat_col, model_control)
   }
+  res
+}
+
+#' Generic Residual calculation function
+#'
+#' \code{Residual} Generic Residual calculation function
+#' @param x result object from a regression, class coxres or poisres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
+#' @export
+Residual <- function(x, df, ...) {
+  UseMethod("Residual", x)
+}
+
+#' Generic Residual calculation function, default option
+#'
+#' \code{Residual.default} Generic Residual calculation function, by default nothing happens
+#' @param x result object from a regression, class coxres or poisres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
+#' @export
+Residual.default <- function(x, df, ...) {
+  return(x)
+}
+
+#' Calculates the likelihood boundary for a completed cox model
+#'
+#' \code{LikelihoodBound.coxres} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate background and excess events for a solved Poisson regression
+#'
+#' @param x result object from a regression, class poisres
+#' #param pearson boolean to calculate pearson residuals
+#' #param deviance boolean to calculate deviance residuals
+#' @param ... can include the named entries for the assign_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Poisson Wrapper Functions
+Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
+  poismodel <- x$model
+  pyr0 <- poismodel$person_year
+  event0 <- poismodel$event
+  names <- poismodel$names
+  term_n <- poismodel$term_n
+  tform <- poismodel$tform
+  keep_constant <- poismodel$keep_constant
+  modelform <- poismodel$modelform
+  cons_mat <- as.matrix(c(0))
+  cons_vec <- c(0)
+  strat_col <- poismodel$strata
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  object <- validate_poisres(x, df)
+  #
+  if (missing(a_n)) {
+    a_n <- object$beta_0
+  }
+  if (missing(control)) {
+    control <- object$control
+  }
+  model_control <- object$modelcontrol
+  #
+  if (model_control[["constraint"]]) {
+    cons_mat <- res$constraint_matrix
+    cons_vec <- res$constraint_vector
+  }
+  #
+  if ((pearson == deviance) && (pearson)) {
+    stop("Both pearson and deviance cannot be used at once, select only one")
+  }
+  model_control$pearson <- pearson
+  model_control$deviance <- deviance
+  #
+  res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   res
 }

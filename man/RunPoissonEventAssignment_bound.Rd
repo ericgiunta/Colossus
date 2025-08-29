@@ -54,6 +54,7 @@ Other Poisson Wrapper Functions:
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
 \code{\link{PoissonCurveSolver}()},
+\code{\link{Residual.poisres}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
