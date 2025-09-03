@@ -148,7 +148,7 @@ df$karno50 <- df$karno - 50
 In the following examples, we are using matching by strata and changing the conditional threshold. In the first case, every matched set uses the recursive formula. In the second case, one set uses the simplified formula. Finally in the third case, every set uses the simplified formula. In all cases, the regression returns the typical output and can be summarized similarly to other regression function outputs.
 
 ```{r, eval = TRUE}
-model <- CaseControl_Strata(status, factor(cell)) ~ loglinear(karno50, trt)
+model <- CaseControl_Strata(status, cell) ~ loglinear(karno50, trt)
 
 
 control <- list(verbose = 2, maxiters = c(25, 25))
