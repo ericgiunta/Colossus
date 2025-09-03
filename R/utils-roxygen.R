@@ -201,7 +201,7 @@ NULL
 #' @importFrom stats approxfun time qchisq pchisq
 #' @importFrom rlang .data
 #' @importFrom processx run
-#' @importFrom stringr str_match
+#' @importFrom stringr str_match str_count
 #' @importFrom callr rcmd
 #' @importFrom tibble as_tibble tibble
 #' @importFrom dplyr mutate case_when group_by summarize n slice bind_rows across all_of

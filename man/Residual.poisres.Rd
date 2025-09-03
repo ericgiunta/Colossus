@@ -15,15 +15,17 @@
 )
 }
 \arguments{
-\item{x}{result object from a regression, class poisres
-#param pearson boolean to calculate pearson residuals
-#param deviance boolean to calculate deviance residuals}
+\item{x}{result object from a regression, class poisres}
 
 \item{df}{a data.table containing the columns of interest}
 
 \item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
 \item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
+
+\item{pearson}{boolean to calculate pearson residuals}
+
+\item{deviance}{boolean to calculate deviance residuals}
 
 \item{...}{can include the named entries for the assign_control list parameter}
 }

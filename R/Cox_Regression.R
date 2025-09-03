@@ -54,7 +54,7 @@
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)
@@ -324,7 +324,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
 #' @family Plotting Wrapper Functions
 #' @return returns a list of the final results
 Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)
@@ -372,7 +372,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
 #' @family Plotting Wrapper Functions
 RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list()) {
   names(plot_options) <- tolower(names(plot_options))
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)
@@ -645,7 +645,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)
@@ -812,7 +812,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
 #' @importFrom rlang .data
 CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)

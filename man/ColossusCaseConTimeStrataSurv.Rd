@@ -7,7 +7,7 @@
 ColossusCaseConTimeStrataSurv(...)
 }
 \arguments{
-\item{...}{entries for a Case-Control object, with strata and interval info. Similar to the stratafied Cox survival object. Expects interval start, end, event, and strata in order or named. Removes strata and calls the standard Case-Control survival object grouped by risk group.}
+\item{...}{entries for a Case-Control object, with strata and interval info. Similar to the stratified Cox survival object. Expects interval start, end, event, and strata in order or named. Removes strata and calls the standard Case-Control survival object grouped by risk group.}
 }
 \value{
 returns list with event

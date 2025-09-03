@@ -60,7 +60,7 @@ $$
 $$
 </p>
 
-The right hand side adds elements to subterms. Each subterm should have the included columns, and optionally the term number. Subterms are assumed to be in term 0 is not provided, and the model is assumed to be multiplicative. The factor option can be used with or without a baseline specified. By default, no baseline is used. A baseline can be added by changing 'factor(name)' to 'factor(name;baseline=level)'. If a valid baseline is used, the proper factor will not be included in the model expression or the final datatable returned. If an invalid baseline is used a warning is thrown and no baseline is used.
+The right hand side adds elements to subterms. Each subterm should have the included columns, and optionally the term number. Subterms are assumed to be in term 0 is not provided, and the model is assumed to be multiplicative. The factor option automatically removes the first level as a reference.
 
 The following expressions are equivalent.
 

@@ -49,6 +49,8 @@ Other Data Cleaning Functions:
 \code{\link{Time_Since}()},
 \code{\link{factorize}()},
 \code{\link{gen_time_dep}()},
-\code{\link{interact_them}()}
+\code{\link{interact_them}()},
+\code{\link{nested_split}()},
+\code{\link{parse_literal_string}()}
 }
 \concept{Data Cleaning Functions}

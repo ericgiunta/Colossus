@@ -54,7 +54,7 @@
 #' @importFrom rlang .data
 RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)

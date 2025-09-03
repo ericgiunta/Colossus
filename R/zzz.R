@@ -1,4 +1,4 @@
-.onAttach <- function(libname, pkgname){
+.onAttach <- function(libname, pkgname) {
   syscheck <- Colossus::System_Version()
   OpenMP <- syscheck[["OpenMP Enabled"]]
   if (!OpenMP) {
@@ -20,4 +20,3 @@
     }
   }
 }
-

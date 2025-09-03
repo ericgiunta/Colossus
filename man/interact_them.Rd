@@ -48,6 +48,8 @@ Other Data Cleaning Functions:
 \code{\link{Time_Since}()},
 \code{\link{factorize}()},
 \code{\link{factorize_par}()},
-\code{\link{gen_time_dep}()}
+\code{\link{gen_time_dep}()},
+\code{\link{nested_split}()},
+\code{\link{parse_literal_string}()}
 }
 \concept{Data Cleaning Functions}

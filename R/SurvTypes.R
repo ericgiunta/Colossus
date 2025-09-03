@@ -9,7 +9,7 @@
 #' @family Formula Interpretation
 #' @export
 get_form_joint <- function(formula_list, df) {
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)
@@ -249,7 +249,7 @@ get_form <- function(formula, df) {
 #' @return returns the list of model values
 #' @family Formula Interpretation
 get_form_list <- function(surv_obj, model_obj, df) {
-  if (class(df)[[1]] != "data.table"){
+  if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         df <- setDT(df)
@@ -329,7 +329,9 @@ get_form_surv <- function(surv_obj, df) {
   }
   surv_type <- tolower(substr(surv_obj, 1, second_split - 1))
   surv_paras <- substr(surv_obj, second_split + 1, nchar(surv_obj) - 1)
-  surv_paras <- strsplit(surv_paras, ",")[[1]]
+  #  surv_paras <- strsplit(surv_paras, ",")[[1]]
+  #  surv_paras <- strsplit(surv_paras, ",|(?>\\(.*?\\).*?\\K(,|$))", perl = TRUE)[[1]]
+  surv_paras <- nested_split(surv_paras)
   # assign survival model values
   surv_model_type <- surv_type
   surv_para_list <- list()
@@ -476,7 +478,9 @@ get_form_risk <- function(model_obj, df) {
       null <- TRUE
     } else if (model_type %in% tform_acceptable) {
       model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-      model_paras <- strsplit(model_paras, ",")[[1]]
+      #      model_paras <- strsplit(model_paras, ",")[[1]]
+      #      model_paras <- strsplit(model_paras, ",|(?>\\(.*?\\).*?\\K(,|$))", perl = TRUE)[[1]]
+      model_paras <- nested_split(model_paras)
       last_entry <- model_paras[length(model_paras)]
       if (is.na(suppressWarnings(as.integer(last_entry)))) {
         # the last element isn't an integer
@@ -487,38 +491,69 @@ get_form_risk <- function(model_obj, df) {
       }
       for (subterm_i in seq_along(model_paras)) {
         # add element
-        if (substr(model_paras[subterm_i], 1, 7) == "factor(") {
-          # baseline is set by using factor(column;baseline=level)
-          col_name <- substr(model_paras[subterm_i], 8, nchar(model_paras[subterm_i]) - 1)
-          base_split <- lapply(strsplit(col_name, ""), function(x) which(x == ";"))[[1]]
-          if (length(base_split) == 1) {
-            col_names <- substr(col_name, 1, base_split - 1)
-            base_line <- substr(col_name, base_split + 1 + 9, nchar(col_name))
-            base_level <- paste(col_names, base_line, sep = "_")
-            #
-            val <- factorize(df, col_names)
-            df <- val$df
-            col_name <- val$cols
-            if (base_level %in% names(df)) {
-              df <- df[, (base_level) := NULL]
-              col_name <- col_name[!col_name == base_level]
-            } else {
-              warning(paste("Warning: Baseline level ", base_level, " not found.", sep = ""))
+        # check if the element is a function
+        if (grepl("\\(", model_paras[subterm_i])) {
+          # Some functions is being used
+          if (substr(model_paras[subterm_i], 1, 7) == "factor(") {
+            # baseline is set by using factor(column;baseline=level)
+            factor_args <- substr(model_paras[subterm_i], 8, nchar(model_paras[subterm_i]) - 1)
+            factor_args <- nested_split(factor_args)
+            ##
+            factor_arg_list <- list()
+            for (i in 1:length(factor_args)) {
+              para_cur <- factor_args[i]
+              para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
+              if (length(para_break) == 0) {
+                # no name, just add to list
+                factor_arg_list[[i]] <- para_cur
+              } else {
+                item_name <- substr(para_cur, 1, para_break - 1)
+                item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
+                factor_arg_list[[item_name]] <- parse_literal_string(item_value)
+              }
             }
-          } else {
-            val <- factorize(df, col_name)
+            # Either the item is named x, or is it the first
+            if ("x" %in% names(factor_arg_list)) {
+              factor_col <- factor_arg_list$x
+              factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+            } else {
+              factor_col <- factor_arg_list[[1]]
+              names(factor_arg_list)[[1]] <- "x"
+              factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+            }
+            xtemp <- do.call(factor, factor_arg_list)
+            df[[factor_col]] <- xtemp
+            val <- factorize(df, factor_col)
             df <- val$df
             col_name <- val$cols
+            level_ref <- paste(factor_col, levels(xtemp)[1], sep = "_")
+            col_name <- col_name[col_name != level_ref]
+          } else {
+            stop(paste("Currently unsupported function call: ", model_paras[subterm_i]))
           }
         } else {
-          col_name <- c(model_paras[subterm_i])
-          if ("CONST" == model_paras[subterm_i]) {
-            if ("CONST" %in% names(df)) {
-              # fine
-            } else {
-              df$CONST <- 1
+          # check if the column is actually a factor
+          element_col <- model_paras[subterm_i]
+          if (is.null(levels(df[[element_col]]))) {
+            col_name <- c(element_col)
+            if ("CONST" == model_paras[subterm_i]) {
+              if ("CONST" %in% names(df)) {
+                # fine
+              } else {
+                df$CONST <- 1
+              }
             }
+          } else {
+            # it is a factor
+            val <- factorize(df, element_col)
+            df <- val$df
+            col_name <- val$cols
+            level_ref <- paste(element_col, levels(df[[element_col]])[1], sep = "_")
+            col_name <- col_name[col_name != level_ref]
           }
+        }
+        if (length(col_name) == 0) {
+          stop("Subterm missing element, was a single-valued factor used?")
         }
         # convert subterm formula
         model_terms <- c(model_type)

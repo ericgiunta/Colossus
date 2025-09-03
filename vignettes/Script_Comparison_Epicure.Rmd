@@ -84,7 +84,7 @@ For the most part, the same steps are performed in Colossus. The script starts b
 df_Dose <- fread("EX_DOSE.csv")
 ```
 
-Colossus defines the model as a formula. The left-hand side of the formula defines the type of model, the time observed, and the event columns. The right-hand side defines the risk factors in each term and subterm. The model is a Cox regression, the intervals are defined by the age_entry/age_exit columns, and the event status is stored in the nonCLL column. This is denoted by 'Cox(age_entry, age_exit, nonCLL)'. The loglinear and product-linear subterms are added to the formula by specifying the subterm type, included columns, and term number, i.e. 'subterm(column 1, column 2, ..., term number)'. Factored columns are added by using 'factor(column)', the default level can be specified by 'factor(column;level=0)'.
+Colossus defines the model as a formula. The left-hand side of the formula defines the type of model, the time observed, and the event columns. The right-hand side defines the risk factors in each term and subterm. The model is a Cox regression, the intervals are defined by the age_entry/age_exit columns, and the event status is stored in the nonCLL column. This is denoted by 'Cox(age_entry, age_exit, nonCLL)'. The loglinear and product-linear subterms are added to the formula by specifying the subterm type, included columns, and term number, i.e. 'subterm(column 1, column 2, ..., term number)'. Factored columns are added by using 'factor(column)', the default level is assumed to be the first level.
 
 ```{r, eval=FALSE}
 model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) + loglinear(factor(SES_CAT), factor(YOB_CAT), sexm)
