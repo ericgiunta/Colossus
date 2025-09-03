@@ -957,7 +957,7 @@ Gen_Strat_Weight <- function(modelform, dfs, PyrC, s_weights, nthreads, tform, t
 
 #' Checks the OMP flag
 #'
-#' \code{OMP_Check} Called directly from R, checks the omp flag and returns if omp is enabled
+#' \code{OMP_Check} Called directly from R, checks the omp flag and returns true if omp is enabled
 #'
 #' @return boolean: True for OMP allowed
 #'

@@ -30,6 +30,8 @@ CaseControlRun(
 
 \item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
+\item{conditional_threshold}{threshold above which unconditional logistic regression is used to calculate likelihoods in a matched group}
+
 \item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the Control_Options vignette for details}
 
 \item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
@@ -62,7 +64,7 @@ df <- data.table::data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1),
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
-formula <- CaseCon(Cancer_Status, e) ~
+formula <- CaseCon_Strata(Cancer_Status, e) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 res <- CaseControlRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 }

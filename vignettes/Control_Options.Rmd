@@ -16,11 +16,11 @@ knitr::opts_chunk$set(
 
 ## General Use
 
-There are three control lists used in Colossus that the user can use to customize the regression, all three of which have functions defined that assign default values to any missing list items. The following sections will go through each control list, how it is used, and what every item assigned to it means.
+There are several control lists used in Colossus that the user can use to customize the regression, all of which have functions defined that assign default values to any missing list items. The following sections will go through each control list, how it is used, and what every item assigned to it means.
 
 ### Standard Control List
 
-This is the "control" variable used by every regression function. This list focuses on options that control the convergence criteria and standard Cox proportional hazards options.
+This is the "control" variable used by every regression function. This list focuses on options that control the convergence criteria and standard Cox proportional hazards options. They can be input through the control argument, given as named arguments to the function, or a combination of the two.
 
 | Option | Description |
 | :---------: | :----------: |
@@ -30,14 +30,14 @@ This is the "control" variable used by every regression function. This list focu
 | maxiter  | Maximum iterations run for a single initial position. Defaults to 20.  |
 | maxiters | Used for multiple starting positions. List the maximum number of iterations per starting point and the maximum number of iterations for the final guess. Assumes N values for N guesses and 1 value for the final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
 | halfmax  | Maximum number of half-steps taken per iteration. Defaults to 5.  |
-| epsilon  | Minimum step size before convergence is assumed. Defaults to 1e-4  |
-| deriv_epsilon  | Smallest maximum first derivative before convergence is assumed. Defaults to 1e-4. |
+| epsilon  | Maximum step size before convergence is assumed. Defaults to 1e-4. Regression exits if the predicted step sizes are all below this threshold.  |
+| deriv_epsilon  | Largest maximum first derivative before convergence is assumed. Defaults to 1e-4. |
 | step_max  | Largest acceptable step size for non-intercept parameters. Defaults to 1.0. |
 | thres_step_max  | Largest acceptable step size for intercept parameters. Defaults to 100.0.   |
 | ties  | Chooses between 'breslow' and 'efron' methods for tied event times in Cox proportional hazards regressions. Defaults to 'breslow'.  |
 | double_step  | 0/1 Choosing if the model should be optimized by solving the inversion hessian (1) or optimizing each parameter independently (0). Defaults to 1. |
 
-### Model Control List
+### Other Control Lists
 
 The following options can be used by the cox plotting function to select difference types of plots:
 
@@ -49,10 +49,10 @@ The following options can be used by the cox plotting function to select differe
 | unique_values | integer used by the risk plotting option to select how many values calculate risk at. Depending on function, either defaults to the number of unique values in the column or 2. |
 
 The following options can be used by the poisson residual function to select difference types of residuals:
-| pearson  | Boolean used by RunPoissonRegression_Residual to select calculating pearson residuals. Defaults to FALSE.   |
-| deviance  | Boolean used by RunPoissonRegression_Residual to select calculating deviance residuals. Defaults to FALSE.   |
+| pearson  | Boolean used by Residual.poisres to select calculating pearson residuals. Defaults to FALSE.   |
+| deviance  | Boolean used by Residual.poisres to select calculating deviance residuals. Defaults to FALSE.   |
 
-If the log_bound method is used, there are several additional control options used:
+If a likelihood boundary is being calculated, there are several additional control options used:
 
 | Option | Description |
 | :---------: | :----------: |
@@ -63,11 +63,5 @@ If the log_bound method is used, there are several additional control options us
 | maxstep | Integer used by the manual search option, splits the initial step into maxstep points. Then each point is optimized with a constant boundary parameter. This is done to find the closest estimate for the boundary point. Defaults to 10. |
 | search_mult | Double used by manual search option, scales the initial step by that amount. This can be done to widen or narrow the scope of the search if the initial quadratic assumption made by the Venzon-Moolgavkar algorithm is incorrect. |
 | step_size | Double used by the Curve Search functions. Sets the initial interval length used. Defaults to 0.5 |
-
-Several options are available for matched case-control conditional logistic regression:
-
-| Option | Description |
-| :---------: | :----------: |
-| time_risk  | Boolean used to denote if rows should be matched by time at risk, similar to a Cox proportional hazards model risk group. Defaults to FALSE.  |
-| strata  | Boolean used to denote matching by stratification. Defaults to FALSE.  |
+| bisect | Boolean to denote the bisection method of boundary solution. Solves for the optimal log-likelihood at both ends and middle of a searching interval, then updates the window until convergence. |
 

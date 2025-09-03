@@ -9,14 +9,16 @@
 #' @family Formula Interpretation
 #' @export
 get_form_joint <- function(formula_list, df) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   if (is.list(formula_list)) {
     if ("shared" %in% names(formula_list)) {
       formula_shared <- formula_list$shared
@@ -247,14 +249,16 @@ get_form <- function(formula, df) {
 #' @return returns the list of model values
 #' @family Formula Interpretation
 get_form_list <- function(surv_obj, model_obj, df) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   surv_obj <- gsub(" ", "", surv_obj)
   model_obj <- gsub(" ", "", model_obj)
   #
@@ -1053,7 +1057,7 @@ ColossusCaseConStrataSurv <- function(...) {
 #'
 #' \code{ColossusCaseConTimeStrataSurv} assigns and interprets interval columns for case-control model with grouping by strata and risk group.
 #'
-#' @param ... entries for a Case-Control object, with strata and interval info. Similar to the stratafied Cox survival object. Expects interval start, end, event, and strata in order or named. Removes strata and calls the standard Case-Control survival object grouped by risk group.
+#' @param ... entries for a Case-Control object, with strata and interval info. Similar to the stratified Cox survival object. Expects interval start, end, event, and strata in order or named. Removes strata and calls the standard Case-Control survival object grouped by risk group.
 #'
 #' @export
 #' @return returns list with event

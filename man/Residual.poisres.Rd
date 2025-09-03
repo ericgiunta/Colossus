@@ -15,7 +15,9 @@
 )
 }
 \arguments{
-\item{x}{result object from a regression, class poisres}
+\item{x}{result object from a regression, class poisres
+#param pearson boolean to calculate pearson residuals
+#param deviance boolean to calculate deviance residuals}
 
 \item{df}{a data.table containing the columns of interest}
 
@@ -24,8 +26,6 @@
 \item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
 \item{...}{can include the named entries for the assign_control list parameter}
-
-\item{assign_control}{control list for bounds calculated}
 }
 \value{
 returns a list of the final results

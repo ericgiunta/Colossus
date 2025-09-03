@@ -26,6 +26,7 @@
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
     coxmodel <- copy(model)
@@ -148,6 +149,8 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
   coxres <- new_coxres(res)
   coxres
@@ -181,6 +184,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- PoisRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
     # using already prepped formula and data
     poismodel <- copy(model)
@@ -275,6 +279,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
   poisres <- new_poisres(res)
   poisres
@@ -309,6 +315,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CaseControlRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
 CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), conditional_threshold = 50, gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  func_t_start <- Sys.time()
   if (is(model, "caseconmodel")) {
     # using already prepped formula and data
     caseconmodel <- copy(model)
@@ -427,6 +434,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
   caseconres <- new_caseconres(res)
   caseconres
@@ -463,6 +472,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
 #' )
 #' res <- PoisRunJoint(formula_list, df)
 PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
     # using already prepped formula and data
     poismodel <- copy(model)
@@ -557,6 +567,8 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
   poisres <- new_poisres(res)
   poisres
@@ -786,6 +798,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
 #' res <- CoxRun(formula, df, control = control)
 CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = FALSE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
     coxmodel <- copy(model)
@@ -913,6 +926,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
   if (fma) {
     coxres <- new_coxresfma(res)
@@ -1249,8 +1264,8 @@ Residual.default <- function(x, df, ...) {
 #' and options to calculate background and excess events for a solved Poisson regression
 #'
 #' @param x result object from a regression, class poisres
-#' #param pearson boolean to calculate pearson residuals
-#' #param deviance boolean to calculate deviance residuals
+#' @param pearson boolean to calculate pearson residuals
+#' @param deviance boolean to calculate deviance residuals
 #' @param ... can include the named entries for the assign_control list parameter
 #' @inheritParams R_template
 #'

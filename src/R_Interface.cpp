@@ -1100,7 +1100,7 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
 
 //' Checks the OMP flag
 //'
-//' \code{OMP_Check} Called directly from R, checks the omp flag and returns if omp is enabled
+//' \code{OMP_Check} Called directly from R, checks the omp flag and returns true if omp is enabled
 //'
 //' @return boolean: True for OMP allowed
 //'

@@ -555,7 +555,12 @@ ColossusControl <- function(verbose = 0,
                             thres_step_max = 1.0,
                             ties = "breslow",
                             ncores = as.numeric(detectCores())) {
+#  tstart <- Sys.time()
   verbose <- Check_Verbose(verbose)
+#  tend <- Sys.time()
+#  print("get verbose")
+#  print(tend - tstart)
+  tstart <- Sys.time()
   control <- list(
     "verbose" = verbose,
     "lr" = lr,
@@ -578,31 +583,6 @@ ColossusControl <- function(verbose = 0,
   )
   #
   names(control) <- tolower(names(control))
-  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-    control_def$ncores <- min(c(2, as.numeric(detectCores())))
-  }
-  sys_config <- System_Version()
-  OpenMP <- sys_config[["OpenMP Enabled"]]
-  os <- sys_config[["Operating System"]]
-  cpp_compiler <- sys_config[["Default c++"]]
-  R_compiler <- sys_config[["R Compiler"]]
-  if (!OpenMP) {
-    warning("Warning: OpenMP not detected, cores set to 1")
-    control$ncores <- 1 # nocov
-  }
-  if (Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") {
-    if (os == "linux") {
-      if (cpp_compiler == "gcc") {
-        if (R_compiler != "gcc") { # nocov
-          control$ncores <- 1 # nocov
-          warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
-        }
-      } else if (cpp_compiler == "clang") { # nocov
-        control$ncores <- 1 # nocov
-        warning("Warning: linux machine using clang, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
-      }
-    }
-  }
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
@@ -619,6 +599,10 @@ ColossusControl <- function(verbose = 0,
       control[nm] <- control_def[nm]
     }
   }
+#  tend <- Sys.time()
+#  print("check there")
+#  print(tend - tstart)
+#  tstart <- Sys.time()
   control["ties"] <- tolower(control["ties"])
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
@@ -631,6 +615,10 @@ ColossusControl <- function(verbose = 0,
       control[nm] <- control_min[nm]
     }
   }
+#  tend <- Sys.time()
+#  print("check min")
+#  print(tend - tstart)
+#  tstart <- Sys.time()
   control_int <- list(
     "verbose" = 0, "maxiter" = -1,
     "halfmax" = 0
@@ -638,6 +626,10 @@ ColossusControl <- function(verbose = 0,
   for (nm in names(control_int)) {
     control[nm] <- as.integer(control[nm])
   }
+#  tend <- Sys.time()
+#  print("check int")
+#  print(tend - tstart)
+#  tstart <- Sys.time()
   #
   control
 }

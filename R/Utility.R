@@ -17,14 +17,16 @@
 #' )
 #' df <- Replace_Missing(df, c("Starting_Age", "Ending_Age"), 70)
 Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   verbose <- Check_Verbose(verbose)
   if (is.na(msv)) {
     stop("Error: The missing-value replacement is also NA")
@@ -77,28 +79,56 @@ Def_Control <- function(control) {
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
     control_def$ncores <- min(c(2, as.numeric(detectCores())))
   }
-  sys_config <- System_Version()
-  OpenMP <- sys_config[["OpenMP Enabled"]]
-  os <- sys_config[["Operating System"]]
-  cpp_compiler <- sys_config[["Default c++"]]
-  R_compiler <- sys_config[["R Compiler"]]
-  if (!OpenMP) {
+  if (Sys.getenv("ColossusOMP") == ""){
+    syscheck <- System_Version()
+      OpenMP <- syscheck[["OpenMP Enabled"]]
+      if (!OpenMP) {
+        Sys.setenv(ColossusOMP = "FALSE")
+      } else {
+        Sys.setenv(ColossusOMP = "TRUE")
+        Sys.setenv(ColossusGCC = "TRUE")
+        os <- syscheck[["Operating System"]]
+        if (os == "linux") {
+          cpp_compiler <- syscheck[["Default c++"]]
+          if (cpp_compiler == "gcc") {
+            R_compiler <- syscheck[["R Compiler"]]
+            if (R_compiler != "gcc") { # nocov
+              Sys.setenv(ColossusGCC = "FALSE")
+            }
+          } else if (cpp_compiler == "clang") { # nocov
+            Sys.setenv(ColossusGCC = "FALSE")
+          }
+        }
+      }
+  }
+  if (Sys.getenv("ColossusOMP") == "FALSE"){
     warning("Warning: OpenMP not detected, cores set to 1")
     control$ncores <- 1 # nocov
+  } else if ((Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") && (Sys.getenv("ColossusGCC") == "FALSE")){
+    control$ncores <- 1 # nocov
+    warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
   }
-  if (Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") {
-    if (os == "linux") {
-      if (cpp_compiler == "gcc") {
-        if (R_compiler != "gcc") { # nocov
-          control$ncores <- 1 # nocov
-          warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
-        }
-      } else if (cpp_compiler == "clang") { # nocov
-        control$ncores <- 1 # nocov
-        warning("Warning: linux machine using clang, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
-      }
-    }
-  }
+#  OpenMP <- OMP_Check()
+#  if (!OpenMP) {
+#    warning("Warning: OpenMP not detected, cores set to 1")
+#    control$ncores <- 1 # nocov
+#  }
+#  if ((Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") && (control$ncores > 1)) {
+#    os <- get_os()
+#    if (os == "linux") {
+#      cpp_compiler <- gcc_version()
+#      if (cpp_compiler == "gcc") {
+#        R_compiler <- Rcomp_version()
+#        if (R_compiler != "gcc") { # nocov
+#          control$ncores <- 1 # nocov
+#          warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
+#        }
+#      } else if (cpp_compiler == "clang") { # nocov
+#        control$ncores <- 1 # nocov
+#        warning("Warning: linux machine using clang, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
+#      }
+#    }
+#  }
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
@@ -402,14 +432,16 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
 #' new_col <- val$cols
 #'
 factorize <- function(df, col_list, verbose = 0) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   verbose <- Check_Verbose(verbose)
   cols <- c()
   col0 <- names(df)
@@ -457,14 +489,16 @@ factorize <- function(df, col_list, verbose = 0) {
 #' new_col <- val$cols
 #'
 factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detectCores())) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   verbose <- Check_Verbose(verbose)
   cols <- c()
   vals <- c()
@@ -517,14 +551,16 @@ factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detec
 #' df <- vals$df
 #' new_col <- vals$cols
 interact_them <- function(df, interactions, new_names, verbose = 0) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   verbose <- Check_Verbose(verbose)
   cols <- c()
   for (i in seq_len(length(interactions))) {
@@ -616,14 +652,16 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
 #' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
 #'
 Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FALSE) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   verbose <- Check_Verbose(verbose)
   if (length(cols) > 1) {
     features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
@@ -726,14 +764,16 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #' ce <- val$ce
 #'
 Check_Trunc <- function(df, ce, verbose = 0) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   verbose <- Check_Verbose(verbose)
   if (ce[1] %in% c("%trunc%", "right_trunc")) {
     if (ce[2] %in% c("%trunc%", "left_trunc")) {
@@ -791,14 +831,16 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' file.remove("test_new.csv")
 #'
 gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_cols, func_form, fname, tform, nthreads = as.numeric(detectCores())) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   dfn <- names(df)
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
@@ -895,14 +937,16 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 #' df <- Date_Shift(df, c("m0", "d0", "y0"), c("m1", "d1", "y1"), "date_since")
 #'
 Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]],
     df[[match(dcol0[2], names(df))]],
@@ -955,14 +999,16 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
 #' df <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
 #'
 Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]], df[[match(
     dcol0[2],
@@ -1036,14 +1082,16 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
 #' )
 #'
 Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table"){
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   # filling missing values
   for (i in names(name_list)) {
     temp0 <- unlist(name_list[i], use.names = FALSE)
@@ -1203,9 +1251,13 @@ get_os <- function() {
 #'
 #' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
-  out <- tryCatch(run("c++", "-v", stderr_to_stdout = TRUE),
+#  tstart <- Sys.time()
+  out <- tryCatch(run("c++", "-v"),
     error = function(cnd) list(stdout = "")
   )
+#  tend <- Sys.time()
+#  print("out call")
+#  print(tend - tstart)
   out0 <- str_match(out$stdout, "gcc version")[1]
   if (!is.na(out0)) {
     out <- "gcc"
@@ -1272,6 +1324,7 @@ Rcpp_version <- function() {
 #' @export
 #' @family Output and Information Functions
 System_Version <- function() {
+  tstart <- Sys.time()
   os <- get_os()
   gcc <- gcc_version()
   Rcomp <- Rcomp_version()

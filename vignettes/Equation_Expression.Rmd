@@ -24,7 +24,7 @@ The underlying functions in Colossus specify a survival model using a series of 
 ## Equation Expression
 
 
-Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a strata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive).
+Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a strata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear, etc.). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive, etc.).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -48,7 +48,19 @@ $$
 $$
 </p>
 
-The factor option can be used with or without a baseline specified. By default, no baseline is used. A baseline can be added by changing 'factor(name)' to 'factor(name;baseline=level)'. If a valid baseline is used, the proper factor will not be included in the model expression or the final datatable returned. If an invalid baseline is used a warning is thrown and no baseline is used.
+Poisson models use a measure of duration (named 'pyr'), the event column (named 'event'), and any strata columns. The assumed order is 'pyr', 'event', and the strata columns listed sequentially. The duration and event columns can be named, but the naming of the strata columns is currently not supported.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \text{'Pois(pyr, event) ~ ...'} \\
+    \text{'Pois_Strata(pyr, event, strata_0) ~ ...'} \\
+    \text{'Pois_Strata(pyr, event, strata_0, strata_1, ...) ~ ...'}
+\end{aligned}
+$$
+</p>
+
+The right hand side adds elements to subterms. Each subterm should have the included columns, and optionally the term number. Subterms are assumed to be in term 0 is not provided, and the model is assumed to be multiplicative. The factor option can be used with or without a baseline specified. By default, no baseline is used. A baseline can be added by changing 'factor(name)' to 'factor(name;baseline=level)'. If a valid baseline is used, the proper factor will not be included in the model expression or the final datatable returned. If an invalid baseline is used a warning is thrown and no baseline is used.
 
 The following expressions are equivalent.
 
