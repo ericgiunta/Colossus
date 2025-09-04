@@ -6,17 +6,14 @@
 \usage{
 parse_literal_string(string)
 }
+\arguments{
+\item{string}{the string to convert to vector/list}
+}
 \value{
 returns a vector, list, or the original string
 }
 \description{
 \code{parse_literal_string} converts the string of a vector/list to a vector/list
-}
-\examples{
-library(data.table)
-## basic example code reproduced from the starting-description vignette
-val <- 'c(1,2)'
-parse_literal_string(val)
 }
 \seealso{
 Other Data Cleaning Functions: 

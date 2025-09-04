@@ -2,21 +2,18 @@
 % Please edit documentation in R/Utility.R
 \name{nested_split}
 \alias{nested_split}
-\title{Splits a string by commas, skipping over paranthesis sections}
+\title{Splits a string by commas, skipping over parenthesis sections}
 \usage{
 nested_split(total_string)
+}
+\arguments{
+\item{total_string}{the complete string to split}
 }
 \value{
 returns a vector of substrings
 }
 \description{
-\code{nested_split} splits by comma, keeps paranthesis sections together
-}
-\examples{
-library(data.table)
-## basic example code reproduced from the starting-description vignette
-model <- 'd,factor(e,levels=c(1,2),labels=c("low","high")),f,g'
-nested_split(model)
+\code{nested_split} splits by comma, keeps parenthesis sections together
 }
 \seealso{
 Other Data Cleaning Functions: 

@@ -3,7 +3,6 @@
 #' \code{nested_split} splits by comma, keeps parenthesis sections together
 #'
 #' @param total_string the complete string to split
-#' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a vector of substrings
 nested_split <- function(total_string) {
@@ -13,17 +12,21 @@ nested_split <- function(total_string) {
   final_split <- c("")
   temp_count <- 0
   for (i in sub_str) {
-    temp_count <- temp_count + str_count(i, "\\(") - str_count(i, "\\)")
+    temp_count <- temp_count + str_count(i, "\\(") - str_count(i, "\\)") # check to see if the current selections have the same number
     if (final_split[length(final_split)] == "") {
-      final_split[length(final_split)] <- i
+      final_split[length(final_split)] <- i # first is just added
     } else {
-      final_split[length(final_split)] <- paste(final_split[length(final_split)], i, sep = ",")
+      final_split[length(final_split)] <- paste(final_split[length(final_split)], i, sep = ",") # accumulate
     }
     if (temp_count == 0) {
-      final_split <- c(final_split, "")
+      final_split <- c(final_split, "") # start next if the counts match
     }
   }
-  final_split[1:length(final_split) - 1]
+  if (final_split[length(final_split)] != "") {
+    final_split # safety to avoid error cases
+  } else {
+    final_split[1:length(final_split) - 1] # the last should be empty
+  }
 }
 
 #' converts a string of a vector/list to vector/list
@@ -31,35 +34,47 @@ nested_split <- function(total_string) {
 #' \code{parse_literal_string} converts the string of a vector/list to a vector/list
 #'
 #' @param string the string to convert to vector/list
-#' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a vector, list, or the original string
 parse_literal_string <- function(string) {
-  if (str_count(string, "[c]\\(.*\\)") > 0) {
+  if (substr(string, 1, 2) == "c(") { # converts the string to a vector
     sub_str <- substr(string, 3, nchar(string) - 1)
-    args <- nested_split(sub_str)
-    args <- gsub("\"", "", args)
+    args <- nested_split(sub_str) # get the entries of the vector
+    args <- gsub("\"", "", args) # remove string literals
+    args <- unlist(lapply(args, parse_literal_string), use.names = F) # make sure every entry is processed to a final type
     return(args)
-  } else if (str_count(string, "[l][i][s][t]\\(.*\\)") > 0) {
+  } else if (substr(string, 1, 5) == "list(") { # converts string to list
     sub_str <- substr(string, 6, nchar(string) - 1)
-    args <- nested_split(sub_str)
+    args <- nested_split(sub_str) # make sure every entry is processed
     #
     factor_list <- list()
     for (i in 1:length(args)) {
       para_cur <- args[i]
-      para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
+      para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]] # split into the name and value
       if (length(para_break) == 0) {
         # no name, just add to list
-        factor_list[[i]] <- para_cur
+        factor_list[[i]] <- parse_literal_string(para_cur) # process the item to the final value
       } else {
         item_name <- substr(para_cur, 1, para_break - 1)
         item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
         item_name <- gsub("\"", "", item_name)
         item_value <- gsub("\"", "", item_value)
-        factor_list[[item_name]] <- item_value
+        factor_list[[item_name]] <- parse_literal_string(item_value) # process the item to the final value
       }
     }
     return(factor_list)
+  }
+  if (string != ".") { # '.' breaks the numeric search
+    options(warn = -1)
+    if (tolower(string) %in% c("true", "false")) { # check for boolean
+      options(warn = 0)
+      return(as.logical(string))
+    }
+    if (all(sapply(string, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x))) || all(sapply(string, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x)))) {
+      options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
+      return(as.numeric(string))
+    }
+    options(warn = 0)
   }
   string
 }

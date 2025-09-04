@@ -449,6 +449,7 @@ get_form_risk <- function(model_obj, df) {
   gmix_term <- c()
   modelform <- "NONE"
   null <- FALSE
+  expres_calls <- c() # storing any variables transformed, ie factor, ns, bs, etc. to be recalled when the data is reloaded
   #
   right_model_terms <- strsplit(model_obj, "\\+")[[1]]
   for (term_i in seq_along(right_model_terms)) {
@@ -478,8 +479,6 @@ get_form_risk <- function(model_obj, df) {
       null <- TRUE
     } else if (model_type %in% tform_acceptable) {
       model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-      #      model_paras <- strsplit(model_paras, ",")[[1]]
-      #      model_paras <- strsplit(model_paras, ",|(?>\\(.*?\\).*?\\K(,|$))", perl = TRUE)[[1]]
       model_paras <- nested_split(model_paras)
       last_entry <- model_paras[length(model_paras)]
       if (is.na(suppressWarnings(as.integer(last_entry)))) {
@@ -528,6 +527,82 @@ get_form_risk <- function(model_obj, df) {
             col_name <- val$cols
             level_ref <- paste(factor_col, levels(xtemp)[1], sep = "_")
             col_name <- col_name[col_name != level_ref]
+          } else if (substr(model_paras[subterm_i], 1, 3) == "ns(") {
+            # natural cubic spline
+            factor_args <- substr(model_paras[subterm_i], 4, nchar(model_paras[subterm_i]) - 1)
+            factor_args <- nested_split(factor_args)
+            ##
+            factor_arg_list <- list()
+            for (i in 1:length(factor_args)) {
+              para_cur <- factor_args[i]
+              para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
+              if (length(para_break) == 0) {
+                # no name, just add to list
+                factor_arg_list[[i]] <- para_cur
+              } else {
+                item_name <- substr(para_cur, 1, para_break - 1)
+                item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
+                factor_arg_list[[item_name]] <- parse_literal_string(item_value)
+              }
+            }
+            # Either the item is named x, or is it the first
+            if ("x" %in% names(factor_arg_list)) {
+              factor_col <- factor_arg_list$x
+              factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+            } else {
+              factor_col <- factor_arg_list[[1]]
+              names(factor_arg_list)[[1]] <- "x"
+              factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+            }
+            if (system.file(package = "splines") == "") {
+              stop("Attempted to use ns(), but splines not detected on system.")
+            }
+            xtemp <- do.call(splines::ns, factor_arg_list)
+            col_name <- c()
+            for (i in 1:ncol(xtemp)) {
+              x_col <- paste(factor_col, "_ns", i, sep = "")
+              df[[x_col]] <- xtemp[, i]
+              col_name <- c(col_name, x_col)
+            }
+            ##
+          } else if (substr(model_paras[subterm_i], 1, 3) == "bs(") {
+            # b-spline for polynomial spline
+            factor_args <- substr(model_paras[subterm_i], 4, nchar(model_paras[subterm_i]) - 1)
+            factor_args <- nested_split(factor_args)
+            ##
+            factor_arg_list <- list()
+            for (i in 1:length(factor_args)) {
+              para_cur <- factor_args[i]
+              para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
+              if (length(para_break) == 0) {
+                # no name, just add to list
+                factor_arg_list[[i]] <- para_cur
+              } else {
+                item_name <- substr(para_cur, 1, para_break - 1)
+                item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
+                factor_arg_list[[item_name]] <- parse_literal_string(item_value)
+              }
+            }
+            # Either the item is named x, or is it the first
+            if ("x" %in% names(factor_arg_list)) {
+              factor_col <- factor_arg_list$x
+              factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+            } else {
+              factor_col <- factor_arg_list[[1]]
+              names(factor_arg_list)[[1]] <- "x"
+              factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+            }
+            if (system.file(package = "splines") == "") {
+              stop("Attempted to use ns(), but splines not detected on system.")
+            }
+            xtemp <- do.call(splines::bs, factor_arg_list)
+            col_name <- c()
+            for (i in 1:ncol(xtemp)) {
+              x_col <- paste(factor_col, "_bs", i, sep = "")
+              df[[x_col]] <- xtemp[, i]
+              col_name <- c(col_name, x_col)
+            }
+            ##
           } else {
             stop(paste("Currently unsupported function call: ", model_paras[subterm_i]))
           }
