@@ -478,11 +478,12 @@ coxmodel <- function(start_age = "",
                      a_n = list(),
                      keep_constant = c(),
                      df = data.table(),
+                     expres_calls = list(),
                      verbose = FALSE) {
   cox_obj <- list(
     "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "weight" = weight, "null" = null,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
-    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta
+    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
   )
   cox_obj <- new_coxmodel(cox_obj)
   validate_coxsurv(cox_obj, df)
@@ -504,11 +505,12 @@ poismodel <- function(person_year = "",
                       a_n = list(),
                       keep_constant = c(),
                       df = data.table(),
+                      expres_calls = list(),
                       verbose = FALSE) {
   pois_obj <- list(
     "person_year" = person_year, "event" = event, "strata" = strata,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
-    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta
+    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
   )
   pois_obj <- new_poismodel(pois_obj)
   validate_poissurv(pois_obj, df)
@@ -530,11 +532,12 @@ caseconmodel <- function(start_age = "",
                          a_n = list(),
                          keep_constant = c(),
                          df = data.table(),
+                         expres_calls = list(),
                          verbose = FALSE) {
   casecon_obj <- list(
     "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "null" = null,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
-    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta
+    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
   )
   casecon_obj <- new_caseconmodel(casecon_obj)
   validate_caseconsurv(casecon_obj, df)
@@ -560,7 +563,7 @@ ColossusControl <- function(verbose = 0,
   #  tend <- Sys.time()
   #  print("get verbose")
   #  print(tend - tstart)
-  tstart <- Sys.time()
+  # tstart <- Sys.time()
   control <- list(
     "verbose" = verbose,
     "lr" = lr,

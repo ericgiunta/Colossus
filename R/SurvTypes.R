@@ -221,14 +221,16 @@ get_form <- function(formula, df) {
   gmix_theta <- model$gmix_theta
   null <- model$null
   #
+  expres_calls <- model$expres_calls
+  #
   if (grepl("cox", surv_model_type)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("finegray", surv_model_type)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("pois", surv_model_type)) {
-    model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+    model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
-    model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df)
+    model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else {
     stop("Bad survival model type passed")
   }
@@ -283,6 +285,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
   gmix_theta <- model$gmix_theta
   null <- model$null
   df <- model_vals$data
+  expres_calls <- model_vals$expres_calls
   #
   list(
     "model" = list(
@@ -299,7 +302,8 @@ get_form_list <- function(surv_obj, model_obj, df) {
       modelform = modelform,
       gmix_term = gmix_term,
       gmix_theta = gmix_theta,
-      null = null
+      null = null,
+      expres_calls = expres_calls
     ),
     "data" = df
   )
@@ -449,7 +453,7 @@ get_form_risk <- function(model_obj, df) {
   gmix_term <- c()
   modelform <- "NONE"
   null <- FALSE
-  expres_calls <- c() # storing any variables transformed, ie factor, ns, bs, etc. to be recalled when the data is reloaded
+  expres_calls <- list() # storing any variables transformed, ie factor, ns, bs, etc. to be recalled when the data is reloaded
   #
   right_model_terms <- strsplit(model_obj, "\\+")[[1]]
   for (term_i in seq_along(right_model_terms)) {
@@ -492,7 +496,7 @@ get_form_risk <- function(model_obj, df) {
         # add element
         # check if the element is a function
         if (grepl("\\(", model_paras[subterm_i])) {
-          # Some functions is being used
+          # Some function is being used
           if (substr(model_paras[subterm_i], 1, 7) == "factor(") {
             # baseline is set by using factor(column;baseline=level)
             factor_args <- substr(model_paras[subterm_i], 8, nchar(model_paras[subterm_i]) - 1)
@@ -511,6 +515,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
               }
             }
+            repeat_list <- copy(factor_arg_list) # The arguements needed to repeat the processing
             # Either the item is named x, or is it the first
             if ("x" %in% names(factor_arg_list)) {
               factor_col <- factor_arg_list$x
@@ -521,12 +526,16 @@ get_form_risk <- function(model_obj, df) {
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
             xtemp <- do.call(factor, factor_arg_list)
+            if (!("levels" %in% names(repeat_list))){ # using the levels will recreate the same factoring
+              repeat_list[["levels"]] <- levels(xtemp)
+            }
             df[[factor_col]] <- xtemp
             val <- factorize(df, factor_col)
             df <- val$df
             col_name <- val$cols
             level_ref <- paste(factor_col, levels(xtemp)[1], sep = "_")
             col_name <- col_name[col_name != level_ref]
+            expres_calls[[length(expres_calls) + 1]] <- repeat_list
           } else if (substr(model_paras[subterm_i], 1, 3) == "ns(") {
             # natural cubic spline
             factor_args <- substr(model_paras[subterm_i], 4, nchar(model_paras[subterm_i]) - 1)
@@ -545,6 +554,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
               }
             }
+            repeat_list <- copy(factor_arg_list) # The arguements needed to repeat the processing
             # Either the item is named x, or is it the first
             if ("x" %in% names(factor_arg_list)) {
               factor_col <- factor_arg_list$x
@@ -558,12 +568,26 @@ get_form_risk <- function(model_obj, df) {
               stop("Attempted to use ns(), but splines not detected on system.")
             }
             xtemp <- do.call(splines::ns, factor_arg_list)
+            #
+            ns_att <- attributes(xtemp)
+            # Applying the same knots, boundary, and intercept gives the same transformation
+            if (!("knots" %in% names(repeat_list))){
+              repeat_list[["knots"]] <- ns_att$knots
+            }
+            if (!("Boundary.knots" %in% names(repeat_list))){
+              repeat_list[["Boundary.knots"]] <- ns_att$Boundary.knots
+            }
+            if (!("intercept" %in% names(repeat_list))){
+              repeat_list[["intercept"]] <- ns_att$intercept
+            }
+            #
             col_name <- c()
             for (i in 1:ncol(xtemp)) {
               x_col <- paste(factor_col, "_ns", i, sep = "")
               df[[x_col]] <- xtemp[, i]
               col_name <- c(col_name, x_col)
             }
+            expres_calls[[length(expres_calls) + 1]] <- repeat_list
             ##
           } else if (substr(model_paras[subterm_i], 1, 3) == "bs(") {
             # b-spline for polynomial spline
@@ -583,6 +607,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
               }
             }
+            repeat_list <- copy(factor_arg_list) # The arguements needed to repeat the processing
             # Either the item is named x, or is it the first
             if ("x" %in% names(factor_arg_list)) {
               factor_col <- factor_arg_list$x
@@ -596,12 +621,28 @@ get_form_risk <- function(model_obj, df) {
               stop("Attempted to use ns(), but splines not detected on system.")
             }
             xtemp <- do.call(splines::bs, factor_arg_list)
+            #
+            bs_att <- attributes(xtemp)
+            # Applying the same degree, knots, boundary, and intercept gives the same transformation
+            if (!("degree" %in% names(repeat_list))){
+              repeat_list[["degree"]] <- bs_att$degree
+            }
+            if (!("knots" %in% names(repeat_list))){
+              repeat_list[["knots"]] <- bs_att$knots
+            }
+            if (!("Boundary.knots" %in% names(repeat_list))){
+              repeat_list[["Boundary.knots"]] <- bs_att$Boundary.knots
+            }
+            if (!("intercept" %in% names(repeat_list))){
+              repeat_list[["intercept"]] <- bs_att$intercept
+            }
             col_name <- c()
             for (i in 1:ncol(xtemp)) {
               x_col <- paste(factor_col, "_bs", i, sep = "")
               df[[x_col]] <- xtemp[, i]
               col_name <- c(col_name, x_col)
             }
+            expres_calls[[length(expres_calls) + 1]] <- repeat_list
             ##
           } else {
             stop(paste("Currently unsupported function call: ", model_paras[subterm_i]))
@@ -715,7 +756,8 @@ get_form_risk <- function(model_obj, df) {
     "modelform" = modelform,
     "gmix_term" = gmix_term,
     "gmix_theta" = gmix_theta,
-    "null" = null
+    "null" = null,
+    "expres_calls" = expres_calls
   )
   list(
     "model" = model, "data" = df

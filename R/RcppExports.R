@@ -326,7 +326,7 @@ Calculate_Recursive <- function(model_bool, group_num, RiskFail, RiskPairs, tota
 
 #' Fills out recursive vectors for matched case-control logistic regression
 #'
-#' \code{Calculate_Recursive} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
+#' \code{Calc_Recur_LogLik} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
 #'
 #' @return Updates matrices in place: risk storage matrices
 #' @noRd
