@@ -23,6 +23,7 @@ Other Formula Interpretation:
 \code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
+\code{\link{ColossusExpressionCall}()},
 \code{\link{ColossusFineGraySurv}()},
 \code{\link{ColossusPoisSurv}()},
 \code{\link{get_form}()},

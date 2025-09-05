@@ -27,6 +27,7 @@ Other Formula Interpretation:
 \code{\link{ColossusCaseConTimeStrataSurv}()},
 \code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
+\code{\link{ColossusExpressionCall}()},
 \code{\link{ColossusFineGrayStrataSurv}()},
 \code{\link{ColossusFineGraySurv}()},
 \code{\link{ColossusPoisSurv}()},

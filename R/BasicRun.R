@@ -30,6 +30,8 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
     coxmodel <- copy(model)
+    calls <- coxmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
     #
   } else if (is(model, "formula")) {
     # using a formula class
@@ -188,6 +190,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   if (is(model, "poismodel")) {
     # using already prepped formula and data
     poismodel <- copy(model)
+    calls <- poismodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -319,6 +323,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (is(model, "caseconmodel")) {
     # using already prepped formula and data
     caseconmodel <- copy(model)
+    calls <- caseconmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
     #
   } else if (is(model, "formula")) {
     # using a formula class
@@ -637,6 +643,9 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   keep_constant <- coxmodel$keep_constant
   modelform <- coxmodel$modelform
   #
+  calls <- coxmodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine
@@ -711,6 +720,9 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   tform <- coxmodel$tform
   keep_constant <- coxmodel$keep_constant
   modelform <- coxmodel$modelform
+  #
+  calls <- coxmodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
   #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
@@ -802,6 +814,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
     coxmodel <- copy(model)
+    calls <- coxmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
     #
   } else if (is(model, "formula")) {
     # using a formula class
@@ -986,6 +1000,9 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   strat_col <- coxmodel$strata
   cens_weight <- coxmodel$weight
   #
+  calls <- coxmodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine
@@ -1074,6 +1091,9 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   cons_mat <- as.matrix(c(0))
   cons_vec <- c(0)
   strat_col <- poismodel$strata
+  #
+  calls <- poismodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
   #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
@@ -1176,6 +1196,9 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   cons_mat <- as.matrix(c(0))
   cons_vec <- c(0)
   strat_col <- poismodel$strata
+  #
+  calls <- poismodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
   #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
@@ -1284,6 +1307,9 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   cons_mat <- as.matrix(c(0))
   cons_vec <- c(0)
   strat_col <- poismodel$strata
+  #
+  calls <- poismodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
   #
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {

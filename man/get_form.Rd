@@ -44,6 +44,7 @@ Other Formula Interpretation:
 \code{\link{ColossusCaseConTimeSurv}()},
 \code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
+\code{\link{ColossusExpressionCall}()},
 \code{\link{ColossusFineGrayStrataSurv}()},
 \code{\link{ColossusFineGraySurv}()},
 \code{\link{ColossusPoisSurv}()},

@@ -285,7 +285,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
   gmix_theta <- model$gmix_theta
   null <- model$null
   df <- model_vals$data
-  expres_calls <- model_vals$expres_calls
+  expres_calls <- model$expres_calls
   #
   list(
     "model" = list(
@@ -515,7 +515,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
               }
             }
-            repeat_list <- copy(factor_arg_list) # The arguements needed to repeat the processing
+            repeat_list <- c(list("_exp_type" = "factor"), copy(factor_arg_list)) # The arguements needed to repeat the processing
             # Either the item is named x, or is it the first
             if ("x" %in% names(factor_arg_list)) {
               factor_col <- factor_arg_list$x
@@ -526,7 +526,7 @@ get_form_risk <- function(model_obj, df) {
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
             xtemp <- do.call(factor, factor_arg_list)
-            if (!("levels" %in% names(repeat_list))){ # using the levels will recreate the same factoring
+            if (!("levels" %in% names(repeat_list))) { # using the levels will recreate the same factoring
               repeat_list[["levels"]] <- levels(xtemp)
             }
             df[[factor_col]] <- xtemp
@@ -554,7 +554,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
               }
             }
-            repeat_list <- copy(factor_arg_list) # The arguements needed to repeat the processing
+            repeat_list <- c(list("_exp_type" = "ns"), copy(factor_arg_list)) # The arguements needed to repeat the processing
             # Either the item is named x, or is it the first
             if ("x" %in% names(factor_arg_list)) {
               factor_col <- factor_arg_list$x
@@ -571,20 +571,22 @@ get_form_risk <- function(model_obj, df) {
             #
             ns_att <- attributes(xtemp)
             # Applying the same knots, boundary, and intercept gives the same transformation
-            if (!("knots" %in% names(repeat_list))){
+            if (!("knots" %in% names(repeat_list))) {
               repeat_list[["knots"]] <- ns_att$knots
             }
-            if (!("Boundary.knots" %in% names(repeat_list))){
+            if (!("Boundary.knots" %in% names(repeat_list))) {
               repeat_list[["Boundary.knots"]] <- ns_att$Boundary.knots
             }
-            if (!("intercept" %in% names(repeat_list))){
+            if (!("intercept" %in% names(repeat_list))) {
               repeat_list[["intercept"]] <- ns_att$intercept
             }
             #
             col_name <- c()
             for (i in 1:ncol(xtemp)) {
               x_col <- paste(factor_col, "_ns", i, sep = "")
-              df[[x_col]] <- xtemp[, i]
+              if (!(x_col %in% names(df))) {
+                df[[x_col]] <- xtemp[, i]
+              }
               col_name <- c(col_name, x_col)
             }
             expres_calls[[length(expres_calls) + 1]] <- repeat_list
@@ -607,7 +609,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
               }
             }
-            repeat_list <- copy(factor_arg_list) # The arguements needed to repeat the processing
+            repeat_list <- c(list("_exp_type" = "bs"), copy(factor_arg_list)) # The arguements needed to repeat the processing
             # Either the item is named x, or is it the first
             if ("x" %in% names(factor_arg_list)) {
               factor_col <- factor_arg_list$x
@@ -618,34 +620,86 @@ get_form_risk <- function(model_obj, df) {
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
             if (system.file(package = "splines") == "") {
-              stop("Attempted to use ns(), but splines not detected on system.")
+              stop("Attempted to use bs(), but splines not detected on system.")
             }
             xtemp <- do.call(splines::bs, factor_arg_list)
             #
             bs_att <- attributes(xtemp)
             # Applying the same degree, knots, boundary, and intercept gives the same transformation
-            if (!("degree" %in% names(repeat_list))){
+            if (!("degree" %in% names(repeat_list))) {
               repeat_list[["degree"]] <- bs_att$degree
             }
-            if (!("knots" %in% names(repeat_list))){
+            if (!("knots" %in% names(repeat_list))) {
               repeat_list[["knots"]] <- bs_att$knots
             }
-            if (!("Boundary.knots" %in% names(repeat_list))){
+            if (!("Boundary.knots" %in% names(repeat_list))) {
               repeat_list[["Boundary.knots"]] <- bs_att$Boundary.knots
             }
-            if (!("intercept" %in% names(repeat_list))){
+            if (!("intercept" %in% names(repeat_list))) {
               repeat_list[["intercept"]] <- bs_att$intercept
             }
             col_name <- c()
             for (i in 1:ncol(xtemp)) {
               x_col <- paste(factor_col, "_bs", i, sep = "")
-              df[[x_col]] <- xtemp[, i]
+              if (!(x_col %in% names(df))) {
+                df[[x_col]] <- xtemp[, i]
+              }
               col_name <- c(col_name, x_col)
             }
             expres_calls[[length(expres_calls) + 1]] <- repeat_list
             ##
           } else {
-            stop(paste("Currently unsupported function call: ", model_paras[subterm_i]))
+            # ----------------------------------------------------------------------------------- #
+            # generic function call
+            para_split <- lapply(strsplit(model_paras[subterm_i], ""), function(x) which(x == "("))[[1]]
+            exp_name <- substr(model_paras[subterm_i], 1, para_split - 1)
+            factor_args <- substr(model_paras[subterm_i], para_split + 1, nchar(model_paras[subterm_i]) - 1)
+            factor_args <- nested_split(factor_args)
+            ##
+            factor_arg_list <- list()
+            for (i in 1:length(factor_args)) {
+              para_cur <- factor_args[i]
+              para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
+              if (length(para_break) == 0) {
+                # no name, just add to list
+                factor_arg_list[[i]] <- para_cur
+              } else {
+                item_name <- substr(para_cur, 1, para_break - 1)
+                item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
+                factor_arg_list[[item_name]] <- parse_literal_string(item_value)
+              }
+            }
+            repeat_list <- c(list("_exp_type" = exp_name), copy(factor_arg_list)) # The arguements needed to repeat the processing
+            # Either the item is named x, or is it the first
+            factor_col <- factor_arg_list[[1]]
+            factor_vals <- unlist(factor_arg_list, use.names = FALSE)
+            for (i in 1:length(factor_vals)) {
+              if (factor_vals[[i]] %in% names(df)) {
+                factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
+              }
+            }
+
+            xtemp <- do.call(exp_name, factor_arg_list)
+            #
+            col_name <- c()
+            if (is.atomic(xtemp)) {
+              x_col <- paste(factor_col, "_", exp_name, sep = "")
+              if (!(x_col %in% names(df))) {
+                df[[x_col]] <- xtemp
+              }
+              col_name <- c(col_name, x_col)
+            } else {
+              for (i in 1:ncol(xtemp)) {
+                x_col <- paste(factor_col, "_", exp_name, i, sep = "")
+                if (!(x_col %in% names(df))) {
+                  df[[x_col]] <- xtemp[, i]
+                }
+                col_name <- c(col_name, x_col)
+              }
+            }
+            expres_calls[[length(expres_calls) + 1]] <- repeat_list
+            # ----------------------------------------------------------------------------------- #
+            # stop(paste("Currently unsupported function call: ", model_paras[subterm_i]))
           }
         } else {
           # check if the column is actually a factor
@@ -762,6 +816,113 @@ get_form_risk <- function(model_obj, df) {
   list(
     "model" = model, "data" = df
   )
+}
+
+#' Applies a list of function calls from a model evaluation
+#'
+#' \code{ColossusExpressionCall} Uses a list of function call info and a data.table, and applies the function calls
+#'
+#' @param calls List from 'model$expres' calls formatted as the type of function call, and then the arguments
+#' @param df dataset, to be modified by the function calls
+#' @export
+#' @return returns the transformed data
+#' @family Formula Interpretation
+ColossusExpressionCall <- function(calls, df) {
+  for (call in calls) {
+    if (call[["_exp_type"]] == "factor") {
+      factor_arg_list <- call[names(call) != "_exp_type"]
+      if ("x" %in% names(factor_arg_list)) {
+        factor_col <- factor_arg_list$x
+        factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+      } else {
+        factor_col <- factor_arg_list[[1]]
+        names(factor_arg_list)[[1]] <- "x"
+        factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+      }
+      xtemp <- do.call(factor, factor_arg_list)
+      df[[factor_col]] <- xtemp
+      val <- factorize(df, factor_col)
+      df <- val$df
+    } else if (call[["_exp_type"]] == "ns") {
+      # natural cubic spline
+      factor_arg_list <- call[names(call) != "_exp_type"]
+      if ("x" %in% names(factor_arg_list)) {
+        factor_col <- factor_arg_list$x
+        factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+      } else {
+        factor_col <- factor_arg_list[[1]]
+        names(factor_arg_list)[[1]] <- "x"
+        factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+      }
+      if (system.file(package = "splines") == "") {
+        stop("Attempted to use ns(), but splines not detected on system.")
+      }
+      xtemp <- do.call(splines::ns, factor_arg_list)
+      #
+      col_name <- c()
+      for (i in 1:ncol(xtemp)) {
+        x_col <- paste(factor_col, "_ns", i, sep = "")
+        if (!(x_col %in% names(df))) {
+          df[[x_col]] <- xtemp[, i]
+        }
+      }
+      ##
+    } else if (call[["_exp_type"]] == "bs") {
+      # b-spline for polynomial spline
+      factor_arg_list <- call[names(call) != "_exp_type"]
+      if ("x" %in% names(factor_arg_list)) {
+        factor_col <- factor_arg_list$x
+        factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+      } else {
+        factor_col <- factor_arg_list[[1]]
+        names(factor_arg_list)[[1]] <- "x"
+        factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
+      }
+      if (system.file(package = "splines") == "") {
+        stop("Attempted to use bs(), but splines not detected on system.")
+      }
+      xtemp <- do.call(splines::bs, factor_arg_list)
+      #
+      for (i in 1:ncol(xtemp)) {
+        x_col <- paste(factor_col, "_bs", i, sep = "")
+        if (!(x_col %in% names(df))) {
+          df[[x_col]] <- xtemp[, i]
+        }
+      }
+      ##
+    } else {
+      # --------------------------------------------------------------------- #
+      exp_name <- call[["_exp_type"]]
+      factor_arg_list <- call[names(call) != "_exp_type"]
+      # Either the item is named x, or is it the first
+      factor_col <- factor_arg_list[[1]]
+      factor_vals <- unlist(factor_arg_list, use.names = FALSE)
+      for (i in 1:length(factor_vals)) {
+        if (factor_vals[[i]] %in% names(df)) {
+          factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
+        }
+      }
+
+      xtemp <- do.call(exp_name, factor_arg_list)
+      #
+      if (is.atomic(xtemp)) {
+        x_col <- paste(factor_col, "_", exp_name, sep = "")
+        if (!(x_col %in% names(df))) {
+          df[[x_col]] <- xtemp
+        }
+      } else {
+        for (i in 1:ncol(xtemp)) {
+          x_col <- paste(factor_col, "_", exp_name, i, sep = "")
+          if (!(x_col %in% names(df))) {
+            df[[x_col]] <- xtemp[, i]
+          }
+        }
+      }
+      # --------------------------------------------------------------------- #
+      # stop(paste("Currently unsupported function call: ", call[["_exp_type"]]))
+    }
+  }
+  df
 }
 
 #' Interprets basic cox survival formula RHS
