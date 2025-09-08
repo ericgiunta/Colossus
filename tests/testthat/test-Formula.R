@@ -37,7 +37,7 @@ test_that("Basic ns and bs application to formula", {
 })
 
 test_that("Basic generic function application to formula", {
-  df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
+  df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 1:100)
   for (exp_string in c("log", "sqrt", "exp", "cos")) {
     model <- as.formula(paste("Cox(a, b, c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
     expect_no_error(e <- get_form(model, df))
@@ -47,18 +47,6 @@ test_that("Basic generic function application to formula", {
     expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 2)))
     expect_no_error(f <- RelativeRisk(e, df))
   }
-  # model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
-  # e <- get_form(model, df)$model
-  # expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
-  # model <- Cox(a, b, c) ~ loglinear(d, ns(e, intercept = TRUE))
-  # e <- get_form(model, df)$model
-  # expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
-  # model <- Cox(a, b, c) ~ loglinear(d, bs(e))
-  # e <- get_form(model, df)$model
-  # expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
-  # model <- Cox(a, b, c) ~ loglinear(d, bs(e, Boundary.knots = c(0, 99)))
-  # e <- get_form(model, df)$model
-  # expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
 })
 
 test_that("Checking formula works with result modification", {
@@ -81,4 +69,29 @@ test_that("Checking formula works with result modification", {
   expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, ns(b)), df, control = list("ncores" = 2)))
   f <- Residual(e, df)
   expect_equal(f$Residual_Sum, 0.5121325, tolerance = 1e-2)
+})
+
+test_that("Checking interaction works in formula and call results", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  #
+  df$dose2 <- df$dose * df$dose
+  df$a <- df$dose + 0.001
+  df$b <- df$dose2 + 0.001
+  df$rand0 <- floor(runif(nrow(df)) * 3)
+  df$rand1 <- floor(runif(nrow(df)) * 2)
+  #
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+
+  model <- Cox(t0, t1, lung) ~ loglinear(a, a * rand0, a * rand0 * rand1)
+  e <- get_form(model, df)
+  expect_equal(e$model$names, c("a", "rand0", "a:rand0", "rand1", "a:rand1", "rand0:rand1", "a:rand0:rand1"))
+  expect_no_error(e <- CoxRun(model, df, control = list(ncores = 2)))
+  f <- RelativeRisk(e, df)
+  expect_equal(sum(f$Risk), 1607.914, tolerance = 1e-2)
 })

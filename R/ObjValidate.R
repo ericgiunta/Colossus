@@ -406,8 +406,6 @@ validate_caseconsurv <- function(x, df) {
   if (!is(x, "caseconmodel")) {
     stop("Non Case-Control formula used in Case_Control regression")
   }
-  #  print(x)
-  #  print(names(df))
   if (x$start_age == x$end_age) {
     if (x$start != "NONE") {
       stop(
@@ -558,12 +556,7 @@ ColossusControl <- function(verbose = 0,
                             thres_step_max = 1.0,
                             ties = "breslow",
                             ncores = as.numeric(detectCores())) {
-  #  tstart <- Sys.time()
   verbose <- Check_Verbose(verbose)
-  #  tend <- Sys.time()
-  #  print("get verbose")
-  #  print(tend - tstart)
-  # tstart <- Sys.time()
   control <- list(
     "verbose" = verbose,
     "lr" = lr,
@@ -602,10 +595,6 @@ ColossusControl <- function(verbose = 0,
       control[nm] <- control_def[nm]
     }
   }
-  #  tend <- Sys.time()
-  #  print("check there")
-  #  print(tend - tstart)
-  #  tstart <- Sys.time()
   control["ties"] <- tolower(control["ties"])
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
@@ -618,10 +607,6 @@ ColossusControl <- function(verbose = 0,
       control[nm] <- control_min[nm]
     }
   }
-  #  tend <- Sys.time()
-  #  print("check min")
-  #  print(tend - tstart)
-  #  tstart <- Sys.time()
   control_int <- list(
     "verbose" = 0, "maxiter" = -1,
     "halfmax" = 0
@@ -629,10 +614,6 @@ ColossusControl <- function(verbose = 0,
   for (nm in names(control_int)) {
     control[nm] <- as.integer(control[nm])
   }
-  #  tend <- Sys.time()
-  #  print("check int")
-  #  print(tend - tstart)
-  #  tstart <- Sys.time()
   #
   control
 }

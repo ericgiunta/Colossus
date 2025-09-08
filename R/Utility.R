@@ -25,7 +25,7 @@ nested_split <- function(total_string) {
   if (final_split[length(final_split)] != "") {
     final_split # safety to avoid error cases
   } else {
-    final_split[1:length(final_split) - 1] # the last should be empty
+    final_split[seq_len(length(final_split) - 1)] # the last should be empty
   }
 }
 
@@ -48,7 +48,7 @@ parse_literal_string <- function(string) {
     args <- nested_split(sub_str) # make sure every entry is processed
     #
     factor_list <- list()
-    for (i in 1:length(args)) {
+    for (i in seq_along(args)) {
       para_cur <- args[i]
       para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]] # split into the name and value
       if (length(para_break) == 0) {
@@ -721,17 +721,6 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the usable columns
-#' @export
-#' @examples
-#' library(data.table)
-#' a <- c(0, 1, 2, 3, 4, 5, 6)
-#' b <- c(1, 2, 3, 4, 5, 6, 7)
-#' c <- c(0, 1, 2, 1, 0, 1, 0)
-#' df <- data.table::data.table("a" = a, "b" = b, "c" = c)
-#' cols <- c("a", "b", "c")
-#' term_n <- c(0, 0, 1)
-#' unique_cols <- Check_Dupe_Columns(df, cols, term_n)
-#'
 Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FALSE) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(

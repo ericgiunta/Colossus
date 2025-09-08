@@ -33,7 +33,7 @@ get_form_joint <- function(formula_list, df) {
     stop("Joint formula list wasn't a list or a formula")
   }
   model_list <- list()
-  for (formula_i in 1:length(formula_list)) {
+  for (formula_i in seq_along(formula_list)) {
     #
     formula <- formula_list[[formula_i]]
     surv_obj <- format(formula[[2]])
@@ -102,7 +102,7 @@ get_form_joint <- function(formula_list, df) {
   tform_list <- list(
     "shared" = model_share$tform
   )
-  for (model_i in 1:length(model_list)) {
+  for (model_i in seq_along(model_list)) {
     model <- model_list[[model_i]]
     event_temp <- model$event
     name_temp <- list()
@@ -134,7 +134,6 @@ get_form_joint <- function(formula_list, df) {
   #
   pyr <- model_1$pyr
   strata <- model_1$strata
-  null <- model_1$null
   modelform <- model_1$modelform
   #
   gmix_term <- model_1$gmix_term
@@ -339,7 +338,7 @@ get_form_surv <- function(surv_obj, df) {
   # assign survival model values
   surv_model_type <- surv_type
   surv_para_list <- list()
-  for (i in 1:length(surv_paras)) {
+  for (i in seq_along(surv_paras)) {
     para_cur <- surv_paras[i]
     para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
     if (length(para_break) == 0) {
@@ -445,6 +444,9 @@ get_form_surv <- function(surv_obj, df) {
 #' @return returns the right hand side of a formula reading
 #' @family Formula Interpretation
 get_form_risk <- function(model_obj, df) {
+  #
+  ..new_name <- NULL
+  #
   model_obj <- gsub(" ", "", model_obj)
   term_n <- c()
   tform <- c()
@@ -503,7 +505,7 @@ get_form_risk <- function(model_obj, df) {
             factor_args <- nested_split(factor_args)
             ##
             factor_arg_list <- list()
-            for (i in 1:length(factor_args)) {
+            for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
               para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
               if (length(para_break) == 0) {
@@ -542,7 +544,7 @@ get_form_risk <- function(model_obj, df) {
             factor_args <- nested_split(factor_args)
             ##
             factor_arg_list <- list()
-            for (i in 1:length(factor_args)) {
+            for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
               para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
               if (length(para_break) == 0) {
@@ -582,7 +584,7 @@ get_form_risk <- function(model_obj, df) {
             }
             #
             col_name <- c()
-            for (i in 1:ncol(xtemp)) {
+            for (i in seq_len(ncol(xtemp))) {
               x_col <- paste(factor_col, "_ns", i, sep = "")
               if (!(x_col %in% names(df))) {
                 df[[x_col]] <- xtemp[, i]
@@ -597,7 +599,7 @@ get_form_risk <- function(model_obj, df) {
             factor_args <- nested_split(factor_args)
             ##
             factor_arg_list <- list()
-            for (i in 1:length(factor_args)) {
+            for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
               para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
               if (length(para_break) == 0) {
@@ -639,7 +641,7 @@ get_form_risk <- function(model_obj, df) {
               repeat_list[["intercept"]] <- bs_att$intercept
             }
             col_name <- c()
-            for (i in 1:ncol(xtemp)) {
+            for (i in seq_len(ncol(xtemp))) {
               x_col <- paste(factor_col, "_bs", i, sep = "")
               if (!(x_col %in% names(df))) {
                 df[[x_col]] <- xtemp[, i]
@@ -657,7 +659,7 @@ get_form_risk <- function(model_obj, df) {
             factor_args <- nested_split(factor_args)
             ##
             factor_arg_list <- list()
-            for (i in 1:length(factor_args)) {
+            for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
               para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
               if (length(para_break) == 0) {
@@ -673,7 +675,7 @@ get_form_risk <- function(model_obj, df) {
             # Either the item is named x, or is it the first
             factor_col <- factor_arg_list[[1]]
             factor_vals <- unlist(factor_arg_list, use.names = FALSE)
-            for (i in 1:length(factor_vals)) {
+            for (i in seq_along(factor_vals)) {
               if (factor_vals[[i]] %in% names(df)) {
                 factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
               }
@@ -689,7 +691,7 @@ get_form_risk <- function(model_obj, df) {
               }
               col_name <- c(col_name, x_col)
             } else {
-              for (i in 1:ncol(xtemp)) {
+              for (i in seq_len(ncol(xtemp))) {
                 x_col <- paste(factor_col, "_", exp_name, i, sep = "")
                 if (!(x_col %in% names(df))) {
                   df[[x_col]] <- xtemp[, i]
@@ -701,6 +703,79 @@ get_form_risk <- function(model_obj, df) {
             # ----------------------------------------------------------------------------------- #
             # stop(paste("Currently unsupported function call: ", model_paras[subterm_i]))
           }
+        } else if (grepl("\\*", model_paras[subterm_i])) {
+          # interaction element
+          repeat_list <- c(list("_exp_type" = "interaction"), model_paras[subterm_i]) # The arguements needed to repeat the processing
+          #
+          # split into the columns
+          cols <- strsplit(model_paras[subterm_i], "\\*")[[1]]
+          for (col in cols) {
+            if (!(col %in% names(df))) {
+              # good, it is in there
+              stop(paste("Interaction column missing: ", col, sep = ""))
+            }
+          }
+
+          recur_interact <- function(x, y) {
+            if (length(y) == 1) {
+              return(paste(x, y[[1]], sep = ":"))
+            } else {
+              for (i in y[[1]]) {
+                y0 <- paste(x, i, sep = ":")
+                return(recur_interact(y0, y[2:length(y)]))
+              }
+            }
+          }
+
+          interact_tables <- do.call(c, lapply(seq_along(cols), combn, x = cols, simplify = FALSE))
+          col_name <- c()
+          for (i_table in interact_tables) {
+            vals <- unlist(i_table, use.names = FALSE)
+            if (length(vals) == 1) {
+              if (is.factor(df[[vals]])) {
+                # factor
+                val <- factorize(df, vals)
+                df <- val$df
+                fac_names <- val$cols
+                level_ref <- paste(vals, levels(df[[vals]])[1], sep = "_")
+                col_name <- c(col_name, fac_names[fac_names != level_ref])
+              } else {
+                # not factor
+                col_name <- c(col_name, vals)
+              }
+            } else {
+              # there are multiple to combine
+              # get the levels for each element
+              element_levels <- list()
+              for (term_i in seq_along(vals)) {
+                factor_col <- vals[term_i]
+                if (is.factor(df[[factor_col]])) {
+                  i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
+                  level_ref <- paste(factor_col, levels(df[[factor_col]])[1], sep = "_")
+                  i_levels <- i_levels[i_levels != level_ref]
+                  element_levels[[term_i]] <- i_levels
+                } else {
+                  element_levels[[term_i]] <- factor_col
+                }
+              }
+              combs <- c()
+              for (i in element_levels[[1]]) {
+                y0 <- i
+                combs <- recur_interact(y0, element_levels[2:length(element_levels)])
+                for (comb in combs) {
+                  #
+                  entries <- strsplit(comb, ":")[[1]]
+                  df[[comb]] <- 1
+                  for (j in entries) {
+                    df[[comb]] <- df[[comb]] * df[[j]]
+                  }
+
+                  col_name <- c(col_name, comb)
+                }
+              }
+            }
+          }
+          expres_calls[[length(expres_calls) + 1]] <- repeat_list
         } else {
           # check if the column is actually a factor
           element_col <- model_paras[subterm_i]
@@ -725,6 +800,7 @@ get_form_risk <- function(model_obj, df) {
         if (length(col_name) == 0) {
           stop("Subterm missing element, was a single-valued factor used?")
         }
+        col_name <- unique(col_name)
         # convert subterm formula
         model_terms <- c(model_type)
         if (model_type %in% c("plin", "plinear", "product-linear")) {
@@ -803,6 +879,36 @@ get_form_risk <- function(model_obj, df) {
       gmix_term <- rep(1, term_tot)
     }
   }
+  #
+  if (length(tform) > 1) {
+    og_index <- seq_along(tform)
+    all_remove <- rep(0, length(tform))
+    for (u_tform in unique(tform)) {
+      for (u_term_n in unique(term_n)) {
+        new_name <- names[(tform == u_tform) & (term_n == u_term_n)]
+        new_index <- og_index[(tform == u_tform) & (term_n == u_term_n)]
+        if (length(new_name) > 1) {
+          df_temp <- df[, ..new_name]
+          removed <- c(0)
+          for (i in 2:length(names(df_temp))) {
+            new_rank <- qr(df_temp[, 1:i])$rank
+            if (new_rank == i - sum(removed)) {
+              # all good
+              removed <- c(removed, 0)
+            } else {
+              # the column was linearlly dependent
+              removed <- c(removed, 1)
+              all_remove[new_index[i]] <- 1
+            }
+          }
+        }
+      }
+    }
+    term_n <- term_n[all_remove == 0]
+    tform <- tform[all_remove == 0]
+    names <- names[all_remove == 0]
+  }
+  #
   model <- list(
     "term_n" = term_n,
     "tform" = tform,
@@ -859,8 +965,7 @@ ColossusExpressionCall <- function(calls, df) {
       }
       xtemp <- do.call(splines::ns, factor_arg_list)
       #
-      col_name <- c()
-      for (i in 1:ncol(xtemp)) {
+      for (i in seq_len(ncol(xtemp))) {
         x_col <- paste(factor_col, "_ns", i, sep = "")
         if (!(x_col %in% names(df))) {
           df[[x_col]] <- xtemp[, i]
@@ -883,13 +988,65 @@ ColossusExpressionCall <- function(calls, df) {
       }
       xtemp <- do.call(splines::bs, factor_arg_list)
       #
-      for (i in 1:ncol(xtemp)) {
+      for (i in seq_len(ncol(xtemp))) {
         x_col <- paste(factor_col, "_bs", i, sep = "")
         if (!(x_col %in% names(df))) {
           df[[x_col]] <- xtemp[, i]
         }
       }
       ##
+    } else if (call["_exp_type"] == "interaction") {
+      # split into the columns
+      cols <- strsplit(call[[2]], "\\*")[[1]]
+      recur_interact <- function(x, y) {
+        if (length(y) == 1) {
+          return(paste(x, y[[1]], sep = ":"))
+        } else {
+          for (i in y[[1]]) {
+            y0 <- paste(x, i, sep = ":")
+            return(recur_interact(y0, y[2:length(y)]))
+          }
+        }
+      }
+      interact_tables <- do.call(c, lapply(seq_along(cols), combn, x = cols, simplify = FALSE))
+      for (i_table in interact_tables) {
+        vals <- unlist(i_table, use.names = FALSE)
+        if (length(vals) == 1) {
+          if (is.factor(df[[vals]])) {
+            # factor
+            val <- factorize(df, vals)
+            df <- val$df
+          }
+        } else {
+          # there are multiple to combine
+          # get the levels for each element
+          element_levels <- list()
+          for (term_i in seq_along(vals)) {
+            factor_col <- vals[term_i]
+            if (is.factor(df[[factor_col]])) {
+              i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
+              level_ref <- paste(factor_col, levels(df[[factor_col]])[1], sep = "_")
+              i_levels <- i_levels[i_levels != level_ref]
+              element_levels[[term_i]] <- i_levels
+            } else {
+              element_levels[[term_i]] <- factor_col
+            }
+          }
+          combs <- c()
+          for (i in element_levels[[1]]) {
+            y0 <- i
+            combs <- recur_interact(y0, element_levels[2:length(element_levels)])
+            for (comb in combs) {
+              #
+              entries <- strsplit(comb, ":")[[1]]
+              df[[comb]] <- 1
+              for (j in entries) {
+                df[[comb]] <- df[[comb]] * df[[j]]
+              }
+            }
+          }
+        }
+      }
     } else {
       # --------------------------------------------------------------------- #
       exp_name <- call[["_exp_type"]]
@@ -897,7 +1054,7 @@ ColossusExpressionCall <- function(calls, df) {
       # Either the item is named x, or is it the first
       factor_col <- factor_arg_list[[1]]
       factor_vals <- unlist(factor_arg_list, use.names = FALSE)
-      for (i in 1:length(factor_vals)) {
+      for (i in seq_along(factor_vals)) {
         if (factor_vals[[i]] %in% names(df)) {
           factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
         }
@@ -911,7 +1068,7 @@ ColossusExpressionCall <- function(calls, df) {
           df[[x_col]] <- xtemp
         }
       } else {
-        for (i in 1:ncol(xtemp)) {
+        for (i in seq_len(ncol(xtemp))) {
           x_col <- paste(factor_col, "_", exp_name, i, sep = "")
           if (!(x_col %in% names(df))) {
             df[[x_col]] <- xtemp[, i]
@@ -1044,11 +1201,11 @@ ColossusCoxStrataSurv <- function(...) {
     res <- do.call(ColossusCoxSurv, args[names(args) != "strata"])
   } else if (all(argName == "")) {
     strata <- args[[length(args)]]
-    res <- do.call(ColossusCoxSurv, args[1:length(args) - 1])
+    res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
       strata <- args[[length(args)]]
-      res <- do.call(ColossusCoxSurv, args[1:length(args) - 1])
+      res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Final entry of Cox Strata object was not named correctly")
     }
@@ -1081,11 +1238,11 @@ ColossusFineGraySurv <- function(...) {
     res <- do.call(ColossusCoxSurv, args[names(args) != "weight"])
   } else if (all(argName == "")) {
     weight <- args[[length(args)]]
-    res <- do.call(ColossusCoxSurv, args[1:length(args) - 1])
+    res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
       weight <- args[[length(args)]]
-      res <- do.call(ColossusCoxSurv, args[1:length(args) - 1])
+      res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Final entry of FineGray object was not named correctly")
     }
@@ -1118,11 +1275,11 @@ ColossusFineGrayStrataSurv <- function(...) {
     res <- do.call(ColossusCoxStrataSurv, args[names(args) != "weight"])
   } else if (all(argName == "")) {
     weight <- args[[length(args)]]
-    res <- do.call(ColossusCoxStrataSurv, args[1:length(args) - 1])
+    res <- do.call(ColossusCoxStrataSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
       weight <- args[[length(args)]]
-      res <- do.call(ColossusCoxStrataSurv, args[1:length(args) - 1])
+      res <- do.call(ColossusCoxStrataSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Final entry of FineGray object was not named correctly")
     }

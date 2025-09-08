@@ -1193,8 +1193,6 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   tform <- poismodel$tform
   keep_constant <- poismodel$keep_constant
   modelform <- poismodel$modelform
-  cons_mat <- as.matrix(c(0))
-  cons_vec <- c(0)
   strat_col <- poismodel$strata
   #
   calls <- poismodel$expres_calls
@@ -1304,8 +1302,6 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   tform <- poismodel$tform
   keep_constant <- poismodel$keep_constant
   modelform <- poismodel$modelform
-  cons_mat <- as.matrix(c(0))
-  cons_vec <- c(0)
   strat_col <- poismodel$strata
   #
   calls <- poismodel$expres_calls
@@ -1327,11 +1323,6 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
     control <- object$control
   }
   model_control <- object$modelcontrol
-  #
-  if (model_control[["constraint"]]) {
-    cons_mat <- res$constraint_matrix
-    cons_vec <- res$constraint_vector
-  }
   #
   if ((pearson == deviance) && (pearson)) {
     stop("Both pearson and deviance cannot be used at once, select only one")
