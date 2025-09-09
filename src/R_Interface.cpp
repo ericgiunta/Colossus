@@ -1,12 +1,11 @@
 #include <RcppEigen.h>
+
+#include "R_Interface.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include "R_Interface.h"
-#include "Main_Functions.h"
-#include "Main_Bound.h"
-#include "Main_Multi.h"
-#include "Plot_Extensions.h"
+
+#include <Eigen/Core>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -14,11 +13,15 @@
 #include <chrono>
 #include <random>
 #include <ctime>
-#include <Eigen/Core>
+
+#include "Main_Functions.h"
+#include "Main_Bound.h"
+#include "Main_Multi.h"
+#include "Plot_Extensions.h"
 
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::plugins(openmp)]]
+//  [[Rcpp::depends(RcppEigen)]]
+//  [[Rcpp::plugins(openmp)]]
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
@@ -56,7 +59,7 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
     int double_step = Control["double_step"];
     int verbose = Control["verbose"];
@@ -69,8 +72,8 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
     //
     const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
@@ -93,12 +96,10 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
-            _["cox"] = true
-    );
+            _["cox"] = true);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     if (model_bool["gradient"]) {
         model_bool["momentum"] = model_control["momentum"];
         model_bool["adadelta"] = model_control["adadelta"];
@@ -108,7 +109,7 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
     }
     //
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
@@ -123,13 +124,12 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
     //
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
     //
-    
     int double_step = Control["double_step"];
     int verbose = Control["verbose"];
     //
@@ -141,7 +141,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVect
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
+    double deriv_epsilon = Control["deriv_epsilon"];
     int nthreads = Control["ncores"];
     //
     double gmix_theta = model_control["gmix_theta"];
@@ -162,12 +162,10 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVect
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
-            _["cox"] = false
-    );
+            _["cox"] = false);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     if (model_bool["gradient"]) {
         model_bool["momentum"] = model_control["momentum"];
         model_bool["adadelta"] = model_control["adadelta"];
@@ -177,7 +175,7 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVect
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
     }
     //
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Pois_Omnibus(PyrC, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, double_step, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
@@ -192,11 +190,11 @@ List pois_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVect
 //' @return list of assigned/predicted background/excess events
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control) {
     int verbose = Control["verbose"];
     //
-    string ties_method =Control["ties"];
+    string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
     //
     double gmix_theta = model_control["gmix_theta"];
@@ -216,9 +214,8 @@ List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0, Int
             _["outcome_prob"] = false,
             _["constraint"] = false,
             _["log_bound"] = false,
-            _["cox"] = false
-    );
-    // Performs regression
+            _["cox"] = false);
+    //  Performs regression
     List res;
     //----------------------------------------------------------------------------------------------------------------//
     res = Assign_Events_Pois(term_n, tform, a_n, x_all, dfc, PyrC, dfs, fir, modelform, verbose, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term, model_bool);
@@ -234,13 +231,13 @@ List Assigned_Event_Poisson_transition(NumericMatrix dfe, NumericMatrix df0, Int
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, int der_iden, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control) {
     int verbose = Control["verbose"];
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    string ties_method =Control["ties"];
+    string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
     //
     const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
@@ -253,15 +250,14 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
             _["basic"] = model_control["basic"],
             _["linear_err"] = model_control["linear_err"],
             _["observed_info"] = model_control["observed_info"],
-            _["null"] =false,
+            _["null"] = false,
             _["cr"] = model_control["cr"],
             _["single"] = false,
             _["gradient"] = false,
             _["outcome_prob"] = false,
             _["constraint"] = false,
             _["log_bound"] = false,
-            _["cox"] = true
-    );
+            _["cox"] = true);
     //
     bool Surv_bool      = model_control["surv"];
     bool Schoenfeld_bool = model_control["schoenfeld"];
@@ -269,7 +265,7 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
     bool Risk_Sub_bool  = model_control["risk_subset"];
     int uniq_v          = model_control["unique_values"];
     //
-    // Performs regression
+    //  Performs regression
     List res;
     if (uniq_v < 2) {
         res = List::create(_["Failed"] = "Unique_Values too low, expects atleast 2 values");
@@ -289,7 +285,7 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
     int verbose = Control["verbose"];
     //
@@ -301,8 +297,8 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
     //
     const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
@@ -326,12 +322,10 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = true,
-            _["cox"] = true
-    );
+            _["cox"] = true);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
@@ -339,7 +333,7 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
     int maxstep    = model_control["maxstep"];
     //
     bool manual   = model_control["manual"];
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     if (manual) {
@@ -358,7 +352,7 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
     int verbose = Control["verbose"];
     //
@@ -370,8 +364,8 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
     //
     const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
@@ -394,12 +388,10 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = true,
-            _["cox"] = true
-    );
+            _["cox"] = true);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
@@ -407,10 +399,9 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
     int maxstep    = model_control["maxstep"];
     double step_size    = model_control["step_size"];
     //
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res;
-    // if (manual) {
     res = LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, double_step, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
@@ -424,7 +415,7 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
@@ -439,7 +430,7 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
+    double deriv_epsilon = Control["deriv_epsilon"];
     int nthreads = Control["ncores"];
     //
     //
@@ -461,12 +452,10 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
-            _["cox"] = false
-    );
+            _["cox"] = false);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
@@ -474,17 +463,10 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
     int maxstep    = model_control["maxstep"];
     double step_size = model_control["step_size"];
     //
-//    bool manual   = model_control["manual"];
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     res = LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, double_step, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
-    //    LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, optim_para, maxiter, doublestep, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, step_size);
-    // if (manual) {
-    //     res = LogLik_Poisson_Omnibus_Log_Bound_Search(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
-    // } else {
-    //     res = LogLik_Poisson_Omnibus_Log_Bound(PyrC, dfs, term_n, tform, a_n, x_all, dfc, fir, modelform, lr, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res, qchi, para_number, maxstep, mult);
-    // }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -497,7 +479,7 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
@@ -512,7 +494,7 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, Str
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
+    double deriv_epsilon = Control["deriv_epsilon"];
     int nthreads = Control["ncores"];
     //
     //
@@ -535,12 +517,10 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, Str
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
-            _["cox"] = false
-    );
+            _["cox"] = false);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
@@ -548,7 +528,7 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, Str
     int maxstep    = model_control["maxstep"];
     //
     bool manual   = model_control["manual"];
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     if (manual) {
@@ -568,7 +548,7 @@ List pois_Omnibus_Bounds_transition(NumericMatrix dfe, IntegerVector term_n, Str
 //' @return Poisson_Residuals output : list of residuals and sum
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control) {
     //
     const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
@@ -598,9 +578,8 @@ List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVec
             _["outcome_prob"] = false,
             _["constraint"] = false,
             _["log_bound"] = false,
-            _["cox"] = false
-    );
-    // Performs regression
+            _["cox"] = false);
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = Poisson_Residuals(PyrC, term_n, tform, a_n, x_all, dfc, fir, modelform, step_max, thres_step_max, verbose, KeepConstant, term_tot, nthreads, dfs, model_bool, gmix_theta, gmix_term, Pearson_bool, Deviance_bool);
     //----------------------------------------------------------------------------------------------------------------//
@@ -615,9 +594,8 @@ List pois_Residual_transition(NumericMatrix dfe, IntegerVector term_n, StringVec
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, NumericMatrix& x_all, NumericMatrix& dose_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, NumericVector cens_vec, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
-    
     int double_step = Control["double_step"];
     int verbose = Control["verbose"];
     //
@@ -628,8 +606,8 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
     //
     const Map<VectorXd> cens_weight(as<Map<VectorXd> >(cens_vec));
@@ -652,12 +630,10 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
-            _["cox"] = true
-    );
+            _["cox"] = true);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     if (model_bool["gradient"]) {
         model_bool["momentum"] = model_control["momentum"];
         model_bool["adadelta"] = model_control["adadelta"];
@@ -667,7 +643,7 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
     }
     //
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     bool IntegratedSerial = model_control["mcml"];
@@ -688,9 +664,8 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
 //' @return LogLik_CaseCon_Omnibus output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, NumericMatrix df_groups, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
-    
     int double_step = Control["double_step"];
     int verbose = Control["verbose"];
     //
@@ -702,8 +677,8 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
     //
     double step_max = Control["step_max"];
     double thres_step_max = Control["thres_step_max"];
-    double deriv_epsilon =Control["deriv_epsilon"];
-    string ties_method =Control["ties"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
     //
     double gmix_theta = model_control["gmix_theta"];
@@ -726,12 +701,10 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
             _["constraint"] = model_control["constraint"],
             _["observed_info"] = true,
             _["log_bound"] = false,
-            _["cox"] = false
-    );
+            _["cox"] = false);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
-            _["double_step"] = Control["double_step"]
-    );
+            _["double_step"] = Control["double_step"]);
     if (model_bool["gradient"]) {
         model_bool["momentum"] = model_control["momentum"];
         model_bool["adadelta"] = model_control["adadelta"];
@@ -741,7 +714,7 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
     }
     //
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_CaseCon_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, double_step, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
@@ -757,18 +730,18 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
 //' @return saves a dataframe to be used with time-dependent covariate analysis
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event, double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox, int nthreads) {
     const Map<MatrixXd> df_Times(as<Map<MatrixXd> >(df0_Times));
     const Map<MatrixXd> df_dep(as<Map<MatrixXd> >(df0_dep));
     const Map<MatrixXd> df_const(as<Map<MatrixXd> >(df0_const));
-    Rcout.precision(10);  // forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     int tot_covs = ceil(2 + df_dep.cols()/2 + df_const.cols() + 1);
     int max_rows = 0;
     if (iscox) {
         max_rows = tu.size();
         dt = tu[1] - tu[0];
-        for (int i  = 0; i<tu.size() - 1; i++) {
+        for (int i  = 0; i < tu.size() - 1; i++) {
             if (dt > (tu[i + 1] - tu[i])) {
                 dt = tu[i + 1] - tu[i];
             }
@@ -780,18 +753,18 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
     VectorXd row_store = VectorXd::Zero(tot_covs);
     MatrixXd new_row_store = MatrixXd::Zero(max_rows, tot_covs);
     //
-    const static IOFormat CSVFormat(FullPrecision, DontAlignCols, ", ", "\n");
+    static const IOFormat CSVFormat(FullPrecision, DontAlignCols, ", ", "\n");
     ofstream file(filename);
     //
     int serial_0 = 0;
     int serial_1 = 0;
-    for (int i_row = 0; i_row<df_Times.rows(); i_row++) {
+    for (int i_row = 0; i_row < df_Times.rows(); i_row++) {
         new_row_store = MatrixXd::Zero(max_rows, tot_covs);
         if (iscox) {
             True_Rows = 0;
             serial_0 = 0;
             serial_1 = 0;
-            for (int i = 0; i<tu.size(); i++) {
+            for (int i = 0; i < tu.size(); i++) {
                 if (df_Times.coeff(i_row, 1) >= tu[i]) {
                     serial_1 = i;
                 }
@@ -803,7 +776,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
             #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             #endif
-            for (int i_inner=serial_0; i_inner<serial_1 + 1; i_inner++) {
+            for (int i_inner=serial_0; i_inner < serial_1 + 1; i_inner++) {
                 VectorXd dep_temp = VectorXd::Zero(df_dep.cols()/2);
                 double t0 = tu[i_inner]- dt/2;
                 double t1 = tu[i_inner];
@@ -818,8 +791,8 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 double temp_tok  = 0;
                 int gather_val = 0;
                 char tok_char = 'a';
-                // step string is either g, l, a, b for >=, <=, >, <
-                for (int i = 0;  i<dep_temp.size(); i++) {
+                //  step string is either g, l, a, b for >=, <=, >, <
+                for (int i = 0;  i < dep_temp.size(); i++) {
                     func_id = as<std::string>(tform_tdep[i]);
                     if (func_id == "lin") {
                         dep_temp[i] = ratio * df_dep.coeff(i_row, 2*i + 1) + (1 - ratio) * df_dep.coeff(i_row, 2*i);
@@ -836,7 +809,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                                 if (tok_char == 'g') {
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t1>temp_tok) {
+                                    if (t1 > temp_tok) {
                                         gather_val = gather_val + 1;
                                     }
                                     if (t1 == temp_tok) {
@@ -845,7 +818,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                                 } else if (tok_char == 'l') {
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t1<temp_tok) {
+                                    if (t1 < temp_tok) {
                                         gather_val = gather_val + 1;
                                     }
                                     if (t1 == temp_tok) {
@@ -854,13 +827,13 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                                 } else if (tok_char == 'a') {
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t1>temp_tok) {
+                                    if (t1 > temp_tok) {
                                         gather_val = gather_val + 1;
                                     }
                                 } else if (tok_char == 'b') {
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t1<temp_tok) {
+                                    if (t1 < temp_tok) {
                                         gather_val = gather_val + 1;
                                     }
                                 } else {
@@ -886,9 +859,9 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
             #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
             #endif
-            for (int i_inner = 0; i_inner<True_Rows; i_inner++) {
+            for (int i_inner = 0; i_inner < True_Rows; i_inner++) {
                 VectorXd dep_temp = VectorXd::Zero(df_dep.cols()/2);
-                double ratio = (i_inner+0.5)/True_Rows;
+                double ratio = (i_inner+0.5) / True_Rows;
                 double t0 = df_Times.coeff(i_row, 0) + i_inner * dt;
                 double t1 = t0 + dt;
                 string func_id = "";
@@ -898,7 +871,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 double temp_tok  = 0;
                 int gather_val = 0;
                 char tok_char = 'a';
-                for (int i = 0;  i<dep_temp.size(); i++) {
+                for (int i = 0;  i < dep_temp.size(); i++) {
                     func_id = as<std::string>(tform_tdep[i]);
                     if (func_id == "lin") {
                         dep_temp[i] = ratio * df_dep.coeff(i_row, 2*i + 1) + (1 - ratio) * df_dep.coeff(i_row, 2*i);
@@ -915,13 +888,13 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                                 if (tok_char == 'u') {
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t0>=temp_tok) {
+                                    if (t0 >= temp_tok) {
                                         gather_val = gather_val + 1;
                                     }
                                 } else if (tok_char == 'l') {
                                     token.pop_back();
                                     temp_tok = stod(token);
-                                    if (t1<=temp_tok) {
+                                    if (t1 <= temp_tok) {
                                         gather_val = gather_val + 1;
                                     }
                                 } else {
@@ -959,7 +932,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
 //' @return saves a dataframe to be used with time-dependent covariate analysis
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, const NumericVector cols, const int nthreads) {
     const Map<MatrixXd> df(as<Map<MatrixXd> >(df0));
     MatrixXd Mat_Fac = MatrixXd::Zero(df.rows(), vals.size());
@@ -970,14 +943,14 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
     for (int ijk = 0; ijk < vals.size(); ijk++) {
         double col_c = cols[ijk];
         double val_c = vals[ijk];
-        VectorXi select_ind_all = ((df.col(col_c).array() == val_c)).cast<int>();  // indices at risk
+        VectorXi select_ind_all = ((df.col(col_c).array() == val_c)).cast<int>();  //  indices at risk
         //
         //
         int th = 1;
         visit_lambda(select_ind_all,
             [&Mat_Fac, ijk, th](double v, int i, int j) {
                 if (v == th)
-                    Mat_Fac(i, ijk) =1;
+                    Mat_Fac(i, ijk) = 1;
             });
         //
     }
@@ -993,7 +966,7 @@ NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, con
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 bool risk_check_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot) {
     int verbose = Control["verbose"];
     //
@@ -1001,7 +974,7 @@ bool risk_check_transition(IntegerVector term_n, StringVector tform, NumericVect
     double gmix_theta = model_control["gmix_theta"];
     IntegerVector gmix_term = model_control["gmix_term"];
     //
-    // Performs regression
+    //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     bool res = Check_Risk(term_n, tform, a_n, x_all, dfc, fir, modelform, verbose, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term);
     //----------------------------------------------------------------------------------------------------------------//
@@ -1017,7 +990,7 @@ bool risk_check_transition(IntegerVector term_n, StringVector tform, NumericVect
 //' @return assigns weight in place and returns nothing
 //' @noRd
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& term_n, const int& term_tot) {
     ArrayXd Pyrs  = dfs.transpose() * PyrC.col(0);
     ArrayXd Events = dfs.transpose() * PyrC.col(1);
@@ -1028,30 +1001,30 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     //
     vector<int> lin_count(term_tot, 0);
     vector<int> dose_count(term_tot, 0);
-    for (int ij = 0; ij<(term_n.size()); ij++) {
+    for (int ij = 0; ij < (term_n.size()); ij++) {
         int tn = term_n[ij];
-        if (as< string>(tform[ij]) == "loglin") {  // setting parameters to zero makes the subterm 1
-        } else if (as< string>(tform[ij]) == "lin") {  // setting parameters to zero makes the subterm 0
+        if (as<string>(tform[ij]) == "loglin") {  //  setting parameters to zero makes the subterm 1
+        } else if (as<string>(tform[ij]) == "lin") {  //  setting parameters to zero makes the subterm 0
             lin_count[tn] = lin_count[tn] + 1.0;
-        } else if (as< string>(tform[ij]) == "plin") {  // setting parameters to zero makes the subterm 1
-        } else if (as< string>(tform[ij]) == "loglin_slope") {  // the slope paremeter sets the element to 0
-        } else if (as< string>(tform[ij]) == "loglin_top") {  // the top parameter sets the element to 1
+        } else if (as<string>(tform[ij]) == "plin") {  //  setting parameters to zero makes the subterm 1
+        } else if (as<string>(tform[ij]) == "loglin_slope") {  //  the slope paremeter sets the element to 0
+        } else if (as<string>(tform[ij]) == "loglin_top") {  //  the top parameter sets the element to 1
             if (ij == 0) {
                 dose_count[tn] = dose_count[tn] + 1.0;
             } else if (tform[ij - 1] != "loglin_slope") {
                 dose_count[tn] = dose_count[tn] + 1.0;
                 //
             } else {}
-        } else if (as< string>(tform[ij]) == "lin_slope") {  // every other dose term sets the elements to 0
-        } else if (as< string>(tform[ij]) == "lin_int") {
-        } else if (as< string>(tform[ij]) == "quad_slope") {
-        } else if (as< string>(tform[ij]) == "step_slope") {
-        } else if (as< string>(tform[ij]) == "step_int") {
-        } else if (as< string>(tform[ij]) == "lin_quad_slope") {
-        } else if (as< string>(tform[ij]) == "lin_quad_int") {
-        } else if (as< string>(tform[ij]) == "lin_exp_slope") {
-        } else if (as< string>(tform[ij]) == "lin_exp_int") {
-        } else if (as< string>(tform[ij]) == "lin_exp_exp_slope") {
+        } else if (as<string>(tform[ij]) == "lin_slope") {  //  every other dose term sets the elements to 0
+        } else if (as<string>(tform[ij]) == "lin_int") {
+        } else if (as<string>(tform[ij]) == "quad_slope") {
+        } else if (as<string>(tform[ij]) == "step_slope") {
+        } else if (as<string>(tform[ij]) == "step_int") {
+        } else if (as<string>(tform[ij]) == "lin_quad_slope") {
+        } else if (as<string>(tform[ij]) == "lin_quad_int") {
+        } else if (as<string>(tform[ij]) == "lin_exp_slope") {
+        } else if (as<string>(tform[ij]) == "lin_exp_int") {
+        } else if (as<string>(tform[ij]) == "lin_exp_exp_slope") {
         } else {
             throw invalid_argument("incorrect subterm type");
         }
@@ -1059,33 +1032,33 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
     //
     vector<double> term_val(term_tot, 0);
     for (int ijk = 0;  ijk < term_tot; ijk++) {
-        if (dose_count[ijk] == 0) {  // If the dose term isn't used, then the default value is 1
+        if (dose_count[ijk] == 0) {  //  If the dose term isn't used, then the default value is 1
             dose_count[ijk] = 1.0;
         }
-        if (lin_count[ijk] == 0) {  // if the linear term isn't used, the entire term is 1 times the dose term value
+        if (lin_count[ijk] == 0) {  //  if the linear term isn't used, the entire term is 1 times the dose term value
             term_val[ijk] = dose_count[ijk];
-        } else {  // if the linear term is used, the entire term is 0
+        } else {  //  if the linear term is used, the entire term is 0
             term_val[ijk] = 0;
         }
     }
     double default_val = 0;
     if (modelform == "A") {
-        for (int i = 0;  i<term_tot; i++) {
+        for (int i = 0;  i < term_tot; i++) {
             default_val += term_val[i];
         }
-    }else if (modelform == "PA") {
-        for (int i=1; i<term_tot; i++) {
+    } else if (modelform == "PA") {
+        for (int i=1; i < term_tot; i++) {
             default_val += term_val[i];
         }
         default_val *= term_val[0];
-    }else if (modelform == "PAE") {
-        for (int i=1; i<term_tot; i++) {
+    } else if (modelform == "PAE") {
+        for (int i=1; i < term_tot; i++) {
             default_val += term_val[i];
         }
         default_val = (1 + default_val) * term_val[0];
-    }else if (modelform == "M") {
-        default_val=1;
-        for (int i=1; i<term_tot; i++) {
+    } else if (modelform == "M") {
+        default_val = 1;
+        for (int i = 1; i < term_tot; i++) {
             default_val *= (1+term_val[i]);
         }
         default_val *= term_val[0];
@@ -1104,7 +1077,7 @@ void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& Pyr
 //'
 //' @return boolean: True for OMP allowed
 //'
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 bool OMP_Check() {
     bool res = false;
     #ifdef _OPENMP

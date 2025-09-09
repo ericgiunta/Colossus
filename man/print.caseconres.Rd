@@ -19,7 +19,6 @@ return nothing, prints the results to console
 }
 \seealso{
 Other Output and Information Functions: 
-\code{\link{Interpret_Output}()},
 \code{\link{System_Version}()},
 \code{\link{print.coxres}()},
 \code{\link{print.poisres}()}

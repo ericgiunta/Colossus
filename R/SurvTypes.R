@@ -332,8 +332,6 @@ get_form_surv <- function(surv_obj, df) {
   }
   surv_type <- tolower(substr(surv_obj, 1, second_split - 1))
   surv_paras <- substr(surv_obj, second_split + 1, nchar(surv_obj) - 1)
-  #  surv_paras <- strsplit(surv_paras, ",")[[1]]
-  #  surv_paras <- strsplit(surv_paras, ",|(?>\\(.*?\\).*?\\K(,|$))", perl = TRUE)[[1]]
   surv_paras <- nested_split(surv_paras)
   # assign survival model values
   surv_model_type <- surv_type
@@ -540,13 +538,13 @@ get_form_risk <- function(model_obj, df) {
             factor_args <- substr(model_paras[subterm_i], 3, nchar(model_paras[subterm_i]) - 1)
             repeat_list <- c(list("_exp_type" = "power"), list(factor_args))
             vals <- strsplit(factor_args, "\\^")[[1]]
-            if (length(vals) != 2){
-                stop("I() currently only available for I(var^n)")
+            if (length(vals) != 2) {
+              stop("I() currently only available for I(var^n)")
             }
             col <- vals[1]
             raised <- vals[2]
-            if (!(col %in% names(df))){
-                stop(paste("Column: ", col, " not in data", sep = ""))
+            if (!(col %in% names(df))) {
+              stop(paste("Column: ", col, " not in data", sep = ""))
             }
             options(warn = -1)
             if (all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x))) || all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x)))) {
@@ -720,8 +718,6 @@ get_form_risk <- function(model_obj, df) {
               }
             }
             expres_calls[[length(expres_calls) + 1]] <- repeat_list
-            # ----------------------------------------------------------------------------------- #
-            # stop(paste("Currently unsupported function call: ", model_paras[subterm_i]))
           }
         } else if (grepl("\\*", model_paras[subterm_i])) {
           # interaction element
@@ -1102,8 +1098,6 @@ ColossusExpressionCall <- function(calls, df) {
           }
         }
       }
-      # --------------------------------------------------------------------- #
-      # stop(paste("Currently unsupported function call: ", call[["_exp_type"]]))
     }
   }
   df

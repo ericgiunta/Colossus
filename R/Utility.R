@@ -138,15 +138,6 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a filled list
-#' @export
-#' @examples
-#' library(data.table)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' control <- Def_Control(control)
-#'
 Def_Control <- function(control) {
   control_def <- list(
     "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
@@ -189,27 +180,6 @@ Def_Control <- function(control) {
     control$ncores <- 1 # nocov
     warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
   }
-  #  OpenMP <- OMP_Check()
-  #  if (!OpenMP) {
-  #    warning("Warning: OpenMP not detected, cores set to 1")
-  #    control$ncores <- 1 # nocov
-  #  }
-  #  if ((Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") && (control$ncores > 1)) {
-  #    os <- get_os()
-  #    if (os == "linux") {
-  #      cpp_compiler <- gcc_version()
-  #      if (cpp_compiler == "gcc") {
-  #        R_compiler <- Rcomp_version()
-  #        if (R_compiler != "gcc") { # nocov
-  #          control$ncores <- 1 # nocov
-  #          warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
-  #        }
-  #      } else if (cpp_compiler == "clang") { # nocov
-  #        control$ncores <- 1 # nocov
-  #        warning("Warning: linux machine using clang, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
-  #      }
-  #    }
-  #  }
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
@@ -255,12 +225,6 @@ Def_Control <- function(control) {
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a filled list
-#' @export
-#' @examples
-#' library(data.table)
-#' control <- list("single" = TRUE)
-#' control <- Def_model_control(control)
-#'
 Def_model_control <- function(control) {
   names(control) <- tolower(names(control))
   control_def_names <- c(
@@ -557,18 +521,6 @@ factorize <- function(df, col_list, verbose = 0) {
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
-#' @export
-#' @examples
-#' library(data.table)
-#' a <- c(0, 1, 2, 3, 4, 5, 6)
-#' b <- c(1, 2, 3, 4, 5, 6, 7)
-#' c <- c(0, 1, 2, 1, 0, 1, 0)
-#' df <- data.table::data.table("a" = a, "b" = b, "c" = c)
-#' col_list <- c("c")
-#' val <- factorize_par(df, col_list, FALSE, 2)
-#' df <- val$df
-#' new_col <- val$cols
-#'
 factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detectCores())) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -610,81 +562,6 @@ factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detec
     verbose, TRUE
   )
   list("df" = cbind(df, df0), "cols" = col_keep)
-}
-
-#' Defines Interactions
-#'
-#' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
-#'
-#' @inheritParams R_template
-#' @family Data Cleaning Functions
-#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
-#' @export
-#' @examples
-#' library(data.table)
-#' a <- c(0, 1, 2, 3, 4, 5, 6)
-#' b <- c(1, 2, 3, 4, 5, 6, 7)
-#' c <- c(0, 1, 2, 1, 0, 1, 0)
-#' df <- data.table::data.table("a" = a, "b" = b, "c" = c)
-#' interactions <- c("a?+?b", "a?*?c")
-#' new_names <- c("ab", "ac")
-#' vals <- interact_them(df, interactions, new_names)
-#' df <- vals$df
-#' new_col <- vals$cols
-interact_them <- function(df, interactions, new_names, verbose = 0) {
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        df <- setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  verbose <- Check_Verbose(verbose)
-  cols <- c()
-  for (i in seq_len(length(interactions))) {
-    interac <- interactions[i]
-    formula <- unlist(strsplit(interac, "[?]"), use.names = FALSE)
-    if (length(formula) != 3) {
-      stop(paste(
-        "Error: Iteration:", interac, "has incorrect length of",
-        length(formula), "but should be 3."
-      ))
-    }
-    newcol <- paste(formula[1], formula[2], formula[3], sep = "")
-    if (new_names[i] != "") {
-      newcol <- new_names[i]
-    }
-    col1 <- formula[1]
-    col2 <- formula[3]
-    if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
-      if (verbose >= 2) {
-        warning(paste("Warning: interation ", i, "is duplicated")) # nocov
-      }
-    } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
-      if (verbose >= 2) {
-        warning(paste(
-          "Warning: the reverse of interation ", i,
-          "is duplicated"
-        )) # nocov
-      }
-    } else {
-      if (formula[2] == "+") {
-        df[, newcol] <- df[, col1, with = FALSE] +
-          df[, col2, with = FALSE]
-        cols <- c(cols, newcol)
-      } else if (formula[2] == "*") {
-        df[, newcol] <- df[, col1, with = FALSE] *
-          df[, col2, with = FALSE]
-        cols <- c(cols, newcol)
-      } else {
-        stop(paste("Error: Incorrect operation of", formula[2]))
-      }
-    }
-  }
-  list("df" = df, "cols" = cols)
 }
 
 #' Defines the likelihood ratio test
@@ -816,23 +693,6 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the updated data and time period columns
-#' @export
-#' @examples
-#' library(data.table)
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' ce <- c("%trunc%", "Ending_Age")
-#' val <- Check_Trunc(df, ce)
-#' df <- val$df
-#' ce <- val$ce
-#'
 Check_Trunc <- function(df, ce, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -1289,6 +1149,69 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
     }
   }
   return(list("df" = df0, "names" = names, "term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n))
+}
+
+#' Defines Interactions
+#'
+#' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
+#'
+#' @inheritParams R_template
+#' @family Data Cleaning Functions
+#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
+interact_them <- function(df, interactions, new_names, verbose = 0) {
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
+  verbose <- Check_Verbose(verbose)
+  cols <- c()
+  for (i in seq_len(length(interactions))) {
+    interac <- interactions[i]
+    formula <- unlist(strsplit(interac, "[?]"), use.names = FALSE)
+    if (length(formula) != 3) {
+      stop(paste(
+        "Error: Iteration:", interac, "has incorrect length of",
+        length(formula), "but should be 3."
+      ))
+    }
+    newcol <- paste(formula[1], formula[2], formula[3], sep = "")
+    if (new_names[i] != "") {
+      newcol <- new_names[i]
+    }
+    col1 <- formula[1]
+    col2 <- formula[3]
+    if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
+      if (verbose >= 2) {
+        warning(paste("Warning: interation ", i, "is duplicated")) # nocov
+      }
+    } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
+      if (verbose >= 2) {
+        warning(paste(
+          "Warning: the reverse of interation ", i,
+          "is duplicated"
+        )) # nocov
+      }
+    } else {
+      if (formula[2] == "+") {
+        df[, newcol] <- df[, col1, with = FALSE] +
+          df[, col2, with = FALSE]
+        cols <- c(cols, newcol)
+      } else if (formula[2] == "*") {
+        df[, newcol] <- df[, col1, with = FALSE] *
+          df[, col2, with = FALSE]
+        cols <- c(cols, newcol)
+      } else {
+        stop(paste("Error: Incorrect operation of", formula[2]))
+      }
+    }
+  }
+  list("df" = df, "cols" = cols)
 }
 
 #' Checks system OS
@@ -2109,50 +2032,6 @@ print.caseconres <- function(x, ...) {
 #' @inheritParams R_template
 #'
 #' @return return nothing, prints the results to console
-#' @export
-#' @family Output and Information Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
-#' # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
-#'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "step_max" = 1.0, "thres_step_max" = 100.0,
-#'   "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
-#' )
-#' e <- RunCoxRegression_Omnibus(df, time1, time2, event,
-#'   names, term_n, tform, keep_constant,
-#'   a_n, modelform, control,
-#'   model_control = list(
-#'     "single" = FALSE,
-#'     "basic" = FALSE, "cr" = FALSE, "null" = FALSE
-#'   )
-#' )
-#' Interpret_Output(e)
-#'
 Interpret_Output <- function(out_list, digits = 2) {
   # make sure the output isn't an error
   passed <- out_list$Status

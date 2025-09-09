@@ -22,18 +22,6 @@ returns a list with two named fields. df for the updated dataframe, and cols for
 \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 Not for interaction terms
 }
-\examples{
-library(data.table)
-a <- c(0, 1, 2, 3, 4, 5, 6)
-b <- c(1, 2, 3, 4, 5, 6, 7)
-c <- c(0, 1, 2, 1, 0, 1, 0)
-df <- data.table::data.table("a" = a, "b" = b, "c" = c)
-col_list <- c("c")
-val <- factorize_par(df, col_list, FALSE, 2)
-df <- val$df
-new_col <- val$cols
-
-}
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},

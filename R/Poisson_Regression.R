@@ -211,7 +211,6 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }
 
@@ -260,7 +259,6 @@ RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term
     a_n, modelform, control,
     strat_col
   )
-  # df <- copy(df)
   return(e)
 }
 
@@ -346,7 +344,6 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     modelform, control, keep_constant,
     term_tot, model_control
   )
-  # df <- copy(df)
   return(e)
 }
 
@@ -403,7 +400,6 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
     "lower_limit" = e_low, "midpoint" = e_mid,
     "upper_limit" = e_high
   )
-  # df <- copy(df)
   return(bound_results)
 }
 
@@ -537,7 +533,6 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ]),
     model_control
   )
-  # df <- copy(df)
   return(e)
 }
 
@@ -673,7 +668,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     model_control["alpha"] <- 0.05
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   }
-  para_num <- model_control$para_num + 1 # 3
+  para_num <- model_control$para_num + 1
   keep_constant[para_num] <- 1
   if (min(keep_constant) == 1) {
     model_control["single"] <- TRUE
@@ -689,6 +684,5 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e$Survival_Type <- "Poisson"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }

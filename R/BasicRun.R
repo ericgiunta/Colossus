@@ -669,7 +669,6 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   }
   control <- object$control
   model_control <- object$modelcontrol
-  # Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list())
   Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
 }
 
@@ -768,7 +767,6 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("control argument must be a list")
   }
-  # RunCoxPlots(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list())
   RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
 }
 

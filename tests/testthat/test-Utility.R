@@ -27,47 +27,6 @@ test_that("Check verbose, Fails", {
   expect_error(Check_Verbose(5))
   expect_error(Check_Verbose("true"))
 })
-## ------------------------------------- ##
-## Default control
-## ------------------------------------- ##
-
-test_that("Default control no error", {
-  control_def <- list()
-  expect_no_error(Def_Control(control_def))
-})
-
-## ------------------------------------- ##
-## Truncation
-## ------------------------------------- ##
-
-test_that("No truncation columns", {
-  df <- data.table("time0" = c(0, 1, 2, 3, 4, 5, 6), "time1" = c(1, 2, 3, 4, 5, 6, 7), "dummy" = c(0, 0, 1, 1, 0, 1, 0))
-  expect_equal(Check_Trunc(df, c("time0", "time1"))$ce, c("time0", "time1"))
-})
-test_that("Right truncation columns", {
-  df <- data.table("time0" = c(0, 1, 2, 3, 4, 5, 6), "time1" = c(1, 2, 3, 4, 5, 6, 7), "dummy" = c(0, 0, 1, 1, 0, 1, 0))
-  expect_equal(Check_Trunc(df, c("%trunc%", "time1"))$ce, c("right_trunc", "time1"))
-})
-test_that("Left truncation columns", {
-  df <- data.table("time0" = c(0, 1, 2, 3, 4, 5, 6), "time1" = c(1, 2, 3, 4, 5, 6, 7), "dummy" = c(0, 0, 1, 1, 0, 1, 0))
-  expect_equal(Check_Trunc(df, c("time0", "%trunc%"))$ce, c("time0", "left_trunc"))
-})
-test_that("Truncation no column error", {
-  df <- data.table("time0" = c(0, 1, 2, 3, 4, 5, 6), "time1" = c(1, 2, 3, 4, 5, 6, 7), "dummy" = c(0, 0, 1, 1, 0, 1, 0))
-  expect_error(Check_Trunc(df, c()))
-})
-test_that("Truncation left column not in df error", {
-  df <- data.table("time0" = c(0, 1, 2, 3, 4, 5, 6), "time1" = c(1, 2, 3, 4, 5, 6, 7), "dummy" = c(0, 0, 1, 1, 0, 1, 0))
-  expect_error(Check_Trunc(df, c("timebad", "%trunc%")))
-})
-test_that("Truncation right column not in df error", {
-  df <- data.table("time0" = c(0, 1, 2, 3, 4, 5, 6), "time1" = c(1, 2, 3, 4, 5, 6, 7), "dummy" = c(0, 0, 1, 1, 0, 1, 0))
-  expect_error(Check_Trunc(df, c("%trunc%", "timebad")))
-})
-test_that("Truncation both sides", {
-  df <- data.table("time0" = c(0, 1, 2, 3, 4, 5, 6), "time1" = c(1, 2, 3, 4, 5, 6, 7), "dummy" = c(0, 0, 1, 1, 0, 1, 0))
-  expect_error(Check_Trunc(df, c("%trunc%", "%trunc%")))
-})
 
 ## ------------------------------------- ##
 ## Duplicate Columns
@@ -210,74 +169,6 @@ test_that("No Data Ratio test", {
   expect_error(Likelihood_Ratio_Test(a, b))
 })
 
-## ------------------------------------- ##
-## Interaction Terms
-## ------------------------------------- ##
-
-test_that("Iteract no dupes", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = c, "b" = c, "c" = c)
-  interactions <- c("a?+?b", "a?*?b")
-  new_names <- c("", "")
-  expect_equal(interact_them(df, interactions, new_names, FALSE)$cols, c("a+b", "a*b"))
-})
-test_that("Iteract no dupes with rename", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = c, "b" = c, "c" = c)
-  interactions <- c("a?+?b", "a?*?b")
-  new_names <- c("", "formtemp")
-  expect_equal(interact_them(df, interactions, new_names, FALSE)$cols, c("a+b", "formtemp"))
-})
-test_that("Iteract with direct dupes", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = c, "b" = c, "c" = c)
-  interactions <- c("a?+?b", "a?*?b", "a?+?b", "a?+?a")
-  new_names <- c("", "", "", "")
-  expect_equal(interact_them(df, interactions, new_names, TRUE)$cols, c("a*b", "a+b", "a+a"))
-})
-test_that("Iteract with reverse dupes", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = c, "b" = c, "c" = c)
-  interactions <- c("a?+?b", "a?*?b", "b?+?a", "a?+?a")
-  new_names <- c("", "", "", "")
-  expect_equal(interact_them(df, interactions, new_names, TRUE)$cols, c("a*b", "b+a", "a+a"))
-})
-test_that("Iteract formula long error", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = c, "b" = c, "c" = c)
-  interactions <- c("a?+?b?+c", "a?*?b")
-  new_names <- c("", "")
-  expect_error(interact_them(df, interactions, new_names, TRUE))
-})
-test_that("Iteract formula operation error", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = c, "b" = c, "c" = c)
-  interactions <- c("a?++?b", "a?*?b")
-  new_names <- c("", "")
-  expect_error(interact_them(df, interactions, new_names, TRUE))
-})
-test_that("Iteract formula operation error", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = c, "b" = c, "c" = c)
-  interactions <- c("a?++?b", "a?*?b")
-  new_names <- c("", "")
-  expect_error(interact_them(df, interactions, new_names, FALSE))
-})
-
 ######################################
 # FACTORING
 ######################################
@@ -310,32 +201,6 @@ test_that("Factorize survival lung, test", {
   data(cancer, package = "survival")
   col_list <- c("inst")
   expect_no_error(factorize(cancer, col_list, TRUE))
-})
-
-
-test_that("Factorize parallel factor", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(1, 1, 1, 1, 1, 1, 1)
-  df <- data.table("a" = a, "b" = b, "c" = c)
-  col_list <- c("c")
-  expect_equal(factorize_par(df, col_list, TRUE, 2)$cols, c("c_1"))
-})
-test_that("Factorize parallel discrete", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = a, "b" = b, "c" = c)
-  col_list <- c("a")
-  expect_equal(factorize_par(df, col_list, TRUE, 2)$cols, c("a_0", "a_1", "a_2", "a_3", "a_4", "a_5", "a_6"))
-})
-test_that("Factorize parallel missing", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(0, 0, 0, 0, 0, 0, 0)
-  df <- data.table("a" = a, "b" = b, "c" = c)
-  col_list <- c("d")
-  expect_error(factorize_par(df, col_list, TRUE, 2))
 })
 
 

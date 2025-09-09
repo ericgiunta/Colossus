@@ -357,7 +357,6 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
     c(1), keep_constant, term_tot, c(0),
     c(0), model_control
   )
-  # df <- copy(df)
   return(e)
 }
 
@@ -624,7 +623,6 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       control, age_unit, plot_type[2]
     )
   }
-  # df <- copy(df)
   return(plot_table)
 }
 
@@ -1023,6 +1021,5 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   e$Survival_Type <- "Cox"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }

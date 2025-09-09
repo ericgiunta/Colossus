@@ -15,12 +15,6 @@ returns a filled list
 \description{
 \code{Def_model_control} checks and assigns default values
 }
-\examples{
-library(data.table)
-control <- list("single" = TRUE)
-control <- Def_model_control(control)
-
-}
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},

@@ -21,18 +21,6 @@ returns a list with two named fields. df for the updated dataframe, and cols for
 \description{
 \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 }
-\examples{
-library(data.table)
-a <- c(0, 1, 2, 3, 4, 5, 6)
-b <- c(1, 2, 3, 4, 5, 6, 7)
-c <- c(0, 1, 2, 1, 0, 1, 0)
-df <- data.table::data.table("a" = a, "b" = b, "c" = c)
-interactions <- c("a?+?b", "a?*?c")
-new_names <- c("ab", "ac")
-vals <- interact_them(df, interactions, new_names)
-df <- vals$df
-new_col <- vals$cols
-}
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},

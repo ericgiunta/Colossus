@@ -261,7 +261,6 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
   }
   #
-  # e <- list()
   e <- caco_Omnibus_transition(
     term_n, tform, a_ns, dfc, x_all, 0,
     modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
@@ -278,6 +277,5 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   e$Survival_Type <- "CaseControl"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }
