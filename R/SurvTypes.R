@@ -445,8 +445,6 @@ get_form_surv <- function(surv_obj, df) {
 #' @family Formula Interpretation
 get_form_risk <- function(model_obj, df) {
   #
-  ..new_name <- NULL
-  #
   model_obj <- gsub(" ", "", model_obj)
   term_n <- c()
   tform <- c()
@@ -537,6 +535,28 @@ get_form_risk <- function(model_obj, df) {
             col_name <- val$cols
             level_ref <- paste(factor_col, levels(xtemp)[1], sep = "_")
             col_name <- col_name[col_name != level_ref]
+            expres_calls[[length(expres_calls) + 1]] <- repeat_list
+          } else if (substr(model_paras[subterm_i], 1, 2) == "I(") {
+            factor_args <- substr(model_paras[subterm_i], 3, nchar(model_paras[subterm_i]) - 1)
+            repeat_list <- c(list("_exp_type" = "power"), list(factor_args))
+            vals <- strsplit(factor_args, "\\^")[[1]]
+            if (length(vals) != 2){
+                stop("I() currently only available for I(var^n)")
+            }
+            col <- vals[1]
+            raised <- vals[2]
+            if (!(col %in% names(df))){
+                stop(paste("Column: ", col, " not in data", sep = ""))
+            }
+            options(warn = -1)
+            if (all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x))) || all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x)))) {
+              options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
+              raised <- as.numeric(raised)
+            } else {
+              stop("Column was not raised to a numeric power")
+            }
+            col_name <- factor_args
+            df[[col_name]] <- df[[col]]^raised
             expres_calls[[length(expres_calls) + 1]] <- repeat_list
           } else if (substr(model_paras[subterm_i], 1, 3) == "ns(") {
             # natural cubic spline
@@ -888,7 +908,7 @@ get_form_risk <- function(model_obj, df) {
         new_name <- names[(tform == u_tform) & (term_n == u_term_n)]
         new_index <- og_index[(tform == u_tform) & (term_n == u_term_n)]
         if (length(new_name) > 1) {
-          df_temp <- df[, ..new_name]
+          df_temp <- df[, new_name, with = FALSE]
           removed <- c(0)
           for (i in 2:length(names(df_temp))) {
             new_rank <- qr(df_temp[, 1:i])$rank
@@ -949,6 +969,13 @@ ColossusExpressionCall <- function(calls, df) {
       df[[factor_col]] <- xtemp
       val <- factorize(df, factor_col)
       df <- val$df
+    } else if (call[["_exp_type"]] == "power") {
+      factor_args <- call[names(call) != "_exp_type"][[1]]
+      vals <- strsplit(factor_args, "\\^")[[1]]
+      col <- vals[1]
+      raised <- vals[2]
+      raised <- as.numeric(raised)
+      df[[factor_args]] <- df[[col]]^raised
     } else if (call[["_exp_type"]] == "ns") {
       # natural cubic spline
       factor_arg_list <- call[names(call) != "_exp_type"]

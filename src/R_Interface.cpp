@@ -474,7 +474,7 @@ List pois_Omnibus_CurveSearch_transition(NumericMatrix dfe, IntegerVector term_n
     int maxstep    = model_control["maxstep"];
     double step_size = model_control["step_size"];
     //
-    bool manual   = model_control["manual"];
+//    bool manual   = model_control["manual"];
     // Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res;

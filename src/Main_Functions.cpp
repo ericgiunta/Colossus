@@ -272,7 +272,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     bool convgd = FALSE;
     int iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    int iter_check = 0;  // signal to check for convergence
+//    int iter_check = 0;  // signal to check for convergence
     //
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
@@ -321,7 +321,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         //
         convgd = FALSE;
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         //
         maxiter = maxiters[guess];
         a_n = a_ns.row(guess);
@@ -404,7 +404,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                     // If it goes through every half step without improvement, then the maximum change needs to be decreased
                     step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
-                    iter_check = 1;
+//                    iter_check = 1;
                     //
                     beta_p = beta_best;  //
                     beta_a = beta_best;  //
@@ -422,7 +422,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                     dbeta_max = abs(dbeta[ij]);
                 }
             }
-            iter_check = 0;
+//            iter_check = 0;
             if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
                 iter_stop = 1;
             }
@@ -473,7 +473,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     convgd = FALSE;
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     //
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
@@ -572,7 +572,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
@@ -598,7 +598,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         }
 //        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-        iter_check = 0;
+//        iter_check = 0;
         if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
             iter_stop = 1;
             convgd = TRUE;
@@ -851,7 +851,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //
     bool convgd = FALSE;
     int iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    int iter_check = 0;  // signal to check for convergence
+//    int iter_check = 0;  // signal to check for convergence
     //
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
@@ -891,7 +891,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         beta_c = beta_best;  //
         step_max = step_max0;
         thres_step_max = thres_step_max0;
-        iter_check = 0;
+//        iter_check = 0;
         iter_stop = 0;
         halves = 0;
         iteration = 0;
@@ -902,7 +902,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         //
         convgd = FALSE;
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         //
         maxiter = maxiters[guess];
         a_n = a_ns.row(guess);
@@ -983,7 +983,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     // If it goes through every half step without improvement, then the maximum change needs to be decreased
                     step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
-                    iter_check = 1;
+//                    iter_check = 1;
                     beta_p = beta_best;  //
                     beta_a = beta_best;  //
                     beta_c = beta_best;  //
@@ -1010,7 +1010,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
             }
 //            if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
 //                if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
+//            iter_check = 0;
             if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
                 iter_stop = 1;
             }
@@ -1059,7 +1059,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     beta_c = beta_best;  //
     step_max = step_max0;
     thres_step_max = thres_step_max0;
-    iter_check = 0;
+//    iter_check = 0;
     iter_stop = 0;
     halves = 0;
     iteration = 0;
@@ -1069,7 +1069,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //
     convgd = FALSE;
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     //
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
@@ -1161,7 +1161,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 //
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -1188,7 +1188,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
         }
 //        if (iteration > reqrdnum) {  // doesn't check the first several iterations for convergence
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-        iter_check = 0;
+//        iter_check = 0;
         if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
             iter_stop = 1;
             convgd = TRUE;
@@ -1470,7 +1470,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     bool convgd = FALSE;
     int iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    int iter_check = 0;  // signal to check for convergence
+//    int iter_check = 0;  // signal to check for convergence
     //
     NumericMatrix strata_fin(a_ns.rows(), group_num);
     NumericMatrix beta_fin(a_ns.rows(), totalnum);
@@ -1484,7 +1484,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     ///
     // Variables that are used for the risk check function shared across cox, poisson, and log bound functions
     MatrixXd dev_temp = MatrixXd::Zero(1, 1);
-    double Lstar = 0.0;
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     //
     //
@@ -1522,7 +1521,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         //
         convgd = FALSE;
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         //
         maxiter = maxiters[guess];
         a_n = a_ns.row(guess);
@@ -1557,7 +1556,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         for (int i = 0; i < beta_0.size(); i++) {
             beta_c[i] = beta_0[i];
         }
-        for (int i = 0; i < strata_odds.size(); i++) {
+        for (std::vector<double>::size_type i = 0; i < strata_odds.size(); i++) {
             strata_c[i] = strata_odds[i];
         }
         while ((iteration < maxiter) && (iter_stop == 0)) {
@@ -1735,7 +1734,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                     // If it goes through every half step without improvement, then the maximum change needs to be decreased
                     step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
-                    iter_check = 1;
+//                    iter_check = 1;
                     //
                     beta_p = beta_best;  //
                     beta_a = beta_best;  //
@@ -1769,7 +1768,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 }
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
+//            iter_check = 0;
             if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
                 iter_stop = 1;
             }
@@ -1840,7 +1839,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     convgd = FALSE;
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     //
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
@@ -2063,7 +2062,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 //
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -2097,7 +2096,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             }
         }
 //        if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-        iter_check = 0;
+//        iter_check = 0;
         if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
             iter_stop = 1;
         }

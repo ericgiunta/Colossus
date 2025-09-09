@@ -188,10 +188,10 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, Num
         }
         int dj = indices_end[indices_end.size() - 1] - indices_end[0] + 1;  // number of events
         double Rs1 = 0;  // total risk
-        double Rds1 = 0;  // total weighted risk derivative squared
+//        double Rds1 = 0;  // total weighted risk derivative squared
         for (vector<double>::size_type i = 0; i < indices.size() - 1; i = i + 2) {
             Rs1 += R.block(indices[i] - 1, 0, indices[i + 1]-indices[i] + 1, 1).sum();
-            Rds1 += Rd.block(indices[i] - 1, 0, indices[i + 1]-indices[i] + 1, reqrdnum).sum();
+//            Rds1 += Rd.block(indices[i] - 1, 0, indices[i + 1]-indices[i] + 1, reqrdnum).sum();
         }
         baseline[ijk] = dj / Rs1;  // approximates the baseline hazard
         hazard_error[ijk] = dj / pow(Rs1, 2);

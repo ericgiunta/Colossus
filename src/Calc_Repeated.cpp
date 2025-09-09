@@ -358,11 +358,11 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
         }
     } else {
         if (!model_bool["single"]){
-            for (int i=0; i< Recur_First[0].size(); i++){
+            for (std::vector<std::vector<double> >::size_type i=0; i< Recur_First[0].size(); i++){
                 Recur_First[0][i] = risk_initial;
             }
             if (!model_bool["gradient"]){
-                for (int i=0; i< Recur_Second[0].size(); i++){
+                for (std::vector<std::vector<double> >::size_type i=0; i< Recur_Second[0].size(); i++){
                     Recur_Second[0][i] = risk_initial;
                 }
             }
@@ -493,7 +493,7 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                         strata_cond[s_ij] = 0;
                     }
                 } else {
-                    for (int i=0; i< Recur_First[s_ij].size(); i++){
+                    for (std::vector<std::vector<double> >::size_type i=0; i< Recur_First[s_ij].size(); i++){
                         Recur_First[s_ij][i] = risk_initial;
                     }
                 }
@@ -555,10 +555,10 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                         strata_cond[s_ij] = 0;
                     }
                 } else {
-                    for (int i=0; i< Recur_First[s_ij].size(); i++){
+                    for (std::vector<std::vector<double> >::size_type i=0; i< Recur_First[s_ij].size(); i++){
                         Recur_First[s_ij][i] = risk_initial;
                     }
-                    for (int i=0; i< Recur_Second[s_ij].size(); i++){
+                    for (std::vector<std::vector<double> >::size_type i=0; i< Recur_Second[s_ij].size(); i++){
                         Recur_Second[s_ij][i] = risk_initial;
                     }
                 }
@@ -681,7 +681,7 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
                     strata_cond[ijk] = 0;
                 }
             } else {
-                for (int i=0; i< Recur_First[ijk].size(); i++){
+                for (std::vector<std::vector<double> >::size_type i=0; i< Recur_First[ijk].size(); i++){
                     Recur_First[ijk][i] = risk_initial;
                 }
             }
@@ -734,10 +734,10 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
                     strata_cond[ijk] = 0;
                 }
             } else {
-                for (int i=0; i< Recur_First[ijk].size(); i++){
+                for (std::vector<std::vector<double> >::size_type i=0; i< Recur_First[ijk].size(); i++){
                     Recur_First[ijk][i] = risk_initial;
                 }
-                for (int i=0; i< Recur_Second[ijk].size(); i++){
+                for (std::vector<std::vector<double> >::size_type i=0; i< Recur_Second[ijk].size(); i++){
                     Recur_Second[ijk][i] = risk_initial;
                 }
             }
@@ -873,7 +873,7 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                             strata_cond[s_ij*ntime+ijk] = 0;
                         }
                     } else {
-                        for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
+                        for (std::vector<std::vector<double> >::size_type i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
                             Recur_First[s_ij*ntime+ijk][i] = risk_initial;
                         }
                     }
@@ -938,10 +938,10 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                             strata_cond[s_ij*ntime+ijk] = 0;
                         }
                     } else {
-                        for (int i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
+                        for (std::vector<std::vector<double> >::size_type i=0; i< Recur_First[s_ij*ntime+ijk].size(); i++){
                             Recur_First[s_ij*ntime+ijk][i] = risk_initial;
                         }
-                        for (int i=0; i< Recur_Second[s_ij*ntime+ijk].size(); i++){
+                        for (std::vector<std::vector<double> >::size_type i=0; i< Recur_Second[s_ij*ntime+ijk].size(); i++){
                             Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
                         }
                     }
@@ -3362,10 +3362,10 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     if (!model_bool["null"]){
         reqrdnum = totalnum - sum(KeepConstant);
     }
-    int reqrdcond = 1;
-    if (!model_bool["single"]){
-        reqrdcond = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
-    }
+//    int reqrdcond = 1;
+//    if (!model_bool["single"]){
+//        reqrdcond = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
+//    }
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);

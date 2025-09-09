@@ -62,11 +62,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     //
     List temp_list = List::create(_["Status"] = "TEMP");  // used as a dummy return value for code checking
     // Time durations are measured from this point on in microseconds
-    time_point<system_clock> start_point, end_point;
-    start_point = system_clock::now();
-    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
+//    time_point<system_clock> start_point, end_point;
+//    start_point = system_clock::now();
+//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//    end_point = system_clock::now();
+//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     //
     // df0: covariate data
     // ntime: number of event times for Cox PH
@@ -297,7 +297,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
         iteration = 0;  // iteration number
         Ll_abs_best = 10;
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = beta_best[i];
         }
@@ -402,7 +402,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                     // If it goes through every half step without improvement, then the maximum change needs to be decreased
                     step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
-                    iter_check = 1;
+//                    iter_check = 1;
                     beta_p = beta_best;  //
                     beta_a = beta_best;  //
                     beta_c = beta_best;  //
@@ -425,7 +425,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                 }
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
+//            iter_check = 0;
             if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
                 iter_stop = 1;
             }
@@ -627,11 +627,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     // ntime: number of event times for Cox PH
     // totalnum: number of terms used
     //
-    time_point<system_clock> start_point, end_point;
-    start_point = system_clock::now();
-    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-    end_point = system_clock::now();
-    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
+//    time_point<system_clock> start_point, end_point;
+//    start_point = system_clock::now();
+//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//    end_point = system_clock::now();
+//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  // the time duration is tracked
     // ------------------------------------------------------------------------- // initialize
     Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
@@ -758,7 +758,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     int ind0 = fir;  // used for validations
     int iteration = 0;  // iteration number
     int iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    int iter_check = 0;  // signal to check for convergence
+//    int iter_check = 0;  // signal to check for convergence
     int guesses = dose_cols.cols();
 //    NumericMatrix beta_fin(dose_cols.cols(), totalnum);
 //    NumericVector LL_fin(dose_cols.cols());
@@ -802,7 +802,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     iteration = 0;  // iteration number
     Ll_abs_best = 10;
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
 //    end_point = system_clock::now();
 //    ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();
 //    Rcout << "Prep step: " << ending - start << endl;
@@ -897,8 +897,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         beta_c[i] = beta_0[i];
     }
     while ((iteration < maxiter) && (iter_stop == 0)) {
-        start_point = system_clock::now();
-        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+//        start_point = system_clock::now();
+//        start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
         iteration++;
         beta_p = beta_c;  //
         beta_a = beta_c;  //
@@ -1090,7 +1090,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
@@ -1115,7 +1115,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
             }
         }
 //        if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-        iter_check = 0;
+//        iter_check = 0;
         if (Lld_worst < deriv_epsilon) {  // ends if the derivatives are low enough
             iter_stop = 1;
         }

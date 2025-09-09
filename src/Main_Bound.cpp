@@ -69,7 +69,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     //
     // ------------------------------------------------------------------------- // initialize
     const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
-    const int mat_row = df0.rows();
+//    const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -270,6 +270,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     int bound_val = 1;
     //
     while ((step < maxstep) && (iter_continue)) {
+        Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+        Lld_vec = as<Map<VectorXd> >(Lld_vecc);
         step++;
         trouble = false;
         half_check = 0;
@@ -341,8 +343,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
             }
         }
         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[1] = beta_0[para_number];
         ll_final[1] = Ll[0];
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
@@ -720,7 +720,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     int maxiter = 0;
     //
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    int iter_check = 0;  // signal to check for convergence
+//    int iter_check = 0;  // signal to check for convergence
     //
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
@@ -750,7 +750,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         Ll_iter_best = 10;
         //
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         //
         maxiter = maxiters[0];
         a_n = a_ns.row(guess);
@@ -798,7 +798,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 //
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -815,7 +815,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 }
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
+//            iter_check = 0;
             if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
@@ -859,7 +859,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     iteration = 0;  // iteration number
     //
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     //
     // next we need to figure out what point to start at
     int best_guess = - 1;
@@ -946,6 +946,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     int bound_val = 1;
     //
     while ((step < maxstep) && (iter_continue)) {
+        Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+        Lld_vec = as<Map<VectorXd> >(Lld_vecc);
         step++;
         trouble = false;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
@@ -1020,8 +1022,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             }
         }
         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[1] = beta_0[para_number];
         ll_final[1] = Ll[0];
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
@@ -1092,7 +1092,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     maxiter = 0;
     //
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     //
     Ll_iter_best = 10;
     for (int guess = 0; guess <guesses; guess++) {
@@ -1113,7 +1113,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         ind0 = fir;  // used for validations
         iteration = 0;  // iteration number
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         maxiter = maxiters[0];
         a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
@@ -1157,7 +1157,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 //
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -1174,7 +1174,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 }
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
+//            iter_check = 0;
             if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
@@ -1217,7 +1217,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     ind0 = fir;  // used for validations
     iteration = 0;  // iteration number
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     // next we need to figure out what point to start at
     best_guess = - 1;
     for (int guess = guesses - 1; guess> - 1; guess--) {
@@ -1291,6 +1291,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     iter_continue = true;
     max_change = 100;
     while ((step < maxstep) && (iter_continue)) {
+        Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+        Lld_vec = as<Map<VectorXd> >(Lld_vecc);
         step++;
         trouble = false;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
@@ -1364,8 +1366,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             }
         }
         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
         limits[0] = beta_0[para_number];
         ll_final[0] = Ll[0];
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
@@ -1653,8 +1653,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
             }
         }
         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+        Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+        Lld_vec = as<Map<VectorXd> >(Lld_vecc);
         limits[1] = beta_0[para_number];
         ll_final[1] = Ll[0];
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
@@ -1773,8 +1773,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
             }
         }
         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+        Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+        Lld_vec = as<Map<VectorXd> >(Lld_vecc);
         limits[0] = beta_0[para_number];
         ll_final[0] = Ll[0];
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
@@ -2013,7 +2013,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     int iteration = 0;  // iteration number
     int maxiter = 0;
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    int iter_check = 0;  // signal to check for convergence
+//    int iter_check = 0;  // signal to check for convergence
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
     double Ll_iter_best = 10;
@@ -2043,7 +2043,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         iteration = 0;  // iteration number
         Ll_iter_best = 10;
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         maxiter = maxiters[0];
         a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
@@ -2088,7 +2088,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 //
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
@@ -2105,7 +2105,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 }
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
+//            iter_check = 0;
             if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
@@ -2145,7 +2145,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     iteration = 0;  // iteration number
     //
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     //
     // next we need to figure out what point to start at
     int best_guess = - 1;
@@ -2298,8 +2298,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
         }
         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+        Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+        Lld_vec = as<Map<VectorXd> >(Lld_vecc);
         limits[1] = beta_0[para_number];
         ll_final[1] = Ll[0];
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
@@ -2369,7 +2369,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     iteration = 0;  // iteration number
     maxiter = 0;
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     Ll_iter_best = 10;
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
@@ -2388,7 +2388,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
         iteration = 0;  // iteration number
         Ll_iter_best = 10;
         iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-        iter_check = 0;  // signal to check for convergence
+//        iter_check = 0;  // signal to check for convergence
         maxiter = maxiters[0];
         a_n = a_ns.row(guess);
         for (int i = 0; i < beta_0.size(); i++) {
@@ -2432,7 +2432,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 // If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  // reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                iter_check = 1;
+//                iter_check = 1;
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
@@ -2448,7 +2448,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
                 }
             }
 //            if ((iteration % (reqrdnum)) || (iter_check == 1)) {  // checks every set number of iterations
-            iter_check = 0;
+//            iter_check = 0;
             if (step_max < epsilon) {  // if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
@@ -2487,7 +2487,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     ind0 = fir;  // used for validations
     iteration = 0;  // iteration number
     iter_stop  = 0;  // tracks if the iterations should be stopped for convergence
-    iter_check = 0;  // signal to check for convergence
+//    iter_check = 0;  // signal to check for convergence
     // next we need to figure out what point to start at
     best_guess = - 1;
     for (int guess = guesses - 1; guess> - 1; guess--) {
@@ -2633,8 +2633,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
             }
         }
         Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-        Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-        Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+        Lldd_mat = as<Map<MatrixXd> >(Lldd_vec);
+        Lld_vec = as<Map<VectorXd> >(Lld_vecc);
         limits[0] = beta_0[para_number];
         ll_final[0] = Ll[0];
         if ((max_change < epsilon) && (deriv_max < deriv_epsilon)) {
@@ -2708,7 +2708,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     Rcout.precision(7);  // forces higher precision numbers printed to terminal
     //
     // Lld_worst: stores the highest magnitude log-likelihood derivative
-    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
+//    double dbeta_max = 0.0; // stores the largest step taken, determines if the step sizes are small enough for convergence
     // ---------------------------------------------
     // To Start, needs to seperate the derivative terms
     // ---------------------------------------------
@@ -2818,27 +2818,27 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
     //
-    NumericVector Lldd_vec(reqrdnum * reqrdnum);
-    NumericVector Lld_vecc(reqrdnum);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
-        Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
-        if (ij == jk) {
-            Lld_vecc[ij] = Lld[ij];
-        }
-    }
-    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-    Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+//    NumericVector Lldd_vec(reqrdnum * reqrdnum);
+//    NumericVector Lld_vecc(reqrdnum);
+//    #ifdef _OPENMP
+//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//    #endif
+//    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+//        int ij = 0;
+//        int jk = ijk;
+//        while (jk > ij) {
+//            ij++;
+//            jk -= ij;
+//        }
+//        Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
+//        Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
+//        if (ij == jk) {
+//            Lld_vecc[ij] = Lld[ij];
+//        }
+//    }
+//    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+//    Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//    Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
     double Lstar = Ll[0]-qchi;
     double Lpeak = Ll[0];
     // bool upper = true;
@@ -3321,27 +3321,27 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
     //
-    NumericVector Lldd_vec(reqrdnum * reqrdnum);
-    NumericVector Lld_vecc(reqrdnum);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
-        Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
-        if (ij == jk) {
-            Lld_vecc[ij] = Lld[ij];
-        }
-    }
-    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-    Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
+//    NumericVector Lldd_vec(reqrdnum * reqrdnum);
+//    NumericVector Lld_vecc(reqrdnum);
+//    #ifdef _OPENMP
+//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//    #endif
+//    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+//        int ij = 0;
+//        int jk = ijk;
+//        while (jk > ij) {
+//            ij++;
+//            jk -= ij;
+//        }
+//        Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
+//        Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
+//        if (ij == jk) {
+//            Lld_vecc[ij] = Lld[ij];
+//        }
+//    }
+//    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+//    Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+//    Map<VectorXd> Lld_vec(as<Map<VectorXd> >(Lld_vecc));
     double Lstar = Ll[0]-qchi;
     double Lpeak = Ll[0];
     // bool upper = true;

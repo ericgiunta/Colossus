@@ -95,3 +95,21 @@ test_that("Checking interaction works in formula and call results", {
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 1607.914, tolerance = 1e-2)
 })
+
+test_that("Checking power works in formula and call results", {
+    fname <- "dose.csv"
+    set.seed(3742)
+    colTypes <- c("double", "double", "double", "integer")
+    df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+    #
+    time1 <- "t0"
+    time2 <- "t1"
+    event <- "lung"
+
+    model <- Cox(t0, t1, lung) ~ loglinear(dose, I(dose^2))
+    e <- get_form(model, df)
+    expect_equal(e$model$names, c("dose", "dose^2"))
+    e <- CoxRun(model, df, control = list(ncores = 2))
+    f <- RelativeRisk(e, df)
+    expect_equal(sum(f$Risk), 862.3834, tolerance = 1e-2)
+})
