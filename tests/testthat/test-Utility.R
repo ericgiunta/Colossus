@@ -199,8 +199,10 @@ test_that("Factorize missing", {
 })
 test_that("Factorize survival lung, test", {
   data(cancer, package = "survival")
+  cancer %>% setDT()
+  df <- copy(cancer)
   col_list <- c("inst")
-  expect_no_error(factorize(cancer, col_list, TRUE))
+  expect_no_error(factorize(df, col_list, TRUE))
 })
 
 

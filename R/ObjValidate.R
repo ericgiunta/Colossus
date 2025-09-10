@@ -189,7 +189,7 @@ validate_formula <- function(x, df, verbose = FALSE) {
   )
   tform_iden <- match(x$tform, tform_order)
   if (any(is.na(tform_iden))) {
-    stop(paste("Missing tform option ", x$tform[is.na(tform_iden)],
+    stop(paste("Error: Missing tform option ", x$tform[is.na(tform_iden)],
       ", ",
       sep = ""
     ))
@@ -304,7 +304,7 @@ validate_formula <- function(x, df, verbose = FALSE) {
   # --------------------------------------------------------------------- #
   name_check <- unique(x$names)
   if (!all(name_check %in% names(df))) {
-    stop("Atleast one model covariate not in the data")
+    stop("Error: Atleast one model covariate not in the data")
   }
   # --------------------------------------------------------------------- #
   term_tot <- max(x$term_n) + 1
@@ -352,86 +352,86 @@ validate_formula <- function(x, df, verbose = FALSE) {
 
 validate_coxsurv <- function(x, df) {
   if (!is(x, "coxmodel")) {
-    stop("Non cox formula used in cox regression")
+    stop("Error: Non cox formula used in cox regression")
   }
   if (x$start_age == x$end_age) {
     stop(
-      "The starting and ending interval times were set to the same column, they must be different"
+      "Error: The starting and ending interval times were set to the same column, they must be different"
     )
   }
   if (x$event == "") {
     stop(
-      "The event column must not be empty"
+      "Error: The event column must not be empty"
     )
   }
   if (!(x$start_age %in% names(df))) {
     stop(
-      "Interval start column not in the data"
+      "Error: Interval start column not in the data"
     )
   }
   if (!(x$end_age %in% names(df))) {
     stop(
-      "Interval end column not in the data"
+      "Error: Interval end column not in the data"
     )
   }
   if (!(x$event %in% names(df))) {
     stop(
-      "Event column not in the data"
+      "Error: Event column not in the data"
     )
   }
 }
 
 validate_poissurv <- function(x, df) {
   if (!is(x, "poismodel")) {
-    stop("Non Poisson formula used in Poisson regression")
+    stop("Error: Non Poisson formula used in Poisson regression")
   }
   if (x$event == "") {
     stop(
-      "The event column must not be empty"
+      "Error: The event column must not be empty"
     )
   }
   if (!(x$person_year %in% names(df))) {
     stop(
-      "Person-Year column not in the data"
+      "Error: Person-Year column not in the data"
     )
   }
   if (!(x$event %in% names(df))) {
     stop(
-      "Event column not in the data"
+      "Error: Event column not in the data"
     )
   }
 }
 
 validate_caseconsurv <- function(x, df) {
   if (!is(x, "caseconmodel")) {
-    stop("Non Case-Control formula used in Case_Control regression")
+    stop("Error: Non Case-Control formula used in Case_Control regression")
   }
   if (x$start_age == x$end_age) {
     if (x$start != "NONE") {
       stop(
-        "The starting and ending interval times were set to the same column, they must be different or both '%trunc%'"
+        "Error: The starting and ending interval times were set to the same column, they must be different or both '%trunc%'"
       )
     }
   } else {
     if (!(x$start_age %in% names(df))) {
       stop(
-        "Interval start column not in the data"
+        "Error: Interval start column not in the data"
       )
     }
     if (!(x$end_age %in% names(df))) {
       stop(
-        "Interval end column not in the data"
+        "Error: Interval end column not in the data"
       )
     }
   }
   if (x$event == "") {
     stop(
-      "The event column must not be empty"
+      "Error: The event column must not be empty"
     )
   }
   if (!(x$event %in% names(df))) {
     stop(
-      "Event column not in the data"
+      "Error: Event column not in the data"
     )
   }
 }

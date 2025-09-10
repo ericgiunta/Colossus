@@ -40,7 +40,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     df <- res$data
   } else {
     stop(gettextf(
-      "Incorrect type used for formula, '%s', must be formula or coxmodel class",
+      "Error: Incorrect type used for formula, '%s', must be formula or coxmodel class",
       class(model)
     ))
   }
@@ -53,7 +53,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -64,7 +64,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   # ------------------------------------------------------------------------------ #
   if (!missing(a_n)) {
@@ -72,6 +72,22 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   }
   if (!missing(keep_constant)) { # assigns the paramter constant values if given
     coxmodel$keep_constant <- keep_constant
+  }
+  #
+  if ("CONST" %in% coxmodel$names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  ce <- c(coxmodel$start_age, coxmodel$end_age, coxmodel$event)
+  val <- Check_Trunc(df, ce)
+  if (any(val$ce != ce)) {
+    df <- val$df
+    ce <- val$ce
+    coxmodel$start_age <- ce[1]
+    coxmodel$end_age <- ce[1]
   }
   # Checks that the current coxmodel is valid
   validate_coxsurv(coxmodel, df)
@@ -199,7 +215,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     df <- res$data
   } else {
     stop(gettextf(
-      "Incorrect type used for formula, '%s', must be formula or poismodel class",
+      "Error: Incorrect type used for formula, '%s', must be formula or poismodel class",
       class(model)
     ))
   }
@@ -212,7 +228,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -223,7 +239,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   # ------------------------------------------------------------------------------ #
   if (!missing(a_n)) {
@@ -231,6 +247,14 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   }
   if (!missing(keep_constant)) { # assigns the paramter constant values if given
     poismodel$keep_constant <- keep_constant
+  }
+  #
+  if ("CONST" %in% poismodel$names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
   }
   # Checks that the current coxmodel is valid
   validate_poissurv(poismodel, df)
@@ -333,7 +357,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     df <- res$data
   } else {
     stop(gettextf(
-      "Incorrect type used for formula, '%s', must be formula or caseconmodel class",
+      "Error: Incorrect type used for formula, '%s', must be formula or caseconmodel class",
       class(model)
     ))
   }
@@ -346,7 +370,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -357,7 +381,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   # ------------------------------------------------------------------------------ #
   if (!missing(a_n)) {
@@ -489,7 +513,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     df <- res$data
   } else {
     stop(gettextf(
-      "Incorrect type used for formula, '%s', must be list of formula or poismodel class",
+      "Error: Incorrect type used for formula, '%s', must be list of formula or poismodel class",
       class(model)
     ))
   }
@@ -502,7 +526,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -513,7 +537,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   # ------------------------------------------------------------------------------ #
   if (!missing(a_n)) {
@@ -755,7 +779,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -765,7 +789,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else if (is.list(plot_options)) {
     plot_options <- c(plot_options, extraArgs)
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
 }
@@ -822,7 +846,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     df <- res$data
   } else {
     stop(gettextf(
-      "Incorrect type used for formula, '%s', must be formula or coxmodel class",
+      "Error: Incorrect type used for formula, '%s', must be formula or coxmodel class",
       class(model)
     ))
   }
@@ -835,7 +859,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -846,7 +870,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   # ------------------------------------------------------------------------------ #
   if (!missing(a_n)) {
@@ -917,7 +941,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     model_control["mcml"] <- mcml
   } else {
     if (fma) {
-      stop("Do not select both fma and mcml, only pick one")
+      stop("Error: Do not select both fma and mcml, only pick one")
     } else {
       model_control["mcml"] <- mcml
     }
@@ -1039,7 +1063,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -1049,7 +1073,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   } else if (is.list(curve_control)) {
     curve_control <- c(curve_control, extraArgs)
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   #
   model_control <- c(model_control, curve_control)
@@ -1120,7 +1144,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -1130,7 +1154,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   } else if (is.list(curve_control)) {
     curve_control <- c(curve_control, extraArgs)
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   #
   model_control <- c(model_control, curve_control)
@@ -1219,7 +1243,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
-        "Argument '%s' not matched",
+        "Error: Argument '%s' not matched",
         names(extraArgs)[indx == 0L]
       ), domain = NA)
     }
@@ -1229,7 +1253,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   } else if (is.list(assign_control)) {
     assign_control <- c(assign_control, extraArgs)
   } else {
-    stop("control argument must be a list")
+    stop("Error: control argument must be a list")
   }
   #
   check_num <- 1
@@ -1323,7 +1347,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   model_control <- object$modelcontrol
   #
   if ((pearson == deviance) && (pearson)) {
-    stop("Both pearson and deviance cannot be used at once, select only one")
+    stop("Error: Both pearson and deviance cannot be used at once, select only one")
   }
   model_control$pearson <- pearson
   model_control$deviance <- deviance

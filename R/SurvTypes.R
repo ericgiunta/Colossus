@@ -30,7 +30,7 @@ get_form_joint <- function(formula_list, df) {
     formula_list <- list(formula_list)
     formula_shared <- .~.
   } else {
-    stop("Joint formula list wasn't a list or a formula")
+    stop("Error: Joint formula list wasn't a list or a formula")
   }
   model_list <- list()
   for (formula_i in seq_along(formula_list)) {
@@ -44,7 +44,7 @@ get_form_joint <- function(formula_list, df) {
     model <- res$model
     df <- res$data
     if (!grepl("pois", model$surv_model_type)) {
-      stop("Atleast one model was not a poisson model")
+      stop("Error: Atleast one model was not a poisson model")
     }
     model_temp <- list(model)
     model_list <- c(model_list, model_temp)
@@ -65,26 +65,26 @@ get_form_joint <- function(formula_list, df) {
     model_2 <- model_list[[model_i]]
     # The pyr should all be the same
     if (model_1$pyr != model_2$pyr) {
-      stop(paste("The joint models need to use the same person-year column. Instead they use ", model_1$pyr, " and ", model_2$pyr, ".", sep = ""))
+      stop(paste("Error: The joint models need to use the same person-year column. Instead they use ", model_1$pyr, " and ", model_2$pyr, ".", sep = ""))
     }
     # The strata should match
     if (model_1$strata != model_2$strata) {
-      stop(paste("The joint models need to use the same stratification.", sep = ""))
+      stop(paste("Error: The joint models need to use the same stratification.", sep = ""))
     }
     # The modelform should match
     if (model_1$modelform != model_2$modelform) {
-      stop(paste("The joint models need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_2$modelform, ".", sep = ""))
+      stop(paste("Error: The joint models need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_2$modelform, ".", sep = ""))
     }
     if (model_1$gmix_theta != model_2$gmix_theta) {
-      stop(paste("The joint models need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_2$gmix_theta, ".", sep = ""))
+      stop(paste("Error: The joint models need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_2$gmix_theta, ".", sep = ""))
     }
   }
   if (length(model_share$tform) != 0) {
     if (model_1$modelform != model_share$modelform) {
-      stop(paste("The joint models and the shared model need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_share$modelform, ".", sep = ""))
+      stop(paste("Error: The joint models and the shared model need to use the same modelform. Instead they use ", model_1$modelform, " and ", model_share$modelform, ".", sep = ""))
     }
     if (model_1$gmix_theta != model_share$gmix_theta) {
-      stop(paste("The joint models and the shared model need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_share$gmix_theta, ".", sep = ""))
+      stop(paste("Error: The joint models and the shared model need to use the same geometric mixture theta value. Instead they use ", model_1$gmix_theta, " and ", model_share$gmix_theta, ".", sep = ""))
     }
   } else {
     model_share$modelform <- model_1$modelform
@@ -151,10 +151,10 @@ get_form_joint <- function(formula_list, df) {
       if (len_s < len_1) {
         # 2 is longest
         if (gmix_term_s != gmix_term_2[1:len_s]) {
-          stop("Second model and shared model have different geometric mixture term values.")
+          stop("Error: Second model and shared model have different geometric mixture term values.")
         }
         if (gmix_term_1 != gmix_term_2[1:len_1]) {
-          stop("Second model and first model have different geometric mixture term values.")
+          stop("Error: Second model and first model have different geometric mixture term values.")
         }
         gmix_term <- gmix_term_2
       }
@@ -231,7 +231,7 @@ get_form <- function(formula, df) {
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else {
-    stop("Bad survival model type passed")
+    stop("Error: Bad survival model type passed")
   }
   list(
     "model" = model, "data" = df
@@ -539,19 +539,19 @@ get_form_risk <- function(model_obj, df) {
             repeat_list <- c(list("_exp_type" = "power"), list(factor_args))
             vals <- strsplit(factor_args, "\\^")[[1]]
             if (length(vals) != 2) {
-              stop("I() currently only available for I(var^n)")
+              stop("Error: I() currently only available for I(var^n)")
             }
             col <- vals[1]
             raised <- vals[2]
             if (!(col %in% names(df))) {
-              stop(paste("Column: ", col, " not in data", sep = ""))
+              stop(paste("Error: Column: ", col, " not in data", sep = ""))
             }
             options(warn = -1)
             if (all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x))) || all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x)))) {
               options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
               raised <- as.numeric(raised)
             } else {
-              stop("Column was not raised to a numeric power")
+              stop("Error: Column was not raised to a numeric power")
             }
             col_name <- factor_args
             df[[col_name]] <- df[[col]]^raised
@@ -585,7 +585,7 @@ get_form_risk <- function(model_obj, df) {
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
             if (system.file(package = "splines") == "") {
-              stop("Attempted to use ns(), but splines not detected on system.")
+              stop("Error: Attempted to use ns(), but splines not detected on system.")
             }
             xtemp <- do.call(splines::ns, factor_arg_list)
             #
@@ -640,7 +640,7 @@ get_form_risk <- function(model_obj, df) {
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
             if (system.file(package = "splines") == "") {
-              stop("Attempted to use bs(), but splines not detected on system.")
+              stop("Error: Attempted to use bs(), but splines not detected on system.")
             }
             xtemp <- do.call(splines::bs, factor_arg_list)
             #
@@ -728,7 +728,7 @@ get_form_risk <- function(model_obj, df) {
           for (col in cols) {
             if (!(col %in% names(df))) {
               # good, it is in there
-              stop(paste("Interaction column missing: ", col, sep = ""))
+              stop(paste("Error: Interaction column missing: ", col, sep = ""))
             }
           }
 
@@ -814,7 +814,7 @@ get_form_risk <- function(model_obj, df) {
           }
         }
         if (length(col_name) == 0) {
-          stop("Subterm missing element, was a single-valued factor used?")
+          stop("Error: Subterm missing element, was a single-valued factor used?")
         }
         col_name <- unique(col_name)
         # convert subterm formula
@@ -984,7 +984,7 @@ ColossusExpressionCall <- function(calls, df) {
         factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
       }
       if (system.file(package = "splines") == "") {
-        stop("Attempted to use ns(), but splines not detected on system.")
+        stop("Error: Attempted to use ns(), but splines not detected on system.")
       }
       xtemp <- do.call(splines::ns, factor_arg_list)
       #
@@ -1007,7 +1007,7 @@ ColossusExpressionCall <- function(calls, df) {
         factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
       }
       if (system.file(package = "splines") == "") {
-        stop("Attempted to use bs(), but splines not detected on system.")
+        stop("Error: Attempted to use bs(), but splines not detected on system.")
       }
       xtemp <- do.call(splines::bs, factor_arg_list)
       #
@@ -1121,10 +1121,10 @@ ColossusCoxSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 2) {
-    stop("Too few entries in Cox survival object")
+    stop("Error: Too few entries in Cox survival object")
   }
   if (length(args) > 3) {
-    stop("Too many entries in Cox survival object")
+    stop("Error: Too many entries in Cox survival object")
   }
   tstart <- "%trunc%"
   tend <- "%trunc%"
@@ -1132,7 +1132,7 @@ ColossusCoxSurv <- function(...) {
   indx <- pmatch(argName[argName != ""], c("tstart", "tend", "event"), nomatch = 0L)
   if (any(indx == 0L)) {
     stop(gettextf(
-      "Argument '%s' not matched in survival object",
+      "Error: Argument '%s' not matched in survival object",
       argName[argName != ""][indx == 0L]
     ), domain = NA)
   }
@@ -1147,7 +1147,7 @@ ColossusCoxSurv <- function(...) {
       tend <- args[[2]]
       event <- args[[3]]
     } else {
-      stop("Incorrect number of arguments to survival object")
+      stop("Error: Incorrect number of arguments to survival object")
     }
   } else if (any(argName == "")) {
     # start by directly assigning what is available
@@ -1182,7 +1182,7 @@ ColossusCoxSurv <- function(...) {
         event <- args[[3]]
       }
     } else {
-      stop("Incorrect number of arguments to survival object")
+      stop("Error: Incorrect number of arguments to survival object")
     }
   } else {
     if ("tstart" %in% argName) {
@@ -1210,10 +1210,10 @@ ColossusCoxStrataSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 3) {
-    stop("Too few entries in Cox Strata survival object")
+    stop("Error: Too few entries in Cox Strata survival object")
   }
   if (length(args) > 4) {
-    stop("Too many entries in Cox Strata survival object")
+    stop("Error: Too many entries in Cox Strata survival object")
   }
   strata <- "NULL"
   # Is stata a named entry?
@@ -1228,7 +1228,7 @@ ColossusCoxStrataSurv <- function(...) {
       strata <- args[[length(args)]]
       res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
-      stop("Final entry of Cox Strata object was not named correctly")
+      stop("Error: Final entry of Cox Strata object was not named correctly")
     }
   }
   res["strata"] <- strata
@@ -1247,10 +1247,10 @@ ColossusFineGraySurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 3) {
-    stop("Too few entries in FineGray survival object")
+    stop("Error: Too few entries in FineGray survival object")
   }
   if (length(args) > 4) {
-    stop("Too many entries in FineGray survival object")
+    stop("Error: Too many entries in FineGray survival object")
   }
   weight <- "NULL"
   # Is stata a named entry?
@@ -1265,7 +1265,7 @@ ColossusFineGraySurv <- function(...) {
       weight <- args[[length(args)]]
       res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
-      stop("Final entry of FineGray object was not named correctly")
+      stop("Error: Final entry of FineGray object was not named correctly")
     }
   }
   res["weight"] <- weight
@@ -1284,10 +1284,10 @@ ColossusFineGrayStrataSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 4) {
-    stop("Too few entries in FineGray Strata survival object")
+    stop("Error: Too few entries in FineGray Strata survival object")
   }
   if (length(args) > 5) {
-    stop("Too many entries in FineGray Strata survival object")
+    stop("Error: Too many entries in FineGray Strata survival object")
   }
   weight <- "NULL"
   # Is stata a named entry?
@@ -1302,7 +1302,7 @@ ColossusFineGrayStrataSurv <- function(...) {
       weight <- args[[length(args)]]
       res <- do.call(ColossusCoxStrataSurv, args[seq_len(length(args) - 1)])
     } else {
-      stop("Final entry of FineGray object was not named correctly")
+      stop("Error: Final entry of FineGray object was not named correctly")
     }
   }
   res["weight"] <- weight
@@ -1327,10 +1327,10 @@ ColossusPoisSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 2) {
-    stop("Too few entries in Poisson survival object")
+    stop("Error: Too few entries in Poisson survival object")
   }
   if (length(args) > 3) {
-    stop("Too few entries in Poisson survival object")
+    stop("Error: Too few entries in Poisson survival object")
   }
   pyr <- "NULL"
   event <- "NULL"
@@ -1338,7 +1338,7 @@ ColossusPoisSurv <- function(...) {
   indx <- pmatch(argName[argName != ""], c("pyr", "event"), nomatch = 0L)
   if (any(indx == 0L)) {
     stop(gettextf(
-      "Argument '%s' not matched in survival object",
+      "Error: Argument '%s' not matched in survival object",
       argName[argName != ""][indx == 0L]
     ), domain = NA)
   }
@@ -1399,15 +1399,15 @@ ColossusCaseConSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 1) {
-    stop("Too few entries in Case-Control survival object")
+    stop("Error: Too few entries in Case-Control survival object")
   }
   if (length(args) > 1) {
-    stop("Too many entries in Case-Control survival object")
+    stop("Error: Too many entries in Case-Control survival object")
   }
   if ((argName[[1]] == "event") || is.null(argName[[1]])) {
     event <- args[[1]]
   } else {
-    stop("Entry must be unnamed or named 'event'")
+    stop("Error: Entry must be unnamed or named 'event'")
   }
   list("event" = event)
 }
@@ -1426,10 +1426,10 @@ ColossusCaseConTimeSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 2) {
-    stop("Too few entries in Case-Control survival object matched on time")
+    stop("Error: Too few entries in Case-Control survival object matched on time")
   }
   if (length(args) > 3) {
-    stop("Too many entries in Case-Control survival object matched on time")
+    stop("Error: Too many entries in Case-Control survival object matched on time")
   }
   tstart <- "%trunc%"
   tend <- "%trunc%"
@@ -1437,7 +1437,7 @@ ColossusCaseConTimeSurv <- function(...) {
   indx <- pmatch(argName[argName != ""], c("tstart", "tend", "event"), nomatch = 0L)
   if (any(indx == 0L)) {
     stop(gettextf(
-      "Argument '%s' not matched in survival object",
+      "Error: Argument '%s' not matched in survival object",
       argName[argName != ""][indx == 0L]
     ), domain = NA)
   }
@@ -1452,7 +1452,7 @@ ColossusCaseConTimeSurv <- function(...) {
       tend <- args[[2]]
       event <- args[[3]]
     } else {
-      stop("Incorrect number of arguments to survival object")
+      stop("Error: Incorrect number of arguments to survival object")
     }
   } else if (any(argName == "")) {
     # start by directly assigning what is available
@@ -1487,7 +1487,7 @@ ColossusCaseConTimeSurv <- function(...) {
         event <- args[[3]]
       }
     } else {
-      stop("Incorrect number of arguments to survival object")
+      stop("Error: Incorrect number of arguments to survival object")
     }
   } else {
     if ("tstart" %in% argName) {
@@ -1517,15 +1517,15 @@ ColossusCaseConStrataSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 2) {
-    stop("Too few entries in Case-Control survival object matched on strata")
+    stop("Error: Too few entries in Case-Control survival object matched on strata")
   }
   if (length(args) > 2) {
-    stop("Too many entries in Case-Control survival object matched on strata")
+    stop("Error: Too many entries in Case-Control survival object matched on strata")
   }
   indx <- pmatch(argName[argName != ""], c("strata", "event"), nomatch = 0L)
   if (any(indx == 0L)) {
     stop(gettextf(
-      "Argument '%s' not matched in survival object",
+      "Error: Argument '%s' not matched in survival object",
       argName[argName != ""][indx == 0L]
     ), domain = NA)
   }
@@ -1557,10 +1557,10 @@ ColossusCaseConTimeStrataSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
   if (length(args) < 3) {
-    stop("Too few entries in Case-Control survival object matched on strata and time")
+    stop("Error: Too few entries in Case-Control survival object matched on strata and time")
   }
   if (length(args) > 4) {
-    stop("Too many entries in Case-Control survival object matched on strata and time")
+    stop("Error: Too many entries in Case-Control survival object matched on strata and time")
   }
   strata <- "NULL"
   # Is stata a named entry?
@@ -1575,7 +1575,7 @@ ColossusCaseConTimeStrataSurv <- function(...) {
       strata <- args[[length(args)]]
       res <- do.call(ColossusCaseConTimeSurv, args[1:length(args) - 1])
     } else {
-      stop("Final entry of Case Control Strata and Time object was not named correctly")
+      stop("Error: Final entry of Case Control Strata and Time object was not named correctly")
     }
   }
   res["strata"] <- strata

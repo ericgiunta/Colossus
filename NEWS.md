@@ -131,3 +131,7 @@
 
 * Switch to formula inputs and model classes
 * Removed unused functions, to simplify documentation
+
+# Colossus 1.4.1
+
+* Formula input now allows more general applications of factor, ns, bs, I(var^n), interaction, etc.

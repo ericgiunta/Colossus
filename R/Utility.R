@@ -281,7 +281,7 @@ Def_model_control <- function(control) {
       }
     }
     if ("para_num" %in% names(control)) {
-      warning("R Warning: para_num detected in model_control, did you mean para_number?")
+      warning("Warning: para_num detected in model_control, did you mean para_number?")
       control["para_number"] <- control["para_num"]
     }
     if ("para_number" %in% names(control)) {
@@ -1396,7 +1396,7 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
   for (cat in names(categ)) {
     cat_str <- ""
     if (!cat %in% names(table)) {
-      stop(paste(cat, " not in table", sep = ""))
+      stop(paste("Error: ", cat, " not in table", sep = ""))
     }
     if (length(categ[[cat]]) > 1) { # list of bounds
       temp0 <- categ[[cat]]$lower
@@ -1565,12 +1565,12 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       cat_col <- paste(cat, "category", sep = "_")
     }
     if (cat_col %in% names(df)) { # check that the category doesn't already exist in the original dataframe
-      stop(paste(cat_col, " already exists, use ' AS ' to rename if needed", sep = ""))
+      stop(paste("Error: ", cat_col, " already exists, use ' AS ' to rename if needed", sep = ""))
     }
     if (length(categ[[cat]]) > 1) { # boundary as lists
       if ("lower" %in% names(categ[[cat]])) { # lower and upper boundary intervals
         if (!cat_df %in% names(table)) {
-          stop(paste(cat_df, " not in table", sep = ""))
+          stop(paste("Error: ", cat_df, " not in table", sep = ""))
         }
         temp0 <- categ[[cat]]$lower
         temp1 <- categ[[cat]]$upper
@@ -1626,13 +1626,13 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
           day <- rep(1, length(year)) # nocov
           month <- rep(1, length(month)) # nocov
         } else {
-          stop("calender category missing 'day', 'month', and 'year'") # all three are required
+          stop("Error: calender category missing 'day', 'month', and 'year'") # all three are required
         }
         num_categ <- length(year) - 1
         categ_cols <- c(categ_cols, cat_col)
         df <- df %>% mutate("{cat_col}" := "Unassigned") # initialize the tibble
         if ("PYR" %in% names(df)) {
-          stop("either multiple time categorizations used or 'PYR' column already exists")
+          stop("Error: either multiple time categorizations used or 'PYR' column already exists")
         }
         df <- df %>% mutate("PYR" := 0)
         interval <- "unassigned"
@@ -1663,7 +1663,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
               if ("day" %in% names(pyr_exit)) { # nocov
                 exit <- make_date(day = table[[pyr_exit$day]]) # nocov
               } else {
-                stop("person-year exit missing day, month, and year")
+                stop("Error: person-year exit missing day, month, and year")
               }
             }
           }
@@ -1695,7 +1695,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
                 if ("day" %in% names(pyr_entry)) { # nocov
                   entry <- make_date(day = table[[pyr_entry$day]]) # nocov
                 } else {
-                  stop("person-year entry missing day, month, and year")
+                  stop("Error: person-year entry missing day, month, and year")
                 }
               }
             }
@@ -1730,14 +1730,14 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
               if ("day" %in% names(pyr_entry)) { # nocov
                 entry <- make_date(day = table[[pyr_entry$day]]) # nocov
               } else {
-                stop("person-year entry missing day, month, and year")
+                stop("Error: person-year entry missing day, month, and year")
               }
             }
           }
           pyr_exit <- list()
           interval <- "right trunc" # entry and no exit is right truncated
         } else {
-          stop("Date columns given for category, but person-year data not in date format") # pyr does not have exit or entry values
+          stop("Error: Date columns given for category, but person-year data not in date format") # pyr does not have exit or entry values
         }
         df_added <- tibble()
         pyr_unit <- "years" # default person-years to years
@@ -1803,7 +1803,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       categ_bounds[[cat_col]] <- cat_str # update the list of category boundaries
     } else { # boundary as string, not a time category
       if (!cat_df %in% names(table)) {
-        stop(paste(cat_df, " not in table", sep = ""))
+        stop(paste("Error: ", cat_df, " not in table", sep = ""))
       }
       cat_str <- ""
       temp <- categ[[cat]]
@@ -1861,7 +1861,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
           if ("day" %in% names(pyr_exit)) { # nocov
             exit <- make_date(day = table[[pyr_exit$day]]) # nocov
           } else {
-            stop("person-year exit missing day, month, and year")
+            stop("Error: person-year exit missing day, month, and year")
           }
         }
       }
@@ -1893,12 +1893,12 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
             if ("day" %in% names(pyr_entry)) { # nocov
               entry <- make_date(day = table[[pyr_entry$day]]) # nocov
             } else {
-              stop("person-year entry missing day, month, and year")
+              stop("Error: person-year entry missing day, month, and year")
             }
           }
         }
       } else {
-        stop("Both entry and exit needed to calculate person-years, without a time category for reference")
+        stop("Error: Both entry and exit needed to calculate person-years, without a time category for reference")
       }
       risk_interval <- interval(entry, exit)
       pyr_unit <- "years" # default person-years to years
@@ -1907,15 +1907,15 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       }
       df <- df %>% mutate("PYR" := as.numeric(as.duration(risk_interval), pyr_unit))
     } else {
-      stop("Both entry and exit needed to calculate person-years, without a time category for reference")
+      stop("Error: Both entry and exit needed to calculate person-years, without a time category for reference")
     }
   }
   # check that required columns are not already in use
   if ("PYR" %in% names(summaries)) { # storing person-year durations
-    stop("'PYR' listed as a event column, either remove or rename with ' AS '")
+    stop("Error: 'PYR' listed as a event column, either remove or rename with ' AS '")
   }
   if ("AT_RISK" %in% names(summaries)) { # storing number at risk
-    stop("'AT_RISK' listed as a event column, either remove or rename with ' AS '")
+    stop("Error: 'AT_RISK' listed as a event column, either remove or rename with ' AS '")
   }
   df_group <- df %>%
     group_by(across(all_of(categ_cols))) %>%

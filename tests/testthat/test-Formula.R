@@ -113,3 +113,26 @@ test_that("Checking power works in formula and call results", {
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 862.3834, tolerance = 1e-2)
 })
+
+test_that("Checking model and formula can be input", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+
+  model <- Cox(t0, t1, lung) ~ loglinear(dose, I(dose^2))
+  e <- get_form(model, df)
+  expect_no_error(e0 <- CoxRun(model, df, control = list(ncores = 2)))
+  expect_no_error(e1 <- CoxRun(e$model, df, control = list(ncores = 2)))
+  expect_equal(e0$beta_0, e1$beta_0)
+
+  model <- Pois(t1, lung) ~ loglinear(CONST, dose, I(dose^2))
+  e <- get_form(model, df)
+  expect_no_error(e0 <- PoisRun(model, df, control = list(ncores = 2)))
+  expect_no_error(e1 <- PoisRun(e$model, df, control = list(ncores = 2)))
+  expect_equal(e0$beta_0, e1$beta_0)
+})
