@@ -134,4 +134,4 @@
 
 # Colossus 1.4.1
 
-* Formula input now allows more general applications of factor, ns, bs, I(var^n), interaction, etc.
+* Formula input now allows more general applications of factor, ns(), bs(), I(var^n), interaction, etc.

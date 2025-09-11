@@ -376,11 +376,19 @@ get_form_surv <- function(surv_obj, df) {
     res <- do.call(ColossusPoisSurv, surv_para_list)
     pyr <- res$pyr
     event <- res$event
+    if (res$strata != "NULL") {
+      stop("Error: Too many columns passed to non-stratified Poisson model")
+    }
   } else if (surv_type %in% c("poisson_strata", "pois_strata")) {
     res <- do.call(ColossusPoisSurv, surv_para_list)
     pyr <- res$pyr
     event <- res$event
     strata <- res$strata
+    if (length(res$strata) == 1) {
+      if (res$strata == "NULL") {
+        stop("Error: Too few columns passed to non-stratified Poisson model")
+      }
+    }
   } else if (surv_type %in% c("casecon", "casecontrol", "case_control")) {
     res <- do.call(ColossusCaseConSurv, surv_para_list)
     event <- res$event
@@ -547,7 +555,7 @@ get_form_risk <- function(model_obj, df) {
               stop(paste("Error: Column: ", col, " not in data", sep = ""))
             }
             options(warn = -1)
-            if (all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x))) || all(sapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x)))) {
+            if (all(vapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
               options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
               raised <- as.numeric(raised)
             } else {
@@ -1329,9 +1337,6 @@ ColossusPoisSurv <- function(...) {
   if (length(args) < 2) {
     stop("Error: Too few entries in Poisson survival object")
   }
-  if (length(args) > 3) {
-    stop("Error: Too few entries in Poisson survival object")
-  }
   pyr <- "NULL"
   event <- "NULL"
   strata <- "NULL"
@@ -1569,11 +1574,11 @@ ColossusCaseConTimeStrataSurv <- function(...) {
     res <- do.call(ColossusCaseConTimeSurv, args[names(args) != "strata"])
   } else if (all(argName == "")) {
     strata <- args[[length(args)]]
-    res <- do.call(ColossusCaseConTimeSurv, args[1:length(args) - 1])
+    res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
       strata <- args[[length(args)]]
-      res <- do.call(ColossusCaseConTimeSurv, args[1:length(args) - 1])
+      res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Error: Final entry of Case Control Strata and Time object was not named correctly")
     }

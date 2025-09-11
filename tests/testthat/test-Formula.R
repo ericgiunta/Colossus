@@ -136,3 +136,225 @@ test_that("Checking model and formula can be input", {
   expect_no_error(e1 <- PoisRun(e$model, df, control = list(ncores = 2)))
   expect_equal(e0$beta_0, e1$beta_0)
 })
+
+test_that("Joint Form Errors", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$rand1 <- floor(runif(nrow(df)) * 5)
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+
+  model0 <- Pois(t1, lung) ~ loglinear(dose)
+  model1 <- Pois(t1, lung) ~ loglinear(I(dose^2))
+  models <- Pois(t1, lung) ~ loglinear(t0)
+  expect_no_error(get_form_joint(list(model0, model1, "shared" = models), df))
+  expect_error(get_form_joint("bad", df)) # didn't pass a list or formula
+  model0 <- Cox(t1, lung) ~ loglinear(dose)
+  model1 <- Pois(t1, lung) ~ loglinear(I(dose^2))
+  models <- Pois(t1, lung) ~ loglinear(t0)
+  expect_error(get_form_joint(list(model0, model1, "shared" = models), df)) # didn't use all pois models
+  model0 <- Pois(t1, lung) ~ loglinear(dose)
+  model1 <- Pois(t0, lung) ~ loglinear(I(dose^2))
+  models <- Pois(t1, lung) ~ loglinear(t0)
+  expect_error(get_form_joint(list(model0, model1, "shared" = models), df)) # didn't use same person-year time
+  model0 <- Pois_Strata(t1, lung, rand0) ~ loglinear(dose)
+  model1 <- Pois_Strata(t1, lung, rand0) ~ loglinear(I(dose^2))
+  models <- Pois_Strata(t1, lung, rand0) ~ loglinear(t0)
+  expect_no_error(get_form_joint(list(model0, model1, "shared" = models), df)) # same strata
+  model0 <- Pois_Strata(t1, lung, rand0) ~ loglinear(dose)
+  model1 <- Pois_Strata(t0, lung, rand1) ~ loglinear(I(dose^2))
+  models <- Pois_Strata(t1, lung, rand0) ~ loglinear(t0)
+  expect_error(get_form_joint(list(model0, model1, "shared" = models), df)) # different strata
+  model0 <- Pois(t1, lung) ~ loglinear(dose) + M()
+  model1 <- Pois(t1, lung) ~ loglinear(I(dose^2)) + A()
+  models <- Pois(t1, lung) ~ loglinear(t0) + M()
+  expect_error(get_form_joint(list(model0, model1, "shared" = models), df)) # different modelform
+  model0 <- Pois(t1, lung) ~ loglinear(dose) + M()
+  model1 <- Pois(t1, lung) ~ loglinear(I(dose^2)) + M()
+  models <- Pois(t1, lung) ~ loglinear(t0) + A()
+  expect_error(get_form_joint(list(model0, model1, "shared" = models), df)) # different modelform
+})
+
+test_that("General Form Errors", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$rand1 <- floor(runif(nrow(df)) * 5)
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+  #
+  expect_no_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose), df))
+  expect_error(get_form(bad ~ loglinear(dose), df)) # no ( on left side
+  expect_error(get_form(also_bad(t0) ~ loglinear(dose), df)) # not defined left side
+  #
+  expect_error(get_form(Cox(t0, t1, lung) ~ dose, df)) # not defined right side term
+  expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(I(dose^a)), df)) # not a numeric power
+  expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose * a), df)) # missing interaction column
+  #
+  expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose) + M() + A(), df)) # modelform defined twice
+  expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose) + weird(), df)) # unkown term with ()
+})
+
+test_that("Colossus Surv Errors", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$rand1 <- floor(runif(nrow(df)) * 5)
+  df$weight <- df$t1 / 100
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+  #
+  expect_no_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose), df))
+  expect_no_error(get_form(Cox(t0, t1, event = lung) ~ loglinear(dose), df))
+  expect_no_error(get_form(Cox(tstart = t0, tend = t1, event = lung) ~ loglinear(dose), df))
+  expect_error(get_form(Cox(lung) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(Cox(tstart = t0, tend = t1) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(Cox(t0, t1, lung, lung) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(Cox(alpha = t0, t1, lung) ~ loglinear(dose), df)) # wrong named
+  #
+  expect_no_error(get_form(Cox_Strata(t0, t1, lung, rand0) ~ loglinear(dose), df))
+  expect_no_error(get_form(Cox_Strata(t0, t1, lung, strata = rand0) ~ loglinear(dose), df))
+  expect_error(get_form(Cox_Strata(lung, strata = rand0) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(Cox_Strata(t0, t1, lung, lung, strata = rand0) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(Cox_Strata(t0, t1, lung, alpha = rand0) ~ loglinear(dose), df)) # wrong named
+  #
+  expect_no_error(get_form(FineGray(t0, t1, lung, weight) ~ loglinear(dose), df))
+  expect_no_error(get_form(FineGray(t0, t1, lung, weight = weight) ~ loglinear(dose), df))
+  expect_error(get_form(FineGray(lung, weight = weight) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(FineGray(t0, t1, lung, lung, weight = weight) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(FineGray(t0, t1, lung, alpha = weight) ~ loglinear(dose), df)) # wrong named
+  #
+  expect_no_error(get_form(FineGray_Strata(t0, t1, lung, rand0, weight) ~ loglinear(dose), df))
+  expect_no_error(get_form(FineGray_Strata(t0, t1, lung, rand0, weight = weight) ~ loglinear(dose), df))
+  expect_error(get_form(FineGray_Strata(lung, rand0, weight = weight) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(FineGray_Strata(t0, t1, lung, lung, rand0, weight = weight) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(FineGray_Strata(t0, t1, lung, rand0, alpha = weight) ~ loglinear(dose), df)) # wrong named
+  #
+  #
+  expect_no_error(get_form(Pois(t1, lung) ~ loglinear(dose), df))
+  expect_error(get_form(Pois(lung) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(Pois(t1, lung, rand0) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(Pois(alpha = t1, lung) ~ loglinear(dose), df)) # wrong named
+  #
+  expect_no_error(get_form(Pois_Strata(pyr = t1, event = lung, rand0, rand1) ~ loglinear(dose), df))
+  expect_error(get_form(Pois_Strata(pyr = t1, event = lung) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(Pois_Strata(t1, lung) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(Pois_Strata(alpha = t1, lung, rand0) ~ loglinear(dose), df)) # wrong named
+  #
+})
+
+test_that("CaseCon Surv Errors", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$rand1 <- floor(runif(nrow(df)) * 5)
+  df$weight <- df$t1 / 100
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+
+  #
+  expect_no_error(get_form(CaseCon(lung) ~ loglinear(dose), df))
+  expect_error(get_form(CaseCon() ~ loglinear(dose), df)) # too few
+  expect_error(get_form(CaseCon(t1, lung) ~ loglinear(dose), df)) # too many
+  #
+  expect_no_error(get_form(CaseCon_time(t0, t1, lung) ~ loglinear(dose), df))
+  expect_error(get_form(CaseCon_time(tstart = t0, tend = t1) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(CaseCon_time(t0, t1, t1, lung) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(CaseCon_time(alpha = t0, t1, lung) ~ loglinear(dose), df)) # wrong name
+  #
+  expect_no_error(get_form(CaseCon_strata(lung, rand0) ~ loglinear(dose), df))
+  expect_error(get_form(CaseCon_strata(lung) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(CaseCon_strata(t1, lung, rand0) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(CaseCon_strata(alpha = lung, rand0) ~ loglinear(dose), df)) # wrong name
+  #
+  expect_no_error(get_form(CaseCon_strata_time(t0, t1, lung, rand0) ~ loglinear(dose), df))
+  expect_error(get_form(CaseCon_strata_time(lung, rand0) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(CaseCon_strata_time(t0, t0, t1, lung, rand0) ~ loglinear(dose), df)) # too many
+  expect_error(get_form(CaseCon_strata_time(t0, t1, lung, alpha = rand0) ~ loglinear(dose), df)) # wrong name
+  #
+})
+
+test_that("Object Validation Errors", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$col_bad <- "a"
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+  control <- list(ncores = 2, maxiter = -1, maxiters = c(-1, -1))
+  #
+  true_cox <- get_form(Cox(t0, t1, lung) ~ loglinear(dose), df)
+  cox_model <- copy(true_cox$model)
+  expect_no_error(CoxRun(cox_model, df, control = control))
+  true_pois <- get_form(Pois(t1, lung) ~ loglinear(dose), df)
+  pois_model <- copy(true_pois$model)
+  expect_no_error(CoxRun(cox_model, df, control = control))
+  ##
+  cox_model <- copy(true_cox$model)
+  cox_model$names <- c("col_bad")
+  expect_error(CoxRun(cox_model, df, control = control))
+  cox_model <- copy(true_cox$model)
+  expect_error(CoxRun(cox_model, df, control = control, keep_constant = c(-1)))
+  expect_error(CoxRun(cox_model, df, control = control, keep_constant = c(2)))
+  expect_error(CoxRun(cox_model, df, control = control, keep_constant = c("a")))
+  cox_model <- copy(true_cox$model)
+  cox_model$tform <- c("bad_bad")
+  expect_error(CoxRun(cox_model, df, control = control))
+  cox_model <- copy(true_cox$model)
+  expect_error(CoxRun(cox_model, df, a_n = c(1, 1, 1, 1, 1), control = control))
+  cox_model <- copy(true_cox$model)
+  cox_model$names <- c("dose2dose")
+  expect_error(CoxRun(cox_model, df, control = control))
+  cox_model <- copy(true_cox$model)
+  cox_model$modelform <- "weird"
+  expect_error(CoxRun(cox_model, df, control = control))
+  #
+  cox_model <- copy(true_pois$model)
+  expect_error(CoxRun(cox_model, df, control = control))
+  cox_model <- copy(true_cox$model)
+  cox_model$event <- ""
+  expect_error(CoxRun(cox_model, df, control = control))
+  cox_model <- copy(true_cox$model)
+  cox_model$start_age <- "bad"
+  expect_error(CoxRun(cox_model, df, control = control))
+  cox_model <- copy(true_cox$model)
+  cox_model$end_age <- "bad"
+  expect_error(CoxRun(cox_model, df, control = control))
+  cox_model <- copy(true_cox$model)
+  cox_model$event <- "bad"
+  expect_error(CoxRun(cox_model, df, control = control))
+  #
+  pois_model <- copy(true_cox$model)
+  expect_error(PoisRun(pois_model, df, control = control))
+  pois_model <- copy(true_pois$model)
+  pois_model$event <- ""
+  expect_error(PoisRun(pois_model, df, control = control))
+  pois_model <- copy(true_pois$model)
+  pois_model$person_year <- "bad"
+  expect_error(PoisRun(pois_model, df, control = control))
+  pois_model <- copy(true_pois$model)
+  pois_model$event <- "bad"
+  expect_error(PoisRun(pois_model, df, control = control))
+  #
+})

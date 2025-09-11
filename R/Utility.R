@@ -70,7 +70,7 @@ parse_literal_string <- function(string) {
       options(warn = 0)
       return(as.logical(string))
     }
-    if (all(sapply(string, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x))) || all(sapply(string, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x)))) {
+    if (all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
       options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
       return(as.numeric(string))
     }
