@@ -126,3 +126,12 @@
 * Convergence check performed more often
 * Checks the actual maximum step taken to compare to threshold
 * Previous versions may have run more iterations than necessary to meet derivative and step size thresholds
+
+# Colossus 1.4.0
+
+* Switch to formula inputs and model classes
+* Removed unused functions, to simplify documentation
+
+# Colossus 1.4.1
+
+* Formula input now allows more general applications of factor, ns(), bs(), I(var^n), interaction, etc.

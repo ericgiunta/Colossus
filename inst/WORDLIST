@@ -5,11 +5,17 @@ al
 Beocat
 breslow
 breslow's
+bs
 CMD
+caseconres
 codecov
 cond
 config
+ColossusCoxSurv
+ColossusCoxStrataSurv
 CoxCurveSolver
+coxph
+coxres
 cr
 csv
 CurveSolve
@@ -24,6 +30,8 @@ DMC
 efron
 et
 extrema
+expres
+fg
 FITOPT
 finegray
 func
@@ -57,6 +65,8 @@ mult
 na
 ncores
 NL
+nonCLL
+ns
 NSSC
 omp
 OMP
@@ -67,6 +77,8 @@ pearson
 pkgdown
 plin
 plinear
+pois
+poisres
 poisson
 pyr
 qchi
@@ -89,6 +101,8 @@ surv
 Surv
 tform
 thres
+tstart
+tend
 trunc
 unshared
 UserID

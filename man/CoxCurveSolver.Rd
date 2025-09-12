@@ -44,13 +44,13 @@ CoxCurveSolver(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
 \item{strat_col}{column to stratify by if needed}
 
 \item{cens_weight}{column containing the row weights}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
+\item{model_control}{controls which alternative model options are used, see the Control_Options vignette for further details}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
@@ -65,16 +65,10 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
 }
 \seealso{
 Other Cox Wrapper Functions: 
-\code{\link{RunCaseControlRegression_Omnibus}()},
-\code{\link{RunCoxNull}()},
-\code{\link{RunCoxRegression}()},
-\code{\link{RunCoxRegression_Basic}()},
-\code{\link{RunCoxRegression_CR}()},
-\code{\link{RunCoxRegression_Guesses_CPP}()},
+\code{\link{CoxRun}()},
+\code{\link{CoxRunMulti}()},
+\code{\link{LikelihoodBound.coxres}()},
 \code{\link{RunCoxRegression_Omnibus}()},
-\code{\link{RunCoxRegression_Omnibus_Multidose}()},
-\code{\link{RunCoxRegression_Single}()},
-\code{\link{RunCoxRegression_Strata}()},
-\code{\link{RunCoxRegression_Tier_Guesses}()}
+\code{\link{RunCoxRegression_Omnibus_Multidose}()}
 }
 \concept{Cox Wrapper Functions}

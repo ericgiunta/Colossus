@@ -50,27 +50,19 @@ df <- data.table(
   "c" = c(10, 11, 10, 11, 12, 9, 11),
   "d" = c(0, 0, 0, 1, 1, 1, 1)
 )
-# For the interval case
-time1 <- "Starting_Age"
-time2 <- "Ending_Age"
-event <- "Cancer_Status"
 
-names <- c("a", "b", "c", "d")
-term_n <- c(0, 1, 1, 2)
-tform <- c("loglin", "lin", "lin", "plin")
-modelform <- "M"
+model <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 
 keep_constant <- c(0, 0, 0, 0)
-der_iden <- 0
 
 control <- list(
   "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,
-  "deriv_epsilon" = 1e-9, "abs_max" = 1.0,
+  "deriv_epsilon" = 1e-9, "step_max" = 1.0,
   "verbose" = 2, "ties" = "breslow"
 )
 
-e <- RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control = control)
-Interpret_Output(e)
+e <- CoxRun(model, df, a_n = a_n, control = control)
+print(e)
 ```

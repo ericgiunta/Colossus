@@ -7,7 +7,7 @@
 Def_model_control(control)
 }
 \arguments{
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 }
 \value{
 returns a filled list
@@ -15,23 +15,13 @@ returns a filled list
 \description{
 \code{Def_model_control} checks and assigns default values
 }
-\examples{
-library(data.table)
-control <- list("single" = TRUE)
-control <- Def_model_control(control)
-
-}
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Check_Verbose}()},
-\code{\link{Convert_Model_Eq}()},
-\code{\link{Correct_Formula_Order}()},
 \code{\link{Date_Shift}()},
 \code{\link{Def_Control}()},
-\code{\link{Def_Control_Guess}()},
-\code{\link{Def_modelform_fix}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
@@ -40,6 +30,8 @@ Other Data Cleaning Functions:
 \code{\link{factorize}()},
 \code{\link{factorize_par}()},
 \code{\link{gen_time_dep}()},
-\code{\link{interact_them}()}
+\code{\link{interact_them}()},
+\code{\link{nested_split}()},
+\code{\link{parse_literal_string}()}
 }
 \concept{Data Cleaning Functions}

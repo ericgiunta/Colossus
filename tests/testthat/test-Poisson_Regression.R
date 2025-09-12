@@ -15,8 +15,9 @@ test_that("Poisson time column missing", {
   a_n <- c(-0.1)
   modelform <- "M"
 
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 1.0, "verbose" = 0, "double_step" = 1)
-  expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control))
+  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0, "double_step" = 1)
+  expect_error(PoisRun(Poisson(a_bad, c) ~ loglinear(d, 0), df, control = control, a_n = a_n))
+  #   expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control))
 })
 test_that("Poisson no events", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -36,8 +37,9 @@ test_that("Poisson no events", {
   a_n <- c(-0.1)
   modelform <- "M"
 
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 1.0, "verbose" = 0, "double_step" = 1)
-  expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control))
+  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0, "double_step" = 1)
+  expect_error(PoisRun(Poisson(a, c) ~ loglinear(d, 0), df, control = control, a_n = a_n))
+  # expect_error(RunPoissonRegression(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control))
   #
   a <- c(0, 1, 2, 3, 4, 5, 6)
   b <- c(1, 2, 3, 4, 5, 6, 7)
@@ -45,7 +47,8 @@ test_that("Poisson no events", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   fac <- c(0, 0, 0, 0, 1, 0, 0)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "fac" = fac)
-  expect_no_error(RunPoissonRegression_Strata(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, c("fac")))
+  expect_no_error(PoisRun(Poisson_Strata(a, c, fac) ~ loglinear(d, 0), df, control = control, a_n = a_n))
+  # expect_no_error(RunPoissonRegression_Strata(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, c("fac")))
 })
 
 test_that("Pois loglin_M Single", {
@@ -63,8 +66,9 @@ test_that("Pois loglin_M Single", {
   a_n <- c(0.01, 0.1)
   modelform <- "M"
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  e <- RunPoissonRegression_Single(df, pyr, event, names, term_n, tform, a_n, modelform, control)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  e <- PoisRun(Poisson(pyr, lung) ~ loglinear(dose, fac, 0), df, control = control, a_n = a_n, single = TRUE)
+  # e <- RunPoissonRegression_Single(df, pyr, event, names, term_n, tform, a_n, modelform, control)
   expect_equal(e$AIC, 2354.055, tolerance = 1e-2)
 })
 test_that("Pois loglin_M Strata", {
@@ -82,7 +86,8 @@ test_that("Pois loglin_M Strata", {
   a_n <- c(0.01)
   modelform <- "M"
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "abs_max" = 1.0, "change_all" = TRUE, "dose_abs_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
-  e <- RunPoissonRegression_Strata(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, c("fac"))
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  e <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ loglinear(dose, 0), df, control = control, a_n = a_n)
+  # e <- RunPoissonRegression_Strata(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, c("fac"))
   expect_equal(e$beta_0, c(0.05476188), tolerance = 1e-1)
 })

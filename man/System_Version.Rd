@@ -14,6 +14,8 @@ returns a list of results
 }
 \seealso{
 Other Output and Information Functions: 
-\code{\link{Interpret_Output}()}
+\code{\link{print.caseconres}()},
+\code{\link{print.coxres}()},
+\code{\link{print.poisres}()}
 }
 \concept{Output and Information Functions}

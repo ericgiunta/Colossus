@@ -24,9 +24,9 @@ jobs:
           Ncpus: 2
           remove-openmp-macos: false
       - name: enable homebrew to allow OpenMP
-        run: |
-          curl -OL https://mac.r-project.org/openmp/openmp-18.1.8-darwin20-Release.tar.gz
-          sudo tar fvxz openmp-18.1.8-darwin20-Release.tar.gz -C /
+        run: | 
+          curl -OL https://mac.r-project.org/openmp/openmp-19.1.0-darwin20-Release.tar.gz
+          sudo tar fvxz openmp-19.1.0-darwin20-Release.tar.gz -C /
       - name: move to package and install
         run: |
           export PKG_CPPFLAGS='-Xclang -fopenmp'

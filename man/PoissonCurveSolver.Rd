@@ -40,11 +40,11 @@ PoissonCurveSolver(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
 \item{strat_col}{column to stratify by if needed}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
+\item{model_control}{controls which alternative model options are used, see the Control_Options vignette for further details}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
@@ -59,15 +59,15 @@ iteratively optimizing each point to using the bisection method
 }
 \seealso{
 Other Poisson Wrapper Functions: 
+\code{\link{EventAssignment.poisres}()},
+\code{\link{LikelihoodBound.poisres}()},
+\code{\link{PoisRun}()},
+\code{\link{PoisRunJoint}()},
+\code{\link{Residual.poisres}()},
 \code{\link{RunPoissonEventAssignment}()},
 \code{\link{RunPoissonEventAssignment_bound}()},
-\code{\link{RunPoissonRegression}()},
-\code{\link{RunPoissonRegression_Guesses_CPP}()},
 \code{\link{RunPoissonRegression_Joint_Omnibus}()},
 \code{\link{RunPoissonRegression_Omnibus}()},
-\code{\link{RunPoissonRegression_Residual}()},
-\code{\link{RunPoissonRegression_Single}()},
-\code{\link{RunPoissonRegression_Strata}()},
-\code{\link{RunPoissonRegression_Tier_Guesses}()}
+\code{\link{RunPoissonRegression_Residual}()}
 }
 \concept{Poisson Wrapper Functions}

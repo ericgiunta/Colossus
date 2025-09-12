@@ -1,8 +1,7 @@
 ---
 title: "Matched Case-Control Logistic Regression"
 output:
-  rmarkdown::html_vignette:
-    css: mystyle.css
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Matched Case-Control Logistic Regression}
   %\VignetteEngine{knitr::rmarkdown}
@@ -123,7 +122,7 @@ $$
 
 The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included in the R survival library. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short, we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
 
-```{r}
+```{r, eval = TRUE}
 #
 data(cancer, package = "survival")
 df <- veteran
@@ -144,55 +143,21 @@ cell <- case_when(
 df$cell <- cell
 
 df$karno50 <- df$karno - 50
-# Convert the cell column into factor columns
-fcols <- c("cell")
-val <- factorize(df, fcols) # Colossus function
-df <- val$df
-
-t0 <- "%trunc%"
-t1 <- "time"
-event <- "status"
-
-names <- c(
-  "karno50", "trt"
-)
-tform_1 <- c(
-  "loglin", "loglin"
-)
-
-term_n <- c(0, 0)
-a_n <- c(0.1, 0.1)
 ```
 
 In the following examples, we are using matching by strata and changing the conditional threshold. In the first case, every matched set uses the recursive formula. In the second case, one set uses the simplified formula. Finally in the third case, every set uses the simplified formula. In all cases, the regression returns the typical output and can be summarized similarly to other regression function outputs.
 
-```{r}
+```{r, eval = TRUE}
+model <- CaseControl_Strata(status, cell) ~ loglinear(karno50, trt)
+
+
 control <- list(verbose = 2, maxiters = c(25, 25))
-model_control <- list("strata" = T, "conditional_threshold" = 100)
-e0 <- RunCaseControlRegression_Omnibus(
-  df, t0, t1, event,
-  names = names, tform = tform_1,
-  strat_col = "cell", model_control = model_control,
-  control = control, term_n = term_n, a_n = a_n
-)
+e0 <- CaseControlRun(model, df, control = control, conditional_threshold = 100)
+e1 <- CaseControlRun(model, df, control = control, conditional_threshold = 40)
+e2 <- CaseControlRun(model, df, control = control, conditional_threshold = 0)
 
-model_control <- list("strata" = T, "conditional_threshold" = 40)
-e1 <- RunCaseControlRegression_Omnibus(
-  df, t0, t1, event,
-  names = names, tform = tform_1,
-  strat_col = "cell", model_control = model_control,
-  control = control, term_n = term_n, a_n = a_n
-)
 
-model_control <- list("strata" = T, "conditional_threshold" = 0)
-e2 <- RunCaseControlRegression_Omnibus(
-  df, t0, t1, event,
-  names = names, tform = tform_1,
-  strat_col = "cell", model_control = model_control,
-  control = control, term_n = term_n, a_n = a_n
-)
-
-Interpret_Output(e0)
-Interpret_Output(e1)
-Interpret_Output(e2)
+print(e0)
+print(e1)
+print(e2)
 ```

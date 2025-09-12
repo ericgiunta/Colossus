@@ -39,7 +39,7 @@
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
 #'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
+#'   "step_max" = 1.0, "thres_step_max" = 100.0,
 #'   "verbose" = FALSE,
 #'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 #' )
@@ -54,42 +54,21 @@
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose, model_control
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
-  if ("para_number" %in% names(model_control)) {
-    model_control$para_number <- val$para_num
-  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
-  if (any(val$Permutation != seq_along(tform))) {
-    if (control$verbose >= 2) {
-      warning("Warning: model covariate order changed")
-    }
-  }
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   #
   to_remove <- c("CONST", "%trunc%")
   to_keep <- c(time1, time2, event0, names)
@@ -103,6 +82,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   to_keep <- to_keep[!to_keep %in% to_remove]
   to_keep <- to_keep[to_keep %in% names(df)]
   df <- df[, to_keep, with = FALSE]
+  tend <- Sys.time()
   #
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
@@ -204,26 +184,28 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
   }
   all_names <- unique(names)
-  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-  # make sure any constant 0 columns are constant
-  for (i in seq_along(keep_constant)) {
-    if ((keep_constant[i] == 0) && (names[i] %in% names(df))) {
-      if (names[i] != "CONST") {
-        if (min(df[[names[i]]]) == max(df[[names[i]]])) {
-          keep_constant[i] <- 1
-          if (control$verbose >= 2) {
-            warning(paste("Warning: element ", i,
-              " with column name ", names[i],
-              " was set constant",
-              sep = ""
-            ))
+  if (!model_control$null) {
+    df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+    # make sure any constant 0 columns are constant
+    for (i in seq_along(keep_constant)) {
+      if ((keep_constant[i] == 0) && (names[i] %in% names(df))) {
+        if (names[i] != "CONST") {
+          if (min(df[[names[i]]]) == max(df[[names[i]]])) {
+            keep_constant[i] <- 1
+            if (control$verbose >= 2) {
+              warning(paste("Warning: element ", i,
+                " with column name ", names[i],
+                " was set constant",
+                sep = ""
+              ))
+            }
           }
         }
       }
     }
-  }
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
+    if (min(keep_constant) > 0) {
+      stop("Error: Atleast one parameter must be free")
+    }
   }
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
@@ -333,229 +315,6 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   return(e)
 }
 
-#' Performs basic Cox Proportional Hazards regression without special options
-#'
-#' \code{RunCoxRegression} uses user provided data, time/event columns,
-#' vectors specifying the model, and options to control the convergence
-#' and starting position
-#'
-#' @inheritParams R_template
-#'
-#' @return returns a list of the final results
-#' @export
-#' @family Cox Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
-#'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
-#' )
-#' e <- RunCoxRegression(
-#'   df, time1, time2, event, names, term_n, tform,
-#'   keep_constant, a_n, modelform, control
-#' )
-#' @importFrom rlang .data
-RunCoxRegression <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list()) {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n,
-    tform, keep_constant, a_n, modelform,
-    control,
-    model_control = list()
-  )
-  return(e)
-}
-
-#' Performs basic Cox Proportional Hazards calculation with no derivative
-#'
-#' \code{RunCoxRegression_Single} uses user provided data, time/event columns, vectors specifying the model, and options and returns the log-likelihood
-#'
-#' @inheritParams R_template
-#' @family Cox Wrapper Functions
-#' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' e <- RunCoxRegression_Single(
-#'   df, time1, time2, event, names, term_n, tform,
-#'   keep_constant, a_n, modelform, control
-#' )
-#'
-#' @importFrom rlang .data
-RunCoxRegression_Single <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list()) {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n,
-    tform, keep_constant, a_n, modelform, control,
-    model_control = list("single" = TRUE)
-  )
-  return(e)
-}
-
-#' Performs basic Cox Proportional Hazards regression with a multiplicative log-linear model
-#'
-#' \code{RunCoxRegression_Basic} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
-#'
-#' @inheritParams R_template
-#' @family Cox Wrapper Functions
-#' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' e <- RunCoxRegression_Basic(
-#'   df, time1, time2, event, names, keep_constant,
-#'   a_n, control
-#' )
-#'
-#' @importFrom rlang .data
-RunCoxRegression_Basic <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), keep_constant = c(0), a_n = c(0), control = list()) {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names,
-    rep(0, length(names)), rep("loglin", length(names)),
-    keep_constant, a_n,
-    "M", control,
-    model_control = list("basic" = TRUE)
-  )
-  return(e)
-}
-
-
-#' Performs basic Cox Proportional Hazards regression with strata effect
-#'
-#' \code{RunCoxRegression_Strata} uses user provided data,
-#' time/event columns, vectors specifying the model, and options to control
-#' the convergence and starting positions
-#'
-#' @inheritParams R_template
-#' @family Cox Wrapper Functions
-#' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 0, 0, 1, 0, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
-#'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
-#' )
-#' strat_col <- "e"
-#' e <- RunCoxRegression_Strata(
-#'   df, time1, time2, event, names, term_n,
-#'   tform, keep_constant, a_n, modelform,
-#'   control, strat_col
-#' )
-#'
-RunCoxRegression_Strata <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null") {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n,
-    tform, keep_constant, a_n, modelform,
-    control,
-    strat_col = strat_col,
-    model_control = list("strata" = TRUE)
-  )
-  return(e)
-}
-
 #' Calculates hazard ratios for a reference vector
 #'
 #' \code{RunCoxRegression} uses user provided data,  vectors specifying the model,
@@ -564,56 +323,19 @@ RunCoxRegression_Strata <- function(df, time1 = "%trunc%", time2 = "%trunc%", ev
 #' @inheritParams R_template
 #' @family Plotting Wrapper Functions
 #' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(1.1, 0.1, 0.2, 0.5) # used to test at a specific point
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' e <- Cox_Relative_Risk(
-#'   df, time1, time2, event, names, term_n, tform,
-#'   keep_constant, a_n, modelform, control
-#' )
-#'
 Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
@@ -624,12 +346,6 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
       df$CONST <- 1
     }
   }
-  val <- Correct_Formula_Order(term_n, tform, keep_constant, a_n, names)
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
   all_names <- unique(names)
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
@@ -640,46 +356,6 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
     modelform, control, matrix(c(0)),
     c(1), keep_constant, term_tot, c(0),
     c(0), model_control
-  )
-  # df <- copy(df)
-  return(e)
-}
-
-#' Performs basic Cox Proportional Hazards regression with the null model
-#'
-#' \code{RunCoxRegression} uses user provided data and time/event columns
-#' to calculate the log-likelihood with constant hazard ratio
-#'
-#' @inheritParams R_template
-#' @family Cox Wrapper Functions
-#' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' control <- list(
-#'   "ncores" = 2, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' e <- RunCoxNull(df, time1, time2, event, control)
-#'
-RunCoxNull <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", control = list()) {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0,
-    control = control,
-    model_control = list("null" = TRUE)
   )
   return(e)
 }
@@ -692,61 +368,19 @@ RunCoxNull <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event
 #' @inheritParams R_template
 #'
 #' @return saves the plots in the current directory and returns the data used for plots
-#' @export
 #' @family Plotting Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(-0.1, 0.5, 1.1, -0.3)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
-#'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
-#' )
-#' # setting maxiter below 0 forces the function to calculate the score
-#' # and return
-#' plot_options <- list(
-#'   "type" = c("surv", paste(tempfile(),
-#'     "run",
-#'     sep = ""
-#'   )), "studyid" = "UserID",
-#'   "verbose" = FALSE
-#' )
-#' RunCoxPlots(
-#'   df, time1, time2, event, names, term_n, tform, keep_constant,
-#'   a_n, modelform, control, plot_options
-#' )
-#'
 RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list()) {
   names(plot_options) <- tolower(names(plot_options))
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   plot_options$verbose <- Check_Verbose(plot_options$verbose)
   if (min(keep_constant) > 0) {
@@ -824,6 +458,15 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       } else {
         stop("Error: dose column not given")
       }
+      if ("studyid" %in% names(plot_options)) {
+        if (plot_options$studyid %in% names(df)) {
+          # fine
+        } else {
+          stop("Error: ID column is not in the dataframe")
+        }
+      } else {
+        stop("Error: ID column not given")
+      }
     }
   } else {
     plot_options$martingale <- FALSE
@@ -842,9 +485,6 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
     }
   }
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if (tolower(plot_type[1]) == "surv") {
     if ("time_lims" %in% names(plot_options)) {
       # fine
@@ -983,346 +623,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       control, age_unit, plot_type[2]
     )
   }
-  # df <- copy(df)
   return(plot_table)
-}
-
-#' Performs basic cox regression, with multiple guesses, starts with
-#' solving for a single term
-#'
-#' \code{RunCoxRegression_Tier_Guesses} uses user provided data, time/event
-#' columns, vectors specifying the model, and options to control the
-#' convergence and starting positions, with additional guesses
-#'
-#' @inheritParams R_template
-#'
-#' @return returns a list of the final results
-#' @export
-#' @family Cox Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 0, 0, 1, 0, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
-#'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "iterations" = 10, "guesses" = 10, "lin_min" = 0.001,
-#'   "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = TRUE, term_initial = c(0, 1)
-#' )
-#' strat_col <- "e"
-#' options(warn = -1)
-#' e <- RunCoxRegression_Tier_Guesses(
-#'   df, time1, time2, event, names,
-#'   term_n, tform, keep_constant,
-#'   a_n, modelform,
-#'   control, guesses_control,
-#'   strat_col
-#' )
-#'
-#' @importFrom rlang .data
-RunCoxRegression_Tier_Guesses <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  control <- Def_Control(control)
-  guesses_control <- Def_Control_Guess(guesses_control, a_n)
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
-  }
-  if ("CONST" %in% names) {
-    if ("CONST" %in% names(df)) {
-      # fine
-    } else {
-      df$CONST <- 1
-    }
-  }
-  t_initial <- guesses_control$term_initial
-  rmin <- guesses_control$rmin
-  rmax <- guesses_control$rmax
-  if (length(rmin) != length(rmax)) {
-    if (control$verbose >= 2) {
-      warning("Warning: rmin/rmax not equal size, lin/loglin min/max used")
-    }
-  }
-  name_initial <- c()
-  term_n_initial <- c()
-  tform_initial <- c()
-  constant_initial <- c()
-  a_n_initial <- c()
-  guess_constant <- c()
-  for (i in seq_along(a_n)) {
-    if (term_n[i] %in% t_initial) {
-      name_initial <- c(name_initial, names[i])
-      term_n_initial <- c(term_n_initial, term_n[i])
-      tform_initial <- c(tform_initial, tform[i])
-      constant_initial <- c(constant_initial, keep_constant[i])
-      a_n_initial <- c(a_n_initial, a_n[i])
-      guess_constant <- c(guess_constant, 0)
-    }
-  }
-  guesses_control$guess_constant <- guess_constant
-  guess_second <- guesses_control$guesses
-  guesses_control$guesses <- guesses_control$guesses_start
-  e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event0, name_initial,
-    term_n_initial, tform_initial,
-    constant_initial, a_n_initial,
-    modelform, control,
-    guesses_control, strat_col,
-    cens_weight = cens_weight,
-    model_control = model_control
-  )
-  if (guesses_control$verbose >= 3) {
-    message("Note: INITIAL TERM COMPLETE") # nocov
-    message(e) # nocov
-  }
-  a_n_initial <- e$beta_0
-  guess_constant <- c()
-  j <- 1
-  for (i in seq_along(a_n)) {
-    if (term_n[i] %in% t_initial) {
-      a_n[i] <- a_n_initial[j]
-      j <- j + 1
-      guess_constant <- c(guess_constant, 1)
-    } else {
-      guess_constant <- c(guess_constant, 0)
-    }
-  }
-  guesses_control$guess_constant <- guess_constant
-  guesses_control$guesses <- guess_second
-  e <- RunCoxRegression_Guesses_CPP(df, time1, time2, event0, names,
-    term_n, tform, keep_constant, a_n, modelform, control,
-    guesses_control, strat_col,
-    cens_weight = cens_weight,
-    model_control = model_control
-  )
-  # df <- copy(df)
-  return(e)
-}
-
-#' Performs basic Cox Proportional Hazards regression with competing risks
-#'
-#' \code{RunCoxRegression_CR} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence, starting positions, and censoring adjustment
-#'
-#' @inheritParams R_template
-#'
-#' @return returns a list of the final results
-#' @export
-#' @family Cox Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 2, 1, 2, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' # weights the probability that a row would continue to extend without censoring,
-#' #    for risk group calculation
-#' df$cens_weight <- c(0.83, 0.37, 0.26, 0.34, 0.55, 0.23, 0.27)
-#' # censoring weight is generated by the survival library finegray function, or by hand.
-#' # The ratio of weight at event end point to weight at row endpoint is used.
-#' e <- RunCoxRegression_CR(
-#'   df, time1, time2, event, names, term_n, tform,
-#'   keep_constant, a_n, modelform, control, "cens_weight"
-#' )
-#'
-#' @importFrom rlang .data
-RunCoxRegression_CR <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), cens_weight = "null") {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names,
-    term_n, tform, keep_constant,
-    a_n, modelform,
-    control,
-    cens_weight = cens_weight,
-    model_control = list("cr" = TRUE)
-  )
-  return(e)
-}
-
-#' Performs basic Cox Proportional Hazards regression, Generates multiple starting guesses on c++ side
-#'
-#' \code{RunCoxRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
-#'
-#' @inheritParams R_template
-#'
-#' @return returns a list of the final results
-#' @export
-#' @family Cox Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10,
-#'   "lin_min" = 0.001, "lin_max" = 1,
-#'   "loglin_min" = -1, "loglin_max" = 1,
-#'   "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
-#' )
-#' strat_col <- "e"
-#' options(warn = -1)
-#' e <- RunCoxRegression_Guesses_CPP(
-#'   df, time1, time2, event, names, term_n,
-#'   tform, keep_constant, a_n, modelform,
-#'   control, guesses_control, strat_col
-#' )
-#' @importFrom rlang .data
-RunCoxRegression_Guesses_CPP <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list(), cens_weight = "null") {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  if (typeof(a_n) != "list") {
-    a_n <- list(a_n)
-  }
-  control <- Def_Control(control)
-  if ("strata" %in% names(guesses_control)) {
-    if ("strata" %in% names(model_control)) {
-      if (guesses_control$strata != model_control$strata) {
-        stop("Error: guesses_control and model_control have different strata options")
-      }
-    } else {
-      model_control$strata <- guesses_control$strata
-    }
-  } else if ("strata" %in% names(model_control)) {
-    guesses_control$strata <- model_control$strata
-  }
-  guesses_control <- Def_Control_Guess(guesses_control, a_n[[1]])
-  model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
-  }
-  if ("CONST" %in% names) {
-    if ("CONST" %in% names(df)) {
-      # fine
-    } else {
-      df$CONST <- 1
-    }
-  }
-  a_n_default <- rep(0, length(a_n[[1]]))
-  for (i in seq_along(a_n[[1]])) {
-    a_n_default[i] <- a_n[[1]][i]
-  }
-  if (guesses_control$strata == FALSE) {
-    ce <- c(time1, time2, event0)
-  } else {
-    ce <- c(time1, time2, event0, strat_col)
-  }
-  all_names <- unique(names)
-  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-  dfc <- match(names, all_names)
-  x_all <- as.matrix(df[, all_names, with = FALSE])
-  t_check <- Check_Trunc(df, ce)
-  df <- t_check$df
-  ce <- t_check$ce
-  dat_val <- Gather_Guesses_CPP(
-    df, dfc, names, term_n, tform, keep_constant,
-    a_n, x_all, a_n_default, modelform,
-    control, guesses_control, model_control
-  )
-  a_ns <- dat_val$a_ns
-  maxiters <- dat_val$maxiters
-  control$maxiters <- c(maxiters, control$maxiter)
-  control$guesses <- length(maxiters)
-  a_n_mat <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  a_n <- lapply(seq_len(nrow(a_n_mat)), function(i) a_n_mat[i, ])
-  e <- RunCoxRegression_Omnibus(df, time1, time2, event0, names,
-    term_n, tform, keep_constant,
-    a_n, modelform, control,
-    strat_col = strat_col,
-    model_control = model_control,
-    cens_weight = cens_weight
-  )
-  # df <- copy(df)
-  return(e)
 }
 
 #' Performs Cox Proportional Hazards regression using the omnibus function with multiple column realizations
@@ -1338,94 +639,23 @@ RunCoxRegression_Guesses_CPP <- function(df, time1 = "%trunc%", time2 = "%trunc%
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results for each realization
-#' @export
 #' @family Cox Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "t0" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "t1" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "lung" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "dose" = c(0, 1, 1, 0, 1, 0, 1)
-#' )
-#' set.seed(3742)
-#' df$rand <- floor(runif(nrow(df), min = 0, max = 5))
-#' df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
-#' df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
-#' df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
-#' time1 <- "t0"
-#' time2 <- "t1"
-#' names <- c("dose", "rand")
-#' term_n <- c(0, 0)
-#' tform <- c("loglin", "loglin")
-#' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-#' realization_index <- c("rand")
-#' keep_constant <- c(1, 0)
-#' a_n <- c(0, 0)
-#' modelform <- "M"
-#' cens_weight <- c(0)
-#' event <- "lung"
-#' a_n <- c(-0.1, -0.1)
-#' keep_constant <- c(0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
-#'   "halfmax" = 2, "epsilon" = 1e-6,
-#'   "deriv_epsilon" = 1e-6, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0,
-#'   "verbose" = 0, "ties" = "breslow", "double_step" = 1
-#' )
-#' e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
-#'   names,
-#'   term_n = term_n, tform = tform,
-#'   keep_constant = keep_constant, a_n = a_n,
-#'   modelform = modelform,
-#'   realization_columns = realization_columns,
-#'   realization_index = realization_index,
-#'   control = control, strat_col = "fac",
-#'   model_control = list(), cens_weight = "null"
-#' )
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  t_bench_s <- Sys.time()
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  t_bench_e <- Sys.time()
-#  print(t_bench_e - t_bench_s)
-  t_bench_s <- Sys.time()
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   #
   control <- Def_Control(control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
-  if (control$verbose >= 2) {
-    if (any(val$Permutation != seq_along(tform))) {
-      if (control$verbose >= 2) {
-        warning("Warning: model covariate order changed")
-      }
-    }
-  }
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
@@ -1542,8 +772,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   dose_all <- as.matrix(df[, dose_names, with = FALSE])
-  t_bench_e <- Sys.time()
-  t_bench_s <- Sys.time()
   e <- cox_ph_multidose_Omnibus_transition(
     term_n, tform, a_n,
     as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all, dose_all,
@@ -1564,7 +792,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   } else {
     e$Survival_Type <- "Cox_Multidose"
   }
-  t_bench_e <- Sys.time()
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   # df <- copy(df)
@@ -1579,48 +806,26 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
 #' @family Cox Wrapper Functions
 #' @importFrom rlang .data
 CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   model_control$log_bound <- TRUE
   model_control <- Def_model_control(model_control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose, model_control
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
-  if ("para_number" %in% names(model_control)) {
-    model_control$para_number <- val$para_num
-  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
-  if (any(val$Permutation != seq_along(tform))) {
-    if (control$verbose >= 2) {
-      warning("Warning: model covariate order changed")
-    }
-  }
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   #
   to_remove <- c("CONST", "%trunc%")
   to_keep <- c(time1, time2, event0, names)
@@ -1651,7 +856,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   df <- df[get(time2) >= tu[1], ]
   # remove rows that start after the last event
   df <- df[get(time1) <= tu[length(tu)], ]
-  
+
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine
@@ -1816,6 +1021,5 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   e$Survival_Type <- "Cox"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }

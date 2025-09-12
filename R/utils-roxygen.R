@@ -10,9 +10,10 @@
 #' @param col_list  an array of column names that should have factor terms defined
 #' @param col_name  vector of new column names
 #' @param cols  columns to check
-#' @param control  list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")
+#' @param control  list of parameters controlling the convergence, see the Control_Options vignette for details
 #' @param cons_mat Matrix containing coefficients for a system of linear constraints, formatted as matrix
 #' @param cons_vec Vector containing constants for a system of linear constraints, formatted as vector
+#' @param curve_control a list of control options for the likelihood boundary regression. See the Control_Options vignette for details.
 #' @param dep_cols  columns that are not needed in the new dataframe
 #' @param df  a data.table containing the columns of interest
 #' @param digits  digits used for printing results
@@ -22,15 +23,20 @@
 #' @param er  standard error for the parameters
 #' @param event0  column used for event status
 #' @param factor_check  a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns
+#' @param formula a formula object, written in Colossus notation. See the Unified Equation Representation vignette for details.
+#' @param formula_list a list of formula objects, each written in Colossus notation. See the Unified Equation Representation vignette for details. Each formula should include the elements specific to the specified event column. The list can include an entry named "shared" to denote shared terms. The person-year and strata columns should be the same.
+#' @param fma a boolean to denote that the Frequentist Model Averaging method should be used
 #' @param fname  filename used for new dataframe
 #' @param func_form  vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
-#' @param guesses_control  list of parameters to control how the guessing works, see Def_Control_Guess() for options or vignette("Control_Options")
+#' @param gradient_control a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the Control_Options vignette for details
 #' @param h  hazards of baseline
 #' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits
 #' @param iscox  boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times
 #' @param keep_constant  binary values to denote which parameters to change
 #' @param log_file file to save log to
-#' @param model_control  controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details
+#' @param mcml a boolean to denote that the Monte Carlo Maximum Likelihood method should be used
+#' @param model either a formula written for the get_form function, or the model result from the get_form function.
+#' @param model_control  controls which alternative model options are used, see the Control_Options vignette for further details
 #' @param Model_Eq  String representation of a survival model. Left-hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right-hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
 #' @param msv  value to replace na with, same used for every column used
@@ -39,6 +45,7 @@
 #' @param new_names  list of new names to use instead of default, default used if entry is ''"
 #' @param nthreads  number of threads to use, do not use more threads than available on your machine
 #' @param null_model  a model to compare against, in list form
+#' @param observed_info a boolean to denote that the observed information matrix should be used to calculate the standard error for parameters, not the expected information matrix
 #' @param out_list  list output from a regression, used to build results table and pull out convergence values
 #' @param paras  list of formula parameters
 #' @param plot_name  plot identifier, used in filename for saved plots
@@ -47,6 +54,7 @@
 #' @param pyr0  column used for person-years per row
 #' @param realization_columns  used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization
 #' @param realization_index  used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition
+#' @param single a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations
 #' @param strat_col  column to stratify by if needed
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
@@ -104,7 +112,7 @@ NULL
 #' @param a_er  Optimal value standard error
 #' @param a_n  starting values
 #' @param a_ns  matrix of starting values
-#' @param abs_max  Maximum allowed parameter change
+#' @param step_max  Maximum allowed parameter change
 #' @param basic_bool  boolean for multiplicative log-linear model
 #' @param beta_0  parameter estimates
 #' @param cens_cutoff  double threshold for adding competing risk to risk group, not implemented
@@ -133,7 +141,7 @@ NULL
 #' @param dfe  Matrix with person-year/event count information
 #' @param dfs  Matrix with stratification columns, assumed to be binary and mutually exclusive
 #' @param dint  value used for threshold derivative finite step
-#' @param dose_abs_max  Maximum allowed threshold parameter change
+#' @param thres_step_max  Maximum allowed threshold parameter change
 #' @param double_step  controls the step calculation, 0 for independent changes, 1 for solving b=Ax with complete matrices
 #' @param dslp  value used for slope derivative finite step
 #' @param dt  spacing in time
@@ -184,15 +192,16 @@ NULL
 
 #' @importFrom Rcpp evalCpp
 #' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD setDT
+#' @importFrom methods is
 #' @importFrom parallel detectCores
 #' @importFrom stats runif weighted.mean pnorm
 #' @importFrom utils combn head sessionInfo
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom graphics legend lines smoothScatter
-#' @importFrom stats approxfun time qchisq
+#' @importFrom stats approxfun time qchisq pchisq
 #' @importFrom rlang .data
 #' @importFrom processx run
-#' @importFrom stringr str_match
+#' @importFrom stringr str_match str_count
 #' @importFrom callr rcmd
 #' @importFrom tibble as_tibble tibble
 #' @importFrom dplyr mutate case_when group_by summarize n slice bind_rows across all_of

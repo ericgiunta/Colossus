@@ -16,11 +16,11 @@ knitr::opts_chunk$set(
 
 ## General Use
 
-There are three control lists used in Colossus that the user can use to customize the regression, all three of which have functions defined that assign default values to any missing list items. The following sections will go through each control list, how it is used, and what every item assigned to it means.
+There are several control lists used in Colossus that the user can use to customize the regression, all of which have functions defined that assign default values to any missing list items. The following sections will go through each control list, how it is used, and what every item assigned to it means.
 
 ### Standard Control List
 
-This is the "control" variable used by every regression function. This list focuses on options that control the convergence criteria and standard Cox proportional hazards options.
+This is the "control" variable used by every regression function. This list focuses on options that control the convergence criteria and standard Cox proportional hazards options. They can be input through the control argument, given as named arguments to the function, or a combination of the two.
 
 | Option | Description |
 | :---------: | :----------: |
@@ -30,37 +30,29 @@ This is the "control" variable used by every regression function. This list focu
 | maxiter  | Maximum iterations run for a single initial position. Defaults to 20.  |
 | maxiters | Used for multiple starting positions. List the maximum number of iterations per starting point and the maximum number of iterations for the final guess. Assumes N values for N guesses and 1 value for the final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
 | halfmax  | Maximum number of half-steps taken per iteration. Defaults to 5.  |
-| epsilon  | Minimum step size before convergence is assumed. Defaults to 1e-4  |
-| deriv_epsilon  | Smallest maximum first derivative before convergence is assumed. Defaults to 1e-4. |
-| abs_max  | Largest acceptable step size for non-intercept parameters. Defaults to 1.0. |
-| dose_abs_max  | Largest acceptable step size for intercept parameters. Defaults to 100.0.   |
+| epsilon  | Maximum step size before convergence is assumed. Defaults to 1e-4. Regression exits if the predicted step sizes are all below this threshold.  |
+| deriv_epsilon  | Largest maximum first derivative before convergence is assumed. Defaults to 1e-4. |
+| step_max  | Largest acceptable step size for non-intercept parameters. Defaults to 1.0. |
+| thres_step_max  | Largest acceptable step size for intercept parameters. Defaults to 100.0.   |
 | ties  | Chooses between 'breslow' and 'efron' methods for tied event times in Cox proportional hazards regressions. Defaults to 'breslow'.  |
 | double_step  | 0/1 Choosing if the model should be optimized by solving the inversion hessian (1) or optimizing each parameter independently (0). Defaults to 1. |
 
-### Model Control List
+### Other Control Lists
 
-This is the "model_control" variable primarily used by the omnibus functions. The non-omnibus functions use this list to select non-standard modeling options.
+The following options can be used by the cox plotting function to select difference types of plots:
 
 | Option | Description |
 | :---------: | :----------: |
-| single  | Boolean used by both Cox and Poisson functions to calculate score without derivatives. This method can be used to quickly test multiple starting points. Defaults to FALSE.  |
-| basic  | Boolean used by Cox functions to use the single-term log-linear model. This method can apply simplifications which reduce the time and memory requirements. Defaults to FALSE.  |
-| null  | Boolean used by Cox functions to calculate the null model, which assumes a constant hazard ratio. Defaults to FALSE.   |
-| cr  | Boolean used by Cox functions to apply competing risks model options to use a Fine-Gray model. Defaults to FALSE.  |
-| constraint  | Boolean used by both Cox and Poisson functions to apply a system of linear constraints. Defaults to FALSE. |
-| strata  | Boolean used by both Cox and Poisson functions to apply stratification. Cox functions use stratified risk groups and Poisson functions apply an average event rate per strata. Defaults to FALSE.  |
 | surv  | Boolean used by Cox plotting function to choose survival curve plotting. Defaults to FALSE  |
 | schoenfeld  | Boolean used by Cox plotting function to choose schoenfeld residual curve plotting. Defaults to FALSE   |
 | risk  | Boolean used by Cox plotting function to choose hazard ratio plotting by a single parameter. Defaults to FALSE   |
 | unique_values | integer used by the risk plotting option to select how many values calculate risk at. Depending on function, either defaults to the number of unique values in the column or 2. |
-| risk_subset  | Boolean used by Cox_Relative_Risk function to calculate a relative risk for every row. Not directly used by the user, Defaults to FALSE.  |
-| log_bound  | Boolean used by Cox and Poisson functions to select calculating likelihood-based confidence bounds. Defaults to FALSE.  |
-| pearson  | Boolean used by RunPoissonRegression_Residual to select calculating pearson residuals. Defaults to FALSE.   |
-| deviance  | Boolean used by RunPoissonRegression_Residual to select calculating deviance residuals. Defaults to FALSE.   |
-| gmix_theta | Theta value for the geometric mixture model, double between 0-1. Defaults to 0.5. |
-| gmix_term | Integer vector indicating if each term in the geometric mixture model is a relative risk (0) or excess risk (1). Defaults to c(0), should be provided if used. |
 
-If the log_bound method is used, there are several additional control options used:
+The following options can be used by the poisson residual function to select difference types of residuals:
+| pearson  | Boolean used by Residual.poisres to select calculating pearson residuals. Defaults to FALSE.   |
+| deviance  | Boolean used by Residual.poisres to select calculating deviance residuals. Defaults to FALSE.   |
+
+If a likelihood boundary is being calculated, there are several additional control options used:
 
 | Option | Description |
 | :---------: | :----------: |
@@ -71,38 +63,5 @@ If the log_bound method is used, there are several additional control options us
 | maxstep | Integer used by the manual search option, splits the initial step into maxstep points. Then each point is optimized with a constant boundary parameter. This is done to find the closest estimate for the boundary point. Defaults to 10. |
 | search_mult | Double used by manual search option, scales the initial step by that amount. This can be done to widen or narrow the scope of the search if the initial quadratic assumption made by the Venzon-Moolgavkar algorithm is incorrect. |
 | step_size | Double used by the Curve Search functions. Sets the initial interval length used. Defaults to 0.5 |
-
-Several options are available for matched case-control conditional logistic regression:
-
-| Option | Description |
-| :---------: | :----------: |
-| time_risk  | Boolean used to denote if rows should be matched by time at risk, similar to a Cox proportional hazards model risk group. Defaults to FALSE.  |
-| strata  | Boolean used to denote matching by stratification. Defaults to FALSE.  |
-
-### Guess Control List
-
-This is the "guesses_control" variable used by the distributed start functions. These options are used to control the number and scope of distributed initial parameter sets used.
-
-| Option | Description |
-| :---------: | :----------: |
-| maxiter | Iterations run for every random starting point |
-| guesses | Number of starting points to test |
-| guesses_start | Number of starting points tested for Tiered or Strata First regressions |
-| guess_constant | Binary values to denote if any parameter values should not be randomized |
-| exp_min | minimum exponential parameter change |
-| exp_max | maximum exponential parameter change |
-| intercept_min | minimum intercept parameter change |
-| intercept_max | maximum intercept parameter change |
-| lin_min | minimum linear slope parameter change |
-| lin_max | maximum linear slope parameter change |
-| exp_slope_min | minimum linear-exponential, exponential slope parameter change |
-| exp_slope_max | maximum linear-exponential, exponential slope parameter change |
-| strata | True/False if stratification is used |
-| term_initial | List of term numbers to run first if Tiered guessing is used |
-| rmin | list of minimum changes below the central estimate for each parameter guess |
-| rmax | list of maximum changes above the central estimate for each parameter guess |
-| verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
-
-
-
+| bisect | Boolean to denote the bisection method of boundary solution. Solves for the optimal log-likelihood at both ends and middle of a searching interval, then updates the window until convergence. |
 

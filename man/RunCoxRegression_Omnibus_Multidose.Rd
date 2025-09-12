@@ -50,13 +50,13 @@ RunCoxRegression_Omnibus_Multidose(
 
 \item{realization_index}{used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
 \item{strat_col}{column to stratify by if needed}
 
 \item{cens_weight}{column containing the row weights}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
+\item{model_control}{controls which alternative model options are used, see the Control_Options vignette for further details}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
@@ -74,65 +74,12 @@ Has additional options for using stratification,
 multiplicative loglinear 1-term,
 competing risks, and calculation without derivatives
 }
-\examples{
-library(data.table)
-## basic example code reproduced from the starting-description vignette
-df <- data.table::data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "t0" = c(18, 20, 18, 19, 21, 20, 18),
-  "t1" = c(30, 45, 57, 47, 36, 60, 55),
-  "lung" = c(0, 0, 1, 0, 1, 0, 0),
-  "dose" = c(0, 1, 1, 0, 1, 0, 1)
-)
-set.seed(3742)
-df$rand <- floor(runif(nrow(df), min = 0, max = 5))
-df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
-df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
-df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
-time1 <- "t0"
-time2 <- "t1"
-names <- c("dose", "rand")
-term_n <- c(0, 0)
-tform <- c("loglin", "loglin")
-realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-realization_index <- c("rand")
-keep_constant <- c(1, 0)
-a_n <- c(0, 0)
-modelform <- "M"
-cens_weight <- c(0)
-event <- "lung"
-a_n <- c(-0.1, -0.1)
-keep_constant <- c(0, 0)
-control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
-  "halfmax" = 2, "epsilon" = 1e-6,
-  "deriv_epsilon" = 1e-6, "abs_max" = 1.0,
-  "dose_abs_max" = 100.0,
-  "verbose" = 0, "ties" = "breslow", "double_step" = 1
-)
-e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event,
-  names,
-  term_n = term_n, tform = tform,
-  keep_constant = keep_constant, a_n = a_n,
-  modelform = modelform,
-  realization_columns = realization_columns,
-  realization_index = realization_index,
-  control = control, strat_col = "fac",
-  model_control = list(), cens_weight = "null"
-)
-}
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxCurveSolver}()},
-\code{\link{RunCaseControlRegression_Omnibus}()},
-\code{\link{RunCoxNull}()},
-\code{\link{RunCoxRegression}()},
-\code{\link{RunCoxRegression_Basic}()},
-\code{\link{RunCoxRegression_CR}()},
-\code{\link{RunCoxRegression_Guesses_CPP}()},
-\code{\link{RunCoxRegression_Omnibus}()},
-\code{\link{RunCoxRegression_Single}()},
-\code{\link{RunCoxRegression_Strata}()},
-\code{\link{RunCoxRegression_Tier_Guesses}()}
+\code{\link{CoxRun}()},
+\code{\link{CoxRunMulti}()},
+\code{\link{LikelihoodBound.coxres}()},
+\code{\link{RunCoxRegression_Omnibus}()}
 }
 \concept{Cox Wrapper Functions}

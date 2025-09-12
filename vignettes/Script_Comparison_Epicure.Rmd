@@ -46,11 +46,11 @@ EVENT nonCLL @
 levels SES_CAT YOB_CAT sexm dose_cat @
 ```
 
-Past this point, the script specifies which columns belong to each subterm and term number. In this case, the model has a linear element in the second term. The script additionally sets the convergence options. The maximum iterations are set to 100 and the convergence criteria are set to 1e-9. The regression is also set to print deviance and parameter estimates for each iteration and to print the final parameter estimates and covariance after the regression concludes.
+Past this point, the script specifies which columns belong to each subterm and term number. In this case, the model has a product-linear element in the first term. The script additionally sets the convergence options. The maximum iterations are set to 100 and the convergence criteria are set to 1e-9. The regression is also set to print deviance and parameter estimates for each iteration and to print the final parameter estimates and covariance after the regression concludes.
 
 ```
 LOGLINEAR 0 SES_CAT YOB_CAT sexm @
-LINEAR 1 cumulative_dose @
+PLINEAR 0 cumulative_dose @
 
 FITOPT P V ITER 100 CONV -9 @
 ```
@@ -84,56 +84,35 @@ For the most part, the same steps are performed in Colossus. The script starts b
 df_Dose <- fread("EX_DOSE.csv")
 ```
 
-The next step defines covariates with levels and assigns the interval/event column information. The main difference is that Colossus currently does not automatically split factored columns. So the first several lines transform the dataset to include factored columns, and later on the user has to list all of the factored columns.
+Colossus defines the model as a formula. The left-hand side of the formula defines the type of model, the time observed, and the event columns. The right-hand side defines the risk factors in each term and subterm. The model is a Cox regression, the intervals are defined by the age_entry/age_exit columns, and the event status is stored in the nonCLL column. This is denoted by 'Cox(age_entry, age_exit, nonCLL)'. The loglinear and product-linear subterms are added to the formula by specifying the subterm type, included columns, and term number, i.e. 'subterm(column 1, column 2, ..., term number)'. Factored columns are added by using 'factor(column)', the default level is assumed to be the first level.
 
 ```{r, eval=FALSE}
-col_list <- c("SES_CAT", "YOB_CAT", "dose_cat")
-val <- factorize(df_Dose, col_list)
-df_Dose <- val$df
-
-t0 <- "age_entry"
-t1 <- "age_exit"
-event <- "nonCLL"
+model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) + loglinear(factor(SES_CAT), factor(YOB_CAT), sexm)
 ```
 
-Next, the script defines the model and control information. Colossus stores the model information like columns in a table. So it expects lists of column names, subterm types, term numbers, etc. In this case, the only non-default values are the column names and subterm types. The "control" variable serves a similar purpose as the "FITOPT" option in Epicure.
+Next, the script defines the control information. The "control" variable serves a similar purpose as the "FITOPT" option in Epicure. This control list specifies that two cores should be used to perform calculations in parallel, up to 100 iterations should be used, and the iterations should stop if the step size is below 1e-9 or the first derivatives are all below 1e-9. The verbose options specifies that any errors or warnings should be printed to the console.
 
 ```{r, eval=FALSE}
-# ERR
-names <- c(
-  "cumulative_dose", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2",
-  "YOB_CAT_3", "YOB_CAT_4", "sexm"
-)
-tform <- c("plin", rep("loglin", length(names) - 1))
-control <- list("Ncores" = 8, "maxiter" = 100, "verbose" = 2, "epsilon" = 1e-9, "der_epsilon" = 1e-9)
+control <- list("Ncores" = 2, "maxiter" = 100, "verbose" = 2, "epsilon" = 1e-9, "der_epsilon" = 1e-9)
 ```
 
-Finally, the regression is run and a list of the results is returned to a variable "e". Regressions in Colossus return a list of results, a summary can be printed with an included function.
+Finally, the regression is run and a list of the results is returned to a variable "e". Regressions in Colossus return a list of results, a summary can be printed.
 
 ```{r, eval=FALSE}
-e <- RunCoxRegression(df_Dose, t0, t1, event, names, tform = tform, control = control)
-Interpret_Output(e)
+e <- CoxRun(model_ERR, df_dose, control = control)
+print(e)
 ```
 
 A similar process is run for the two hazard ratio regressions.
 
 ```{r, eval=FALSE}
 # HR
-names <- c(
-  "cumulative_dose", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2",
-  "YOB_CAT_3", "YOB_CAT_4", "sexm"
-)
-tform <- rep("loglin", length(names))
-e <- RunCoxRegression(df_Dose, t0, t1, event, names, tform = tform, control = control)
-Interpret_Output(e)
+model_HR <- Cox(age_entry, age_exit, nonCLL) ~ loglinear(cumulative_dose, factor(SES_CAT), factor(YOB_CAT), sexm)
+e <- CoxRun(model_HR, df_dose, control = control)
+print(e)
 
 # Categorical
-names <- c(
-  "dose_cat_1", "dose_cat_2", "dose_cat_3", "dose_cat_4", "dose_cat_5",
-  "dose_cat_6", "SES_CAT_1", "SES_CAT_2", "YOB_CAT_1", "YOB_CAT_2",
-  "YOB_CAT_3", "YOB_CAT_4", "sexm"
-)
-tform <- rep("loglin", length(names))
-e <- RunCoxRegression(df_Dose, t0, t1, event, names, tform = tform, control = control)
-Interpret_Output(e)
+model_categ <- Cox(age_entry, age_exit, nonCLL) ~ loglinear(factor(dose_cat), factor(SES_CAT), factor(YOB_CAT), sexm)
+e <- CoxRun(model_categ, df_dose, control = control)
+print(e)
 ```

@@ -13,8 +13,8 @@
 #include "R_Interface.h"
 
 
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::plugins(openmp)]]
+//  [[Rcpp::depends(RcppEigen)]]
+//  [[Rcpp::plugins(openmp)]]
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;

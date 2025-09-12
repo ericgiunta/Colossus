@@ -10,7 +10,7 @@
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Cox Wrapper Functions
+#' @family Case Control Wrapper Functions
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
@@ -39,7 +39,7 @@
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
 #'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
+#'   "step_max" = 1.0, "thres_step_max" = 100.0,
 #'   "verbose" = FALSE,
 #'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 #' )
@@ -54,28 +54,18 @@
 #' @importFrom rlang .data
 RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose, model_control
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
   if (model_control$time_risk == TRUE) {
     ce <- c(time1, time2, event0)
     t_check <- Check_Trunc(df, ce)
@@ -94,20 +84,9 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     # remove rows that start after the last event
     df <- df[get(time1) <= tu[length(tu)], ]
   }
-  if ("para_number" %in% names(model_control)) {
-    model_control$para_number <- val$para_num
-  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
-  if (any(val$Permutation != seq_along(tform))) {
-    if (control$verbose >= 2) {
-      warning("Warning: model covariate order changed")
-    }
-  }
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
       # fine
@@ -282,7 +261,6 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
   }
   #
-  # e <- list()
   e <- caco_Omnibus_transition(
     term_n, tform, a_ns, dfc, x_all, 0,
     modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
@@ -299,6 +277,5 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   e$Survival_Type <- "CaseControl"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }

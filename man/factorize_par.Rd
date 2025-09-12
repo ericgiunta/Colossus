@@ -22,30 +22,14 @@ returns a list with two named fields. df for the updated dataframe, and cols for
 \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
 Not for interaction terms
 }
-\examples{
-library(data.table)
-a <- c(0, 1, 2, 3, 4, 5, 6)
-b <- c(1, 2, 3, 4, 5, 6, 7)
-c <- c(0, 1, 2, 1, 0, 1, 0)
-df <- data.table::data.table("a" = a, "b" = b, "c" = c)
-col_list <- c("c")
-val <- factorize_par(df, col_list, FALSE, 2)
-df <- val$df
-new_col <- val$cols
-
-}
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Dupe_Columns}()},
 \code{\link{Check_Trunc}()},
 \code{\link{Check_Verbose}()},
-\code{\link{Convert_Model_Eq}()},
-\code{\link{Correct_Formula_Order}()},
 \code{\link{Date_Shift}()},
 \code{\link{Def_Control}()},
-\code{\link{Def_Control_Guess}()},
 \code{\link{Def_model_control}()},
-\code{\link{Def_modelform_fix}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
@@ -53,6 +37,8 @@ Other Data Cleaning Functions:
 \code{\link{Time_Since}()},
 \code{\link{factorize}()},
 \code{\link{gen_time_dep}()},
-\code{\link{interact_them}()}
+\code{\link{interact_them}()},
+\code{\link{nested_split}()},
+\code{\link{parse_literal_string}()}
 }
 \concept{Data Cleaning Functions}

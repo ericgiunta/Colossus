@@ -35,8 +35,8 @@
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
 #'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
+#'   "deriv_epsilon" = 1e-3, "step_max" = 1.0,
+#'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
 #'   "double_step" = 1
 #' )
 #' guesses_control <- list(
@@ -54,46 +54,22 @@
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  #  df <- setDT(df)
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose, model_control
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
-  if ("para_number" %in% names(model_control)) {
-    model_control$para_number <- val$para_num
-  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
-  if (control$verbose >= 2) {
-    if (any(val$Permutation != seq_along(tform))) {
-      if (control$verbose >= 2) {
-        warning("Warning: model covariate order changed")
-      }
-    }
-  }
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
@@ -235,7 +211,6 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }
 
@@ -254,79 +229,19 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
 #' @param name_list list of vectors for columns for event specific or shared model elements, required
 #'
 #' @return returns a list of the final results
-#' @export
 #' @family Poisson Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' a <- c(0, 0, 0, 1, 1, 1)
-#' b <- c(1, 1, 1, 2, 2, 2)
-#' c <- c(0, 1, 2, 2, 1, 0)
-#' d <- c(1, 1, 0, 0, 1, 1)
-#' e <- c(0, 1, 1, 1, 0, 0)
-#' f <- c(0, 1, 0, 0, 1, 1)
-#' df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
-#' time1 <- "t0"
-#' time2 <- "t1"
-#' df$pyr <- df$t1 - df$t0
-#' pyr <- "pyr"
-#' events <- c("e0", "e1")
-#' names_e0 <- c("fac")
-#' names_e1 <- c("fac")
-#' names_shared <- c("t0", "t0")
-#' term_n_e0 <- c(0)
-#' term_n_e1 <- c(0)
-#' term_n_shared <- c(0, 0)
-#' tform_e0 <- c("loglin")
-#' tform_e1 <- c("loglin")
-#' tform_shared <- c("quad_slope", "loglin_top")
-#' keep_constant_e0 <- c(0)
-#' keep_constant_e1 <- c(0)
-#' keep_constant_shared <- c(0, 0)
-#' a_n_e0 <- c(-0.1)
-#' a_n_e1 <- c(0.1)
-#' a_n_shared <- c(0.001, -0.02)
-#' name_list <- list("shared" = names_shared, "e0" = names_e0, "e1" = names_e1)
-#' term_n_list <- list("shared" = term_n_shared, "e0" = term_n_e0, "e1" = term_n_e1)
-#' tform_list <- list("shared" = tform_shared, "e0" = tform_e0, "e1" = tform_e1)
-#' keep_constant_list <- list(
-#'   "shared" = keep_constant_shared,
-#'   "e0" = keep_constant_e0, "e1" = keep_constant_e1
-#' )
-#' a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
-#' modelform <- "M"
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10,
-#'   "lin_min" = 0.001, "lin_max" = 1,
-#'   "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
-#' )
-#' strat_col <- "f"
-#' e <- RunPoissonRegression_Joint_Omnibus(
-#'   df, pyr, events, name_list,
-#'   term_n_list,
-#'   tform_list, keep_constant_list,
-#'   a_n_list,
-#'   modelform,
-#'   control, strat_col
-#' )
 #' @importFrom rlang .data
 RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list(), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   val <- Joint_Multiple_Events(
     df, events, name_list,
     term_n_list, tform_list,
@@ -344,62 +259,6 @@ RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term
     a_n, modelform, control,
     strat_col
   )
-  # df <- copy(df)
-  return(e)
-}
-
-#' Performs basic poisson regression
-#'
-#' \code{RunPoissonRegression} uses user provided data, person-year/event columns, vectors specifying the model, and options to control the convergence and starting positions with no special options
-#'
-#' @inheritParams R_template
-#' @family Poisson Wrapper Functions
-#' @return returns a list of the final results
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' df$pyr <- df$Ending_Age - df$Starting_Age
-#' pyr <- "pyr"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "double_step" = 1
-#' )
-#' e <- RunPoissonRegression(
-#'   df, pyr, event, names, term_n, tform,
-#'   keep_constant,
-#'   a_n, modelform, control
-#' )
-#' @export
-#'
-RunPoissonRegression <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list()) {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunPoissonRegression_Omnibus(
-    df, pyr0, event0, names, term_n,
-    tform, keep_constant,
-    a_n, modelform, control
-  )
   return(e)
 }
 
@@ -410,70 +269,24 @@ RunPoissonRegression <- function(df, pyr0 = "pyr", event0 = "event", names = c("
 #' @inheritParams R_template
 #' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' df$pyr <- df$Ending_Age - df$Starting_Age
-#' pyr <- "pyr"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "double_step" = 1
-#' )
-#' e <- RunPoissonEventAssignment(
-#'   df, pyr, event, names, term_n,
-#'   tform, keep_constant,
-#'   a_n, modelform, control
-#' )
-#' @export
 #'
 RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
   control <- Def_Control(control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, as.matrix(c(0)),
-    c(0), control$verbose
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
   df <- df[get(pyr0) > 0, ]
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
@@ -531,7 +344,6 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     modelform, control, keep_constant,
     term_tot, model_control
   )
-  # df <- copy(df)
   return(e)
 }
 
@@ -544,62 +356,18 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
 #' @param z Z score to use for confidence interval
 #' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' pyr <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10, "lin_min" = 0.001,
-#'   "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
-#' )
-#' strat_col <- "e"
-#' e0 <- RunPoissonRegression_Omnibus(
-#'   df, pyr, event, names, term_n, tform,
-#'   keep_constant,
-#'   a_n, modelform,
-#'   control, strat_col
-#' )
-#' e <- RunPoissonEventAssignment_bound(
-#'   df, pyr, event, e0, keep_constant,
-#'   modelform, 4, 2, control
-#' )
-#' @export
 #'
 RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", alternative_model = list(), keep_constant = c(0), modelform = "M", check_num = 1, z = 2, control = list(), strat_col = "null", model_control = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   names <- alternative_model$Parameter_Lists$names
   term_n <- alternative_model$Parameter_Lists$term_n
   tform <- alternative_model$Parameter_Lists$tforms
@@ -632,376 +400,7 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
     "lower_limit" = e_low, "midpoint" = e_mid,
     "upper_limit" = e_high
   )
-  # df <- copy(df)
   return(bound_results)
-}
-
-#' Performs poisson regression with no derivative calculations
-#'
-#' \code{RunPoissonRegression_Single} uses user provided data, person-year/event columns, vectors specifying the model, and returns the results
-#'
-#' @inheritParams R_template
-#' @family Poisson Wrapper Functions
-#' @return returns a list of the final results
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
-#' )
-#' # For the interval case
-#' df$pyr <- df$Ending_Age - df$Starting_Age
-#' pyr <- "pyr"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
-#'   "verbose" = FALSE, "double_step" = 1
-#' )
-#' e <- RunPoissonRegression_Single(
-#'   df, pyr, event, names,
-#'   term_n, tform, a_n, modelform,
-#'   control
-#' )
-#' @export
-#'
-RunPoissonRegression_Single <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", a_n = c(0), modelform = "M", control = list(), keep_constant = rep(0, length(names))) {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n,
-    tform, keep_constant,
-    a_n, modelform, control,
-    model_control = list("single" = TRUE)
-  )
-  return(e)
-}
-
-#' Performs poisson regression with strata effect
-#'
-#' \code{RunPoissonRegression_Strata} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions
-#'
-#' @inheritParams R_template
-#' @family Poisson Wrapper Functions
-#' @return returns a list of the final results
-#' @export
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 0, 0, 1, 0, 1)
-#' )
-#' # For the interval case
-#' df$pyr <- df$Ending_Age - df$Starting_Age
-#' pyr <- "pyr"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' a_n <- c(0.1, 0.1, 0.1, 0.1)
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5,
-#'   "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "abs_max" = 1.0, "dose_abs_max" = 100.0,
-#'   "verbose" = FALSE, "double_step" = 1
-#' )
-#' strat_col <- c("e")
-#' e <- RunPoissonRegression_Strata(
-#'   df, pyr, event, names,
-#'   term_n, tform, keep_constant,
-#'   a_n, modelform, control, strat_col
-#' )
-#'
-RunPoissonRegression_Strata <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null") {
-  control <- Def_Control(control)
-  control$maxiters <- c(1, control$maxiter)
-  control$guesses <- 1
-  e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n,
-    tform, keep_constant, a_n,
-    modelform, control,
-    strat_col,
-    model_control = list("strata" = TRUE)
-  )
-  return(e)
-}
-
-#' Performs basic poisson regression, with multiple guesses, starts with a single term
-#'
-#' \code{RunPoissonRegression_Tier_Guesses} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions, with additional guesses
-#'
-#' @inheritParams R_template
-#' @family Poisson Wrapper Functions
-#' @return returns a list of the final results
-#' @export
-#'
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 0, 0, 1, 0, 1)
-#' )
-#' # For the interval case
-#' df$pyr <- df$Ending_Age - df$Starting_Age
-#' pyr <- "pyr"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "iterations" = 10, "guesses" = 10,
-#'   "lin_min" = 0.001, "lin_max" = 1,
-#'   "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = TRUE, term_initial = c(0, 1)
-#' )
-#' strat_col <- c("e")
-#' options(warn = -1)
-#' e <- RunPoissonRegression_Tier_Guesses(
-#'   df, pyr, event, names,
-#'   term_n, tform, keep_constant, a_n, modelform,
-#'   control, guesses_control, strat_col
-#' )
-#'
-#' @importFrom rlang .data
-RunPoissonRegression_Tier_Guesses <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  control <- Def_Control(control)
-  guesses_control <- Def_Control_Guess(guesses_control, a_n)
-  t_initial <- guesses_control$term_initial
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
-  }
-  rmin <- guesses_control$rmin
-  rmax <- guesses_control$rmax
-  if (length(rmin) != length(rmax)) {
-    if (control$verbose >= 2) {
-      warning("Warning: rmin and rmax lists not equal size, defaulting to lin and loglin min/max values")
-    }
-  }
-  name_initial <- c()
-  term_n_initial <- c()
-  tform_initial <- c()
-  constant_initial <- c()
-  a_n_initial <- c()
-  guess_constant <- c()
-  for (i in seq_len(length(a_n))) {
-    if (term_n[i] %in% t_initial) {
-      name_initial <- c(name_initial, names[i])
-      term_n_initial <- c(term_n_initial, term_n[i])
-      tform_initial <- c(tform_initial, tform[i])
-      constant_initial <- c(constant_initial, keep_constant[i])
-      a_n_initial <- c(a_n_initial, a_n[i])
-      guess_constant <- c(guess_constant, 0)
-    }
-  }
-  guesses_control$guess_constant <- guess_constant
-  guess_second <- guesses_control$guesses
-  guesses_control$guesses <- guesses_control$guesses_start
-  e <- RunPoissonRegression_Guesses_CPP(
-    df, pyr0, event0, name_initial,
-    term_n_initial,
-    tform_initial, constant_initial,
-    a_n_initial,
-    modelform, control,
-    guesses_control,
-    strat_col, model_control
-  )
-  if (guesses_control$verbose >= 3) {
-    message("Note: INITIAL TERM COMPLETE") # nocov
-    message(e) # nocov
-  }
-  a_n_initial <- unlist(e$beta_0, use.names = FALSE)
-  guess_constant <- c()
-  j <- 1
-  for (i in seq_len(length(a_n))) {
-    if (term_n[i] %in% t_initial) {
-      a_n[i] <- a_n_initial[j]
-      j <- j + 1
-      guess_constant <- c(guess_constant, 1)
-    } else {
-      guess_constant <- c(guess_constant, 0)
-    }
-  }
-  guesses_control$guess_constant <- guess_constant
-  guesses_control$guesses <- guess_second
-  e <- RunPoissonRegression_Guesses_CPP(
-    df, pyr0, event0, names,
-    term_n, tform,
-    keep_constant, a_n, modelform,
-    control, guesses_control, strat_col, model_control
-  )
-  # df <- copy(df)
-  return(e)
-}
-
-#' Performs basic Poisson regression, generates multiple starting guesses on c++ side
-#'
-#' \code{RunPoissonRegression_Guesses_CPP} uses user provided data, time/event columns, vectors specifying the model, and options to control the convergence and starting positions. Has additional options to starting with several initial guesses
-#'
-#' @inheritParams R_template
-#' @family Poisson Wrapper Functions
-#' @return returns a list of the final results
-#' @export
-#'
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' pyr <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10,
-#'   "lin_min" = 0.001, "lin_max" = 1,
-#'   "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
-#' )
-#' strat_col <- "e"
-#' options(warn = -1)
-#' e <- RunPoissonRegression_Guesses_CPP(
-#'   df, pyr, event, names, term_n,
-#'   tform, keep_constant, a_n, modelform,
-#'   control, guesses_control, strat_col
-#' )
-#' @importFrom rlang .data
-RunPoissonRegression_Guesses_CPP <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), guesses_control = list(), strat_col = "null", model_control = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
-  if (typeof(a_n) != "list") {
-    a_n <- list(a_n)
-  }
-  control <- Def_Control(control)
-  if ("strata" %in% names(guesses_control)) {
-    if ("strata" %in% names(model_control)) {
-      if (guesses_control$strata != model_control$strata) {
-        stop("Error: guesses_control and model_control have different strata options")
-      }
-    } else {
-      model_control$strata <- guesses_control$strata
-    }
-  } else if ("strata" %in% names(model_control)) {
-    guesses_control$strata <- model_control$strata
-  }
-  guesses_control <- Def_Control_Guess(guesses_control, a_n[[1]])
-  model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
-  }
-  if ("CONST" %in% names) {
-    if ("CONST" %in% names(df)) {
-      # fine
-    } else {
-      df$CONST <- 1
-    }
-  }
-  a_n_default <- rep(0, length(a_n[[1]]))
-  for (i in seq_along(a_n[[1]])) {
-    a_n_default[i] <- a_n[[1]][i]
-  }
-  data.table::setkeyv(df, c(pyr0, event0))
-  all_names <- unique(names)
-  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-  dfc <- match(names, all_names)
-  x_all <- as.matrix(df[, all_names, with = FALSE])
-  dat_val <- Gather_Guesses_CPP(
-    df, dfc, names, term_n, tform,
-    keep_constant, a_n,
-    x_all, a_n_default, modelform,
-    control, guesses_control
-  )
-  a_ns <- dat_val$a_ns
-  maxiters <- dat_val$maxiters
-  control$maxiters <- c(maxiters, control$maxiter)
-  control$guesses <- length(maxiters)
-  a_n_mat <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  a_n <- lapply(seq_len(nrow(a_n_mat)), function(i) a_n_mat[i, ])
-  e <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n,
-    tform, keep_constant, a_n,
-    modelform, control,
-    model_control = model_control,
-    strat_col = strat_col
-  )
-  # df <- copy(df)
-  return(e)
 }
 
 #' Calculates poisson residuals
@@ -1040,8 +439,8 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0 = "pyr", event0 = "event",
 #' control <- list(
 #'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
 #'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "abs_max" = 1.0,
-#'   "dose_abs_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
+#'   "deriv_epsilon" = 1e-3, "step_max" = 1.0,
+#'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
 #'   "double_step" = 1
 #' )
 #' guesses_control <- list(
@@ -1059,42 +458,24 @@ RunPoissonRegression_Guesses_CPP <- function(df, pyr0 = "pyr", event0 = "event",
 #' )
 #' @importFrom rlang .data
 RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   cons_mat <- as.matrix(c(0))
   cons_vec <- c(0)
   control <- Def_Control(control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
-  if (any(val$Permutation != seq_along(tform))) {
-    if (control$verbose >= 2) {
-      warning("Warning: model covariate order changed")
-    }
-  }
   model_control <- Def_model_control(model_control)
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
@@ -1152,7 +533,6 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ]),
     model_control
   )
-  # df <- copy(df)
   return(e)
 }
 
@@ -1169,45 +549,22 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' @importFrom rlang .data
 PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
-  tryCatch(
-    {
-      df <- setDT(df)
-    },
-    error = function(e) {
-      df <- data.table(df)
-    }
-  )
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
-  val <- Correct_Formula_Order(
-    term_n, tform, keep_constant, a_n,
-    names, cons_mat, cons_vec,
-    control$verbose, model_control
-  )
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  names <- val$names
-  cons_mat <- as.matrix(val$cons_mat)
-  cons_vec <- val$cons_vec
-  if ("para_number" %in% names(model_control)) {
-    model_control$para_number <- val$para_num
-  }
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
-  if (control$verbose >= 2) {
-    if (any(val$Permutation != seq_along(tform))) {
-      if (control$verbose >= 2) {
-        warning("Warning: model covariate order changed")
-      }
-    }
-  }
-  val <- Def_modelform_fix(control, model_control, modelform, term_n)
-  modelform <- val$modelform
-  model_control <- val$model_control
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }
@@ -1311,7 +668,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     model_control["alpha"] <- 0.05
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   }
-  para_num <- model_control$para_num + 1 # 3
+  para_num <- model_control$para_num + 1
   keep_constant[para_num] <- 1
   if (min(keep_constant) == 1) {
     model_control["single"] <- TRUE
@@ -1327,6 +684,5 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e$Survival_Type <- "Poisson"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }

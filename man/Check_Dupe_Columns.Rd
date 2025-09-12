@@ -23,28 +23,13 @@ returns the usable columns
 \description{
 \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with single value. Currently not updated for multi-terms
 }
-\examples{
-library(data.table)
-a <- c(0, 1, 2, 3, 4, 5, 6)
-b <- c(1, 2, 3, 4, 5, 6, 7)
-c <- c(0, 1, 2, 1, 0, 1, 0)
-df <- data.table::data.table("a" = a, "b" = b, "c" = c)
-cols <- c("a", "b", "c")
-term_n <- c(0, 0, 1)
-unique_cols <- Check_Dupe_Columns(df, cols, term_n)
-
-}
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Trunc}()},
 \code{\link{Check_Verbose}()},
-\code{\link{Convert_Model_Eq}()},
-\code{\link{Correct_Formula_Order}()},
 \code{\link{Date_Shift}()},
 \code{\link{Def_Control}()},
-\code{\link{Def_Control_Guess}()},
 \code{\link{Def_model_control}()},
-\code{\link{Def_modelform_fix}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
@@ -53,6 +38,8 @@ Other Data Cleaning Functions:
 \code{\link{factorize}()},
 \code{\link{factorize_par}()},
 \code{\link{gen_time_dep}()},
-\code{\link{interact_them}()}
+\code{\link{interact_them}()},
+\code{\link{nested_split}()},
+\code{\link{parse_literal_string}()}
 }
 \concept{Data Cleaning Functions}

@@ -44,13 +44,13 @@ RunCaseControlRegression_Omnibus(
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
 
-\item{control}{list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")}
+\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
 
 \item{strat_col}{column to stratify by if needed}
 
 \item{cens_weight}{column containing the row weights}
 
-\item{model_control}{controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details}
+\item{model_control}{controls which alternative model options are used, see the Control_Options vignette for further details}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
@@ -94,7 +94,7 @@ keep_constant <- c(0, 0, 0, 0)
 control <- list(
   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-  "abs_max" = 1.0, "dose_abs_max" = 100.0,
+  "step_max" = 1.0, "thres_step_max" = 100.0,
   "verbose" = FALSE,
   "ties" = "breslow", "double_step" = 1, "guesses" = 2
 )
@@ -108,17 +108,7 @@ e <- RunCaseControlRegression_Omnibus(df, time1, time2, event,
 )
 }
 \seealso{
-Other Cox Wrapper Functions: 
-\code{\link{CoxCurveSolver}()},
-\code{\link{RunCoxNull}()},
-\code{\link{RunCoxRegression}()},
-\code{\link{RunCoxRegression_Basic}()},
-\code{\link{RunCoxRegression_CR}()},
-\code{\link{RunCoxRegression_Guesses_CPP}()},
-\code{\link{RunCoxRegression_Omnibus}()},
-\code{\link{RunCoxRegression_Omnibus_Multidose}()},
-\code{\link{RunCoxRegression_Single}()},
-\code{\link{RunCoxRegression_Strata}()},
-\code{\link{RunCoxRegression_Tier_Guesses}()}
+Other Case Control Wrapper Functions: 
+\code{\link{CaseControlRun}()}
 }
-\concept{Cox Wrapper Functions}
+\concept{Case Control Wrapper Functions}
