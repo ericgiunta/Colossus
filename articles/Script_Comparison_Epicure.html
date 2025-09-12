@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,8 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+<li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
     <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
     <li><a class="dropdown-item" href="../articles/count_time_tables.html">Generating Person-Count and Person-Time Tables</a></li>
     <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
@@ -74,7 +73,7 @@
       <h1>Script comparisons with 32-bit Epicure</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/dev/vignettes/Script_Comparison_Epicure.Rmd" class="external-link"><code>vignettes/Script_Comparison_Epicure.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/main/vignettes/Script_Comparison_Epicure.Rmd" class="external-link"><code>vignettes/Script_Comparison_Epicure.Rmd</code></a></small>
       <div class="d-none name"><code>Script_Comparison_Epicure.Rmd</code></div>
     </div>
 
@@ -82,6 +81,7 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -119,14 +119,14 @@ EVENT nonCLL @
 
 levels SES_CAT YOB_CAT sexm dose_cat @</code></pre>
 <p>Past this point, the script specifies which columns belong to each
-subterm and term number. In this case, the model has a linear element in
-the second term. The script additionally sets the convergence options.
-The maximum iterations are set to 100 and the convergence criteria are
-set to 1e-9. The regression is also set to print deviance and parameter
-estimates for each iteration and to print the final parameter estimates
-and covariance after the regression concludes.</p>
+subterm and term number. In this case, the model has a product-linear
+element in the first term. The script additionally sets the convergence
+options. The maximum iterations are set to 100 and the convergence
+criteria are set to 1e-9. The regression is also set to print deviance
+and parameter estimates for each iteration and to print the final
+parameter estimates and covariance after the regression concludes.</p>
 <pre><code>LOGLINEAR 0 SES_CAT YOB_CAT sexm @
-LINEAR 1 cumulative_dose @
+PLINEAR 0 cumulative_dose @
 
 FITOPT P V ITER 100 CONV -9 @</code></pre>
 <p>Finally, the regression is run and results are printed to the
@@ -155,59 +155,45 @@ script starts by reading the input file. The only difference is that R
 does not require memory to be set aside before reading the file.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_Dose</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"EX_DOSE.csv"</span><span class="op">)</span></span></code></pre></div>
-<p>The next step defines covariates with levels and assigns the
-interval/event column information. The main difference is that Colossus
-currently does not automatically split factored columns. So the first
-several lines transform the dataset to include factored columns, and
-later on the user has to list all of the factored columns.</p>
+<p>Colossus defines the model as a formula. The left-hand side of the
+formula defines the type of model, the time observed, and the event
+columns. The right-hand side defines the risk factors in each term and
+subterm. The model is a Cox regression, the intervals are defined by the
+age_entry/age_exit columns, and the event status is stored in the nonCLL
+column. This is denoted by ‘Cox(age_entry, age_exit, nonCLL)’. The
+loglinear and product-linear subterms are added to the formula by
+specifying the subterm type, included columns, and term number,
+i.e. ‘subterm(column 1, column 2, …, term number)’. Factored columns are
+added by using ‘factor(column)’, the default level is assumed to be the
+first level.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">col_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SES_CAT"</span>, <span class="st">"YOB_CAT"</span>, <span class="st">"dose_cat"</span><span class="op">)</span></span>
-<span><span class="va">val</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/factorize.html">factorize</a></span><span class="op">(</span><span class="va">df_Dose</span>, <span class="va">col_list</span><span class="op">)</span></span>
-<span><span class="va">df_Dose</span> <span class="op">&lt;-</span> <span class="va">val</span><span class="op">$</span><span class="va">df</span></span>
-<span></span>
-<span><span class="va">t0</span> <span class="op">&lt;-</span> <span class="st">"age_entry"</span></span>
-<span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="st">"age_exit"</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"nonCLL"</span></span></code></pre></div>
-<p>Next, the script defines the model and control information. Colossus
-stores the model information like columns in a table. So it expects
-lists of column names, subterm types, term numbers, etc. In this case,
-the only non-default values are the column names and subterm types. The
-“control” variable serves a similar purpose as the “FITOPT” option in
-Epicure.</p>
+<code class="sourceCode R"><span><span class="va">model_ERR</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">age_entry</span>, <span class="va">age_exit</span>, <span class="va">nonCLL</span><span class="op">)</span> <span class="op">~</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">cumulative_dose</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">loglinear</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">SES_CAT</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">YOB_CAT</span><span class="op">)</span>, <span class="va">sexm</span><span class="op">)</span></span></code></pre></div>
+<p>Next, the script defines the control information. The “control”
+variable serves a similar purpose as the “FITOPT” option in Epicure.
+This control list specifies that two cores should be used to perform
+calculations in parallel, up to 100 iterations should be used, and the
+iterations should stop if the step size is below 1e-9 or the first
+derivatives are all below 1e-9. The verbose options specifies that any
+errors or warnings should be printed to the console.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># ERR</span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"cumulative_dose"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
-<span>  <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">8</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"der_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"der_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, the regression is run and a list of the results is returned
 to a variable “e”. Regressions in Colossus return a list of results, a
-summary can be printed with an included function.</p>
+summary can be printed.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df_Dose</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model_ERR</span>, <span class="va">df_dose</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span></code></pre></div>
 <p>A similar process is run for the two hazard ratio regressions.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># HR</span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"cumulative_dose"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
-<span>  <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df_Dose</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="va">model_HR</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">age_entry</span>, <span class="va">age_exit</span>, <span class="va">nonCLL</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">cumulative_dose</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">SES_CAT</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">YOB_CAT</span><span class="op">)</span>, <span class="va">sexm</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model_HR</span>, <span class="va">df_dose</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Categorical</span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"dose_cat_1"</span>, <span class="st">"dose_cat_2"</span>, <span class="st">"dose_cat_3"</span>, <span class="st">"dose_cat_4"</span>, <span class="st">"dose_cat_5"</span>,</span>
-<span>  <span class="st">"dose_cat_6"</span>, <span class="st">"SES_CAT_1"</span>, <span class="st">"SES_CAT_2"</span>, <span class="st">"YOB_CAT_1"</span>, <span class="st">"YOB_CAT_2"</span>,</span>
-<span>  <span class="st">"YOB_CAT_3"</span>, <span class="st">"YOB_CAT_4"</span>, <span class="st">"sexm"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxRegression.html">RunCoxRegression</a></span><span class="op">(</span><span class="va">df_Dose</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">model_categ</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">age_entry</span>, <span class="va">age_exit</span>, <span class="va">nonCLL</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">dose_cat</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">SES_CAT</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">YOB_CAT</span><span class="op">)</span>, <span class="va">sexm</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model_categ</span>, <span class="va">df_dose</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

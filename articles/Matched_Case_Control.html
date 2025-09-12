@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,8 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+<li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
     <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
     <li><a class="dropdown-item" href="../articles/count_time_tables.html">Generating Person-Count and Person-Time Tables</a></li>
     <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
@@ -74,7 +73,7 @@
       <h1>Matched Case-Control Logistic Regression</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/dev/vignettes/Matched_Case_Control.Rmd" class="external-link"><code>vignettes/Matched_Case_Control.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/main/vignettes/Matched_Case_Control.Rmd" class="external-link"><code>vignettes/Matched_Case_Control.Rmd</code></a></small>
       <div class="d-none name"><code>Matched_Case_Control.Rmd</code></div>
     </div>
 
@@ -82,6 +81,7 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -260,25 +260,7 @@ Karnofsky performance score on sets matched by cancer cell type.</p>
 <span><span class="op">)</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="va">cell</span></span>
 <span></span>
-<span><span class="va">df</span><span class="op">$</span><span class="va">karno50</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span> <span class="op">-</span> <span class="fl">50</span></span>
-<span><span class="co"># Convert the cell column into factor columns</span></span>
-<span><span class="va">fcols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span><span class="op">)</span></span>
-<span><span class="va">val</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/factorize.html">factorize</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">fcols</span><span class="op">)</span> <span class="co"># Colossus function</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">val</span><span class="op">$</span><span class="va">df</span></span>
-<span></span>
-<span><span class="va">t0</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
-<span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="st">"time"</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"status"</span></span>
-<span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"karno50"</span>, <span class="st">"trt"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">tform_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"loglin"</span>, <span class="st">"loglin"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">df</span><span class="op">$</span><span class="va">karno50</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span> <span class="op">-</span> <span class="fl">50</span></span></code></pre></div>
 <p>In the following examples, we are using matching by strata and
 changing the conditional threshold. In the first case, every matched set
 uses the recursive formula. In the second case, one set uses the
@@ -287,78 +269,62 @@ simplified formula. In all cases, the regression returns the typical
 output and can be summarized similarly to other regression function
 outputs.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">2</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"strata"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"conditional_threshold"</span> <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="va">e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>,</span>
-<span>  names <span class="op">=</span> <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform_1</span>,</span>
-<span>  strat_col <span class="op">=</span> <span class="st">"cell"</span>, model_control <span class="op">=</span> <span class="va">model_control</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, a_n <span class="op">=</span> <span class="va">a_n</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">CaseControl_Strata</span><span class="op">(</span><span class="va">status</span>, <span class="va">cell</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">karno50</span>, <span class="va">trt</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"strata"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"conditional_threshold"</span> <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
-<span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>,</span>
-<span>  names <span class="op">=</span> <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform_1</span>,</span>
-<span>  strat_col <span class="op">=</span> <span class="st">"cell"</span>, model_control <span class="op">=</span> <span class="va">model_control</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, a_n <span class="op">=</span> <span class="va">a_n</span></span>
-<span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"strata"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"conditional_threshold"</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>,</span>
-<span>  names <span class="op">=</span> <span class="va">names</span>, tform <span class="op">=</span> <span class="va">tform_1</span>,</span>
-<span>  strat_col <span class="op">=</span> <span class="st">"cell"</span>, model_control <span class="op">=</span> <span class="va">model_control</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, term_n <span class="op">=</span> <span class="va">term_n</span>, a_n <span class="op">=</span> <span class="va">a_n</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">2</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
+<span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e0</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04350086      0.0231580     0.06032132</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin           0      -0.36614050      0.7370327     0.61934667</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04349914     0.02315767     0.06032785</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin           0      -0.36613298     0.73703071     0.61935294</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
 <span><span class="co">#&gt; Deviance: 49.86</span></span>
 <span><span class="co">#&gt; 0 out of 4 matched sets used Unconditional Likelihood</span></span>
-<span><span class="co">#&gt; Iterations run: 9</span></span>
-<span><span class="co">#&gt; maximum step size: 5.33e-05, maximum first derivative: 3.79e+02</span></span>
+<span><span class="co">#&gt; Iterations run: 8</span></span>
+<span><span class="co">#&gt; maximum step size: 7.58e-05, maximum first derivative: 4.83e+01</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.07 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
-<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04386338     0.02048503     0.03225463</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin           0      -0.37043254     0.57345457     0.51830093</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04386262     0.02048497     0.03225717</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin           0      -0.37042694     0.57345403     0.51830687</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
 <span><span class="co">#&gt; Deviance: 52.75</span></span>
 <span><span class="co">#&gt; 1 out of 4 matched sets used Unconditional Likelihood</span></span>
-<span><span class="co">#&gt; Iterations run: 11</span></span>
-<span><span class="co">#&gt; maximum step size: 2.79e-05, maximum first derivative: 4.35e+02</span></span>
+<span><span class="co">#&gt; Iterations run: 9</span></span>
+<span><span class="co">#&gt; maximum step size: 7.38e-05, maximum first derivative: 4.29e+01</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.06 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
-<span><span class="fu"><a href="../reference/Interpret_Output.html">Interpret_Output</a></span><span class="op">(</span><span class="va">e2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04486943     0.01633572    0.006019692</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin           0      -0.37735342     0.55683788    0.497979709</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin           0      -0.04486979     0.01633573    0.006019336</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin           0      -0.37735720     0.55683886    0.497976156</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
 <span><span class="co">#&gt; Deviance: 59.72</span></span>
 <span><span class="co">#&gt; 4 out of 4 matched sets used Unconditional Likelihood</span></span>
-<span><span class="co">#&gt; Iterations run: 11</span></span>
-<span><span class="co">#&gt; maximum step size: 6.97e-05, maximum first derivative: 7.06e+02</span></span>
+<span><span class="co">#&gt; Iterations run: 10</span></span>
+<span><span class="co">#&gt; maximum step size: 2.88e-05, maximum first derivative: 1.87e+01</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.06 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>

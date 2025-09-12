@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,8 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+<li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
     <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
     <li><a class="dropdown-item" href="../articles/count_time_tables.html">Generating Person-Count and Person-Time Tables</a></li>
     <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
@@ -74,7 +73,7 @@
       <h1>Functions for Plotting and Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/dev/vignettes/Plotting_And_Analysis.Rmd" class="external-link"><code>vignettes/Plotting_And_Analysis.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/main/vignettes/Plotting_And_Analysis.Rmd" class="external-link"><code>vignettes/Plotting_And_Analysis.Rmd</code></a></small>
       <div class="d-none name"><code>Plotting_And_Analysis.Rmd</code></div>
     </div>
 
@@ -82,6 +81,7 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -98,18 +98,9 @@ visualize the different plotting methods available in Colossus.</p>
 <span><span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span></span>
-<span><span class="va">t0</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
-<span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="st">"time"</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"status"</span></span>
-<span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span></span>
-<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncore <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01701289</span>, <span class="op">-</span><span class="fl">0.51256478</span><span class="op">)</span></span>
-<span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span></code></pre></div>
+<span><span class="va">coxres</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">age</span>, <span class="va">sex</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, a_n <span class="op">=</span> <span class="va">a_n</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="survival-function-approximation">Survival Function Approximation<a class="anchor" aria-label="anchor" href="#survival-function-approximation"></a>
@@ -156,10 +147,16 @@ time.</p>
 <span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">F</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, plot_options <span class="op">=</span> <span class="va">plot_options</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
+<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
+<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
+<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
+<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
+<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
+<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
+<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
+<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">norm_surv</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">"standard"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -186,10 +183,17 @@ time.</p>
 <span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">T</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>, <span class="va">modelform</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, plot_options <span class="op">=</span> <span class="va">plot_options</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
+<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
+<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
+<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
+<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
+<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
+<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
+<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
+<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
+<span></span>
 <span><span class="va">km</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">"kaplin-meier"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">km</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t_t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">n_t</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -229,11 +233,16 @@ standard deviation.</p>
 <span>  <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
-<span>  <span class="va">modelform</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, plot_options <span class="op">=</span> <span class="va">plot_options</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
+<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
+<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
+<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
+<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
+<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
+<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
+<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
+<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -298,11 +307,16 @@ or under-predicting dependent on time.</p>
 <span>  <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"surv_curv"</span> <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"cov_cols"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
-<span>  <span class="va">modelform</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, plot_options <span class="op">=</span> <span class="va">plot_options</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
+<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
+<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
+<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
+<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
+<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
+<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
+<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
+<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -347,11 +361,16 @@ constant.</p>
 <span>  <span class="st">"type"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"risk"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>,</span>
 <span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunCoxPlots.html">RunCoxPlots</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>, <span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span>, <span class="va">names</span>, <span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">keep_constant</span>, <span class="va">a_n</span>,</span>
-<span>  <span class="va">modelform</span>,</span>
-<span>  control <span class="op">=</span> <span class="va">control</span>, plot_options <span class="op">=</span> <span class="va">plot_options</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
+<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
+<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
+<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
+<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
+<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
+<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
+<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
+<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>

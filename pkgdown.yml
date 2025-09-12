@@ -2,7 +2,6 @@ pandoc: 3.1.11
 pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
-  Alt_Distrib_Starts: Alt_Distrib_Starts.html
   Alt_Run_Opt: Alt_Run_Opt.html
   Control_Options: Control_Options.html
   count_time_tables: count_time_tables.html
@@ -18,4 +17,4 @@ articles:
   Starting-Description: Starting-Description.html
   Time_Dep_Cov: Time_Dep_Cov.html
   Wald_and_Log_Bound: Wald_and_Log_Bound.html
-last_built: 2025-08-09T15:58Z
+last_built: 2025-09-12T14:11Z

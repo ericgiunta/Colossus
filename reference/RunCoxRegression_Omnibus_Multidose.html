@@ -19,7 +19,7 @@ competing risks, and calculation without derivatives"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,8 +30,7 @@ competing risks, and calculation without derivatives"></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
     <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
     <li><a class="dropdown-item" href="../articles/count_time_tables.html">Generating Person-Count and Person-Time Tables</a></li>
     <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
@@ -60,7 +59,7 @@ competing risks, and calculation without derivatives"></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Performs Cox Proportional Hazards regression using the omnibus function with multiple column realizations</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/dev/R/Cox_Regression.R" class="external-link"><code>R/Cox_Regression.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/main/R/Cox_Regression.R" class="external-link"><code>R/Cox_Regression.R</code></a></small>
       <div class="d-none name"><code>RunCoxRegression_Omnibus_Multidose.Rd</code></div>
     </div>
 
@@ -151,7 +150,7 @@ competing risks, and calculation without derivatives</p>
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
-<dd><p>list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")</p></dd>
+<dd><p>list of parameters controlling the convergence, see the Control_Options vignette for details</p></dd>
 
 
 <dt id="arg-strat-col">strat_col<a class="anchor" aria-label="anchor" href="#arg-strat-col"></a></dt>
@@ -163,7 +162,7 @@ competing risks, and calculation without derivatives</p>
 
 
 <dt id="arg-model-control">model_control<a class="anchor" aria-label="anchor" href="#arg-model-control"></a></dt>
-<dd><p>controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details</p></dd>
+<dd><p>controls which alternative model options are used, see the Control_Options vignette for further details</p></dd>
 
 
 <dt id="arg-cons-mat">cons_mat<a class="anchor" aria-label="anchor" href="#arg-cons-mat"></a></dt>
@@ -182,67 +181,12 @@ competing risks, and calculation without derivatives</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Cox Wrapper Functions:
 <code><a href="CoxCurveSolver.html">CoxCurveSolver</a>()</code>,
-<code><a href="RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a>()</code>,
-<code><a href="RunCoxNull.html">RunCoxNull</a>()</code>,
-<code><a href="RunCoxRegression.html">RunCoxRegression</a>()</code>,
-<code><a href="RunCoxRegression_Basic.html">RunCoxRegression_Basic</a>()</code>,
-<code><a href="RunCoxRegression_CR.html">RunCoxRegression_CR</a>()</code>,
-<code><a href="RunCoxRegression_Guesses_CPP.html">RunCoxRegression_Guesses_CPP</a>()</code>,
-<code><a href="RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a>()</code>,
-<code><a href="RunCoxRegression_Single.html">RunCoxRegression_Single</a>()</code>,
-<code><a href="RunCoxRegression_Strata.html">RunCoxRegression_Strata</a>()</code>,
-<code><a href="RunCoxRegression_Tier_Guesses.html">RunCoxRegression_Tier_Guesses</a>()</code></p></div>
+<code><a href="CoxRun.html">CoxRun</a>()</code>,
+<code><a href="CoxRunMulti.html">CoxRunMulti</a>()</code>,
+<code><a href="LikelihoodBound.coxres.html">LikelihoodBound.coxres</a>()</code>,
+<code><a href="RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a>()</code></p></div>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co">## basic example code reproduced from the starting-description vignette</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="st">"UserID"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">112</span>, <span class="fl">114</span>, <span class="fl">213</span>, <span class="fl">214</span>, <span class="fl">115</span>, <span class="fl">116</span>, <span class="fl">117</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"t0"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">20</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">21</span>, <span class="fl">20</span>, <span class="fl">18</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"t1"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">45</span>, <span class="fl">57</span>, <span class="fl">47</span>, <span class="fl">36</span>, <span class="fl">60</span>, <span class="fl">55</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"lung"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"dose"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3742</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">df</span><span class="op">$</span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">df</span><span class="op">$</span><span class="va">rand0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">df</span><span class="op">$</span><span class="va">rand1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">df</span><span class="op">$</span><span class="va">rand2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"t0"</span></span></span>
-<span class="r-in"><span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"t1"</span></span></span>
-<span class="r-in"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dose"</span>, <span class="st">"rand"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">realization_columns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rand0"</span>, <span class="st">"rand1"</span>, <span class="st">"rand2"</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">realization_index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rand"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span></span>
-<span class="r-in"><span><span class="va">cens_weight</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"lung"</span></span></span>
-<span class="r-in"><span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"abs_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"dose_abs_max"</span> <span class="op">=</span> <span class="fl">100.0</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span>, <span class="st">"double_step"</span> <span class="op">=</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">RunCoxRegression_Omnibus_Multidose</span><span class="op">(</span><span class="va">df</span>, <span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>,</span></span>
-<span class="r-in"><span>  <span class="va">names</span>,</span></span>
-<span class="r-in"><span>  term_n <span class="op">=</span> <span class="va">term_n</span>, tform <span class="op">=</span> <span class="va">tform</span>,</span></span>
-<span class="r-in"><span>  keep_constant <span class="op">=</span> <span class="va">keep_constant</span>, a_n <span class="op">=</span> <span class="va">a_n</span>,</span></span>
-<span class="r-in"><span>  modelform <span class="op">=</span> <span class="va">modelform</span>,</span></span>
-<span class="r-in"><span>  realization_columns <span class="op">=</span> <span class="va">realization_columns</span>,</span></span>
-<span class="r-in"><span>  realization_index <span class="op">=</span> <span class="va">realization_index</span>,</span></span>
-<span class="r-in"><span>  control <span class="op">=</span> <span class="va">control</span>, strat_col <span class="op">=</span> <span class="st">"fac"</span>,</span></span>
-<span class="r-in"><span>  model_control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, cens_weight <span class="op">=</span> <span class="st">"null"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

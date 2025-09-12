@@ -9,7 +9,7 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,8 +20,7 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Alt_Distrib_Starts.html">Distributed Start Framework</a></li>
-    <li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Alt_Run_Opt.html">Alternative Regression Options</a></li>
     <li><a class="dropdown-item" href="../articles/Control_Options.html">List of Control Options</a></li>
     <li><a class="dropdown-item" href="../articles/count_time_tables.html">Generating Person-Count and Person-Time Tables</a></li>
     <li><a class="dropdown-item" href="../articles/Dose_Formula_Inputs.html">Dose Response Formula Terms</a></li>
@@ -50,7 +49,7 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Calculates the likelihood curve for a cox model directly</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/dev/R/Cox_Regression.R" class="external-link"><code>R/Cox_Regression.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/main/R/Cox_Regression.R" class="external-link"><code>R/Cox_Regression.R</code></a></small>
       <div class="d-none name"><code>CoxCurveSolver.Rd</code></div>
     </div>
 
@@ -126,7 +125,7 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
-<dd><p>list of parameters controlling the convergence, see Def_Control() for options or vignette("Control_Options")</p></dd>
+<dd><p>list of parameters controlling the convergence, see the Control_Options vignette for details</p></dd>
 
 
 <dt id="arg-strat-col">strat_col<a class="anchor" aria-label="anchor" href="#arg-strat-col"></a></dt>
@@ -138,7 +137,7 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
 
 
 <dt id="arg-model-control">model_control<a class="anchor" aria-label="anchor" href="#arg-model-control"></a></dt>
-<dd><p>controls which alternative model options are used, see Def_model_control() for options and vignette("Control_Options") for further details</p></dd>
+<dd><p>controls which alternative model options are used, see the Control_Options vignette for further details</p></dd>
 
 
 <dt id="arg-cons-mat">cons_mat<a class="anchor" aria-label="anchor" href="#arg-cons-mat"></a></dt>
@@ -156,17 +155,11 @@ iteratively optimizing end-points of intervals. Intervals updated using the bise
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Cox Wrapper Functions:
-<code><a href="RunCaseControlRegression_Omnibus.html">RunCaseControlRegression_Omnibus</a>()</code>,
-<code><a href="RunCoxNull.html">RunCoxNull</a>()</code>,
-<code><a href="RunCoxRegression.html">RunCoxRegression</a>()</code>,
-<code><a href="RunCoxRegression_Basic.html">RunCoxRegression_Basic</a>()</code>,
-<code><a href="RunCoxRegression_CR.html">RunCoxRegression_CR</a>()</code>,
-<code><a href="RunCoxRegression_Guesses_CPP.html">RunCoxRegression_Guesses_CPP</a>()</code>,
+<code><a href="CoxRun.html">CoxRun</a>()</code>,
+<code><a href="CoxRunMulti.html">CoxRunMulti</a>()</code>,
+<code><a href="LikelihoodBound.coxres.html">LikelihoodBound.coxres</a>()</code>,
 <code><a href="RunCoxRegression_Omnibus.html">RunCoxRegression_Omnibus</a>()</code>,
-<code><a href="RunCoxRegression_Omnibus_Multidose.html">RunCoxRegression_Omnibus_Multidose</a>()</code>,
-<code><a href="RunCoxRegression_Single.html">RunCoxRegression_Single</a>()</code>,
-<code><a href="RunCoxRegression_Strata.html">RunCoxRegression_Strata</a>()</code>,
-<code><a href="RunCoxRegression_Tier_Guesses.html">RunCoxRegression_Tier_Guesses</a>()</code></p></div>
+<code><a href="RunCoxRegression_Omnibus_Multidose.html">RunCoxRegression_Omnibus_Multidose</a>()</code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
