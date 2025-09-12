@@ -160,7 +160,8 @@ test_that("Poisson Assigned Events bounds, check results", {
   )
   #
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control)
-  e <- EventAssignment(poisres, df, check_num = 4, z = 2)
+  assign_control <- list(check_num = 4)
+  e <- EventAssignment(poisres, df, assign_control = assign_control, z = 2)
 
   elow <- e$lower_limit$predict
   emid <- e$midpoint$predict

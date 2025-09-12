@@ -939,6 +939,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   }
   if (fma != mcml) {
     model_control["mcml"] <- mcml
+    fma <- !mcml
   } else {
     if (fma) {
       stop("Error: Do not select both fma and mcml, only pick one")

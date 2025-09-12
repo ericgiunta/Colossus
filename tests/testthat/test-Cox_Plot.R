@@ -274,9 +274,9 @@ test_that("Coxph plot no error", {
   modelform <- "M"
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
   plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "surv_curv" = TRUE, "studyid" = "a", "verbose" = 0)
-  e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
+  e <- CoxRun(Cox(tend = b, event = c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options))
+    expect_no_error(plot(e, df, plot_options, verbose = 0))
     # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })

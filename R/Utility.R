@@ -513,56 +513,48 @@ factorize <- function(df, col_list, verbose = 0) {
   list("df" = df, "cols" = cols)
 }
 
-#' Splits a parameter into factors in parallel
-#'
-#' \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
-#' Not for interaction terms
-#'
-#' @inheritParams R_template
-#' @family Data Cleaning Functions
-#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
-factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detectCores())) {
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        df <- setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  verbose <- Check_Verbose(verbose)
-  cols <- c()
-  vals <- c()
-  names <- c()
-  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-    nthreads <- 2
-  }
-  for (i in seq_len(length(col_list))) {
-    col <- col_list[i]
-    x <- sort(unlist(as.list(unique(df[, col, with = FALSE])),
-      use.names = FALSE
-    ))
-    for (j in x) {
-      newcol <- c(paste(col, j, sep = "_"))
-      names <- c(names, newcol)
-      vals <- c(vals, j)
-      cols <- c(cols, i - 1)
-    }
-  }
-  df0 <- Gen_Fac_Par(
-    as.matrix(df[, col_list, with = FALSE]), vals,
-    cols, nthreads
-  )
-  df0 <- data.table::as.data.table(df0)
-  names(df0) <- names
-  col_keep <- Check_Dupe_Columns(
-    df0, names, rep(0, length(cols)),
-    verbose, TRUE
-  )
-  list("df" = cbind(df, df0), "cols" = col_keep)
-}
+# factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detectCores())) {
+#  if (class(df)[[1]] != "data.table") {
+#    tryCatch(
+#      {
+#        df <- setDT(df)
+#      },
+#      error = function(e) {
+#        df <- data.table(df)
+#      }
+#    )
+#  }
+#  verbose <- Check_Verbose(verbose)
+#  cols <- c()
+#  vals <- c()
+#  names <- c()
+#  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
+#    nthreads <- 2
+#  }
+#  for (i in seq_len(length(col_list))) {
+#    col <- col_list[i]
+#    x <- sort(unlist(as.list(unique(df[, col, with = FALSE])),
+#      use.names = FALSE
+#    ))
+#    for (j in x) {
+#      newcol <- c(paste(col, j, sep = "_"))
+#      names <- c(names, newcol)
+#      vals <- c(vals, j)
+#      cols <- c(cols, i - 1)
+#    }
+#  }
+#  df0 <- Gen_Fac_Par(
+#    as.matrix(df[, col_list, with = FALSE]), vals,
+#    cols, nthreads
+#  )
+#  df0 <- data.table::as.data.table(df0)
+#  names(df0) <- names
+#  col_keep <- Check_Dupe_Columns(
+#    df0, names, rep(0, length(cols)),
+#    verbose, TRUE
+#  )
+#  list("df" = cbind(df, df0), "cols" = col_keep)
+# }
 
 #' Defines the likelihood ratio test
 #'

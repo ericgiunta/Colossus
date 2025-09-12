@@ -20,6 +20,42 @@ test_that("Basic factor application to formula", {
   expect_equal(c("d", "e_low"), e$names)
 })
 
+test_that("Run basic errors and checks", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(1, 2, 1, 1, 2, 1, 1)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+
+  model <- Cox(a, b, c) ~ loglinear(d)
+  expect_no_error(CoxRun(model, df, ncores = 2))
+  expect_error(CoxRun(model, df, control = c(2))) # control wasn't a list
+  e <- get_form(Cox(tstart = a, event = c) ~ loglinear(d), df)
+  model <- e$model
+  expect_no_error(CoxRun(model, df, ncores = 2))
+  #
+  model <- Pois(b, c) ~ loglinear(d)
+  expect_no_error(PoisRun(model, df, ncores = 2))
+  expect_error(PoisRun(model, df, control = c(2))) # control wasn't a list
+  #
+  model <- CaseCon(c) ~ loglinear(d)
+  e <- get_form(model, df)
+  model <- e$model
+  expect_no_error(CaseControlRun(model, df, ncores = 2, keep_constant = c(0)))
+  expect_error(CaseControlRun("bad", df, ncores = 2)) # wasn't a formula or model object
+  expect_error(CaseControlRun(model, df, control = 2)) # control wasn't a list
+  #
+  model <- Pois(b, c) ~ loglinear(d)
+  e <- get_form(model, df)
+  model <- e$model
+  expect_no_error(PoisRunJoint(model, df, ncores = 2))
+  expect_error(PoisRunJoint("bad", df, ncores = 2)) # wasn't a formula or model object
+  expect_error(PoisRunJoint(model, df, control = 2)) # control wasn't a list
+  expect_no_error(PoisRunJoint(model, df, ncores = 2, a_n = c(0.1), keep_constant = c(0)))
+  #
+})
+
 test_that("Basic ns and bs application to formula", {
   df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
   model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
@@ -43,10 +79,13 @@ test_that("Basic generic function application to formula", {
     expect_no_error(e <- get_form(model, df))
   }
   for (exp_string in c("sqrt")) {
-    model <- as.formula(paste("Cox(a, b, c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
+    model <- as.formula(paste("Cox(tend = b, event = c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
     expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 2)))
     expect_no_error(f <- RelativeRisk(e, df))
   }
+  model <- Cox(a, b, c) ~ loglinear(factor(d))
+  expect_no_error(e <- CoxRun(model, df, ncores = 2))
+  expect_no_error(f <- RelativeRisk(e, df))
 })
 
 test_that("Checking formula works with result modification", {
