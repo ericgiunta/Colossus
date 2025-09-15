@@ -83,7 +83,19 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     between, first, last</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="available-methods">Available Methods<a class="anchor" aria-label="anchor" href="#available-methods"></a>
 </h2>
@@ -172,8 +184,9 @@ regressions, one fully exponential and one with a linear effect. Both
 regressions converge with nearly identical scores.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">reliability</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
+<span><span class="va">capacitor</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">capacitor</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">capacitor</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">voltage</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">voltage</span> <span class="op">-</span> <span class="fl">200</span><span class="op">)</span> <span class="op">/</span> <span class="fl">150</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">temperature</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">temperature</span> <span class="op">-</span> <span class="fl">170</span><span class="op">)</span> <span class="op">/</span> <span class="fl">10</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">time</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">time</span> <span class="op">-</span> <span class="fl">216</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1105</span> <span class="op">-</span> <span class="fl">216</span><span class="op">)</span></span>
@@ -196,19 +209,10 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 8</span></span>
 <span><span class="co">#&gt; maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.02257 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.0218 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e2</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
@@ -226,7 +230,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 13</span></span>
 <span><span class="co">#&gt; maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.01262 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.0118 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -260,15 +264,6 @@ scale of less than 0.1.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e1</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
@@ -304,7 +299,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; [1] "Cox"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $RunTime</span></span>
-<span><span class="co">#&gt; Time difference of 0.0079591 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.0078697 secs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $method</span></span>
 <span><span class="co">#&gt; [1] "Venzon-Moolgavkar"</span></span>
@@ -318,15 +313,6 @@ scale of less than 0.1.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e1</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Likelihood Bound Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Likelihood Bound Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
@@ -362,7 +348,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; [1] "Cox"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $RunTime</span></span>
-<span><span class="co">#&gt; Time difference of 0.0074441 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.0074027 secs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $method</span></span>
 <span><span class="co">#&gt; [1] "Venzon-Moolgavkar"</span></span>
@@ -391,15 +377,6 @@ are much further off.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">0</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e2</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
@@ -435,7 +412,7 @@ are much further off.</p>
 <span><span class="co">#&gt; [1] "Cox"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $RunTime</span></span>
-<span><span class="co">#&gt; Time difference of 0.016587 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.0088625 secs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $method</span></span>
 <span><span class="co">#&gt; [1] "Venzon-Moolgavkar"</span></span>
@@ -450,15 +427,6 @@ are much further off.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e2</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
@@ -494,7 +462,7 @@ are much further off.</p>
 <span><span class="co">#&gt; [1] "Cox"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $RunTime</span></span>
-<span><span class="co">#&gt; Time difference of 0.0093467 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.0091867 secs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $method</span></span>
 <span><span class="co">#&gt; [1] "Venzon-Moolgavkar"</span></span>

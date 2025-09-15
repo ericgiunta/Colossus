@@ -83,7 +83,19 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     between, first, last</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="example-setup">Example Setup<a class="anchor" aria-label="anchor" href="#example-setup"></a>
 </h2>
@@ -91,8 +103,9 @@
 visualize the different plotting methods available in Colossus.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cancer</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
+<span><span class="va">cancer</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">cancer</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">cancer</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">UserID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">-</span> <span class="fl">1</span></span>
@@ -148,15 +161,6 @@ time.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">norm_surv</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">"standard"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -184,15 +188,6 @@ time.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">km</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">"kaplin-meier"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">km</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t_t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">n_t</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -234,15 +229,6 @@ standard deviation.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -308,15 +294,6 @@ or under-predicting dependent on time.</p>
 <span>  <span class="st">"martingale"</span> <span class="op">=</span> <span class="cn">T</span>, <span class="st">"strat_haz"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"km"</span> <span class="op">=</span> <span class="cn">F</span>, <span class="st">"cov_cols"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -362,15 +339,6 @@ constant.</p>
 <span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[.data.table`(df, , `:=`(right_trunc = tmin)): A shallow copy of</span></span>
-<span><span class="co">#&gt; this data.table was taken so that := can add or remove 1 columns by reference.</span></span>
-<span><span class="co">#&gt; At an earlier point, this data.table was copied by R (or was created manually</span></span>
-<span><span class="co">#&gt; using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently</span></span>
-<span><span class="co">#&gt; (and oddly) may copy the whole data.table. Use set* syntax instead to avoid</span></span>
-<span><span class="co">#&gt; copying: ?set, ?setnames and ?setattr. It's also not unusual for</span></span>
-<span><span class="co">#&gt; data.table-agnostic packages to produce tables affected by this issue. If this</span></span>
-<span><span class="co">#&gt; message doesn't help, please report your use case to the data.table issue</span></span>
-<span><span class="co">#&gt; tracker so the root cause can be fixed or this message improved.</span></span>
 <span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>

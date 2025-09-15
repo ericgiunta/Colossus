@@ -243,8 +243,8 @@ Karnofsky performance score on sets matched by cancer cell type.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cancer</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">veteran</span></span>
-<span></span>
+<span><span class="va">veteran</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">veteran</span><span class="op">)</span></span>
 <span><span class="co"># Make the same adjustments as Epicure example 6.5</span></span>
 <span><span class="va">karno</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span></span>
 <span><span class="va">karno</span><span class="op">[</span><span class="fl">93</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
