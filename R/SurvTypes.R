@@ -196,6 +196,9 @@ get_form_joint <- function(formula_list, df) {
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' model <- get_form(formula, df)
 get_form <- function(formula, df) {
+  if (length(lapply(strsplit(format(formula), ""), function(x) which(x == "~"))[[1]]) != 1) {
+    stop("Error: The formula contained multiple '~', invalid formula")
+  }
   surv_obj <- format(formula[[2]])
   model_obj <- paste(format(formula[[3]]), collapse = " ")
   surv_obj <- gsub(" ", "", surv_obj)

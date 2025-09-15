@@ -15,7 +15,7 @@ test_that("Coxph strata_gradient_CR", {
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   # plot_options <- list("name" = paste(tempfile(), "run", sep = ""), "verbose" = FALSE, "studyid" = "studyid", "age_unit" = "years")
   # dft <- GetCensWeight(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options)
   # #
@@ -30,7 +30,7 @@ test_that("Coxph strata_gradient_CR", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   verbose <- FALSE
   j_iterate <- 1
   a_n <- c(-0.1, -0.1)
@@ -47,7 +47,7 @@ test_that("Coxph strata_gradient_CR", {
   #     for (l in c(TRUE, FALSE)) {
   #       model_control <- list("strata" = i, "gradient" = k, "cr" = l)
   #       a_n <- c(-0.1, -0.1)
-  #       control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  #       control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   #       modelform <- "M"
   #       e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting")
   #       expect_equal(e$Status, "PASSED")
@@ -76,20 +76,20 @@ test_that("Coxph gradient methods", {
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   #
   event <- "lung"
   keep_constant <- c(0, 0)
   model_control <- list("gradient" = TRUE)
   a_n <- c(-0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   modelform <- "M"
   # expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
   for (method in c("momentum", "adadelta", "adam")) {
     model_control <- list("gradient" = TRUE)
     model_control[[method]] <- TRUE
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     modelform <- "M"
     gradient_control <- list()
     gradient_control[[method]] <- TRUE
@@ -115,7 +115,7 @@ test_that("Pois strata_gradient", {
   keep_constant <- c(0, 0)
   a_n <- c(0.01, 0.1)
   modelform <- "PAE"
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 0)
+  control <- list("ncores" = 2, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   strat_col <- "fac"
   verbose <- FALSE
   j_iterate <- 1

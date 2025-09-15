@@ -165,6 +165,7 @@ NULL
 #' @param nonDose_LIN  Linear term matrix
 #' @param nonDose_LOGLIN  Loglinear term matrix
 #' @param nonDose_PLIN  Product linear term matrix
+#' @param norm methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum
 #' @param nthreads  number of threads available
 #' @param ntime  number of risk groups
 #' @param null_bool  boolean for a null model

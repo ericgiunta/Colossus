@@ -25,7 +25,7 @@
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
-CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "NULL", ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
@@ -138,7 +138,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (!missing(cons_mat)) {
     model_control[["constraint"]] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -159,6 +159,25 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   # ------------------------------------------------------------------------------ #
+  #  if (tolower(norm) == "null"){
+  #    # nothing changes
+  #    norm_weight <- rep(1, length(names))
+  #  } else if (tolower(norm) == "max"){
+  #    # weight by the maximum value
+  #    norm_weight <- c()
+  #    for (i in seq_along(names)){
+  #        val <- (df %>% summarise(max_value = max(abs(get(names[i])))))[[1]]
+  #        a_n[i] <- a_n[i]*val
+  #        df[, names[i], with = FALSE] <- df[, names[i], with = FALSE] / val
+  #        norm_weight <- c(norm_weight, val)
+  #    }
+  #  } else {
+  #    stop(gettextf(
+  #        "Error: Normalization arguement '%s' not valid.",
+  #        norm
+  #      ), domain = NA)
+  #  }
+  # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
   res$model <- coxmodel
   res$modelcontrol <- model_control
@@ -167,6 +186,25 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
+  #  if (tolower(norm) == "null"){
+  #    # nothing changes
+  #  } else if (tolower(norm) == "max"){
+  #    # weight by the maximum value
+  #    for (i in seq_along(names)){
+  #        res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
+  #        res$beta_0[i]    <- res$beta_0[i] / norm_weight[i]
+  #        res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+  #        for (j in seq_along(names)){
+  #            res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
+  #            res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
+  #        }
+  #    }
+  #  } else {
+  #    stop(gettextf(
+  #        "Error: Normalization arguement '%s' not valid.",
+  #        norm
+  #      ), domain = NA)
+  #  }
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #

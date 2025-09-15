@@ -15,6 +15,7 @@ CoxRun(
   observed_info = FALSE,
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0),
+  norm = "NULL",
   ...
 )
 }

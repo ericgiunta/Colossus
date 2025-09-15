@@ -125,8 +125,8 @@ The following provides a basic example of how to use the matched case-control re
 ```{r, eval = TRUE}
 #
 data(cancer, package = "survival")
-df <- veteran
-
+veteran %>% setDT()
+df <- copy(veteran)
 # Make the same adjustments as Epicure example 6.5
 karno <- df$karno
 karno[93] <- 20

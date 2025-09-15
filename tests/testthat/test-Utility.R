@@ -220,7 +220,7 @@ test_that("Gen_time_dep time error", {
   time1 <- "%trunc%"
   time2 <- "a_bad"
   event <- "c"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }
@@ -238,7 +238,7 @@ test_that("Gen_time_dep event error", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c_bad"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }
@@ -256,7 +256,7 @@ test_that("Gen_time_dep function error", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c_bad"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     stop()
     return((df[, "b"] * df[, get(time_col)])[[1]])
@@ -275,7 +275,7 @@ test_that("Gen_time_dep functional form error", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }
@@ -294,7 +294,7 @@ test_that("Gen_time_dep no error lin cox", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }
@@ -312,7 +312,7 @@ test_that("Gen_time_dep, error length names, tform, func_form", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }
@@ -332,7 +332,7 @@ test_that("Gen_time_dep no error step cox", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }
@@ -351,7 +351,7 @@ test_that("Gen_time_dep no error lin not cox", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }
@@ -369,7 +369,7 @@ test_that("Gen_time_dep no error step not cox", {
   time1 <- "%trunc%"
   time2 <- "a"
   event <- "c"
-  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
     return((df[, "b"] * df[, get(time_col)])[[1]])
   }

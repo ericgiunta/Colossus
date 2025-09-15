@@ -27,7 +27,7 @@ test_that("Poisson Assigned Events, check results", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0
   )
   #
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control)
@@ -68,7 +68,7 @@ test_that("Poisson Assigned Events, check results strata", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0
   )
   #
   term_n <- c(0, 1, 2)
@@ -125,7 +125,7 @@ test_that("Poisson Assigned Events, combinations", {
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5,
     "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
     "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0,
-    "verbose" = 0, "ties" = "breslow", "double_step" = 1
+    "verbose" = 0, "ties" = "breslow"
   )
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + loglinear(b, 1) + loglinear(c, 2), df, a_n = a_n, control = control)
   df$Cancer_Status <- rep(0, nrow(df))
@@ -156,7 +156,7 @@ test_that("Poisson Assigned Events bounds, check results", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0
   )
   #
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control)

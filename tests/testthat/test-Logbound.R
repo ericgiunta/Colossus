@@ -15,14 +15,14 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
   modelform <- "M"
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   df$weighting <- df$t1 / 20
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
@@ -34,7 +34,7 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   coxres_sc <- CoxRun(FineGray_Strata(t0, t1, lung, rand, weighting) ~ loglinear(dose, fac, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   for (m in c(TRUE, FALSE)) {
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     curve_control <- list("manual" = m)
     expect_no_error(e <- LikelihoodBound(coxres, df, curve_control, control = control, bisect = FALSE))
     expect_no_error(LikelihoodBound(coxres_s, df, curve_control, control = control))
@@ -46,14 +46,14 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
     sink(NULL)
     #    expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "efron", "double_step" = 0)
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "efron")
     #    expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
   }
   for (m in c(TRUE, FALSE)) {
     curve_control <- list("manual" = m)
     model_control <- list("null" = TRUE, "log_bound" = TRUE, "manual" = m)
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     coxres$modelcontrol$null <- TRUE
     expect_error(LikelihoodBound(coxres, df, curve_control, control = control))
     coxres$modelcontrol$null <- FALSE
@@ -89,13 +89,13 @@ test_that("Poisson strata_single log_bound", {
   a_n <- c(0, 0)
   modelform <- "M"
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
@@ -105,7 +105,7 @@ test_that("Poisson strata_single log_bound", {
   poisres_s <- PoisRun(Pois_Strata(pyr, lung, rand) ~ loglinear(dose, fac, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   for (m in c(TRUE, FALSE)) {
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     curve_control <- list("manual" = m)
     expect_no_error(LikelihoodBound(poisres, df, curve_control, control = control, bisect = FALSE))
     expect_no_error(LikelihoodBound(poisres_s, df, curve_control, control = control))
@@ -114,14 +114,14 @@ test_that("Poisson strata_single log_bound", {
   for (m in c(TRUE, FALSE)) {
     model_control <- list("strata" = FALSE, "single" = TRUE, "log_bound" = TRUE, "manual" = m)
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     poisres$modelcontrol$single <- TRUE
     expect_error(LikelihoodBound(poisres, df, curve_control, control = control))
     poisres$modelcontrol$single <- FALSE
     #      expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
     model_control <- list("strata" = FALSE, "gradient" = TRUE, "log_bound" = TRUE, "manual" = m)
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     poisres$modelcontrol$gradient <- TRUE
     expect_error(LikelihoodBound(poisres, df, curve_control, control = control))
     poisres$modelcontrol$gradient <- FALSE
@@ -145,7 +145,7 @@ test_that("Coxph EPICURE validated answers, loglin", {
   #
   a_n <- c(-0.6067, 5.019)
   model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = 0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   coxres <- CoxRun(Cox(entry, exit, event) ~ loglinear(dose0, dose1, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   coxres$beta_0 <- c(-0.6067, 5.019)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
@@ -198,7 +198,7 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
 
   a_n <- c(-0.6067, 5.019)
   model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = 0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   coxres <- CoxRun(Cox(entry, exit, event) ~ loglinear(dose0, dose1, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   coxres$beta_0 <- c(-0.6067, 5.019)
   v_lower <- c(-0.6305960, -0.6572672, -0.6817293, -0.6929630, -0.7300938, -0.7537744, -0.7749381, -0.8001031, -0.8175117)
@@ -249,7 +249,7 @@ test_that("Coxph, lin both", {
 
   #
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(2, 2), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(2, 2), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   coxres <- CoxRun(Cox(entry, exit, event) ~ loglinear(dose0, dose1, 0) + linear(dose0, 1) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   coxres$beta_0 <- c(-1.493177, 5.020007, 1.438377)
   alpha <- 0.005
@@ -267,7 +267,7 @@ test_that("Coxph, lin both", {
     skip("Cran Skip")
   }
   alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   v_lower <- c(4.98213, 4.939947, 4.901443, 4.883815, 4.825766, 4.788947, 4.756168, 4.717337, 4.690578)
   # c(4.97252283668956, 4.9349945105648, 4.89804715665926, 4.88084912208962, 4.82369762341988, 4.78721237571926, 4.7546530342797, 4.71603055250556, 4.68938287303871)
   v_upper <- c(5.058015, 5.100656, 5.139868, 5.157913, 5.217754, 5.256045, 5.290357, 5.331277, 5.359649)
@@ -316,7 +316,7 @@ test_that("Poisson, lin both", {
 
   #
   model_control <- list("basic" = FALSE, "maxstep" = 10, "log_bound" = FALSE, "alpha" = 0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   poisres <- PoisRun(Pois(exit, event) ~ loglinear(dose0, 0) + linear(dose1, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   poisres$beta_0 <- c(-2.917, 0.06526)
   alpha <- 0.005
@@ -348,7 +348,7 @@ test_that("Coxph, lin both, curve search", {
 
   #
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.005)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1, "guesses" = 10)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   coxres <- CoxRun(Cox(entry, exit, event) ~ loglinear(dose0, dose1, 0) + linear(dose0, 1) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   coxres$beta_0 <- c(-1.493177, 5.020007, 1.438377)
   #
@@ -356,7 +356,7 @@ test_that("Coxph, lin both, curve search", {
   a_n <- c(-1.493177, 5.020007, 1.438377)
 
   alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 2, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 2, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   model_control <- list("basic" = FALSE, "maxstep" = 10, "log_bound" = FALSE, "alpha" = 0.005, "para_number" = 2, "step_size" = 0.5)
   v_lower <- c(1.174125, 0.8706585, 0.5657879, 0.401115, -0.749947, -0.7704548, -0.7868122, -0.8043293, -0.8154377)
@@ -391,7 +391,7 @@ test_that("Poisson, curve search", {
 
   #
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   poisres <- PoisRun(Pois(exit, event) ~ loglinear(dose0, 0) + plinear(dose1, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   poisres$beta_0 <- c(-2.917, 0.06526)
   alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)

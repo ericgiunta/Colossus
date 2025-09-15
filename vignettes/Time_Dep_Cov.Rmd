@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(Colossus)
 library(data.table)
+library(survival)
+library(dplyr)
 ```
 
 ## General Usage
@@ -112,8 +114,9 @@ The following provide a basic example for each method listed above. We start by 
 ```{r}
 # Setting up the data for use
 data(cancer, package = "survival")
+cancer %>% setDT()
+df <- copy(cancer)
 
-df <- data.table(cancer)
 df$UserID <- seq_len(nrow(df))
 
 df$status <- df$status - 1

@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 library(Colossus)
 library(data.table)
 library(survival)
+library(dplyr)
 ```
 
 ## Available Methods
@@ -56,8 +57,9 @@ For the sake of comparison, we will consider an analysis of the capacitor data a
 
 ```{r, eval=TRUE}
 data(reliability, package = "survival")
+capacitor %>% setDT()
+df <- copy(capacitor)
 
-df <- capacitor
 df$voltage <- (df$voltage - 200) / 150
 df$temperature <- (df$temperature - 170) / 10
 df$time <- (df$time - 216) / (1105 - 216)

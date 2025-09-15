@@ -200,21 +200,57 @@ test_that("threshold nonfail, gradient", {
   free_strat <- c(113, 113, 113, 0, 0, 0, 0, 0, 0, 96, 96, 96, 0, 0, 0, 0, 0, 0, 4, 4, 4, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 
   extra_bool <- "gradient"
-  for (time_bool in c(T, F)) {
-    for (strat_bool in c(T, F)) {
-      if (time_bool) {
-        if (strat_bool) {
-          model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
-        } else {
-          model <- CaseCon_Time(time, status) ~ loglinear(karno50, trt)
-        }
-      } else {
-        if (strat_bool) {
-          model <- CaseCon_Strata(status, cell) ~ loglinear(karno50, trt)
-        } else {
-          model <- CaseCon(status) ~ loglinear(karno50, trt)
+  for (time_bool in c(T)) {
+    for (strat_bool in c(T)) {
+      model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
+      for (thres in c(0, 40, 100)) {
+        for (method in c("momentum", "adadelta", "adam")) {
+          gradient_control <- list()
+          gradient_control[[method]] <- TRUE
+          e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
+          #
+          expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
+          expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
+          i_index <- i_index + 1
         }
       }
+    }
+  }
+  for (time_bool in c(T)) {
+    for (strat_bool in c(F)) {
+      model <- CaseCon_Time(time, status) ~ loglinear(karno50, trt)
+      for (thres in c(0, 40, 100)) {
+        for (method in c("momentum", "adadelta", "adam")) {
+          gradient_control <- list()
+          gradient_control[[method]] <- TRUE
+          e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
+          #
+          expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
+          expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
+          i_index <- i_index + 1
+        }
+      }
+    }
+  }
+  for (time_bool in c(F)) {
+    for (strat_bool in c(T)) {
+      model <- CaseCon_Strata(status, cell) ~ loglinear(karno50, trt)
+      for (thres in c(0, 40, 100)) {
+        for (method in c("momentum", "adadelta", "adam")) {
+          gradient_control <- list()
+          gradient_control[[method]] <- TRUE
+          e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
+          #
+          expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
+          expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
+          i_index <- i_index + 1
+        }
+      }
+    }
+  }
+  for (time_bool in c(F)) {
+    for (strat_bool in c(F)) {
+      model <- CaseCon(status) ~ loglinear(karno50, trt)
       for (thres in c(0, 40, 100)) {
         for (method in c("momentum", "adadelta", "adam")) {
           gradient_control <- list()

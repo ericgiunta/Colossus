@@ -28,6 +28,8 @@ test_that("Run basic errors and checks", {
   e <- c(1, 2, 1, 1, 2, 1, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
 
+  model <- Cox(a, b, c) ~ loglinear(d) ~ M()
+  expect_error(CoxRun(model, df, ncores = 2))
   model <- Cox(a, b, c) ~ loglinear(d)
   expect_no_error(CoxRun(model, df, ncores = 2))
   expect_error(CoxRun(model, df, control = c(2))) # control wasn't a list

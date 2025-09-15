@@ -16,7 +16,9 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(Colossus)
+library(data.table)
 library(survival)
+library(dplyr)
 ```
 
 ## External Rate Comparisons
@@ -39,6 +41,8 @@ For this analysis, we will use the veteran lung cancer trial data from the survi
 
 ```{r, eval=TRUE}
 data(cancer, package = "survival")
+cancer %>% setDT()
+df <- copy(cancer)
 
 cancer$status <- as.integer(cancer$status == 2)
 cancer$time <- cancer$time / 100

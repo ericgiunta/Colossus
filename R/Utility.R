@@ -144,7 +144,7 @@ Def_Control <- function(control) {
     "halfmax" = 5, "epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "change_all" = TRUE, "thres_step_max" = 100.0,
-    "ties" = "breslow", "double_step" = 1,
+    "ties" = "breslow",
     "ncores" = as.numeric(detectCores())
   )
   names(control) <- tolower(names(control))
@@ -240,6 +240,10 @@ Def_model_control <- function(control) {
     } else {
       control[nm] <- FALSE
     }
+  }
+  if ((control["gradient"] == TRUE) & (control["constraint"] == TRUE)) {
+    warning("Current constraints are not available with gradient descent methods. Only gradient descent will be applied")
+    control["constaint"] <- FALSE
   }
   if (control["null"] == TRUE) {
     control["single"] <- TRUE
