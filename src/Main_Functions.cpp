@@ -610,7 +610,11 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
+    bool true_gradient = model_bool["gradient"];
+    model_bool["gradient"] = false;
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    model_bool["gradient"] = true_gradient;
     //
     if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
         Ll_abs_best = Ll[ind0];
@@ -623,10 +627,10 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     }
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
     //
-    if (model_bool["gradient"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
-        return res_list;
-    }
+//    if (model_bool["gradient"]) {
+//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+//        return res_list;
+//    }
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP
@@ -1179,7 +1183,11 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //  -----------------------------------------------
     //  Performing Full Calculation to get full second derivative matrix
     //  -----------------------------------------------
+    bool true_gradient = model_bool["gradient"];
+    model_bool["gradient"] = false;
+    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+    model_bool["gradient"] = true_gradient;
     //
     if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
         Ll_abs_best = Ll[ind0];
@@ -1189,10 +1197,10 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
     //
-    if (model_bool["gradient"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
-        return res_list;
-    }
+//    if (model_bool["gradient"]) {
+//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+//        return res_list;
+//    }
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     #ifdef _OPENMP
@@ -1872,9 +1880,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             //
             if ((R.minCoeff() <= 0) || (R.hasNaN())) {
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+//                #ifdef _OPENMP
+//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     int tij = term_n[ijk];
                     if (TTerm.col(tij).minCoeff() <= 0) {
@@ -1892,41 +1900,41 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
                 //
                 if (Ll[ind0] <= Ll_iter_best) {  //  if a better point wasn't found, takes a half-step
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+//                    #ifdef _OPENMP
+//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                    #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] * 0.5;  //
                     }
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+//                    #ifdef _OPENMP
+//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                    #endif
                     for (int ijk = 0; ijk < group_num; ijk++) {
                         dstrata[ijk] = dstrata[ijk] * 0.5;  //
                     }
                 } else {  //  if improved, updates the best vector
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+//                    #ifdef _OPENMP
+//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                    #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         beta_best[ijk] = beta_c[ijk];
                     }
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+//                    #ifdef _OPENMP
+//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                    #endif
                     for (int ijk = 0; ijk < group_num; ijk++) {
                         strata_best[ijk] = strata_odds[ijk];  //
                     }
                 }
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+//                #ifdef _OPENMP
+//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {  //  totalnum*(totalnum + 1)/2
                     beta_0[ijk] = beta_c[ijk];
                 }
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+//                #ifdef _OPENMP
+//                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                #endif
                 for (int ijk = 0; ijk < group_num; ijk++) {
                     strata_odds[ijk] = strata_c[ijk];  //
                 }
@@ -1948,9 +1956,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 //
                 if ((R.minCoeff() <= 0) || (R.hasNaN())) {
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+//                    #ifdef _OPENMP
+//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                    #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         int tij = term_n[ijk];
                         if (TTerm.col(tij).minCoeff() <= 0) {
@@ -1970,41 +1978,41 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                     Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
                     //
                     if (Ll[ind0] <= Ll_iter_best) {  //  if a better point wasn't found, takes a half-step
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+//                        #ifdef _OPENMP
+//                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                        #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] * 0.5;  //
                         }
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+//                        #ifdef _OPENMP
+//                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                        #endif
                         for (int ijk = 0; ijk < group_num; ijk++) {
                             dstrata[ijk] = dstrata[ijk] * 0.5;  //
                         }
                     } else {  //  if improved, updates the best vector
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+//                        #ifdef _OPENMP
+//                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                        #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             beta_best[ijk] = beta_c[ijk];
                         }
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+//                        #ifdef _OPENMP
+//                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                        #endif
                         for (int ijk = 0; ijk < group_num; ijk++) {
                             strata_best[ijk] = strata_odds[ijk];  //
                         }
                     }
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+//                    #ifdef _OPENMP
+//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                    #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {  //  totalnum*(totalnum + 1)/2
                         beta_0[ijk] = beta_c[ijk];
                     }
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+//                    #ifdef _OPENMP
+//                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//                    #endif
                     for (int ijk = 0; ijk < group_num; ijk++) {
                         strata_odds[ijk] = strata_c[ijk];  //
                     }
@@ -2074,8 +2082,12 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
     }
     dev = 0.0;
+    bool true_gradient = model_bool["gradient"];
+    model_bool["gradient"] = false;
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
     Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta);
+    model_bool["gradient"] = true_gradient;
     Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
     //
@@ -2085,10 +2097,10 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     }
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
     //
-    if (model_bool["gradient"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
-        return res_list;
-    }
+//    if (model_bool["gradient"]) {
+//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
+//        return res_list;
+//    }
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP

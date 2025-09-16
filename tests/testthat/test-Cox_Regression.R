@@ -100,6 +100,7 @@ test_that("Coxph_strata no events in strata", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   options(warn = -1)
   expect_no_error(CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
+  options(warn = 0)
   #  expect_no_error(RunCoxRegression_Strata(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col))
 })
 test_that("Coxph_strata no strata", {
@@ -344,6 +345,7 @@ test_that("dose nondose combinations", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   options(warn = -1)
   expect_no_error(CoxRun(Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_dose(dose, 0) + quad(dose, 0) + step_dose(dose, 0) + lin_quad_dose(dose, 0) + lin_exp_dose(dose, 0) + loglinear(b, 1) + linear(b, 1) + plinear(b, 1) + additive(), df, a_n = a_n, keep_constant = keep_constant, control = control))
+  options(warn = 0)
   #  expect_no_error(RunCoxRegression(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control))
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")

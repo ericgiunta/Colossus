@@ -169,6 +169,7 @@ test_that("Coxph multidose, extra warnings and checks", {
   df <- rbind(df, d)
   expect_no_error(e <- CoxRunMulti(Cox_Strata(t0, t1, lung, fac) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   # expect_no_error(RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "weighting"))
+  options(warn = 0)
 })
 test_that("Coxph multidose failures", {
   fname <- "ll_comp_0.csv"

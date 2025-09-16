@@ -16,6 +16,7 @@ CaseControlRun(
   observed_info = FALSE,
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0),
+  norm = "null",
   ...
 )
 }
@@ -41,6 +42,8 @@ CaseControlRun(
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
 \item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
+
+\item{norm}{methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum and 'mean' to normalize by the mean}
 
 \item{...}{can include the named entries for the control list parameter}
 }

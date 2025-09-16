@@ -231,6 +231,7 @@ test_that("Coxph risk too few unique values", {
     expect_error(plot(e, df, plot_options))
     # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
+  options(warn = 0)
 })
 test_that("Coxph risk plotting above discrete step number limit", {
   a <- rep(c(0, 1, 2, 3, 4, 5, 6), 20)
@@ -418,6 +419,7 @@ test_that("Coxph martingale combinations", {
     expect_error(plot(e, df, plot_options))
     # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
+  options(warn = 0)
 })
 test_that("Coxph km no error", {
   a <- c(0, 1, 2, 3, 4, 5, 6)

@@ -80,6 +80,7 @@ test_that("One duplicate column", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = a)
   options(warn = -1)
   expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "d", "e"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c", "d"))
+  options(warn = 0)
 })
 test_that("One duplicate column, different term", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -97,6 +98,7 @@ test_that("Multiple duplicate columns", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = a, "f" = b)
   options(warn = -1)
   expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "e", "f"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c"))
+  options(warn = 0)
 })
 test_that("All duplicate columns, different terms", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -114,6 +116,7 @@ test_that("Repeated duplicate columns", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = a, "e" = a, "f" = a)
   options(warn = -1)
   expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "d", "f"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c"))
+  options(warn = 0)
 })
 test_that("All but one duplicate column with varying", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -123,6 +126,7 @@ test_that("All but one duplicate column with varying", {
   df <- data.table("a" = a, "b" = a, "c" = a)
   options(warn = -1)
   expect_equal(Check_Dupe_Columns(df, c("a", "b", "c"), c(0, 0, 0), TRUE), c("a"))
+  options(warn = 0)
 })
 test_that("All but one duplicate column with constant", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -132,6 +136,7 @@ test_that("All but one duplicate column with constant", {
   df <- data.table("a" = c, "b" = c, "c" = c)
   options(warn = -1)
   expect_equal(Check_Dupe_Columns(df, c("a", "b", "c"), c(0, 0, 0), TRUE), c())
+  options(warn = 0)
 })
 test_that("Duplicate with column not in df error", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -142,6 +147,7 @@ test_that("Duplicate with column not in df error", {
   options(warn = -1)
   expect_error(Check_Dupe_Columns(df, c("a", "b", "c", "e"), c(0, 0, 0, 0), TRUE))
   expect_error(Check_Dupe_Columns(df, c("a", "e", "c", "c"), c(0, 0, 0, 0), TRUE))
+  options(warn = 0)
 })
 
 ## ------------------------------------- ##

@@ -241,10 +241,10 @@ Def_model_control <- function(control) {
       control[nm] <- FALSE
     }
   }
-  if ((control["gradient"] == TRUE) & (control["constraint"] == TRUE)) {
-    warning("Current constraints are not available with gradient descent methods. Only gradient descent will be applied")
-    control["constaint"] <- FALSE
-  }
+  #  if ((control["gradient"] == TRUE) & (control["constraint"] == TRUE)) {
+  #    warning("Current constraints are not available with gradient descent methods. Only gradient descent will be applied")
+  #    control["constaint"] <- FALSE
+  #  }
   if (control["null"] == TRUE) {
     control["single"] <- TRUE
   }
@@ -340,6 +340,19 @@ Def_model_control <- function(control) {
       # fine
     } else {
       control["epsilon_decay"] <- 1e-4
+    }
+    if (control["constraint"] == TRUE) {
+      # needs to add constraint penalty
+      if ("penalty_weight" %in% names(control)) {
+        # fine
+      } else {
+        control["penalty_weight"] <- 1.0
+      }
+      if ("penalty_method" %in% names(control)) {
+        # fine
+      } else {
+        control["penalty_method"] <- "sqr_error"
+      }
     }
   }
   return(control)

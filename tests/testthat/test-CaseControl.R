@@ -196,9 +196,9 @@ test_that("threshold nonfail, gradient", {
   #
   i_index <- 1
   #
-  devs <- c(3307.64803, 862.15791, 850.39045, 662.89835, 619.59109, 645.78672, 662.89835, 619.59109, 645.78672, 4708.10011, 1139.98323, 1209.77460, 961.67111, 918.33615, 970.65878, 961.67111, 918.33615, 970.65878, 75.15047, 60.14696, 61.22819, 98.03485, 52.86674, 56.29411, 73.57696, 49.86964, 56.35650, 207.36346, 62.25028, 64.19787, 207.36346, 62.25028, 64.19787, 207.36346, 62.25028, 64.19787)
-  free_strat <- c(113, 113, 113, 0, 0, 0, 0, 0, 0, 96, 96, 96, 0, 0, 0, 0, 0, 0, 4, 4, 4, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-
+  devs <- c(2367.0306, 862.1579, 850.3904, 1107.9470, 619.5911, 620.3378, 1107.9470, 619.5911, 620.3378)
+  free_strat <- c(113, 113, 113, 0, 0, 0, 0, 0, 0)
+  i_index <- 1
   extra_bool <- "gradient"
   for (time_bool in c(T)) {
     for (strat_bool in c(T)) {
@@ -216,6 +216,9 @@ test_that("threshold nonfail, gradient", {
       }
     }
   }
+  devs <- c(3117.1567, 1139.9832, 1366.5472, 1452.8518, 918.3362, 928.9564, 1452.8518, 918.3362, 928.9564)
+  free_strat <- c(96, 96, 96, 0, 0, 0, 0, 0, 0)
+  i_index <- 1
   for (time_bool in c(T)) {
     for (strat_bool in c(F)) {
       model <- CaseCon_Time(time, status) ~ loglinear(karno50, trt)
@@ -232,6 +235,9 @@ test_that("threshold nonfail, gradient", {
       }
     }
   }
+  devs <- c(68.79205, 60.14696, 69.71407, 57.34329, 52.86674, 53.64409, 99.15252, 49.86964, 50.35396)
+  free_strat <- c(4, 4, 4, 1, 1, 1, 0, 0, 0)
+  i_index <- 1
   for (time_bool in c(F)) {
     for (strat_bool in c(T)) {
       model <- CaseCon_Strata(status, cell) ~ loglinear(karno50, trt)
@@ -248,6 +254,9 @@ test_that("threshold nonfail, gradient", {
       }
     }
   }
+  devs <- c(128.79809, 62.25028, 66.40201, 128.79809, 62.25028, 66.40201, 128.79809, 62.25028, 66.40201)
+  free_strat <- c(1, 1, 1, 1, 1, 1, 1, 1, 1)
+  i_index <- 1
   for (time_bool in c(F)) {
     for (strat_bool in c(F)) {
       model <- CaseCon(status) ~ loglinear(karno50, trt)

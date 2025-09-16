@@ -76,18 +76,18 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
         nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
         TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    } else if (model_bool["gradient"]) {
-        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-        Te = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for column terms used for temporary storage
-        R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
-        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-        Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of the total dose term values
-        nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of the total non-dose term values
-        nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of Linear subterm values
-        nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
-        nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
-        TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+//    } else if (model_bool["gradient"]) {
+//        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+//        Te = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for column terms used for temporary storage
+//        R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
+//        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+//        Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of the total dose term values
+//        nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of the total non-dose term values
+//        nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of Linear subterm values
+//        nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
+//        nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
+//        TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
+//        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
     } else {
         Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
         Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
@@ -125,10 +125,10 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
         if (!model_bool["single"]) {
             Rls2 = MatrixXd::Zero(ntime, reqrdnum*Strata_vals.size());  //  many are repeated due to the same risk groups and derivatives being used at mulitple points
             Lls2 = MatrixXd::Zero(ntime, reqrdnum*Strata_vals.size());
-            if (!model_bool["gradient"]) {
-                Rls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2*Strata_vals.size());  //  sum and its derivatives are precomputed
-                Lls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2*Strata_vals.size());
-            }
+//            if (!model_bool["gradient"]) {
+            Rls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2*Strata_vals.size());  //  sum and its derivatives are precomputed
+            Lls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2*Strata_vals.size());
+//            }
         }
     } else {
         Rls1 = MatrixXd::Zero(ntime, 1);  //  precomputes a series of sums used frequently in the log-liklihood calculations
@@ -136,10 +136,10 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
         if (!model_bool["single"]) {
             Rls2 = MatrixXd::Zero(ntime, reqrdnum);  //  many are repeated due to the same risk groups and derivatives being used at mulitple points
             Lls2 = MatrixXd::Zero(ntime, reqrdnum);
-            if (!model_bool["gradient"]) {
-                Rls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2);  //  sum and its derivatives are precomputed
-                Lls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2);
-            }
+//            if (!model_bool["gradient"]) {
+            Rls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2);  //  sum and its derivatives are precomputed
+            Lls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2);
+//            }
         }
     }
     return;

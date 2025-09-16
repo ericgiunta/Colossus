@@ -43,6 +43,7 @@
 #' @param name_list  vector of string column names to check
 #' @param names  columns for elements of the model, used to identify data columns
 #' @param new_names  list of new names to use instead of default, default used if entry is ''"
+#' @param norm methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum and 'mean' to normalize by the mean
 #' @param nthreads  number of threads to use, do not use more threads than available on your machine
 #' @param null_model  a model to compare against, in list form
 #' @param observed_info a boolean to denote that the observed information matrix should be used to calculate the standard error for parameters, not the expected information matrix
@@ -165,7 +166,6 @@ NULL
 #' @param nonDose_LIN  Linear term matrix
 #' @param nonDose_LOGLIN  Loglinear term matrix
 #' @param nonDose_PLIN  Product linear term matrix
-#' @param norm methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum
 #' @param nthreads  number of threads available
 #' @param ntime  number of risk groups
 #' @param null_bool  boolean for a null model
@@ -205,7 +205,7 @@ NULL
 #' @importFrom stringr str_match str_count
 #' @importFrom callr rcmd
 #' @importFrom tibble as_tibble tibble
-#' @importFrom dplyr mutate case_when group_by summarize n slice bind_rows across all_of
+#' @importFrom dplyr mutate case_when group_by summarize summarise n slice bind_rows across all_of
 #' @importFrom lubridate make_date interval as.duration
 #' @useDynLib Colossus, .registration = TRUE
 NULL

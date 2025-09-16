@@ -135,3 +135,8 @@
 # Colossus 1.4.1
 
 * Formula input now allows more general applications of factor, ns(), bs(), I(var^n), interaction, etc.
+
+# Colossys 1.4.2
+
+* Option added to normalize covariates, either scaled by the mean or maximum values.
+* Gradient descent option now calculates standard error and covariance through second derivative after regression.
