@@ -10,7 +10,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 #include <functional>
@@ -22,10 +21,16 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
-using namespace std::chrono;
+
+using std::string;
+using std::vector;
+using std::transform;
+using std::plus;
+using std::endl;
+using std::invalid_argument;
+using std::set;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
@@ -56,8 +61,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
     #ifdef _OPENMP
     #pragma omp declare reduction(eig_plus: MatrixXd: omp_out = omp_out.array() + omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 0.0))
     #pragma omp declare reduction(eig_mult: MatrixXd: omp_out = omp_out.array() * omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 1.0))
-    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+    #pragma omp declare reduction(vec_int_plus : vector<int> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<int>())) \
             initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose, nonDose_LIN, nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count, dose_count)
     #endif
@@ -644,8 +649,8 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
     #ifdef _OPENMP
     #pragma omp declare reduction(eig_plus: MatrixXd: omp_out = omp_out.array() + omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 0.0))
     #pragma omp declare reduction(eig_mult: MatrixXd: omp_out = omp_out.array() * omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 1.0))
-    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+    #pragma omp declare reduction(vec_int_plus : vector<int> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<int>())) \
             initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus: nonDose_LIN, nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count)
     #endif
@@ -1026,8 +1031,8 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
     #ifdef _OPENMP
     #pragma omp declare reduction(eig_plus: MatrixXd: omp_out = omp_out.array() + omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 0.0))
     #pragma omp declare reduction(eig_mult: MatrixXd: omp_out = omp_out.array() * omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 1.0))
-    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+    #pragma omp declare reduction(vec_int_plus : vector<int> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<int>())) \
             initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:Dose, nonDose_LIN, nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN) reduction(vec_int_plus:lin_count, dose_count)
     #endif
@@ -1237,8 +1242,8 @@ void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, c
     #ifdef _OPENMP
     #pragma omp declare reduction(eig_plus: MatrixXd: omp_out = omp_out.array() + omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 0.0))
     #pragma omp declare reduction(eig_mult: MatrixXd: omp_out = omp_out.array() * omp_in.array()) initializer(omp_priv = MatrixXd::Constant(omp_orig.rows(), omp_orig.cols(), 1.0))
-    #pragma omp declare reduction(vec_int_plus : std::vector<int> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<int>())) \
+    #pragma omp declare reduction(vec_int_plus : vector<int> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<int>())) \
             initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(eig_plus:nonDose_PLIN) reduction(eig_mult:nonDose_LOGLIN)
     #endif

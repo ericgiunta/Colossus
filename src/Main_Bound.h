@@ -1,5 +1,7 @@
-using namespace std;
 using namespace Rcpp;
+
+using std::string;
+using std::vector;
 
 using Eigen::Map;
 using Eigen::MatrixXd;

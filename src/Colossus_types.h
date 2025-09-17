@@ -6,7 +6,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 #include <Eigen/Core>
@@ -15,10 +14,8 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
-using namespace std::chrono;
 
 using Eigen::Map;
 using Eigen::MatrixXd;

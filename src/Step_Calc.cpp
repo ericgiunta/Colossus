@@ -10,7 +10,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 #include <set>
@@ -22,10 +21,17 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
-using namespace std::chrono;
+
+using std::string;
+using std::vector;
+using std::advance;
+using std::reduce;
+using std::endl;
+using std::isinf;
+using std::isnan;
+using std::set;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
@@ -738,7 +744,7 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
 //  [[Rcpp::export]]
 void Calc_Change_Background(const int& nthreads, const int& totalnum, const int& group_num, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
     int kept_covs = totalnum - sum(KeepConstant);
-    int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
+    int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());
     int total_val = kept_covs + kept_strata;
     NumericVector Lldd_vec(total_val * total_val);
     NumericVector Lld_vec(total_val);
@@ -788,12 +794,12 @@ void Calc_Change_Background(const int& nthreads, const int& totalnum, const int&
             Lldd_beta_solve(ij) = Lldd_solve0(pij_ind);
         }
     }
-    std::vector<int>::iterator it_end = strata_cond.begin();
+    vector<int>::iterator it_end = strata_cond.begin();
     for (int ij = 0; ij < group_num; ij++) {
         if (strata_cond[ij] == 0) {
             it_end = strata_cond.begin();
-            std::advance(it_end, ij);
-            int pij_ind = ij - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+            advance(it_end, ij);
+            int pij_ind = ij - reduce(strata_cond.begin(), it_end) + kept_covs;
             Lldd_strata_solve(ij) = Lldd_solve0(pij_ind);
         }
     }
@@ -832,9 +838,9 @@ void Calc_Change_Background(const int& nthreads, const int& totalnum, const int&
     #endif
     for (int ijk = 0; ijk < group_num; ijk++) {
         if (strata_cond[ijk] == 0) {
-            std::vector<int>::iterator it_end = strata_cond.begin();
-            std::advance(it_end, ijk);
-            int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end);
+            vector<int>::iterator it_end = strata_cond.begin();
+            advance(it_end, ijk);
+            int pjk_ind = ijk - reduce(strata_cond.begin(), it_end);
             if (isnan(Lldd_strata_solve(ijk))) {
                 if (LlddOdds[pjk_ind*kept_strata+pjk_ind] != 0) {
                     dstrata[ijk] = -lr * LldOdds[pjk_ind] / LlddOdds[pjk_ind*kept_strata+pjk_ind];
@@ -866,7 +872,7 @@ void Calc_Change_Background(const int& nthreads, const int& totalnum, const int&
 //  [[Rcpp::export]]
 void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata) {
     int kept_covs = totalnum - sum(KeepConstant);
-    int kept_strata = group_num - std::reduce(strata_cond.begin(), strata_cond.end());
+    int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());
     int total_val = kept_covs + kept_strata;
     NumericVector Lld_vec(total_val);
     for (int ij = 0; ij < kept_covs; ij++) {
@@ -902,9 +908,9 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
         }
         for (int ijk = 0; ijk < group_num; ijk++) {
             if (strata_cond[ijk] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, ijk);
-                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, ijk);
+                int pjk_ind = ijk - reduce(strata_cond.begin(), it_end) + kept_covs;
                 dstrata[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];
                 m_g_store[pjk_ind] = dstrata[ijk];
                 if (abs(dstrata[ijk]) > step_max) {
@@ -931,9 +937,9 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
         }
         for (int ijk = 0; ijk < group_num; ijk++) {
             if (strata_cond[ijk] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, ijk);
-                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, ijk);
+                int pjk_ind = ijk - reduce(strata_cond.begin(), it_end) + kept_covs;
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*pow(Lld_vec[pjk_ind], 2);
                 v_beta_store[pjk_ind] = decay1 * v_beta_store[pjk_ind] + (1-decay1)*pow(dstrata[ijk], 2);
                 dstrata[ijk] = pow((v_beta_store[pjk_ind] + epsilon_momentum) / (m_g_store[pjk_ind] + epsilon_momentum), 0.5)* Lld_vec[pjk_ind];
@@ -965,9 +971,9 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
         }
         for (int ijk = 0; ijk < group_num; ijk++) {
             if (strata_cond[ijk] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, ijk);
-                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, ijk);
+                int pjk_ind = ijk - reduce(strata_cond.begin(), it_end) + kept_covs;
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
                 v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind], 2);
                 //
@@ -1000,9 +1006,9 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
         }
         for (int ijk = 0; ijk < group_num; ijk++) {
             if (strata_cond[ijk] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, ijk);
-                int pjk_ind = ijk - std::reduce(strata_cond.begin(), it_end) + kept_covs;
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, ijk);
+                int pjk_ind = ijk - reduce(strata_cond.begin(), it_end) + kept_covs;
                 dstrata[ijk] = lr * Lld_vec[pjk_ind];
                 if (abs(dstrata[ijk]) > step_max) {
                     dstrata[ijk] = step_max * sign(dstrata[ijk]);

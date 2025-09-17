@@ -10,7 +10,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 
@@ -22,10 +21,14 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
-using namespace std::chrono;
+
+using std::string;
+using std::vector;
+using std::ofstream;
+using std::endl;
+using std::invalid_argument;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
@@ -779,7 +782,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 char tok_char = 'a';
                 //  step string is either g, l, a, b for >=, <=, >, <
                 for (int i = 0;  i < dep_temp.size(); i++) {
-                    func_id = as<std::string>(tform_tdep[i]);
+                    func_id = as<string>(tform_tdep[i]);
                     if (func_id == "lin") {
                         dep_temp[i] = ratio * df_dep.coeff(i_row, 2*i + 1) + (1 - ratio) * df_dep.coeff(i_row, 2*i);
                     } else {
@@ -788,7 +791,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                         if (token == "step") {
                             func_id.erase(0, pos + delim.length());
                             gather_val = 0;
-                            while ((pos = func_id.find(delim)) != std::string::npos) {
+                            while ((pos = func_id.find(delim)) != string::npos) {
                                 token = func_id.substr(0, pos);
                                 //
                                 tok_char = token[token.length() - 1];
@@ -858,7 +861,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                 int gather_val = 0;
                 char tok_char = 'a';
                 for (int i = 0;  i < dep_temp.size(); i++) {
-                    func_id = as<std::string>(tform_tdep[i]);
+                    func_id = as<string>(tform_tdep[i]);
                     if (func_id == "lin") {
                         dep_temp[i] = ratio * df_dep.coeff(i_row, 2*i + 1) + (1 - ratio) * df_dep.coeff(i_row, 2*i);
                     } else {
@@ -867,7 +870,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                         if (token == "step") {
                             func_id.erase(0, pos + delim.length());
                             gather_val = 0;
-                            while ((pos = func_id.find(delim)) != std::string::npos) {
+                            while ((pos = func_id.find(delim)) != string::npos) {
                                 token = func_id.substr(0, pos);
                                 //
                                 tok_char = token[token.length() - 1];

@@ -11,7 +11,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 #include <functional>
@@ -24,10 +23,16 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
-using namespace std::chrono;
+
+using std::endl;
+using std::string;
+using std::vector;
+using std::transform;
+using std::plus;
+using std::isinf;
+using std::isnan;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
@@ -981,8 +986,8 @@ List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector
 void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(2)
     #endif
@@ -1046,8 +1051,8 @@ void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFa
 void Expected_Inform_Matrix_Cox_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(3)
     #endif
@@ -1115,8 +1120,8 @@ void Expected_Inform_Matrix_Cox_Strata(const int& nthreads, const IntegerMatrix&
 void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(2)
     #endif
@@ -1188,8 +1193,8 @@ void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& Ris
 void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:InMa) collapse(3)
     #endif

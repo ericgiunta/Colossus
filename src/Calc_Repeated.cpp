@@ -10,11 +10,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 #include <functional>
 #include <algorithm>
+#include <numeric>
 
 #include "Subterms_Risk.h"
 #include "Colossus_types.h"
@@ -22,10 +22,16 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
-using namespace std::chrono;
+
+using std::endl;
+using std::string;
+using std::vector;
+using std::transform;
+using std::plus;
+using std::advance;
+using std::reduce;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
@@ -337,11 +343,11 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
         }
     } else {
         if (!model_bool["single"]) {
-            for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[0].size(); i++) {
+            for (vector<vector<double> >::size_type i = 0; i< Recur_First[0].size(); i++) {
                 Recur_First[0][i] = risk_initial;
             }
 //            if (!model_bool["gradient"]) {
-            for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[0].size(); i++) {
+            for (vector<vector<double> >::size_type i = 0; i< Recur_Second[0].size(); i++) {
                 Recur_Second[0][i] = risk_initial;
             }
 //            }
@@ -472,7 +478,7 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
 //                        strata_cond[s_ij] = 0;
 //                    }
 //                } else {
-//                    for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij].size(); i++) {
+//                    for (vector<vector<double> >::size_type i = 0; i< Recur_First[s_ij].size(); i++) {
 //                        Recur_First[s_ij][i] = risk_initial;
 //                    }
 //                }
@@ -534,10 +540,10 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                         strata_cond[s_ij] = 0;
                     }
                 } else {
-                    for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij].size(); i++) {
+                    for (vector<vector<double> >::size_type i = 0; i< Recur_First[s_ij].size(); i++) {
                         Recur_First[s_ij][i] = risk_initial;
                     }
-                    for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[s_ij].size(); i++) {
+                    for (vector<vector<double> >::size_type i = 0; i< Recur_Second[s_ij].size(); i++) {
                         Recur_Second[s_ij][i] = risk_initial;
                     }
                 }
@@ -659,7 +665,7 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
 //                    strata_cond[ijk] = 0;
 //                }
 //            } else {
-//                for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[ijk].size(); i++) {
+//                for (vector<vector<double> >::size_type i = 0; i< Recur_First[ijk].size(); i++) {
 //                    Recur_First[ijk][i] = risk_initial;
 //                }
 //            }
@@ -712,10 +718,10 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
                     strata_cond[ijk] = 0;
                 }
             } else {
-                for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[ijk].size(); i++) {
+                for (vector<vector<double> >::size_type i = 0; i< Recur_First[ijk].size(); i++) {
                     Recur_First[ijk][i] = risk_initial;
                 }
-                for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[ijk].size(); i++) {
+                for (vector<vector<double> >::size_type i = 0; i< Recur_Second[ijk].size(); i++) {
                     Recur_Second[ijk][i] = risk_initial;
                 }
             }
@@ -851,7 +857,7 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
 //                            strata_cond[s_ij*ntime+ijk] = 0;
 //                        }
 //                    } else {
-//                        for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij*ntime+ijk].size(); i++) {
+//                        for (vector<vector<double> >::size_type i = 0; i< Recur_First[s_ij*ntime+ijk].size(); i++) {
 //                            Recur_First[s_ij*ntime+ijk][i] = risk_initial;
 //                        }
 //                    }
@@ -916,10 +922,10 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                             strata_cond[s_ij*ntime+ijk] = 0;
                         }
                     } else {
-                        for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij*ntime+ijk].size(); i++) {
+                        for (vector<vector<double> >::size_type i = 0; i< Recur_First[s_ij*ntime+ijk].size(); i++) {
                             Recur_First[s_ij*ntime+ijk][i] = risk_initial;
                         }
-                        for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[s_ij*ntime+ijk].size(); i++) {
+                        for (vector<vector<double> >::size_type i = 0; i< Recur_Second[s_ij*ntime+ijk].size(); i++) {
                             Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
                         }
                     }
@@ -1476,8 +1482,8 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
     }
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
@@ -1509,8 +1515,8 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
@@ -1555,8 +1561,8 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
@@ -1672,8 +1678,8 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
     }
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
@@ -1710,8 +1716,8 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
@@ -1758,8 +1764,8 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
@@ -1877,8 +1883,8 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
     }
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
@@ -1916,8 +1922,8 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
@@ -1961,8 +1967,8 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
@@ -2072,8 +2078,8 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
     }
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
@@ -2107,8 +2113,8 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
@@ -2156,8 +2162,8 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
@@ -2283,8 +2289,8 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
     }
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
         #endif
@@ -2322,8 +2328,8 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(3)
         #endif
@@ -2374,8 +2380,8 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
         #endif
@@ -2505,8 +2511,8 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
     }
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
         #endif
@@ -2544,8 +2550,8 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(3)
         #endif
@@ -2594,8 +2600,8 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
         #endif
@@ -2715,8 +2721,8 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
     }
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
         #endif
@@ -2754,8 +2760,8 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(3)
         #endif
@@ -2803,8 +2809,8 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
         #endif
@@ -3000,8 +3006,8 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<vector<int
 //  [[Rcpp::export]]
 void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
     #endif
@@ -3082,8 +3088,8 @@ void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const vector<vec
 //  [[Rcpp::export]]
 void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, NumericVector& Strata_vals, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
     #endif
@@ -3346,8 +3352,8 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         //  Rcout << "starting single" << endl;
         //  now we can calculate the loglikelihoods
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
             reduction(vec_double_plus:Ll)  reduction(+:dev)
@@ -3386,8 +3392,8 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     } else if (model_bool["gradient"]) {
         //  now we can calculate the loglikelihoods first derivative
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
             reduction(vec_double_plus:Ll, Lld)  reduction(+:dev) collapse(2)
@@ -3443,9 +3449,9 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         #endif
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             if (strata_cond[group_ij] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, group_ij);
-                int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, group_ij);
+                int group_jk = group_ij - reduce(strata_cond.begin(), it_end);
                 //
                 int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
                 vector<int> InGroup = RiskPairs[group_ij];
@@ -3462,8 +3468,8 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     } else {
         //  now we can calculate the loglikelihoods second derivatives
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+        #pragma omp declare reduction(vec_double_plus : vector<double> : \
+            transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
             initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
             reduction(vec_double_plus:Ll, Lld, Lldd) reduction(+:dev) collapse(2)
@@ -3551,9 +3557,9 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         #endif
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             if (strata_cond[group_ij] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, group_ij);
-                int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, group_ij);
+                int group_jk = group_ij - reduce(strata_cond.begin(), it_end);
                 //
                 int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
                 int num_row = 0;
@@ -3577,9 +3583,9 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
                 if (strata_cond[group_ij] == 0) {
-                    std::vector<int>::iterator it_end = strata_cond.begin();
-                    std::advance(it_end, group_ij);
-                    int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
+                    vector<int>::iterator it_end = strata_cond.begin();
+                    advance(it_end, group_ij);
+                    int group_jk = group_ij - reduce(strata_cond.begin(), it_end);
                     //
                     vector<int> InGroup = RiskPairs[group_ij];
                     double Rs2 = 0.0;
