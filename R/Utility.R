@@ -232,7 +232,8 @@ Def_model_control <- function(control) {
     "gradient", "constraint", "strata", "surv",
     "schoenfeld", "risk",
     "risk_subset", "log_bound", "pearson", "deviance",
-    "mcml", "observed_info", "time_risk"
+    "mcml", "observed_info", "time_risk",
+    "logit_odds", "logit_ident", "logit_loglink"
   )
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
@@ -245,6 +246,12 @@ Def_model_control <- function(control) {
   #    warning("Current constraints are not available with gradient descent methods. Only gradient descent will be applied")
   #    control["constaint"] <- FALSE
   #  }
+  link_vec <- c(control$logit_odds, control$logit_ident, control$logit_loglink)
+  if (sum(link_vec) == 0) {
+    control["logit_odds"] <- TRUE
+  } else if (sum(link_vec) > 1) {
+    stop("Error: Multiple link functions used, only select one link function")
+  }
   if (control["null"] == TRUE) {
     control["single"] <- TRUE
   }
@@ -2034,6 +2041,31 @@ print.caseconres <- function(x, ...) {
   Interpret_Output(x, digits)
 }
 
+#' Prints a logistic regression output clearly
+#'
+#' \code{print.logitres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxres,  poisres, logitres, or caseconres
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.logitres <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
 #' Prints a regression output clearly
 #'
 #' \code{Interpret_Output} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
@@ -2105,7 +2137,7 @@ Interpret_Output <- function(out_list, digits = 2) {
         }
         message("Final Results")
         print(res_table)
-        deviance <- out_list$Deviance
+        deviance <- out_list$Deviation
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
@@ -2161,14 +2193,21 @@ Interpret_Output <- function(out_list, digits = 2) {
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
         converged <- out_list$Converged
-        if (is.null(deviation)) {
+        if (is(out_list, "coxres")) {
           # cox model
           message("\nCox Model Used")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
-        } else {
+        } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        } else if (is(out_list, "logitres")) {
+          # logistic model
+          message("\nLogisitic Model Used")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        } else {
+          message("\nUnknown Model Used")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         }
         if (!is.null(converged)) {
           message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))

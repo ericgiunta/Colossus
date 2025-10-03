@@ -1,0 +1,120 @@
+---
+title: "Logistic Regression"
+output:
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Logistic Regression}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Colossus)
+library(data.table)
+library(survival)
+library(dplyr)
+```
+
+## Logistic Modeling for Binomial Odds and Binary Data
+
+One alternative regression method in Colossus for predicting the probability of an event in independent trials is logistic regression. The theory is presented in the following section.
+
+### General Theory
+
+We start by describing the structure of the data. The logistic regression models in Colossus assume the data can be represented in terms of trials, events, and risk factors. Similar to a Poisson model using person-years and number of events in each row, a logistic model requires some measure of the number of independent trials and events for each group. A special case is an analysis in which each row represents one trial, and either 0 or 1 events are observed. The likelihood ($L$) for a logistic model is a function of the trials ($N_i$), events ($y_i$), and the probability of a success ($p_i$) for each row, $i$. In Colossus, the log-likelihood ($Ll$) is optimized.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    L = \prod_i \left [ p_i^{y_i} \times (1-p_i)^{N_i - y_i} \right ] \\
+    Ll = \sum_i \left [ y_i \ln(p_i) + (N_i - y_i) \ln(1-p_i) \right ] \\
+\end{aligned}
+$$
+</p>
+
+Similar to other survival models in Colossus, a model is written as a function of the various risk factors ($f(\vec{\beta}, \vec{x})$). This function is related to the probability through a linking function. Three options are currently available: odds, identity, and complementary log linking, based on the options present in 32-bit Epicure.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    p_{odds} = \frac{f(\vec{\beta}, \vec{x})}{1+f(\vec{\beta}, \vec{x})} \\
+    p_{id} = f(\vec{\beta}, \vec{x}) \\
+    p_{comp} = e^{-f(\vec{\beta}, \vec{x})}
+\end{aligned}
+$$
+</p>
+
+Similar to other regression models in Colossus, the first derivative vector and second derivative matrix are calculated to optimize the model parameters.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \frac{\partial Ll}{\partial \mu} = \sum_i \left [ y_i \frac{\partial p_i/\partial \mu}{p_i} - (N_i - y_i) \frac{\partial p_i/\partial \mu}{1-p_i} \right ] \\
+    \frac{\partial^2 Ll}{\partial \mu \partial \nu} = \sum_i \left [ y_i \left (\frac{\partial^2 p_i/\partial \mu \partial \nu}{p_i} - \frac{\partial p_i/\partial \mu}{p_i} \frac{\partial p_i/\partial \nu}{p_i} \right ) - (N_i - y_i) \left ( \frac{\partial^2 p_i/\partial \mu \partial \nu}{1-p_i} + \frac{\partial p_i/\partial \mu}{1-p_i} \frac{\partial p_i/\partial \nu}{1-p_i} \right ) \right ] \\
+\end{aligned}
+$$
+</p>
+
+### Examples of Use
+
+The use of a logistic model in Colossus closely follows the other regression options. We start by loading and preparing the data. In this example, we will be using the Veterans' Administration Lung Cancer study data from the survival package. Every row has 1 trial and a binary event status column. Once again, our model uses a trial column, an event column, and the "risk" equation that will be converted to a probability. In this case, the number of trials is 1, so the column can be omitted, but to illustrate, we will artificially create a trial column named "trial".
+
+```{r, eval = TRUE}
+#
+veteran %>% setDT()
+df <- copy(veteran)
+# Make the same adjustments as Epicure example 6.5
+karno <- df$karno
+karno[93] <- 20
+df$karno <- karno
+df$trt <- df$trt - 1
+df$trt <- as.integer(df$trt == 0)
+cell_string <- df$celltype
+cell <- case_when(
+  cell_string == "squamous" ~ 1,
+  cell_string == "smallcell" ~ 2,
+  cell_string == "adeno" ~ 3,
+  cell_string == "large" ~ 0
+)
+df$cell <- cell
+
+df$karno50 <- df$karno - 50
+
+df$trial <- 1
+```
+
+We will start with testing the effects of cell type. By default, Colossus will always remove the first level of a factored column. We can force Colossus to include every level by defining the lowest level to an unused value, -1 in this case. This gives the same final model as if we removed the baseline and added an intercept column (CONST). In this case, the p-values are for the null hypothesis that the cell type has no effect. If we removed the baseline and added an intercept, the p-values would be for the null hypothesis that the cell type has no effect above the baseline.
+
+```{r, eval = TRUE}
+df$cell <- factor(df$cell, levels = c(-1, 0, 1, 2, 3))
+
+model <- Logit(trial, status) ~ loglinear(cell)
+model <- Logit(status) ~ loglinear(cell)
+
+control <- list(verbose = 0, ncores = 2)
+e <- LogisticRun(model, df, control = control)
+print(e)
+```
+
+In this analysis, we were using the default of the odds ratio. The linking function can be changed by using the "link" option. The following examples show the impact of using each linking function. Note that the probability must be between 0-1, so the starting values are set to ensure that the initial probability estimates are valid. Because we are using categorical risk factors, every model converges to the same score and event probabilities; however, the standard error and p-values are affected. If we were using continuous variables, the linking functions would give a way to define further complicated risk models.
+
+```{r, eval = TRUE}
+a_n <- c(0.1, 0.1, 0.1, 0.1)
+e <- LogisticRun(model, df, control = control, a_n = a_n, link = "odds")
+print(e)
+
+a_n <- c(-1, -1, -1, -1)
+e <- LogisticRun(model, df, control = control, a_n = a_n, link = "ident")
+print(e)
+
+a_n <- c(0.1, 0.1, 0.1, 0.1)
+e <- LogisticRun(model, df, control = control, a_n = a_n, link = "loglink")
+print(e)
+```

@@ -1296,3 +1296,125 @@ void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, co
     }
     return;
 }
+
+//' Utility function to calculate logistic model expected information matrix
+//'
+//' \code{Expected_Inform_Matrix_Logist} Called to update information matrix
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
+//  [[Rcpp::export]]
+void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& PdP, const MatrixXd& PnotdP, vector<double>& InMa, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  totalnum*(totalnum + 1)/2
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[ij*reqrdnum+jk] = (CountEvent.col(1).array() * PdP.col(ij).array() * PnotdP.col(jk).array()).array().sum();
+    }
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+    }
+    return;
+}
+
+//' Utility function to apply a link function to a Logistic Regression Risk model
+//'
+//' \code{LinkCovertRP} Called to update the probability matrices
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: p, 1-p, and the associated derivatives/ratios
+//' @noRd
+//'
+//  [[Rcpp::export]]
+void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, MatrixXd& P, MatrixXd& Pd, MatrixXd& Pdd, MatrixXd& Pnot, MatrixXd& PdP, MatrixXd& PddP, MatrixXd& PnotdP, MatrixXd& PnotddP) {
+//  --------------------------- Code for changing the linking function for logistic regression ------------------------------ //
+//  --------------------------- Not tested or implemented, stored for later use if needed ----------------------------------- //
+    bool odds = model_bool["odds"];
+    bool ident = model_bool["ident"];
+    bool loglink = model_bool["loglink"];
+
+    if (ident == true) {
+        P.col(0) = R.col(0);
+        Pnot.col(0) = 1 - P.col(0).array();
+        MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 1);
+        Ftemp.col(0) = Pnot.col(0).array().pow(-1);  //  1+r
+        for (int ij=0; ij< reqrdnum; ij++) {
+            Pd.col(ij) = Rd.col(ij);
+            PdP.col(ij) = RdR.col(ij).array();
+            PnotdP.col(ij) = Rd.col(ij).array() * Ftemp.col(0).array();
+        }
+        for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
+            Pdd.col(ijk) = Rdd.col(ijk);
+            PddP.col(ijk) = RddR.col(ijk).array();
+            PnotddP.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(0).array();
+        }
+    }  else if (loglink == true) {
+        P.col(0) = (-1*R.col(0).array()).exp();
+        Pnot.col(0) = 1 - P.col(0).array();
+        //
+        MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 2);
+        Ftemp.col(0) = P.col(0).array().pow(-1);   //
+        Ftemp.col(1) = Pnot.col(0).array().pow(-1);  //
+        //
+        for (int ij=0; ij< reqrdnum; ij++) {
+            Pd.col(ij) = -1 * Rd.col(ij).array() * P.col(0).array();
+            PdP.col(ij) = -1 * Rd.col(ij).array();
+            PnotdP.col(ij) = Pd.col(ij).array() * Ftemp.col(1).array();
+        }
+        for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            PddP.col(ijk) = PdP.col(ij).array()*PdP.col(jk).array() - Rdd.col(ijk).array();
+            Pdd.col(ijk) = PddP.col(ijk).array() * P.col(0).array();
+            PnotddP.col(ijk) = Pdd.col(ijk).array() * Ftemp.col(1).array();
+        }
+    } else if (odds == true) {
+        MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 4);
+        Ftemp.col(0) = 1 + R.col(0).array();  //  1+r
+        Ftemp.col(1) = Ftemp.col(0).array().pow(-1);  // (1+r)^-1
+        Ftemp.col(2) = Ftemp.col(1).array().pow(2);  //  (1+r)^-2
+        Ftemp.col(3) = Ftemp.col(1).array().pow(3);  //  (1+r)^-3
+        //
+        P.col(0) = R.col(0).array() * Ftemp.col(1).array();
+        Pnot.col(0) = 1 - P.col(0).array();
+        for (int ij=0; ij< reqrdnum; ij++) {
+            Pd.col(ij) = Rd.col(ij).array() * Ftemp.col(2).array();
+            PdP.col(ij) = RdR.col(ij).array() * Ftemp.col(1).array();
+            PnotdP.col(ij) = Rd.col(ij).array() * Ftemp.col(1).array();
+        }
+        for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            Pdd.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(2).array() - 2 * Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(3).array();
+            PddP.col(ijk) = RddR.col(ijk).array() * Ftemp.col(1).array() - 2 * RdR.col(ij).array() * Rd.col(jk).array() * Ftemp.col(2).array();
+            PnotddP.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(1).array() - 2 * Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(2).array();
+        }
+    }
+    return;
+}

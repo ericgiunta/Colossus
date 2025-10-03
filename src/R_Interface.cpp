@@ -647,6 +647,73 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
     return res;
 }
 
+//' Interface between R code and the poisson multidose omnibus regression function
+//'
+//' \code{pois_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_Pois output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+//  [[Rcpp::export]]
+List pois_multidose_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, NumericMatrix& x_all, NumericMatrix& dose_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericMatrix df0, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
+    int verbose = Control["verbose"];
+    const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
+    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
+    //
+    double lr = Control["lr"];
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    //
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    int nthreads = Control["ncores"];
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    //
+    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = false,
+            _["linear_err"] = false,
+            _["null"] = false,
+            _["cr"] = false,
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["outcome_prob"] = false,
+            _["constraint"] = model_control["constraint"],
+            _["observed_info"] = model_control["observed_info"],
+            _["log_bound"] = false,
+            _["cox"] = false);
+    List optim_para = List::create(
+            _["lr"] = Control["lr"]);
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+    }
+    //
+    //  Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res;
+    bool IntegratedSerial = model_control["mcml"];
+    if (IntegratedSerial) {
+        res = LogLik_Pois_PH_Multidose_Omnibus_Integrated(PyrC, term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, dfs, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    } else {
+        res = LogLik_Pois_PH_Multidose_Omnibus_Serial(PyrC, term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, dfs, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    }
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 //' Interface between R code and the matched case-control omnibus regression function
 //'
 //' \code{caco_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
@@ -706,6 +773,73 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
     //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_CaseCon_Omnibus(term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
+//' Interface between R code and the logistic omnibus regression function
+//'
+//' \code{logist_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+//  [[Rcpp::export]]
+List logist_Omnibus_transition(NumericMatrix dfe, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, NumericMatrix& x_all, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, NumericMatrix Cons_Mat, NumericVector Cons_Vec) {
+    //
+    const Map<MatrixXd> CountEvent(as<Map<MatrixXd> >(dfe));
+//    const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df0));
+    //
+    int verbose = Control["verbose"];
+    //
+    double lr = Control["lr"];
+    NumericVector maxiters = Control["maxiters"];
+    int guesses = Control["guesses"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    //
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    int nthreads = Control["ncores"];
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    //
+    const Map<MatrixXd> Lin_Sys(as<Map<MatrixXd> >(Cons_Mat));
+    const Map<VectorXd> Lin_Res(as<Map<VectorXd> >(Cons_Vec));
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = false,
+            _["linear_err"] = false,
+            _["null"] = false,
+            _["cr"] = false,
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["outcome_prob"] = false,
+            _["constraint"] = model_control["constraint"],
+            _["observed_info"] = model_control["observed_info"],
+            _["log_bound"] = false,
+            _["cox"] = false,
+            _["odds"] = model_control["logit_odds"],
+            _["ident"] = model_control["logit_ident"],
+            _["loglink"] = model_control["logit_loglink"]);
+    List optim_para = List::create(
+            _["lr"] = Control["lr"]);
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+    }
+    //
+    //  Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Logist_Omnibus(CountEvent, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }

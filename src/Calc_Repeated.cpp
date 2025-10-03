@@ -3621,61 +3621,70 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     return;
 }
 
-//  --------------------------- Code for changing the linking function for logistic regression ------------------------------ //
-//  --------------------------- Not tested or implemented, stored for later use if needed ----------------------------------- //
-//MatrixXd P = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for Risks
-//MatrixXd Pd = MatrixXd::Zero(df0.rows(), reqrdnum);  //  preallocates matrix for Risk derivatives
-//VectorXd Pdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-//
-//bool odds = false;
-//bool ident = false;
-//bool loglink = false;
-//
-//if (ident == true) {
-//    P.col(0) = R.col(0);
-//    for (int ij=0; ij< reqrdnum; ij++) {
-//        Pd.col(ij) = Rd.col(ij);
-//    }
-//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        Pdd.col(ijk) = Rdd.col(ijk);
-//    }
-//}  else if (loglink == true) {
-//    P.col(0) = (-1*R.col(0).array()).log();
-//    for (int ij=0; ij< reqrdnum; ij++) {
-//        Pd.col(ij) = -1*Rd.col(ij).array() * P.col(0).array();
-//    }
-//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        int ij = 0;
-//        int jk = ijk;
-//        while (jk > ij) {
-//            ij++;
-//            jk -= ij;
-//        }
-//        Pdd.col(ijk) = -1*Rdd.col(ijk).array() * P.col(0).array() - Rd.col(ij).array() * Pd.col(jk).array();
-//    }
-//} else if (odds == true) {
-//    MatrixXd Ftemp = MatrixXd::Zero(df0.rows(), 9);
-//    Ftemp.col(0) = 1 + R.col(0).array();  //  1+f
-//    Ftemp.col(1) = Ftemp.col(0).array() + R.col(0).array();  //  1+2f
-//    Ftemp.col(2) = Ftemp.col(0).array().pow(2);  //  (1+f)^2
-//    Ftemp.col(3) = Ftemp.col(2).array() * Ftemp.col(1).array();  //  (1+f)^2(1+2f)
-//    Ftemp.col(4) = Ftemp.col(2).array() + Ftemp.col(1).array();  //  (1+f^2) + 1 + 2f
-//    Ftemp.col(5) = Ftemp.col(2).array().pow(2);  //  (1+f)^4
-//    Ftemp.col(6) = Ftemp.col(1).array() * Ftemp.col(2).array().pow(-1).array();  //  (1+2f)/(1+f)^2
-//    Ftemp.col(7) = Ftemp.col(3).array() * Ftemp.col(5).array().pow(-1).array();  //  ((1+f)^2+1+2f)/(1+f)^4
-//    Ftemp.col(8) = Ftemp.col(4).array() * Ftemp.col(5).array().pow(-1).array();  //  ((1+f)^2(1+2f)/(1+f)^4
-//    //
-//    P.col(0) = R.col(0).array() * Ftemp.col(0).array().pow(-1).array();
-//    for (int ij=0; ij< reqrdnum; ij++) {
-//        Pd.col(ij) = Rd.col(ij).array() * Ftemp.col(6).array();
-//    }
-//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        int ij = 0;
-//        int jk = ijk;
-//        while (jk > ij) {
-//            ij++;
-//            jk -= ij;
-//        }
-//        Pdd.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(8).array() + Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(7).array();
-//    }
-//}
+//' Utility function to calculate Logistic Log-Likelihood and derivatives
+//'
+//' \code{Calc_LogLik_Logist} Called to update log-likelihoods, Uses probability matrices Sums the log-likelihood contribution from each row
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
+//  [[Rcpp::export]]
+void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& P, const MatrixXd& Pnot, const MatrixXd& Pd, const MatrixXd& Pdd, const MatrixXd& PdP, const MatrixXd& PnotdP, const MatrixXd& PddP, const MatrixXd& PnotddP, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]) {
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
+//    #ifdef _OPENMP
+//    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+//        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+//        initializer(omp_priv = omp_orig)
+//    #endif
+    MatrixXd temp(Pd.rows(), 2);
+    temp.col(0) = CountEvent.col(1).array() - CountEvent.col(0).array();  // N_i - y_i
+    temp.col(1) = CountEvent.col(0).array() * P.col(0).array().log().array() + temp.col(0).array() * Pnot.col(0).array().log().array();
+    fill(Ll.begin(), Ll.end(), (temp.col(1).array().isFinite()).select(temp.col(1), 0).sum());
+    if (!model_bool["single"]) {
+        // first derivatives
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ij = 0; ij < reqrdnum; ij++) {  //  performs log-likelihood calculations for every first derivative
+            double dl = (CountEvent.col(0).array() * PdP.col(ij).array() - temp.col(0).array() * PnotdP.col(ij).array()).array().sum();
+            Lld[ij] = dl;
+        }
+        if (!model_bool["gradient"]) {
+            // second derivatives
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                double ddl = (CountEvent.col(0).array() * (PddP.col(ijk).array() - PdP.col(ij).array() * PdP.col(jk).array()).array() - temp.col(0).array() * (PnotddP.col(ijk).array() + PnotdP.col(ij).array() * PnotdP.col(jk).array()).array() ).array().sum();
+                Lldd[ij*reqrdnum+jk] = ddl;
+            }
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
+            }
+        }
+    }
+    return;
+}

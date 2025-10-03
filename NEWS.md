@@ -140,3 +140,8 @@
 
 * Option added to normalize covariates, either scaled by the mean or maximum values.
 * Gradient descent option now calculates standard error and covariance through second derivative after regression.
+
+# Colossus 1.4.3
+
+* Logistic regression added
+* Newton step calculation now checks the predicted change in score, and moves in opposite direction if the expected score is worse

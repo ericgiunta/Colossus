@@ -211,6 +211,7 @@ get_form <- function(formula, df) {
   tstart <- model$tstart
   tend <- model$tend
   pyr <- model$pyr
+  trials <- model$trials
   event <- model$event
   strata <- model$strata
   weight <- model$weight
@@ -233,6 +234,8 @@ get_form <- function(formula, df) {
     model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+  } else if ((grepl("logit", surv_model_type)) || (grepl("logistic", surv_model_type))) {
+    model <- logitmodel(trials, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else {
     stop("Error: Bad survival model type passed")
   }
@@ -276,6 +279,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
   event <- surv_vals$event
   strata <- surv_vals$strata
   weight <- surv_vals$weight
+  trials <- surv_vals$trials
   #
   model_vals <- get_form_risk(model_obj, df)
   model <- model_vals$model
@@ -295,6 +299,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
       tstart = tstart,
       tend = tend,
       pyr = pyr,
+      trials = trials,
       event = event,
       strata = strata,
       weight = weight,
@@ -327,6 +332,7 @@ get_form_surv <- function(surv_obj, df) {
   event <- "NONE"
   strata <- "NONE"
   weight <- "NONE"
+  trials <- "NONE"
   #
   # split the survival model type
   second_split <- lapply(strsplit(surv_obj, ""), function(x) which(x == "("))[[1]]
@@ -410,6 +416,17 @@ get_form_surv <- function(surv_obj, df) {
     tend <- res$tend
     event <- res$event
     strata <- res$strata
+  } else if (surv_type %in% c("logit", "logistic")) {
+    res <- do.call(ColossusLogitSurv, surv_para_list)
+    trials <- res$trials
+    event <- res$event
+    if ("CONST" == trials) {
+      if ("CONST" %in% names(df)) {
+        # fine
+      } else {
+        df$CONST <- 1
+      }
+    }
   } else {
     stop("Error: Invalid survival model type")
   }
@@ -436,6 +453,7 @@ get_form_surv <- function(surv_obj, df) {
       surv_model_type = surv_model_type,
       tstart = tstart,
       tend = tend,
+      trials = trials,
       pyr = pyr,
       event = event,
       strata = strata,
@@ -1588,4 +1606,70 @@ ColossusCaseConTimeStrataSurv <- function(...) {
   }
   res["strata"] <- strata
   res
+}
+
+#' Interprets basic logistic survival formula RHS with no grouping
+#'
+#' \code{ColossusLogitSurv} assigns and interprets columns for trials and events in logistic model with no grouping.
+#'
+#' @param ... entries for a Logistic object, trials and events. trials not provided assumes one trial per row.
+#'
+#' @export
+#' @return returns list with event
+#' @family Formula Interpretation
+ColossusLogitSurv <- function(...) {
+  args <- list(...)
+  argName <- names(args)
+  #
+  if (length(args) < 1) {
+    stop("Error: Too few entries in Logistic survival object")
+  }
+  if (length(args) > 2) {
+    stop("Error: Too many entries in Logistic survival object")
+  }
+  trials <- "NULL"
+  events <- "NULL"
+  indx <- pmatch(argName[argName != ""], c("trials", "event", "events"), nomatch = 0L)
+  if (any(indx == 0L)) {
+    stop(gettextf(
+      "Error: Argument '%s' not matched in survival object",
+      argName[argName != ""][indx == 0L]
+    ), domain = NA)
+  }
+  if (("event" %in% argName) && ("events" %in% argName)) {
+    stop("Error: Cannot provide both 'event' and 'events'")
+  }
+  if (all(argName == "")) {
+    if (length(args) == 1) {
+      # should just be the events
+      # assume only one trial
+      events <- args[[1]]
+      trials <- "CONST"
+    } else {
+      # should be events and then cases
+      events <- args[[2]]
+      trials <- args[[1]]
+    }
+  } else {
+    # atleast one is named
+    if (any(argName == "")) {
+      # one is named
+      if ("trials" %in% argName) {
+        trials <- args$trials
+        events <- args[names(args) != "trials"][[1]]
+      }
+      if ("event" %in% argName) {
+        events <- args$event
+        trials <- args[names(args) != "event"][[1]]
+      }
+      if ("events" %in% argName) {
+        events <- args$events
+        trials <- args[names(args) != "events"][[1]]
+      }
+    } else {
+      trials <- args$trials
+      events <- args[names(args) != "trials"][[1]]
+    }
+  }
+  list("event" = events, "trials" = trials)
 }

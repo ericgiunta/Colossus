@@ -47,6 +47,7 @@ Other Formula Interpretation:
 \code{\link{ColossusExpressionCall}()},
 \code{\link{ColossusFineGrayStrataSurv}()},
 \code{\link{ColossusFineGraySurv}()},
+\code{\link{ColossusLogitSurv}()},
 \code{\link{ColossusPoisSurv}()},
 \code{\link{get_form_joint}()},
 \code{\link{get_form_list}()},

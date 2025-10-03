@@ -500,6 +500,264 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   poisres
 }
 
+#' Fully runs a logistic regression model, returning the model and results
+#'
+#' \code{LogisticRun} uses a formula, data.table, and list of controls to prepare and
+#' run a Colossus logistic regression function
+#'
+#' @param ... can include the named entries for the control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Logistic Wrapper Functions
+#' @examples
+#' library(data.table)
+#' df <- data.table::data.table(
+#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
+#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
+#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
+#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
+#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#' )
+#' formula <- logit(Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' res <- LogisticRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
+  func_t_start <- Sys.time()
+  if (is(model, "logitmodel")) {
+    # using already prepped formula and data
+    logitmodel <- copy(model)
+    calls <- logitmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+  } else if (is(model, "formula")) {
+    # using a formula class
+    res <- get_form(model, df)
+    logitmodel <- res$model
+    df <- res$data
+  } else {
+    stop(gettextf(
+      "Error: Incorrect type used for formula, '%s', must be formula or logitmodel class",
+      class(model)
+    ))
+  }
+  # ------------------------------------------------------------------------------ #
+  # we want to let the user add in control arguments to their call
+  # code copied from survival/R/coxph.R github and modified for our purpose
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- names(formals(ColossusControl)) # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(control)) {
+    control <- ColossusControl(...)
+  } else if (is.list(control)) {
+    control_args <- intersect(names(control), names(formals(ColossusControl)))
+    control <- do.call(ColossusControl, control[control_args])
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  # ------------------------------------------------------------------------------ #
+  if (!missing(a_n)) {
+    logitmodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (!missing(keep_constant)) { # assigns the paramter constant values if given
+    logitmodel$keep_constant <- keep_constant
+  }
+  #
+  if ("CONST" %in% c(logitmodel$names, logitmodel$trials)) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  # Checks that the current coxmodel is valid
+  validate_logitsurv(logitmodel, df)
+  logitmodel <- validate_formula(logitmodel, df, control$verbose)
+  # ------------------------------------------------------------------------------ #
+  # Pull out the actual model vectors and values
+  trial0 <- logitmodel$trials
+  event0 <- logitmodel$event
+  names <- logitmodel$names
+  term_n <- logitmodel$term_n
+  tform <- logitmodel$tform
+  keep_constant <- logitmodel$keep_constant
+  a_n <- logitmodel$a_n
+  modelform <- logitmodel$modelform
+  strat_col <- logitmodel$strata
+  # ------------------------------------------------------------------------------ #
+  # We want to create the previously used model_control list, based on the input
+  model_control <- list()
+  if (length(unique(term_n)) == 1) {
+    modelform <- "M"
+  } else if (modelform == "GMIX") {
+    model_control["gmix_term"] <- coxmodel$gmix_term
+    model_control["gmix_theta"] <- coxmodel$gmix_theta
+  }
+  if (missing(link)) {
+    model_control["logit_odds"] <- TRUE
+  } else {
+    # "logit_odds", "logit_ident", "logit_loglink"
+    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "odds", "ident", "loglink")
+    if (link %in% acceptable) {
+      if (link %in% c("logit_odds", "odds")) {
+        model_control["logit_odds"] <- TRUE
+      } else if (link %in% c("logit_ident", "ident")) {
+        model_control["logit_ident"] <- TRUE
+      } else if (link %in% c("logit_loglink", "loglink")) {
+        model_control["logit_loglink"] <- TRUE
+      } else {
+        stop(gettextf(
+          "Error: Argument '%s' not matched to set link options",
+          link
+        ), domain = NA)
+      }
+    } else {
+      stop(gettextf(
+        "Error: Argument '%s' not matched to allowable link options",
+        link
+      ), domain = NA)
+    }
+  }
+  #  if (poismodel$strata != "NONE") {
+  #    model_control["strata"] <- TRUE
+  #  }
+  if (cons_vec != c(0)) {
+    model_control["constraint"] <- TRUE
+  }
+  if (!missing(gradient_control)) {
+    model_control["gradient"] <- TRUE
+    for (nm in names(gradient_control)) {
+      model_control[nm] <- gradient_control[nm]
+    }
+  }
+  model_control["single"] <- single
+  model_control["observed_info"] <- observed_info
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "observed_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  # ------------------------------------------------------------------------------ #
+  if (tolower(norm) == "null") {
+    # nothing changes
+    norm_weight <- rep(1, length(names))
+  } else if (tolower(norm) %in% c("max", "mean")) {
+    # weight by the maximum value
+    norm_weight <- c()
+    if (tolower(norm) == "max") {
+      for (i in seq_along(names)) {
+        val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
+        if (val == 0.0) {
+          warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+          val <- 1.0
+        }
+        norm_weight <- c(norm_weight, val)
+      }
+    } else if (tolower(norm) == "mean") {
+      for (i in seq_along(names)) {
+        val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
+        if (val == 0.0) {
+          warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+          val <- 1.0
+        }
+        norm_weight <- c(norm_weight, val)
+      }
+    } else {
+      stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
+    }
+    for (i in seq_along(names)) {
+      a_n[i] <- a_n[i] * norm_weight[i]
+      if (match(names[i], names)[1] == i) {
+        df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
+      }
+      norm_weight <- c(norm_weight, val)
+    }
+    if (model_control[["constraint"]] == TRUE) {
+      for (i in seq_along(names)) {
+        cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
+      }
+    }
+  } else {
+    stop(gettextf(
+      "Error: Normalization arguement '%s' not valid.",
+      norm
+    ), domain = NA)
+  }
+  # ------------------------------------------------------------------------------ #
+  res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
+  res$model <- logitmodel
+  res$modelcontrol <- model_control
+  res$control <- control
+  # ------------------------------------------------------------------------------ #
+  res$norm <- norm
+  if (model_control[["constraint"]]) {
+    res$constraint_matrix <- cons_mat
+    res$constraint_vector <- cons_vec
+  }
+  if (tolower(norm) == "null") {
+    # nothing changes
+  } else if (tolower(norm) %in% c("mean", "max")) {
+    # weight by the maximum value
+    if (model_control$single) {
+      for (i in seq_along(names)) {
+        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+      }
+      # } else if (model_control$gradient) {
+      #   for (i in seq_along(names)) {
+      #     res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
+      #     res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+      #   }
+      #   if (model_control[["constraint"]] == TRUE) {
+      #     for (i in seq_along(names)) {
+      #       res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
+      #     }
+      #   }
+    } else {
+      for (i in seq_along(names)) {
+        res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
+        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+        res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+        for (j in seq_along(names)) {
+          res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
+          res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
+        }
+      }
+      if (model_control[["constraint"]] == TRUE) {
+        for (i in seq_along(names)) {
+          res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
+        }
+      }
+    }
+  } else {
+    stop(gettextf(
+      "Error: Normalization arguement '%s' not valid.",
+      norm
+    ), domain = NA)
+  }
+  # ------------------------------------------------------------------------------ #
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
+  # ------------------------------------------------------------------------------ #
+  logitres <- new_logitres(res)
+  logitres
+}
+
 #' Fully runs a case-control regression model, returning the model and results
 #'
 #' \code{CaseControlRun} uses a formula, data.table, and list of controls to prepare and
@@ -1344,6 +1602,164 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     coxres <- new_coxres(res)
   }
   coxres
+}
+
+#' Fully runs a poisson regression model with multiple column realizations, returning the model and results
+#'
+#' \code{PoisRunMulti} uses a formula, data.table, and list of controls to prepare and
+#' run a Colossus poisson regression function
+#'
+#' @param ... can include the named entries for the control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Poisson Wrapper Functions
+#' @examples
+#' library(data.table)
+#' df <- data.table::data.table(
+#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+#'   "t0" = c(18, 20, 18, 19, 21, 20, 18),
+#'   "t1" = c(30, 45, 57, 47, 36, 60, 55),
+#'   "lung" = c(0, 0, 1, 0, 1, 0, 0),
+#'   "dose" = c(0, 1, 1, 0, 1, 0, 1)
+#' )
+#' set.seed(3742)
+#' df$rand <- floor(runif(nrow(df), min = 0, max = 5))
+#' df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
+#' df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
+#' df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
+#' names <- c("dose", "rand")
+#' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
+#' realization_index <- c("rand")
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
+#'   "halfmax" = 2, "epsilon" = 1e-6,
+#'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
+#'   "thres_step_max" = 100.0,
+#'   "verbose" = 0, "ties" = "breslow", "double_step" = 1
+#' )
+#' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
+#' res <- PoisRun(formula, df, control = control)
+PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = FALSE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  func_t_start <- Sys.time()
+  if (is(model, "poismodel")) {
+    # using already prepped formula and data
+    poismodel <- copy(model)
+    calls <- poismodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    #
+  } else if (is(model, "formula")) {
+    # using a formula class
+    res <- get_form(model, df)
+    poismodel <- res$model
+    df <- res$data
+  } else {
+    stop(gettextf(
+      "Error: Incorrect type used for formula, '%s', must be formula or poismodel class",
+      class(model)
+    ))
+  }
+  # ------------------------------------------------------------------------------ #
+  # we want to let the user add in control arguments to their call
+  # code copied from survival/R/coxph.R github and modified for our purpose
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- names(formals(ColossusControl)) # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(control)) {
+    control <- ColossusControl(...)
+  } else if (is.list(control)) {
+    control_args <- intersect(names(control), names(formals(ColossusControl)))
+    control <- do.call(ColossusControl, control[control_args])
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  # ------------------------------------------------------------------------------ #
+  if (!missing(a_n)) {
+    poismodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (!missing(keep_constant)) { # assigns the paramter constant values if given
+    poismodel$keep_constant <- keep_constant
+  }
+  # Checks that the current poismodel is valid
+  validate_poissurv(poismodel, df)
+  poismodel <- validate_formula(poismodel, df, control$verbose)
+  # ------------------------------------------------------------------------------ #
+  # Pull out the actual model vectors and values
+  pyr0 <- poismodel$person_year
+  event0 <- poismodel$event
+  names <- poismodel$names
+  term_n <- poismodel$term_n
+  tform <- poismodel$tform
+  keep_constant <- poismodel$keep_constant
+  a_n <- poismodel$a_n
+  modelform <- poismodel$modelform
+  strat_col <- poismodel$strata
+  # ------------------------------------------------------------------------------ #
+  # We want to create the previously used model_control list, based on the input
+  model_control <- list()
+  if (length(unique(term_n)) == 1) {
+    modelform <- "M"
+  } else if (modelform == "GMIX") {
+    model_control["gmix_term"] <- coxmodel$gmix_term
+    model_control["gmix_theta"] <- coxmodel$gmix_theta
+  }
+  if (poismodel$strata != "NONE") {
+    model_control["strata"] <- TRUE
+  }
+  if (cons_vec != c(0)) {
+    model_control["constraint"] <- TRUE
+  }
+  if (!missing(gradient_control)) {
+    model_control["gradient"] <- TRUE
+    for (nm in names(gradient_control)) {
+      model_control[nm] <- gradient_control[nm]
+    }
+  }
+  if (fma != mcml) {
+    model_control["mcml"] <- mcml
+    fma <- !mcml
+  } else {
+    if (fma) {
+      stop("Error: Do not select both fma and mcml, only pick one")
+    } else {
+      model_control["mcml"] <- mcml
+    }
+  }
+  model_control["single"] <- single
+  model_control["observed_info"] <- observed_info
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "observed_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  # ------------------------------------------------------------------------------ #
+  #                                          df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)
+  res <- RunPoisRegression_Omnibus_Multidose(df, pyr0 = pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  res$model <- poismodel
+  res$modelcontrol <- model_control
+  res$control <- control
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
+  # ------------------------------------------------------------------------------ #
+  if (fma) {
+    poisres <- new_poisresfma(res)
+  } else {
+    poisres <- new_poisres(res)
+  }
+  poisres
 }
 
 #' Generic likelihood boundary calculation function

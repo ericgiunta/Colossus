@@ -65,6 +65,22 @@ new_poisresbound <- function(x = list()) {
   )
 }
 
+new_poisresfma <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "poisresfma"
+  )
+}
+
+new_poisresmcml <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "poisresmcml"
+  )
+}
+
 new_caseconmodel <- function(x = list()) {
   stopifnot(is.list(x))
   structure(
@@ -78,6 +94,22 @@ new_caseconres <- function(x = list()) {
   structure(
     x,
     class = "caseconres"
+  )
+}
+
+new_logitmodel <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "logitmodel"
+  )
+}
+
+new_logitres <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "logitres"
   )
 }
 
@@ -436,6 +468,35 @@ validate_caseconsurv <- function(x, df) {
   }
 }
 
+validate_logitsurv <- function(x, df) {
+  if (!is(x, "logitmodel")) {
+    stop("Error: Non logistic formula used in logistic regression")
+  }
+  if (x$event == "") {
+    stop(
+      "Error: The event column must not be empty"
+    )
+  }
+  if (x$trials == "") {
+    stop(
+      "Error: The trials column must not be empty"
+    )
+  }
+  if (!(x$trials %in% names(df))) {
+    stop(
+      "Error: Interval start column not in the data"
+    )
+  }
+  if (!(x$event %in% names(df))) {
+    stop(
+      "Error: Event column not in the data"
+    )
+  }
+  if (any(df[, x$event, with = FALSE] > df[, x$trials, with = FALSE])) {
+    stop("Error: In atleast one row, the number of events was larger than the number of trials")
+  }
+}
+
 validate_coxres <- function(x, df) {
   coxmodel <- x$model
   null <- coxmodel$null
@@ -543,6 +604,31 @@ caseconmodel <- function(start_age = "",
     casecon_obj <- validate_formula(casecon_obj, df, verbose)
   }
   casecon_obj
+}
+
+logitmodel <- function(trials = "",
+                       event = "",
+                       strata = "",
+                       term_n = c(),
+                       tform = c(),
+                       names = c(),
+                       modelform = "",
+                       gmix_term = c(),
+                       gmix_theta = 0,
+                       a_n = list(),
+                       keep_constant = c(),
+                       df = data.table(),
+                       expres_calls = list(),
+                       verbose = FALSE) {
+  logit_obj <- list(
+    "trials" = trials, "event" = event, "strata" = strata,
+    "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
+    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
+  )
+  logit_obj <- new_logitmodel(logit_obj)
+  validate_logitsurv(logit_obj, df)
+  logit_obj <- validate_formula(logit_obj, df, verbose)
+  logit_obj
 }
 
 # ------------------------------------------------------------------------ #

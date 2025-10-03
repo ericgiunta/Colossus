@@ -335,6 +335,18 @@ Calc_Recur_LogLik <- function(model_bool, group_num, RiskFail, RiskPairs, totaln
     invisible(.Call(`_Colossus_Calc_Recur_LogLik`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta))
 }
 
+#' Utility function to calculate Logistic Log-Likelihood and derivatives
+#'
+#' \code{Calc_LogLik_Logist} Called to update log-likelihoods, Uses probability matrices Sums the log-likelihood contribution from each row
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Calc_LogLik_Logist <- function(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_LogLik_Logist`, model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant))
+}
+
 #' Primary Cox PH likelihood bounds calcualtion function.
 #'
 #' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
@@ -465,6 +477,19 @@ LogLik_CaseCon_Omnibus <- function(term_n, tform, a_ns, x_all, dfc, fir, modelfo
     .Call(`_Colossus_LogLik_CaseCon_Omnibus`, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
 }
 
+#' Primary logistic regression with multiple starting points and optional combinations of stratification and no derivative calculation.
+#'
+#' \code{LogLik_Logist_Omnibus} Performs the calls to calculation functions, Structures the logistic regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+LogLik_Logist_Omnibus <- function(CountEvent, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_Logist_Omnibus`, CountEvent, term_n, tform, a_ns, x_all, dfc, fir, modelform, lr, optim_para, maxiters, guesses, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
+}
+
 #' Primary Cox PH regression with multiple distributed dose columns and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
 #'
 #' \code{LogLik_Cox_PH_Multidose_Omnibus_Serial} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
@@ -489,6 +514,32 @@ LogLik_Cox_PH_Multidose_Omnibus_Serial <- function(term_n, tform, a_n, x_all, do
 #'
 LogLik_Cox_PH_Multidose_Omnibus_Integrated <- function(term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_LogLik_Cox_PH_Multidose_Omnibus_Integrated`, term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_groups, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
+}
+
+#' Primary Poisson regression with multiple distributed dose columns and optional combinations of stratification.
+#'
+#' \code{LogLik_Pois_Multidose_Omnibus_Serial} Performs the calls to calculation functions, Structures the Poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
+#' @noRd
+#'
+LogLik_Pois_PH_Multidose_Omnibus_Serial <- function(PyrC, term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, dfs, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_Pois_PH_Multidose_Omnibus_Serial`, PyrC, term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, dfs, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
+}
+
+#' Primary Poisson regression with multiple distributed dose columns and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
+#'
+#' \code{LogLik_Pois_PH_Multidose_Omnibus_Integrated} Performs the calls to calculation functions, Structures the Poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: standard cox outputs for the integrated solution
+#' @noRd
+#'
+LogLik_Pois_PH_Multidose_Omnibus_Integrated <- function(PyrC, term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, dfs, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_LogLik_Pois_PH_Multidose_Omnibus_Integrated`, PyrC, term_n, tform, a_n, x_all, dose_all, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, dfs, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res)
 }
 
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
@@ -697,6 +748,30 @@ Expected_Inform_Matrix_Poisson <- function(nthreads, totalnum, PyrC, R, Rd, RdR,
     invisible(.Call(`_Colossus_Expected_Inform_Matrix_Poisson`, nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant))
 }
 
+#' Utility function to calculate logistic model expected information matrix
+#'
+#' \code{Expected_Inform_Matrix_Logist} Called to update information matrix
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+Expected_Inform_Matrix_Logist <- function(nthreads, totalnum, CountEvent, PdP, PnotdP, InMa, KeepConstant) {
+    invisible(.Call(`_Colossus_Expected_Inform_Matrix_Logist`, nthreads, totalnum, CountEvent, PdP, PnotdP, InMa, KeepConstant))
+}
+
+#' Utility function to apply a link function to a Logistic Regression Risk model
+#'
+#' \code{LinkCovertRP} Called to update the probability matrices
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: p, 1-p, and the associated derivatives/ratios
+#' @noRd
+#'
+LinkCovertRP <- function(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP) {
+    invisible(.Call(`_Colossus_LinkCovertRP`, model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP))
+}
+
 #' Primary Cox PH baseline hazard function with stratification
 #'
 #' \code{PLOT_SURV_Strata} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives
@@ -895,6 +970,18 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
     .Call(`_Colossus_cox_ph_multidose_Omnibus_transition`, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, dose_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
 }
 
+#' Interface between R code and the poisson multidose omnibus regression function
+#'
+#' \code{pois_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Pois output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+pois_multidose_Omnibus_transition <- function(dfe, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, dose_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_pois_multidose_Omnibus_transition`, dfe, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, dose_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
+}
+
 #' Interface between R code and the matched case-control omnibus regression function
 #'
 #' \code{caco_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
@@ -905,6 +992,18 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
 #'
 caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, model_control, Cons_Mat, Cons_Vec) {
     .Call(`_Colossus_caco_Omnibus_transition`, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, model_control, Cons_Mat, Cons_Vec)
+}
+
+#' Interface between R code and the logistic omnibus regression function
+#'
+#' \code{logist_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+logist_Omnibus_transition <- function(dfe, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, model_control, Cons_Mat, Cons_Vec) {
+    .Call(`_Colossus_logist_Omnibus_transition`, dfe, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, model_control, Cons_Mat, Cons_Vec)
 }
 
 #' Generates csv file with time-dependent columns
