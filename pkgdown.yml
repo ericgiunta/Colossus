@@ -9,6 +9,7 @@ articles:
   Equation_Expression: Equation_Expression.html
   Excess_and_Predicted_Cases: Excess_and_Predicted_Cases.html
   Grad_Hess: Grad_Hess.html
+  Logistic: Logistic.html
   Matched_Case_Control: Matched_Case_Control.html
   Multi_Realization: Multi_Realization.html
   Plotting_And_Analysis: Plotting_And_Analysis.html
@@ -17,4 +18,4 @@ articles:
   Starting-Description: Starting-Description.html
   Time_Dep_Cov: Time_Dep_Cov.html
   Wald_and_Log_Bound: Wald_and_Log_Bound.html
-last_built: 2025-09-17T20:55Z
+last_built: 2025-10-03T15:49Z

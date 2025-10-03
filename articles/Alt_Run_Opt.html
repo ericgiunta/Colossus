@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,7 @@
     <li><a class="dropdown-item" href="../articles/Equation_Expression.html">Unified Equation Representation</a></li>
     <li><a class="dropdown-item" href="../articles/Excess_and_Predicted_Cases.html">Excess and Predicted Cases</a></li>
     <li><a class="dropdown-item" href="../articles/Grad_Hess.html">Gradient and Hessian Approaches</a></li>
+    <li><a class="dropdown-item" href="../articles/Logistic.html">Logistic Regression</a></li>
     <li><a class="dropdown-item" href="../articles/Matched_Case_Control.html">Matched Case-Control Logistic Regression</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
     <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
@@ -493,7 +494,7 @@ directly call the Poisson model regression function.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">10</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>,</span>
-<span>  <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
+<span>  <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRunJoint.html">PoisRunJoint</a></span><span class="op">(</span><span class="va">formula_list</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>

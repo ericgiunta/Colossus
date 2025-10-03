@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,6 +25,7 @@
     <li><a class="dropdown-item" href="../articles/Equation_Expression.html">Unified Equation Representation</a></li>
     <li><a class="dropdown-item" href="../articles/Excess_and_Predicted_Cases.html">Excess and Predicted Cases</a></li>
     <li><a class="dropdown-item" href="../articles/Grad_Hess.html">Gradient and Hessian Approaches</a></li>
+    <li><a class="dropdown-item" href="../articles/Logistic.html">Logistic Regression</a></li>
     <li><a class="dropdown-item" href="../articles/Matched_Case_Control.html">Matched Case-Control Logistic Regression</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
     <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
@@ -138,6 +139,12 @@
 
         </dt>
         <dd>Interprets basic fine-gray survival formula RHS</dd>
+      </dl><dl><dt>
+
+          <code><a href="ColossusLogitSurv.html">ColossusLogitSurv()</a></code>
+
+        </dt>
+        <dd>Interprets basic logistic survival formula RHS with no grouping</dd>
       </dl><dl><dt>
 
           <code><a href="ColossusPoisSurv.html">ColossusPoisSurv()</a></code>
@@ -272,6 +279,12 @@
         <dd>Calculates The Additional Parameter For a linear-exponential formula with known maximum</dd>
       </dl><dl><dt>
 
+          <code><a href="LogisticRun.html">LogisticRun()</a></code>
+
+        </dt>
+        <dd>Fully runs a logistic regression model, returning the model and results</dd>
+      </dl><dl><dt>
+
           <code><a href="OMP_Check.html">OMP_Check()</a></code>
 
         </dt>
@@ -288,6 +301,12 @@
 
         </dt>
         <dd>Fully runs a joint poisson regression model, returning the model and results</dd>
+      </dl><dl><dt>
+
+          <code><a href="PoisRunMulti.html">PoisRunMulti()</a></code>
+
+        </dt>
+        <dd>Fully runs a poisson regression model with multiple column realizations, returning the model and results</dd>
       </dl><dl><dt>
 
           <code><a href="PoissonCurveSolver.html">PoissonCurveSolver()</a></code>
@@ -372,6 +391,18 @@
 
         </dt>
         <dd>Performs Cox Proportional Hazards regression using the omnibus function with multiple column realizations</dd>
+      </dl><dl><dt>
+
+          <code><a href="RunLogisticRegression_Omnibus.html">RunLogisticRegression_Omnibus()</a></code>
+
+        </dt>
+        <dd>Performs basic Logistic regression using the omnibus function</dd>
+      </dl><dl><dt>
+
+          <code><a href="RunPoisRegression_Omnibus_Multidose.html">RunPoisRegression_Omnibus_Multidose()</a></code>
+
+        </dt>
+        <dd>Performs Poisson regression using the omnibus function with multiple column realizations</dd>
       </dl><dl><dt>
 
           <code><a href="RunPoissonEventAssignment.html">RunPoissonEventAssignment()</a></code>
@@ -504,6 +535,12 @@
 
         </dt>
         <dd>Prints a cox regression output clearly</dd>
+      </dl><dl><dt>
+
+          <code><a href="print.logitres.html">print(<i>&lt;logitres&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Prints a logistic regression output clearly</dd>
       </dl><dl><dt>
 
           <code><a href="print.poisres.html">print(<i>&lt;poisres&gt;</i>)</a></code>
