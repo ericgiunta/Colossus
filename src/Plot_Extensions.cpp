@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Plot_Extensions.h"
@@ -21,8 +23,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::endl;
 using std::string;
@@ -33,7 +33,19 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+using Eigen::VectorXi;
+
 using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
+using Rcpp::Dimension;
 
 template<typename Func>
 struct lambda_as_visitor_wrapper : Func {
@@ -348,8 +360,8 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -359,8 +371,8 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -562,7 +574,6 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     //  nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
-    //  int nthreads = Eigen::nbThreads() - 1;  //  stores how many threads are allocated
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -588,8 +599,8 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     //
     double dint = 0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
     dslp = step_max;
     RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  //  preallocates matrix for Risk to derivative ratios

@@ -65,11 +65,15 @@ df <- data.table::data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1),
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
+control <- list(
+  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "halfmax" = 1
+)
 formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
   Pois(Ending_Age, Flu_Status) ~ loglinear(d, 0),
   "shared" = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 )
-res <- PoisRunJoint(formula_list, df)
+res <- PoisRunJoint(formula_list, df, control = control)
 }
 \seealso{
 Other Poisson Wrapper Functions: 
@@ -77,13 +81,7 @@ Other Poisson Wrapper Functions:
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunMulti}()},
-\code{\link{PoissonCurveSolver}()},
 \code{\link{Residual.poisres}()},
-\code{\link{RunPoisRegression_Omnibus_Multidose}()},
-\code{\link{RunPoissonEventAssignment}()},
-\code{\link{RunPoissonEventAssignment_bound}()},
-\code{\link{RunPoissonRegression_Joint_Omnibus}()},
-\code{\link{RunPoissonRegression_Omnibus}()},
-\code{\link{RunPoissonRegression_Residual}()}
+\code{\link{RunPoissonRegression_Omnibus}()}
 }
 \concept{Poisson Wrapper Functions}

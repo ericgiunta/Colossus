@@ -228,6 +228,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
 #' @param a_n_list list of vectors for parameter values for event specific or shared model elements, defaults to term 0
 #' @param name_list list of vectors for columns for event specific or shared model elements, required
 #'
+#' @noRd
 #' @return returns a list of the final results
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
@@ -266,6 +267,7 @@ RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term
 #'
 #' \code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to calculate background and excess events
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
@@ -351,6 +353,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
 #'
 #' \code{RunPoissonEventAssignment_bound} uses user provided data, the results of a poisson regression, and options to calculate background and excess events
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @param check_num the parameter number to check at the bounds of, indexed from 1 using the order returned by Colossus
 #' @param z Z score to use for confidence interval
@@ -411,7 +414,7 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
@@ -544,7 +547,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
 PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
@@ -697,6 +700,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
 #'
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return returns a list of the final results for each realization
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data

@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Omnibus_Pieces.h"
@@ -23,8 +25,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::endl;
 using std::string;
@@ -38,7 +38,17 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -81,18 +91,6 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
         nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
         TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-//    } else if (model_bool["gradient"]) {
-//        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-//        Te = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for column terms used for temporary storage
-//        R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
-//        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-//        Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of the total dose term values
-//        nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of the total non-dose term values
-//        nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of Linear subterm values
-//        nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
-//        nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
-//        TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-//        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
     } else {
         Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
         Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
@@ -130,10 +128,8 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
         if (!model_bool["single"]) {
             Rls2 = MatrixXd::Zero(ntime, reqrdnum*Strata_vals.size());  //  many are repeated due to the same risk groups and derivatives being used at mulitple points
             Lls2 = MatrixXd::Zero(ntime, reqrdnum*Strata_vals.size());
-//            if (!model_bool["gradient"]) {
             Rls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2*Strata_vals.size());  //  sum and its derivatives are precomputed
             Lls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2*Strata_vals.size());
-//            }
         }
     } else {
         Rls1 = MatrixXd::Zero(ntime, 1);  //  precomputes a series of sums used frequently in the log-liklihood calculations
@@ -141,10 +137,8 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
         if (!model_bool["single"]) {
             Rls2 = MatrixXd::Zero(ntime, reqrdnum);  //  many are repeated due to the same risk groups and derivatives being used at mulitple points
             Lls2 = MatrixXd::Zero(ntime, reqrdnum);
-//            if (!model_bool["gradient"]) {
             Rls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2);  //  sum and its derivatives are precomputed
             Lls3 = MatrixXd::Zero(ntime, reqrdnum*(reqrdnum + 1)/2);
-//            }
         }
     }
     return;
@@ -1345,8 +1339,6 @@ void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, con
 //'
 //  [[Rcpp::export]]
 void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, MatrixXd& P, MatrixXd& Pd, MatrixXd& Pdd, MatrixXd& Pnot, MatrixXd& PdP, MatrixXd& PddP, MatrixXd& PnotdP, MatrixXd& PnotddP) {
-//  --------------------------- Code for changing the linking function for logistic regression ------------------------------ //
-//  --------------------------- Not tested or implemented, stored for later use if needed ----------------------------------- //
     bool odds = model_bool["odds"];
     bool ident = model_bool["ident"];
     bool loglink = model_bool["loglink"];

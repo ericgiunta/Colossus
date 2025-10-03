@@ -1,4 +1,10 @@
-using namespace Rcpp;
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
+#ifndef SRC_OMNIBUS_PIECES_H_
+#define SRC_OMNIBUS_PIECES_H_
+
+#include <string>
+#include <vector>
 
 using std::string;
 using std::vector;
@@ -7,7 +13,14 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
 
 template <typename T> int sign(T val);
 
@@ -47,3 +60,5 @@ void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, co
 void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& PdP, const MatrixXd& PnotdP, vector<double>& InMa, const IntegerVector& KeepConstant);
 
 void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, MatrixXd& P, MatrixXd& Pd, MatrixXd& Pdd, MatrixXd& Pnot, MatrixXd& PdP, MatrixXd& PddP, MatrixXd& PnotdP, MatrixXd& PnotddP);
+
+#endif  //  SRC_OMNIBUS_PIECES_H_

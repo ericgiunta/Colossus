@@ -20,20 +20,9 @@ and data.table, to fully describe the model for a joint Poisson model.
 }
 \seealso{
 Other Formula Interpretation: 
-\code{\link{ColossusCaseConStrataSurv}()},
-\code{\link{ColossusCaseConSurv}()},
-\code{\link{ColossusCaseConTimeStrataSurv}()},
-\code{\link{ColossusCaseConTimeSurv}()},
-\code{\link{ColossusCoxStrataSurv}()},
 \code{\link{ColossusCoxSurv}()},
-\code{\link{ColossusExpressionCall}()},
-\code{\link{ColossusFineGrayStrataSurv}()},
-\code{\link{ColossusFineGraySurv}()},
 \code{\link{ColossusLogitSurv}()},
 \code{\link{ColossusPoisSurv}()},
-\code{\link{get_form}()},
-\code{\link{get_form_list}()},
-\code{\link{get_form_risk}()},
-\code{\link{get_form_surv}()}
+\code{\link{get_form}()}
 }
 \concept{Formula Interpretation}

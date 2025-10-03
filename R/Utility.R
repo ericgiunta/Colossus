@@ -2,6 +2,7 @@
 #'
 #' \code{nested_split} splits by comma, keeps parenthesis sections together
 #'
+#' @noRd
 #' @param total_string the complete string to split
 #' @family Data Cleaning Functions
 #' @return returns a vector of substrings
@@ -33,6 +34,7 @@ nested_split <- function(total_string) {
 #'
 #' \code{parse_literal_string} converts the string of a vector/list to a vector/list
 #'
+#' @noRd
 #' @param string the string to convert to vector/list
 #' @family Data Cleaning Functions
 #' @return returns a vector, list, or the original string
@@ -135,6 +137,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
 #'
 #' \code{Def_Control} checks and assigns default values
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a filled list
@@ -222,6 +225,7 @@ Def_Control <- function(control) {
 #'
 #' \code{Def_model_control} checks and assigns default values
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a filled list
@@ -537,49 +541,6 @@ factorize <- function(df, col_list, verbose = 0) {
   list("df" = df, "cols" = cols)
 }
 
-# factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detectCores())) {
-#  if (class(df)[[1]] != "data.table") {
-#    tryCatch(
-#      {
-#        df <- setDT(df)
-#      },
-#      error = function(e) {
-#        df <- data.table(df)
-#      }
-#    )
-#  }
-#  verbose <- Check_Verbose(verbose)
-#  cols <- c()
-#  vals <- c()
-#  names <- c()
-#  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-#    nthreads <- 2
-#  }
-#  for (i in seq_len(length(col_list))) {
-#    col <- col_list[i]
-#    x <- sort(unlist(as.list(unique(df[, col, with = FALSE])),
-#      use.names = FALSE
-#    ))
-#    for (j in x) {
-#      newcol <- c(paste(col, j, sep = "_"))
-#      names <- c(names, newcol)
-#      vals <- c(vals, j)
-#      cols <- c(cols, i - 1)
-#    }
-#  }
-#  df0 <- Gen_Fac_Par(
-#    as.matrix(df[, col_list, with = FALSE]), vals,
-#    cols, nthreads
-#  )
-#  df0 <- data.table::as.data.table(df0)
-#  names(df0) <- names
-#  col_keep <- Check_Dupe_Columns(
-#    df0, names, rep(0, length(cols)),
-#    verbose, TRUE
-#  )
-#  list("df" = cbind(df, df0), "cols" = col_keep)
-# }
-
 #' Defines the likelihood ratio test
 #'
 #' \code{Likelihood_Ratio_Test} uses two models and calculates the ratio
@@ -611,6 +572,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
 #'
 #' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with single value. Currently not updated for multi-terms
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the usable columns
@@ -706,6 +668,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #'
 #' \code{Check_Trunc} creates columns to use for truncation
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the updated data and time period columns
@@ -1171,6 +1134,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
 #'
 #' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
@@ -1234,6 +1198,7 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
 #'
 #' \code{get_os} checks the system OS, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of OS
 get_os <- function() {
   sysinf <- Sys.info()
@@ -1258,6 +1223,7 @@ get_os <- function() {
 #'
 #' \code{gcc_version} Checks default c++ compiler, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
   #  tstart <- Sys.time()
@@ -1285,6 +1251,7 @@ gcc_version <- function() {
 #'
 #' \code{Rcomp_version} Checks how R was compiled, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of gcc, clang, or R CMD config CC output
 Rcomp_version <- function() {
   out <- rcmd("config", "CC")
@@ -1306,6 +1273,7 @@ Rcomp_version <- function() {
 #'
 #' \code{Rcpp_version} checks ~/.R/Makevars script for default compilers set, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of gcc, clang, or head ~/.R/Makevars
 Rcpp_version <- function() {
   out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
@@ -1348,6 +1316,7 @@ System_Version <- function() {
 #'
 #' \code{Check_Verbose} checks and assigns verbosity values
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns correct verbose value
@@ -2072,6 +2041,7 @@ print.logitres <- function(x, ...) {
 #'
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return return nothing, prints the results to console
 Interpret_Output <- function(out_list, digits = 2) {
   # make sure the output isn't an error

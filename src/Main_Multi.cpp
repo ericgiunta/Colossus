@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Main_Multi.h"
@@ -22,8 +24,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::endl;
 using std::string;
@@ -36,7 +36,19 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::LogicalVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
+using Rcpp::Dimension;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -119,8 +131,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     MatrixXd Tdd0;
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     MatrixXd Dose;
     MatrixXd nonDose;
     MatrixXd nonDose_LIN;
@@ -129,8 +141,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -375,9 +387,9 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                         beta_0[ij] = beta_a[ij] + dbeta[ij];
                         beta_c[ij] = beta_0[ij];
                     }
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  ----------------------------------------------------------------------------------------------------------//
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  ----------------------------------------------------------------------------------------------------------//
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
                 }
@@ -622,8 +634,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     MatrixXd Tdd0;
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     MatrixXd Dose;
     MatrixXd nonDose;
     MatrixXd nonDose_LIN;
@@ -632,8 +644,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -1181,12 +1193,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
 List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const MatrixXd& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
-    //  Time durations are measured from this point on in microseconds
-//    time_point<system_clock> start_point, end_point;
-//    start_point = system_clock::now();
-//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-//    end_point = system_clock::now();
-//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  //  the time duration is tracked
     //
     //  df0: covariate data
     //  ntime: number of event times for Cox PH
@@ -1224,8 +1230,8 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector
     MatrixXd Tdd0;
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     MatrixXd Dose;
     MatrixXd nonDose;
     MatrixXd nonDose_LIN;
@@ -1234,8 +1240,8 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -1429,9 +1435,9 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector
                         beta_0[ij] = beta_a[ij] + dbeta[ij];
                         beta_c[ij] = beta_0[ij];
                     }
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  --------------------------------------------------------------------------------------------------------------------------------------------//
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  --------------------------------------------------------------------------------------------------------------------------------------------//
                     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
                 }
@@ -1630,8 +1636,8 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const MatrixXd& PyrC, IntegerVe
     MatrixXd Tdd0;
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     MatrixXd Dose;
     MatrixXd nonDose;
     MatrixXd nonDose_LIN;
@@ -1640,8 +1646,8 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const MatrixXd& PyrC, IntegerVe
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -1701,8 +1707,6 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const MatrixXd& PyrC, IntegerVe
     MatrixXd Lls1 = MatrixXd::Zero(1, 1);
     MatrixXd Lls2 = MatrixXd::Zero(1, 1);
     MatrixXd Lls3 = MatrixXd::Zero(1, 1);
-    double Lstar = 0.0;
-    int ntime = 1.0;
     IntegerMatrix RiskFail(1);
     vector<vector<int> > RiskPairs;
     vector<vector<vector<int> > > RiskPairs_Strata;

@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Subterms_Risk.h"
@@ -21,8 +23,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::string;
 using std::vector;
@@ -34,9 +34,14 @@ using std::set;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
+using Eigen::ArrayXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::IntegerVector;
+using Rcpp::StringVector;
+using Rcpp::Rcout;
 
 //' Utility function to calculate the term and subterm values
 //'

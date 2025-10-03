@@ -93,6 +93,11 @@ The following tables cover the subterms and term models that are currently imple
 | Poisson stratified  | "poisson_strata", "pois_strata"  |
 | Fine-Gray | "finegray", "fg" |
 | Fine-Gray stratified  | "finegray_strata", "fg_strata" |
+| Logistic | "logit", "logistic" |
+| Matched Case-Control with one group | "casecon", "casecontrol", "case_control" |
+| Matched Case-Control grouped by time at risk | "casecon_time", "casecontrol_time", "case_control_time" |
+| Matched Case-Control grouped by strata | "casecon_strata", "casecontrol_strata", "case_control_strata"|
+| Matched Case-Control grouped by time at risk and strata | "casecon_strata_time", "casecontrol_strata_time", "case_control_strata_time", "casecon_time_strata", "casecontrol_time_strata", "case_control_time_strata" |
 
 | Subterm Type | Equivalent Aliases |
 | :---------: | :----------: |

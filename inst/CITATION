@@ -10,7 +10,7 @@ bibentry(
     person("Lawrence", "Dauer"),
     person("John", "Boice Jr")
     ),
-  year     = "2024",
+  year     = "2025",
   url = "https://github.com/ericgiunta/Colossus"
 )
 bibentry(

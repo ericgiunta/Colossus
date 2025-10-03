@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "R_Interface.h"
@@ -21,8 +23,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::string;
 using std::vector;
@@ -31,11 +31,25 @@ using std::endl;
 using std::invalid_argument;
 
 using Eigen::Map;
+using Eigen::ArrayXd;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
-using Rcpp::as;
+using Eigen::VectorXi;
+using Eigen::IOFormat;
+using Eigen::FullPrecision;
+using Eigen::DontAlignCols;
 
+using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));

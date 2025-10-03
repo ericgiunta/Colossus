@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Main_Bound.h"
@@ -22,8 +24,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::endl;
 using std::string;
@@ -34,7 +34,18 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
+using Rcpp::Dimension;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -118,8 +129,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -129,8 +140,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -535,8 +546,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -546,8 +557,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -772,9 +783,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
                 }
-                //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                //  -----------------------------------------------------------------------------------------------------------------------------------------//
                 //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                //  -----------------------------------------------------------------------------------------------------------------------------------------//
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_iter_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             }
@@ -1398,8 +1409,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     MatrixXd Tdd0;
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     MatrixXd Dose;
     MatrixXd nonDose;
     MatrixXd nonDose_LIN;
@@ -1408,8 +1419,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -1801,8 +1812,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -1812,8 +1823,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -2640,8 +2651,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -2651,8 +2662,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -3114,8 +3125,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -3125,8 +3136,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms

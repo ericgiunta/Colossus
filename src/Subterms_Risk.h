@@ -1,4 +1,9 @@
-using namespace Rcpp;
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
+#ifndef SRC_SUBTERMS_RISK_H_
+#define SRC_SUBTERMS_RISK_H_
+
+#include <string>
 
 using std::string;
 using std::vector;
@@ -7,7 +12,10 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::IntegerVector;
+using Rcpp::StringVector;
 
 template <typename T> int sign(T val);
 
@@ -36,3 +44,5 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant);
 
 void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, const  MatrixXd& df0, const int& totalnum, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant);
+
+#endif  //  SRC_SUBTERMS_RISK_H_

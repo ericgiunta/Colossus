@@ -108,12 +108,6 @@ Other Poisson Wrapper Functions:
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
 \code{\link{PoisRunMulti}()},
-\code{\link{PoissonCurveSolver}()},
-\code{\link{Residual.poisres}()},
-\code{\link{RunPoisRegression_Omnibus_Multidose}()},
-\code{\link{RunPoissonEventAssignment}()},
-\code{\link{RunPoissonEventAssignment_bound}()},
-\code{\link{RunPoissonRegression_Joint_Omnibus}()},
-\code{\link{RunPoissonRegression_Residual}()}
+\code{\link{Residual.poisres}()}
 }
 \concept{Poisson Wrapper Functions}

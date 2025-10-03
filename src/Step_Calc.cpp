@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Step_Calc.h"
@@ -21,8 +23,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::string;
 using std::vector;
@@ -37,8 +37,15 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
-using Rcpp::as;
 
+using Rcpp::as;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Dimension;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -223,11 +230,6 @@ void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_s
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-    //
-//    Eigen::LLT<Eigen::MatrixXd> llt(Lldd_mat);
-//    if (llt.info() == Eigen::NumericalIssue) {
-//        Lldd_mat = -1*Lldd_mat;
-//    }
     //
     VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
     double ll_change = (Lldd_solve0.array() * Lld_mat.array()).sum();  //  We want to make sure it is moving toward the a maximum
@@ -1035,9 +1037,6 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
         }
     } else {
         //
-//        #ifdef _OPENMP
-//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//        #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));

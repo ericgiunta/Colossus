@@ -253,6 +253,7 @@ get_form <- function(formula, df) {
 #' @param model_obj output from get_form_risk, list of risk factor model values
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return returns the list of model values
 #' @family Formula Interpretation
 get_form_list <- function(surv_obj, model_obj, df) {
@@ -321,6 +322,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
 #' \code{get_form_surv} interprets the LHS of a formula
 #' @param surv_obj output from get_form_surv, list of survival values
 #' @inheritParams R_template
+#' @noRd
 #' @return returns the left hand side of the formula reading
 #' @family Formula Interpretation
 get_form_surv <- function(surv_obj, df) {
@@ -468,6 +470,7 @@ get_form_surv <- function(surv_obj, df) {
 #' \code{get_form_risk} interprets the RHS of a formula
 #' @param model_obj output from get_form_risk, list of risk factor model values
 #' @inheritParams R_template
+#' @noRd
 #' @return returns the right hand side of a formula reading
 #' @family Formula Interpretation
 get_form_risk <- function(model_obj, df) {
@@ -975,7 +978,7 @@ get_form_risk <- function(model_obj, df) {
 #'
 #' @param calls List from 'model$expres' calls formatted as the type of function call, and then the arguments
 #' @param df dataset, to be modified by the function calls
-#' @export
+#' @noRd
 #' @return returns the transformed data
 #' @family Formula Interpretation
 ColossusExpressionCall <- function(calls, df) {
@@ -1233,6 +1236,7 @@ ColossusCoxSurv <- function(...) {
 #'
 #' @param ... entries for a cox survival object with strata, tstart, tend, event, and strata. Either in order or named. If unnamed, the last is assumed to be strata and the rest are passed to ColossusCoxSurv.
 #'
+#' @noRd
 #' @return returns list with interval endpoints, event, and strata column
 #' @family Formula Interpretation
 ColossusCoxStrataSurv <- function(...) {
@@ -1270,6 +1274,7 @@ ColossusCoxStrataSurv <- function(...) {
 #'
 #' @param ... entries for a Fine_Gray object, tstart, tend, event, and weighting. Either in order or named. If unnamed, the last is assumed to be weighting and the rest are passed to ColossusCoxSurv.
 #'
+#' @noRd
 #' @return returns list with interval endpoints, event, and weighting columns
 #' @family Formula Interpretation
 ColossusFineGraySurv <- function(...) {
@@ -1307,6 +1312,7 @@ ColossusFineGraySurv <- function(...) {
 #'
 #' @param ... entries for a Fine_Gray object with strata, tstart, tend, event, strata, and weighting. Either in order or named. If unnamed, the last is assumed to be weighting and the rest are passed to ColossusCoxStrataSurv.
 #'
+#' @noRd
 #' @return returns list with interval endpoints, event, strata, and weighting columns
 #' @family Formula Interpretation
 ColossusFineGrayStrataSurv <- function(...) {
@@ -1417,7 +1423,7 @@ ColossusPoisSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, only the event column
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConSurv <- function(...) {
@@ -1444,7 +1450,7 @@ ColossusCaseConSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, with risk group info. Similar to basic Cox survival, interval start, end, and the event column. Either named or in order.
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConTimeSurv <- function(...) {
@@ -1535,7 +1541,7 @@ ColossusCaseConTimeSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, with strata. Expects an event column and strata column, either named or in order.
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConStrataSurv <- function(...) {
@@ -1576,7 +1582,7 @@ ColossusCaseConStrataSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, with strata and interval info. Similar to the stratified Cox survival object. Expects interval start, end, event, and strata in order or named. Removes strata and calls the standard Case-Control survival object grouped by risk group.
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConTimeStrataSurv <- function(...) {

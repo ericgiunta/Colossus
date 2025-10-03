@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Main_Functions.h"
@@ -22,8 +24,6 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace Rcpp;
-using namespace Eigen;
 
 using std::endl;
 using std::string;
@@ -37,7 +37,18 @@ using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
+using Rcpp::Dimension;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -169,8 +180,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -180,8 +191,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     if (!model_bool["null"]) {
         //  ---------------------------------------------
@@ -390,9 +401,9 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                         beta_0[ij] = beta_a[ij] + dbeta[ij];
                         beta_c[ij] = beta_0[ij];
                     }
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  ----------------------------------------------------------------------------------------------------------//
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  ----------------------------------------------------------------------------------------------------------//
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     //
                     Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_iter_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
@@ -632,11 +643,6 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     }
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
     //
-//    if (model_bool["gradient"]) {
-//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
-//        return res_list;
-//    }
-    //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -743,7 +749,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //  nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
-    //  int nthreads = Eigen::nbThreads() - 1;  //  stores how many threads are allocated
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //
@@ -764,8 +769,8 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -775,8 +780,8 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -962,9 +967,9 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                         beta_0[ij] = beta_a[ij] + dbeta[ij];
                         beta_c[ij] = beta_0[ij];
                     }
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  -----------------------------------------------------------------------------------------------------------------------------------------//
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  -----------------------------------------------------------------------------------------------------------------------------------------//
                     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_iter_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
                 }
@@ -1132,9 +1137,9 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
                 }
-                //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                //  ----------------------------------------------------------------------------------------------------------------------------------------------------------//
                 //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                //  ----------------------------------------------------------------------------------------------------------------------------------------------------------//
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             }
@@ -1201,11 +1206,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
-    //
-//    if (model_bool["gradient"]) {
-//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
-//        return res_list;
-//    }
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     #ifdef _OPENMP
@@ -1331,8 +1331,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -1342,14 +1342,10 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     if (!model_bool["null"]) {
-        //  ---------------------------------------------
-        //  To Start, needs to seperate the derivative terms
-        //  ---------------------------------------------
-        //
         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     } else {
         R = MatrixXd::Constant(mat_row, 1, 1.0);
@@ -1606,9 +1602,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                         strata_odds[ij] = strata_a[ij] + dstrata[ij];
                         strata_c[ij] = strata_odds[ij];
                     }
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  -----------------------------------------------------------------------------------------------------------------------------------------------//
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  -----------------------------------------------------------------------------------------------------------------------------------------------//
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     //
                     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
@@ -2036,10 +2032,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     }
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
     //
-//    if (model_bool["gradient"]) {
-//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviation"] = wrap(dev), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
-//        return res_list;
-//    }
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP
@@ -2060,15 +2052,15 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
-    if (model_bool["observed_info"]) {
-        cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
-        for (int ij = 0; ij < totalnum; ij++) {
-            if (KeepConstant[ij] == 0) {
-                int pij_ind = ij - sum(head(KeepConstant, ij));
-                stdev(ij) = sqrt(cov(pij_ind, pij_ind));
-            }
+//    if (model_bool["observed_info"]) {
+    cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
+    for (int ij = 0; ij < totalnum; ij++) {
+        if (KeepConstant[ij] == 0) {
+            int pij_ind = ij - sum(head(KeepConstant, ij));
+            stdev(ij) = sqrt(cov(pij_ind, pij_ind));
         }
-    } else { }
+    }
+//    } else { }
     //
     res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviation"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
     //  returns a list of results
@@ -2105,7 +2097,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
     //  nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
-    //  int nthreads = Eigen::nbThreads() - 1;  //  stores how many threads are allocated
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //
@@ -2126,12 +2117,12 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     MatrixXd P;
     MatrixXd Pnot;
-    ColXd Pd;
-    ColXd Pdd;
+    MatrixXd Pd;
+    MatrixXd Pdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -2139,14 +2130,12 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
     MatrixXd nonDose_PLIN;
     MatrixXd nonDose_LOGLIN;
     MatrixXd TTerm;
-    double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
-    double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
-    ColXd PdP;
-    ColXd PddP;
-    ColXd PnotdP;
-    ColXd PnotddP;
+    MatrixXd RdR;
+    MatrixXd RddR;
+    MatrixXd PdP;
+    MatrixXd PddP;
+    MatrixXd PnotdP;
+    MatrixXd PnotddP;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -2174,8 +2163,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
         Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
         Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
         //
-        dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
-        dslp = step_max;
         RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
         RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
         PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
@@ -2183,11 +2170,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
         PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
         PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
     }
-//    VectorXd s_weights;
-//    if (model_bool["strata"]) {
-//        s_weights = VectorXd::Zero(mat_row);
-//        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
-//    }
     //  ------------------------------------------------------------------------- //  initialize
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
@@ -2234,8 +2216,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
     MatrixXd Lls1 = MatrixXd::Zero(1, 1);
     MatrixXd Lls2 = MatrixXd::Zero(1, 1);
     MatrixXd Lls3 = MatrixXd::Zero(1, 1);
-    double Lstar = 0.0;
-    int ntime = 1.0;
     IntegerMatrix RiskFail(1);
     vector<vector<int> > RiskPairs;
     vector<vector<vector<int> > > RiskPairs_Strata;
@@ -2386,9 +2366,9 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                         beta_0[ij] = beta_a[ij] + dbeta[ij];
                         beta_c[ij] = beta_0[ij];
                     }
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  ---------------------------------------------------------------------------------------------------------------------------//
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                    //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                    //  ---------------------------------------------------------------------------------------------------------------------------//
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                     //
@@ -2561,14 +2541,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
-        //
-//        Rcout << "Iteration: " << iteration << endl;
-//        Rcout << "C++ Note: values checked ";
-//        for (int ijk = 0; ijk < totalnum; ijk++) {
-//            Rcout << beta_0[ijk] << " ";
-//        }
-//        Rcout << endl;
-        //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
             Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
@@ -2637,19 +2609,13 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
                 }
-//                Rcout << "C++ Note: values checked ";
-//                for (int ijk = 0; ijk < totalnum; ijk++) {
-//                    Rcout << beta_0[ijk] << " ";
-//                }
-//                Rcout << endl;
-                //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                //  -----------------------------------------------------------------------------------------------------------------------------------//
                 //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
-                //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+                //  -----------------------------------------------------------------------------------------------------------------------------------//
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                 //
                 if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
-//                    Rcout << "Bad Value Hit" << endl;
                     #ifdef _OPENMP
                     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
                     #endif
@@ -2660,7 +2626,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                 } else {
                     halves++;
                     Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
-//                    Rcout << "Score: " << Ll[0] << " compared to best of: " << Ll_abs_best << endl;
                     //
                     if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
                         #ifdef _OPENMP
@@ -2742,68 +2707,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
     //
-//    Rcout << "C++ Note: values checked ";
-//    for (int ijk = 0; ijk < totalnum; ijk++) {
-//        Rcout << beta_0[ijk] << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: risk checked ";
-//    for (int ijk = 0; ijk < 1; ijk++) {
-//        Rcout << R.col(0).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: risk1 checked ";
-//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//        Rcout << Rd.col(ijk).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: ALL risk2 checked ";
-//    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        Rcout << Rdd.col(ijk).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: prob checked ";
-//    for (int ijk = 0; ijk < 1; ijk++) {
-//        Rcout << P.col(0).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: prob_not checked ";
-//    for (int ijk = 0; ijk < 1; ijk++) {
-//        Rcout << Pnot.col(0).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: prob1 approx ";
-//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//        Rcout << (Pd.col(ijk)).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: ALL prob2 approx ";
-//    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        Rcout << (Pdd.col(ijk)).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-    //
-//    Rcout << "C++ Note: prob1 true ";
-//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//        Rcout << (Pd.col(ijk).array() * P.col(0).array().pow(-1).array()).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: prob1 approx ";
-//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//        Rcout << (PdP.col(ijk)).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: ALL prob2 true ";
-//    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        Rcout << (Pdd.col(ijk).array() * P.col(0).array().pow(-1).array()).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-//    Rcout << "C++ Note: ALL prob2 approx ";
-//    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        Rcout << (PddP.col(ijk)).sum() << " ";
-//    }
-//    Rcout << " " << endl;
-    //
     Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
     //
 //    dev_temp.col(0) = CountEvent.col(0).array() * ( CountEvent.col(0).array() * P.col(0).array().pow(-1).array() ).array().log().array();
@@ -2823,11 +2726,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
     //
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
-    //
-//    if (model_bool["gradient"]) {
-//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
-//        return res_list;
-//    }
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     #ifdef _OPENMP

@@ -109,10 +109,8 @@ e <- RunCoxRegression_Omnibus(df, time1, time2, event,
 }
 \seealso{
 Other Cox Wrapper Functions: 
-\code{\link{CoxCurveSolver}()},
 \code{\link{CoxRun}()},
 \code{\link{CoxRunMulti}()},
-\code{\link{LikelihoodBound.coxres}()},
-\code{\link{RunCoxRegression_Omnibus_Multidose}()}
+\code{\link{LikelihoodBound.coxres}()}
 }
 \concept{Cox Wrapper Functions}

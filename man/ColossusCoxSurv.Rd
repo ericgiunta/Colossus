@@ -22,20 +22,9 @@ or the last two entries.
 }
 \seealso{
 Other Formula Interpretation: 
-\code{\link{ColossusCaseConStrataSurv}()},
-\code{\link{ColossusCaseConSurv}()},
-\code{\link{ColossusCaseConTimeStrataSurv}()},
-\code{\link{ColossusCaseConTimeSurv}()},
-\code{\link{ColossusCoxStrataSurv}()},
-\code{\link{ColossusExpressionCall}()},
-\code{\link{ColossusFineGrayStrataSurv}()},
-\code{\link{ColossusFineGraySurv}()},
 \code{\link{ColossusLogitSurv}()},
 \code{\link{ColossusPoisSurv}()},
 \code{\link{get_form}()},
-\code{\link{get_form_joint}()},
-\code{\link{get_form_list}()},
-\code{\link{get_form_risk}()},
-\code{\link{get_form_surv}()}
+\code{\link{get_form_joint}()}
 }
 \concept{Formula Interpretation}

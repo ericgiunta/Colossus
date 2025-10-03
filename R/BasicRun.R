@@ -22,9 +22,16 @@
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+#' res <- CoxRun(formula, df,
+#'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
+#'   control = control
+#' )
 CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
@@ -226,16 +233,6 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
         for (i in seq_along(names)) {
           res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
         }
-        # } else if (model_control$gradient) {
-        #   for (i in seq_along(names)) {
-        #     res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-        #     res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        #   }
-        #   if (model_control[["constraint"]] == TRUE) {
-        #     for (i in seq_along(names)) {
-        #       res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-        #     }
-        #   }
       } else {
         for (i in seq_along(names)) {
           res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
@@ -291,9 +288,13 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
 #' formula <- Pois(Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' res <- PoisRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+#' res <- PoisRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
 PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
@@ -460,16 +461,6 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       for (i in seq_along(names)) {
         res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
       }
-      # } else if (model_control$gradient) {
-      #   for (i in seq_along(names)) {
-      #     res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-      #     res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-      #   }
-      #   if (model_control[["constraint"]] == TRUE) {
-      #     for (i in seq_along(names)) {
-      #       res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-      #     }
-      #   }
     } else {
       for (i in seq_along(names)) {
         res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
@@ -524,9 +515,13 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
 #' formula <- logit(Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' res <- LogisticRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+#' res <- LogisticRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
 LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "logitmodel")) {
@@ -609,13 +604,14 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     model_control["logit_odds"] <- TRUE
   } else {
     # "logit_odds", "logit_ident", "logit_loglink"
-    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "odds", "ident", "loglink")
+    link <- tolower(link)
+    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "odds", "ident", "loglink", "id", "odd", "log")
     if (link %in% acceptable) {
-      if (link %in% c("logit_odds", "odds")) {
+      if (link %in% c("logit_odds", "odds", "Odd")) {
         model_control["logit_odds"] <- TRUE
-      } else if (link %in% c("logit_ident", "ident")) {
+      } else if (link %in% c("logit_ident", "ident", "id")) {
         model_control["logit_ident"] <- TRUE
-      } else if (link %in% c("logit_loglink", "loglink")) {
+      } else if (link %in% c("logit_loglink", "loglink", "log")) {
         model_control["logit_loglink"] <- TRUE
       } else {
         stop(gettextf(
@@ -630,9 +626,6 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       ), domain = NA)
     }
   }
-  #  if (poismodel$strata != "NONE") {
-  #    model_control["strata"] <- TRUE
-  #  }
   if (cons_vec != c(0)) {
     model_control["constraint"] <- TRUE
   }
@@ -718,16 +711,6 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       for (i in seq_along(names)) {
         res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
       }
-      # } else if (model_control$gradient) {
-      #   for (i in seq_along(names)) {
-      #     res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-      #     res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-      #   }
-      #   if (model_control[["constraint"]] == TRUE) {
-      #     for (i in seq_along(names)) {
-      #       res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-      #     }
-      #   }
     } else {
       for (i in seq_along(names)) {
         res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
@@ -783,9 +766,16 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
 #' formula <- CaseCon_Strata(Cancer_Status, e) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' res <- CaseControlRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+#' res <- CaseControlRun(formula, df,
+#'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
+#'   control = control
+#' )
 CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), conditional_threshold = 50, gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "caseconmodel")) {
@@ -967,16 +957,6 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
         for (i in seq_along(names)) {
           res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
         }
-        # } else if (model_control$gradient) {
-        #   for (i in seq_along(names)) {
-        #     res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-        #     res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        #   }
-        #   if (model_control[["constraint"]] == TRUE) {
-        #     for (i in seq_along(names)) {
-        #       res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-        #     }
-        #   }
       } else {
         for (i in seq_along(names)) {
           res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
@@ -1033,11 +1013,15 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
 #' formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
 #'   Pois(Ending_Age, Flu_Status) ~ loglinear(d, 0),
 #'   "shared" = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 #' )
-#' res <- PoisRunJoint(formula_list, df)
+#' res <- PoisRunJoint(formula_list, df, control = control)
 PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
@@ -1194,16 +1178,6 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
       for (i in seq_along(names)) {
         res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
       }
-      # } else if (model_control$gradient) {
-      #   for (i in seq_along(names)) {
-      #     res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-      #     res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-      #   }
-      #   if (model_control[["constraint"]] == TRUE) {
-      #     for (i in seq_along(names)) {
-      #       res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-      #     }
-      #   }
     } else {
       for (i in seq_along(names)) {
         res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
@@ -1281,9 +1255,16 @@ RelativeRisk.default <- function(x, df, ...) {
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1),
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+#' res <- CoxRun(formula, df,
+#'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
+#'   control = control
+#' )
 #' RelativeRisk(res, df)
 RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   #
@@ -1351,9 +1332,16 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
 #'   "c" = c(10, 11, 10, 11, 12, 9, 11),
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1)
 #' )
+#' control <- list(
+#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+#' res <- CoxRun(formula, df,
+#'   control = control,
+#'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
+#' )
 #' plot_options <- list(
 #'   "type" = c("surv", paste(tempfile(),
 #'     "run",
@@ -1746,7 +1734,6 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
     }
   }
   # ------------------------------------------------------------------------------ #
-  #                                          df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)
   res <- RunPoisRegression_Omnibus_Multidose(df, pyr0 = pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- poismodel
   res$modelcontrol <- model_control
