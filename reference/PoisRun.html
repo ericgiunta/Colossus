@@ -140,14 +140,8 @@ run a Colossus poisson regression function</p>
 <code><a href="LikelihoodBound.poisres.html">LikelihoodBound.poisres</a>()</code>,
 <code><a href="PoisRunJoint.html">PoisRunJoint</a>()</code>,
 <code><a href="PoisRunMulti.html">PoisRunMulti</a>()</code>,
-<code><a href="PoissonCurveSolver.html">PoissonCurveSolver</a>()</code>,
 <code><a href="Residual.poisres.html">Residual.poisres</a>()</code>,
-<code><a href="RunPoisRegression_Omnibus_Multidose.html">RunPoisRegression_Omnibus_Multidose</a>()</code>,
-<code><a href="RunPoissonEventAssignment.html">RunPoissonEventAssignment</a>()</code>,
-<code><a href="RunPoissonEventAssignment_bound.html">RunPoissonEventAssignment_bound</a>()</code>,
-<code><a href="RunPoissonRegression_Joint_Omnibus.html">RunPoissonRegression_Joint_Omnibus</a>()</code>,
-<code><a href="RunPoissonRegression_Omnibus.html">RunPoissonRegression_Omnibus</a>()</code>,
-<code><a href="RunPoissonRegression_Residual.html">RunPoissonRegression_Residual</a>()</code></p></div>
+<code><a href="RunPoissonRegression_Omnibus.html">RunPoissonRegression_Omnibus</a>()</code></p></div>
     </div>
 
     <div class="section level2">
@@ -164,9 +158,13 @@ run a Colossus poisson regression function</p>
 <span class="r-in"><span>  <span class="st">"d"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"e"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiters"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="fu">Pois</span><span class="op">(</span><span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span></span></span>
 <span class="r-in"><span>  <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span>, <span class="va">c</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">PoisRun</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.1</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="op">-</span><span class="fl">0.12</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">PoisRun</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.1</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span><span class="op">)</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
