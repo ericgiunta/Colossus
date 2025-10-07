@@ -770,7 +770,7 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
             _["outcome_prob"] = false,
             _["cond_thres"] = model_control["conditional_threshold"],
             _["constraint"] = model_control["constraint"],
-            _["observed_info"] = true,
+            _["observed_info"] = model_control["observed_info"],
             _["log_bound"] = false,
             _["cox"] = false);
     List optim_para = List::create(

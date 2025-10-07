@@ -61,4 +61,8 @@ void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, con
 
 void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, MatrixXd& P, MatrixXd& Pd, MatrixXd& Pdd, MatrixXd& Pnot, MatrixXd& PdP, MatrixXd& PddP, MatrixXd& PnotdP, MatrixXd& PnotddP);
 
+void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant);
+
+void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& InMa, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond);
+
 #endif  //  SRC_OMNIBUS_PIECES_H_

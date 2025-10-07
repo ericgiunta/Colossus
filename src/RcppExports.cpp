@@ -1899,6 +1899,56 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// Calc_Recursive_Exp
+void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant);
+RcppExport SEXP _Colossus_Calc_Recursive_Exp(SEXP model_boolSEXP, SEXP group_numSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP nthreadsSEXP, SEXP KeepConstantSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
+    Rcpp::traits::input_parameter< const int& >::type group_num(group_numSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
+    Rcpp::traits::input_parameter< const vector<vector<int> >& >::type RiskPairs(RiskPairsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< vector<vector<double> >& >::type Recur_Base(Recur_BaseSEXP);
+    Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_First(Recur_FirstSEXP);
+    Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_Second(Recur_SecondSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Calc_Recursive_Exp(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant);
+    return R_NilValue;
+END_RCPP
+}
+// Expected_Inform_Matrix_CaseCon
+void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& InMa, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond);
+RcppExport SEXP _Colossus_Expected_Inform_Matrix_CaseCon(SEXP model_boolSEXP, SEXP group_numSEXP, SEXP RiskFailSEXP, SEXP RiskPairsSEXP, SEXP totalnumSEXP, SEXP ntimeSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP RddSEXP, SEXP RdRSEXP, SEXP RddRSEXP, SEXP InMaSEXP, SEXP Recur_BaseSEXP, SEXP Recur_FirstSEXP, SEXP Recur_SecondSEXP, SEXP strata_oddsSEXP, SEXP nthreadsSEXP, SEXP KeepConstantSEXP, SEXP strata_condSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List& >::type model_bool(model_boolSEXP);
+    Rcpp::traits::input_parameter< const int& >::type group_num(group_numSEXP);
+    Rcpp::traits::input_parameter< const IntegerMatrix& >::type RiskFail(RiskFailSEXP);
+    Rcpp::traits::input_parameter< const vector<vector<int> >& >::type RiskPairs(RiskPairsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type totalnum(totalnumSEXP);
+    Rcpp::traits::input_parameter< const int& >::type ntime(ntimeSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rd(RdSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type Rdd(RddSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type RdR(RdRSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type RddR(RddRSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type InMa(InMaSEXP);
+    Rcpp::traits::input_parameter< vector<vector<double> >& >::type Recur_Base(Recur_BaseSEXP);
+    Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_First(Recur_FirstSEXP);
+    Rcpp::traits::input_parameter< vector<vector<vector<double> > >& >::type Recur_Second(Recur_SecondSEXP);
+    Rcpp::traits::input_parameter< vector<double>& >::type strata_odds(strata_oddsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nthreads(nthreadsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< vector<int>& >::type strata_cond(strata_condSEXP);
+    Expected_Inform_Matrix_CaseCon(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, InMa, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond);
+    return R_NilValue;
+END_RCPP
+}
 // PLOT_SURV_Strata
 List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, NumericMatrix& df_groups, NumericVector& tu, NumericVector& Strata_vals, int verbose, int nthreads);
 RcppExport SEXP _Colossus_PLOT_SURV_Strata(SEXP reqrdnumSEXP, SEXP RSEXP, SEXP RdSEXP, SEXP a_erSEXP, SEXP df_groupsSEXP, SEXP tuSEXP, SEXP Strata_valsSEXP, SEXP verboseSEXP, SEXP nthreadsSEXP) {
@@ -3098,6 +3148,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_Expected_Inform_Matrix_Poisson", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_Poisson, 8},
     {"_Colossus_Expected_Inform_Matrix_Logist", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_Logist, 7},
     {"_Colossus_LinkCovertRP", (DL_FUNC) &_Colossus_LinkCovertRP, 15},
+    {"_Colossus_Calc_Recursive_Exp", (DL_FUNC) &_Colossus_Calc_Recursive_Exp, 13},
+    {"_Colossus_Expected_Inform_Matrix_CaseCon", (DL_FUNC) &_Colossus_Expected_Inform_Matrix_CaseCon, 19},
     {"_Colossus_PLOT_SURV_Strata", (DL_FUNC) &_Colossus_PLOT_SURV_Strata, 9},
     {"_Colossus_PLOT_SURV", (DL_FUNC) &_Colossus_PLOT_SURV, 8},
     {"_Colossus_Schoenfeld_Calc", (DL_FUNC) &_Colossus_Schoenfeld_Calc, 12},

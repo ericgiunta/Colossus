@@ -274,3 +274,80 @@ test_that("threshold nonfail, gradient", {
     }
   }
 })
+
+test_that("information matrix calculations", {
+  data(cancer, package = "survival")
+  veteran %>% setDT()
+  df <- copy(veteran)
+
+  # Make the same adjustments as Epicure example 6.5
+  karno <- df$karno
+  karno[93] <- 20
+  df$karno <- karno
+  df$trt <- df$trt - 1
+  df$trt <- as.integer(df$trt == 0)
+  cell_string <- df$celltype
+  cell <- case_when(
+    cell_string == "squamous" ~ 1,
+    cell_string == "smallcell" ~ 2,
+    cell_string == "adeno" ~ 3,
+    cell_string == "large" ~ 0
+  )
+  df$cell <- cell
+
+  df$karno50 <- df$karno - 50
+  a_n <- c(0.1, 0.1)
+
+
+  control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+  #
+  i_index <- 1
+  #
+  model0 <- CaseCon_Strata(status, cell) ~ loglinear(karno50, trt)
+  model1 <- CaseCon_Strata(status, cell) ~ loglinear(karno50) + plinear(trt)
+  model2 <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
+  model3 <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50) + plinear(trt)
+
+
+  model0_sdo <- c(0.01609599, 0.54817862, 0.02048499, 0.57345304, 0.02315814, 0.73703345)
+  model1_sdo <- c(0.01374865, 0.42821895, 0.02048498, 0.39593058, 0.02315809, 0.51108894)
+  model2_sdo <- c(0.004699080, 0.137902029, 0.005553695, 0.201870857, 0.005553695, 0.201870857)
+  model3_sdo <- c(0.004420340, 0.176224467, 0.005553695, 0.160828177, 0.005553695, 0.160828177)
+  model0_sde <- c(0.01609599, 0.54817862, 0.02048499, 0.57345304, 0.02315814, 0.73703345)
+  model1_sde <- c(0.01405449, 0.47879518, 0.02048499, 0.39593268, 0.02315808, 0.51107695)
+  model2_sde <- c(0.004699080, 0.137902029, 0.005553695, 0.201870857, 0.005553695, 0.201870857)
+  model3_sde <- c(0.004250846, 0.148569581, 0.005553695, 0.160827320, 0.005553695, 0.160827320)
+
+
+  i_index <- 1
+  for (thres in c(0, 40, 100)) {
+    eo <- CaseControlRun(model0, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
+    ee <- CaseControlRun(model0, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+    expect_equal(eo$Standard_Deviation[1], model0_sdo[i_index], tolerance = 1e-4)
+    expect_equal(eo$Standard_Deviation[2], model0_sdo[i_index + 1], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[1], model0_sde[i_index], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[2], model0_sde[i_index + 1], tolerance = 1e-4)
+    #
+    eo <- CaseControlRun(model1, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
+    ee <- CaseControlRun(model1, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+    expect_equal(eo$Standard_Deviation[1], model1_sdo[i_index], tolerance = 1e-4)
+    expect_equal(eo$Standard_Deviation[2], model1_sdo[i_index + 1], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[1], model1_sde[i_index], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[2], model1_sde[i_index + 1], tolerance = 1e-4)
+    #
+    eo <- CaseControlRun(model2, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
+    ee <- CaseControlRun(model2, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+    expect_equal(eo$Standard_Deviation[1], model2_sdo[i_index], tolerance = 1e-4)
+    expect_equal(eo$Standard_Deviation[2], model2_sdo[i_index + 1], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[1], model2_sde[i_index], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[2], model2_sde[i_index + 1], tolerance = 1e-4)
+    #
+    eo <- CaseControlRun(model3, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
+    ee <- CaseControlRun(model3, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+    expect_equal(eo$Standard_Deviation[1], model3_sdo[i_index], tolerance = 1e-4)
+    expect_equal(eo$Standard_Deviation[2], model3_sdo[i_index + 1], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[1], model3_sde[i_index], tolerance = 1e-4)
+    expect_equal(ee$Standard_Deviation[2], model3_sde[i_index + 1], tolerance = 1e-4)
+    i_index <- i_index + 2
+  }
+})

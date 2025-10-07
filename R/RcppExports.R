@@ -772,6 +772,28 @@ LinkCovertRP <- function(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd
     invisible(.Call(`_Colossus_LinkCovertRP`, model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP))
 }
 
+#' Fills out recursive vectors for matched case-control logistic regression expected information matrix
+#'
+#' \code{Calc_Recursive_Exp} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+Calc_Recursive_Exp <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant) {
+    invisible(.Call(`_Colossus_Calc_Recursive_Exp`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant))
+}
+
+#' Fills out the expected information matrix for a case-control regression
+#'
+#' \code{Expected_Inform_Matrix_CaseCon} Called to update the expected information matrix
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+Expected_Inform_Matrix_CaseCon <- function(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, InMa, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond) {
+    invisible(.Call(`_Colossus_Expected_Inform_Matrix_CaseCon`, model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, InMa, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond))
+}
+
 #' Primary Cox PH baseline hazard function with stratification
 #'
 #' \code{PLOT_SURV_Strata} Performs the calls to calculation functions, Uses calculated risks and risk groups to approximate the baseline, With verbose option prints out time stamps and intermediate sums of terms and derivatives

@@ -1380,6 +1380,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         strata_def[i] = strata_odds[i];
     }
     int reqrdcond = group_num - reduce(strata_cond.begin(), strata_cond.end());
+    int totreqr = reqrdnum+reqrdcond;
     //  ------------------------------------------------------------------------- //  initialize
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
@@ -1405,8 +1406,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     vector<double> dbeta(totalnum, 0.0);
     vector<double> dstrata(group_num, 0.0);
-    NumericVector m_g_store(reqrdnum+reqrdcond);
-    NumericVector v_beta_store(reqrdnum+reqrdcond);
+    NumericVector m_g_store(totreqr);
+    NumericVector v_beta_store(totreqr);
     //
     //  --------------------------
     //  always starts from initial guess
@@ -2052,15 +2053,45 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
-//    if (model_bool["observed_info"]) {
-    cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
-    for (int ij = 0; ij < totalnum; ij++) {
-        if (KeepConstant[ij] == 0) {
-            int pij_ind = ij - sum(head(KeepConstant, ij));
-            stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+    //
+    if (model_bool["observed_info"]) {
+        cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
+        for (int ij = 0; ij < totalnum; ij++) {
+            if (KeepConstant[ij] == 0) {
+                int pij_ind = ij - sum(head(KeepConstant, ij));
+                stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+            }
+        }
+    } else {
+        vector<double> InMa(pow(reqrdnum, 2), 0.0);
+        //
+        Calc_Recursive_Exp(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Recur_Base, Recur_First, Recur_Second, nthreads, KeepConstant);
+        Expected_Inform_Matrix_CaseCon(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, InMa, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond);
+        //
+        NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
+            InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
+        }
+        InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+        const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
+        cov = InMa_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
+        for (int ij = 0; ij < totalnum; ij++) {
+            if (KeepConstant[ij] == 0) {
+                int pij_ind = ij - sum(head(KeepConstant, ij));
+                stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+            }
         }
     }
-//    } else { }
     //
     res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviation"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
     //  returns a list of results

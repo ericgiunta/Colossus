@@ -1410,3 +1410,166 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
     }
     return;
 }
+
+//' Fills out recursive vectors for matched case-control logistic regression expected information matrix
+//'
+//' \code{Calc_Recursive_Exp} Called to update the recursive vectors, uses model_bool list to select which vectors to update.
+//'
+//' @return Updates matrices in place: risk storage matrices
+//' @noRd
+//'
+//  [[Rcpp::export]]
+void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant) {
+    int reqrdnum = 1;
+    reqrdnum = totalnum - sum(KeepConstant);
+    double cond_thres = model_bool["cond_thres"];
+    //  We will be overwritting the Recur_Second matrix with the expected information matrix data
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
+    #endif
+    for (int group_ij = 0; group_ij < group_num; group_ij++) {
+        for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
+            //  get the derivative column numbers
+            int der_ij = 0;
+            int der_jk = der_ijk;
+            while (der_jk > der_ij) {
+                der_ij++;
+                der_jk -= der_ij;
+            }
+            //  we start by getting a vector of risks
+            vector<double> risk_list;
+            vector<double> riskd0_list;
+            vector<double> riskd1_list;
+            vector<int> InGroup = RiskPairs[group_ij];
+            //  now has the grouping pairs and number of events
+            if (InGroup.size() > 0) {
+                int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+                if (dj <= cond_thres) {
+                    for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                        int i0 = InGroup[i] - 1;
+                        int i1 = InGroup[i + 1] - 1;
+                        for (int i_inter = i0; i_inter <= i1; i_inter ++) {
+                            risk_list.push_back(R(i_inter, 0));
+                            riskd0_list.push_back(Rd(i_inter, der_ij));
+                            riskd1_list.push_back(Rd(i_inter, der_jk));
+                        }
+                    }
+                    int risk_size = risk_list.size();
+                    //  we need to start filling out the recusion
+                    //  we have risk_size elements and are selecting dj items, filling object B(m,n)
+                    //  we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
+                    double r_sum = 0;
+                    int nm_dif = static_cast<int>(risk_size - dj + 1);
+                    for (int i = 0; i< nm_dif; i++) {
+                        //  start by incrementing the sum
+                        r_sum += riskd0_list[i] * riskd1_list[i] / risk_list[i];
+                        Recur_Second[group_ij][der_ijk][i] = r_sum;
+                    }
+                    //  now we need to progress through the remaining entries
+                    for (int i_index = 1; i_index < dj; i_index ++) {
+                        //  our increment in m
+                        for (int j_index = 0; j_index < nm_dif; j_index ++) {
+                            //  our increment in n
+                            int recur_index = (i_index)*(nm_dif) + j_index;  //  the index of the value we are trying to fill
+                            int risk_index = j_index + i_index;  //  the index of the risk value at this n
+                            int t0 = recur_index - 1;  //  index for B(m, n-1)
+                            int t1 = recur_index - nm_dif;  //  index for B(m-1, n-1)
+                            //  the filled value is either an edge case, dB(m,n) = rn*dB(m-1, n-1) + drn*B(m-1, n-1), or the full case
+                            if (j_index == 0) {
+                                //  edge case
+                                Recur_Second[group_ij][der_ijk][recur_index] = riskd0_list[risk_index] * riskd1_list[risk_index] / risk_list[risk_index] * Recur_Base[group_ij][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1];
+                            } else {
+                                Recur_Second[group_ij][der_ijk][recur_index] = Recur_Second[group_ij][der_ijk][t0] + riskd0_list[risk_index] * riskd1_list[risk_index] / risk_list[risk_index] * Recur_Base[group_ij][t1] + riskd0_list[risk_index] * Recur_First[group_ij][der_jk][t1] + riskd1_list[risk_index] * Recur_First[group_ij][der_ij][t1] + risk_list[risk_index] * Recur_Second[group_ij][der_ijk][t1];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return;
+}
+
+//' Fills out the expected information matrix for a case-control regression
+//'
+//' \code{Expected_Inform_Matrix_CaseCon} Called to update the expected information matrix
+//'
+//' @return Updates matrices in place: risk storage matrices
+//' @noRd
+//'
+//  [[Rcpp::export]]
+void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& InMa, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());
+    int total_val = reqrdnum + kept_strata;
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
+    double cond_thres = model_bool["cond_thres"];
+    //  now we can calculate the expected information matrix
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
+        reduction(vec_double_plus:InMa) collapse(2)
+    #endif
+    for (int group_ij = 0; group_ij < group_num; group_ij++) {
+        for (int der_ijk = 0; der_ijk < reqrdnum*(reqrdnum + 1)/2; der_ijk++) {
+            int der_ij = 0;
+            int der_jk = der_ijk;
+            while (der_jk > der_ij) {
+                der_ij++;
+                der_jk -= der_ij;
+            }
+            //
+            int recur_index = static_cast<int>(Recur_Base[group_ij].size() - 1);
+            int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
+            if (recur_index > -1) {
+                //  calculates the right-hand side terms
+                if (dj <= cond_thres) {
+                    double b_0 = Recur_Base[group_ij][recur_index];
+                    double b_1 = Recur_First[group_ij][der_ij][recur_index];
+                    double b_2 = Recur_First[group_ij][der_jk][recur_index];
+                    double b_3 = Recur_Second[group_ij][der_ijk][recur_index];
+                    //
+                    InMa[der_ij*reqrdnum+der_jk] += b_3 / b_0 - b_1 / b_0 * b_2 / b_0;
+                } else {
+                    vector<int> InGroup = RiskPairs[group_ij];
+                    double Ld3 = 0.0;
+                    double Rs3 = 0.0;
+                    double Rs3l = 0.0;
+                    double Rs3r = 0.0;
+                    for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
+                        MatrixXd temp1 = MatrixXd::Zero(InGroup[i + 1]-InGroup[i] + 1, 1);
+                        MatrixXd temp2 = MatrixXd::Zero(InGroup[i + 1]-InGroup[i] + 1, 1);
+                        //
+                        temp1 = RdR.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * RdR.block(InGroup[i] - 1, der_jk, InGroup[i + 1]-InGroup[i] + 1, 1).array();
+                        temp1 = RddR.block(InGroup[i] - 1, der_ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array() - temp1.array();  //  r''/r - r'/r x r'/r
+                        temp2 = exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array();  //  the odds ratio
+                        temp2 = temp2.array() * (1 + temp2.array()).array().pow(-1).array();  //  the approximated probability of a case
+                        temp1 = temp1.array() * temp2.array();
+                        Ld3 += (temp1.array().isFinite()).select(temp1, 0).sum();
+                        //
+                        Rs3r += (Rd.block(InGroup[i] - 1, der_ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * Rd.block(InGroup[i] - 1, der_jk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-2).array() ).sum();
+                        Rs3l += (Rdd.block(InGroup[i] - 1, der_ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * (1.0 + exp(strata_odds[group_ij]) * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).pow(-1).array()).sum();
+                    }
+                    Rs3 = exp(strata_odds[group_ij]) * (Rs3l - exp(strata_odds[group_ij])*Rs3r);
+                    InMa[der_ij*reqrdnum+der_jk] -= Ld3 - Rs3;
+                }
+            }
+        }
+    }
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+    }
+    return;
+}

@@ -1361,6 +1361,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   tform <- coxmodel$tform
   keep_constant <- coxmodel$keep_constant
   modelform <- coxmodel$modelform
+  strat_col <- coxmodel$strata
   #
   calls <- coxmodel$expres_calls
   df <- ColossusExpressionCall(calls, df)
@@ -1408,6 +1409,10 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
+  }
+  if (coxmodel$strata != "NONE") {
+    plot_options[["strat_haz"]] <- TRUE
+    plot_options$strat_col <- strat_col
   }
   RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
 }
