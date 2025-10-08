@@ -66,7 +66,7 @@ struct lambda_as_visitor_wrapper : Func {
 //' @return Updates vector in place: parameter vector
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const  MatrixXd& df0, const IntegerVector& KeepConstant, const StringVector&  tform) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("lin_int");
@@ -100,7 +100,7 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     //
     int kept_covs = totalnum - sum(KeepConstant);
@@ -204,7 +204,7 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -293,7 +293,7 @@ void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_s
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lld_vec(kept_covs);
@@ -387,7 +387,7 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant) {
     //
     int kept_covs = totalnum - sum(KeepConstant);
@@ -471,7 +471,7 @@ void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& l
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change_Basic_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     //
@@ -570,7 +570,7 @@ void Calc_Change_Basic_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, co
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose, double mult) {
     //  starts with solved likelihoods and derivatives
     //  store the second derivative as D0
@@ -693,7 +693,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble) {
     int kept_covs = totalnum - sum(KeepConstant_trouble);
     NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -775,7 +775,7 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change_Background(const int& nthreads, const int& totalnum, const int& group_num, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
     int kept_covs = totalnum - sum(KeepConstant);
     int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());
@@ -916,7 +916,7 @@ void Calc_Change_Background(const int& nthreads, const int& totalnum, const int&
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata) {
     int kept_covs = totalnum - sum(KeepConstant);
     int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());

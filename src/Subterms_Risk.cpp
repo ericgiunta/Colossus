@@ -50,7 +50,7 @@ using Rcpp::Rcout;
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_subterms(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const  MatrixXd& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant) {
     //
     //  Calculates the sub term values
@@ -638,7 +638,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const  MatrixXd& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant) {
     //
     //  Calculates the sub term values
@@ -1020,7 +1020,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const  MatrixXd& df0, const int& nthreads, const IntegerVector& KeepConstant) {
     //
     //  Calculates the sub term values
@@ -1212,7 +1212,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd& T0, const VectorXd& beta_0, const MatrixXd& df0, const int& nthreads) {
     //
     //  Calculates the sub term values
@@ -1235,7 +1235,7 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 //'
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, const IntegerVector& dfc, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const  MatrixXd& df0, const int& nthreads, const IntegerVector& KeepConstant) {
     //
     //  Calculates the sub term values
@@ -1272,7 +1272,7 @@ void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, c
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("loglin_top");
@@ -1823,7 +1823,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks_Gradient(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     set<string> Dose_Iden;  //  list of dose subterms
@@ -1997,7 +1997,7 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks_Weighted(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     Make_Risks(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, gmix_theta, gmix_term);
@@ -2031,7 +2031,7 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks_Weighted_Gradient(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
@@ -2053,7 +2053,7 @@ void Make_Risks_Weighted_Gradient(string modelform, const StringVector& tform, c
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
@@ -2069,7 +2069,7 @@ void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, con
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks_Single(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("loglin_top");
@@ -2136,7 +2136,7 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, const MatrixXd& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant) {
     //
     R.col(0) = T0.rowwise().prod();
@@ -2186,7 +2186,7 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //'
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
-//  [[Rcpp::export]]
+//
 void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, const  MatrixXd& df0, const int& totalnum, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant) {
     //
     R = nonDose_PLIN.array() * nonDose_LOGLIN.array();

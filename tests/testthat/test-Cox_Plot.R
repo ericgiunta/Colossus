@@ -245,7 +245,8 @@ test_that("Coxph risk plotting above discrete step number limit", {
   plot_options <- list("type" = c("RISK", paste(tempfile(), "run", sep = "")), "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options))
+    expect_no_error(ep <- plot(e, df, plot_options)$d)
+    expect_equal(ep$y[100], 0.9756069, tolerance = 1e-4)
   }
 })
 
@@ -268,7 +269,8 @@ test_that("Coxph plot no error", {
   plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "surv_curv" = TRUE, "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(tend = b, event = c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options, verbose = 0))
+    expect_no_error(ep <- plot(e, df, plot_options, verbose = 0)$standard)
+    expect_equal(ep$h, c(0.000000, 4.344177, 18.450904), tolerance = 1e-4)
   }
 })
 test_that("Coxph plot stratafied no error", {
@@ -291,7 +293,8 @@ test_that("Coxph plot stratafied no error", {
   plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "surv_curv" = TRUE, "strat_haz" = TRUE, "strat_col" = "e", "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options))
+    expect_no_error(ep <- plot(e, df, plot_options)$stratified_survival)
+    expect_equal(ep$surv[2], 0.4612258, tolerance = 1e-4)
   }
 })
 
@@ -314,7 +317,8 @@ test_that("Coxph risk no error", {
   plot_options <- list("type" = c("RISK", paste(tempfile(), "run", sep = "")), "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options))
+    expect_no_error(ep <- plot(e, df, plot_options)$d)
+    expect_equal(ep$y[7], 0.5488116, tolerance = 1e-4)
   }
 })
 
@@ -335,7 +339,8 @@ test_that("Coxph schoenfeld no error", {
   plot_options <- list("type" = c("SCHOENFELD", paste(tempfile(), "run", sep = "")), "studyid" = "t0", "verbose" = 0)
   e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(a, b, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options))
+    expect_no_error(ep <- plot(e, df, plot_options)$b)
+    expect_equal(ep$y[16], 9.999993e-01, tolerance = 1e-4)
   }
 })
 test_that("Coxph martingale no error", {
@@ -358,7 +363,8 @@ test_that("Coxph martingale no error", {
   plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "e", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options))
+    expect_no_error(ep <- plot(e, df, plot_options)$d)
+    expect_equal(ep$res_sum[2], -0.2262094, tolerance = 1e-4)
   }
 })
 test_that("Coxph martingale combinations", {
@@ -422,6 +428,7 @@ test_that("Coxph km no error", {
   plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "surv_curv" = TRUE, "studyid" = "a", "verbose" = 0, "km" = TRUE)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plot(e, df, plot_options))
+    expect_no_error(ep <- plot(e, df, plot_options)$`kaplin-meier`)
+    expect_equal(ep$n_t[3], 0.7142857, tolerance = 1e-4)
   }
 })

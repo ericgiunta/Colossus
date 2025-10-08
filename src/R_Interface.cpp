@@ -1127,7 +1127,7 @@ bool risk_check_transition(IntegerVector term_n, StringVector tform, NumericVect
 //' @return assigns weight in place and returns nothing
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Gen_Strat_Weight(string modelform, const MatrixXd& dfs, const MatrixXd& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& term_n, const int& term_tot) {
     ArrayXd Pyrs  = dfs.transpose() * PyrC.col(0);
     ArrayXd Events = dfs.transpose() * PyrC.col(1);
