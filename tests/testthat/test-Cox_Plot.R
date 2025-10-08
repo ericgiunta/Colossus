@@ -64,7 +64,6 @@ test_that("Coxph plot no type", {
   plot_options <- list("martingale" = FALSE, "surv_curv" = FALSE, "studyid" = "a", "verbose" = 0)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph plot strata col not in data", {
@@ -87,7 +86,6 @@ test_that("Coxph plot strata col not in data", {
   plot_options <- list("type" = c("surv", "run"), "martingale" = FALSE, "surv_curv" = FALSE, "strat_haz" = TRUE, "strat_col" = "e", "studyid" = "a", "verbose" = 0)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph plot strata col not given", {
@@ -110,7 +108,6 @@ test_that("Coxph plot strata col not given", {
   plot_options <- list("type" = c("surv", "run"), "martingale" = FALSE, "surv_curv" = FALSE, "strat_haz" = TRUE, "studyid" = "a", "verbose" = 0)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph plot martingale dose col not in data", {
@@ -133,7 +130,6 @@ test_that("Coxph plot martingale dose col not in data", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph plot martingale dose col not given", {
@@ -156,7 +152,6 @@ test_that("Coxph plot martingale dose col not given", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph plot Survival ID col not in data", {
@@ -179,7 +174,6 @@ test_that("Coxph plot Survival ID col not in data", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph plot Survival ID col not given", {
@@ -202,7 +196,6 @@ test_that("Coxph plot Survival ID col not given", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 
@@ -229,7 +222,6 @@ test_that("Coxph risk too few unique values", {
   options(warn = -1)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
   options(warn = 0)
 })
@@ -254,7 +246,6 @@ test_that("Coxph risk plotting above discrete step number limit", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plot(e, df, plot_options))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 
@@ -278,7 +269,6 @@ test_that("Coxph plot no error", {
   e <- CoxRun(Cox(tend = b, event = c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plot(e, df, plot_options, verbose = 0))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph plot stratafied no error", {
@@ -302,7 +292,6 @@ test_that("Coxph plot stratafied no error", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plot(e, df, plot_options))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 
@@ -326,7 +315,6 @@ test_that("Coxph risk no error", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plot(e, df, plot_options))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 
@@ -348,7 +336,6 @@ test_that("Coxph schoenfeld no error", {
   e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(a, b, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plot(e, df, plot_options))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph martingale no error", {
@@ -372,7 +359,6 @@ test_that("Coxph martingale no error", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plot(e, df, plot_options))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
 test_that("Coxph martingale combinations", {
@@ -399,7 +385,6 @@ test_that("Coxph martingale combinations", {
   if (system.file(package = "ggplot2") != "") {
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
     names <- c("d", "CONST")
     term_n <- c(0, 0)
     tform <- c("loglin", "loglin")
@@ -408,16 +393,13 @@ test_that("Coxph martingale combinations", {
     plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     expect_no_error(plot(e, df, plot_options))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
     plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "martingale" = TRUE, "cov_cols" = "Not_In", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
     plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     df$c <- rep(0, nrow(df))
     expect_error(plot(e, df, plot_options))
-    # expect_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
   options(warn = 0)
 })
@@ -441,6 +423,5 @@ test_that("Coxph km no error", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plot(e, df, plot_options))
-    # expect_no_error(RunCoxPlots(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, plot_options))
   }
 })
