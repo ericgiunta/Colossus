@@ -21,6 +21,7 @@
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
 <url><loc>/reference/CaseControlRun.html</loc></url>
+<url><loc>/reference/Check_Iters.html</loc></url>
 <url><loc>/reference/ColossusCoxSurv.html</loc></url>
 <url><loc>/reference/ColossusLogitSurv.html</loc></url>
 <url><loc>/reference/ColossusPoisSurv.html</loc></url>
@@ -66,7 +67,9 @@
 <url><loc>/reference/plot.coxres.html</loc></url>
 <url><loc>/reference/print.caseconres.html</loc></url>
 <url><loc>/reference/print.coxres.html</loc></url>
+<url><loc>/reference/print.coxresbound.html</loc></url>
 <url><loc>/reference/print.logitres.html</loc></url>
 <url><loc>/reference/print.poisres.html</loc></url>
+<url><loc>/reference/print.poisresbound.html</loc></url>
 </urlset>
 
