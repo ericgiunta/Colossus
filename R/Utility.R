@@ -164,23 +164,23 @@ Def_Control <- function(control) {
       Sys.setenv(ColossusGCC = "TRUE")
       os <- syscheck[["Operating System"]]
       if (os == "linux") {
-	      cpp_compiler <- syscheck[["Default c++"]]
-	      if (cpp_compiler != "") {
-	      if (cpp_compiler == "gcc") {
-		R_compiler <- syscheck[["R Compiler"]]
-		if (R_compiler != "gcc") { # nocov
-		  Sys.setenv(ColossusGCC = "FALSE")
-		}
-	      } else if (cpp_compiler == "clang") { # nocov
-		Sys.setenv(ColossusGCC = "FALSE")
-	      }
-	      } else {
-	      	R_compiler <- syscheck[["R Compiler"]]
-		if (R_compiler != "gcc") { # nocov
-		  Sys.setenv(ColossusGCC = "FALSE")
-		}
-	      }
-	    }
+        cpp_compiler <- syscheck[["Default c++"]]
+        if (cpp_compiler != "") {
+          if (cpp_compiler == "gcc") {
+            R_compiler <- syscheck[["R Compiler"]]
+            if (R_compiler != "gcc") { # nocov
+              Sys.setenv(ColossusGCC = "FALSE")
+            }
+          } else if (cpp_compiler == "clang") { # nocov
+            Sys.setenv(ColossusGCC = "FALSE")
+          }
+        } else {
+          R_compiler <- syscheck[["R Compiler"]]
+          if (R_compiler != "gcc") { # nocov
+            Sys.setenv(ColossusGCC = "FALSE")
+          }
+        }
+      }
     }
   }
   if (Sys.getenv("ColossusOMP") == "FALSE") {
@@ -374,6 +374,42 @@ Def_model_control <- function(control) {
     }
   }
   return(control)
+}
+
+#' Automatically checks the number of starting guesses
+#'
+#' \code{Check_Iters} checks the number of iterations and number of guesses, and corrects
+#'
+#' @inheritParams R_template
+#' @family Data Cleaning Functions
+#' @return returns a list with the corrected control list and a_n
+Check_Iters <- function(control, a_n) {
+  if ("maxiters" %in% names(control)) {
+    if (length(control$maxiters) == length(a_n) + 1) {
+      # all good, it matches
+    } else {
+      if (control$verbose >= 3) { # nocov
+        message(paste("Note: Initial starts:", length(a_n),
+          ", Number of iterations provided:",
+          length(control$maxiters),
+          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
+          sep = " "
+        )) # nocov
+      }
+      if (length(control$maxiters) < length(a_n) + 1) {
+        additional <- length(a_n) + 1 - length(control$maxiters)
+        control$maxiters <- c(control$maxiters, rep(1, additional))
+      } else {
+        additional <- length(a_n) + 1
+        control$maxiters <- control$maxiters[1:additional]
+      }
+    }
+    control$guesses <- length(control$maxiters) - 1
+  } else {
+    control$guesses <- length(a_n)
+    control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
+  }
+  list("control" = control, "a_n" = a_n)
 }
 
 #' Calculates Full Parameter list for Special Dose Formula
@@ -1946,7 +1982,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #'
 #' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres or poisres
+#' @param x result object from a regression, class coxres
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -1971,7 +2007,7 @@ print.coxres <- function(x, ...) {
 #'
 #' \code{print.poisres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres or poisres
+#' @param x result object from a regression, class poisres
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -1996,7 +2032,7 @@ print.poisres <- function(x, ...) {
 #'
 #' \code{print.caseconres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres,  poisres, or caseconres
+#' @param x result object from a regression, class caseconres
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -2021,13 +2057,63 @@ print.caseconres <- function(x, ...) {
 #'
 #' \code{print.logitres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres,  poisres, logitres, or caseconres
+#' @param x result object from a regression, class logitres
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
 #' @export
 #' @family Output and Information Functions
 print.logitres <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
+#' Prints a cox likelihood boundary regression output clearly
+#'
+#' \code{print.coxresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxresbound
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.coxresbound <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
+#' Prints a poisson likelihood boundary regression output clearly
+#'
+#' \code{print.poisresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class poisresbound
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.poisresbound <- function(x, ...) {
   exargs <- list(...)
   digits <- 2
   if ("digits" %in% names(exargs)) {

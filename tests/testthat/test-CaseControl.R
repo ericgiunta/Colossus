@@ -1,3 +1,38 @@
+test_that("check errors", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran %>% setDT()
+    df <- copy(veteran)
+
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_string <- df$celltype
+    cell <- case_when(
+      cell_string == "squamous" ~ 1,
+      cell_string == "smallcell" ~ 2,
+      cell_string == "adeno" ~ 3,
+      cell_string == "large" ~ 0
+    )
+    df$cell <- cell
+
+    df$karno50 <- df$karno - 50
+    a_n <- c(0.1, 0.1)
+
+
+    control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+    #
+    i_index <- 1
+    model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
+    expect_no_error(CaseControlRun(model, df, control = control, norm = "mean"))
+    expect_error(CaseControlRun(model, df, control = control, norm = "bad"))
+    expect_error(CaseControlRun(model, df, control = control, bad = "wrong"))
+  }
+})
+
 test_that("threshold nonfail", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")

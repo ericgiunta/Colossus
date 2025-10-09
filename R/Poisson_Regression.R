@@ -39,11 +39,6 @@
 #'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
 #'   "double_step" = 1
 #' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10, "lin_min" = 0.001,
-#'   "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
-#' )
 #' strat_col <- "e"
 #' e <- RunPoissonRegression_Omnibus(
 #'   df, pyr, event, names, term_n,
@@ -143,53 +138,10 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       }
     }
   } else {
-    if ("maxiters" %in% names(control)) {
-      if (length(control$maxiters) == length(a_n) + 1) {
-        # all good, it matches
-      } else {
-        if (control$verbose >= 3) {
-          message(paste("Note: Initial starts:", length(a_n),
-            ", Number of iterations provided:",
-            length(control$maxiters),
-            ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-            sep = " "
-          )) # nocov
-        }
-        if (length(control$maxiters) < length(a_n) + 1) {
-          additional <- length(a_n) + 1 - length(control$maxiters)
-          control$maxiters <- c(control$maxiters, rep(1, additional))
-        } else {
-          additional <- length(a_n) + 1
-          control$maxiters <- control$maxiters[1:additional]
-        }
-      }
-      if ("guesses" %in% names(control)) {
-        # both are in
-        if (control$guesses + 1 == length(control$maxiters)) {
-          # all good, it matches
-        } else {
-          stop(paste("Error: guesses:", control["guesses"],
-            ", iterations per guess:",
-            control["maxiters"],
-            sep = " "
-          ))
-        }
-      } else {
-        control$guesses <- length(control$maxiters) - 1
-      }
-    } else {
-      if ("guesses" %in% names(control)) {
-        if (control$guesses == length(a_n)) {
-          # both match, all good
-        } else {
-          control$guesses <- length(a_n)
-        }
-        control$maxiters <- rep(1, control$guesses + 1)
-      } else {
-        control$guesses <- length(a_n)
-        control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-      }
-    }
+    res <- Check_Iters(control, a_n)
+    control <- res$control
+    a_n <- res$a_n
+    #
     e <- pois_Omnibus_transition(
       as.matrix(df[, ce, with = FALSE]),
       term_n, tform, matrix(a_ns,
@@ -211,55 +163,6 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  return(e)
-}
-
-#' Performs joint Poisson regression using the omnibus function
-#'
-#' \code{RunPoissonRegression_Joint_Omnibus} uses user provided data, time/event columns,
-#'  vectors specifying the model, and options to control the convergence and starting positions.
-#'  Has additional options to starting with several initial guesses, uses joint competing risks equation
-#'
-#' @inheritParams R_template
-#' @param events vector of event column names
-#' @param term_n_list list of vectors for term numbers for event specific or shared model elements, defaults to term 0
-#' @param tform_list list of vectors for subterm types for event specific or shared model elements, defaults to loglinear
-#' @param keep_constant_list list of vectors for constant elements for event specific or shared model elements, defaults to free (0)
-#' @param a_n_list list of vectors for parameter values for event specific or shared model elements, defaults to term 0
-#' @param name_list list of vectors for columns for event specific or shared model elements, required
-#'
-#' @noRd
-#' @return returns a list of the final results
-#' @family Poisson Wrapper Functions
-#' @importFrom rlang .data
-RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list(), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        df <- setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  val <- Joint_Multiple_Events(
-    df, events, name_list,
-    term_n_list, tform_list,
-    keep_constant_list, a_n_list
-  )
-  df <- val$df
-  names <- val$names
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  e <- RunPoissonRegression_Omnibus(
-    df, pyr0, "events", names,
-    term_n, tform, keep_constant,
-    a_n, modelform, control,
-    strat_col
-  )
   return(e)
 }
 
@@ -446,12 +349,6 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
 #'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
 #'   "double_step" = 1
 #' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10,
-#'   "lin_min" = 0.001, "lin_max" = 1,
-#'   "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
-#' )
 #' strat_col <- "e"
 #' e <- RunPoissonRegression_Residual(
 #'   df, pyr, event, names, term_n,
@@ -618,53 +515,9 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
-  if ("maxiters" %in% names(control)) {
-    if (length(control$maxiters) == length(a_n) + 1) {
-      # all good, it matches
-    } else {
-      if (control$verbose >= 3) {
-        message(paste("Note: Initial starts:", length(a_n),
-          ", Number of iterations provided:",
-          length(control$maxiters),
-          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-          sep = " "
-        )) # nocov
-      }
-      if (length(control$maxiters) < length(a_n) + 1) {
-        additional <- length(a_n) + 1 - length(control$maxiters)
-        control$maxiters <- c(control$maxiters, rep(1, additional))
-      } else {
-        additional <- length(a_n) + 1
-        control$maxiters <- control$maxiters[1:additional]
-      }
-    }
-    if ("guesses" %in% names(control)) {
-      # both are in
-      if (control$guesses + 1 == length(control$maxiters)) {
-        # all good, it matches
-      } else {
-        stop(paste("Error: guesses:", control["guesses"],
-          ", iterations per guess:",
-          control["maxiters"],
-          sep = " "
-        ))
-      }
-    } else {
-      control$guesses <- length(control$maxiters) - 1
-    }
-  } else {
-    if ("guesses" %in% names(control)) {
-      if (control$guesses == length(a_n)) {
-        # both match, all good
-      } else {
-        control$guesses <- length(a_n)
-      }
-      control$maxiters <- rep(1, control$guesses + 1)
-    } else {
-      control$guesses <- length(a_n)
-      control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-    }
-  }
+  res <- Check_Iters(control, a_n)
+  control <- res$control
+  a_n <- res$a_n
   if ("alpha" %in% names(model_control)) {
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   } else {

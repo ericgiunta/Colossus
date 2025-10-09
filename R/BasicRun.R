@@ -1027,6 +1027,8 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (is(model, "poismodel")) {
     # using already prepped formula and data
     poismodel <- copy(model)
+    calls <- poismodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
   } else if (is.list(model)) {
     # using a list of formula
     res <- get_form_joint(model, df)
@@ -1496,6 +1498,13 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     stop("Error: control argument must be a list")
   }
   # ------------------------------------------------------------------------------ #
+  if ("CONST" %in% coxmodel$names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
   if (!missing(a_n)) {
     coxmodel$a_n <- a_n # assigns the starting parameter values if given
   }
@@ -1676,6 +1685,13 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
     stop("Error: control argument must be a list")
   }
   # ------------------------------------------------------------------------------ #
+  if ("CONST" %in% poismodel$names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
   if (!missing(a_n)) {
     poismodel$a_n <- a_n # assigns the starting parameter values if given
   }

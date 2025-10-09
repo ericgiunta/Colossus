@@ -38,8 +38,14 @@ test_that("Coxph multidose", {
   a_n <- c(-0.1, -0.1)
   # expect_equal(0,0)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  ##
+  expect_error(CoxRunMulti("bad", df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
+  expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, bad = "wrong"))
+  expect_no_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, fma = TRUE, ncores = 2))
+  expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = "wrong"))
+  ##
   e <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
-  # e <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null")
+  #
   val <- e$LogLik
   expect_equal(LL_comp_1[k], val[1], tolerance = 1e-4)
   expect_equal(LL_comp_2[k], val[2], tolerance = 1e-4)
@@ -109,6 +115,13 @@ test_that("Pois multidose", {
   a_n <- c(-0.02, -0.1, -0.1)
   # expect_equal(0,0)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  model <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0)
+  res <- get_form(model, df)
+  expect_no_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, fma = TRUE))
+  expect_no_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, ncores = 2))
+  expect_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = "bad"))
+  expect_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, bad = "wrong"))
+  expect_error(PoisRunMulti("bad", df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   e <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
   val <- e$LogLik
   expect_equal(LL_comp_1[k], val[1], tolerance = 1e-4)
@@ -410,13 +423,18 @@ test_that("Coxph multidose MCML repeated column", {
   model_control <- list("mcml" = TRUE)
   a_n <- c(-0.1, -0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  #   e0 <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null")
   e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
   a_n <- c(-0.1, -0.1)
   e1 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
-  #   e1 <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null")
-
+  expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
+  
+  realization_columns <- matrix(c("rand0"), nrow = 1)
+  a_n <- c(-0.1, -0.1)
+  e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, mcml = TRUE)
+  realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
+  a_n <- c(-0.1, -0.1)
+  e1 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, mcml = TRUE)
   expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
 })
 test_that("Poisson multidose MCML repeated column", {
@@ -454,13 +472,18 @@ test_that("Poisson multidose MCML repeated column", {
   model_control <- list("mcml" = TRUE)
   a_n <- c(-0.02, -0.1, -0.1)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  #   e0 <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null")
   e0 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
   a_n <- c(-0.02, -0.1, -0.1)
   e1 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
-  #   e1 <- RunCoxRegression_Omnibus_Multidose(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "fac", model_control = model_control, cens_weight = "null")
-
+  expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
+  #
+  realization_columns <- matrix(c("rand0"), nrow = 1)
+  a_n <- c(-0.1, -0.1)
+  e0 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, mcml = TRUE)
+  realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
+  a_n <- c(-0.02, -0.1, -0.1)
+  e1 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, mcml = TRUE)
   expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
 })
 test_that("Coxph multidose MCML swapped columns", {

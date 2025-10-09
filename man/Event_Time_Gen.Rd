@@ -75,6 +75,7 @@ e <- Event_Time_Gen(table, pyr, categ, summary, events, T)
 }
 \seealso{
 Other Data Cleaning Functions: 
+\code{\link{Check_Iters}()},
 \code{\link{Date_Shift}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Joint_Multiple_Events}()},

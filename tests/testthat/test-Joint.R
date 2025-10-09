@@ -22,6 +22,10 @@ test_that("Joint data generation, no error", {
   formula_list <- list(model_1, model_2, "shared" = model_s)
   #
   expect_no_error(PoisRunJoint(formula_list, df, ncores = 2))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "mean"))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "max"))
+  expect_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "bad"))
+  expect_error(PoisRunJoint(formula_list, df, ncores = 2, bad = "wrong"))
 })
 test_that("Joint data generation fill defaults, no error", {
   a <- c(0, 0, 0, 1, 1, 1)

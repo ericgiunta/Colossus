@@ -556,8 +556,6 @@ test_that("Various CoxRegressionOmnibus options", {
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 1)
-  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   #
@@ -614,11 +612,7 @@ test_that("Various RunPoissonRegression_Omnibus options", {
   a_n <- list(c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781))
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 50)
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 1)
-  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   #
@@ -664,6 +658,4 @@ test_that("Pois various_fixes", {
   names <- c("dose", "rand", "CONST")
   df$lung <- ev0
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
-  control$guesses <- 100
-  expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
 })

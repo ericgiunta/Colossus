@@ -150,6 +150,8 @@ test_that("Checking errors and warnings", {
     #
     options(warn = -1)
     expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
+    expect_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "bad", control = control))
+    expect_error(PoisRun(Pois(time, status) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "bad", control = control))
     options(warn = 0)
   }
 })

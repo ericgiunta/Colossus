@@ -41,6 +41,9 @@ test_that("Poisson Assigned Events, check results", {
 
   expect_equal(sum(e0[, 1:2]), sum(e0[, 3]), tolerance = 1e-2)
   expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
+  #
+  expect_error(EventAssignment(poisres, df, bad = "wrong"))
+  expect_error(EventAssignment(poisres, df, assign_control = "wrong"))
 })
 test_that("Poisson Assigned Events, check results strata", {
   df <- data.table::data.table(
@@ -177,7 +180,6 @@ test_that("Poisson Assigned Events bounds, check results", {
   for (i in 2:4) {
     for (j in c(1, 2, 10)) {
       e <- EventAssignment(poisres, df, check_num = i, z = j)
-      #      e <- RunPoissonEventAssignment_bound(df, pyr, event, e0, keep_constant, modelform, i, j, control)
       elow <- e$lower_limit$predict
       emid <- e$midpoint$predict
       eupp <- e$upper_limit$predict
@@ -207,7 +209,6 @@ test_that("Poisson Assigned Events bounds, check results", {
 #  pyr <- "pyr"
 #  names <- c("a", "b", "c", "CONST")
 #  j <- 1
-#  for (modelform in c("M", "A", "PAE", "PA")) {
 #    for (para in c(-2.3025850929940455, -2, -1, 0.0)) {
 #      a_n <- c(0.1, 0.15, 0.02, para)
 #      keep_constant <- rep(0, length(names))

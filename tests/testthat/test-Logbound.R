@@ -31,6 +31,11 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   coxres_s <- CoxRun(Cox_Strata(t0, t1, lung, rand) ~ loglinear(dose, fac, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   coxres_c <- CoxRun(FineGray(t0, t1, lung, weighting) ~ loglinear(dose, fac, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   coxres_sc <- CoxRun(FineGray_Strata(t0, t1, lung, rand, weighting) ~ loglinear(dose, fac, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
+  #
+  expect_error(LikelihoodBound(coxres, df, curve_control, control = control, bad = FALSE))
+  expect_error(LikelihoodBound(coxres, df, curve_control, control = control, norm = "bad"))
+  expect_error(LikelihoodBound(coxres, df, curve_control = "bad"))
+  #
   for (m in c(TRUE, FALSE)) {
     a_n <- c(-0.1, -0.1)
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -39,8 +44,11 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
     expect_no_error(LikelihoodBound(coxres_s, df, curve_control, control = control))
     expect_no_error(LikelihoodBound(coxres_c, df, curve_control, control = control))
     expect_no_error(LikelihoodBound(coxres_sc, df, curve_control, control = control))
-    sink(paste(tempfile(), ".txt", sep = ""))
+    zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+    sink(zz)
+    sink(zz, type = "message")
     print(e)
+    sink(type = "message")
     sink()
     #    expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control, cens_weight = "weighting"))
     a_n <- c(-0.1, -0.1)
@@ -101,6 +109,11 @@ test_that("Poisson strata_single log_bound", {
   }
   poisres <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
   poisres_s <- PoisRun(Pois_Strata(pyr, lung, rand) ~ loglinear(dose, fac, 0) + multiplicative(), df, a_n = a_n, control = control, keep_constant = keep_constant)
+  #
+  expect_error(LikelihoodBound(poisres, df, curve_control, control = control, bad = FALSE))
+  expect_error(LikelihoodBound(poisres, df, curve_control, control = control, norm = "bad"))
+  expect_error(LikelihoodBound(poisres, df, curve_control = "bad"))
+  #
   for (m in c(TRUE, FALSE)) {
     a_n <- c(-0.1, -0.1)
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")

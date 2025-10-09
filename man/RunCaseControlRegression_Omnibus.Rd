@@ -96,7 +96,7 @@ control <- list(
   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
   "step_max" = 1.0, "thres_step_max" = 100.0,
   "verbose" = FALSE,
-  "ties" = "breslow", "double_step" = 1, "guesses" = 2
+  "ties" = "breslow", "double_step" = 1
 )
 e <- RunCaseControlRegression_Omnibus(df, time1, time2, event,
   names, term_n, tform, keep_constant,

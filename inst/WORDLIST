@@ -19,6 +19,7 @@ ColossusCoxStrataSurv
 CoxCurveSolver
 coxph
 coxres
+coxresbound
 cr
 csv
 CurveSolve
@@ -85,6 +86,7 @@ plin
 plinear
 pois
 poisres
+poisresbound
 poisson
 pyr
 qchi

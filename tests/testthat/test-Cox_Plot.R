@@ -245,6 +245,9 @@ test_that("Coxph risk plotting above discrete step number limit", {
   plot_options <- list("type" = c("RISK", paste(tempfile(), "run", sep = "")), "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
+    expect_no_error(plot(e, df, type = c("RISK", paste(tempfile(), "run", sep = "")), studyid = "a", verbose = 0))
+    expect_error(plot(e, df, type = c("RISK", paste(tempfile(), "run", sep = "")), studyid = "a", bad = 0))
+    expect_error(plot(e, df, plot_options = c(0))$d)
     expect_no_error(ep <- plot(e, df, plot_options)$d)
     expect_equal(ep$y[100], 0.9756069, tolerance = 1e-4)
   }
@@ -291,10 +294,10 @@ test_that("Coxph plot stratafied no error", {
   modelform <- "M"
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   plot_options <- list("type" = c("surv", paste(tempfile(), "run", sep = "")), "surv_curv" = TRUE, "strat_haz" = TRUE, "strat_col" = "e", "studyid" = "a", "verbose" = 0)
-  e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
+  e <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(ep <- plot(e, df, plot_options)$stratified_survival)
-    expect_equal(ep$surv[2], 0.4612258, tolerance = 1e-4)
+    expect_equal(ep$surv[2], 0.5880531, tolerance = 1e-4)
   }
 })
 

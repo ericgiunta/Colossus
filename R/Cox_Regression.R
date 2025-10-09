@@ -238,57 +238,9 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
     }
   } else {
-    if ("maxiters" %in% names(control)) {
-      if (length(control$maxiters) == length(a_n) + 1) {
-        # all good, it matches
-      } else {
-        if (control$verbose >= 3) {
-          message(paste("Note: Initial starts:", length(a_n),
-            ", Number of iterations provided:",
-            length(control$maxiters),
-            ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-            sep = " "
-          )) # nocov
-        }
-        if (length(control$maxiters) < length(a_n) + 1) {
-          additional <- length(a_n) + 1 - length(control$maxiters)
-          control$maxiters <- c(control$maxiters, rep(1, additional))
-        } else {
-          additional <- length(a_n) + 1
-          control$maxiters <- control$maxiters[1:additional]
-        }
-      }
-      if ("guesses" %in% names(control)) {
-        # both are in
-        if (control$guesses + 1 == length(control$maxiters)) {
-          # all good, it matches
-        } else if (length(control$maxiters) == 2) {
-          iter0 <- control$maxiters[1]
-          iter1 <- control$maxiters[2]
-          applied_iter <- c(rep(iter0, control$guesses), iter1)
-          control$maxiters <- applied_iter
-        } else {
-          stop(paste("Error: guesses:", control["guesses"],
-            ", iterations per guess:", control["maxiters"],
-            sep = " "
-          ))
-        }
-      } else {
-        control$guesses <- length(control$maxiters) - 1
-      }
-    } else {
-      if ("guesses" %in% names(control)) {
-        if (control$guesses == length(a_n)) {
-          # both match, all good
-        } else {
-          control$guesses <- length(a_n)
-        }
-        control$maxiters <- rep(1, control$guesses + 1)
-      } else {
-        control$guesses <- length(a_n)
-        control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-      }
-    }
+    res <- Check_Iters(control, a_n)
+    control <- res$control
+    a_n <- res$a_n
     if (model_control$null) {
       a_ns <- matrix(a_ns)
     } else {
@@ -948,57 +900,9 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
-  if ("maxiters" %in% names(control)) {
-    if (length(control$maxiters) == length(a_n) + 1) {
-      # all good, it matches
-    } else {
-      if (control$verbose >= 3) {
-        message(paste("Note: Initial starts:", length(a_n),
-          ", Number of iterations provided:",
-          length(control$maxiters),
-          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-          sep = " "
-        )) # nocov
-      }
-      if (length(control$maxiters) < length(a_n) + 1) {
-        additional <- length(a_n) + 1 - length(control$maxiters)
-        control$maxiters <- c(control$maxiters, rep(1, additional))
-      } else {
-        additional <- length(a_n) + 1
-        control$maxiters <- control$maxiters[1:additional]
-      }
-    }
-    if ("guesses" %in% names(control)) {
-      # both are in
-      if (control$guesses + 1 == length(control$maxiters)) {
-        # all good, it matches
-      } else if (length(control$maxiters) == 2) {
-        iter0 <- control$maxiters[1]
-        iter1 <- control$maxiters[2]
-        applied_iter <- c(rep(iter0, control$guesses), iter1)
-        control$maxiters <- applied_iter
-      } else {
-        stop(paste("Error: guesses:", control["guesses"],
-          ", iterations per guess:", control["maxiters"],
-          sep = " "
-        ))
-      }
-    } else {
-      control$guesses <- length(control$maxiters) - 1
-    }
-  } else {
-    if ("guesses" %in% names(control)) {
-      if (control$guesses == length(a_n)) {
-        # both match, all good
-      } else {
-        control$guesses <- length(a_n)
-      }
-      control$maxiters <- rep(1, control$guesses + 1)
-    } else {
-      control$guesses <- length(a_n)
-      control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-    }
-  }
+  res <- Check_Iters(control, a_n)
+  control <- res$control
+  a_n <- res$a_n
   if ("alpha" %in% names(model_control)) {
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   } else {

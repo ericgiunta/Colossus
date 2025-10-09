@@ -20,6 +20,22 @@ test_that("Basic factor application to formula", {
   expect_equal(c("d", "e_low"), e$names)
 })
 
+test_that("Basic gmix application to formula", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(1, 2, 1, 1, 2, 1, 1)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix(0.5, "e")
+  expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix - r(0.5)
+  expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix - e(0.5)
+  expect_no_error(get_form(model, df))
+})
+
 test_that("Run basic errors and checks", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
   b <- c(1, 2, 3, 4, 5, 6, 7)
@@ -32,6 +48,7 @@ test_that("Run basic errors and checks", {
   expect_error(CoxRun(model, df, ncores = 2))
   model <- Cox(a, b, c) ~ loglinear(d)
   expect_no_error(CoxRun(model, df, ncores = 2))
+  expect_error(CoxRun(model, df, ncores = 2, bad = "wrong")) # arguement not in control list
   expect_error(CoxRun(model, df, control = c(2))) # control wasn't a list
   e <- get_form(Cox(tstart = a, event = c) ~ loglinear(d), df)
   model <- e$model
@@ -40,6 +57,7 @@ test_that("Run basic errors and checks", {
   model <- Pois(b, c) ~ loglinear(d)
   expect_no_error(PoisRun(model, df, ncores = 2))
   expect_error(PoisRun(model, df, control = c(2))) # control wasn't a list
+  expect_error(PoisRun(model, df, ncores = 2, bad = "wrong")) # arguement not in control list
   #
   model <- CaseCon(c) ~ loglinear(d)
   e <- get_form(model, df)
@@ -110,6 +128,10 @@ test_that("Checking formula works with result modification", {
   expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, ns(b)), df, control = list("ncores" = 2)))
   f <- Residual(e, df)
   expect_equal(f$Residual_Sum, 0.5121325, tolerance = 1e-2)
+  #
+  model <- Cox(t0, t1, lung) ~ loglinear(bs(a), b)
+  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 2)))
+  expect_no_error(f <- RelativeRisk(e, df))
 })
 
 test_that("Checking interaction works in formula and call results", {
@@ -316,9 +338,16 @@ test_that("CaseCon Surv Errors", {
   expect_error(get_form(CaseCon(t1, lung) ~ loglinear(dose), df)) # too many
   #
   expect_no_error(get_form(CaseCon_time(t0, t1, lung) ~ loglinear(dose), df))
-  expect_error(get_form(CaseCon_time(tstart = t0, tend = t1) ~ loglinear(dose), df)) # too few
+  expect_error(get_form(CaseCon_time(t1) ~ loglinear(dose), df)) # too few
   expect_error(get_form(CaseCon_time(t0, t1, t1, lung) ~ loglinear(dose), df)) # too many
   expect_error(get_form(CaseCon_time(alpha = t0, t1, lung) ~ loglinear(dose), df)) # wrong name
+  # Getting the named entries, three case
+  expect_no_error(get_form(CaseCon_time(tstart = t0, tend = t1, lung) ~ loglinear(dose), df))
+  expect_no_error(get_form(CaseCon_time(tstart = t0, t1, event = lung) ~ loglinear(dose), df))
+  expect_no_error(get_form(CaseCon_time(t0, tend = t1, event = lung) ~ loglinear(dose), df))
+  # Getting the named entries, two case
+  expect_no_error(get_form(CaseCon_time(tend = t1, lung) ~ loglinear(dose), df))
+  expect_no_error(get_form(CaseCon_time(t1, event = lung) ~ loglinear(dose), df))
   #
   expect_no_error(get_form(CaseCon_strata(lung, rand0) ~ loglinear(dose), df))
   expect_error(get_form(CaseCon_strata(lung) ~ loglinear(dose), df)) # too few
@@ -398,4 +427,21 @@ test_that("Object Validation Errors", {
   pois_model$event <- "bad"
   expect_error(PoisRun(pois_model, df, control = control))
   #
+})
+
+test_that("Basic formula passes and fails", {
+  df <- data.table(
+    "a" = c(0, 0, 0, 1, 0, 1),
+    "b" = c(1, 1, 1, 1, 1, 1),
+    "d" = c(1, 2, 3, 4, 3, 2)
+  )
+  expect_no_error(get_form(logit(b, a) ~ loglinear(d), df)) # all good
+  expect_error(get_form(logit() ~ loglinear(d), df)) # no entries
+  expect_error(get_form(logit(b, a, a) ~ loglinear(d), df)) # too many entries
+  expect_error(get_form(logit(b, bad = a) ~ loglinear(d), df)) # bad named entry
+  expect_error(get_form(logit(event = b, events = a) ~ loglinear(d), df)) # cannot do both
+  # now matching correctly
+  expect_no_error(get_form(logit(trials = b, a) ~ loglinear(d), df)) # all good
+  expect_no_error(get_form(logit(b, event = a) ~ loglinear(d), df)) # all good
+  expect_no_error(get_form(logit(b, events = a) ~ loglinear(d), df)) # all good
 })
