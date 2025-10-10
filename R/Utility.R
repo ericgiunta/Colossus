@@ -1237,6 +1237,111 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
   list("df" = df, "cols" = cols)
 }
 
+#' Automatically applies a normalization to either an input or output
+#'
+#' \code{apply_norm} applies a normalization factor
+#'
+#' @inheritParams R_template
+#' @family Data Cleaning Functions
+#' @return returns corrected values
+apply_norm <- function(df, norm, names, input, values, model_control) {
+  if (input){
+    a_n <- values$a_n
+    cons_mat <- values$cons_mat
+    if (tolower(norm) == "null") {
+      # nothing changes
+      norm_weight <- rep(1, length(names))
+    } else if (tolower(norm) %in% c("max", "mean")) {
+      # weight by the maximum value
+      norm_weight <- c()
+      if (tolower(norm) == "max") {
+        for (i in seq_along(names)) {
+          val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
+          if (val == 0.0) {
+            warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+            val <- 1.0
+          }
+          norm_weight <- c(norm_weight, val)
+        }
+      } else if (tolower(norm) == "mean") {
+        for (i in seq_along(names)) {
+          val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
+          if (val == 0.0) {
+            warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+            val <- 1.0
+          }
+          norm_weight <- c(norm_weight, val)
+        }
+      } else {
+        stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
+      }
+      for (i in seq_along(names)) {
+        if (typeof(a_n) != "list") {
+            a_n[i] <- a_n[i] * norm_weight[i]
+        } else {
+          for (j in seq_len(length(a_n))){
+            a_n[[j]][i] <- a_n[[j]][i] * norm_weight[i]
+          }
+        }
+        if (match(names[i], names)[1] == i) {
+          df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
+        }
+        norm_weight <- c(norm_weight, val)
+      }
+      if (model_control[["constraint"]] == TRUE) {
+        for (i in seq_along(names)) {
+          cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
+        }
+      }
+    } else {
+      stop(gettextf(
+        "Error: Normalization arguement '%s' not valid.",
+        norm
+      ), domain = NA)
+    }
+    output <- list("a_n" = a_n,
+                "cons_mat" = cons_mat,
+                "norm_weight" = norm_weight,
+                "df" = df
+                )
+  } else {
+    res <- values$output
+    norm_weight <- values$norm_weight
+    if (tolower(norm) == "null") {
+      # nothing changes
+    } else if (tolower(norm) %in% c("mean", "max")) {
+      # weight by the maximum value
+      if (model_control$single) {
+        for (i in seq_along(names)) {
+          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+        }
+      } else {
+        for (i in seq_along(names)) {
+          res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
+          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+          res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+          for (j in seq_along(names)) {
+            res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
+            res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
+          }
+        }
+        if (model_control[["constraint"]] == TRUE) {
+          for (i in seq_along(names)) {
+            res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
+          }
+        }
+      }
+    } else {
+      stop(gettextf(
+        "Error: Normalization arguement '%s' not valid.",
+        norm
+      ), domain = NA)
+    }
+    output <- res
+  }
+  output
+}
+
 #' Checks system OS
 #'
 #' \code{get_os} checks the system OS, part of configuration script

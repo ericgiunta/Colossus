@@ -167,51 +167,11 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   }
   # ------------------------------------------------------------------------------ #
   if (!coxmodel$null) {
-    if (tolower(norm) == "null") {
-      # nothing changes
-      norm_weight <- rep(1, length(names))
-    } else if (tolower(norm) %in% c("max", "mean")) {
-      # weight by the maximum value
-      norm_weight <- c()
-      if (tolower(norm) == "max") {
-        for (i in seq_along(names)) {
-          val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
-          if (val == 0.0) {
-            warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-            val <- 1.0
-          }
-          norm_weight <- c(norm_weight, val)
-        }
-      } else if (tolower(norm) == "mean") {
-        for (i in seq_along(names)) {
-          val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
-          if (val == 0.0) {
-            warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-            val <- 1.0
-          }
-          norm_weight <- c(norm_weight, val)
-        }
-      } else {
-        stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
-      }
-      for (i in seq_along(names)) {
-        a_n[i] <- a_n[i] * norm_weight[i]
-        if (match(names[i], names)[1] == i) {
-          df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-      if (model_control[["constraint"]] == TRUE) {
-        for (i in seq_along(names)) {
-          cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
-        }
-      }
-    } else {
-      stop(gettextf(
-        "Error: Normalization arguement '%s' not valid.",
-        norm
-      ), domain = NA)
-    }
+    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    a_n <- norm_res$a_n
+    cons_mat <- norm_res$cons_mat
+    norm_weight <- norm_res$norm_weight
+    df <- norm_res$df
   }
   # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
@@ -225,36 +185,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    if (tolower(norm) == "null") {
-      # nothing changes
-    } else if (tolower(norm) %in% c("mean", "max")) {
-      # weight by the maximum value
-      if (model_control$single) {
-        for (i in seq_along(names)) {
-          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        }
-      } else {
-        for (i in seq_along(names)) {
-          res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-          res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
-          for (j in seq_along(names)) {
-            res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
-            res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
-          }
-        }
-        if (model_control[["constraint"]] == TRUE) {
-          for (i in seq_along(names)) {
-            res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-          }
-        }
-      }
-    } else {
-      stop(gettextf(
-        "Error: Normalization arguement '%s' not valid.",
-        norm
-      ), domain = NA)
-    }
+    res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
   }
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
@@ -397,51 +328,11 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     }
   }
   # ------------------------------------------------------------------------------ #
-  if (tolower(norm) == "null") {
-    # nothing changes
-    norm_weight <- rep(1, length(names))
-  } else if (tolower(norm) %in% c("max", "mean")) {
-    # weight by the maximum value
-    norm_weight <- c()
-    if (tolower(norm) == "max") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else if (tolower(norm) == "mean") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else {
-      stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
-    }
-    for (i in seq_along(names)) {
-      a_n[i] <- a_n[i] * norm_weight[i]
-      if (match(names[i], names)[1] == i) {
-        df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
-      }
-      norm_weight <- c(norm_weight, val)
-    }
-    if (model_control[["constraint"]] == TRUE) {
-      for (i in seq_along(names)) {
-        cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  a_n <- norm_res$a_n
+  cons_mat <- norm_res$cons_mat
+  norm_weight <- norm_res$norm_weight
+  df <- norm_res$df
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
   res$model <- poismodel
@@ -453,36 +344,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  if (tolower(norm) == "null") {
-    # nothing changes
-  } else if (tolower(norm) %in% c("mean", "max")) {
-    # weight by the maximum value
-    if (model_control$single) {
-      for (i in seq_along(names)) {
-        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-      }
-    } else {
-      for (i in seq_along(names)) {
-        res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
-        for (j in seq_along(names)) {
-          res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
-          res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
-        }
-      }
-      if (model_control[["constraint"]] == TRUE) {
-        for (i in seq_along(names)) {
-          res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-        }
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -647,51 +509,11 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     }
   }
   # ------------------------------------------------------------------------------ #
-  if (tolower(norm) == "null") {
-    # nothing changes
-    norm_weight <- rep(1, length(names))
-  } else if (tolower(norm) %in% c("max", "mean")) {
-    # weight by the maximum value
-    norm_weight <- c()
-    if (tolower(norm) == "max") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else if (tolower(norm) == "mean") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else {
-      stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
-    }
-    for (i in seq_along(names)) {
-      a_n[i] <- a_n[i] * norm_weight[i]
-      if (match(names[i], names)[1] == i) {
-        df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
-      }
-      norm_weight <- c(norm_weight, val)
-    }
-    if (model_control[["constraint"]] == TRUE) {
-      for (i in seq_along(names)) {
-        cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    a_n <- norm_res$a_n
+    cons_mat <- norm_res$cons_mat
+    norm_weight <- norm_res$norm_weight
+    df <- norm_res$df
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
   res$model <- logitmodel
@@ -703,36 +525,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  if (tolower(norm) == "null") {
-    # nothing changes
-  } else if (tolower(norm) %in% c("mean", "max")) {
-    # weight by the maximum value
-    if (model_control$single) {
-      for (i in seq_along(names)) {
-        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-      }
-    } else {
-      for (i in seq_along(names)) {
-        res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
-        for (j in seq_along(names)) {
-          res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
-          res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
-        }
-      }
-      if (model_control[["constraint"]] == TRUE) {
-        for (i in seq_along(names)) {
-          res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-        }
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -891,51 +684,11 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   }
   # ------------------------------------------------------------------------------ #
   if (!caseconmodel$null) {
-    if (tolower(norm) == "null") {
-      # nothing changes
-      norm_weight <- rep(1, length(names))
-    } else if (tolower(norm) %in% c("max", "mean")) {
-      # weight by the maximum value
-      norm_weight <- c()
-      if (tolower(norm) == "max") {
-        for (i in seq_along(names)) {
-          val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
-          if (val == 0.0) {
-            warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-            val <- 1.0
-          }
-          norm_weight <- c(norm_weight, val)
-        }
-      } else if (tolower(norm) == "mean") {
-        for (i in seq_along(names)) {
-          val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
-          if (val == 0.0) {
-            warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-            val <- 1.0
-          }
-          norm_weight <- c(norm_weight, val)
-        }
-      } else {
-        stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
-      }
-      for (i in seq_along(names)) {
-        a_n[i] <- a_n[i] * norm_weight[i]
-        if (match(names[i], names)[1] == i) {
-          df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-      if (model_control[["constraint"]] == TRUE) {
-        for (i in seq_along(names)) {
-          cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
-        }
-      }
-    } else {
-      stop(gettextf(
-        "Error: Normalization arguement '%s' not valid.",
-        norm
-      ), domain = NA)
-    }
+    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    a_n <- norm_res$a_n
+    cons_mat <- norm_res$cons_mat
+    norm_weight <- norm_res$norm_weight
+    df <- norm_res$df
   }
   # ------------------------------------------------------------------------------ #
   res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
@@ -949,36 +702,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    if (tolower(norm) == "null") {
-      # nothing changes
-    } else if (tolower(norm) %in% c("mean", "max")) {
-      # weight by the maximum value
-      if (model_control$single) {
-        for (i in seq_along(names)) {
-          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        }
-      } else {
-        for (i in seq_along(names)) {
-          res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-          res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
-          for (j in seq_along(names)) {
-            res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
-            res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
-          }
-        }
-        if (model_control[["constraint"]] == TRUE) {
-          for (i in seq_along(names)) {
-            res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-          }
-        }
-      }
-    } else {
-      stop(gettextf(
-        "Error: Normalization arguement '%s' not valid.",
-        norm
-      ), domain = NA)
-    }
+    res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
   }
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
@@ -1116,51 +840,11 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     }
   }
   # ------------------------------------------------------------------------------ #
-  if (tolower(norm) == "null") {
-    # nothing changes
-    norm_weight <- rep(1, length(names))
-  } else if (tolower(norm) %in% c("max", "mean")) {
-    # weight by the maximum value
-    norm_weight <- c()
-    if (tolower(norm) == "max") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else if (tolower(norm) == "mean") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else {
-      stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
-    }
-    for (i in seq_along(names)) {
-      a_n[i] <- a_n[i] * norm_weight[i]
-      if (match(names[i], names)[1] == i) {
-        df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
-      }
-      norm_weight <- c(norm_weight, val)
-    }
-    if (model_control[["constraint"]] == TRUE) {
-      for (i in seq_along(names)) {
-        cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    a_n <- norm_res$a_n
+    cons_mat <- norm_res$cons_mat
+    norm_weight <- norm_res$norm_weight
+    df <- norm_res$df
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
   res$model <- poismodel
@@ -1172,36 +856,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  if (tolower(norm) == "null") {
-    # nothing changes
-  } else if (tolower(norm) %in% c("mean", "max")) {
-    # weight by the maximum value
-    if (model_control$single) {
-      for (i in seq_along(names)) {
-        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-      }
-    } else {
-      for (i in seq_along(names)) {
-        res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-        res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
-        for (j in seq_along(names)) {
-          res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
-          res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
-        }
-      }
-      if (model_control[["constraint"]] == TRUE) {
-        for (i in seq_along(names)) {
-          res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-        }
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -1879,51 +1534,11 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     model_control["para_number"] <- 0
   }
   #
-  if (tolower(norm) == "null") {
-    # nothing changes
-    norm_weight <- rep(1, length(names))
-  } else if (tolower(norm) %in% c("max", "mean")) {
-    # weight by the maximum value
-    norm_weight <- c()
-    if (tolower(norm) == "max") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else if (tolower(norm) == "mean") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else {
-      stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
-    }
-    for (i in seq_along(names)) {
-      a_n[i] <- a_n[i] * norm_weight[i]
-      if (match(names[i], names)[1] == i) {
-        df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
-      }
-      norm_weight <- c(norm_weight, val)
-    }
-    if (model_control[["constraint"]] == TRUE) {
-      for (i in seq_along(names)) {
-        cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    a_n <- norm_res$a_n
+    cons_mat <- norm_res$cons_mat
+    norm_weight <- norm_res$norm_weight
+    df <- norm_res$df
   #
   if ("bisect" %in% names(model_control)) {
     res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
@@ -2023,51 +1638,11 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     model_control["para_number"] <- 0
   }
   #
-  if (tolower(norm) == "null") {
-    # nothing changes
-    norm_weight <- rep(1, length(names))
-  } else if (tolower(norm) %in% c("max", "mean")) {
-    # weight by the maximum value
-    norm_weight <- c()
-    if (tolower(norm) == "max") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else if (tolower(norm) == "mean") {
-      for (i in seq_along(names)) {
-        val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
-        if (val == 0.0) {
-          warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
-          val <- 1.0
-        }
-        norm_weight <- c(norm_weight, val)
-      }
-    } else {
-      stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
-    }
-    for (i in seq_along(names)) {
-      a_n[i] <- a_n[i] * norm_weight[i]
-      if (match(names[i], names)[1] == i) {
-        df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
-      }
-      norm_weight <- c(norm_weight, val)
-    }
-    if (model_control[["constraint"]] == TRUE) {
-      for (i in seq_along(names)) {
-        cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
-      }
-    }
-  } else {
-    stop(gettextf(
-      "Error: Normalization arguement '%s' not valid.",
-      norm
-    ), domain = NA)
-  }
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    a_n <- norm_res$a_n
+    cons_mat <- norm_res$cons_mat
+    norm_weight <- norm_res$norm_weight
+    df <- norm_res$df
   #
   if ("bisect" %in% names(model_control)) {
     res <- PoissonCurveSolver(df, pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)

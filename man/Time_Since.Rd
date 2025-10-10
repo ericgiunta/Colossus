@@ -48,6 +48,7 @@ Other Data Cleaning Functions:
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Replace_Missing}()},
+\code{\link{apply_norm}()},
 \code{\link{factorize}()},
 \code{\link{gen_time_dep}()}
 }

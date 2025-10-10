@@ -40,6 +40,7 @@ Other Data Cleaning Functions:
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Time_Since}()},
+\code{\link{apply_norm}()},
 \code{\link{factorize}()},
 \code{\link{gen_time_dep}()}
 }

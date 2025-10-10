@@ -41,6 +41,7 @@ Other Data Cleaning Functions:
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Replace_Missing}()},
 \code{\link{Time_Since}()},
+\code{\link{apply_norm}()},
 \code{\link{gen_time_dep}()}
 }
 \concept{Data Cleaning Functions}

@@ -34,6 +34,8 @@ test_that("Checking basic function", {
     #
     expect_no_error(res_max <- PoisRun(Pois(time, status) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
     expect_no_error(res_max <- CaseControlRun(CaseCon(status) ~ loglinear(karno50, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
+    #
+    expect_no_error(res_max <- PoisRun(Pois(time, status) ~ loglinear(karno, trt), df, a_n = list(c(-0.1, 0.1), c(0.1, 0.1)), norm = "max", control = control))
   }
 })
 
