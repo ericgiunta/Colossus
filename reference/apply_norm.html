@@ -66,15 +66,23 @@
 
 
 <dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
-<dd><p>a data.table containing the columns of interest</p></dd>
+<dd><p>The data.table with columns to be normalized</p></dd>
 
 
 <dt id="arg-norm">norm<a class="anchor" aria-label="anchor" href="#arg-norm"></a></dt>
-<dd><p>methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum and 'mean' to normalize by the mean</p></dd>
+<dd><p>The normalization option used, currently max or mean</p></dd>
 
 
 <dt id="arg-names">names<a class="anchor" aria-label="anchor" href="#arg-names"></a></dt>
 <dd><p>columns for elements of the model, used to identify data columns</p></dd>
+
+
+<dt id="arg-input">input<a class="anchor" aria-label="anchor" href="#arg-input"></a></dt>
+<dd><p>boolean if the normalization is being performed on the input values or on an output</p></dd>
+
+
+<dt id="arg-values">values<a class="anchor" aria-label="anchor" href="#arg-values"></a></dt>
+<dd><p>list of values using during normalization</p></dd>
 
 
 <dt id="arg-model-control">model_control<a class="anchor" aria-label="anchor" href="#arg-model-control"></a></dt>
@@ -83,7 +91,7 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>returns corrected values</p>
+    <p>returns list with the normalized values</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
