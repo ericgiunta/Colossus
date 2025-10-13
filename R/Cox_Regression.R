@@ -238,57 +238,9 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
     }
   } else {
-    if ("maxiters" %in% names(control)) {
-      if (length(control$maxiters) == length(a_n) + 1) {
-        # all good, it matches
-      } else {
-        if (control$verbose >= 3) {
-          message(paste("Note: Initial starts:", length(a_n),
-            ", Number of iterations provided:",
-            length(control$maxiters),
-            ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-            sep = " "
-          )) # nocov
-        }
-        if (length(control$maxiters) < length(a_n) + 1) {
-          additional <- length(a_n) + 1 - length(control$maxiters)
-          control$maxiters <- c(control$maxiters, rep(1, additional))
-        } else {
-          additional <- length(a_n) + 1
-          control$maxiters <- control$maxiters[1:additional]
-        }
-      }
-      if ("guesses" %in% names(control)) {
-        # both are in
-        if (control$guesses + 1 == length(control$maxiters)) {
-          # all good, it matches
-        } else if (length(control$maxiters) == 2) {
-          iter0 <- control$maxiters[1]
-          iter1 <- control$maxiters[2]
-          applied_iter <- c(rep(iter0, control$guesses), iter1)
-          control$maxiters <- applied_iter
-        } else {
-          stop(paste("Error: guesses:", control["guesses"],
-            ", iterations per guess:", control["maxiters"],
-            sep = " "
-          ))
-        }
-      } else {
-        control$guesses <- length(control$maxiters) - 1
-      }
-    } else {
-      if ("guesses" %in% names(control)) {
-        if (control$guesses == length(a_n)) {
-          # both match, all good
-        } else {
-          control$guesses <- length(a_n)
-        }
-        control$maxiters <- rep(1, control$guesses + 1)
-      } else {
-        control$guesses <- length(a_n)
-        control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-      }
-    }
+    res <- Check_Iters(control, a_n)
+    control <- res$control
+    a_n <- res$a_n
     if (model_control$null) {
       a_ns <- matrix(a_ns)
     } else {
@@ -311,7 +263,6 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   e$Survival_Type <- "Cox"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }
 
@@ -320,6 +271,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
 #' \code{RunCoxRegression} uses user provided data,  vectors specifying the model,
 #' and options to calculate relative risk for every row in the provided data
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Plotting Wrapper Functions
 #' @return returns a list of the final results
@@ -367,6 +319,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
 #'
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return saves the plots in the current directory and returns the data used for plots
 #' @family Plotting Wrapper Functions
 RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list()) {
@@ -638,6 +591,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
 #'
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return returns a list of the final results for each realization
 #' @family Cox Wrapper Functions
 #' @importFrom rlang .data
@@ -794,7 +748,6 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  # df <- copy(df)
   return(e)
 }
 
@@ -805,6 +758,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
 #'
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return returns a list of the final results
 #' @family Cox Wrapper Functions
 #' @importFrom rlang .data
@@ -946,57 +900,9 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
-  if ("maxiters" %in% names(control)) {
-    if (length(control$maxiters) == length(a_n) + 1) {
-      # all good, it matches
-    } else {
-      if (control$verbose >= 3) {
-        message(paste("Note: Initial starts:", length(a_n),
-          ", Number of iterations provided:",
-          length(control$maxiters),
-          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-          sep = " "
-        )) # nocov
-      }
-      if (length(control$maxiters) < length(a_n) + 1) {
-        additional <- length(a_n) + 1 - length(control$maxiters)
-        control$maxiters <- c(control$maxiters, rep(1, additional))
-      } else {
-        additional <- length(a_n) + 1
-        control$maxiters <- control$maxiters[1:additional]
-      }
-    }
-    if ("guesses" %in% names(control)) {
-      # both are in
-      if (control$guesses + 1 == length(control$maxiters)) {
-        # all good, it matches
-      } else if (length(control$maxiters) == 2) {
-        iter0 <- control$maxiters[1]
-        iter1 <- control$maxiters[2]
-        applied_iter <- c(rep(iter0, control$guesses), iter1)
-        control$maxiters <- applied_iter
-      } else {
-        stop(paste("Error: guesses:", control["guesses"],
-          ", iterations per guess:", control["maxiters"],
-          sep = " "
-        ))
-      }
-    } else {
-      control$guesses <- length(control$maxiters) - 1
-    }
-  } else {
-    if ("guesses" %in% names(control)) {
-      if (control$guesses == length(a_n)) {
-        # both match, all good
-      } else {
-        control$guesses <- length(a_n)
-      }
-      control$maxiters <- rep(1, control$guesses + 1)
-    } else {
-      control$guesses <- length(a_n)
-      control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-    }
-  }
+  res <- Check_Iters(control, a_n)
+  control <- res$control
+  a_n <- res$a_n
   if ("alpha" %in% names(model_control)) {
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   } else {
@@ -1004,7 +910,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   }
   a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  para_num <- model_control$para_num + 1 # 3
+  para_num <- model_control$para_num + 1
   keep_constant[para_num] <- 1
   if (min(keep_constant) == 1) {
     model_control["single"] <- TRUE

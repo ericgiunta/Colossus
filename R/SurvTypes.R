@@ -196,6 +196,9 @@ get_form_joint <- function(formula_list, df) {
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' model <- get_form(formula, df)
 get_form <- function(formula, df) {
+  if (length(lapply(strsplit(format(formula), ""), function(x) which(x == "~"))[[1]]) != 1) {
+    stop("Error: The formula contained multiple '~', invalid formula")
+  }
   surv_obj <- format(formula[[2]])
   model_obj <- paste(format(formula[[3]]), collapse = " ")
   surv_obj <- gsub(" ", "", surv_obj)
@@ -208,6 +211,7 @@ get_form <- function(formula, df) {
   tstart <- model$tstart
   tend <- model$tend
   pyr <- model$pyr
+  trials <- model$trials
   event <- model$event
   strata <- model$strata
   weight <- model$weight
@@ -230,6 +234,8 @@ get_form <- function(formula, df) {
     model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+  } else if ((grepl("logit", surv_model_type)) || (grepl("logistic", surv_model_type))) {
+    model <- logitmodel(trials, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else {
     stop("Error: Bad survival model type passed")
   }
@@ -247,6 +253,7 @@ get_form <- function(formula, df) {
 #' @param model_obj output from get_form_risk, list of risk factor model values
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return returns the list of model values
 #' @family Formula Interpretation
 get_form_list <- function(surv_obj, model_obj, df) {
@@ -273,6 +280,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
   event <- surv_vals$event
   strata <- surv_vals$strata
   weight <- surv_vals$weight
+  trials <- surv_vals$trials
   #
   model_vals <- get_form_risk(model_obj, df)
   model <- model_vals$model
@@ -292,6 +300,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
       tstart = tstart,
       tend = tend,
       pyr = pyr,
+      trials = trials,
       event = event,
       strata = strata,
       weight = weight,
@@ -313,6 +322,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
 #' \code{get_form_surv} interprets the LHS of a formula
 #' @param surv_obj output from get_form_surv, list of survival values
 #' @inheritParams R_template
+#' @noRd
 #' @return returns the left hand side of the formula reading
 #' @family Formula Interpretation
 get_form_surv <- function(surv_obj, df) {
@@ -324,6 +334,7 @@ get_form_surv <- function(surv_obj, df) {
   event <- "NONE"
   strata <- "NONE"
   weight <- "NONE"
+  trials <- "NONE"
   #
   # split the survival model type
   second_split <- lapply(strsplit(surv_obj, ""), function(x) which(x == "("))[[1]]
@@ -407,6 +418,17 @@ get_form_surv <- function(surv_obj, df) {
     tend <- res$tend
     event <- res$event
     strata <- res$strata
+  } else if (surv_type %in% c("logit", "logistic")) {
+    res <- do.call(ColossusLogitSurv, surv_para_list)
+    trials <- res$trials
+    event <- res$event
+    if ("CONST" == trials) {
+      if ("CONST" %in% names(df)) {
+        # fine
+      } else {
+        df$CONST <- 1
+      }
+    }
   } else {
     stop("Error: Invalid survival model type")
   }
@@ -433,6 +455,7 @@ get_form_surv <- function(surv_obj, df) {
       surv_model_type = surv_model_type,
       tstart = tstart,
       tend = tend,
+      trials = trials,
       pyr = pyr,
       event = event,
       strata = strata,
@@ -447,6 +470,7 @@ get_form_surv <- function(surv_obj, df) {
 #' \code{get_form_risk} interprets the RHS of a formula
 #' @param model_obj output from get_form_risk, list of risk factor model values
 #' @inheritParams R_template
+#' @noRd
 #' @return returns the right hand side of a formula reading
 #' @family Formula Interpretation
 get_form_risk <- function(model_obj, df) {
@@ -954,7 +978,7 @@ get_form_risk <- function(model_obj, df) {
 #'
 #' @param calls List from 'model$expres' calls formatted as the type of function call, and then the arguments
 #' @param df dataset, to be modified by the function calls
-#' @export
+#' @noRd
 #' @return returns the transformed data
 #' @family Formula Interpretation
 ColossusExpressionCall <- function(calls, df) {
@@ -1212,6 +1236,7 @@ ColossusCoxSurv <- function(...) {
 #'
 #' @param ... entries for a cox survival object with strata, tstart, tend, event, and strata. Either in order or named. If unnamed, the last is assumed to be strata and the rest are passed to ColossusCoxSurv.
 #'
+#' @noRd
 #' @return returns list with interval endpoints, event, and strata column
 #' @family Formula Interpretation
 ColossusCoxStrataSurv <- function(...) {
@@ -1249,6 +1274,7 @@ ColossusCoxStrataSurv <- function(...) {
 #'
 #' @param ... entries for a Fine_Gray object, tstart, tend, event, and weighting. Either in order or named. If unnamed, the last is assumed to be weighting and the rest are passed to ColossusCoxSurv.
 #'
+#' @noRd
 #' @return returns list with interval endpoints, event, and weighting columns
 #' @family Formula Interpretation
 ColossusFineGraySurv <- function(...) {
@@ -1286,6 +1312,7 @@ ColossusFineGraySurv <- function(...) {
 #'
 #' @param ... entries for a Fine_Gray object with strata, tstart, tend, event, strata, and weighting. Either in order or named. If unnamed, the last is assumed to be weighting and the rest are passed to ColossusCoxStrataSurv.
 #'
+#' @noRd
 #' @return returns list with interval endpoints, event, strata, and weighting columns
 #' @family Formula Interpretation
 ColossusFineGrayStrataSurv <- function(...) {
@@ -1396,7 +1423,7 @@ ColossusPoisSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, only the event column
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConSurv <- function(...) {
@@ -1423,7 +1450,7 @@ ColossusCaseConSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, with risk group info. Similar to basic Cox survival, interval start, end, and the event column. Either named or in order.
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConTimeSurv <- function(...) {
@@ -1514,7 +1541,7 @@ ColossusCaseConTimeSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, with strata. Expects an event column and strata column, either named or in order.
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConStrataSurv <- function(...) {
@@ -1555,7 +1582,7 @@ ColossusCaseConStrataSurv <- function(...) {
 #'
 #' @param ... entries for a Case-Control object, with strata and interval info. Similar to the stratified Cox survival object. Expects interval start, end, event, and strata in order or named. Removes strata and calls the standard Case-Control survival object grouped by risk group.
 #'
-#' @export
+#' @noRd
 #' @return returns list with event
 #' @family Formula Interpretation
 ColossusCaseConTimeStrataSurv <- function(...) {
@@ -1585,4 +1612,70 @@ ColossusCaseConTimeStrataSurv <- function(...) {
   }
   res["strata"] <- strata
   res
+}
+
+#' Interprets basic logistic survival formula RHS with no grouping
+#'
+#' \code{ColossusLogitSurv} assigns and interprets columns for trials and events in logistic model with no grouping.
+#'
+#' @param ... entries for a Logistic object, trials and events. trials not provided assumes one trial per row.
+#'
+#' @export
+#' @return returns list with event
+#' @family Formula Interpretation
+ColossusLogitSurv <- function(...) {
+  args <- list(...)
+  argName <- names(args)
+  #
+  if (length(args) < 1) {
+    stop("Error: Too few entries in Logistic survival object")
+  }
+  if (length(args) > 2) {
+    stop("Error: Too many entries in Logistic survival object")
+  }
+  trials <- "NULL"
+  events <- "NULL"
+  indx <- pmatch(argName[argName != ""], c("trials", "event", "events"), nomatch = 0L)
+  if (any(indx == 0L)) {
+    stop(gettextf(
+      "Error: Argument '%s' not matched in survival object",
+      argName[argName != ""][indx == 0L]
+    ), domain = NA)
+  }
+  if (("event" %in% argName) && ("events" %in% argName)) {
+    stop("Error: Cannot provide both 'event' and 'events'")
+  }
+  if (all(argName == "")) {
+    if (length(args) == 1) {
+      # should just be the events
+      # assume only one trial
+      events <- args[[1]]
+      trials <- "CONST"
+    } else {
+      # should be events and then cases
+      events <- args[[2]]
+      trials <- args[[1]]
+    }
+  } else {
+    # atleast one is named
+    if (any(argName == "")) {
+      # one is named
+      if ("trials" %in% argName) {
+        trials <- args$trials
+        events <- args[names(args) != "trials"][[1]]
+      }
+      if ("event" %in% argName) {
+        events <- args$event
+        trials <- args[names(args) != "event"][[1]]
+      }
+      if ("events" %in% argName) {
+        events <- args$events
+        trials <- args[names(args) != "events"][[1]]
+      }
+    } else {
+      trials <- args$trials
+      events <- args[names(args) != "trials"][[1]]
+    }
+  }
+  list("event" = events, "trials" = trials)
 }

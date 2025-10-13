@@ -18,7 +18,7 @@ test_that("Poisson residual no error", {
 
   # tfile <- file(paste(tempfile(), ".txt",sep="" ),open = "wt")
   # sink(file=tfile)
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0, "double_step" = 1)
+  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
   poisres <- PoisRun(Poisson(a, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   #  model_control <- list("pearson" = FALSE, "deviance" = FALSE)
   expect_no_error(Residual(poisres, df, pearson = FALSE, deviance = FALSE))

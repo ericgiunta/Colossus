@@ -33,6 +33,7 @@
 #' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits
 #' @param iscox  boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times
 #' @param keep_constant  binary values to denote which parameters to change
+#' @param link Used in logistic regression, the linking function relating the input model and event probability. Current options are "odds", "ident", and "loglink" for the odds ratio, identity, and complimentary loglink options.
 #' @param log_file file to save log to
 #' @param mcml a boolean to denote that the Monte Carlo Maximum Likelihood method should be used
 #' @param model either a formula written for the get_form function, or the model result from the get_form function.
@@ -43,6 +44,7 @@
 #' @param name_list  vector of string column names to check
 #' @param names  columns for elements of the model, used to identify data columns
 #' @param new_names  list of new names to use instead of default, default used if entry is ''"
+#' @param norm methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum and 'mean' to normalize by the mean
 #' @param nthreads  number of threads to use, do not use more threads than available on your machine
 #' @param null_model  a model to compare against, in list form
 #' @param observed_info a boolean to denote that the observed information matrix should be used to calculate the standard error for parameters, not the expected information matrix
@@ -66,6 +68,7 @@
 #' @param time2  column used for time period end
 #' @param time_lims  limits for x axis of plot
 #' @param tref  reference time in date format
+#' @param trial0 column with the number of trials per row, assumed to be 1 if a column not provided
 #' @param tu  unique event times
 #' @param units  time unit to use
 #' @param verbose  integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.
@@ -204,7 +207,7 @@ NULL
 #' @importFrom stringr str_match str_count
 #' @importFrom callr rcmd
 #' @importFrom tibble as_tibble tibble
-#' @importFrom dplyr mutate case_when group_by summarize n slice bind_rows across all_of
+#' @importFrom dplyr mutate case_when group_by summarize summarise n slice bind_rows across all_of
 #' @importFrom lubridate make_date interval as.duration
 #' @useDynLib Colossus, .registration = TRUE
 NULL

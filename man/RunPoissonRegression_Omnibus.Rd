@@ -88,11 +88,6 @@ control <- list(
   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
   "double_step" = 1
 )
-guesses_control <- list(
-  "maxiter" = 10, "guesses" = 10, "lin_min" = 0.001,
-  "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-  "loglin_method" = "uniform", strata = FALSE
-)
 strat_col <- "e"
 e <- RunPoissonRegression_Omnibus(
   df, pyr, event, names, term_n,
@@ -107,11 +102,7 @@ Other Poisson Wrapper Functions:
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
-\code{\link{PoissonCurveSolver}()},
-\code{\link{Residual.poisres}()},
-\code{\link{RunPoissonEventAssignment}()},
-\code{\link{RunPoissonEventAssignment_bound}()},
-\code{\link{RunPoissonRegression_Joint_Omnibus}()},
-\code{\link{RunPoissonRegression_Residual}()}
+\code{\link{PoisRunMulti}()},
+\code{\link{Residual.poisres}()}
 }
 \concept{Poisson Wrapper Functions}

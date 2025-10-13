@@ -37,9 +37,16 @@ df <- data.table::data.table(
   "c" = c(10, 11, 10, 11, 12, 9, 11),
   "d" = c(0, 0, 0, 1, 1, 1, 1)
 )
+control <- list(
+  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "halfmax" = 1
+)
 formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+res <- CoxRun(formula, df,
+  control = control,
+  a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
+)
 plot_options <- list(
   "type" = c("surv", paste(tempfile(),
     "run",
@@ -48,10 +55,5 @@ plot_options <- list(
   "verbose" = FALSE
 )
 plot(res, df, plot_options)
-}
-\seealso{
-Other Plotting Wrapper Functions: 
-\code{\link{Cox_Relative_Risk}()},
-\code{\link{RunCoxPlots}()}
 }
 \concept{Plotting Wrapper Functions}

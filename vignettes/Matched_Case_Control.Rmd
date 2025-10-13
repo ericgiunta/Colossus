@@ -125,8 +125,8 @@ The following provides a basic example of how to use the matched case-control re
 ```{r, eval = TRUE}
 #
 data(cancer, package = "survival")
-df <- veteran
-
+veteran %>% setDT()
+df <- copy(veteran)
 # Make the same adjustments as Epicure example 6.5
 karno <- df$karno
 karno[93] <- 20
@@ -151,7 +151,7 @@ In the following examples, we are using matching by strata and changing the cond
 model <- CaseControl_Strata(status, cell) ~ loglinear(karno50, trt)
 
 
-control <- list(verbose = 2, maxiters = c(25, 25))
+control <- list(verbose = 2, maxiters = c(25, 25), ncores = 2)
 e0 <- CaseControlRun(model, df, control = control, conditional_threshold = 100)
 e1 <- CaseControlRun(model, df, control = control, conditional_threshold = 40)
 e2 <- CaseControlRun(model, df, control = control, conditional_threshold = 0)

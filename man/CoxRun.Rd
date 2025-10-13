@@ -15,6 +15,7 @@ CoxRun(
   observed_info = FALSE,
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0),
+  norm = "null",
   ...
 )
 }
@@ -39,6 +40,8 @@ CoxRun(
 
 \item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
 
+\item{norm}{methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum and 'mean' to normalize by the mean}
+
 \item{...}{can include the named entries for the control list parameter}
 }
 \value{
@@ -61,16 +64,21 @@ df <- data.table::data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1),
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
+control <- list(
+  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "halfmax" = 1
+)
 formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-res <- CoxRun(formula, df, a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)))
+res <- CoxRun(formula, df,
+  a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
+  control = control
+)
 }
 \seealso{
 Other Cox Wrapper Functions: 
-\code{\link{CoxCurveSolver}()},
 \code{\link{CoxRunMulti}()},
 \code{\link{LikelihoodBound.coxres}()},
-\code{\link{RunCoxRegression_Omnibus}()},
-\code{\link{RunCoxRegression_Omnibus_Multidose}()}
+\code{\link{RunCoxRegression_Omnibus}()}
 }
 \concept{Cox Wrapper Functions}

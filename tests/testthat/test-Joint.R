@@ -22,6 +22,10 @@ test_that("Joint data generation, no error", {
   formula_list <- list(model_1, model_2, "shared" = model_s)
   #
   expect_no_error(PoisRunJoint(formula_list, df, ncores = 2))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "mean"))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "max"))
+  expect_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "bad"))
+  expect_error(PoisRunJoint(formula_list, df, ncores = 2, bad = "wrong"))
 })
 test_that("Joint data generation fill defaults, no error", {
   a <- c(0, 0, 0, 1, 1, 1)
@@ -125,7 +129,7 @@ test_that("Joint data regression, no error", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 2, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow"
   )
   model_1 <- Pois(pyr, e0) ~ loglin(fac, 0)
   model_2 <- Pois(pyr, e1) ~ loglin(fac, 0)
@@ -152,7 +156,7 @@ test_that("Joint data regression, check results", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow"
   )
   model_1 <- Pois(pyr, e0) ~ loglin(fac, 0)
   model_2 <- Pois(pyr, e1) ~ loglin(fac, 0)

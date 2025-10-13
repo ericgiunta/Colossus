@@ -39,11 +39,6 @@
 #'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
 #'   "double_step" = 1
 #' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10, "lin_min" = 0.001,
-#'   "lin_max" = 1, "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
-#' )
 #' strat_col <- "e"
 #' e <- RunPoissonRegression_Omnibus(
 #'   df, pyr, event, names, term_n,
@@ -143,53 +138,10 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       }
     }
   } else {
-    if ("maxiters" %in% names(control)) {
-      if (length(control$maxiters) == length(a_n) + 1) {
-        # all good, it matches
-      } else {
-        if (control$verbose >= 3) {
-          message(paste("Note: Initial starts:", length(a_n),
-            ", Number of iterations provided:",
-            length(control$maxiters),
-            ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-            sep = " "
-          )) # nocov
-        }
-        if (length(control$maxiters) < length(a_n) + 1) {
-          additional <- length(a_n) + 1 - length(control$maxiters)
-          control$maxiters <- c(control$maxiters, rep(1, additional))
-        } else {
-          additional <- length(a_n) + 1
-          control$maxiters <- control$maxiters[1:additional]
-        }
-      }
-      if ("guesses" %in% names(control)) {
-        # both are in
-        if (control$guesses + 1 == length(control$maxiters)) {
-          # all good, it matches
-        } else {
-          stop(paste("Error: guesses:", control["guesses"],
-            ", iterations per guess:",
-            control["maxiters"],
-            sep = " "
-          ))
-        }
-      } else {
-        control$guesses <- length(control$maxiters) - 1
-      }
-    } else {
-      if ("guesses" %in% names(control)) {
-        if (control$guesses == length(a_n)) {
-          # both match, all good
-        } else {
-          control$guesses <- length(a_n)
-        }
-        control$maxiters <- rep(1, control$guesses + 1)
-      } else {
-        control$guesses <- length(a_n)
-        control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-      }
-    }
+    res <- Check_Iters(control, a_n)
+    control <- res$control
+    a_n <- res$a_n
+    #
     e <- pois_Omnibus_transition(
       as.matrix(df[, ce, with = FALSE]),
       term_n, tform, matrix(a_ns,
@@ -214,58 +166,11 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   return(e)
 }
 
-#' Performs joint Poisson regression using the omnibus function
-#'
-#' \code{RunPoissonRegression_Joint_Omnibus} uses user provided data, time/event columns,
-#'  vectors specifying the model, and options to control the convergence and starting positions.
-#'  Has additional options to starting with several initial guesses, uses joint competing risks equation
-#'
-#' @inheritParams R_template
-#' @param events vector of event column names
-#' @param term_n_list list of vectors for term numbers for event specific or shared model elements, defaults to term 0
-#' @param tform_list list of vectors for subterm types for event specific or shared model elements, defaults to loglinear
-#' @param keep_constant_list list of vectors for constant elements for event specific or shared model elements, defaults to free (0)
-#' @param a_n_list list of vectors for parameter values for event specific or shared model elements, defaults to term 0
-#' @param name_list list of vectors for columns for event specific or shared model elements, required
-#'
-#' @return returns a list of the final results
-#' @family Poisson Wrapper Functions
-#' @importFrom rlang .data
-RunPoissonRegression_Joint_Omnibus <- function(df, pyr0, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list(), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        df <- setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  val <- Joint_Multiple_Events(
-    df, events, name_list,
-    term_n_list, tform_list,
-    keep_constant_list, a_n_list
-  )
-  df <- val$df
-  names <- val$names
-  term_n <- val$term_n
-  tform <- val$tform
-  keep_constant <- val$keep_constant
-  a_n <- val$a_n
-  e <- RunPoissonRegression_Omnibus(
-    df, pyr0, "events", names,
-    term_n, tform, keep_constant,
-    a_n, modelform, control,
-    strat_col
-  )
-  return(e)
-}
-
 #' Predicts how many events are due to baseline vs excess
 #'
 #' \code{RunPoissonEventAssignment} uses user provided data, person-year/event columns, vectors specifying the model, and options to calculate background and excess events
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
@@ -351,6 +256,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
 #'
 #' \code{RunPoissonEventAssignment_bound} uses user provided data, the results of a poisson regression, and options to calculate background and excess events
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @param check_num the parameter number to check at the bounds of, indexed from 1 using the order returned by Colossus
 #' @param z Z score to use for confidence interval
@@ -411,7 +317,7 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
@@ -442,12 +348,6 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
 #'   "deriv_epsilon" = 1e-3, "step_max" = 1.0,
 #'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
 #'   "double_step" = 1
-#' )
-#' guesses_control <- list(
-#'   "maxiter" = 10, "guesses" = 10,
-#'   "lin_min" = 0.001, "lin_max" = 1,
-#'   "loglin_min" = -1, "loglin_max" = 1, "lin_method" = "uniform",
-#'   "loglin_method" = "uniform", strata = FALSE
 #' )
 #' strat_col <- "e"
 #' e <- RunPoissonRegression_Residual(
@@ -544,7 +444,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
 PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
@@ -615,53 +515,9 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
-  if ("maxiters" %in% names(control)) {
-    if (length(control$maxiters) == length(a_n) + 1) {
-      # all good, it matches
-    } else {
-      if (control$verbose >= 3) {
-        message(paste("Note: Initial starts:", length(a_n),
-          ", Number of iterations provided:",
-          length(control$maxiters),
-          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-          sep = " "
-        )) # nocov
-      }
-      if (length(control$maxiters) < length(a_n) + 1) {
-        additional <- length(a_n) + 1 - length(control$maxiters)
-        control$maxiters <- c(control$maxiters, rep(1, additional))
-      } else {
-        additional <- length(a_n) + 1
-        control$maxiters <- control$maxiters[1:additional]
-      }
-    }
-    if ("guesses" %in% names(control)) {
-      # both are in
-      if (control$guesses + 1 == length(control$maxiters)) {
-        # all good, it matches
-      } else {
-        stop(paste("Error: guesses:", control["guesses"],
-          ", iterations per guess:",
-          control["maxiters"],
-          sep = " "
-        ))
-      }
-    } else {
-      control$guesses <- length(control$maxiters) - 1
-    }
-  } else {
-    if ("guesses" %in% names(control)) {
-      if (control$guesses == length(a_n)) {
-        # both match, all good
-      } else {
-        control$guesses <- length(a_n)
-      }
-      control$maxiters <- rep(1, control$guesses + 1)
-    } else {
-      control$guesses <- length(a_n)
-      control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
-    }
-  }
+  res <- Check_Iters(control, a_n)
+  control <- res$control
+  a_n <- res$a_n
   if ("alpha" %in% names(model_control)) {
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   } else {
@@ -684,5 +540,148 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e$Survival_Type <- "Poisson"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  return(e)
+}
+
+#' Performs Poisson regression using the omnibus function with multiple column realizations
+#'
+#' \code{RunPoisRegression_Omnibus_Multidose} uses user provided data, time/event columns,
+#'       vectors specifying the model, and options to control the convergence
+#'       and starting positions. Used for 2DMC column uncertainty methods.
+#'       Returns optimized parameters, log-likelihood, and standard deviation for each realization.
+#'       Has additional options for using stratification
+#'
+#' @inheritParams R_template
+#'
+#' @noRd
+#' @return returns a list of the final results for each realization
+#' @family Poisson Wrapper Functions
+#' @importFrom rlang .data
+RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+  func_t_start <- Sys.time()
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
+  #
+  control <- Def_Control(control)
+  model_control <- Def_model_control(model_control)
+  if (min(keep_constant) > 0) {
+    stop("Error: Atleast one parameter must be free")
+  }
+  #
+  to_remove <- c("CONST", "%trunc%")
+  to_keep <- c(pyr0, event0, names, realization_index, as.vector(realization_columns))
+  if (model_control$strata == TRUE) {
+    to_keep <- c(to_keep, strat_col)
+  }
+  to_keep <- unique(to_keep)
+  to_keep <- to_keep[!to_keep %in% to_remove]
+  to_keep <- to_keep[to_keep %in% names(df)]
+  df <- df[, to_keep, with = FALSE]
+  #
+  ce <- c(pyr0, event0)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if ("MCML" %in% names(model_control)) {
+    # fine
+  } else {
+    model_control$MCML <- FALSE
+  }
+  if (model_control$strata == TRUE) {
+    val <- factorize(df, strat_col)
+    df0 <- val$df
+    df <- val$df
+    val_cols <- c()
+    for (col in val$cols) {
+      dftemp <- df[get(col) == 1, ]
+      temp <- sum(dftemp[, get(event0)])
+      if (temp == 0) {
+        if (control$verbose >= 2) {
+          warning(paste("Warning: no events for strata group:", col,
+            sep = " "
+          ))
+        }
+        df <- df[get(col) != 1, ]
+        df0 <- df0[get(col) != 1, ]
+      } else {
+        val_cols <- c(val_cols, col)
+      }
+      data.table::setkeyv(df0, c(pyr0, event0))
+    }
+  } else {
+    df0 <- data.table::data.table("a" = c(0, 0))
+    val <- list(cols = c("a"))
+    val_cols <- c("a")
+  }
+  data.table::setkeyv(df, c(pyr0, event0))
+  #
+  all_names <- unique(names)
+  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+  # replace_missing equivalent for the realization columns
+  if (length(realization_index) == length(realization_columns[, 1])) {
+    # pass
+  } else {
+    # the number of columns per realization does not match the number of indexes provided
+    stop(paste("Error:", length(realization_index),
+      " column indexes provided, but ",
+      length(realization_columns[, 1]),
+      " rows of realizations columns provided",
+      sep = " "
+    ))
+  }
+  if (all(realization_index %in% all_names)) {
+    # pass
+  } else {
+    stop(paste("Error: Atleast one realization column provided was not used in the model", sep = " "))
+  }
+  #  all_names <- unique(c(all_names, as.vector(realization_columns)))
+  dose_names <- unique(as.vector(realization_columns))
+  if (all(dose_names %in% names(df))) {
+    # pass
+  } else {
+    stop(paste("Error: Atleast one realization column provided was not in the data.table", sep = " "))
+  }
+  dfc <- match(names, all_names)
+  dose_cols <- matrix(match(realization_columns, dose_names), nrow = nrow(realization_columns))
+  dose_index <- match(realization_index, all_names)
+  term_tot <- max(term_n) + 1
+  x_all <- as.matrix(df[, all_names, with = FALSE])
+  dose_all <- as.matrix(df[, dose_names, with = FALSE])
+  e <- pois_multidose_Omnibus_transition(
+    as.matrix(df[, ce, with = FALSE]),
+    term_n, tform, a_n,
+    as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all, dose_all,
+    0, modelform, control,
+    keep_constant, term_tot, as.matrix(df0[, val_cols, with = FALSE]),
+    model_control, cons_mat, cons_vec
+  )
+  if ("Status" %in% names(e)) {
+    if (e$Status != "PASSED") {
+      stop(e$Status)
+    }
+  }
+  e$Parameter_Lists$names <- names
+  e$Parameter_Lists$modelformula <- modelform
+  if (model_control$MCML) {
+    e$Survival_Type <- "Pois_Multidose"
+  } else {
+    e$Survival_Type <- "Pois_Multidose"
+  }
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
+  # df <- copy(df)
   return(e)
 }

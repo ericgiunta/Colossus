@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Calc_Repeated.h"
@@ -10,11 +12,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 #include <functional>
 #include <algorithm>
+#include <numeric>
 
 #include "Subterms_Risk.h"
 #include "Colossus_types.h"
@@ -22,17 +24,31 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
-using namespace Rcpp;
-using namespace Eigen;
-using namespace std::chrono;
+
+using std::endl;
+using std::string;
+using std::vector;
+using std::transform;
+using std::plus;
+using std::advance;
+using std::reduce;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
-using Rcpp::as;
+using Eigen::VectorXi;
+using Eigen::Vector2d;
+using Eigen::Vector4d;
 
+using Rcpp::as;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -51,7 +67,7 @@ void visit_lambda(const Mat& m, const Func& f) {
     m.visit(visitor);
 }
 
-void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove) {
+void removeRow(MatrixXd& matrix, unsigned int rowToRemove) {
     unsigned int numRows = matrix.rows() - 1;
     unsigned int numCols = matrix.cols();
 
@@ -61,7 +77,7 @@ void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove) {
     matrix.conservativeResize(numRows, numCols);
 }
 
-void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove) {
+void removeColumn(MatrixXd& matrix, unsigned int colToRemove) {
     unsigned int numRows = matrix.rows();
     unsigned int numCols = matrix.cols() - 1;
 
@@ -80,7 +96,6 @@ void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove) {
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-//  [[Rcpp::export]]
 void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
@@ -130,7 +145,6 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-//  [[Rcpp::export]]
 void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
@@ -185,7 +199,6 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-//  [[Rcpp::export]]
 void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
     //
     #ifdef _OPENMP
@@ -247,7 +260,7 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals)
@@ -308,7 +321,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads) {
     double cond_thres = model_bool["cond_thres"];
     vector<int> indices = {1, static_cast<int>(df_m.rows())};
@@ -337,14 +350,14 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
         }
     } else {
         if (!model_bool["single"]) {
-            for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[0].size(); i++) {
+            for (vector<vector<double> >::size_type i = 0; i< Recur_First[0].size(); i++) {
                 Recur_First[0][i] = risk_initial;
             }
-            if (!model_bool["gradient"]) {
-                for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[0].size(); i++) {
-                    Recur_Second[0][i] = risk_initial;
-                }
+//            if (!model_bool["gradient"]) {
+            for (vector<vector<double> >::size_type i = 0; i< Recur_Second[0].size(); i++) {
+                Recur_Second[0][i] = risk_initial;
             }
+//            }
         }
     }
     //
@@ -359,7 +372,7 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& Strata_vals) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
@@ -420,68 +433,6 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                 RiskFail(s_ij, 1) = - 1;
             }
         }
-    } else if (model_bool["gradient"]) {
-        #ifdef _OPENMP
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail, Strata_vals, Recur_Base, Recur_First, strata_odds)
-        #endif
-        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-            VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
-            vector<int> indices_end;
-            //
-            //
-            int th = 1;
-            visit_lambda(select_ind_end,
-                [&indices_end, th](double v, int i, int j) {
-                    if (v == th)
-                        indices_end.push_back(i + 1);
-                });
-            //
-            vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
-            if (indices_end.size() > 0) {
-                RiskFail(s_ij, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
-                RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
-                //
-                int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0) + 1;
-                select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  //  indices at risk
-                indices_end.clear();
-                visit_lambda(select_ind_end,
-                    [&indices_end, th](double v, int i, int j) {
-                        if (v == th)
-                            indices_end.push_back(i + 1);
-                    });
-                for (auto it = begin(indices_end); it != end(indices_end); ++it) {
-                    if (indices.size() == 0) {
-                        indices.push_back(*it);
-                        indices.push_back(*it);
-                    } else if (indices[indices.size() - 1] + 1 < *it) {
-                        indices.push_back(*it);
-                        indices.push_back(*it);
-                    } else {
-                        indices[indices.size() - 1] = *it;
-                    }
-                }
-                //
-                RiskPairs[s_ij] = indices;
-                int nstar = indices_end.size();
-                int m = static_cast<int>((nstar - dj + 1)*dj);
-                vector<double> risk_initial(m, 0.0);
-                Recur_Base[s_ij] = risk_initial;
-                if (dj > cond_thres) {
-                    if (nstar > dj) {
-                        strata_odds[s_ij] = log(static_cast<double>(dj) / static_cast<double>(nstar - dj));
-                        strata_cond[s_ij] = 0;
-                    }
-                } else {
-                    for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij].size(); i++) {
-                        Recur_First[s_ij][i] = risk_initial;
-                    }
-                }
-                //
-            } else {
-                RiskFail(s_ij, 0) = - 1;
-                RiskFail(s_ij, 1) = - 1;
-            }
-        }
     } else {
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail, Strata_vals, Recur_Base, Recur_First, Recur_Second, strata_odds)
@@ -534,10 +485,10 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
                         strata_cond[s_ij] = 0;
                     }
                 } else {
-                    for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij].size(); i++) {
+                    for (vector<vector<double> >::size_type i = 0; i< Recur_First[s_ij].size(); i++) {
                         Recur_First[s_ij][i] = risk_initial;
                     }
-                    for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[s_ij].size(); i++) {
+                    for (vector<vector<double> >::size_type i = 0; i< Recur_Second[s_ij].size(); i++) {
                         Recur_Second[s_ij][i] = risk_initial;
                     }
                 }
@@ -559,7 +510,7 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
@@ -611,59 +562,6 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
                 }
             }
         }
-    } else if (model_bool["gradient"]) {
-        #ifdef _OPENMP
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail, Recur_Base, Recur_First, strata_odds)
-        #endif
-        for (int ijk = 0; ijk < ntime; ijk++) {
-            double t0 = tu[ijk];
-            VectorXi select_ind_all = ( ((df_m.col(0).array() < t0) && (df_m.col(1).array() >= t0)) || ( (df_m.col(0).array() == df_m.col(1).array()) &&  (df_m.col(0).array() == t0))).cast<int>();  //  indices at risk
-            vector<int> indices_all;
-            int th = 1;
-            visit_lambda(select_ind_all,
-                [&indices_all, th](double v, int i, int j) {
-                    if (v == th)
-                        indices_all.push_back(i + 1);
-                });
-            vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
-            for (auto it = begin(indices_all); it != end(indices_all); ++it) {
-                if (indices.size() == 0) {
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else if (indices[indices.size() - 1] + 1 < *it) {
-                    indices.push_back(*it);
-                    indices.push_back(*it);
-                } else {
-                    indices[indices.size() - 1] = *it;
-                }
-            }
-            RiskPairs[ijk] = indices;
-            int nstar = indices_all.size();
-            select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  //  indices with events
-            indices_all.clear();
-            visit_lambda(select_ind_all,
-                [&indices_all, th](double v, int i, int j) {
-                    if (v == th)
-                        indices_all.push_back(i + 1);
-                });
-            RiskFail(ijk, 0) = indices_all[0] - 1;  //  Due to the sorting method, there is a continuous block of event rows
-            RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
-            //
-            int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0) + 1;
-            int m = static_cast<int>((nstar - dj + 1)*dj);
-            vector<double> risk_initial(m, 0.0);
-            Recur_Base[ijk] = risk_initial;
-            if (dj > cond_thres) {
-                if (nstar > dj) {
-                    strata_odds[ijk] = log(static_cast<double>(dj) / static_cast<double>(nstar - dj));
-                    strata_cond[ijk] = 0;
-                }
-            } else {
-                for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[ijk].size(); i++) {
-                    Recur_First[ijk][i] = risk_initial;
-                }
-            }
-        }
     } else {
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail, Recur_Base, Recur_First, Recur_Second, strata_odds)
@@ -712,10 +610,10 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
                     strata_cond[ijk] = 0;
                 }
             } else {
-                for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[ijk].size(); i++) {
+                for (vector<vector<double> >::size_type i = 0; i< Recur_First[ijk].size(); i++) {
                     Recur_First[ijk][i] = risk_initial;
                 }
-                for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[ijk].size(); i++) {
+                for (vector<vector<double> >::size_type i = 0; i< Recur_Second[ijk].size(); i++) {
                     Recur_Second[ijk][i] = risk_initial;
                 }
             }
@@ -732,7 +630,7 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time, and the various recursive matrices initialized
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
@@ -796,71 +694,6 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                 }
             }
         }
-    } else if (model_bool["gradient"]) {
-        #ifdef _OPENMP
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs, RiskFail, Strata_vals, Recur_Base, Recur_First, strata_odds)
-        #endif
-        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-            for (int ijk = 0; ijk < ntime; ijk++) {
-                double t0 = tu[ijk];
-                VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
-                vector<int> indices_end;
-                //
-                //
-                int th = 1;
-                visit_lambda(select_ind_end,
-                    [&indices_end, th](double v, int i, int j) {
-                        if (v == th)
-                            indices_end.push_back(i + 1);
-                    });
-                //
-                vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
-                if (indices_end.size() > 0) {
-                    RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
-                    RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
-                    //
-                    int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0) + 1;
-                    //
-                    select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
-                    indices_end.clear();
-                    visit_lambda(select_ind_end,
-                        [&indices_end, th](double v, int i, int j) {
-                            if (v == th)
-                                indices_end.push_back(i + 1);
-                        });
-                    for (auto it = begin(indices_end); it != end(indices_end); ++it) {
-                        if (indices.size() == 0) {
-                            indices.push_back(*it);
-                            indices.push_back(*it);
-                        } else if (indices[indices.size() - 1] + 1 < *it) {
-                            indices.push_back(*it);
-                            indices.push_back(*it);
-                        } else {
-                            indices[indices.size() - 1] = *it;
-                        }
-                    }
-                    //
-                    RiskPairs[s_ij*ntime+ijk] = indices;
-                    int nstar = indices_end.size();
-                    int m = static_cast<int>((nstar - dj + 1)*dj);
-                    vector<double> risk_initial(m, 0.0);
-                    Recur_Base[s_ij*ntime+ijk] = risk_initial;
-                    if (dj > cond_thres) {
-                        if (nstar > dj) {
-                            strata_odds[s_ij*ntime+ijk] = log(static_cast<double>(dj) / static_cast<double>(nstar - dj));
-                            strata_cond[s_ij*ntime+ijk] = 0;
-                        }
-                    } else {
-                        for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij*ntime+ijk].size(); i++) {
-                            Recur_First[s_ij*ntime+ijk][i] = risk_initial;
-                        }
-                    }
-                } else {
-                    RiskFail(s_ij*ntime+ijk, 0) = - 1;
-                    RiskFail(s_ij*ntime+ijk, 1) = - 1;
-                }
-            }
-        }
     } else {
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs, RiskFail, Strata_vals, Recur_Base, Recur_First, Recur_Second, strata_odds)
@@ -916,10 +749,10 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
                             strata_cond[s_ij*ntime+ijk] = 0;
                         }
                     } else {
-                        for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_First[s_ij*ntime+ijk].size(); i++) {
+                        for (vector<vector<double> >::size_type i = 0; i< Recur_First[s_ij*ntime+ijk].size(); i++) {
                             Recur_First[s_ij*ntime+ijk][i] = risk_initial;
                         }
-                        for (std::vector<std::vector<double> >::size_type i = 0; i< Recur_Second[s_ij*ntime+ijk].size(); i++) {
+                        for (vector<vector<double> >::size_type i = 0; i< Recur_Second[s_ij*ntime+ijk].size(); i++) {
                             Recur_Second[s_ij*ntime+ijk][i] = risk_initial;
                         }
                     }
@@ -941,7 +774,7 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& 
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Sides(List& model_bool, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     //
@@ -1021,7 +854,7 @@ void Calculate_Sides(List& model_bool, const IntegerMatrix& RiskFail, const vect
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Sides_PO(List& model_bool, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1108,7 +941,7 @@ void Calculate_Sides_PO(List& model_bool, const IntegerMatrix& RiskFail, const v
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Sides_CR(List& model_bool, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1213,7 +1046,7 @@ void Calculate_Sides_CR(List& model_bool, const IntegerMatrix& RiskFail, const v
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1243,7 +1076,7 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<vector<i
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Sides_Strata(List& model_bool, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1340,7 +1173,7 @@ void Calculate_Sides_Strata(List& model_bool, const IntegerMatrix& RiskFail, con
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Sides_Strata_CR(List& model_bool, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, const int& nthreads, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1464,7 +1297,7 @@ void Calculate_Sides_Strata_CR(List& model_bool, const IntegerMatrix& RiskFail, 
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -1474,11 +1307,13 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
         for (int j = 0; j < ntime; j++) {
@@ -1509,9 +1344,6 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
         for (int ij = 0; ij < reqrdnum; ij++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -1555,9 +1387,6 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
         for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -1660,7 +1489,7 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, const VectorXd& cens_weight, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -1670,11 +1499,13 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
         for (int j = 0; j < ntime; j++) {
@@ -1710,9 +1541,6 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
         for (int ij = 0; ij < reqrdnum; ij++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -1758,9 +1586,6 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
         for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -1865,7 +1690,7 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -1875,11 +1700,13 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
         for (int j = 0; j < ntime; j++) {
@@ -1916,9 +1743,6 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
         for (int ij = 0; ij < reqrdnum; ij++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -1961,9 +1785,6 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
         for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2060,7 +1881,7 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -2070,11 +1891,13 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
         #endif
         for (int j = 0; j < ntime; j++) {
@@ -2107,9 +1930,6 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(2)
         #endif
         for (int t_ij = 0; t_ij < reqrdnum; t_ij++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2156,9 +1976,6 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(2)
         #endif
         for (int t_ijk = 0; t_ijk < reqrdnum*(reqrdnum + 1)/2; t_ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2271,7 +2088,7 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -2281,11 +2098,13 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
         #endif
         for (int j = 0; j < ntime; j++) {
@@ -2322,9 +2141,6 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(3)
         #endif
         for (int t_ij = 0; t_ij < totalnum; t_ij++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2374,9 +2190,6 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
         #endif
         for (int t_ijk = 0; t_ijk < totalnum*(totalnum + 1)/2; t_ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2493,7 +2306,7 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -2503,11 +2316,13 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
         #endif
         for (int j = 0; j < ntime; j++) {
@@ -2544,9 +2359,6 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(3)
         #endif
         for (int ij = 0; ij < reqrdnum; ij++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2594,9 +2406,6 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
         #endif
         for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2703,7 +2512,7 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& Rls1, const MatrixXd& Rls2, const MatrixXd& Rls3, const MatrixXd& Lls1, const MatrixXd& Lls2, const MatrixXd& Lls3, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, string ties_method, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -2713,11 +2522,13 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     if (model_bool["single"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
         #endif
         for (int j = 0; j < ntime; j++) {
@@ -2754,9 +2565,6 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
         }
     } else if (model_bool["gradient"]) {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld) collapse(3)
         #endif
         for (int ij = 0; ij < reqrdnum; ij++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2803,9 +2611,6 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
         }
     } else {
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll, Lld, Lldd) collapse(3)
         #endif
         for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
@@ -2906,7 +2711,7 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -2965,7 +2770,7 @@ void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, 
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, const int& nthreads) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -2997,11 +2802,11 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<vector<int
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll)
     #endif
@@ -3041,7 +2846,7 @@ void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const 
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& ntime, const MatrixXd& R, MatrixXd& Rls1, MatrixXd& Lls1, NumericVector& Strata_vals, const int& nthreads) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -3079,11 +2884,11 @@ void Calculate_Null_Sides_Strata(const IntegerMatrix& RiskFail, const vector<vec
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& ntime, const MatrixXd& R, const MatrixXd& Rls1, const MatrixXd& Lls1, NumericVector& Strata_vals, vector<double>& Ll, string ties_method) {
     #ifdef _OPENMP
-    #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-        std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
         initializer(omp_priv = omp_orig)
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(vec_double_plus:Ll) collapse(2)
     #endif
@@ -3125,7 +2930,7 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = 1;
     if (!model_bool["null"]) {
@@ -3195,8 +3000,6 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                 vector<double> risk_list;
                 vector<double> riskd_list;
                 vector<int> InGroup = RiskPairs[group_ij];
-                //  Rcout << group_ij << " " << der_ij << endl;
-                //  now has the grouping pairs and number of events
                 if (InGroup.size() > 0) {
                     int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
                     if (dj <= cond_thres) {
@@ -3214,15 +3017,11 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
                         //  we start with filling out B(1, 1) to Recur_Base[group_ij][0], up to the final entry for m=1, B(1, risk_size-dj+1) to Recur_Base[group_ij][risk_size-dj]
                         double r_sum = 0;
                         int nm_dif = static_cast<int>(risk_size - dj + 1);
-                        //  Rcout << "initial row" << endl;
-                        //  Rcout << nm_dif << " " << Recur_First[group_ij][der_ij].size() << endl;
-                        //  Rcout << risk_list.size() << " " << riskd_list.size() << endl;
                         for (int i = 0; i< nm_dif; i++) {
                             //  start by incrementing the sum
                             r_sum += riskd_list[i];
                             Recur_First[group_ij][der_ij][i] = r_sum;
                         }
-                        //  Rcout << "other rows" << endl;
                         //  now we need to progress through the remaining entries
                         for (int i_index = 1; i_index < dj; i_index ++) {
                             //  our increment in m
@@ -3324,7 +3123,7 @@ void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMa
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, double& dev, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta) {
     int reqrdnum = 1;
     if (!model_bool["null"]) {
@@ -3340,15 +3139,16 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
             fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
         }
     }
+    #ifdef _OPENMP
+    #pragma omp declare reduction(vec_double_plus : vector<double> : \
+        transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \
+        initializer(omp_priv = omp_orig)
+    #endif
     double cond_thres = model_bool["cond_thres"];
     //  we need to get the repeated values for unconditional likelihood calculation
     if (model_bool["single"]) {
-        //  Rcout << "starting single" << endl;
         //  now we can calculate the loglikelihoods
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
             reduction(vec_double_plus:Ll)  reduction(+:dev)
         #endif
@@ -3386,9 +3186,6 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     } else if (model_bool["gradient"]) {
         //  now we can calculate the loglikelihoods first derivative
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
             reduction(vec_double_plus:Ll, Lld)  reduction(+:dev) collapse(2)
         #endif
@@ -3443,9 +3240,9 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         #endif
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             if (strata_cond[group_ij] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, group_ij);
-                int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, group_ij);
+                int group_jk = group_ij - reduce(strata_cond.begin(), it_end);
                 //
                 int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
                 vector<int> InGroup = RiskPairs[group_ij];
@@ -3462,9 +3259,6 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     } else {
         //  now we can calculate the loglikelihoods second derivatives
         #ifdef _OPENMP
-        #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
-            std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
-            initializer(omp_priv = omp_orig)
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads) \
             reduction(vec_double_plus:Ll, Lld, Lldd) reduction(+:dev) collapse(2)
         #endif
@@ -3551,9 +3345,9 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         #endif
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             if (strata_cond[group_ij] == 0) {
-                std::vector<int>::iterator it_end = strata_cond.begin();
-                std::advance(it_end, group_ij);
-                int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
+                vector<int>::iterator it_end = strata_cond.begin();
+                advance(it_end, group_ij);
+                int group_jk = group_ij - reduce(strata_cond.begin(), it_end);
                 //
                 int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
                 int num_row = 0;
@@ -3577,9 +3371,9 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
         for (int group_ij = 0; group_ij < group_num; group_ij++) {
             for (int der_ij = 0; der_ij < reqrdnum; der_ij++) {
                 if (strata_cond[group_ij] == 0) {
-                    std::vector<int>::iterator it_end = strata_cond.begin();
-                    std::advance(it_end, group_ij);
-                    int group_jk = group_ij - std::reduce(strata_cond.begin(), it_end);
+                    vector<int>::iterator it_end = strata_cond.begin();
+                    advance(it_end, group_ij);
+                    int group_jk = group_ij - reduce(strata_cond.begin(), it_end);
                     //
                     vector<int> InGroup = RiskPairs[group_ij];
                     double Rs2 = 0.0;
@@ -3615,61 +3409,65 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
     return;
 }
 
-//  --------------------------- Code for changing the linking function for logistic regression ------------------------------ //
-//  --------------------------- Not tested or implemented, stored for later use if needed ----------------------------------- //
-//MatrixXd P = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for Risks
-//MatrixXd Pd = MatrixXd::Zero(df0.rows(), reqrdnum);  //  preallocates matrix for Risk derivatives
-//VectorXd Pdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+//' Utility function to calculate Logistic Log-Likelihood and derivatives
+//'
+//' \code{Calc_LogLik_Logist} Called to update log-likelihoods, Uses probability matrices Sums the log-likelihood contribution from each row
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
 //
-//bool odds = false;
-//bool ident = false;
-//bool loglink = false;
-//
-//if (ident == true) {
-//    P.col(0) = R.col(0);
-//    for (int ij=0; ij< reqrdnum; ij++) {
-//        Pd.col(ij) = Rd.col(ij);
-//    }
-//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        Pdd.col(ijk) = Rdd.col(ijk);
-//    }
-//}  else if (loglink == true) {
-//    P.col(0) = (-1*R.col(0).array()).log();
-//    for (int ij=0; ij< reqrdnum; ij++) {
-//        Pd.col(ij) = -1*Rd.col(ij).array() * P.col(0).array();
-//    }
-//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        int ij = 0;
-//        int jk = ijk;
-//        while (jk > ij) {
-//            ij++;
-//            jk -= ij;
-//        }
-//        Pdd.col(ijk) = -1*Rdd.col(ijk).array() * P.col(0).array() - Rd.col(ij).array() * Pd.col(jk).array();
-//    }
-//} else if (odds == true) {
-//    MatrixXd Ftemp = MatrixXd::Zero(df0.rows(), 9);
-//    Ftemp.col(0) = 1 + R.col(0).array();  //  1+f
-//    Ftemp.col(1) = Ftemp.col(0).array() + R.col(0).array();  //  1+2f
-//    Ftemp.col(2) = Ftemp.col(0).array().pow(2);  //  (1+f)^2
-//    Ftemp.col(3) = Ftemp.col(2).array() * Ftemp.col(1).array();  //  (1+f)^2(1+2f)
-//    Ftemp.col(4) = Ftemp.col(2).array() + Ftemp.col(1).array();  //  (1+f^2) + 1 + 2f
-//    Ftemp.col(5) = Ftemp.col(2).array().pow(2);  //  (1+f)^4
-//    Ftemp.col(6) = Ftemp.col(1).array() * Ftemp.col(2).array().pow(-1).array();  //  (1+2f)/(1+f)^2
-//    Ftemp.col(7) = Ftemp.col(3).array() * Ftemp.col(5).array().pow(-1).array();  //  ((1+f)^2+1+2f)/(1+f)^4
-//    Ftemp.col(8) = Ftemp.col(4).array() * Ftemp.col(5).array().pow(-1).array();  //  ((1+f)^2(1+2f)/(1+f)^4
-//    //
-//    P.col(0) = R.col(0).array() * Ftemp.col(0).array().pow(-1).array();
-//    for (int ij=0; ij< reqrdnum; ij++) {
-//        Pd.col(ij) = Rd.col(ij).array() * Ftemp.col(6).array();
-//    }
-//    for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//        int ij = 0;
-//        int jk = ijk;
-//        while (jk > ij) {
-//            ij++;
-//            jk -= ij;
-//        }
-//        Pdd.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(8).array() + Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(7).array();
-//    }
-//}
+void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& P, const MatrixXd& Pnot, const MatrixXd& Pd, const MatrixXd& Pdd, const MatrixXd& PdP, const MatrixXd& PnotdP, const MatrixXd& PddP, const MatrixXd& PnotddP, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
+    int reqrdnum = totalnum - sum(KeepConstant);
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]) {
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
+    MatrixXd temp(Pd.rows(), 2);
+    temp.col(0) = CountEvent.col(1).array() - CountEvent.col(0).array();  // N_i - y_i
+    temp.col(1) = CountEvent.col(0).array() * P.col(0).array().log().array() + temp.col(0).array() * Pnot.col(0).array().log().array();
+    fill(Ll.begin(), Ll.end(), (temp.col(1).array().isFinite()).select(temp.col(1), 0).sum());
+    if (!model_bool["single"]) {
+        // first derivatives
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ij = 0; ij < reqrdnum; ij++) {  //  performs log-likelihood calculations for every first derivative
+            double dl = (CountEvent.col(0).array() * PdP.col(ij).array() - temp.col(0).array() * PnotdP.col(ij).array()).array().sum();
+            Lld[ij] = dl;
+        }
+        if (!model_bool["gradient"]) {
+            // second derivatives
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  performs log-likelihood calculations for every derivative combination and risk group
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                double ddl = (CountEvent.col(0).array() * (PddP.col(ijk).array() - PdP.col(ij).array() * PdP.col(jk).array()).array() - temp.col(0).array() * (PnotddP.col(ijk).array() + PnotdP.col(ij).array() * PnotdP.col(jk).array()).array() ).array().sum();
+                Lldd[ij*reqrdnum+jk] = ddl;
+            }
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
+            }
+        }
+    }
+    return;
+}

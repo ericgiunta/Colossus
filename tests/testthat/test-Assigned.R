@@ -27,7 +27,7 @@ test_that("Poisson Assigned Events, check results", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0
   )
   #
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control)
@@ -41,6 +41,9 @@ test_that("Poisson Assigned Events, check results", {
 
   expect_equal(sum(e0[, 1:2]), sum(e0[, 3]), tolerance = 1e-2)
   expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
+  #
+  expect_error(EventAssignment(poisres, df, bad = "wrong"))
+  expect_error(EventAssignment(poisres, df, assign_control = "wrong"))
 })
 test_that("Poisson Assigned Events, check results strata", {
   df <- data.table::data.table(
@@ -68,7 +71,7 @@ test_that("Poisson Assigned Events, check results strata", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0
   )
   #
   term_n <- c(0, 1, 2)
@@ -125,7 +128,7 @@ test_that("Poisson Assigned Events, combinations", {
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5,
     "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
     "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0,
-    "verbose" = 0, "ties" = "breslow", "double_step" = 1
+    "verbose" = 0, "ties" = "breslow"
   )
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + loglinear(b, 1) + loglinear(c, 2), df, a_n = a_n, control = control)
   df$Cancer_Status <- rep(0, nrow(df))
@@ -156,11 +159,12 @@ test_that("Poisson Assigned Events bounds, check results", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
-    "thres_step_max" = 100.0, "verbose" = 0, "double_step" = 1
+    "thres_step_max" = 100.0, "verbose" = 0
   )
   #
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control)
-  e <- EventAssignment(poisres, df, check_num = 4, z = 2)
+  assign_control <- list(check_num = 4)
+  e <- EventAssignment(poisres, df, assign_control = assign_control, z = 2)
 
   elow <- e$lower_limit$predict
   emid <- e$midpoint$predict
@@ -176,7 +180,6 @@ test_that("Poisson Assigned Events bounds, check results", {
   for (i in 2:4) {
     for (j in c(1, 2, 10)) {
       e <- EventAssignment(poisres, df, check_num = i, z = j)
-      #      e <- RunPoissonEventAssignment_bound(df, pyr, event, e0, keep_constant, modelform, i, j, control)
       elow <- e$lower_limit$predict
       emid <- e$midpoint$predict
       eupp <- e$upper_limit$predict
@@ -206,7 +209,6 @@ test_that("Poisson Assigned Events bounds, check results", {
 #  pyr <- "pyr"
 #  names <- c("a", "b", "c", "CONST")
 #  j <- 1
-#  for (modelform in c("M", "A", "PAE", "PA")) {
 #    for (para in c(-2.3025850929940455, -2, -1, 0.0)) {
 #      a_n <- c(0.1, 0.15, 0.02, para)
 #      keep_constant <- rep(0, length(names))

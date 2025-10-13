@@ -7,7 +7,7 @@
 \method{print}{coxres}(x, ...)
 }
 \arguments{
-\item{x}{result object from a regression, class coxres or poisres}
+\item{x}{result object from a regression, class coxres}
 
 \item{...}{can include the number of digits, named digit, or an unnamed integer entry assumed to be digits}
 }
@@ -21,6 +21,9 @@ return nothing, prints the results to console
 Other Output and Information Functions: 
 \code{\link{System_Version}()},
 \code{\link{print.caseconres}()},
-\code{\link{print.poisres}()}
+\code{\link{print.coxresbound}()},
+\code{\link{print.logitres}()},
+\code{\link{print.poisres}()},
+\code{\link{print.poisresbound}()}
 }
 \concept{Output and Information Functions}

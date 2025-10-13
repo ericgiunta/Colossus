@@ -26,10 +26,8 @@ iteratively optimizing end-points of intervals.
 }
 \seealso{
 Other Cox Wrapper Functions: 
-\code{\link{CoxCurveSolver}()},
 \code{\link{CoxRun}()},
 \code{\link{CoxRunMulti}()},
-\code{\link{RunCoxRegression_Omnibus}()},
-\code{\link{RunCoxRegression_Omnibus_Multidose}()}
+\code{\link{RunCoxRegression_Omnibus}()}
 }
 \concept{Cox Wrapper Functions}

@@ -1,11 +1,26 @@
-using namespace std;
-using namespace Rcpp;
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
+#ifndef SRC_OMNIBUS_PIECES_H_
+#define SRC_OMNIBUS_PIECES_H_
+
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
 
 template <typename T> int sign(T val);
 
@@ -28,9 +43,9 @@ void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vect
 void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, int verbose, List& model_bool);
 void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& group_num, const int& reqrdcond, vector<double> strata_odds, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, int verbose, List& model_bool);
 
-List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, int double_step, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon);
+List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon);
 
-List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, int double_step, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon);
+List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon);
 
 void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant);
 
@@ -41,3 +56,13 @@ void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& Ris
 void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant);
 
 void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant);
+
+void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& PdP, const MatrixXd& PnotdP, vector<double>& InMa, const IntegerVector& KeepConstant);
+
+void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, MatrixXd& P, MatrixXd& Pd, MatrixXd& Pdd, MatrixXd& Pnot, MatrixXd& PdP, MatrixXd& PddP, MatrixXd& PnotdP, MatrixXd& PnotddP);
+
+void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant);
+
+void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& InMa, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond);
+
+#endif  //  SRC_OMNIBUS_PIECES_H_

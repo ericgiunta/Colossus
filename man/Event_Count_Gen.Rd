@@ -48,21 +48,14 @@ e <- Event_Count_Gen(table, categ, event, T)
 }
 \seealso{
 Other Data Cleaning Functions: 
-\code{\link{Check_Dupe_Columns}()},
-\code{\link{Check_Trunc}()},
-\code{\link{Check_Verbose}()},
+\code{\link{Check_Iters}()},
 \code{\link{Date_Shift}()},
-\code{\link{Def_Control}()},
-\code{\link{Def_model_control}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Replace_Missing}()},
 \code{\link{Time_Since}()},
+\code{\link{apply_norm}()},
 \code{\link{factorize}()},
-\code{\link{factorize_par}()},
-\code{\link{gen_time_dep}()},
-\code{\link{interact_them}()},
-\code{\link{nested_split}()},
-\code{\link{parse_literal_string}()}
+\code{\link{gen_time_dep}()}
 }
 \concept{Data Cleaning Functions}

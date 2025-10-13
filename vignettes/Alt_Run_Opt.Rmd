@@ -213,7 +213,7 @@ These results could be used as input for any of the available regression functio
 ```{r, eval=TRUE}
 control <- list(
   "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-6,
-  "deriv_epsilon" = 1e-6, "verbose" = 2
+  "deriv_epsilon" = 1e-6, "verbose" = 2, "ncores" = 2
 )
 e <- PoisRunJoint(formula_list, df, control = control)
 print(e)

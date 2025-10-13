@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 library(Colossus)
 library(data.table)
 library(survival)
+library(dplyr)
 ```
 
 ## Example Setup
@@ -26,8 +27,9 @@ We will use analysis of the lung dataset in the survival package to visualize th
 
 ```{r, eval=TRUE}
 data(cancer, package = "survival")
+cancer %>% setDT()
+df <- copy(cancer)
 
-df <- cancer
 df$UserID <- seq_len(nrow(df))
 
 df$status <- df$status - 1

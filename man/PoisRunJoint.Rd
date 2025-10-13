@@ -15,6 +15,7 @@ PoisRunJoint(
   observed_info = FALSE,
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0),
+  norm = "null",
   ...
 )
 }
@@ -39,6 +40,8 @@ PoisRunJoint(
 
 \item{cons_vec}{Vector containing constants for a system of linear constraints, formatted as vector}
 
+\item{norm}{methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum and 'mean' to normalize by the mean}
+
 \item{...}{can include the named entries for the control list parameter}
 }
 \value{
@@ -62,23 +65,23 @@ df <- data.table::data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1),
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
+control <- list(
+  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "halfmax" = 1
+)
 formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
   Pois(Ending_Age, Flu_Status) ~ loglinear(d, 0),
   "shared" = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 )
-res <- PoisRunJoint(formula_list, df)
+res <- PoisRunJoint(formula_list, df, control = control)
 }
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{EventAssignment.poisres}()},
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
-\code{\link{PoissonCurveSolver}()},
+\code{\link{PoisRunMulti}()},
 \code{\link{Residual.poisres}()},
-\code{\link{RunPoissonEventAssignment}()},
-\code{\link{RunPoissonEventAssignment_bound}()},
-\code{\link{RunPoissonRegression_Joint_Omnibus}()},
-\code{\link{RunPoissonRegression_Omnibus}()},
-\code{\link{RunPoissonRegression_Residual}()}
+\code{\link{RunPoissonRegression_Omnibus}()}
 }
 \concept{Poisson Wrapper Functions}

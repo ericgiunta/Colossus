@@ -1,3 +1,5 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
 #include <RcppEigen.h>
 
 #include "Plot_Extensions.h"
@@ -10,7 +12,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <chrono>
 #include <random>
 #include <ctime>
 
@@ -22,16 +23,29 @@
 
 //  [[Rcpp::depends(RcppEigen)]]
 //  [[Rcpp::plugins(openmp)]]
-using namespace std;
-using namespace Rcpp;
-using namespace Eigen;
-using namespace std::chrono;
+
+using std::endl;
+using std::string;
+using std::vector;
+using std::invalid_argument;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+using Eigen::VectorXi;
+
 using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
+using Rcpp::Dimension;
 
 template<typename Func>
 struct lambda_as_visitor_wrapper : Func {
@@ -57,7 +71,7 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @return List of results: baseline hazard, risk for each row
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, NumericMatrix& df_groups, NumericVector& tu, NumericVector& Strata_vals, int verbose, int nthreads) {
     //
     int ntime = tu.size();
@@ -138,7 +152,7 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
 //' @return List of results: baseline hazard, risk for each row
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, NumericMatrix& df_groups, NumericVector& tu, int verbose, int nthreads) {
     //
     int ntime = tu.size();
@@ -218,7 +232,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, Num
 //' @return List of results: scaled schoenfeld residuals
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  MatrixXd& df0, const MatrixXd& R, MatrixXd& Lldd_inv, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, IntegerVector& dfc, int verbose, IntegerVector KeepConstant, int nthreads) {
     int reqrdnum = totalnum - sum(KeepConstant);
     MatrixXd residuals = MatrixXd::Zero(ntime, reqrdnum);
@@ -282,7 +296,7 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  Ma
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double step_max, double thres_step_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
@@ -346,8 +360,8 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     //
     MatrixXd Te;
     MatrixXd R;
-    ColXd Rd;
-    ColXd Rdd;
+    MatrixXd Rd;
+    MatrixXd Rdd;
     //
     MatrixXd Dose;
     MatrixXd nonDose;
@@ -357,8 +371,8 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     MatrixXd TTerm;
     double dint = 0.0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0.0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -478,7 +492,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
 //' @return returns proportion of events due to background and excess for each term
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, const MatrixXd& PyrC, const MatrixXd& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
     //
     int totalnum = term_n.size();
@@ -541,7 +555,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector 
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//  [[Rcpp::export]]
+//
 List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
@@ -560,7 +574,6 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     //  nthreads: number of threads used for parallel operations
     //
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
-    //  int nthreads = Eigen::nbThreads() - 1;  //  stores how many threads are allocated
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
@@ -586,8 +599,8 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     //
     double dint = 0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0;
-    ColXd RdR;
-    ColXd RddR;
+    MatrixXd RdR;
+    MatrixXd RddR;
     dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
     dslp = step_max;
     RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  //  preallocates matrix for Risk to derivative ratios

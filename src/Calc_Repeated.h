@@ -1,17 +1,32 @@
-using namespace std;
-using namespace Rcpp;
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
+#ifndef SRC_CALC_REPEATED_H_
+#define SRC_CALC_REPEATED_H_
+
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
 
 template <typename T> int sign(T val);
 
-void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
+void removeRow(MatrixXd& matrix, unsigned int rowToRemove);
 
-void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove);
+void removeColumn(MatrixXd& matrix, unsigned int colToRemove);
 
 void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads);
 
@@ -66,3 +81,7 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
 void Calculate_Recursive(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant);
 
 void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, double& dev, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta);
+
+void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& P, const MatrixXd& Pnot, const MatrixXd& Pd, const MatrixXd& Pdd, const MatrixXd& PdP, const MatrixXd& PnotdP, const MatrixXd& PddP, const MatrixXd& PnotddP, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant);
+
+#endif  // SRC_CALC_REPEATED_H_

@@ -2,6 +2,7 @@
 #'
 #' \code{nested_split} splits by comma, keeps parenthesis sections together
 #'
+#' @noRd
 #' @param total_string the complete string to split
 #' @family Data Cleaning Functions
 #' @return returns a vector of substrings
@@ -33,6 +34,7 @@ nested_split <- function(total_string) {
 #'
 #' \code{parse_literal_string} converts the string of a vector/list to a vector/list
 #'
+#' @noRd
 #' @param string the string to convert to vector/list
 #' @family Data Cleaning Functions
 #' @return returns a vector, list, or the original string
@@ -135,6 +137,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
 #'
 #' \code{Def_Control} checks and assigns default values
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a filled list
@@ -144,7 +147,7 @@ Def_Control <- function(control) {
     "halfmax" = 5, "epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "change_all" = TRUE, "thres_step_max" = 100.0,
-    "ties" = "breslow", "double_step" = 1,
+    "ties" = "breslow",
     "ncores" = as.numeric(detectCores())
   )
   names(control) <- tolower(names(control))
@@ -162,13 +165,20 @@ Def_Control <- function(control) {
       os <- syscheck[["Operating System"]]
       if (os == "linux") {
         cpp_compiler <- syscheck[["Default c++"]]
-        if (cpp_compiler == "gcc") {
+        if (cpp_compiler != "") {
+          if (cpp_compiler == "gcc") {
+            R_compiler <- syscheck[["R Compiler"]]
+            if (R_compiler != "gcc") { # nocov
+              Sys.setenv(ColossusGCC = "FALSE")
+            }
+          } else if (cpp_compiler == "clang") { # nocov
+            Sys.setenv(ColossusGCC = "FALSE")
+          }
+        } else {
           R_compiler <- syscheck[["R Compiler"]]
           if (R_compiler != "gcc") { # nocov
             Sys.setenv(ColossusGCC = "FALSE")
           }
-        } else if (cpp_compiler == "clang") { # nocov
-          Sys.setenv(ColossusGCC = "FALSE")
         }
       }
     }
@@ -222,6 +232,7 @@ Def_Control <- function(control) {
 #'
 #' \code{Def_model_control} checks and assigns default values
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a filled list
@@ -232,7 +243,8 @@ Def_model_control <- function(control) {
     "gradient", "constraint", "strata", "surv",
     "schoenfeld", "risk",
     "risk_subset", "log_bound", "pearson", "deviance",
-    "mcml", "observed_info", "time_risk"
+    "mcml", "observed_info", "time_risk",
+    "logit_odds", "logit_ident", "logit_loglink"
   )
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
@@ -240,6 +252,16 @@ Def_model_control <- function(control) {
     } else {
       control[nm] <- FALSE
     }
+  }
+  #  if ((control["gradient"] == TRUE) & (control["constraint"] == TRUE)) {
+  #    warning("Current constraints are not available with gradient descent methods. Only gradient descent will be applied")
+  #    control["constaint"] <- FALSE
+  #  }
+  link_vec <- c(control$logit_odds, control$logit_ident, control$logit_loglink)
+  if (sum(link_vec) == 0) {
+    control["logit_odds"] <- TRUE
+  } else if (sum(link_vec) > 1) {
+    stop("Error: Multiple link functions used, only select one link function")
   }
   if (control["null"] == TRUE) {
     control["single"] <- TRUE
@@ -337,8 +359,57 @@ Def_model_control <- function(control) {
     } else {
       control["epsilon_decay"] <- 1e-4
     }
+    if (control["constraint"] == TRUE) {
+      # needs to add constraint penalty
+      if ("penalty_weight" %in% names(control)) {
+        # fine
+      } else {
+        control["penalty_weight"] <- 1.0
+      }
+      if ("penalty_method" %in% names(control)) {
+        # fine
+      } else {
+        control["penalty_method"] <- "sqr_error"
+      }
+    }
   }
   return(control)
+}
+
+#' Automatically checks the number of starting guesses
+#'
+#' \code{Check_Iters} checks the number of iterations and number of guesses, and corrects
+#'
+#' @inheritParams R_template
+#' @family Data Cleaning Functions
+#' @return returns a list with the corrected control list and a_n
+Check_Iters <- function(control, a_n) {
+  if ("maxiters" %in% names(control)) {
+    if (length(control$maxiters) == length(a_n) + 1) {
+      # all good, it matches
+    } else {
+      if (control$verbose >= 3) { # nocov
+        message(paste("Note: Initial starts:", length(a_n),
+          ", Number of iterations provided:",
+          length(control$maxiters),
+          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
+          sep = " "
+        )) # nocov
+      }
+      if (length(control$maxiters) < length(a_n) + 1) {
+        additional <- length(a_n) + 1 - length(control$maxiters)
+        control$maxiters <- c(control$maxiters, rep(1, additional))
+      } else {
+        additional <- length(a_n) + 1
+        control$maxiters <- control$maxiters[1:additional]
+      }
+    }
+    control$guesses <- length(control$maxiters) - 1
+  } else {
+    control$guesses <- length(a_n)
+    control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
+  }
+  list("control" = control, "a_n" = a_n)
 }
 
 #' Calculates Full Parameter list for Special Dose Formula
@@ -513,57 +584,6 @@ factorize <- function(df, col_list, verbose = 0) {
   list("df" = df, "cols" = cols)
 }
 
-#' Splits a parameter into factors in parallel
-#'
-#' \code{factorize_par} uses user provided list of columns to define new parameter for each unique value and update the data.table.
-#' Not for interaction terms
-#'
-#' @inheritParams R_template
-#' @family Data Cleaning Functions
-#' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
-factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detectCores())) {
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        df <- setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  verbose <- Check_Verbose(verbose)
-  cols <- c()
-  vals <- c()
-  names <- c()
-  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-    nthreads <- 2
-  }
-  for (i in seq_len(length(col_list))) {
-    col <- col_list[i]
-    x <- sort(unlist(as.list(unique(df[, col, with = FALSE])),
-      use.names = FALSE
-    ))
-    for (j in x) {
-      newcol <- c(paste(col, j, sep = "_"))
-      names <- c(names, newcol)
-      vals <- c(vals, j)
-      cols <- c(cols, i - 1)
-    }
-  }
-  df0 <- Gen_Fac_Par(
-    as.matrix(df[, col_list, with = FALSE]), vals,
-    cols, nthreads
-  )
-  df0 <- data.table::as.data.table(df0)
-  names(df0) <- names
-  col_keep <- Check_Dupe_Columns(
-    df0, names, rep(0, length(cols)),
-    verbose, TRUE
-  )
-  list("df" = cbind(df, df0), "cols" = col_keep)
-}
-
 #' Defines the likelihood ratio test
 #'
 #' \code{Likelihood_Ratio_Test} uses two models and calculates the ratio
@@ -582,8 +602,9 @@ factorize_par <- function(df, col_list, verbose = 0, nthreads = as.numeric(detec
 #'
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
+    freedom <- length(alternative_model$beta_0) - length(null_model$beta_0)
     val <- 2 * (unlist(alternative_model["LogLik"], use.names = FALSE) - unlist(null_model["LogLik"], use.names = FALSE))
-    pval <- pchisq(val, 1)
+    pval <- pchisq(val, freedom)
     return(list("value" = val, "p value" = pval))
   } else {
     stop("Error: models input did not contain LogLik values")
@@ -595,6 +616,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
 #'
 #' \code{Check_Dupe_Columns} checks for duplicated columns, columns with the same values, and columns with single value. Currently not updated for multi-terms
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the usable columns
@@ -690,6 +712,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #'
 #' \code{Check_Trunc} creates columns to use for truncation
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the updated data and time period columns
@@ -1155,6 +1178,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
 #'
 #' \code{interact_them} uses user provided interactions define interaction terms and update the data.table. assumes interaction is "+" or "*" and applies basic anti-aliasing to avoid duplicates
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
@@ -1214,10 +1238,121 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
   list("df" = df, "cols" = cols)
 }
 
+#' Automatically applies a normalization to either an input or output
+#'
+#' \code{apply_norm} applies a normalization factor
+#'
+#' @param df The data.table with columns to be normalized
+#' @param norm The normalization option used, currently max or mean
+#' @param input boolean if the normalization is being performed on the input values or on an output
+#' @param values list of values using during normalization
+#' @inheritParams R_template
+#' @family Data Cleaning Functions
+#' @return returns list with the normalized values
+apply_norm <- function(df, norm, names, input, values, model_control) {
+  if (input) {
+    a_n <- values$a_n
+    cons_mat <- values$cons_mat
+    if (tolower(norm) == "null") {
+      # nothing changes
+      norm_weight <- rep(1, length(names))
+    } else if (tolower(norm) %in% c("max", "mean")) {
+      # weight by the maximum value
+      norm_weight <- c()
+      if (tolower(norm) == "max") {
+        for (i in seq_along(names)) {
+          val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
+          if (val == 0.0) {
+            warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+            val <- 1.0
+          }
+          norm_weight <- c(norm_weight, val)
+        }
+      } else if (tolower(norm) == "mean") {
+        for (i in seq_along(names)) {
+          val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
+          if (val == 0.0) {
+            warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+            val <- 1.0
+          }
+          norm_weight <- c(norm_weight, val)
+        }
+      } else {
+        stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
+      }
+      for (i in seq_along(names)) {
+        if (typeof(a_n) != "list") {
+          a_n[i] <- a_n[i] * norm_weight[i]
+        } else {
+          for (j in seq_len(length(a_n))) {
+            a_n[[j]][i] <- a_n[[j]][i] * norm_weight[i]
+          }
+        }
+        if (match(names[i], names)[1] == i) {
+          df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
+        }
+        norm_weight <- c(norm_weight, val)
+      }
+      if (model_control[["constraint"]] == TRUE) {
+        for (i in seq_along(names)) {
+          cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
+        }
+      }
+    } else {
+      stop(gettextf(
+        "Error: Normalization arguement '%s' not valid.",
+        norm
+      ), domain = NA)
+    }
+    output <- list(
+      "a_n" = a_n,
+      "cons_mat" = cons_mat,
+      "norm_weight" = norm_weight,
+      "df" = df
+    )
+  } else {
+    res <- values$output
+    norm_weight <- values$norm_weight
+    if (tolower(norm) == "null") {
+      # nothing changes
+    } else if (tolower(norm) %in% c("mean", "max")) {
+      # weight by the maximum value
+      if (model_control$single) {
+        for (i in seq_along(names)) {
+          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+        }
+      } else {
+        for (i in seq_along(names)) {
+          res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
+          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+          res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+          for (j in seq_along(names)) {
+            res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
+            res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
+          }
+        }
+        if (model_control[["constraint"]] == TRUE) {
+          for (i in seq_along(names)) {
+            res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
+          }
+        }
+      }
+    } else {
+      stop(gettextf(
+        "Error: Normalization arguement '%s' not valid.",
+        norm
+      ), domain = NA)
+    }
+    output <- res
+  }
+  output
+}
+
 #' Checks system OS
 #'
 #' \code{get_os} checks the system OS, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of OS
 get_os <- function() {
   sysinf <- Sys.info()
@@ -1242,6 +1377,7 @@ get_os <- function() {
 #'
 #' \code{gcc_version} Checks default c++ compiler, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
   #  tstart <- Sys.time()
@@ -1269,6 +1405,7 @@ gcc_version <- function() {
 #'
 #' \code{Rcomp_version} Checks how R was compiled, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of gcc, clang, or R CMD config CC output
 Rcomp_version <- function() {
   out <- rcmd("config", "CC")
@@ -1290,6 +1427,7 @@ Rcomp_version <- function() {
 #'
 #' \code{Rcpp_version} checks ~/.R/Makevars script for default compilers set, part of configuration script
 #'
+#' @noRd
 #' @return returns a string representation of gcc, clang, or head ~/.R/Makevars
 Rcpp_version <- function() {
   out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
@@ -1332,6 +1470,7 @@ System_Version <- function() {
 #'
 #' \code{Check_Verbose} checks and assigns verbosity values
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns correct verbose value
@@ -1954,7 +2093,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #'
 #' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres or poisres
+#' @param x result object from a regression, class coxres
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -1979,7 +2118,7 @@ print.coxres <- function(x, ...) {
 #'
 #' \code{print.poisres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres or poisres
+#' @param x result object from a regression, class poisres
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -2004,7 +2143,7 @@ print.poisres <- function(x, ...) {
 #'
 #' \code{print.caseconres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres,  poisres, or caseconres
+#' @param x result object from a regression, class caseconres
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -2025,12 +2164,88 @@ print.caseconres <- function(x, ...) {
   Interpret_Output(x, digits)
 }
 
+#' Prints a logistic regression output clearly
+#'
+#' \code{print.logitres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class logitres
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.logitres <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
+#' Prints a cox likelihood boundary regression output clearly
+#'
+#' \code{print.coxresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxresbound
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.coxresbound <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
+#' Prints a poisson likelihood boundary regression output clearly
+#'
+#' \code{print.poisresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class poisresbound
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.poisresbound <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 2
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
 #' Prints a regression output clearly
 #'
 #' \code{Interpret_Output} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
 #' @inheritParams R_template
 #'
+#' @noRd
 #' @return return nothing, prints the results to console
 Interpret_Output <- function(out_list, digits = 2) {
   # make sure the output isn't an error
@@ -2096,7 +2311,7 @@ Interpret_Output <- function(out_list, digits = 2) {
         }
         message("Final Results")
         print(res_table)
-        deviance <- out_list$Deviance
+        deviance <- out_list$Deviation
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
@@ -2152,14 +2367,21 @@ Interpret_Output <- function(out_list, digits = 2) {
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
         converged <- out_list$Converged
-        if (is.null(deviation)) {
+        if (is(out_list, "coxres")) {
           # cox model
           message("\nCox Model Used")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
-        } else {
+        } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        } else if (is(out_list, "logitres")) {
+          # logistic model
+          message("\nLogisitic Model Used")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        } else {
+          message("\nUnknown Model Used")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         }
         if (!is.null(converged)) {
           message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))

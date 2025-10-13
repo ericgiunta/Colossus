@@ -35,7 +35,6 @@ This is the "control" variable used by every regression function. This list focu
 | step_max  | Largest acceptable step size for non-intercept parameters. Defaults to 1.0. |
 | thres_step_max  | Largest acceptable step size for intercept parameters. Defaults to 100.0.   |
 | ties  | Chooses between 'breslow' and 'efron' methods for tied event times in Cox proportional hazards regressions. Defaults to 'breslow'.  |
-| double_step  | 0/1 Choosing if the model should be optimized by solving the inversion hessian (1) or optimizing each parameter independently (0). Defaults to 1. |
 
 ### Other Control Lists
 

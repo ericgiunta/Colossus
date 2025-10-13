@@ -1,11 +1,26 @@
-using namespace std;
-using namespace Rcpp;
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
+#ifndef SRC_PLOT_EXTENSIONS_H_
+#define SRC_PLOT_EXTENSIONS_H_
+
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
 
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
+
 using Rcpp::as;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
 
 List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, NumericMatrix& df_groups, NumericVector& tu, int verbose, int nthreads);
 
@@ -18,3 +33,5 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
 List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, const MatrixXd& PyrC, const MatrixXd& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool);
 
 List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool);
+
+#endif  //  SRC_PLOT_EXTENSIONS_H_

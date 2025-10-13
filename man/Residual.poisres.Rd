@@ -42,11 +42,7 @@ Other Poisson Wrapper Functions:
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
-\code{\link{PoissonCurveSolver}()},
-\code{\link{RunPoissonEventAssignment}()},
-\code{\link{RunPoissonEventAssignment_bound}()},
-\code{\link{RunPoissonRegression_Joint_Omnibus}()},
-\code{\link{RunPoissonRegression_Omnibus}()},
-\code{\link{RunPoissonRegression_Residual}()}
+\code{\link{PoisRunMulti}()},
+\code{\link{RunPoissonRegression_Omnibus}()}
 }
 \concept{Poisson Wrapper Functions}
