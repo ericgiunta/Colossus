@@ -602,8 +602,9 @@ factorize <- function(df, col_list, verbose = 0) {
 #'
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
+    freedom <- length(alternative_model$beta_0) - length(null_model$beta_0)
     val <- 2 * (unlist(alternative_model["LogLik"], use.names = FALSE) - unlist(null_model["LogLik"], use.names = FALSE))
-    pval <- pchisq(val, 1)
+    pval <- pchisq(val, freedom)
     return(list("value" = val, "p value" = pval))
   } else {
     stop("Error: models input did not contain LogLik values")
@@ -1241,11 +1242,15 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
 #'
 #' \code{apply_norm} applies a normalization factor
 #'
+#' @param df The data.table with columns to be normalized
+#' @param norm The normalization option used, currently max or mean
+#' @param input boolean if the normalization is being performed on the input values or on an output
+#' @param values list of values using during normalization
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
-#' @return returns corrected values
+#' @return returns list with the normalized values
 apply_norm <- function(df, norm, names, input, values, model_control) {
-  if (input){
+  if (input) {
     a_n <- values$a_n
     cons_mat <- values$cons_mat
     if (tolower(norm) == "null") {
@@ -1277,9 +1282,9 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       }
       for (i in seq_along(names)) {
         if (typeof(a_n) != "list") {
-            a_n[i] <- a_n[i] * norm_weight[i]
+          a_n[i] <- a_n[i] * norm_weight[i]
         } else {
-          for (j in seq_len(length(a_n))){
+          for (j in seq_len(length(a_n))) {
             a_n[[j]][i] <- a_n[[j]][i] * norm_weight[i]
           }
         }
@@ -1299,11 +1304,12 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         norm
       ), domain = NA)
     }
-    output <- list("a_n" = a_n,
-                "cons_mat" = cons_mat,
-                "norm_weight" = norm_weight,
-                "df" = df
-                )
+    output <- list(
+      "a_n" = a_n,
+      "cons_mat" = cons_mat,
+      "norm_weight" = norm_weight,
+      "df" = df
+    )
   } else {
     res <- values$output
     norm_weight <- values$norm_weight

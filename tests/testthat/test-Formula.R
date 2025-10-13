@@ -429,6 +429,62 @@ test_that("Object Validation Errors", {
   #
 })
 
+test_that("Formula Validation Errors", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$col_bad <- "a"
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+  control <- list(ncores = 2, maxiter = -1, maxiters = c(-1, -1))
+  #
+  true_cox <- get_form(Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(rand0, 1), df)
+  cox_model <- copy(true_cox$model)
+  # Term_n errors
+  cox_model <- copy(true_cox$model)
+  cox_model$term_n <- c("a", "b")
+  expect_error(CoxRun(cox_model, df, control = control))
+  #
+  cox_model <- copy(true_cox$model)
+  cox_model$term_n <- c(1, 3)
+  expect_error(CoxRun(cox_model, df, control = control))
+  #
+  cox_model <- copy(true_cox$model)
+  cox_model$term_n <- c(0)
+  expect_no_error(CoxRun(cox_model, df, control = control))
+  #
+  cox_model <- copy(true_cox$model)
+  cox_model$term_n <- c(0, 1, 2, 3)
+  expect_no_error(CoxRun(cox_model, df, control = control))
+  #
+  cox_model <- copy(true_cox$model)
+  cox_model$keep_constant <- c(0.1, 0, 0, 0, 0, 0, 0)
+  expect_error(CoxRun(cox_model, df, control = control))
+  #
+  cox_model <- copy(true_cox$model)
+  cox_model$tform <- c("loglin")
+  expect_no_error(CoxRun(cox_model, df, control = control))
+  #
+  cox_model <- copy(true_cox$model)
+  cox_model$tform <- c("loglin", "loglin", "loglin")
+  expect_no_error(CoxRun(cox_model, df, control = control))
+  #
+  a_n <- list(c(0.1, 0.1))
+  cox_model <- copy(true_cox$model)
+  expect_no_error(CoxRun(cox_model, df, control = control, a_n = a_n))
+  #
+  a_n <- list(c(0.1, 0.1), c(0.1, 0.1, 0.2))
+  expect_error(CoxRun(cox_model, df, control = control, a_n = a_n))
+  a_n <- list(c(0.1), c(0.1))
+  expect_no_error(CoxRun(cox_model, df, control = control, a_n = a_n))
+  a_n <- list(c(0.1, 0.1, 0.2), c(0.1, 0.1, 0.2))
+  expect_error(CoxRun(cox_model, df, control = control, a_n = a_n))
+})
+
 test_that("Basic formula passes and fails", {
   df <- data.table(
     "a" = c(0, 0, 0, 1, 0, 1),

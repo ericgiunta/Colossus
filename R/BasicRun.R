@@ -185,7 +185,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
   }
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
@@ -344,7 +344,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -510,10 +510,10 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   }
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
-    a_n <- norm_res$a_n
-    cons_mat <- norm_res$cons_mat
-    norm_weight <- norm_res$norm_weight
-    df <- norm_res$df
+  a_n <- norm_res$a_n
+  cons_mat <- norm_res$cons_mat
+  norm_weight <- norm_res$norm_weight
+  df <- norm_res$df
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
   res$model <- logitmodel
@@ -525,7 +525,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -702,7 +702,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
   }
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
@@ -841,10 +841,10 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   }
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
-    a_n <- norm_res$a_n
-    cons_mat <- norm_res$cons_mat
-    norm_weight <- norm_res$norm_weight
-    df <- norm_res$df
+  a_n <- norm_res$a_n
+  cons_mat <- norm_res$cons_mat
+  norm_weight <- norm_res$norm_weight
+  df <- norm_res$df
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
   res$model <- poismodel
@@ -856,7 +856,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output"=res, "norm_weight"=norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -1535,10 +1535,10 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   }
   #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
-    a_n <- norm_res$a_n
-    cons_mat <- norm_res$cons_mat
-    norm_weight <- norm_res$norm_weight
-    df <- norm_res$df
+  a_n <- norm_res$a_n
+  cons_mat <- norm_res$cons_mat
+  norm_weight <- norm_res$norm_weight
+  df <- norm_res$df
   #
   if ("bisect" %in% names(model_control)) {
     res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
@@ -1639,10 +1639,10 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
-    a_n <- norm_res$a_n
-    cons_mat <- norm_res$cons_mat
-    norm_weight <- norm_res$norm_weight
-    df <- norm_res$df
+  a_n <- norm_res$a_n
+  cons_mat <- norm_res$cons_mat
+  norm_weight <- norm_res$norm_weight
+  df <- norm_res$df
   #
   if ("bisect" %in% names(model_control)) {
     res <- PoissonCurveSolver(df, pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)

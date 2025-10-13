@@ -428,7 +428,7 @@ test_that("Coxph multidose MCML repeated column", {
   a_n <- c(-0.1, -0.1)
   e1 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
-  
+
   realization_columns <- matrix(c("rand0"), nrow = 1)
   a_n <- c(-0.1, -0.1)
   e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, mcml = TRUE)

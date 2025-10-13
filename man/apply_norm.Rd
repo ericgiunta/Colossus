@@ -7,16 +7,20 @@
 apply_norm(df, norm, names, input, values, model_control)
 }
 \arguments{
-\item{df}{a data.table containing the columns of interest}
+\item{df}{The data.table with columns to be normalized}
 
-\item{norm}{methods used to normalize the covariates. Default is 'null' for no normalization. Other options include 'max' to normalize by the absolute maximum and 'mean' to normalize by the mean}
+\item{norm}{The normalization option used, currently max or mean}
 
 \item{names}{columns for elements of the model, used to identify data columns}
+
+\item{input}{boolean if the normalization is being performed on the input values or on an output}
+
+\item{values}{list of values using during normalization}
 
 \item{model_control}{controls which alternative model options are used, see the Control_Options vignette for further details}
 }
 \value{
-returns corrected values
+returns list with the normalized values
 }
 \description{
 \code{apply_norm} applies a normalization factor
