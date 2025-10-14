@@ -24,6 +24,7 @@
 //  [[Rcpp::plugins(openmp)]]
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;

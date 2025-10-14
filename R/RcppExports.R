@@ -748,8 +748,8 @@ NULL
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_cox_ph_Omnibus_transition`, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_cox_ph_Omnibus_transition`, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson omnibus regression function
@@ -760,8 +760,8 @@ cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, x_all, fir, mode
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_Omnibus_transition <- function(dfe, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_pois_Omnibus_transition`, dfe, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
+pois_Omnibus_transition <- function(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_Omnibus_transition`, PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the event assignment omnibus function
@@ -772,8 +772,8 @@ pois_Omnibus_transition <- function(dfe, term_n, tform, a_ns, dfc, x_all, fir, m
 #' @return list of assigned/predicted background/excess events
 #' @noRd
 #'
-Assigned_Event_Poisson_transition <- function(dfe, df0, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, model_control) {
-    .Call(`_Colossus_Assigned_Event_Poisson_transition`, dfe, df0, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, model_control)
+Assigned_Event_Poisson_transition <- function(PyrC, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control) {
+    .Call(`_Colossus_Assigned_Event_Poisson_transition`, PyrC, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control)
 }
 
 #' Interface between R code and the plotting omnibus function
@@ -784,8 +784,8 @@ Assigned_Event_Poisson_transition <- function(dfe, df0, term_n, tform, a_n, dfc,
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control) {
-    .Call(`_Colossus_Plot_Omnibus_transition`, term_n, tform, a_n, dfc, x_all, fir, der_iden, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control)
+Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control) {
+    .Call(`_Colossus_Plot_Omnibus_transition`, term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control)
 }
 
 #' Interface between R code and the Cox PH omnibus bounds regression function
@@ -796,8 +796,8 @@ Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, x_all, fir, der_ide
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_cox_ph_Omnibus_Bounds_transition`, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_cox_ph_Omnibus_Bounds_transition`, term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the Cox PH omnibus bounds regression function
@@ -808,8 +808,8 @@ cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, x_all, fir
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-cox_ph_Omnibus_CurveSearch_transition <- function(term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_cox_ph_Omnibus_CurveSearch_transition`, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+cox_ph_Omnibus_CurveSearch_transition <- function(term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_cox_ph_Omnibus_CurveSearch_transition`, term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson omnibus bounds regression function
@@ -820,8 +820,8 @@ cox_ph_Omnibus_CurveSearch_transition <- function(term_n, tform, a_n, dfc, x_all
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_Omnibus_CurveSearch_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_pois_Omnibus_CurveSearch_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
+pois_Omnibus_CurveSearch_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_Omnibus_CurveSearch_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson omnibus bounds regression function
@@ -832,8 +832,8 @@ pois_Omnibus_CurveSearch_transition <- function(dfe, term_n, tform, a_n, dfc, x_
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_Omnibus_Bounds_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_pois_Omnibus_Bounds_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
+pois_Omnibus_Bounds_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_Omnibus_Bounds_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson residual calculation function
@@ -844,8 +844,8 @@ pois_Omnibus_Bounds_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, 
 #' @return Poisson_Residuals output : list of residuals and sum
 #' @noRd
 #'
-pois_Residual_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control) {
-    .Call(`_Colossus_pois_Residual_transition`, dfe, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control)
+pois_Residual_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control) {
+    .Call(`_Colossus_pois_Residual_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control)
 }
 
 #' Interface between R code and the Cox PH omnibus regression function
@@ -856,8 +856,8 @@ pois_Residual_transition <- function(dfe, term_n, tform, a_n, dfc, x_all, fir, m
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, dose_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_cox_ph_multidose_Omnibus_transition`, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, dose_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, cens_vec, model_control, Cons_Mat, Cons_Vec)
+cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_cox_ph_multidose_Omnibus_transition`, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson multidose omnibus regression function
@@ -868,8 +868,8 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
 #' @return LogLik_Pois output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_multidose_Omnibus_transition <- function(dfe, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, dose_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_pois_multidose_Omnibus_transition`, dfe, term_n, tform, a_n, dose_cols, dose_index, dfc, x_all, dose_all, fir, modelform, Control, KeepConstant, term_tot, df0, model_control, Cons_Mat, Cons_Vec)
+pois_multidose_Omnibus_transition <- function(PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_multidose_Omnibus_transition`, PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the matched case-control omnibus regression function
@@ -880,8 +880,8 @@ pois_multidose_Omnibus_transition <- function(dfe, term_n, tform, a_n, dose_cols
 #' @return LogLik_CaseCon_Omnibus output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_caco_Omnibus_transition`, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, df_groups, tu, KeepConstant, term_tot, Strata_vals, model_control, Cons_Mat, Cons_Vec)
+caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_caco_Omnibus_transition`, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the logistic omnibus regression function
@@ -892,8 +892,8 @@ caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, x_all, fir, modelf
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-logist_Omnibus_transition <- function(dfe, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, model_control, Cons_Mat, Cons_Vec) {
-    .Call(`_Colossus_logist_Omnibus_transition`, dfe, term_n, tform, a_ns, dfc, x_all, fir, modelform, Control, KeepConstant, term_tot, model_control, Cons_Mat, Cons_Vec)
+logist_Omnibus_transition <- function(CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_logist_Omnibus_transition`, CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Generates csv file with time-dependent columns
@@ -928,8 +928,8 @@ Gen_Fac_Par <- function(df0, vals, cols, nthreads) {
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-risk_check_transition <- function(term_n, tform, a_n, dfc, x_all, fir, modelform, Control, model_control, KeepConstant, term_tot) {
-    .Call(`_Colossus_risk_check_transition`, term_n, tform, a_n, dfc, x_all, fir, modelform, Control, model_control, KeepConstant, term_tot)
+risk_check_transition <- function(term_n, tform, a_n, dfc, df0, fir, modelform, Control, model_control, KeepConstant, term_tot) {
+    .Call(`_Colossus_risk_check_transition`, term_n, tform, a_n, dfc, df0, fir, modelform, Control, model_control, KeepConstant, term_tot)
 }
 
 #' Checks the OMP flag

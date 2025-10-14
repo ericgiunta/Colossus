@@ -31,6 +31,7 @@ using std::vector;
 using std::invalid_argument;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -74,7 +75,7 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @noRd
 //'
 //
-List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -84,7 +85,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
 //    const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum = term_n.size();
@@ -122,7 +122,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     //  ---------------------------------------------
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -152,7 +152,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
@@ -221,7 +220,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
     thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
-        beta_0[i] = a_n[i];
+        beta_0[i] = beta_peak[i];
     }
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -496,7 +495,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, N
 //' @noRd
 //'
 //
-List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -506,7 +505,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -538,7 +536,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
     double dbeta_max = 0.0;
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     VectorXd beta_max = beta_0;
     MatrixXd T0;
     MatrixXd Td0;
@@ -569,7 +567,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
@@ -635,7 +632,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
-        beta_0[i] = a_n[i];
+        beta_0[i] = beta_peak[i];
     }
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -692,6 +689,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     trouble = false;
     Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose, mult);
     NumericMatrix a_ns(guesses, totalnum);
+    NumericVector a_n = a_ns.row(0);
     //  now the dbeta holds the range to check
     //  note that currently the guesses are not bounded
     for (int i = 0; i < guesses; i++) {
@@ -1369,7 +1367,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
 //' @noRd
 //'
 //
-List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -1379,7 +1377,6 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const int mat_row = df0.rows();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -1403,7 +1400,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     //
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -1493,7 +1490,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
     thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
-        beta_0[i] = a_n[i];
+        beta_0[i] = beta_peak[i];
     }
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -1769,7 +1766,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const MatrixXd& PyrC, const MatrixXd& dfs,
 //' @noRd
 //'
 //
-List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -1780,7 +1777,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const int mat_row = df0.rows();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -1804,7 +1800,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     double dbeta_max = 0.0;
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     VectorXd beta_max = beta_0;
     MatrixXd T0;
     MatrixXd Td0;
@@ -1901,7 +1897,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     step_max = step_max0;
     thres_step_max = thres_step_max0;
     for (int i = 0; i < beta_0.size(); i++) {
-        beta_0[i] = a_n[i];
+        beta_0[i] = beta_peak[i];
     }
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -1950,6 +1946,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
     trouble = false;
     Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Lmax, para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, 0, dbeta_start, beta_0, upper, trouble, verbose, mult);
     NumericMatrix a_ns(guesses, totalnum);
+    NumericVector a_n = a_ns.row(0);
     //  now the dbeta holds the range to check
     //  note that currently the guesses are not bounded
     for (int i = 0; i < guesses; i++) {
@@ -2603,7 +2600,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const MatrixXd& PyrC, const MatrixX
 //' @noRd
 //'
 //
-List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
+List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -2613,7 +2610,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -2644,7 +2640,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     //  ---------------------------------------------
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -2674,7 +2670,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
@@ -2743,7 +2738,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     thres_step_max = thres_step_max0;
     //
     for (int i = 0; i < beta_0.size(); i++) {
-        beta_0[i] = a_n[i];
+        beta_0[i] = beta_peak[i];
     }
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -3061,7 +3056,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
 //' @noRd
 //'
 //
-List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const MatrixXd& dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
+List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -3071,7 +3066,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const int mat_row = df0.rows();
     //  int ntime = tu.size();
     int totalnum = term_n.size();
@@ -3117,7 +3111,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     //  ---------------------------------------------
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     VectorXd beta_max = beta_0;
     MatrixXd T0;
     MatrixXd Td0;
@@ -3214,7 +3208,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const MatrixXd& PyrC, const Ma
     step_max = step_max0;
     thres_step_max = thres_step_max0;
     for (int i = 0; i < beta_0.size(); i++) {
-        beta_0[i] = a_n[i];
+        beta_0[i] = beta_peak[i];
     }
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, PyrC, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);

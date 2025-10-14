@@ -34,6 +34,7 @@ using std::advance;
 using std::reduce;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -96,7 +97,7 @@ void removeColumn(MatrixXd& matrix, unsigned int colToRemove) {
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads) {
+void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail)
@@ -145,7 +146,7 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads) {
+void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail)
@@ -199,7 +200,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
+void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals)
@@ -261,7 +262,7 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //' @noRd
 //'
 //
-void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
+void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals)
     #endif
@@ -322,7 +323,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //' @noRd
 //'
 //
-void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads) {
+void Make_Match(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads) {
     double cond_thres = model_bool["cond_thres"];
     vector<int> indices = {1, static_cast<int>(df_m.rows())};
     int nstar = static_cast<int>(df_m.rows());
@@ -373,7 +374,7 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
 //' @noRd
 //'
 //
-void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& Strata_vals) {
+void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& Strata_vals) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
         #ifdef _OPENMP
@@ -511,7 +512,7 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
 //' @noRd
 //'
 //
-void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu) {
+void Make_Match_Time(List& model_bool, const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
         #ifdef _OPENMP
@@ -631,7 +632,7 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
 //' @noRd
 //'
 //
-void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
+void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
         #ifdef _OPENMP
@@ -2712,7 +2713,7 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
 //' @noRd
 //'
 //
-void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
+void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
@@ -3418,7 +3419,7 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
 //' @noRd
 //'
 //
-void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& P, const MatrixXd& Pnot, const MatrixXd& Pd, const MatrixXd& Pdd, const MatrixXd& PdP, const MatrixXd& PnotdP, const MatrixXd& PddP, const MatrixXd& PnotddP, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& CountEvent, const MatrixXd& P, const MatrixXd& Pnot, const MatrixXd& Pd, const MatrixXd& Pdd, const MatrixXd& PdP, const MatrixXd& PnotdP, const MatrixXd& PddP, const MatrixXd& PnotddP, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
