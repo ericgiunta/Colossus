@@ -502,9 +502,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        if (!model_bool["gradient"]) {
-            fill(Lldd.begin(), Lldd.end(), 0.0);
-        }
+        fill(Lldd.begin(), Lldd.end(), 0.0);
     }
     Poisson_LogLik(model_bool, nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, KeepConstant);
     //
@@ -571,16 +569,16 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
             } else {
             //
                 if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] * 0.5;  //
                     }
                 } else {  //  if improved, updates the best vector
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         beta_best[ijk] = beta_c[ijk];
                     }
@@ -588,24 +586,24 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
             }
         } else {
             if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+                // #ifdef _OPENMP
+                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     dbeta[ijk] = dbeta[ijk] * 0.5;
                 }
             } else {  //  if improved, updates the best vector
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+                // #ifdef _OPENMP
+                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     beta_best[ijk] = beta_c[ijk];
                 }
             }
         }
-        #ifdef _OPENMP
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        #endif
+        // #ifdef _OPENMP
+        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        // #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
             beta_0[ijk] = beta_c[ijk];
         }
@@ -665,7 +663,7 @@ void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vect
 //' @noRd
 //'
 //
-List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
@@ -815,7 +813,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
 //' @noRd
 //'
 //
-List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);

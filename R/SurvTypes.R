@@ -555,6 +555,9 @@ get_form_risk <- function(model_obj, df) {
               names(factor_arg_list)[[1]] <- "x"
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
+            if (!(factor_col %in% names(df))) {
+              stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
+            }
             xtemp <- do.call(factor, factor_arg_list)
             if (!("levels" %in% names(repeat_list))) { # using the levels will recreate the same factoring
               repeat_list[["levels"]] <- levels(xtemp)
@@ -619,6 +622,9 @@ get_form_risk <- function(model_obj, df) {
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use ns(), but splines not detected on system.")
             }
+            if (!(factor_col %in% names(df))) {
+              stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
+            }
             xtemp <- do.call(splines::ns, factor_arg_list)
             #
             ns_att <- attributes(xtemp)
@@ -673,6 +679,9 @@ get_form_risk <- function(model_obj, df) {
             }
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use bs(), but splines not detected on system.")
+            }
+            if (!(factor_col %in% names(df))) {
+              stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
             }
             xtemp <- do.call(splines::bs, factor_arg_list)
             #
@@ -730,7 +739,9 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
               }
             }
-
+            if (!(factor_col %in% names(df))) {
+              stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
+            }
             xtemp <- do.call(exp_name, factor_arg_list)
             #
             col_name <- c()
