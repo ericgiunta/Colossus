@@ -1313,6 +1313,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
   } else {
     res <- values$output
     norm_weight <- values$norm_weight
+    keep_constant <- res$model$keep_constant
     if (tolower(norm) == "null") {
       # nothing changes
     } else if (tolower(norm) %in% c("mean", "max")) {
@@ -1323,12 +1324,18 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         }
       } else {
         for (i in seq_along(names)) {
-          res$First_Der[i] <- res$First_Der[i] * norm_weight[i]
-          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-          res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
-          for (j in seq_along(names)) {
-            res$Second_Der[i, j] <- res$Second_Der[i, j] * norm_weight[i] * norm_weight[j]
-            res$Covariance[i, j] <- res$Covariance[i, j] / norm_weight[i] / norm_weight[j]
+          if (keep_constant[i] == 0) {
+            i_der <- i - sum(head(keep_constant, i))
+            res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
+            res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+            res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+            for (j in seq_along(names)) {
+              if (keep_constant[j] == 0) {
+                j_der <- j - sum(head(keep_constant, j))
+                res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] * norm_weight[j]
+                res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] / norm_weight[j]
+              }
+            }
           }
         }
         if (model_control[["constraint"]] == TRUE) {
