@@ -35,6 +35,7 @@ using std::isinf;
 using std::isnan;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -64,7 +65,7 @@ template <typename T> int sign(T val) {
 //' @noRd
 //'
 //
-void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp, double& thres_step_max, double& step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, List& model_bool) {
+void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp, double& thres_step_max, double& step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, List& model_bool) {
     const int mat_row = df0.rows();
     T0 = MatrixXd::Zero(mat_row, totalnum);  //  preallocates matrix for Term column
     if (model_bool["basic"]) {
@@ -155,7 +156,7 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
 //' @noRd
 //'
 //
-void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const  MatrixXd& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     if (model_bool["basic"]) {
         //  Calculates the subterm and term values
         Make_subterms_Basic(totalnum, dfc, T0, beta_0, df0, nthreads);
@@ -409,7 +410,7 @@ void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& gr
 //' @noRd
 //'
 //
-void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const  MatrixXd& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     int reqrdnum = totalnum - sum(KeepConstant);
     if (model_bool["single"]) {
         //  Calculates the subterm and term values
@@ -497,13 +498,11 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 //' @noRd
 //'
 //
-void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const MatrixXd& PyrC, MatrixXd& dev_temp, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, double& dev) {
+void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const Ref<const MatrixXd>& PyrC, MatrixXd& dev_temp, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, double& dev) {
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        if (!model_bool["gradient"]) {
-            fill(Lldd.begin(), Lldd.end(), 0.0);
-        }
+        fill(Lldd.begin(), Lldd.end(), 0.0);
     }
     Poisson_LogLik(model_bool, nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, KeepConstant);
     //
@@ -538,7 +537,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 //' @noRd
 //'
 //
-void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, vector<double>& dbeta, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const double& Lstar, const int& nthreads, const int& ntime, const MatrixXd& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, NumericVector& Strata_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose) {
+void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, vector<double>& dbeta, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const double& Lstar, const int& nthreads, const int& ntime, const Ref<const MatrixXd>& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, NumericVector& Strata_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose) {
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -570,16 +569,16 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
             } else {
             //
                 if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] * 0.5;  //
                     }
                 } else {  //  if improved, updates the best vector
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         beta_best[ijk] = beta_c[ijk];
                     }
@@ -587,24 +586,24 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
             }
         } else {
             if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+                // #ifdef _OPENMP
+                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     dbeta[ijk] = dbeta[ijk] * 0.5;
                 }
             } else {  //  if improved, updates the best vector
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+                // #ifdef _OPENMP
+                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     beta_best[ijk] = beta_c[ijk];
                 }
             }
         }
-        #ifdef _OPENMP
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        #endif
+        // #ifdef _OPENMP
+        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        // #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
             beta_0[ijk] = beta_c[ijk];
         }
@@ -621,7 +620,7 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
 //' @noRd
 //'
 //
-void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, vector<double>& dbeta, const MatrixXd& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& thres_step_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check, const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, VectorXd& s_weights, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose) {
+void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, vector<double>& dbeta, const Ref<const MatrixXd>& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& thres_step_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check, const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, VectorXd& s_weights, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose) {
     while ((R.minCoeff() <= 0) || (R.hasNaN())) {
         half_check++;
         if (half_check > halfmax) {
@@ -664,7 +663,7 @@ void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vect
 //' @noRd
 //'
 //
-List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
@@ -814,7 +813,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
 //' @noRd
 //'
 //
-List Pois_Full_Run(const MatrixXd& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const MatrixXd& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const MatrixXd Lin_Sys, const VectorXd Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
@@ -1262,7 +1261,7 @@ void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatr
 //' @noRd
 //'
 //
-void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
+void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1300,7 +1299,7 @@ void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, co
 //' @noRd
 //'
 //
-void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& PdP, const MatrixXd& PnotdP, vector<double>& InMa, const IntegerVector& KeepConstant) {
+void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& CountEvent, const MatrixXd& PdP, const MatrixXd& PnotdP, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)

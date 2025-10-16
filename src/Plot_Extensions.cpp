@@ -30,6 +30,7 @@ using std::vector;
 using std::invalid_argument;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -72,7 +73,7 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @noRd
 //'
 //
-List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, NumericMatrix& df_groups, NumericVector& tu, NumericVector& Strata_vals, int verbose, int nthreads) {
+List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, const Ref<const MatrixXd>& df_m, NumericVector& tu, NumericVector& Strata_vals, int verbose, int nthreads) {
     //
     int ntime = tu.size();
     NumericMatrix baseline(ntime, Strata_vals.size());
@@ -86,7 +87,7 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
     //
     //  Iterates through the risk groups and approximates the baseline
     //
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    // const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
     #endif
@@ -153,7 +154,7 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
 //' @noRd
 //'
 //
-List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, NumericMatrix& df_groups, NumericVector& tu, int verbose, int nthreads) {
+List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, int nthreads) {
     //
     int ntime = tu.size();
     vector<double> baseline(ntime, 0.0);
@@ -167,7 +168,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, Num
     //
     //  Iterates through the risk groups and approximates the baseline
     //
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
+    // const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -233,7 +234,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, Num
 //' @noRd
 //'
 //
-List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  MatrixXd& df0, const MatrixXd& R, MatrixXd& Lldd_inv, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, IntegerVector& dfc, int verbose, IntegerVector KeepConstant, int nthreads) {
+List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const MatrixXd& R, MatrixXd& Lldd_inv, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, IntegerVector& dfc, int verbose, IntegerVector KeepConstant, int nthreads) {
     int reqrdnum = totalnum - sum(KeepConstant);
     MatrixXd residuals = MatrixXd::Zero(ntime, reqrdnum);
     MatrixXd res_scale = MatrixXd::Zero(ntime, reqrdnum);
@@ -297,7 +298,7 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const  Ma
 //' @noRd
 //'
 //
-List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, int der_iden, string modelform, double step_max, double thres_step_max, NumericMatrix& df_groups, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, IntegerVector dfc, int fir, int der_iden, string modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
@@ -308,35 +309,9 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    MatrixXd df0;
     int ijk_risk = 0;
-    vector<float> vv;  //  stores the covariate values
     if (Risk_bool) {
-        const Map<MatrixXd> df1(as<Map<MatrixXd> >(x_all));
-        float dx = 0;
-        if (der_iden >=0) {
-        } else {
-            throw invalid_argument("Incorrect parameter to plot by");
-        }
-        if (uniq_v > 100) {  //  selects anything above 100 points to be continuous
-            vv.resize(100);  //  continuous covariates use 100 steps
-        } else {
-            vv.resize(uniq_v);  //  factor covariates use the number of factors
-        }
-        df0 = MatrixXd::Zero(vv.size(), df1.cols());  //  stores memory for the derivative term parameters and columns
-        df0 = df0.array();
         ijk_risk = dfc[der_iden] - 1;
-        dx = (df1.col(ijk_risk).maxCoeff() - df1.col(ijk_risk).minCoeff())/(vv.size() - 1);  //  varies from max to minimum
-        vv[0] = df1.col(ijk_risk).minCoeff();
-        generate(vv.begin(), vv.end(), [n = 0, &dx]() mutable { return n++ * dx; });
-        #ifdef _OPENMP
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        #endif
-        for (vector<float>::size_type ij = 0; ij < vv.size(); ij++) {
-            df0(ij, ijk_risk) = vv[ij];  //  fills the column with varying values
-        }
-    } else {
-        df0 = as<Map<MatrixXd> >(x_all);
     }
     int ntime = tu.size();
     int totalnum;
@@ -353,7 +328,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -411,7 +386,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
@@ -467,9 +441,9 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
     //
     if (Surv_bool) {
         if (model_bool["strata"]) {
-            res_list = PLOT_SURV_Strata(reqrdnum, R, Rd, a_er, df_groups, tu, Strata_vals, verbose, nthreads);
+            res_list = PLOT_SURV_Strata(reqrdnum, R, Rd, a_er, df_m, tu, Strata_vals, verbose, nthreads);
         } else {
-            res_list = PLOT_SURV(reqrdnum, R, Rd, a_er, df_groups, tu, verbose, nthreads);
+            res_list = PLOT_SURV(reqrdnum, R, Rd, a_er, df_m, tu, verbose, nthreads);
         }
         return res_list;
     }
@@ -493,18 +467,17 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, NumericVector a_n, N
 //' @noRd
 //'
 //
-List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, const MatrixXd& PyrC, const MatrixXd& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
+List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
     //
     int totalnum = term_n.size();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum);  //  preallocates matrix for Term column
     //
     MatrixXd Te = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for column terms used for temporary storage
@@ -556,7 +529,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, NumericVector 
 //' @noRd
 //'
 //
-List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
+List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -566,8 +539,6 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    MatrixXd df0;
-    df0 = as<Map<MatrixXd> >(x_all);
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
     //  cout.precision: controls the number of significant digits printed
@@ -580,7 +551,7 @@ List Poisson_Residuals(const MatrixXd& PyrC, IntegerVector term_n, StringVector 
     //  ---------------------------------------------
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum);  //  preallocates matrix for Term column
     MatrixXd Te = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for column terms used for temporary storage
     MatrixXd R = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for Risks

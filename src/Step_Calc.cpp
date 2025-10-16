@@ -34,6 +34,7 @@ using std::isnan;
 using std::set;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -67,7 +68,7 @@ struct lambda_as_visitor_wrapper : Func {
 //' @noRd
 //'
 //
-void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const  MatrixXd& df0, const IntegerVector& KeepConstant, const StringVector&  tform) {
+void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const Ref<const MatrixXd>& df0, const IntegerVector& KeepConstant, const StringVector&  tform) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("lin_int");
     Dose_Iden.insert("step_int");

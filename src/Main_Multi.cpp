@@ -33,6 +33,7 @@ using std::isinf;
 using std::isnan;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -77,7 +78,7 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @noRd
 //'
 //
-List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -92,8 +93,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
-    const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -126,7 +125,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -154,7 +153,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
@@ -207,6 +205,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     int iteration = 0;  //  iteration number
     int iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     int guesses = dose_cols.cols();
+    NumericVector a_n(beta_0.size());
     NumericMatrix beta_fin(dose_cols.cols(), totalnum);
     NumericVector LL_fin(dose_cols.cols());
     NumericVector AIC_fin(dose_cols.cols());
@@ -494,7 +493,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
 //' @noRd
 //'
 //
-List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -504,8 +503,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
-    const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
     const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum = term_n.size();
@@ -539,7 +536,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -566,7 +563,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
@@ -907,16 +903,16 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                     }
                     Print_LL(reqrdnum, totalnum, beta_0, Ll_Total, Lld_Total, Lldd_Total, verbose, model_bool);
                     if (Ll_Total[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] * 0.5;  //
                         }
                     } else {  //  if improved, updates the best vector
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             beta_best[ijk] = beta_c[ijk];
                         }
@@ -1095,7 +1091,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
 //' @noRd
 //'
 //
-List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const MatrixXd& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -1104,8 +1100,6 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
-    const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
     bool true_gradient = model_bool["gradient"];
@@ -1130,7 +1124,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -1207,6 +1201,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector
     int iteration = 0;  //  iteration number
     int iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     int guesses = dose_cols.cols();
+    NumericVector a_n(beta_0.size());
     NumericMatrix beta_fin(dose_cols.cols(), totalnum);
     NumericVector LL_fin(dose_cols.cols());
     NumericVector AIC_fin(dose_cols.cols());
@@ -1480,7 +1475,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const MatrixXd& PyrC, IntegerVector
 //' @noRd
 //'
 //
-List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, NumericMatrix& dose_all, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const MatrixXd& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -1490,8 +1485,6 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const MatrixXd& PyrC, IntegerVe
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
-    const Map<MatrixXd> df1(as<Map<MatrixXd> >(dose_all));
     const int mat_row = df0.rows();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
@@ -1517,7 +1510,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const MatrixXd& PyrC, IntegerVe
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //  ------------------------------------------------------------------------- //  initialize
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -1869,16 +1862,16 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const MatrixXd& PyrC, IntegerVe
                     }
                     Print_LL(reqrdnum, totalnum, beta_0, Ll_Total, Lld_Total, Lldd_Total, verbose, model_bool);
                     if (Ll_Total[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] * 0.5;  //
                         }
                     } else {  //  if improved, updates the best vector
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             beta_best[ijk] = beta_c[ijk];
                         }

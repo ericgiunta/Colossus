@@ -34,6 +34,7 @@ using std::isinf;
 using std::isnan;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -77,14 +78,13 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @noRd
 //'
 //
-bool Check_Risk(IntegerVector term_n, StringVector tform, NumericVector a_n, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term) {
+bool Check_Risk(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     if (verbose >= 3) {
         Rcout << "C++ Note: START_RISK_CHECK" << endl;
     }
     //
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     //
     int totalnum = term_n.size();
     //
@@ -93,7 +93,7 @@ bool Check_Risk(IntegerVector term_n, StringVector tform, NumericVector a_n, Num
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     const int mat_row = df0.rows();
     MatrixXd T0 = MatrixXd::Zero(mat_row, totalnum);  //  preallocates matrix for Term column
     //
@@ -133,7 +133,7 @@ bool Check_Risk(IntegerVector term_n, StringVector tform, NumericVector a_n, Num
 //' @noRd
 //'
 //
-List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -142,7 +142,6 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum;
@@ -207,7 +206,6 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     //
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["strata"]) {
@@ -729,7 +727,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
 //' @noRd
 //'
 //
-List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const MatrixXd& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
@@ -740,7 +738,6 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const int mat_row = df0.rows();
     //
     int totalnum = term_n.size();
@@ -1277,7 +1274,7 @@ List LogLik_Pois_Omnibus(const MatrixXd& PyrC, IntegerVector term_n, StringVecto
 //' @noRd
 //'
 //
-List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericMatrix df_groups, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     if (model_bool["constraint"]) {
@@ -1293,7 +1290,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const int mat_row = df0.rows();
     int ntime = tu.size();
     int totalnum;
@@ -1354,7 +1350,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     int group_num = ntime*Strata_vals.size();
     IntegerMatrix RiskFail(group_num, 2);
     vector<vector<int> > RiskPairs(group_num);
-    const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     //
     vector<vector<double> > Recur_Base(group_num);
     vector<vector<vector<double> > > Recur_First(group_num, vector<vector<double>>(reqrdnum));
@@ -2108,7 +2103,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
 //' @noRd
 //'
 //
-List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, NumericMatrix& x_all, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const MatrixXd Lin_Sys, const VectorXd Lin_Res) {
+List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
@@ -2119,7 +2114,6 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
     //  totalnum: number of terms used
     //
     //  ------------------------------------------------------------------------- //  initialize
-    const Map<MatrixXd> df0(as<Map<MatrixXd> >(x_all));
     const int mat_row = df0.rows();
     //
     int totalnum = term_n.size();
@@ -2356,9 +2350,9 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                 LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                 //
                 if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
@@ -2368,23 +2362,23 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                     Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
                     //
                     if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] * 0.5;
                         }
                     } else {  //  if improved, updates the best vector
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             beta_best[ijk] = beta_c[ijk];
                         }
                     }
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         beta_0[ijk] = beta_c[ijk];
                     }
@@ -2404,9 +2398,9 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                     //
                     if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] / 2.0;
                         }
@@ -2416,23 +2410,23 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                         Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
                         //
                         if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                            #ifdef _OPENMP
-                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                            #endif
+                            // #ifdef _OPENMP
+                            // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                            // #endif
                             for (int ijk = 0; ijk < totalnum; ijk++) {
                                 dbeta[ijk] = dbeta[ijk] * 0.5;
                             }
                         } else {  //  if improved, updates the best vector
-                            #ifdef _OPENMP
-                            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                            #endif
+                            // #ifdef _OPENMP
+                            // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                            // #endif
                             for (int ijk = 0; ijk < totalnum; ijk++) {
                                 beta_best[ijk] = beta_c[ijk];
                             }
                         }
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             beta_0[ijk] = beta_c[ijk];
                         }
@@ -2599,9 +2593,9 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
             //
             //
             if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+                // #ifdef _OPENMP
+                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     dbeta[ijk] = dbeta[ijk] / 2.0;
                 }
@@ -2611,23 +2605,23 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                 Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
                 //
                 if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] * 0.5;
                     }
                 } else {  //  if improved, updates the best vector
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         beta_best[ijk] = beta_c[ijk];
                     }
                 }
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
+                // #ifdef _OPENMP
+                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     beta_0[ijk] = beta_c[ijk];
                 }
@@ -2647,9 +2641,9 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                 LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                 //
                 if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
@@ -2659,23 +2653,23 @@ List LogLik_Logist_Omnibus(const MatrixXd& CountEvent, IntegerVector term_n, Str
                     Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
                     //
                     if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] * 0.5;
                         }
                     } else {  //  if improved, updates the best vector
-                        #ifdef _OPENMP
-                        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                        #endif
+                        // #ifdef _OPENMP
+                        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                        // #endif
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             beta_best[ijk] = beta_c[ijk];
                         }
                     }
-                    #ifdef _OPENMP
-                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    #endif
+                    // #ifdef _OPENMP
+                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         beta_0[ijk] = beta_c[ijk];
                     }

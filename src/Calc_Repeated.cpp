@@ -34,6 +34,7 @@ using std::advance;
 using std::reduce;
 
 using Eigen::Map;
+using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -96,7 +97,7 @@ void removeColumn(MatrixXd& matrix, unsigned int colToRemove) {
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads) {
+void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail)
@@ -145,7 +146,7 @@ void Make_Groups(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads) {
+void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads) {
 //    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail)
@@ -199,7 +200,7 @@ void Make_Groups_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskF
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
+void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals)
@@ -261,7 +262,7 @@ void Make_Groups_Strata(const int& ntime, const MatrixXd& df_m, IntegerMatrix& R
 //' @noRd
 //'
 //
-void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
+void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals)
     #endif
@@ -322,7 +323,7 @@ void Make_Groups_Strata_CR(const int& ntime, const MatrixXd& df_m, IntegerMatrix
 //' @noRd
 //'
 //
-void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads) {
+void Make_Match(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads) {
     double cond_thres = model_bool["cond_thres"];
     vector<int> indices = {1, static_cast<int>(df_m.rows())};
     int nstar = static_cast<int>(df_m.rows());
@@ -373,7 +374,7 @@ void Make_Match(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail,
 //' @noRd
 //'
 //
-void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& Strata_vals) {
+void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& Strata_vals) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
         #ifdef _OPENMP
@@ -511,7 +512,7 @@ void Make_Match_Strata(List& model_bool, const MatrixXd& df_m, IntegerMatrix& Ri
 //' @noRd
 //'
 //
-void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu) {
+void Make_Match_Time(List& model_bool, const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
         #ifdef _OPENMP
@@ -631,7 +632,7 @@ void Make_Match_Time(List& model_bool, const int& ntime, const MatrixXd& df_m, I
 //' @noRd
 //'
 //
-void Make_Match_Time_Strata(List& model_bool, const int& ntime, const MatrixXd& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
+void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads, NumericVector& tu, NumericVector& Strata_vals) {
     double cond_thres = model_bool["cond_thres"];
     if (model_bool["single"]) {
         #ifdef _OPENMP
@@ -791,11 +792,11 @@ void Calculate_Sides(List& model_bool, const IntegerMatrix& RiskFail, const vect
         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
             Rs1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
         }  //  precalculates the sums of risk groups
-        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
+//        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
         //  only assigns values once
         Rls1(j, 0) = Rs1;
-        Lls1(j, 0) = Ld.col(0).sum();
+        Lls1(j, 0) = R.block(RiskFail(j, 0), 0, dj, 1).sum();
     }
     if (!model_bool["single"]) {
         //
@@ -812,11 +813,11 @@ void Calculate_Sides(List& model_bool, const IntegerMatrix& RiskFail, const vect
                 for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
                     Rs2 += Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                 }  //  precalculates the sums of risk groups
-                MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                Ld << Rd.block(RiskFail(j, 0), ij, dj, 1);  //  sum of risks in group
+//                MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                Ld << Rd.block(RiskFail(j, 0), ij, dj, 1);  //  sum of risks in group
                 //  only assigns values once
                 Rls2(j, ij) = Rs2;
-                Lls2(j, ij) = Ld.col(0).sum();
+                Lls2(j, ij) = Rd.block(RiskFail(j, 0), ij, dj, 1).sum();
             }
         }
         if (!model_bool["gradient"]) {
@@ -834,11 +835,11 @@ void Calculate_Sides(List& model_bool, const IntegerMatrix& RiskFail, const vect
                     for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i+2) {
                         Rs3 += Rdd.block(InGroup[i] - 1, ijk, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                     }  //  precalculates the sums of risk groups
-                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                    Ld << Rdd.block(RiskFail(j, 0), ijk, dj, 1);  //  sum of risks in group
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                    Ld << Rdd.block(RiskFail(j, 0), ijk, dj, 1);  //  sum of risks in group
                     //  only assigns values once
                     Rls3(j, ijk) = Rs3;
-                    Lls3(j, ijk) = Ld.col(0).sum();
+                    Lls3(j, ijk) = Rdd.block(RiskFail(j, 0), ijk, dj, 1).sum();
                 }
             }
         }
@@ -872,11 +873,11 @@ void Calculate_Sides_PO(List& model_bool, const IntegerMatrix& RiskFail, const v
         }  //  precalculates the sums of risk groups
         VectorXd weighting = VectorXd::Zero(dj);
         weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
-        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-        Ld << R.block(RiskFail(j, 0), 0, dj, 1).array() * weighting.array();  //  sum of risks in group
+//        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//        Ld << R.block(RiskFail(j, 0), 0, dj, 1).array() * weighting.array();  //  sum of risks in group
         //  only assigns values once
         Rls1(j, 0) = Rs1;
-        Lls1(j, 0) = Ld.col(0).sum();
+        Lls1(j, 0) = (R.block(RiskFail(j, 0), 0, dj, 1).array() * weighting.array()).sum();
     }
     //
     if (!model_bool["single"]) {
@@ -896,11 +897,11 @@ void Calculate_Sides_PO(List& model_bool, const IntegerMatrix& RiskFail, const v
                 }  //  precalculates the sums of risk groups
                 VectorXd weighting = VectorXd::Zero(dj);
                 weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
-                MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                Ld << Rd.block(RiskFail(j, 0), ij, dj, 1).array() * weighting.array();  //  sum of risks in group
+//                MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                Ld << Rd.block(RiskFail(j, 0), ij, dj, 1).array() * weighting.array();  //  sum of risks in group
                 //  only assigns values once
                 Rls2(j, ij) = Rs2;
-                Lls2(j, ij) = Ld.col(0).sum();
+                Lls2(j, ij) = (Rd.block(RiskFail(j, 0), ij, dj, 1).array() * weighting.array()).sum();
             }
         }
         if (!model_bool["gradient"]) {
@@ -921,11 +922,11 @@ void Calculate_Sides_PO(List& model_bool, const IntegerMatrix& RiskFail, const v
                     }  //  precalculates the sums of risk groups
                     VectorXd weighting = VectorXd::Zero(dj);
                     weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
-                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                    Ld << Rdd.block(RiskFail(j, 0), ijk, dj, 1).array() * weighting.array();  //  sum of risks in group
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                    Ld << Rdd.block(RiskFail(j, 0), ijk, dj, 1).array() * weighting.array();  //  sum of risks in group
                     //  only assigns values once
                     Rls3(j, ijk) = Rs3;
-                    Lls3(j, ijk) = Ld.col(0).sum();
+                    Lls3(j, ijk) = (Rdd.block(RiskFail(j, 0), ijk, dj, 1).array() * weighting.array()).sum();
                 }
             }
         }
@@ -965,11 +966,11 @@ void Calculate_Sides_CR(List& model_bool, const IntegerMatrix& RiskFail, const v
             //
             Rs1 += (R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
         }  //  precalculates the sums of risk groups
-        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
+//        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
         //  only assigns values once
         Rls1(j, 0) = Rs1;
-        Lls1(j, 0) = Ld.col(0).sum();
+        Lls1(j, 0) = R.block(RiskFail(j, 0), 0, dj, 1).sum();
     }
     if (!model_bool["single"]) {
         //
@@ -995,11 +996,11 @@ void Calculate_Sides_CR(List& model_bool, const IntegerMatrix& RiskFail, const v
                     //
                     Rs2 += (Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
                 }  //  precalculates the sums of risk groups
-                MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                Ld << Rd.block(RiskFail(j, 0), ij, dj, 1);  //  sum of risks in group
+//                MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                Ld << Rd.block(RiskFail(j, 0), ij, dj, 1);  //  sum of risks in group
                 //  only assigns values once
                 Rls2(j, ij) = Rs2;
-                Lls2(j, ij) = Ld.col(0).sum();
+                Lls2(j, ij) = Rd.block(RiskFail(j, 0), ij, dj, 1).sum();
             }
         }
         if (!model_bool["gradient"]) {
@@ -1026,11 +1027,11 @@ void Calculate_Sides_CR(List& model_bool, const IntegerMatrix& RiskFail, const v
                         //
                         Rs3 += (Rdd.block(InGroup[i] - 1, ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
                     }  //  precalculates the sums of risk groups
-                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                    Ld << Rdd.block(RiskFail(j, 0), ijk, dj, 1);  //  sum of risks in group
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                    Ld << Rdd.block(RiskFail(j, 0), ijk, dj, 1);  //  sum of risks in group
                     //  only assigns values once
                     Rls3(j, ijk) = Rs3;
-                    Lls3(j, ijk) = Ld.col(0).sum();
+                    Lls3(j, ijk) = Rdd.block(RiskFail(j, 0), ijk, dj, 1).sum();
                 }
             }
         }
@@ -1060,10 +1061,10 @@ void Calculate_Sides_Single(const IntegerMatrix& RiskFail, const vector<vector<i
         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
             Rs1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
         }  //  precalculates the sums of risk groups
-        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
+//        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
         Rls1(j, 0) = Rs1;
-        Lls1(j, 0) = Ld.col(0).sum();
+        Lls1(j, 0) = R.block(RiskFail(j, 0), 0, dj, 1).sum();
     }
     return;
 }
@@ -1094,11 +1095,11 @@ void Calculate_Sides_Strata(List& model_bool, const IntegerMatrix& RiskFail, con
                     //
                     Rs1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                 }  //  precalculates the sums of risk groups
-                MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  sum of risks in group
+//                MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  sum of risks in group
                 //  only assigns values once
                 Rls1(j, s_ij) = Rs1;
-                Lls1(j, s_ij) = Ld.col(0).sum();
+                Lls1(j, s_ij) = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).sum();
             }
         }
     }
@@ -1119,11 +1120,11 @@ void Calculate_Sides_Strata(List& model_bool, const IntegerMatrix& RiskFail, con
                         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                             Rs2 += Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                         }  //  precalculates the sums of risk groups
-                        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                        Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  sum of risks in group
+//                        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                        Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  sum of risks in group
                         //  only assigns values once
                         Rls2(j, ij*Strata_vals.size() + s_ij) = Rs2;
-                        Lls2(j, ij*Strata_vals.size() + s_ij) = Ld.col(0).sum();
+                        Lls2(j, ij*Strata_vals.size() + s_ij) = Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1).sum();
                     }
                 }
             }
@@ -1151,11 +1152,11 @@ void Calculate_Sides_Strata(List& model_bool, const IntegerMatrix& RiskFail, con
                             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                                 Rs3 += Rdd.block(InGroup[i] - 1, ijk, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                             }  //  precalculates the sums of risk groups
-                            MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                            Ld << Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  sum of risks in group
+//                            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                            Ld << Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  sum of risks in group
                             //  only assigns values once
                             Rls3(j, ijk*Strata_vals.size() + s_ij) = Rs3;
-                            Lls3(j, ijk*Strata_vals.size() + s_ij) = Ld.col(0).sum();
+                            Lls3(j, ijk*Strata_vals.size() + s_ij) = Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1).sum();
                         }
                     }
                 }
@@ -1200,11 +1201,11 @@ void Calculate_Sides_Strata_CR(List& model_bool, const IntegerMatrix& RiskFail, 
                     //
                     Rs1 += (R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
                 }  //  precalculates the sums of risk groups
-                MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  sum of risks in group
+//                MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  sum of risks in group
                 //  only assigns values once
                 Rls1(j, s_ij) = Rs1;
-                Lls1(j, s_ij) = Ld.col(0).sum();
+                Lls1(j, s_ij) = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).sum();
             }
         }
     }
@@ -1234,11 +1235,11 @@ void Calculate_Sides_Strata_CR(List& model_bool, const IntegerMatrix& RiskFail, 
                             //
                             Rs2 += (Rd.block(InGroup[i] - 1, ij, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
                         }  //  precalculates the sums of risk groups
-                        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                        Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  sum of risks in group
+//                        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                        Ld << Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  sum of risks in group
                         //  only assigns values once
                         Rls2(j, ij*Strata_vals.size() + s_ij) = Rs2;
-                        Lls2(j, ij*Strata_vals.size() + s_ij) = Ld.col(0).sum();
+                        Lls2(j, ij*Strata_vals.size() + s_ij) = Rd.block(RiskFail(j, 2*s_ij), ij, dj, 1).sum();
                     }
                 }
             }
@@ -1275,11 +1276,11 @@ void Calculate_Sides_Strata_CR(List& model_bool, const IntegerMatrix& RiskFail, 
                                 //
                                 Rs3 += (Rdd.block(InGroup[i] - 1, ijk, InGroup[i + 1]-InGroup[i] + 1, 1).array() * weighting.head(InGroup[i + 1]-InGroup[i] + 1).array()).sum();
                             }  //  precalculates the sums of risk groups
-                            MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                            Ld << Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  sum of risks in group
+//                            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                            Ld << Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  sum of risks in group
                             //  only assigns values once
                             Rls3(j, ijk*Strata_vals.size() + s_ij) = Rs3;
-                            Lls3(j, ijk*Strata_vals.size() + s_ij) = Ld.col(0).sum();
+                            Lls3(j, ijk*Strata_vals.size() + s_ij) = Rdd.block(RiskFail(j, 2*s_ij), ijk, dj, 1).sum();
                         }
                     }
                 }
@@ -1320,8 +1321,8 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
             double Rs1 = Rls1(j, 0);
             //
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-            MatrixXd Ld = MatrixXd::Zero(dj, 1);
-            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
+//            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
             //
             MatrixXd Ldm = MatrixXd::Zero(dj, 1);
             double Ldcs = 0.0;
@@ -1333,8 +1334,8 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
             }
             Ldm.col(0) = Ldm.col(0).array() + Rs1;
             //  Calculates the left-hand side terms
-            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-            temp1 = Ld.col(0).array().log();
+            MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+            temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
             double Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
             //  calculates the right-hand side terms
             temp1 = Ldm.col(0).array().log();
@@ -1352,8 +1353,8 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
                 double Rs2 = Rls2(j, ij);
                 //
                 int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-                MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
+//                MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                 Vector2d Ldcs;
@@ -1370,10 +1371,10 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
                 double Ld1 = 0.0;
                 double Ld2 = 0.0;
                 //
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                temp1 = Ld.col(0).array().log();
+                MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                 Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                temp1 = Ld.col(1).array();
+                temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
                 Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 //  calculates the right-hand side terms
                 temp1 = Ldm.col(0).array().log();
@@ -1403,8 +1404,8 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
                 double Rs3 = Rls3(j, ijk);
                 //
                 int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-                MatrixXd Ld = MatrixXd::Zero(dj, 4);
-                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  //  rows with events
+//                MatrixXd Ld = MatrixXd::Zero(dj, 4);
+//                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  //  rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                 Vector4d Ldcs;
@@ -1424,18 +1425,18 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
                 double Ld2 = 0.0;
                 double Ld3 = 0.0;
                 //
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                 if (ij == jk) {
-                    temp1 = Ld.col(0).array().log();
+                    temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                     Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 }
-                temp1 = Ld.col(1).array();
+                temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
                 if (ij == jk) {
                     Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 }
-                temp2 = Ld.col(2).array();
-                temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                temp2 = RdR.block(RiskFail(j, 0), jk, dj, 1).array();
+                temp1 = RddR.block(RiskFail(j, 0), ijk, dj, 1).array() - (temp1.array() * temp2.array());
                 Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 //  calculates the right-hand side terms
                 if (ij == jk) {
@@ -1514,8 +1515,8 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
             VectorXd weighting = VectorXd::Zero(dj);
             weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
-            MatrixXd Ld = MatrixXd::Zero(dj, 1);
-            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
+//            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
             //
             MatrixXd Ldm = MatrixXd::Zero(dj, 1);
             double Ldcs;
@@ -1530,8 +1531,8 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
             //
             double Ld1 = 0.0;
             //
-            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-            temp1 = Ld.col(0).array().log();
+            MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+            temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
             Ld1 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
             //  calculates the right-hand side terms
             temp1 = Ldm.col(0).array().log();
@@ -1551,8 +1552,8 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
                 int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
                 VectorXd weighting = VectorXd::Zero(dj);
                 weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
-                MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
+//                MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                 Vector2d Ldcs;
@@ -1569,10 +1570,10 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
                 double Ld1 = 0.0;
                 double Ld2 = 0.0;
                 //
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                temp1 = Ld.col(0).array().log();
+                MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                 Ld1 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
-                temp1 = Ld.col(1).array();
+                temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
                 Ld2 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
                 //  calculates the right-hand side terms
                 temp1 = Ldm.col(0).array().log();
@@ -1604,8 +1605,8 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
                 int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
                 VectorXd weighting = VectorXd::Zero(dj);
                 weighting.head(dj) << cens_weight.segment(RiskFail(j, 0), dj);
-                MatrixXd Ld = MatrixXd::Zero(dj, 4);
-                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  //  rows with events
+//                MatrixXd Ld = MatrixXd::Zero(dj, 4);
+//                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  //  rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                 Vector4d Ldcs;
@@ -1625,18 +1626,18 @@ void Calc_LogLik_PO(List& model_bool, const int& nthreads, const IntegerMatrix& 
                 double Ld2 = 0.0;
                 double Ld3 = 0.0;
                 //
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                 if (ij == jk) {
-                    temp1 = Ld.col(0).array().log();
+                    temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                     Ld1 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
                 }
-                temp1 = Ld.col(1).array();
+                temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
                 if (ij == jk) {
                     Ld2 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
                 }
-                temp2 = Ld.col(2).array();
-                temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                temp2 = RdR.block(RiskFail(j, 0), jk, dj, 1).array();
+                temp1 = RddR.block(RiskFail(j, 0), ijk, dj, 1).array() - (temp1.array() * temp2.array());
                 Ld3 = ((temp1.array().isFinite()).select(temp1, 0).array() * weighting.array()).sum();
                 //  calculates the right-hand side terms
                 if (ij == jk) {
@@ -1713,8 +1714,8 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
             double Rs1 = Rls1(j, 0);
             //
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-            MatrixXd Ld = MatrixXd::Zero(dj, 1);
-            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
+//            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
             //
             MatrixXd Ldm = MatrixXd::Zero(dj, 1);
             double Ldcs;
@@ -1731,8 +1732,8 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
             double Ld1 = 0.0;
 
             //
-            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-            temp1 = Ld.col(0).array().log();
+            MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+            temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
             Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
 
             //  calculates the right-hand side terms
@@ -1751,8 +1752,8 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
                 double Rs2 = Rls2(j, ij);
                 //
                 int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-                MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
+//                MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                 Vector2d Ldcs;
@@ -1769,10 +1770,10 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
                 double Ld1 = 0.0;
                 double Ld2 = 0.0;
                 //
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                temp1 = Ld.col(0).array().log();
+                MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                 Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                temp1 = Ld.col(1).array();
+                temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
                 Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 //  calculates the right-hand side terms
                 temp1 = Ldm.col(0).array().log();
@@ -1801,8 +1802,8 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
                 double Rs3 = Rls3(j, ijk);
                 //
                 int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-                MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
+//                MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                 Vector4d Ldcs;
@@ -1821,12 +1822,12 @@ void Calc_LogLik_Basic(List& model_bool, const int& nthreads, const IntegerMatri
                 double Ld1 = 0.0;
                 double Ld2 = 0.0;
                 //
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                 if (ij == jk) {
-                    temp1 = Ld.col(0).array().log();
+                    temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                     Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                    temp1 = Ld.col(1).array();
+                    temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
                     Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 }
                 //  calculates the right-hand side terms
@@ -1904,8 +1905,8 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
             double Rs1 = Rls1(j, 0);
             //
             int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-            MatrixXd Ld = MatrixXd::Zero(dj, 1);
-            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
+//            MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//            Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
             //
             MatrixXd Ldm = MatrixXd::Zero(dj, 1);
             double Ldcs;
@@ -1920,8 +1921,8 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
             //
             double Ld1 = 0;
             //
-            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-            temp1 = Ld.col(0).array().log();
+            MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+            temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
             Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
             //  calculates the right-hand side terms
             temp1 = Ldm.col(0).array().log();
@@ -1941,8 +1942,8 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
                     double Rs2 = Rls2(j, ij);
                     //
                     int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-                    MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                    Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                    Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1);  //  rows with events
                     //
                     MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                     Vector2d Ldcs;
@@ -1959,10 +1960,10 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
                     double Ld1 = 0;
                     double Ld2 = 0;
                     //
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                    temp1 = Ld.col(0).array().log();
+                    MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                    temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                     Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                    temp1 = Ld.col(1).array();
+                    temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
                     Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     //  calculates the right-hand side terms
                     temp1 = Ldm.col(0).array().log();
@@ -1997,8 +1998,8 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
                     double Rs3 = Rls3(j, ijk);
                     //
                     int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
-                    MatrixXd Ld = MatrixXd::Zero(dj, 4);
-                    Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  //  rows with events
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 4);
+//                    Ld << R.block(RiskFail(j, 0), 0, dj, 1), RdR.block(RiskFail(j, 0), ij, dj, 1), RdR.block(RiskFail(j, 0), jk, dj, 1), RddR.block(RiskFail(j, 0), ijk, dj, 1);  //  rows with events
                     //
                     MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                     Vector4d Ldcs;
@@ -2018,20 +2019,20 @@ void Calc_LogLik_Linear_ERR(List& model_bool, const StringVector& tform, const i
                     double Ld2 = 0;
                     double Ld3 = 0;
                     //
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                    MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                    MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                     if (ij == jk) {
-                        temp1 = Ld.col(0).array().log();
+                        temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
                         Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     }
-                    temp1 = Ld.col(1).array();
-                    temp2 = Ld.col(2).array();
+                    temp1 = RdR.block(RiskFail(j, 0), ij, dj, 1).array();
+                    temp2 = RdR.block(RiskFail(j, 0), jk, dj, 1).array();
                     if (ij == jk) {
                         Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     }
                     if (t_ij == t_jk) {
                         if (tform[t_ij] != "loglin") {
-                            temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                            temp1 = RddR.block(RiskFail(j, 0), ijk, dj, 1).array() - (temp1.array() * temp2.array());
                             Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
                         }
                     }
@@ -2114,8 +2115,8 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
                 //
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                    Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  rows with events
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                    Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  rows with events
                     //
                     MatrixXd Ldm = MatrixXd::Zero(dj, 1);
                     double Ldcs;
@@ -2130,8 +2131,8 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
                     //
                     double Ld1 = 0.0;
                     //
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                    temp1 = Ld.col(0).array().log();
+                    MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                    temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                     Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     temp1 = Ldm.col(0).array().log();
                     Rs1 = (temp1.array().isFinite()).select(temp1, 0).sum();
@@ -2154,8 +2155,8 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
                         //
                         int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                         if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                            MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                            Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
+//                            MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                            Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
                             //
                             MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                             Vector2d Ldcs;
@@ -2172,10 +2173,10 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
                             double Ld1 = 0.0;
                             double Ld2 = 0.0;
                             //
-                            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                            temp1 = Ld.col(0).array().log();
+                            MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                            temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                             Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                            temp1 = Ld.col(1).array();
+                            temp1 = RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1).array();
                             Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                             temp1 = Ldm.col(0).array().log();
                             Rs1 = (temp1.array().isFinite()).select(temp1, 0).sum();
@@ -2213,8 +2214,8 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
                         //
                         int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                         if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                            MatrixXd Ld = MatrixXd::Zero(dj, 4);
-                            Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1), RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1), RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  rows with events
+//                            MatrixXd Ld = MatrixXd::Zero(dj, 4);
+//                            Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1), RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1), RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  rows with events
                             //
                             MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                             Vector4d Ldcs;
@@ -2234,20 +2235,20 @@ void Calc_LogLik_Strata_Linear_ERR(List& model_bool, const StringVector& tform, 
                             double Ld2 = 0.0;
                             double Ld3 = 0.0;
                             //
-                            MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                            MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                            MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                            MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                             if (ij == jk) {
-                                temp1 = Ld.col(0).array().log();
+                                temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                                 Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                             }
-                            temp1 = Ld.col(1).array();
-                            temp2 = Ld.col(2).array();
+                            temp1 = RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1).array();
+                            temp2 = RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1).array();
                             if (ij == jk) {
                                 Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                             }
                             if (t_ij == t_jk) {
                                 if (tform[t_ij] != "loglin") {
-                                    temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                                    temp1 = RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1).array() - (temp1.array() * temp2.array());
                                     Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
                                 }
                             }
@@ -2331,8 +2332,8 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
                 //
                 int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                 if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                    Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  rows with events
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                    Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  rows with events
                     //
                     MatrixXd Ldm = MatrixXd::Zero(dj, 1);
                     double Ldcs = 0.0;
@@ -2347,8 +2348,8 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
                     //
                     double Ld1 = 0.0;
                     //
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                    temp1 = Ld.col(0).array().log();
+                    MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                    temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                     Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     //
                     temp1 = Ldm.col(0).array().log();
@@ -2369,8 +2370,8 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
                     //
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                        MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
+//                        MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
                         //
                         MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                         Vector2d Ldcs;
@@ -2387,10 +2388,10 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
                         double Ld1 = 0.0;
                         double Ld2 = 0.0;
                         //
-                        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                        temp1 = Ld.col(0).array().log();
+                        MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                        temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                         Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                        temp1 = Ld.col(1).array();
+                        temp1 = RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1).array();
                         Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                         //  calculates the right-hand side terms
                         temp1 = Ldm.col(0).array().log();
@@ -2424,8 +2425,8 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
                     //
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
                     if (RiskFail(j, 2*s_ij + 1)> - 1) {
-                        MatrixXd Ld = MatrixXd::Zero(dj, 4);
-                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1), RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1), RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  rows with events
+//                        MatrixXd Ld = MatrixXd::Zero(dj, 4);
+//                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1), RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1), RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1);  //  rows with events
                         //
                         MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                         Vector4d Ldcs;
@@ -2445,18 +2446,18 @@ void Calc_LogLik_Strata(List& model_bool, const int& nthreads, const IntegerMatr
                         double Ld2 = 0.0;
                         double Ld3 = 0.0;
                         //
-                        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                        MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                        MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                        MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                         if (ij == jk) {
-                            temp1 = Ld.col(0).array().log();
+                            temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                             Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                         }
-                        temp1 = Ld.col(1).array();
-                        temp2 = Ld.col(2).array();
+                        temp1 = RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1).array();
+                        temp2 = RdR.block(RiskFail(j, 2*s_ij), jk, dj, 1).array();
                         if (ij == jk) {
                             Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                         }
-                        temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                        temp1 = RddR.block(RiskFail(j, 2*s_ij), ijk, dj, 1).array() - (temp1.array() * temp2.array());
                         Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
                         //  calculates the right-hand side terms
                         if (ij == jk) {
@@ -2537,8 +2538,8 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
                     double Rs1 = Rls1(j, s_ij);
                     //
                     int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
-                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                    Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  rows with events
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                    Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1);  //  rows with events
                     //
                     MatrixXd Ldm = MatrixXd::Zero(dj, 1);
                     double Ldcs;
@@ -2553,8 +2554,8 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
                     //
                     double Ld1 = 0.0;
                     //
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                    temp1 = Ld.col(0).array().log();
+                    MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                    temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                     Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     //  calculates the right-hand side terms
                     temp1 = Ldm.col(0).array().log();
@@ -2575,8 +2576,8 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
                         double Rs2 = Rls2(j, ij*Strata_vals.size() + s_ij);
                         //
                         int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
-                        MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
+//                        MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
                         //
                         MatrixXd Ldm = MatrixXd::Zero(dj, 2);
                         Vector2d Ldcs;
@@ -2593,10 +2594,10 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
                         double Ld1 = 0.0;
                         double Ld2 = 0.0;
                         //
-                        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                        temp1 = Ld.col(0).array().log();
+                        MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                        temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                         Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                        temp1 = Ld.col(1).array();
+                        temp1 = RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1).array();
                         Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                         //  calculates the right-hand side terms
                         temp1 = Ldm.col(0).array().log();
@@ -2629,8 +2630,8 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
                         double Rs3 = Rls3(j, ijk*Strata_vals.size() + s_ij);
                         //
                         int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
-                        MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
+//                        MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                        Ld << R.block(RiskFail(j, 2*s_ij), 0, dj, 1), RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1);  //  rows with events
                         //
                         MatrixXd Ldm = MatrixXd::Zero(dj, 4);
                         Vector4d Ldcs;
@@ -2649,12 +2650,12 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
                         double Ld1 = 0.0;
                         double Ld2 = 0.0;
                         //
-                        MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                        MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                        MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                        MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                         if (ij == jk) {
-                            temp1 = Ld.col(0).array().log();
+                            temp1 = R.block(RiskFail(j, 2*s_ij), 0, dj, 1).array().log();
                             Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                            temp1 = Ld.col(1).array();
+                            temp1 = RdR.block(RiskFail(j, 2*s_ij), ij, dj, 1).array();
                             Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                         }
                         //  calculates the right-hand side terms
@@ -2712,7 +2713,7 @@ void Calc_LogLik_Strata_Basic(List& model_bool, const int& nthreads, const Integ
 //' @noRd
 //'
 //
-void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
+void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
@@ -2784,11 +2785,11 @@ void Calculate_Null_Sides(const IntegerMatrix& RiskFail, const vector<vector<int
         for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
             Rs1 += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
         }  //  precalculates the sums of risk groups
-        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
+//        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  sum of risks in group
         //  only assigns values once
         Rls1(j, 0) = Rs1;
-        Lls1(j, 0) = Ld.col(0).sum();
+        Lls1(j, 0) = R.block(RiskFail(j, 0), 0, dj, 1).sum();
     }
     return;
 }
@@ -2814,8 +2815,8 @@ void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const 
         double Rs1 = Rls1(j, 0);
         int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
         //
-        MatrixXd Ld = MatrixXd::Zero(dj, 1);
-        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
+//        MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//        Ld << R.block(RiskFail(j, 0), 0, dj, 1);  //  rows with events
         //
         MatrixXd Ldm = MatrixXd::Zero(dj, 1);
         Vector4d Ldcs;
@@ -2827,7 +2828,7 @@ void Calc_Null_LogLik(const int& nthreads, const IntegerMatrix& RiskFail, const 
         }
         Ldm.col(0) = Ldm.col(0).array() + Rs1;
         //  Calculates the left-hand side terms
-        MatrixXd temp1 = Ld.col(0).array().log();
+        MatrixXd temp1 = R.block(RiskFail(j, 0), 0, dj, 1).array().log();
         double Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
         //  calculates the right-hand side terms
         temp1 = Ldm.col(0).array().log();
@@ -2898,7 +2899,6 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
             int dj = RiskFail(j, 2*s_ij + 1)-RiskFail(j, 2*s_ij + 0) + 1;
             if (RiskFail(j, 2*s_ij + 1)> - 1) {
                 //
-                MatrixXd Ld = MatrixXd::Constant(dj, 1, 1.0);
                 //
                 MatrixXd Ldm = MatrixXd::Zero(dj, 1);
                 double Ldcs = 0.0;
@@ -2910,13 +2910,11 @@ void Calc_Null_LogLik_Strata(const int& nthreads, const IntegerMatrix& RiskFail,
                 }
                 Ldm.col(0) = Ldm.col(0).array() + Rs1;
                 //  Calculates the left-hand side terms
-                MatrixXd temp1 = Ld.col(0).array().log();
-                double Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 //  calculates the right-hand side terms
-                temp1 = Ldm.col(0).array().log();
+                MatrixXd temp1 = Ldm.col(0).array().log();
                 Rs1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 //
-                Ll[0] += Ld1 - Rs1;
+                Ll[0] += 0.0 - Rs1;
             }
         }
     }
@@ -3157,13 +3155,13 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
             int recur_index = static_cast<int>(Recur_Base[group_ij].size() - 1);
             int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
             if (recur_index > -1) {
-                MatrixXd Ld = MatrixXd::Zero(dj, 1);
-                Ld << R.block(RiskFail(group_ij, 0), 0, dj, 1);  //  rows with events
+//                MatrixXd Ld = MatrixXd::Zero(dj, 1);
+//                Ld << R.block(RiskFail(group_ij, 0), 0, dj, 1);  //  rows with events
                 //
                 double Ld1 = 0.0;
                 //
-                MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                temp1 = Ld.col(0).array().log();
+                MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                temp1 = R.block(RiskFail(group_ij, 0), 0, dj, 1).array().log();
                 Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                 double Rs1 = 0.0;
                 if (dj <= cond_thres) {
@@ -3195,17 +3193,17 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                 int recur_index = static_cast<int>(Recur_Base[group_ij].size() - 1);
                 int dj = RiskFail(group_ij, 1)-RiskFail(group_ij, 0) + 1;
                 if (recur_index > -1) {
-                    MatrixXd Ld = MatrixXd::Zero(dj, 2);
-                    Ld << R.block(RiskFail(group_ij, 0), 0, dj, 1), RdR.block(RiskFail(group_ij, 0), der_ij, dj, 1);  //  rows with events
+//                    MatrixXd Ld = MatrixXd::Zero(dj, 2);
+//                    Ld << R.block(RiskFail(group_ij, 0), 0, dj, 1), RdR.block(RiskFail(group_ij, 0), der_ij, dj, 1);  //  rows with events
                     //
                     double Ld1 = 0.0;
                     double Ld2 = 0.0;
                     //
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
-                    temp1 = Ld.col(0).array().log();
+                    MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                    MatrixXd temp2 = MatrixXd::Zero(dj, 1);
+                    temp1 = R.block(RiskFail(group_ij, 0), 0, dj, 1).array().log();
                     Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
-                    temp1 = Ld.col(1).array();
+                    temp1 = RdR.block(RiskFail(group_ij, 0), der_ij, dj, 1).array();
                     Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     //  calculates the right-hand side terms
                     double Rs1 = 0.0;
@@ -3281,18 +3279,18 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
                     double Ld2 = 0.0;
                     double Ld3 = 0.0;
                     //
-                    MatrixXd temp1 = MatrixXd::Zero(Ld.rows(), 1);
-                    MatrixXd temp2 = MatrixXd::Zero(Ld.rows(), 1);
+                    MatrixXd temp1 = MatrixXd::Zero(dj, 1);
+                    MatrixXd temp2 = MatrixXd::Zero(dj, 1);
                     if (der_ij == der_jk) {
-                        temp1 = Ld.col(0).array().log();
+                        temp1 = R.block(RiskFail(group_ij, 0), 0, dj, 1).array().log();
                         Ld1 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     }
-                    temp1 = Ld.col(1).array();
+                    temp1 = RdR.block(RiskFail(group_ij, 0), der_ij, dj, 1).array();
                     if (der_ij == der_jk) {
                         Ld2 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     }
-                    temp2 = Ld.col(2).array();
-                    temp1 = Ld.col(3).array() - (temp1.array() * temp2.array());
+                    temp2 = RdR.block(RiskFail(group_ij, 0), der_jk, dj, 1).array();
+                    temp1 = RddR.block(RiskFail(group_ij, 0), der_ijk, dj, 1).array() - (temp1.array() * temp2.array());
                     Ld3 = (temp1.array().isFinite()).select(temp1, 0).sum();
                     //  calculates the right-hand side terms
                     double Rs1 = 0.0;
@@ -3418,7 +3416,7 @@ void Calc_Recur_LogLik(List& model_bool, const int& group_num, const IntegerMatr
 //' @noRd
 //'
 //
-void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totalnum, const MatrixXd& CountEvent, const MatrixXd& P, const MatrixXd& Pnot, const MatrixXd& Pd, const MatrixXd& Pdd, const MatrixXd& PdP, const MatrixXd& PnotdP, const MatrixXd& PddP, const MatrixXd& PnotddP, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
+void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& CountEvent, const MatrixXd& P, const MatrixXd& Pnot, const MatrixXd& Pd, const MatrixXd& Pdd, const MatrixXd& PdP, const MatrixXd& PnotdP, const MatrixXd& PddP, const MatrixXd& PnotddP, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
