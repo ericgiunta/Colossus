@@ -1313,7 +1313,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
   } else {
     res <- values$output
     norm_weight <- values$norm_weight
-    keep_constant <- res$model$keep_constant
+    keep_constant <- res$Parameter_Lists$keep_constant
     if (tolower(norm) == "null") {
       # nothing changes
     } else if (tolower(norm) %in% c("mean", "max")) {

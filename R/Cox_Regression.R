@@ -259,6 +259,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     }
   }
   e$Parameter_Lists$names <- names
+  e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Cox"
   func_t_end <- Sys.time()
@@ -741,6 +742,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
+  e$Parameter_Lists$keep_constant <- keep_constant
   if (model_control$MCML) {
     e$Survival_Type <- "Cox_Multidose"
   } else {
@@ -923,6 +925,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
     cons_mat, cons_vec
   )
   e$Parameter_Lists$names <- names
+  e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Cox"
   func_t_end <- Sys.time()

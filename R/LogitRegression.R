@@ -107,6 +107,7 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
     model_control, cons_mat, cons_vec
   )
   e$Parameter_Lists$names <- names
+  e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Logistic"
   if (is.nan(e$LogLik)) {

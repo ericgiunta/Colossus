@@ -155,6 +155,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       model_control, cons_mat, cons_vec
     )
     e$Parameter_Lists$names <- names
+    e$Parameter_Lists$keep_constant <- keep_constant
     e$Parameter_Lists$modelformula <- modelform
     e$Survival_Type <- "Poisson"
     if (is.nan(e$LogLik)) {
@@ -536,6 +537,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     model_control, cons_mat, cons_vec
   )
   e$Parameter_Lists$names <- names
+  e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Poisson"
   func_t_end <- Sys.time()
@@ -674,6 +676,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
     }
   }
   e$Parameter_Lists$names <- names
+  e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   if (model_control$MCML) {
     e$Survival_Type <- "Pois_Multidose"
