@@ -183,12 +183,21 @@ Def_Control <- function(control) {
       }
     }
   }
+  if ("verbose" %in% names(control)) {
+    control$verbose <- Check_Verbose(control$verbose)
+  } else {
+    control["verbose"] <- control_def["verbose"]
+  }
   if (Sys.getenv("ColossusOMP") == "FALSE") {
-    warning("Warning: OpenMP not detected, cores set to 1")
+    if (control["verbose"] > 1) {
+      warning("Warning: OpenMP not detected, cores set to 1")
+    }
     control$ncores <- 1 # nocov
   } else if ((Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") && (Sys.getenv("ColossusGCC") == "FALSE")) {
     control$ncores <- 1 # nocov
-    warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
+    if (control["verbose"] > 1) {
+      warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
+    }
   }
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
