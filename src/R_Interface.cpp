@@ -118,6 +118,10 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
         optim_para["momentum_decay"] = model_control["momentum_decay"];
         optim_para["learning_decay"] = model_control["learning_decay"];
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
     }
     //
     //  Performs regression
@@ -176,6 +180,10 @@ List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector t
         optim_para["momentum_decay"] = model_control["momentum_decay"];
         optim_para["learning_decay"] = model_control["learning_decay"];
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
     }
     //
     //  Performs regression
@@ -648,6 +656,10 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
         optim_para["momentum_decay"] = model_control["momentum_decay"];
         optim_para["learning_decay"] = model_control["learning_decay"];
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
     }
     //
     //  Performs regression
@@ -711,6 +723,10 @@ List pois_multidose_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, Stri
         optim_para["momentum_decay"] = model_control["momentum_decay"];
         optim_para["learning_decay"] = model_control["learning_decay"];
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
     }
     //
     //  Performs regression
@@ -777,6 +793,10 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
         optim_para["momentum_decay"] = model_control["momentum_decay"];
         optim_para["learning_decay"] = model_control["learning_decay"];
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
     }
     //
     //  Performs regression
@@ -838,6 +858,10 @@ List logist_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, String
         optim_para["momentum_decay"] = model_control["momentum_decay"];
         optim_para["learning_decay"] = model_control["learning_decay"];
         optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
     }
     //
     //  Performs regression

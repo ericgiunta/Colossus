@@ -32,6 +32,8 @@ void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_s
 
 void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant);
 
+void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& step_max, const vector<double>& Ll,  const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, const VectorXd& beta_0, vector<double>& dbeta, IntegerVector KeepConstant);
+
 void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant);
 
 void Calc_Change_Basic_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant);

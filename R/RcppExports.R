@@ -982,6 +982,16 @@ NULL
 #'
 NULL
 
+#' Utility function to calculate the change to make each iteration with gradient step following a linear constraint
+#'
+#' \code{Calc_Change_Gradient_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
 #' Utility function to calculate the change to make each iteration, with basic model
 #'
 #' \code{Calc_Change_Basic} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations

@@ -214,7 +214,6 @@ test_that("Factorize survival lung, test", {
 })
 
 
-
 ######################################
 # Time Dependent Cov gens
 ######################################
