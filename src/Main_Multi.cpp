@@ -19,6 +19,8 @@
 #include "Calc_Repeated.h"
 #include "Subterms_Risk.h"
 #include "Step_Calc.h"
+#include "Step_Grad.h"
+#include "Step_Newton.h"
 #include "Colossus_types.h"
 
 
