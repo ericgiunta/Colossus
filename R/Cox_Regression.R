@@ -262,6 +262,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Cox"
+  e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   return(e)
@@ -912,8 +913,8 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   }
   a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
-  para_num <- model_control$para_num + 1
-  keep_constant[para_num] <- 1
+  para_number <- model_control$para_number
+  keep_constant[para_number] <- 1
   if (min(keep_constant) == 1) {
     model_control["single"] <- TRUE
   }
@@ -928,6 +929,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Cox"
+  e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   return(e)

@@ -154,14 +154,15 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       ]),
       model_control, cons_mat, cons_vec
     )
-    e$Parameter_Lists$names <- names
-    e$Parameter_Lists$keep_constant <- keep_constant
-    e$Parameter_Lists$modelformula <- modelform
-    e$Survival_Type <- "Poisson"
     if (is.nan(e$LogLik)) {
       stop(e$Status)
     }
   }
+  e$Parameter_Lists$names <- names
+  e$Parameter_Lists$keep_constant <- keep_constant
+  e$Parameter_Lists$modelformula <- modelform
+  e$Survival_Type <- "Poisson"
+  e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   return(e)
@@ -525,8 +526,8 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     model_control["alpha"] <- 0.05
     model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
   }
-  para_num <- model_control$para_num + 1
-  keep_constant[para_num] <- 1
+  para_number <- model_control$para_number
+  keep_constant[para_number] <- 1
   if (min(keep_constant) == 1) {
     model_control["single"] <- TRUE
   }
@@ -540,6 +541,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Poisson"
+  e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   return(e)

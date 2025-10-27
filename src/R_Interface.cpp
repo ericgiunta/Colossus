@@ -362,6 +362,7 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
+    para_number -= 1;
     //
     int maxstep    = model_control["maxstep"];
     //
@@ -423,6 +424,7 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
+    para_number -= 1;
     //
     int maxstep    = model_control["maxstep"];
     double step_size    = model_control["step_size"];
@@ -484,6 +486,7 @@ List pois_Omnibus_CurveSearch_transition(MatrixXd PyrC, IntegerVector term_n, St
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
+    para_number -= 1;
     //
     int maxstep    = model_control["maxstep"];
     double step_size = model_control["step_size"];
@@ -545,6 +548,7 @@ List pois_Omnibus_Bounds_transition(MatrixXd PyrC, IntegerVector term_n, StringV
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
+    para_number -= 1;
     //
     int maxstep    = model_control["maxstep"];
     //
