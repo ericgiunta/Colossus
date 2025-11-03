@@ -179,15 +179,8 @@ but to illustrate, we will artificially create a trial column named
 <span><span class="va">df</span><span class="op">$</span><span class="va">karno</span> <span class="op">&lt;-</span> <span class="va">karno</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="va">cell_string</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">celltype</span></span>
-<span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"squamous"</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"smallcell"</span> <span class="op">~</span> <span class="fl">2</span>,</span>
-<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"adeno"</span> <span class="op">~</span> <span class="fl">3</span>,</span>
-<span>  <span class="va">cell_string</span> <span class="op">==</span> <span class="st">"large"</span> <span class="op">~</span> <span class="fl">0</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">df</span><span class="op">$</span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="va">cell</span></span>
-<span></span>
+<span><span class="va">cell_lvl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"large"</span>, <span class="st">"squamous"</span>, <span class="st">"smallcell"</span>, <span class="st">"adeno"</span><span class="op">)</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">celltype</span>, level <span class="op">=</span> <span class="va">cell_lvl</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">karno50</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span> <span class="op">-</span> <span class="fl">50</span></span>
 <span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">trial</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></code></pre></div>
