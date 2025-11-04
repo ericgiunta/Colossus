@@ -9,14 +9,8 @@ test_that("Checking basic function", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
     control <- list(ncores = 2)
@@ -50,14 +44,8 @@ test_that("Checking values converted back", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
     control <- list(ncores = 2, maxiter = -1, halfmax = -1)
@@ -107,14 +95,8 @@ test_that("Checking combination with gradient/single/null", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
     control <- list(ncores = 2, maxiter = -1, halfmax = -1)
@@ -136,14 +118,8 @@ test_that("Checking errors and warnings", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
     control <- list(ncores = 2, maxiter = -1, halfmax = -1)
@@ -169,14 +145,8 @@ test_that("Checking likelihood bound", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     control <- list(ncores = 2)
     #
     res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, control = control)

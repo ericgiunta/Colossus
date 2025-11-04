@@ -12,7 +12,7 @@ state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![codecov](https://codecov.io/gh/ericgiunta/Colossus/graph/badge.svg?token=NMH5R502W8)](https://app.codecov.io/gh/ericgiunta/Colossus)
 [![pkgdown](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ericgiunta/Colossus/actions/workflows/pkgdown.yaml)
-[![OS\_Checks](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml/badge.svg?branch=main)](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml)
+[![OS_Checks](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml/badge.svg?branch=main)](https://github.com/ericgiunta/Colossus/actions/workflows/OS_TEST.yml)
 [![](https://cranlogs.r-pkg.org/badges/grand-total/Colossus)](https://CRAN.R-project.org/package=Colossus)
 <!-- badges: end -->
 
@@ -27,12 +27,12 @@ Additional plotting capabilities are available.
 By default, a fully portable version of the code is compiled, which does
 not support OpenMP on every system. Note that Colossus requires OpenMP
 support to perform parallel calculations. The environment variable
-“R\_COLOSSUS\_NOT\_CRAN” is checked to determine if OpenMP should be
+“R_COLOSSUS_NOT_CRAN” is checked to determine if OpenMP should be
 disabled for linux compiling with clang. The number of cores is set to 1
 if the environment variable is empty, the operating system is detected
 as linux, and the default compiler or R compiler is clang. Colossus
-testing checks for the “NOT\_CRAN” variable to determine if additional
-tests should be run. Setting “NOT\_CRAN” to “false” will disable the
+testing checks for the “NOT_CRAN” variable to determine if additional
+tests should be run. Setting “NOT_CRAN” to “false” will disable the
 longer tests. Currently, OpenMP support is not configured for linux
 compiling with clang.
 
@@ -86,6 +86,6 @@ print(e)
 #> Iterations run: 100
 #> maximum step size: 1.00e+00, maximum first derivative: 1.92e-04
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 1.77 seconds
+#> Run finished in 0.08 seconds
 #> |-------------------------------------------------------------------|
 ```

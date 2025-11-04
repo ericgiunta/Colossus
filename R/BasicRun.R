@@ -1531,7 +1531,13 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   #
   model_control <- c(model_control, curve_control)
   if (!("para_number" %in% names(model_control))) {
-    model_control["para_number"] <- 0
+    model_control["para_number"] <- 1
+  } else {
+    if (model_control["para_number"] > length(names)) {
+      stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
+    } else if (model_control["para_number"] < 1) {
+      stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+    }
   }
   #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
@@ -1547,12 +1553,14 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
     res$method <- "Venzon-Moolgavkar"
   }
+  res$model <- coxmodel
+  res$beta_0 <- object$beta_0
   #
   if (tolower(norm) == "null") {
     # nothing changes
   } else if (tolower(norm) %in% c("max", "mean")) {
     # weight by the maximum value
-    res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number + 1]
+    res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
   } else {
     stop(gettextf(
       "Error: Normalization arguement '%s' not valid.",
@@ -1635,7 +1643,13 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   #
   model_control <- c(model_control, curve_control)
   if (!("para_number" %in% names(model_control))) {
-    model_control["para_number"] <- 0
+    model_control["para_number"] <- 1
+  } else {
+    if (model_control["para_number"] > length(names)) {
+      stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
+    } else if (model_control["para_number"] < 1) {
+      stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+    }
   }
   #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
@@ -1651,12 +1665,14 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
     res$method <- "Venzon-Moolgavkar"
   }
+  res$model <- poismodel
+  res$beta_0 <- object$beta_0
   #
   if (tolower(norm) == "null") {
     # nothing changes
   } else if (tolower(norm) %in% c("max", "mean")) {
     # weight by the maximum value
-    res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number + 1]
+    res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
   } else {
     stop(gettextf(
       "Error: Normalization arguement '%s' not valid.",
@@ -1691,9 +1707,9 @@ EventAssignment.default <- function(x, df, ...) {
   return(x)
 }
 
-#' Calculates the likelihood boundary for a completed cox model
+#' Predicts how many events are due to baseline vs excess for a completed poisson model
 #'
-#' \code{LikelihoodBound.coxres} uses user provided data, person-year/event columns, vectors specifying the model,
+#' \code{EventAssignment.poisres} uses user provided data, person-year/event columns, vectors specifying the model,
 #' and options to calculate background and excess events for a solved Poisson regression
 #'
 #' @param x result object from a regression, class poisres
@@ -1799,10 +1815,10 @@ Residual.default <- function(x, df, ...) {
   return(x)
 }
 
-#' Calculates the likelihood boundary for a completed cox model
+#' Calculates the Residuals for a completed poisson model
 #'
-#' \code{LikelihoodBound.coxres} uses user provided data, person-year/event columns, vectors specifying the model,
-#' and options to calculate background and excess events for a solved Poisson regression
+#' \code{Residual.poisres} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate residuals for a solved Poisson regression
 #'
 #' @param x result object from a regression, class poisres
 #' @param pearson boolean to calculate pearson residuals

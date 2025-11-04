@@ -14,5 +14,3 @@
 ^python$
 ^codecov\.yml$
 ^out.txt
-^temp.R
-^tests/testthat/temp.R

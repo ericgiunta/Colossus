@@ -2,7 +2,7 @@
 % Please edit documentation in R/BasicRun.R
 \name{Residual.poisres}
 \alias{Residual.poisres}
-\title{Calculates the likelihood boundary for a completed cox model}
+\title{Calculates the Residuals for a completed poisson model}
 \usage{
 \method{Residual}{poisres}(
   x,
@@ -33,8 +33,8 @@
 returns a list of the final results
 }
 \description{
-\code{LikelihoodBound.coxres} uses user provided data, person-year/event columns, vectors specifying the model,
-and options to calculate background and excess events for a solved Poisson regression
+\code{Residual.poisres} uses user provided data, person-year/event columns, vectors specifying the model,
+and options to calculate residuals for a solved Poisson regression
 }
 \seealso{
 Other Poisson Wrapper Functions: 

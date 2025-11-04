@@ -19,6 +19,8 @@
 #include "Calc_Repeated.h"
 #include "Subterms_Risk.h"
 #include "Step_Calc.h"
+#include "Step_Grad.h"
+#include "Step_Newton.h"
 #include "Colossus_types.h"
 
 
@@ -301,14 +303,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             //  calculates the initial change in parameter
-            if (model_bool["basic"]) {
+            if (model_bool["gradient"]) {
+                if (model_bool["constraint"]) {
+                    Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
+                } else {
+                    Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+                }
+            } else if (model_bool["basic"]) {
                 if (model_bool["constraint"]) {
                     Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
                 } else {
                     Calc_Change_Basic(nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
                 }
-            } else if (model_bool["gradient"]) {
-                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
             } else {
                 if (model_bool["constraint"]) {
                     Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
@@ -737,14 +743,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         //  calculates the initial change in parameter
-        if (model_bool["basic"]) {
+        if (model_bool["gradient"]) {
+            if (model_bool["constraint"]) {
+                Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
+            } else {
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+            }
+        } else if (model_bool["basic"]) {
             if (model_bool["constraint"]) {
                 Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
             } else {
                 Calc_Change_Basic(nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
             }
-        } else if (model_bool["gradient"]) {
-            Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld_Total, m_g_store, v_beta_store, dbeta, KeepConstant);
         } else {
             if (model_bool["constraint"]) {
                 Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll_Total, Lld_Total, Lldd_Total, dbeta, tform, thres_step_max, step_max, KeepConstant);

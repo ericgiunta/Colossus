@@ -8,7 +8,6 @@
 #endif
 
 #include <Eigen/Core>
-#include "Step_Calc.h"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -18,6 +17,9 @@
 #include <functional>
 #include <algorithm>
 
+#include "Step_Calc.h"
+#include "Step_Grad.h"
+#include "Step_Newton.h"
 #include "Calc_Repeated.h"
 #include "Subterms_Risk.h"
 #include "Colossus_types.h"
@@ -1499,7 +1501,7 @@ void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMat
 //
 void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& InMa, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond) {
     int reqrdnum = totalnum - sum(KeepConstant);
-    int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());
+//    int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());
 //    int total_val = reqrdnum + kept_strata;
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : vector<double> : \

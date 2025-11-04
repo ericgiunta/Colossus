@@ -10,15 +10,8 @@ test_that("check errors", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
-
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     a_n <- c(0.1, 0.1)
 
@@ -45,14 +38,8 @@ test_that("threshold nonfail", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
 
     df$karno50 <- df$karno - 50
     a_n <- c(0.1, 0.1)
@@ -103,14 +90,8 @@ test_that("threshold nonfail, single", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
 
     df$karno50 <- df$karno - 50
     a_n <- c(0.1, 0.1)
@@ -162,14 +143,8 @@ test_that("threshold nonfail, null", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
 
     df$karno50 <- df$karno - 50
     a_n <- c(0.1, 0.1)
@@ -221,14 +196,8 @@ test_that("threshold nonfail, gradient", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
 
     df$karno50 <- df$karno - 50
     a_n <- c(0.1, 0.1)
@@ -330,14 +299,8 @@ test_that("information matrix calculations", {
     df$karno <- karno
     df$trt <- df$trt - 1
     df$trt <- as.integer(df$trt == 0)
-    cell_string <- df$celltype
-    cell <- case_when(
-      cell_string == "squamous" ~ 1,
-      cell_string == "smallcell" ~ 2,
-      cell_string == "adeno" ~ 3,
-      cell_string == "large" ~ 0
-    )
-    df$cell <- cell
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
 
     df$karno50 <- df$karno - 50
     a_n <- c(0.1, 0.1)

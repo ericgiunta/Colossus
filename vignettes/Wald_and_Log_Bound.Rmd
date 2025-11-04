@@ -93,7 +93,7 @@ ci_2 <- c(
 curve_control <- list(
   "maxstep" = 100,
   "alpha" = 0.05,
-  "para_number" = 0, "manual" = TRUE
+  "para_number" = 1, "manual" = TRUE
 )
 e <- LikelihoodBound(e1, df, curve_control, control = control)
 print("|------------------- Wald Estimate -------------------|")
@@ -103,7 +103,7 @@ print(e, 5)
 curve_control <- list(
   "maxstep" = 100,
   "alpha" = 0.05,
-  "para_number" = 1, "manual" = TRUE
+  "para_number" = 2, "manual" = TRUE
 )
 e <- LikelihoodBound(e1, df, curve_control, control = control)
 print("|------------------- Likelihood Bound Estimate -------------------|")
@@ -126,7 +126,7 @@ ci_2 <- c(
 curve_control <- list(
   "maxstep" = 100,
   "alpha" = 0.05,
-  "para_number" = 0, "manual" = TRUE
+  "para_number" = 1, "manual" = TRUE
 )
 e <- LikelihoodBound(e2, df, curve_control, control = control)
 print("|------------------- Wald Estimate -------------------|")
@@ -137,7 +137,7 @@ a_n <- c(1.138152, 1.988403)
 curve_control <- list(
   "maxstep" = 100,
   "alpha" = 0.05,
-  "para_number" = 1, "manual" = TRUE
+  "para_number" = 2, "manual" = TRUE
 )
 e <- LikelihoodBound(e2, df, curve_control, control = control)
 print("|------------------- Wald Estimate -------------------|")
@@ -207,7 +207,7 @@ control <- list(
 )
 coxres <- CoxRun(model, df, a_n = a_n, control = control)
 
-curve_control <- list("maxstep" = 20, "alpha" = 0.005, "para_number" = 2, "step_size" = 0.5, "bisect" = TRUE)
+curve_control <- list("maxstep" = 20, "alpha" = 0.005, "para_number" = 3, "step_size" = 0.5, "bisect" = TRUE)
 e <- LikelihoodBound(coxres, df, curve_control, control = control)
 ```
 

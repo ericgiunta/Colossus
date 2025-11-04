@@ -136,3 +136,25 @@ test_that("Pois strata_gradient", {
   #   }
   # }
 })
+
+test_that("Constraint Check", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran %>% setDT()
+    df <- copy(veteran)
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+    df$karno50 <- df$karno - 50
+    cons_mat0 <- matrix(c(1, 1), nrow = 1)
+    control <- list(ncores = 2)
+    #
+    e2 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0), gradient_control = list("adam" = TRUE))
+    expect_equal(e2$beta_0, c(0.158278, -0.158278), tolerance = 1e-3)
+  }
+})

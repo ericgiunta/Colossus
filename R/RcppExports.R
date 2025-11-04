@@ -952,6 +952,58 @@ OMP_Check <- function() {
 #'
 NULL
 
+#' Utility function to calculate steps for a likelihood based bound
+#'
+#' \code{Log_Bound} Called to perform likelihood bound steps
+#' @inheritParams CPP_template
+#' @param Lstar likelihood goal
+#' @param L0 current likelihood
+#'
+#' @return Updates matrices in place: risk storage matrices
+#' @noRd
+#'
+NULL
+
+#' Utility function to calculate the change to make each iteration
+#'
+#' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
+#' Utility function to calculate the change to make each iteration with gradient step
+#'
+#' \code{Calc_Change_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
+#' Utility function to calculate the change to make each iteration with gradient step following a linear constraint
+#'
+#' \code{Calc_Change_Gradient_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
+#' Utility function to calculate the change to make each iteration with gradient step and background terms
+#'
+#' \code{Calc_Change_Background_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
 #' Utility function to calculate the change to make each iteration, applying linear constraints
 #'
 #' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints
@@ -965,16 +1017,6 @@ NULL
 #' Utility function to calculate the change to make each iteration
 #'
 #' \code{Calc_Change} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: parameter change matrix
-#' @noRd
-#'
-NULL
-
-#' Utility function to calculate the change to make each iteration with gradient step
-#'
-#' \code{Calc_Change_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix
@@ -1002,41 +1044,9 @@ NULL
 #'
 NULL
 
-#' Utility function to calculate steps for a likelihood based bound
-#'
-#' \code{Log_Bound} Called to perform likelihood bound steps
-#' @inheritParams CPP_template
-#' @param Lstar likelihood goal
-#' @param L0 current likelihood
-#'
-#' @return Updates matrices in place: risk storage matrices
-#' @noRd
-#'
-NULL
-
-#' Utility function to calculate the change to make each iteration
-#'
-#' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: parameter change matrix
-#' @noRd
-#'
-NULL
-
 #' Utility function to calculate the change to make each iteration, applies to background terms as well
 #'
 #' \code{Calc_Change_Background} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: parameter change matrix
-#' @noRd
-#'
-NULL
-
-#' Utility function to calculate the change to make each iteration with gradient step and background terms
-#'
-#' \code{Calc_Change_Background_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix

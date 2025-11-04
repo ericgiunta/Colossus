@@ -183,12 +183,21 @@ Def_Control <- function(control) {
       }
     }
   }
+  if ("verbose" %in% names(control)) {
+    control$verbose <- Check_Verbose(control$verbose)
+  } else {
+    control["verbose"] <- control_def["verbose"]
+  }
   if (Sys.getenv("ColossusOMP") == "FALSE") {
-    warning("Warning: OpenMP not detected, cores set to 1")
+    if (control["verbose"] > 1) {
+      warning("Warning: OpenMP not detected, cores set to 1")
+    }
     control$ncores <- 1 # nocov
   } else if ((Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") && (Sys.getenv("ColossusGCC") == "FALSE")) {
     control$ncores <- 1 # nocov
-    warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
+    if (control["verbose"] > 1) {
+      warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
+    }
   }
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
@@ -309,7 +318,7 @@ Def_model_control <- function(control) {
     if ("para_number" %in% names(control)) {
       # fine
     } else {
-      control["para_number"] <- 0
+      control["para_number"] <- 1
     }
     if ("maxstep" %in% names(control)) {
       # fine
@@ -1313,7 +1322,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
   } else {
     res <- values$output
     norm_weight <- values$norm_weight
-    keep_constant <- res$model$keep_constant
+    keep_constant <- res$Parameter_Lists$keep_constant
     if (tolower(norm) == "null") {
       # nothing changes
     } else if (tolower(norm) %in% c("mean", "max")) {
@@ -2261,12 +2270,22 @@ Interpret_Output <- function(out_list, digits = 2) {
   if (!is.na(passed)) {
     if ("Likelihood_Goal" %in% names(out_list)) {
       # likelihood boundary output
+      model <- out_list$model
+      modelcontrol <- out_list$modelcontrol
+      para_number <- modelcontrol$para_number
+      #
+      name <- model$names[para_number]
+      tform <- model$tform[para_number]
+      term_n <- model$term_n[para_number]
+      beta_0 <- out_list$beta_0[para_number]
+      #
       limits <- out_list$Parameter_Limits
       neg <- out_list$Negative_Risk_Limit_Hit
       conv <- out_list$Limit_Converged
       lik_bound <- out_list$Likelihood_Boundary
       lik_goal <- out_list$Likelihood_Goal
       message("Likelihood Boundary Results")
+      message(paste("Solving for the boundary of element: ", para_number, "\nApplied to column: '", name, "'\nSubterm: ", tform, "\nTerm number: ", term_n, sep = ""))
       if (neg[1]) {
         message("Lower limit was not found")
       } else {
@@ -2276,6 +2295,7 @@ Interpret_Output <- function(out_list, digits = 2) {
           message(paste("Lower limit reached ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
         }
       }
+      message(paste("Central estimate was ", round(beta_0, digits), sep = ""))
       if (neg[2]) {
         message("Upper limit was not found")
       } else {

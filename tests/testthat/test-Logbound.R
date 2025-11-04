@@ -169,8 +169,8 @@ test_that("Coxph EPICURE validated answers, loglin", {
   alphas <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
-    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 0)
-    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 0)
+    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1)
+    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 1)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
@@ -182,8 +182,8 @@ test_that("Coxph EPICURE validated answers, loglin", {
   v_upper <- c(5.057414, 5.100032, 5.139239, 5.157283, 5.217094, 5.255376, 5.289680, 5.330581, 5.358945)
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
-    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1)
-    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 1)
+    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 2)
+    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 2)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
@@ -222,8 +222,8 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
   alphas <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
-    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 0, "manual" = TRUE)
-    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 0, "manual" = TRUE)
+    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1, "manual" = TRUE)
+    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 1, "manual" = TRUE)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
@@ -235,8 +235,8 @@ test_that("Coxph EPICURE validated answers, loglin manual", {
   v_upper <- c(5.057414, 5.100032, 5.139239, 5.157283, 5.217094, 5.255376, 5.289680, 5.330581, 5.358945)
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
-    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1, "manual" = TRUE)
-    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 1, "manual" = TRUE)
+    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 2, "manual" = TRUE)
+    curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 2, "manual" = TRUE)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
@@ -268,13 +268,13 @@ test_that("Coxph, lin both", {
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(2, 2), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   alpha <- 0.005
   a_n <- c(-1.493177, 5.020007, 1.438377)
-  model_control <- list("basic" = FALSE, "maxstep" = 2, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
-  curve_control <- list("alpha" = alpha, "para_number" = 1, "manual" = FALSE, "maxstep" = 2)
+  model_control <- list("basic" = FALSE, "maxstep" = 2, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = FALSE)
+  curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = FALSE, "maxstep" = 2)
   expect_no_error(LikelihoodBound(coxres, df, curve_control, control = control))
   #  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control))
   a_n <- c(-1.493177, 5.020007, 1.438377)
-  model_control <- list("basic" = FALSE, "maxstep" = 2, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-  curve_control <- list("alpha" = alpha, "para_number" = 1, "manual" = TRUE, "maxstep" = 2)
+  model_control <- list("basic" = FALSE, "maxstep" = 2, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = TRUE)
+  curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = TRUE, "maxstep" = 2)
   expect_no_error(LikelihoodBound(coxres, df, curve_control, control = control))
   #  expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control))
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
@@ -289,8 +289,8 @@ test_that("Coxph, lin both", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
-    model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-    curve_control <- list("alpha" = alpha, "para_number" = 1, "manual" = TRUE, "maxstep" = 100)
+    model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = TRUE)
+    curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = TRUE, "maxstep" = 100)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
@@ -305,8 +305,8 @@ test_that("Coxph, lin both", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
-    model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = TRUE)
-    curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = TRUE, "maxstep" = 100)
+    model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 3, "manual" = TRUE)
+    curve_control <- list("alpha" = alpha, "para_number" = 3, "manual" = TRUE, "maxstep" = 100)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     #    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
@@ -335,13 +335,13 @@ test_that("Poisson, lin both", {
   poisres$beta_0 <- c(-2.917, 0.06526)
   alpha <- 0.005
   a_n <- c(-2.917, 0.06526)
-  model_control <- list("basic" = FALSE, "maxstep" = 3, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
-  curve_control <- list("alpha" = alpha, "para_number" = 1, "manual" = FALSE, "maxstep" = 3)
+  model_control <- list("basic" = FALSE, "maxstep" = 3, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = FALSE)
+  curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = FALSE, "maxstep" = 3)
   expect_no_error(LikelihoodBound(poisres, df, curve_control, control = control))
   #  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
   a_n <- c(-2.917, 0.06526)
-  model_control <- list("basic" = FALSE, "maxstep" = 3, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = TRUE)
-  curve_control <- list("alpha" = alpha, "para_number" = 1, "manual" = TRUE, "maxstep" = 3)
+  model_control <- list("basic" = FALSE, "maxstep" = 3, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = TRUE)
+  curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = TRUE, "maxstep" = 3)
   expect_no_error(LikelihoodBound(poisres, df, curve_control, control = control))
   #  expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control))
 })
@@ -373,7 +373,7 @@ test_that("Coxph, lin both, curve search", {
   alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 2, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
-  model_control <- list("basic" = FALSE, "maxstep" = 10, "log_bound" = FALSE, "alpha" = 0.005, "para_number" = 2, "step_size" = 0.5)
+  model_control <- list("basic" = FALSE, "maxstep" = 10, "log_bound" = FALSE, "alpha" = 0.005, "para_number" = 3, "step_size" = 0.5)
   v_lower <- c(1.174125, 0.8706585, 0.5657879, 0.401115, -0.749947, -0.7704548, -0.7868122, -0.8043293, -0.8154377)
   v_upper <- c(1.702507, 2.0018841, 2.283073, 2.414909, 2.865287, 3.1660076, 3.4447552, 3.7898479, 4.0379559)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
@@ -382,8 +382,8 @@ test_that("Coxph, lin both, curve search", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
-    model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = FALSE, "alpha" = alpha, "para_number" = 2, "step_size" = 0.5)
-    curve_control <- list("alpha" = alpha, "para_number" = 2, "bisect" = TRUE, "step_size" = 0.5, "maxstep" = 20, "manual" = FALSE)
+    model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = FALSE, "alpha" = alpha, "para_number" = 3, "step_size" = 0.5)
+    curve_control <- list("alpha" = alpha, "para_number" = 3, "bisect" = TRUE, "step_size" = 0.5, "maxstep" = 20, "manual" = FALSE)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     #    e <- CoxCurveSolver(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "nan", model_control = model_control)
     a <- e$Parameter_Limits
@@ -419,8 +419,8 @@ test_that("Poisson, curve search", {
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-2.917, 0.06526)
-    model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 1, "manual" = FALSE)
-    curve_control <- list("alpha" = alpha, "para_number" = 1, "bisect" = TRUE, "step_size" = 0.5, "maxstep" = 20, "manual" = FALSE)
+    model_control <- list("basic" = FALSE, "maxstep" = 20, "log_bound" = TRUE, "alpha" = alpha, "para_number" = 2, "manual" = FALSE)
+    curve_control <- list("alpha" = alpha, "para_number" = 2, "bisect" = TRUE, "step_size" = 0.5, "maxstep" = 20, "manual" = FALSE)
     e <- LikelihoodBound(poisres, df, curve_control, control = control)
     #    e <- PoissonCurveSolver(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "rand", model_control = model_control)
     a <- e$Parameter_Limits

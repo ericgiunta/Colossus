@@ -2,7 +2,7 @@
 % Please edit documentation in R/BasicRun.R
 \name{EventAssignment.poisres}
 \alias{EventAssignment.poisres}
-\title{Calculates the likelihood boundary for a completed cox model}
+\title{Predicts how many events are due to baseline vs excess for a completed poisson model}
 \usage{
 \method{EventAssignment}{poisres}(
   x,
@@ -30,7 +30,7 @@
 returns a list of the final results
 }
 \description{
-\code{LikelihoodBound.coxres} uses user provided data, person-year/event columns, vectors specifying the model,
+\code{EventAssignment.poisres} uses user provided data, person-year/event columns, vectors specifying the model,
 and options to calculate background and excess events for a solved Poisson regression
 }
 \seealso{
