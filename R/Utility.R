@@ -2117,7 +2117,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #' @family Output and Information Functions
 print.coxres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2142,7 +2142,7 @@ print.coxres <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2167,7 +2167,7 @@ print.poisres <- function(x, ...) {
 #' @family Output and Information Functions
 print.caseconres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2192,7 +2192,7 @@ print.caseconres <- function(x, ...) {
 #' @family Output and Information Functions
 print.logitres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2217,7 +2217,7 @@ print.logitres <- function(x, ...) {
 #' @family Output and Information Functions
 print.coxresbound <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2242,7 +2242,7 @@ print.coxresbound <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisresbound <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2263,7 +2263,7 @@ print.poisresbound <- function(x, ...) {
 #'
 #' @noRd
 #' @return return nothing, prints the results to console
-Interpret_Output <- function(out_list, digits = 2) {
+Interpret_Output <- function(out_list, digits = 3) {
   # make sure the output isn't an error
   passed <- out_list$Status
   message("|-------------------------------------------------------------------|")
@@ -2290,19 +2290,19 @@ Interpret_Output <- function(out_list, digits = 2) {
         message("Lower limit was not found")
       } else {
         if (conv[1]) {
-          message(paste("Lower limit converged to at ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+          message(paste("Lower limit converged to at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
         } else {
-          message(paste("Lower limit reached ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          message(paste("Lower limit reached ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
         }
       }
-      message(paste("Central estimate was ", round(beta_0, digits), sep = ""))
+      message(paste("Central estimate was ", format(beta_0, digits = digits), sep = ""))
       if (neg[2]) {
         message("Upper limit was not found")
       } else {
         if (conv[2]) {
-          message(paste("Upper limit converged to at ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+          message(paste("Upper limit converged to at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
         } else {
-          message(paste("Upper limit reached ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          message(paste("Upper limit reached ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
         }
       }
     } else {
@@ -2324,16 +2324,16 @@ Interpret_Output <- function(out_list, digits = 2) {
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
-            "Central Estimate" = beta_0,
-            "Standard Error" = stdev,
-            "2-tail p-value" = pval
+            "Central Estimate" = format(beta_0, digits = digits),
+            "Standard Error" = format(stdev, digits = digits),
+            "2-tail p-value" = format(pval, digits = digits)
           )
         } else {
           res_table <- data.table(
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
-            "Central Estimate" = beta_0
+            "Central Estimate" = format(beta_0, digits = digits)
           )
         }
         message("Final Results")
@@ -2371,16 +2371,16 @@ Interpret_Output <- function(out_list, digits = 2) {
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
-            "Central Estimate" = beta_0,
-            "Standard Error" = stdev,
-            "2-tail p-value" = pval
+            "Central Estimate" = format(beta_0, digits = digits),
+            "Standard Error" = format(stdev, digits = digits),
+            "2-tail p-value" = format(pval, digits = digits)
           )
         } else {
           res_table <- data.table(
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
-            "Central Estimate" = beta_0
+            "Central Estimate" = format(beta_0, digits = digits)
           )
         }
         message("Final Results")

@@ -304,7 +304,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     model_control["gmix_term"] <- coxmodel$gmix_term
     model_control["gmix_theta"] <- coxmodel$gmix_theta
   }
-  if (poismodel$strata != "NONE") {
+  if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
   if (cons_vec != c(0)) {
@@ -816,7 +816,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     model_control["gmix_term"] <- coxmodel$gmix_term
     model_control["gmix_theta"] <- coxmodel$gmix_theta
   }
-  if (poismodel$strata != "NONE") {
+  if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
   if (cons_vec != c(0)) {
@@ -1376,7 +1376,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
     model_control["gmix_term"] <- coxmodel$gmix_term
     model_control["gmix_theta"] <- coxmodel$gmix_theta
   }
-  if (poismodel$strata != "NONE") {
+  if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
   if (cons_vec != c(0)) {
