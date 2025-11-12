@@ -79,15 +79,15 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:     erate     lin           0        0.4741856      0.0369153   9.147657e-38
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:     erate     lin           0            0.474         0.0369       9.15e-38
 #> 
 #> Poisson Model Used
-#> -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.65
+#> -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.649
 #> Iterations run: 13
-#> maximum step size: 1.74e-10, maximum first derivative: 1.24e-06
+#> maximum step size: 1.741e-10, maximum first derivative: 1.235e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.02 seconds
+#> Run finished in 0.016 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -108,16 +108,16 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:     erate     lin           0        0.3696187      0.1111424   0.0008821847
-#> 2:       sex     lin           1        0.1904852      0.2571859   0.4589044455
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:     erate     lin           0             0.37          0.111       0.000882
+#> 2:       sex     lin           1             0.19          0.257       0.458904
 #> 
 #> Poisson Model Used
-#> -2*Log-Likelihood: 582.87,  Deviation: 252.87,  AIC: 256.87,  BIC: 593.72
+#> -2*Log-Likelihood: 582.865,  Deviation: 252.865,  AIC: 256.865,  BIC: 593.724
 #> Iterations run: 7
-#> maximum step size: 9.31e-10, maximum first derivative: 1.42e+01
+#> maximum step size: 9.313e-10, maximum first derivative: 1.416e+01
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.01 seconds
+#> Run finished in 0.008 seconds
 #> |-------------------------------------------------------------------|
 ```
 

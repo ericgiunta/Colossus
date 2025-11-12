@@ -322,16 +322,16 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:        t0    plin           0       -0.1844782      0.3845856      0.6314547
-#> 2:    fac_e0  loglin           0        0.5742903      0.4676090      0.2193936
-#> 3:    fac_e1  loglin           0       -1.0351460      1.0092852      0.3050693
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:        t0    plin           0           -0.184          0.385          0.631
+#> 2:    fac_e0  loglin           0            0.574          0.468          0.219
+#> 3:    fac_e1  loglin           0           -1.035          1.009          0.305
 #> 
 #> Poisson Model Used
-#> -2*Log-Likelihood: 20.89,  Deviation: 6.44,  AIC: 12.44,  BIC: 28.35
+#> -2*Log-Likelihood: 20.891,  Deviation: 6.436,  AIC: 12.436,  BIC: 28.346
 #> Iterations run: 10
-#> maximum step size: 4.78e-06, maximum first derivative: 1.60e-06
+#> maximum step size: 4.775e-06, maximum first derivative: 1.595e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.01 seconds
+#> Run finished in 0.012 seconds
 #> |-------------------------------------------------------------------|
 ```

@@ -108,16 +108,16 @@ print(e1, 5)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>      Covariate Central Estimate Standard Error 2-tail p-value
-#>         <char>            <num>          <num>          <num>
-#> 1: temperature        0.7599481      0.3964438    0.055249033
-#> 2:     voltage        1.9883903      0.6063087    0.001039907
+#>         <char>           <char>         <char>         <char>
+#> 1: temperature          0.75995        0.39644      0.0552490
+#> 2:     voltage          1.98839        0.60631      0.0010399
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 210.77792,  AIC: 214.77792
 #> Iterations run: 8
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
-#> Run finished in 0.02238 seconds
+#> Run finished in 0.02115 seconds
 #> |-------------------------------------------------------------------|
 
 e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0), df, a_n = a_n, control = control)
@@ -125,20 +125,20 @@ print(e2, 5)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>      Covariate Subterm Term Number Central Estimate Standard Error
-#>         <char>  <char>       <int>            <num>          <num>
-#> 1: temperature  loglin           0        0.9503468      0.4313006
-#> 2:     voltage    plin           0        8.8171973      6.1905798
+#>         <char>  <char>       <int>           <char>         <char>
+#> 1: temperature  loglin           0          0.95035         0.4313
+#> 2:     voltage    plin           0          8.81720         6.1906
 #>    2-tail p-value
-#>             <num>
-#> 1:     0.02756343
-#> 2:     0.15436177
+#>            <char>
+#> 1:       0.027563
+#> 2:       0.154362
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 208.49028,  AIC: 212.49028
 #> Iterations run: 13
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
-#> Run finished in 0.01197 seconds
+#> Run finished in 0.011 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -186,10 +186,10 @@ print(e, 5)
 #> Applied to column: 'temperature'
 #> Subterm: loglin
 #> Term number: 0
-#> Lower limit converged to at -0.0099 at a score of -107.30968 with of goal of -107.30969
+#> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
-#> Upper limit converged to at 1.55991 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00738 seconds
+#> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
+#> Run finished in 0.00735 seconds
 #> |-------------------------------------------------------------------|
 
 curve_control <- list(
@@ -210,9 +210,9 @@ print(e, 5)
 #> Subterm: loglin
 #> Term number: 0
 #> Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969
-#> Central estimate was 1.98839
-#> Upper limit converged to at 3.24203 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00674 seconds
+#> Central estimate was 1.9884
+#> Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969
+#> Run finished in 0.0068 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -253,7 +253,7 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00759 seconds
+#> Run finished in 0.00766 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
@@ -274,10 +274,10 @@ print(e, 5)
 #> Applied to column: 'voltage'
 #> Subterm: plin
 #> Term number: 0
-#> Lower limit converged to at 1.97087 at a score of -106.16585 with of goal of -106.16587
+#> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
-#> Upper limit converged to at 34.47154 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00813 seconds
+#> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
+#> Run finished in 0.00807 seconds
 #> |-------------------------------------------------------------------|
 ```
 

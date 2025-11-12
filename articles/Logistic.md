@@ -118,16 +118,16 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0         3.258061      1.0190324   1.387638e-03
-#> 2:    cell_1  loglin           0         2.047690      0.5312790   1.160781e-04
-#> 3:    cell_2  loglin           0         2.708038      0.5962816   5.584424e-06
-#> 4:    cell_3  loglin           0         3.258061      1.0190324   1.387638e-03
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:    cell_0  loglin           0             3.26          1.019       1.39e-03
+#> 2:    cell_1  loglin           0             2.05          0.531       1.16e-04
+#> 3:    cell_2  loglin           0             2.71          0.596       5.58e-06
+#> 4:    cell_3  loglin           0             3.26          1.019       1.39e-03
 #> 
 #> Logisitic Model Used
-#> -2*Log-Likelihood: 64.43,  Deviation: 64.43,  AIC: 72.43,  BIC: 84.11
+#> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 11
-#> maximum step size: 1.07e-04, maximum first derivative: 3.45e-05
+#> maximum step size: 1.075e-04, maximum first derivative: 3.454e-05
 #> Analysis converged
 #> Run finished in 0.02 seconds
 #> |-------------------------------------------------------------------|
@@ -150,16 +150,16 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0         3.258065      1.0190343   1.387648e-03
-#> 2:    cell_1  loglin           0         2.047690      0.5312791   1.160781e-04
-#> 3:    cell_2  loglin           0         2.708039      0.5962820   5.584436e-06
-#> 4:    cell_3  loglin           0         3.258065      1.0190343   1.387648e-03
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:    cell_0  loglin           0             3.26          1.019       1.39e-03
+#> 2:    cell_1  loglin           0             2.05          0.531       1.16e-04
+#> 3:    cell_2  loglin           0             2.71          0.596       5.58e-06
+#> 4:    cell_3  loglin           0             3.26          1.019       1.39e-03
 #> 
 #> Logisitic Model Used
-#> -2*Log-Likelihood: 64.43,  Deviation: 64.43,  AIC: 72.43,  BIC: 84.11
+#> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 11
-#> maximum step size: 9.57e-05, maximum first derivative: 3.07e-05
+#> maximum step size: 9.569e-05, maximum first derivative: 3.072e-05
 #> Analysis converged
 #> Run finished in 0.01 seconds
 #> |-------------------------------------------------------------------|
@@ -170,16 +170,16 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0      -0.03772402     0.03773426     0.31744183
-#> 2:    cell_1  loglin           0      -0.12136126     0.06071778     0.04563257
-#> 3:    cell_2  loglin           0      -0.06453783     0.03726759     0.08331963
-#> 4:    cell_3  loglin           0      -0.03772402     0.03773426     0.31744183
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:    cell_0  loglin           0          -0.0377         0.0377         0.3174
+#> 2:    cell_1  loglin           0          -0.1214         0.0607         0.0456
+#> 3:    cell_2  loglin           0          -0.0645         0.0373         0.0833
+#> 4:    cell_3  loglin           0          -0.0377         0.0377         0.3174
 #> 
 #> Logisitic Model Used
-#> -2*Log-Likelihood: 64.43,  Deviation: 64.43,  AIC: 72.43,  BIC: 84.11
+#> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 11
-#> maximum step size: 4.86e-05, maximum first derivative: 1.15e-02
+#> maximum step size: 4.859e-05, maximum first derivative: 1.145e-02
 #> Analysis did not converge, check convergence criteria or run further
 #> Run finished in 0.01 seconds
 #> |-------------------------------------------------------------------|
@@ -190,16 +190,16 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0        -3.276984      1.0000387   1.049695e-03
-#> 2:    cell_1  loglin           0        -2.108983      0.5003059   2.493510e-05
-#> 3:    cell_2  loglin           0        -2.740478      0.5774463   2.076244e-06
-#> 4:    cell_3  loglin           0        -3.276984      1.0000387   1.049695e-03
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:    cell_0  loglin           0            -3.28          1.000       1.05e-03
+#> 2:    cell_1  loglin           0            -2.11          0.500       2.49e-05
+#> 3:    cell_2  loglin           0            -2.74          0.577       2.08e-06
+#> 4:    cell_3  loglin           0            -3.28          1.000       1.05e-03
 #> 
 #> Logisitic Model Used
-#> -2*Log-Likelihood: 64.43,  Deviation: 64.43,  AIC: 72.43,  BIC: 84.11
+#> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 12
-#> maximum step size: 1.26e-04, maximum first derivative: 4.51e-05
+#> maximum step size: 1.263e-04, maximum first derivative: 4.514e-05
 #> Analysis converged
 #> Run finished in 0.01 seconds
 #> |-------------------------------------------------------------------|

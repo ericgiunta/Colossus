@@ -158,15 +158,15 @@ rate and true event rate, and set the initial parameter estimate to
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     erate     lin           0        0.4741856      0.0369153   9.147657e-38</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;           &lt;char&gt;         &lt;char&gt;         &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     erate     lin           0            0.474         0.0369       9.15e-38</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Poisson Model Used</span></span>
-<span><span class="co">#&gt; -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.65</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.649</span></span>
 <span><span class="co">#&gt; Iterations run: 13</span></span>
-<span><span class="co">#&gt; maximum step size: 1.74e-10, maximum first derivative: 1.24e-06</span></span>
+<span><span class="co">#&gt; maximum step size: 1.741e-10, maximum first derivative: 1.235e-06</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.016 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this case, we found the SMR to be 0.474, analysis of the
 confidence interval (either Wald or Likelihood-based) could be performed
@@ -185,16 +185,16 @@ regression.</p>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     erate     lin           0        0.3696187      0.1111424   0.0008821847</span></span>
-<span><span class="co">#&gt; 2:       sex     lin           1        0.1904852      0.2571859   0.4589044455</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;           &lt;char&gt;         &lt;char&gt;         &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     erate     lin           0             0.37          0.111       0.000882</span></span>
+<span><span class="co">#&gt; 2:       sex     lin           1             0.19          0.257       0.458904</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Poisson Model Used</span></span>
-<span><span class="co">#&gt; -2*Log-Likelihood: 582.87,  Deviation: 252.87,  AIC: 256.87,  BIC: 593.72</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 582.865,  Deviation: 252.865,  AIC: 256.865,  BIC: 593.724</span></span>
 <span><span class="co">#&gt; Iterations run: 7</span></span>
-<span><span class="co">#&gt; maximum step size: 9.31e-10, maximum first derivative: 1.42e+01</span></span>
+<span><span class="co">#&gt; maximum step size: 9.313e-10, maximum first derivative: 1.416e+01</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.01 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.008 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this case, we found the SMR for sex=0 to be 0.37 and the SMR for
 sex=1 to be 0.56. Once again we could further investigate the confidence
