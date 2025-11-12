@@ -849,6 +849,11 @@ get_form_risk <- function(model_obj, df) {
             }
           } else {
             # it is a factor
+            factor_arg_list <- list()
+            factor_arg_list[[1]] <- element_col
+            repeat_list <- c(list("_exp_type" = "factor"), copy(factor_arg_list))
+            repeat_list[["levels"]] <- levels(df[[element_col]])
+            expres_calls[[length(expres_calls) + 1]] <- repeat_list
             val <- factorize(df, element_col)
             df <- val$df
             col_name <- val$cols

@@ -35,7 +35,7 @@ test_that("Poisson Assigned Events, check results", {
 
   e0 <- e$predict
   e1 <- e$caused
-
+  expect_equal(e1[,3], df$Cancer_Status, tolerance = 1e-1)
   expect_equal(sum(e0), 108.757, tolerance = 1e-2)
   expect_equal(sum(e1), 124, tolerance = 1e-2)
 

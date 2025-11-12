@@ -108,6 +108,17 @@ test_that("Basic generic function application to formula", {
   expect_no_error(f <- RelativeRisk(e, df))
 })
 
+test_that("Basic factor application to formula with formula column", {
+  df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 1:100)
+  model <- Cox(a, b, c) ~ loglinear(factor(d))
+  expect_no_error(e <- CoxRun(model, df, ncores = 2))
+  expect_no_error(f <- RelativeRisk(e, df))
+  df$d <- factor(df$d)
+  model <- Cox(a, b, c) ~ loglinear(d)
+  expect_no_error(e <- CoxRun(model, df, ncores = 2))
+  expect_no_error(f <- RelativeRisk(e, df))
+})
+
 test_that("Checking formula works with result modification", {
   fname <- "dose.csv"
   colTypes <- c("double", "double", "double", "integer")
@@ -317,6 +328,28 @@ test_that("Colossus Surv Errors", {
   expect_error(get_form(Pois_Strata(t1, lung) ~ loglinear(dose), df)) # too few
   expect_error(get_form(Pois_Strata(alpha = t1, lung, rand0) ~ loglinear(dose), df)) # wrong named
   #
+})
+
+test_that("Pois multi_surv nonerror", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$rand1 <- floor(runif(nrow(df)) * 5)
+  df$weight <- df$t1 / 100
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+  #
+  expect_no_error(get_form(Pois_Strata(pyr = t1, event = lung, rand0, rand1) ~ loglinear(dose), df))
+  expect_no_error(get_form(Pois_Strata(t1, lung, rand0, rand1) ~ loglinear(dose), df))
+  #
+  df$rand0 <- factor(df$rand0)
+  df$rand1 <- factor(df$rand1)
+  expect_no_error(get_form(Pois_Strata(t1, lung, rand0) ~ loglinear(dose), df))
+  expect_no_error(get_form(Pois_Strata(t1, lung, rand0, rand1) ~ loglinear(dose), df))
 })
 
 test_that("CaseCon Surv Errors", {
