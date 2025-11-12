@@ -1,0 +1,69 @@
+# Excess and Predicted Cases
+
+``` r
+library(Colossus)
+#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
+library(data.table)
+```
+
+## General Theory
+
+In the field of radiation epidemiology, a common question is “How many
+additional cancer cases occurred due to radiation exposures?”. This is
+often generalized to the question of how many cases are background cases
+and how many cases are excess cases. These are calculated by splitting a
+poisson model into a background term and an excess term. In Colossus,
+the background term is assumed to be the first term, and every other
+term is assumed to be causing excess cases. Colossus has a function,
+RunPoissonEventAssignment, which calculates the number of
+background/excess cases for both average predicted counts and true
+counts. Let us assume we have the following model for event rate:
+
+$$\begin{array}{r}
+{R(\beta,x,\alpha,D) = \exp(\beta \cdot x)*(1 + \alpha \cdot D)}
+\end{array}$$
+
+``` r
+a_n <- c(0.1, 0.1)
+model <- Pois(pyr, event) ~ loglinear(x, 0) + linear(D, 1) + Multiplicative()
+poisres <- PoisRun(model, df, a_n = a_n)
+```
+
+Our total rate ($R$) is composed of a background rate ($R_{BK}$) and
+excess rate ($R_{EX}$). The cases each row have a total ($c$) and
+background/excess count ($c_{BK},c_{EX}$). Additionally, every row has a
+measure of person-time ($t$). Colossus also computes the predicted
+number of total, background, and excess cases ($P,P_{BK}.P_{EX}$). For
+every model we assume the average number of background cases is the
+background rate multiplied by time, the remaining cases are excess, and
+the true number of background/excess cases is proportional to the
+predicted cases.
+
+$$\begin{array}{r}
+{R = \exp(\beta \cdot x)*(1 + \alpha \cdot D)} \\
+{R_{BK} = \exp(\beta \cdot x)} \\
+{P = P_{BK} + P_{EX}} \\
+{P = R*t} \\
+{P_{BK} = R_{BK}*t} \\
+{P_{EX} = P - P_{BK}} \\
+{c = c_{BK} + c_{EX}} \\
+{c_{BK} = c*\frac{P_{BK}}{P}} \\
+{c_{EX} = c*\frac{P_{EX}}{P}}
+\end{array}$$
+
+Colossus returns two matrices, one for the true cases and one for the
+predicted cases. Each matrix has three columns for the events assigned
+to background, excess, and total. This provides information on both the
+relative amount of background and excess cases, as well as differences
+between the expected and true number of cases.
+
+``` r
+e <- EventAssignment(poisres, df)
+
+e0 <- e$predict
+e1 <- e$caused
+
+BK <- e0[, 1]
+EX <- e0[, 2]
+Total <- e0[, 3]
+```

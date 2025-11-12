@@ -1,0 +1,63 @@
+# List of Control Options
+
+## General Use
+
+There are several control lists used in Colossus that the user can use
+to customize the regression, all of which have functions defined that
+assign default values to any missing list items. The following sections
+will go through each control list, how it is used, and what every item
+assigned to it means.
+
+### Standard Control List
+
+This is the “control” variable used by every regression function. This
+list focuses on options that control the convergence criteria and
+standard Cox proportional hazards options. They can be input through the
+control argument, given as named arguments to the function, or a
+combination of the two.
+
+|     Option     |                                                                                                                                                                                                                                                               Description                                                                                                                                                                                                                                                               |
+|:--------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|    verbose     | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0. |
+|     ncores     |                                                                                                                                                                                              Number of cores used for parallel operations. The user can not assign more cores than are available. Defaults to the number of detected cores                                                                                                                                                                                              |
+|       lr       |                                                                                                                                                                                                                         Learning rate used. Every step is multiplied by the learning rate. The default is 0.75.                                                                                                                                                                                                                         |
+|    maxiter     |                                                                                                                                                                                                                                  Maximum iterations run for a single initial position. Defaults to 20.                                                                                                                                                                                                                                  |
+|    maxiters    |                                                                                                                      Used for multiple starting positions. List the maximum number of iterations per starting point and the maximum number of iterations for the final guess. Assumes N values for N guesses and 1 value for the final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.                                                                                                                      |
+|    halfmax     |                                                                                                                                                                                                                                    Maximum number of half-steps taken per iteration. Defaults to 5.                                                                                                                                                                                                                                     |
+|    epsilon     |                                                                                                                                                                                              Maximum step size before convergence is assumed. Defaults to 1e-4. Regression exits if the predicted step sizes are all below this threshold.                                                                                                                                                                                              |
+| deriv_epsilon  |                                                                                                                                                                                                                            Largest maximum first derivative before convergence is assumed. Defaults to 1e-4.                                                                                                                                                                                                                            |
+|    step_max    |                                                                                                                                                                                                                               Largest acceptable step size for non-intercept parameters. Defaults to 1.0.                                                                                                                                                                                                                               |
+| thres_step_max |                                                                                                                                                                                                                                Largest acceptable step size for intercept parameters. Defaults to 100.0.                                                                                                                                                                                                                                |
+|      ties      |                                                                                                                                                                                                   Chooses between ‘breslow’ and ‘efron’ methods for tied event times in Cox proportional hazards regressions. Defaults to ‘breslow’.                                                                                                                                                                                                    |
+
+### Other Control Lists
+
+The following options can be used by the cox plotting function to select
+difference types of plots:
+
+|    Option     |                                                                                   Description                                                                                   |
+|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|     surv      |                                           Boolean used by Cox plotting function to choose survival curve plotting. Defaults to FALSE                                            |
+|  schoenfeld   |                                      Boolean used by Cox plotting function to choose schoenfeld residual curve plotting. Defaults to FALSE                                      |
+|     risk      |                                 Boolean used by Cox plotting function to choose hazard ratio plotting by a single parameter. Defaults to FALSE                                  |
+| unique_values | integer used by the risk plotting option to select how many values calculate risk at. Depending on function, either defaults to the number of unique values in the column or 2. |
+
+The following options can be used by the poisson residual function to
+select difference types of residuals: \| pearson \| Boolean used by
+Residual.poisres to select calculating pearson residuals. Defaults to
+FALSE. \| \| deviance \| Boolean used by Residual.poisres to select
+calculating deviance residuals. Defaults to FALSE. \|
+
+If a likelihood boundary is being calculated, there are several
+additional control options used:
+
+|   Option    |                                                                                                                                        Description                                                                                                                                        |
+|:-----------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|    alpha    |                                                                                                                  Confidence level to use, valued 0-1. Defaults to 0.05.                                                                                                                   |
+|    qchi     |                                                                                Two-tailed Chi-squared value at one degree of freedom and the provided alpha. Defaults to the value corresponding to alpha.                                                                                |
+| para_number |                                                                                                     Parameter number to solve the boundary for. Indexed starting at 1. Defaults to 1.                                                                                                     |
+|   manual    | Boolean which selects if the standard Venzon-Moolgavkar algorithm (FALSE) or if a modified version is used which starts by optimizing multiple points (TRUE). The manual mode is beneficial for problems with linear terms, which may have issues with local optimums. Defaults to FALSE. |
+|   maxstep   |                         Integer used by the manual search option, splits the initial step into maxstep points. Then each point is optimized with a constant boundary parameter. This is done to find the closest estimate for the boundary point. Defaults to 10.                         |
+| search_mult |                            Double used by manual search option, scales the initial step by that amount. This can be done to widen or narrow the scope of the search if the initial quadratic assumption made by the Venzon-Moolgavkar algorithm is incorrect.                             |
+|  step_size  |                                                                                             Double used by the Curve Search functions. Sets the initial interval length used. Defaults to 0.5                                                                                             |
+|   bisect    |                                              Boolean to denote the bisection method of boundary solution. Solves for the optimal log-likelihood at both ends and middle of a searching interval, then updates the window until convergence.                                               |

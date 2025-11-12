@@ -1,0 +1,129 @@
+# SMR Analysis
+
+``` r
+library(Colossus)
+#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
+library(data.table)
+library(survival)
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:data.table':
+#> 
+#>     between, first, last
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+```
+
+## External Rate Comparisons
+
+At times, it is important to determine if the event rate in a cohort is
+statistically different from the event rate in a reference population.
+This has traditionally been done by calculating a Standardized Mortality
+Ratio (SMR). The analysis assumes the researcher has a table of event
+rates for different combinations of ages or categories in a reference
+population, which are then applied to the collected data to estimate the
+number of events if the collected data was subject to the same
+background event rate as the reference population. The goal is generally
+to determine if the observed events are statistically different than the
+expected number of events, and to investigate how much of an effect
+different covariates have.
+
+### SMR Calculation
+
+One method to approximate this is to fit a model to the SMR. The
+simplest model is to estimate the true rate ($\lambda_{i}$) as a
+multiple of the expected rate ($\lambda_{i}^{*}$). This provides an SMR
+for the full cohort, assuming one has an estimated rate for every row of
+data.
+
+$$\begin{array}{r}
+{\lambda_{i} = \beta*\lambda_{i}^{*}}
+\end{array}$$
+
+For this analysis, we will use the veteran lung cancer trial data from
+the survival package. We will treat events to be status equal to 2,
+scale the survival time to be per 100 days, and assume every row has an
+expected event rate of 0.5, roughly double the average rate in the data.
+In practice, this could be a constant population average or a
+row-specific rate taken from mapping a table of external events onto the
+data.
+
+``` r
+data(cancer, package = "survival")
+cancer %>% setDT()
+df <- copy(cancer)
+
+cancer$status <- as.integer(cancer$status == 2)
+cancer$time <- cancer$time / 100
+
+cancer$erate <- 0.5
+```
+
+The analysis proceeds identically to a standard Poisson regression. We
+are interested in a linear relationship between the expected event rate
+and true event rate, and set the initial parameter estimate to 1.
+
+``` r
+a_n <- c(1)
+control <- list(
+  "ncores" = 1, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-9,
+  "deriv_epsilon" = 1e-9, "verbose" = 2
+)
+e <- PoisRun(Poisson(time, status) ~ linear(erate), cancer, a_n = a_n, control = control)
+print(e)
+#> |-------------------------------------------------------------------|
+#> Final Results
+#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>       <int>            <num>          <num>          <num>
+#> 1:     erate     lin           0        0.4741856      0.0369153   9.147657e-38
+#> 
+#> Poisson Model Used
+#> -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.65
+#> Iterations run: 13
+#> maximum step size: 1.74e-10, maximum first derivative: 1.24e-06
+#> Analysis did not converge, check convergence criteria or run further
+#> Run finished in 0.02 seconds
+#> |-------------------------------------------------------------------|
+```
+
+In this case, we found the SMR to be 0.474, analysis of the confidence
+interval (either Wald or Likelihood-based) could be performed to check
+if the results are statistically significant. Suppose we wanted to take
+the analysis a step further and investigate the effect of difference
+covariates. The SMR equation can be adjusted to either an additive or
+multiplicative effect, similar to any other Poisson regression model.
+Let us assume we are interested in the effects of biological sex. We can
+add another element to our model and rerun the regression.
+
+``` r
+a_n <- c(1, 1)
+
+e <- PoisRun(Poisson(time, status) ~ linear(erate, 0) + linear(sex, 1), cancer, a_n = a_n, control = control)
+print(e)
+#> |-------------------------------------------------------------------|
+#> Final Results
+#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>       <int>            <num>          <num>          <num>
+#> 1:     erate     lin           0        0.3696187      0.1111424   0.0008821847
+#> 2:       sex     lin           1        0.1904852      0.2571859   0.4589044455
+#> 
+#> Poisson Model Used
+#> -2*Log-Likelihood: 582.87,  Deviation: 252.87,  AIC: 256.87,  BIC: 593.72
+#> Iterations run: 7
+#> maximum step size: 9.31e-10, maximum first derivative: 1.42e+01
+#> Analysis did not converge, check convergence criteria or run further
+#> Run finished in 0.01 seconds
+#> |-------------------------------------------------------------------|
+```
+
+In this case, we found the SMR for sex=0 to be 0.37 and the SMR for
+sex=1 to be 0.56. Once again we could further investigate the confidence
+intervals to determine if these estimates are statistically significant.
+This demonstrates how one can use Poisson regressions and external event
+rates to estimate differences in event rates between external
+populations and studied populations.

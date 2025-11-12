@@ -1,0 +1,88 @@
+# Multiple Realization Methods
+
+``` r
+library(Colossus)
+#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
+library(data.table)
+```
+
+## Available Methods
+
+There are many instances in which a user may want to use data that is
+known up to a distribution, in these cases it may not be sufficient to
+use a single realization. Colossus provides two ways to use multiple
+realizations. The first runs multiple regressions in a row, each with a
+different realization. The second optimizes the average Log-Likelihood
+over the realizations. These methods were designed to assist in
+circumstances in which combinations of shared and unshared errors are
+present, and a two-dimensional Monte Carlo method is used to generate
+realizations for at least one covariate column. Note that this method
+does not apply to uncertainties in the event/cases or interval/duration
+columns.
+
+### Specifics of Use
+
+Let us suppose that we are interested in performing a regression with
+three covariates: an age bin, amount of exposure to a radioisotope
+during an interval, and average sleep during an interval. Age bin is
+known, exposure is known up to a distribution that could be shared among
+individuals, and sleep is randomly distributed and independent in each
+interval.
+
+$$\begin{array}{r}
+{\lambda(a,r,s) = \exp\left( \beta_{a} \times a + \beta_{a} \times r + \beta_{a} \times s \right)}
+\end{array}$$
+
+``` r
+model <- Cox(t0, t1, event) ~ loglinear(a, r0, s0)
+
+a_n <- c(0.1, 0.1, 0.1)
+```
+
+Colossus requires two items to apply multiple realizations, a list of
+columns to replace, and a matrix of columns for each realization.
+Suppose the user generates 5 realizations. Then there are two
+distributed columns and five realizations. Similar to other regression
+options, Colossus always expects column names listed in the model to be
+in the table.
+
+``` r
+dose_index <- c("r0", "s0")
+# The two columns in the model to replace are the radiation and sleeping covariates
+dose_realizations <- matrix(
+  c("r0", "r1", "r2", "r3", "r4", "s0", "s1", "s2", "s3", "s4"),
+  nrow = 2
+)
+# columns to be used for realizations 0-4, rows for each column being replaced
+```
+
+The first method is designed to perform the Frequentist Model Averaging
+method. It runs each regression and returns matrices for the final
+parameter estimates, standard deviations, and log-likelihoods/AIC of
+each regression. These results can be used to create likelihood-weighted
+parameter distributions, to account for uncertainty in the final
+parameter estimates. Note that there is no strict requirement for the
+realization columns to be realizations of a distributed column. A user
+could use this method to compare models with the same formula but
+different covariates. The only difficulty is that Colossus does not
+refresh the parameter estimates between realization regressions, so the
+user may need to keep in mind feasible parameter space. If individual
+realizations are being optimized and the initial parameter estimate is
+infeasible, the parameter estimates associated with the negative term
+are reduced in magnitude. In most cases, this is enough to find a nearby
+feasible space to start at.
+
+``` r
+e_fma <- CoxRunMulti(model, df, a_n = a_n, realization_columns = realization_columns, realization_index = realization_index, fma = TRUE)
+```
+
+The second method is designed to perform the Monte Carlo Maximum
+Likelihood method. It returns the standard regression output, only using
+the average log-likelihood. Once again, there is no requirement for the
+realization columns to be from a distribution. The code could also be
+used to determine a set of model parameters that optimize the average
+risk from a series of similar models.
+
+``` r
+e_mcml <- CoxRunMulti(model, df, a_n = a_n, realization_columns = realization_columns, realization_index = realization_index, mcml = TRUE)
+```

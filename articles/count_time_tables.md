@@ -1,0 +1,318 @@
+# Generating Person-Count and Person-Time Tables
+
+``` r
+library(Colossus)
+#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
+library(data.table)
+library(parallel)
+```
+
+## General Purpose
+
+Before performing a regression on rate or hazard ratio, it is often
+important to look at a summary of the data. It can be very informative
+to break columns into categories and summarize the number of events or
+average column values in each category. Colossus offers two functions
+designed to create summary tables, Event_Count_Gen and Event_Time_Gen
+which create person-count tables and person-time tables respectively.
+The following sections will cover generally how to use each function and
+what different needs are met.
+
+### Person-Count Tables
+
+A person count table is the simplest way to summarize a table. This
+assumes you have columns you want to break into categories and columns
+you want to summarize. Let us start with a basic example. Suppose we
+have a dataset tracking the number of apples and oranges people bought,
+the number of hands they used to carry their bag, and whether the bag
+ripped or not.
+
+``` r
+apples <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
+oranges <- c(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 3, 2, 2, 1)
+rip <- c(0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1)
+hands <- c(1, 1, 2, 3, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2)
+table <- data.table::data.table(
+  "apples" = apples,
+  "oranges" = oranges,
+  "rip" = rip,
+  "hands" = hands
+)
+```
+
+Suppose we want to split our dataset up by the number of each fruit,
+count the number of ripped bags in each category, and figure out the
+average number of hands used. We would start by defining how we want to
+split the categories. There are two general ways to define the
+intervals, with a single string or a list of upper and lower bounds. Let
+us start with the string representation. The string is expected to
+alternate number and delimiter, either “/” or “\]”, which split the
+upper and lower bounds for each interval. Every interval in this format
+includes the lower bound. The interval includes the upper bound if “\]”
+is used, and does not otherwise. So the interval \[2,5) is equivalent to
+“2/5” and the interval \[5,8\] is equivalent to “5\]8”. This method uses
+each triplet sequentially, so the categories will cover every value that
+falls between the first and last number listed. The list notation is
+very similar. There are 2 values required in the list and 1 optional
+value. The list has to have vectors titled lower and upper, which are
+the lower and upper bounds for each interval. This method can include
+gaps. Similarly to the string version, the lower bound is always
+included and the upper bound is included if the upper bound entry
+includes “\]”. The list option allows the categories to be labeled
+instead of being automatically numbered. A third list titled name can be
+provided to label each category. Suppose we want to break the apple
+column into the intervals: \[0, 3), \[3, 5), \[5,7\] and break our
+oranges column into the intervals: \[-1,3), \[3,6), \[6,10) with the
+labels: few, good, and excessive. That would look like the following
+code. This splits each category into 3 levels and in total 9
+combinations.
+
+``` r
+apple_category <- "0/3/5]7"
+orange_category <- list(
+  lower = c(-1, 3, 6),
+  upper = c(3, 6, 10),
+  name = c("few", "good", "excessive")
+)
+categ <- list(
+  "apples" = apple_category,
+  "oranges" = orange_category
+)
+```
+
+Now we define what summary variables we want. Once again, we define a
+list. Every item in the list is named with the column it is applied to
+and contains a string specifying what summary method to use. There are
+two options supported currently: count and mean, which will provide the
+sum or the mean of the column in each category. One can also provide a
+new name for the summary column by listing the method as “option AS
+name”. Otherwise, the grouped table will use the original column name
+for the summary column name. Suppose we wanted to take the sum of ripped
+bags and name it “dropped” and take the mean of the hands column.
+
+``` r
+event <- list("rip" = "count AS dropped", "hands" = "mean")
+```
+
+The final step is to run the function. The function returns two items,
+the grouped data and a summary of the category intervals. The category
+intervals should be checked to verify that the intervals match what were
+expected.
+
+``` r
+Event_Count_Gen(table, categ, event)
+#> $df
+#>    apples_category oranges_category COUNT dropped hands
+#>             <char>           <char> <int>   <num> <num>
+#> 1:               1                1     8       3  1.50
+#> 2:               2                2     5       3  2.00
+#> 3:               3                3     4       3  1.25
+#> 
+#> $bounds
+#> $bounds$apples_category
+#> [1] " [0, 3) [3, 5) [5, 7]"
+#> 
+#> $bounds$oranges_category
+#> [1] " [-1, 3) [3, 6) [6, 10)"
+```
+
+### Person-Time Tables
+
+The previous method treats every row as being weighted the same. In many
+cases, every row has some measure of time which we may want to use. That
+is the fundamental difference between the person count tables and person
+time tables, the inclusion of time. The code used to generate a person
+time table is very similar to the person count table, with several
+important differences. The first is that the data should have time
+columns. Similar to the Cox model options in Colossus, the data should
+have an entry column, exit column, or both. These would denote the
+scenario where every interval ends at the same point, starts at the same
+point, or has different start and stop times. This method currently only
+supports day/month/year information which are combined into complete
+dates. The Event_Time_Gen function uses a list to input the time
+columns. This list should have entry and exit items if needed, each list
+should have a column name for the year, month, and day columns if
+needed. The dates will default to 1/1/1900 if not provided. The
+person-year list can also contain a unit, defaulted to years.
+
+``` r
+a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
+b <- c(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 3, 2, 2, 1)
+c <- c(0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1)
+
+d <- c(1, 1, 2, 2, 1, 1, 2, 2, 3, 3, 3, 4, 4, 2, 1, 1, 2)
+e <- c(1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1)
+f <- c(
+  1900, 1900, 1900, 1900, 1900, 1900, 1900, 1900, 1900,
+  1900, 1900, 1900, 1900, 1900, 1900, 1900, 1900
+)
+g <- c(4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4)
+h <- c(6, 4, 4, 6, 6, 6, 4, 4, 4, 6, 6, 6, 6, 4, 4, 4, 4)
+i <- c(
+  1901, 1902, 1903, 1904, 1905, 1906, 1907, 1903, 1904,
+  1903, 1904, 1910, 1903, 1904, 1903, 1904, 1910
+)
+table <- data.table::data.table(
+  "a" = a, "b" = b, "c" = c,
+  "d" = d, "e" = e, "f" = f,
+  "g" = g, "h" = h, "i" = i
+)
+
+pyr <- list(
+  entry = list(year = "f", month = "e", day = "d"),
+  exit = list(year = "i", month = "h", day = "g"),
+  unit = "years"
+)
+```
+
+The second major difference is the possible use of time categories. Time
+categories are set by vectors of the day, month, and year of each
+interval splitting point. So intervals changing every 2 days could be
+expressed by “day=c(1,3,5,…)”. Time categories are unique in that each
+row can correspond to multiple time categories, so the duration of each
+row in each time category is kept to distinguish which rows are only
+partially in each time interval. If a time category is not provided,
+then the full duration of each row is used for person-year calculations.
+
+``` r
+categ <- list(
+  "a" = "-1/3/5]7",
+  "b" = list(
+    lower = c(-1, 3, 6), upper = c(3, 6, 10),
+    name = c("low", "medium", "high")
+  ),
+  "time AS time_bin" = list(
+    "day" = c(1, 1, 1),
+    "month" = c(1, 1, 1),
+    "year" = c(1899, 1903, 1910)
+  )
+)
+```
+
+The final difference is that person-time tables make a distinction
+between events and summaries. The summary list is nearly identical to
+the event list in the person-count function. The only difference is that
+a weighted_mean option is added. This is the mean of the group weighted
+by person-years. The event list for the person-time table function is
+used to determine which time categories the event columns are assigned
+to. Based on the relative row intervals and category intervals, each row
+can be part of multiple time categories. However, the event is only
+assigned to the time category containing the endpoint of the row
+interval.
+
+``` r
+summary <- list("c" = "count AS cases", "b" = "weighted_mean AS b_weighted")
+events <- list("c")
+```
+
+Finally, the function is run. Similar to the person-count table
+function, the function returns the grouped table and list of category
+boundaries.
+
+``` r
+pyr <- list(
+  entry = list(year = "f", month = "e", day = "d"),
+  exit = list(year = "i", month = "h", day = "g"),
+  unit = "years"
+)
+print(Event_Time_Gen(table, pyr, categ, summary, events, T))
+#> $df
+#>     a_category b_category time_bin AT_RISK        PYR cases b_weighted
+#>         <char>     <char>   <char>   <int>      <num> <num>      <num>
+#>  1:          1       high        1       1  2.9952088     0   6.000000
+#>  2:          1       high        2       1  0.2600958     0   6.000000
+#>  3:          1        low        1       5 12.4791239     1   1.413339
+#>  4:          1        low        2       3 14.4257358     0   1.485291
+#>  5:          1     medium        1       2  5.9876797     0   3.999543
+#>  6:          1     medium        2       2  1.5167693     1   4.664260
+#>  7:          2        low        1       1  2.9979466     0   2.000000
+#>  8:          2        low        2       1  1.2566735     0   2.000000
+#>  9:          2     medium        1       4 11.8083504     0   3.993276
+#> 10:          2     medium        2       4  5.7056810     3   4.175144
+#> 11:          3       high        1       2  5.8234086     0   6.499765
+#> 12:          3       high        2       2  7.6824093     2   6.554170
+#> 13:          3        low        1       1  2.9130732     0   2.000000
+#> 14:          3        low        2       1  0.2546201     1   2.000000
+#> 15:          3     medium        1       1  2.9103354     0   3.000000
+#> 16:          3     medium        2       1  1.2566735     0   3.000000
+#> 
+#> $bounds
+#> $bounds$a_category
+#> [1] " [-1, 3) [3, 5) [5, 7]"
+#> 
+#> $bounds$b_category
+#> [1] " [-1, 3) [3, 6) [6, 10)"
+#> 
+#> $bounds$time_bin
+#> [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"
+pyr <- list(
+  entry = list(year = "f", month = "e", day = "d"),
+  exit = list(year = "i", month = "h", day = "g"),
+  unit = "months"
+)
+print(Event_Time_Gen(table, pyr, categ, summary, events, T))
+#> $df
+#>     a_category b_category time_bin AT_RISK        PYR cases b_weighted
+#>         <char>     <char>   <char>   <int>      <num> <num>      <num>
+#>  1:          1       high        1       1  35.942505     0   6.000000
+#>  2:          1       high        2       1   3.121150     0   6.000000
+#>  3:          1        low        1       5 149.749487     1   1.413339
+#>  4:          1        low        2       3 173.108830     0   1.485291
+#>  5:          1     medium        1       2  71.852156     0   3.999543
+#>  6:          1     medium        2       2  18.201232     1   4.664260
+#>  7:          2        low        1       1  35.975359     0   2.000000
+#>  8:          2        low        2       1  15.080082     0   2.000000
+#>  9:          2     medium        1       4 141.700205     0   3.993276
+#> 10:          2     medium        2       4  68.468172     3   4.175144
+#> 11:          3       high        1       2  69.880903     0   6.499765
+#> 12:          3       high        2       2  92.188912     2   6.554170
+#> 13:          3        low        1       1  34.956879     0   2.000000
+#> 14:          3        low        2       1   3.055441     1   2.000000
+#> 15:          3     medium        1       1  34.924025     0   3.000000
+#> 16:          3     medium        2       1  15.080082     0   3.000000
+#> 
+#> $bounds
+#> $bounds$a_category
+#> [1] " [-1, 3) [3, 5) [5, 7]"
+#> 
+#> $bounds$b_category
+#> [1] " [-1, 3) [3, 6) [6, 10)"
+#> 
+#> $bounds$time_bin
+#> [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"
+pyr <- list(
+  entry = list(year = "f", month = "e", day = "d"),
+  exit = list(year = "i", month = "h", day = "g"),
+  unit = "days"
+)
+print(Event_Time_Gen(table, pyr, categ, summary, events, T))
+#> $df
+#>     a_category b_category time_bin AT_RISK   PYR cases b_weighted
+#>         <char>     <char>   <char>   <int> <num> <num>      <num>
+#>  1:          1       high        1       1  1094     0   6.000000
+#>  2:          1       high        2       1    95     0   6.000000
+#>  3:          1        low        1       5  4558     1   1.413339
+#>  4:          1        low        2       3  5269     0   1.485291
+#>  5:          1     medium        1       2  2187     0   3.999543
+#>  6:          1     medium        2       2   554     1   4.664260
+#>  7:          2        low        1       1  1095     0   2.000000
+#>  8:          2        low        2       1   459     0   2.000000
+#>  9:          2     medium        1       4  4313     0   3.993276
+#> 10:          2     medium        2       4  2084     3   4.175144
+#> 11:          3       high        1       2  2127     0   6.499765
+#> 12:          3       high        2       2  2806     2   6.554170
+#> 13:          3        low        1       1  1064     0   2.000000
+#> 14:          3        low        2       1    93     1   2.000000
+#> 15:          3     medium        1       1  1063     0   3.000000
+#> 16:          3     medium        2       1   459     0   3.000000
+#> 
+#> $bounds
+#> $bounds$a_category
+#> [1] " [-1, 3) [3, 5) [5, 7]"
+#> 
+#> $bounds$b_category
+#> [1] " [-1, 3) [3, 6) [6, 10)"
+#> 
+#> $bounds$time_bin
+#> [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"
+```

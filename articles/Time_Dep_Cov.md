@@ -1,0 +1,248 @@
+# Time Dependent Covariate Use
+
+``` r
+library(Colossus)
+#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
+library(data.table)
+library(survival)
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:data.table':
+#> 
+#>     between, first, last
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+```
+
+## General Usage
+
+For Cox Proportional Hazards regression, the model is generally assumed
+to be independent of event time. However, for more complex models,
+Colossus can perform regressions using covariates that change over time.
+These can be split into two general types of covariates, step functions
+changing with time and multiplicative interactions with time. Colossus
+generates the new dataset by splitting each row of the original dataset
+into smaller intervals. This assumes that over each interval the values
+of every covariate are approximately constant. For Cox Proportional
+Hazards, rows that do not contain an event time are not used for
+regression, so Colossus has an option to only use small intervals around
+each event time. With this option, the time-dependent covariate is
+evaluated only at event times. For data-sets with a small number of
+discrete event times, this can save time and memory.
+
+## Multiplicative Interaction
+
+The simplest type of time-dependent covariate is an interaction term
+between time and another covariate. Suppose we have a row in a dataset
+with a factor covariate “group” and some arbitrary endpoints to the time
+interval. Colossus starts by using a user-provided function to calculate
+the value of the time-dependent covariate at the endpoints. We assume
+that the value of “group” is constant over the interval and time is
+changing linearly. Colossus calculates the value of the time-dependent
+covariate over intervals by linearly interpolating between the values at
+the endpoints. This process assumes that the interaction is linear or
+the interval is small enough for the interaction to be approximately
+linear.
+
+``` r
+dft <- data.table("x" = c(1, 2, 3), "y" = c(2, 5, 10))
+g <- ggplot2::ggplot(dft, ggplot2::aes(x = .data$x, y = .data$y)) +
+  ggplot2::geom_point(color = "black") +
+  ggplot2::geom_line(color = "black", alpha = 1) +
+  ggplot2::labs(x = "age (days)", y = "Covariate Value")
+x <- seq(1, 3, by = 0.1)
+y <- 1 + x^2
+dft <- data.table("x" = x, "y" = y)
+g <- g + ggplot2::geom_line(
+  data = dft, ggplot2::aes(x = .data$x, y = .data$y),
+  color = "black", linetype = "dashed"
+)
+g
+```
+
+![Linear Interpolated
+Function](Time_Dep_Cov_files/figure-html/unnamed-chunk-2-1.png)
+
+Linear Interpolated Function
+
+$$\begin{array}{r}
+{Y(x) = x^{2} + 1}
+\end{array}$$
+
+This is most helpful in a situation where the user has continuous data
+over a series of intervals and believes that the values can be
+interpolated within each interval.
+
+## Step Function Interaction
+
+The second type of time-dependent covariate changes based on conditional
+statements. One example is a covariate to split data into bins by time.
+Colossus uses a string to identify where to change value. The user
+inputs a string of the form “#l?” for a time value “#”, a condition “l”,
+and a question mark as a delimiter. Colossus allows for four conditions:
+
+- l: less than or equal to
+- g: greater than or equal to
+- a: strictly above
+- b: strictly below
+
+So the following would be equivalent to “$0g?6g?12g?$”
+
+``` r
+dft <- data.table("x" = c(-1, 1, 5, 8, 13), "y" = c(0, 1, 1, 2, 3))
+g <- ggplot2::ggplot(dft, ggplot2::aes(x = .data$x, y = .data$y)) +
+  ggplot2::geom_point(color = "black")
+dft <- data.table("x" = c(-1, -0.01, 0, 1, 5.99, 6, 11.99, 12, 13), "y" = c(0, 0, 1, 1, 1, 2, 2, 3, 3))
+g <- g + ggplot2::geom_line(data = dft, ggplot2::aes(x = .data$x, y = .data$y), color = "black") +
+  ggplot2::labs(x = "age (days)", y = "Covariate Value")
+g
+```
+
+![Monotonic Step Function
+Applied](Time_Dep_Cov_files/figure-html/unnamed-chunk-3-1.png)
+
+Monotonic Step Function Applied
+
+$$\begin{array}{r}
+{Y(x) = \begin{cases}
+0 & (x < 0) \\
+1 & (x \geq 0) \\
+2 & (x \geq 6) \\
+3 & (x \geq 12)
+\end{cases}} \\
+
+\end{array}$$
+
+Meanwhile the following is equivalent to “$0g?6g?12l?$”
+
+``` r
+dft <- data.table("x" = c(-1, 1, 5, 8, 13), "y" = c(1, 2, 2, 3, 2))
+g <- ggplot2::ggplot(dft, ggplot2::aes(x = .data$x, y = .data$y)) +
+  ggplot2::geom_point(color = "black")
+dft <- data.table("x" = c(-1, -0.01, 0, 1, 5.99, 6, 11.99, 12, 13), "y" = c(1, 1, 2, 2, 2, 3, 3, 2, 2))
+g <- g + ggplot2::geom_line(data = dft, ggplot2::aes(x = .data$x, y = .data$y), color = "black") +
+  ggplot2::labs(x = "age (days)", y = "Covariate Value")
+g
+```
+
+![Step Function
+Applied](Time_Dep_Cov_files/figure-html/unnamed-chunk-4-1.png)
+
+Step Function Applied
+
+$$\begin{array}{r}
+{Y(x) = \begin{cases}
+1 & (x < 0) \\
+2 & (x \geq 0) \\
+3 & (x \geq 6) \\
+2 & (x \geq 12)
+\end{cases}} \\
+
+\end{array}$$
+
+This is most helpful in situations where the user has reason to believe
+that the effect of a covariate on events is not uniform over time
+despite the covariate being constant over each interval. This allows the
+user to generate a list of factors to interact with any covariate of
+interest.
+
+## Examples of Use
+
+The following provide a basic example for each method listed above. We
+start by setting up the data, which for this example is the cancer data
+from the R survival package.
+
+``` r
+# Setting up the data for use
+data(cancer, package = "survival")
+cancer %>% setDT()
+df <- copy(cancer)
+
+df$UserID <- seq_len(nrow(df))
+
+df$status <- df$status - 1
+df$sex <- df$sex - 1
+
+t0 <- "%trunc%"
+t1 <- "time"
+event <- "status"
+
+df <- df[, c("time", "status", "sex", "UserID")]
+```
+
+For the first example we will linearly interpolate the product of time
+and biological sex.
+
+``` r
+grt_f <- function(df, time_col) {
+  return((df[, "sex"] * df[, get(time_col)] / 400)[[1]])
+}
+func_form <- c("lin")
+iscox <- TRUE
+dt <- 0.01
+df_new <- gen_time_dep(
+  df, t0, t1, event, iscox, dt, c("sex_time"), c(),
+  c(grt_f), "test_new.csv", func_form,
+  nthreads = 1
+)
+
+g <- ggplot2::ggplot(df_new, ggplot2::aes(x = .data$time, y = .data$sex_time, colour = factor(.data$sex))) +
+  ggplot2::geom_point() +
+  ggplot2::geom_line() +
+  ggplot2::labs(x = "Time", y = "Covariate Value")
+g
+```
+
+![Linear Interpolation
+Example](Time_Dep_Cov_files/figure-html/unnamed-chunk-6-1.png)
+
+Linear Interpolation Example
+
+For the second example we will use a step functions that increases at
+200, 500, and 700 days.
+
+``` r
+func_form <- c("step?0g?200g?500g?700g?")
+df_new <- gen_time_dep(
+  df, t0, t1, event, iscox, dt, c("time_step"), c(),
+  c(grt_f), "test_new.csv", func_form,
+  nthreads = 1
+)
+g <- ggplot2::ggplot(df_new, ggplot2::aes(x = .data$time, y = .data$time_step)) +
+  ggplot2::geom_point(color = "black") +
+  ggplot2::geom_line() +
+  ggplot2::labs(x = "Time", y = "Covariate Value")
+g
+```
+
+![Monotonic Step Function
+Example](Time_Dep_Cov_files/figure-html/unnamed-chunk-7-1.png)
+
+Monotonic Step Function Example
+
+For the third example we will use a step functions that increases at
+200, 400, and 700 days and decreases at 600 and 800 days.
+
+``` r
+func_form <- c("step?0g?200g?400g?600l?700g?800b?")
+df_new <- gen_time_dep(
+  df, t0, t1, event, iscox, dt, c("time_step"), c(),
+  c(grt_f), "test_new.csv", func_form,
+  nthreads = 1
+)
+g <- ggplot2::ggplot(df_new, ggplot2::aes(x = .data$time, y = .data$time_step)) +
+  ggplot2::geom_point(color = "black") +
+  ggplot2::geom_line() +
+  ggplot2::labs(x = "Time", y = "Covariate Value")
+g
+```
+
+![Step Function
+Example](Time_Dep_Cov_files/figure-html/unnamed-chunk-8-1.png)
+
+Step Function Example

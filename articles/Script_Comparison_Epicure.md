@@ -1,0 +1,140 @@
+# Script comparisons with 32-bit Epicure
+
+``` r
+library(Colossus)
+#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
+library(data.table)
+library(parallel)
+```
+
+## Introduction to Colossus
+
+Colossus was developed in the context of radiation epidemiologists
+wanting to use new methods and more data. At the time of development,
+32-bit Epicure was a popular software for running radiation
+epidemiological analysis. This vignette was written with that in mind to
+help any transitioning users see how the two are similar and different,
+in addition to providing guidance for converting between the two. The
+script provided will discuss both Colossus-specific differences as well
+as general R capabilities that differ from Epicure.
+
+### Example Epicure Analysis
+
+The following peanuts script was used as part of validation efforts for
+Colossus. The script runs three regressions. A linear excess relative
+risk model, a log-linear hazard ratio model for dose overall, and a
+log-linear hazard ratio model for categorical bins of dose. Similar
+regressions were performed with radiation cohort data to assess the
+relationship between the risk of different mortality events and
+cumulative radiation exposure to organs.
+
+The script starts by loading the dataset. In this example, we assume
+there is a file called “EX_DOSE.csv” in the local directory.
+
+    RECORDS 4100000 @
+    WSOPT VARMAX 30 @
+    USETXT EX_DOSE.csv @
+    INPUT @
+
+Next, the script sets the interval start column and interval end column,
+and designates which columns have multiple levels.
+
+    ENTRY age_entry @
+    EXIT age_exit @
+    EVENT nonCLL @
+
+    levels SES_CAT YOB_CAT sexm dose_cat @
+
+Past this point, the script specifies which columns belong to each
+subterm and term number. In this case, the model has a product-linear
+element in the first term. The script additionally sets the convergence
+options. The maximum iterations are set to 100 and the convergence
+criteria are set to 1e-9. The regression is also set to print deviance
+and parameter estimates for each iteration and to print the final
+parameter estimates and covariance after the regression concludes.
+
+    LOGLINEAR 0 SES_CAT YOB_CAT sexm @
+    PLINEAR 0 cumulative_dose @
+
+    FITOPT P V ITER 100 CONV -9 @
+
+Finally, the regression is run and results are printed to the console.
+
+    FIT @
+
+Past this point, the same general process is followed for the two hazard
+ratio regressions. The model definition is reset, the subterm/term
+description is set, and the regression is run.
+
+    NOMODEL @
+
+    LOGLINEAR 0 SES_CAT YOB_CAT sexm cumulative_dose @
+
+    FIT @
+
+    NOMODEL @
+
+    LOGLINEAR 0 SES_CAT YOB_CAT sexm dose_cat @
+
+    FIT @
+
+### Colossus Script
+
+For the most part, the same steps are performed in Colossus. The script
+starts by reading the input file. The only difference is that R does not
+require memory to be set aside before reading the file.
+
+``` r
+df_Dose <- fread("EX_DOSE.csv")
+```
+
+Colossus defines the model as a formula. The left-hand side of the
+formula defines the type of model, the time observed, and the event
+columns. The right-hand side defines the risk factors in each term and
+subterm. The model is a Cox regression, the intervals are defined by the
+age_entry/age_exit columns, and the event status is stored in the nonCLL
+column. This is denoted by ‘Cox(age_entry, age_exit, nonCLL)’. The
+loglinear and product-linear subterms are added to the formula by
+specifying the subterm type, included columns, and term number,
+i.e. ‘subterm(column 1, column 2, …, term number)’. Factored columns are
+added by using ‘factor(column)’, the default level is assumed to be the
+first level.
+
+``` r
+model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) + loglinear(factor(SES_CAT), factor(YOB_CAT), sexm)
+```
+
+Next, the script defines the control information. The “control” variable
+serves a similar purpose as the “FITOPT” option in Epicure. This control
+list specifies that two cores should be used to perform calculations in
+parallel, up to 100 iterations should be used, and the iterations should
+stop if the step size is below 1e-9 or the first derivatives are all
+below 1e-9. The verbose options specifies that any errors or warnings
+should be printed to the console.
+
+``` r
+control <- list("Ncores" = 2, "maxiter" = 100, "verbose" = 2, "epsilon" = 1e-9, "der_epsilon" = 1e-9)
+```
+
+Finally, the regression is run and a list of the results is returned to
+a variable “e”. Regressions in Colossus return a list of results, a
+summary can be printed.
+
+``` r
+e <- CoxRun(model_ERR, df_dose, control = control)
+print(e)
+```
+
+A similar process is run for the two hazard ratio regressions.
+
+``` r
+# HR
+model_HR <- Cox(age_entry, age_exit, nonCLL) ~ loglinear(cumulative_dose, factor(SES_CAT), factor(YOB_CAT), sexm)
+e <- CoxRun(model_HR, df_dose, control = control)
+print(e)
+
+# Categorical
+model_categ <- Cox(age_entry, age_exit, nonCLL) ~ loglinear(factor(dose_cat), factor(SES_CAT), factor(YOB_CAT), sexm)
+e <- CoxRun(model_categ, df_dose, control = control)
+print(e)
+```
