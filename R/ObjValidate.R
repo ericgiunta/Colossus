@@ -513,6 +513,21 @@ validate_coxres <- function(x, df) {
   x
 }
 
+validate_coxresbound <- function(x, df) {
+  coxres <- x$coxres
+  coxmodel <- coxres$model
+  null <- coxmodel$null
+  control <- coxres$control
+  verbose <- control$verbose
+  #
+  validate_coxsurv(coxmodel, df)
+  if (!null) {
+    coxmodel <- validate_formula(coxmodel, df, verbose)
+  }
+  x$coxres$model <- coxmodel
+  x
+}
+
 validate_poisres <- function(x, df) {
   poismodel <- x$model
   control <- x$control
@@ -521,6 +536,18 @@ validate_poisres <- function(x, df) {
   validate_poissurv(poismodel, df)
   poismodel <- validate_formula(poismodel, df, verbose)
   x$model <- poismodel
+  x
+}
+
+validate_poisresbound <- function(x, df) {
+  poisres <- x$poisres
+  poismodel <- poisres$model
+  control <- poisres$control
+  verbose <- control$verbose
+  #
+  validate_poissurv(poismodel, df)
+  poismodel <- validate_formula(poismodel, df, verbose)
+  x$poisres$model <- poismodel
   x
 }
 

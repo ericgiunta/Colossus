@@ -90,6 +90,7 @@ res <- PoisRun(formula, df, control = control)
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{EventAssignment.poisres}()},
+\code{\link{EventAssignment.poisresbound}()},
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},

@@ -40,6 +40,11 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     calls <- coxmodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
     #
+  } else if (is(model, "coxres")) {
+    coxmodel <- model$model
+    calls <- coxmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    coxmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -233,6 +238,11 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     poismodel <- copy(model)
     calls <- poismodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
+  } else if (is(model, "poisres")) {
+    poismodel <- model$model
+    calls <- poismodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    poismodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -1555,6 +1565,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   }
   res$model <- coxmodel
   res$beta_0 <- object$beta_0
+  res$coxres <- object
   #
   if (tolower(norm) == "null") {
     # nothing changes
@@ -1667,6 +1678,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   res$model <- poismodel
   res$beta_0 <- object$beta_0
+  res$poisres <- object
   #
   if (tolower(norm) == "null") {
     # nothing changes
@@ -1787,9 +1799,250 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     # Just a basic event assignment
     res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   } else {
+    a_n <- object$beta_0
+    stdev <- object$Standard_Deviation
+    #
     # running a boundary solution
-    res <- RunPoissonEventAssignment_bound(df, pyr0, event0, x, keep_constant, modelform, check_num, z, control, strat_col, model_control)
+    e_mid <- RunPoissonEventAssignment(
+      df, pyr0, event0, names, term_n,
+      tform, keep_constant, a_n, modelform,
+      control, strat_col,
+      model_control
+    )
+    if (length(names) == 1) {
+      # There is only one parameter, so we don't need to reoptimize
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] - z * stdev[check_num]
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] + z * stdev[check_num]
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names,
+        term_n, tform, keep_constant,
+        a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    } else {
+      # We need to shift the parameter, fix it, and then optimize before getting cases
+      keep_constant[check_num] <- 1
+      #
+      model_control <- object$modelcontrol
+      norm <- object$norm
+      if (!model_control$null) {
+        if (model_control[["constraint"]]) {
+          cons_mat <- object$constraint_matrix
+          cons_vec <- object$constraint_vector
+        }
+      }
+      # Start with low
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] - z * stdev[check_num]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        low_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- low_res$beta_0
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      # Now the high
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] + z * stdev[check_num]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        high_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- high_res$beta_0
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    }
+    res <- list(
+      "lower_limit" = e_low, "midpoint" = e_mid,
+      "upper_limit" = e_high
+    )
   }
+  res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
+  res
+}
+
+#' Predicts how many events are due to baseline vs excess for a completed poisson likelihood boundary regression
+#'
+#' \code{EventAssignment.poisresbound} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate background and excess events for a solved Poisson regression
+#'
+#' @param x result object from a regression, class poisres
+#' @param assign_control control list for bounds calculated
+#' @param ... can include the named entries for the assign_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Poisson Wrapper Functions
+EventAssignment.poisresbound <- function(x, df, assign_control = list(), control = list(), a_n = c(), ...) {
+  poisres <- x$poisres
+  poismodel <- poisres$model
+  pyr0 <- poismodel$person_year
+  event0 <- poismodel$event
+  names <- poismodel$names
+  term_n <- poismodel$term_n
+  tform <- poismodel$tform
+  keep_constant <- poismodel$keep_constant
+  modelform <- poismodel$modelform
+  strat_col <- poismodel$strata
+  #
+  calls <- poismodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  object <- validate_poisres(poisres, df)
+  #
+  if (missing(a_n)) {
+    a_n <- object$beta_0
+  }
+  if (missing(control)) {
+    control <- object$control
+  }
+  model_control <- object$modelcontrol
+  #
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- c("bound", "check_num", "z") # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(assign_control)) {
+    assign_control <- extraArgs
+  } else if (is.list(assign_control)) {
+    assign_control <- c(assign_control, extraArgs)
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  #
+  check_num <- 1
+  z <- 2
+  if (length(assign_control) > 0) {
+    assign_control$bound <- TRUE
+    if ("check_num" %in% names(assign_control)) {
+      check_num <- assign_control$check_num
+    }
+    if ("z" %in% names(assign_control)) {
+      z <- assign_control$z
+    }
+  } else {
+    assign_control$bound <- FALSE
+  }
+  if (!assign_control$bound) {
+    # Just a basic event assignment
+    res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
+  } else {
+    a_n <- object$beta_0
+    Parameter_Limits <- x$Parameter_Limits
+    #
+    # running a boundary solution
+    e_mid <- RunPoissonEventAssignment(
+      df, pyr0, event0, names, term_n,
+      tform, keep_constant, a_n, modelform,
+      control, strat_col,
+      model_control
+    )
+    if (length(names) == 1) {
+      # There is only one parameter, so we don't need to reoptimize
+      a_n <- object$beta_0
+      a_n[check_num] <- Parameter_Limits[1]
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      a_n <- object$beta_0
+      a_n[check_num] <- Parameter_Limits[2]
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names,
+        term_n, tform, keep_constant,
+        a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    } else {
+      # We need to shift the parameter, fix it, and then optimize before getting cases
+      keep_constant[check_num] <- 1
+      #
+      model_control <- object$modelcontrol
+      norm <- object$norm
+      if (!model_control$null) {
+        if (model_control[["constraint"]]) {
+          cons_mat <- object$constraint_matrix
+          cons_vec <- object$constraint_vector
+        }
+      }
+      # Start with low
+      a_n <- object$beta_0
+      a_n[check_num] <- Parameter_Limits[1]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        low_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- low_res$beta_0
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      # Now the high
+      a_n <- object$beta_0
+      a_n[check_num] <- Parameter_Limits[2]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        high_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- high_res$beta_0
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    }
+    res <- list(
+      "lower_limit" = e_low, "midpoint" = e_mid,
+      "upper_limit" = e_high
+    )
+  }
+  res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
   res
 }
 

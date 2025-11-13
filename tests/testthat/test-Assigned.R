@@ -162,7 +162,7 @@ test_that("Poisson Assigned Events bounds, check results", {
     "thres_step_max" = 100.0, "verbose" = 0
   )
   #
-  poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control)
+  poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control, norm = "max")
   assign_control <- list(check_num = 4)
   e <- EventAssignment(poisres, df, assign_control = assign_control, z = 2)
 
@@ -170,25 +170,21 @@ test_that("Poisson Assigned Events bounds, check results", {
   emid <- e$midpoint$predict
   eupp <- e$upper_limit$predict
   #
-  expect_equal(sum(elow), 96.07807, tolerance = 1e-2)
-  expect_equal(sum(emid), 123.6017, tolerance = 1e-2)
-  expect_equal(sum(eupp), 151.1252, tolerance = 1e-2)
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
-    skip("Cran Skip")
-  }
+  expect_equal(sum(elow), 123.4787, tolerance = 1e-2)
+  expect_equal(sum(emid), 123.5965, tolerance = 1e-2)
+  expect_equal(sum(eupp), 124.0949, tolerance = 1e-2)
   #
-  for (i in 2:4) {
-    for (j in c(1, 2, 10)) {
-      e <- EventAssignment(poisres, df, check_num = i, z = j)
-      elow <- e$lower_limit$predict
-      emid <- e$midpoint$predict
-      eupp <- e$upper_limit$predict
-      expect_equal(elow[, 1], emid[, 1], tolerance = 1e-2)
-      expect_equal(elow[, 1], eupp[, 1], tolerance = 1e-2)
-      expect_equal(eupp[, 1], emid[, 1], tolerance = 1e-2)
-    }
-  }
+  poisbound <- LikelihoodBound(poisres, df, para_number = 4, maxstep = 50)
+  assign_control <- list(check_num = 4)
+  e <- EventAssignment(poisbound, df, assign_control = assign_control, z = 2)
   #
+  elow <- e$lower_limit$predict
+  emid <- e$midpoint$predict
+  eupp <- e$upper_limit$predict
+  #
+  expect_equal(sum(elow), 123.4753, tolerance = 1e-2)
+  expect_equal(sum(emid), 123.5965, tolerance = 1e-2)
+  expect_equal(sum(eupp), 124.5127, tolerance = 1e-2)
 })
 #
 #

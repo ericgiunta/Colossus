@@ -2317,6 +2317,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
         strata_odds <- out_list$StrataOdds
+        keep_constant <- out_list$Parameter_Lists$keep_constant == 1
         if ("Standard_Deviation" %in% names(out_list)) {
           stdev <- out_list$Standard_Deviation
           pval <- 2 * pnorm(-abs(beta_0 / stdev))
@@ -2324,6 +2325,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
+            "Constant" = keep_constant,
             "Central Estimate" = format(beta_0, digits = digits),
             "Standard Error" = format(stdev, digits = digits),
             "2-tail p-value" = format(pval, digits = digits)
@@ -2333,6 +2335,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
+            "Constant" = keep_constant,
             "Central Estimate" = format(beta_0, digits = digits)
           )
         }
@@ -2364,6 +2367,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         tforms <- out_list$Parameter_Lists$tforms
         term_n <- out_list$Parameter_Lists$term_n
         beta_0 <- out_list$beta_0
+        keep_constant <- out_list$Parameter_Lists$keep_constant == 1
         if ("Standard_Deviation" %in% names(out_list)) {
           stdev <- out_list$Standard_Deviation
           pval <- 2 * pnorm(-abs(beta_0 / stdev))
@@ -2371,6 +2375,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
+            "Constant" = keep_constant,
             "Central Estimate" = format(beta_0, digits = digits),
             "Standard Error" = format(stdev, digits = digits),
             "2-tail p-value" = format(pval, digits = digits)
@@ -2380,6 +2385,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             "Covariate" = names,
             "Subterm" = tforms,
             "Term Number" = term_n,
+            "Constant" = keep_constant,
             "Central Estimate" = format(beta_0, digits = digits)
           )
         }

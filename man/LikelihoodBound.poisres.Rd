@@ -27,6 +27,7 @@ iteratively optimizing end-points of intervals.
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{EventAssignment.poisres}()},
+\code{\link{EventAssignment.poisresbound}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
 \code{\link{PoisRunMulti}()},

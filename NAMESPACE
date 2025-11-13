@@ -2,6 +2,7 @@
 
 S3method(EventAssignment,default)
 S3method(EventAssignment,poisres)
+S3method(EventAssignment,poisresbound)
 S3method(LikelihoodBound,coxres)
 S3method(LikelihoodBound,default)
 S3method(LikelihoodBound,poisres)
