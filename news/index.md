@@ -198,3 +198,10 @@ CRAN release: 2025-10-30
 - Logistic regression added
 - Newton step calculation now checks the predicted change in score, and
   moves in opposite direction if the expected score is worse
+
+## Colossus 1.4.4
+
+- Corrected factorization not being applied to factored columns
+- Fixed event assignment reordering the data
+- Multiplicative and Multiplicative-excess models are now distinct. The
+  default is left as multiplicative-excess.

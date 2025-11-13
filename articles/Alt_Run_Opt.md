@@ -2,7 +2,6 @@
 
 ``` r
 library(Colossus)
-#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
 library(data.table)
 ```
 
@@ -277,7 +276,7 @@ get_form_joint(formula_list, df)
 #> [1] 0 0 0
 #> 
 #> $modelform
-#> [1] "M"
+#> [1] "ME"
 #> 
 #> $gmix_term
 #> NULL
@@ -332,6 +331,6 @@ print(e)
 #> Iterations run: 10
 #> maximum step size: 4.775e-06, maximum first derivative: 1.595e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.012 seconds
+#> Run finished in 0.014 seconds
 #> |-------------------------------------------------------------------|
 ```

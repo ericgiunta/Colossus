@@ -2,7 +2,6 @@
 
 ``` r
 library(Colossus)
-#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
 library(data.table)
 library(survival)
 library(dplyr)
@@ -117,7 +116,7 @@ print(e)
 #> Iterations run: 7
 #> maximum step size: 9.313e-10, maximum first derivative: 1.416e+01
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.008 seconds
+#> Run finished in 0.009 seconds
 #> |-------------------------------------------------------------------|
 ```
 

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,6 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -210,7 +209,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 8</span></span>
 <span><span class="co">#&gt; maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.02115 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02266 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
@@ -231,7 +230,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 13</span></span>
 <span><span class="co">#&gt; maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.011 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01199 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -265,6 +264,9 @@ scale of less than 0.1.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e1</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
+<span><span class="co">#&gt; event0, : Warning: Basic loglinear model used, but multiplicative model not</span></span>
+<span><span class="co">#&gt; used. Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
@@ -279,7 +281,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 0.75995</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00735 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00786 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -288,6 +290,9 @@ scale of less than 0.1.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e1</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
+<span><span class="co">#&gt; event0, : Warning: Basic loglinear model used, but multiplicative model not</span></span>
+<span><span class="co">#&gt; used. Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Likelihood Bound Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Likelihood Bound Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
@@ -302,7 +307,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 1.9884</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.0068 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.0071 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
@@ -326,6 +331,9 @@ are much further off.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e2</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
+<span><span class="co">#&gt; event0, : Warning: Linear ERR model used, but multiplicative model not used.</span></span>
+<span><span class="co">#&gt; Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
@@ -340,7 +348,7 @@ are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 0.95035</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00766 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00803 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -350,6 +358,9 @@ are much further off.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e2</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
+<span><span class="co">#&gt; event0, : Warning: Linear ERR model used, but multiplicative model not used.</span></span>
+<span><span class="co">#&gt; Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
@@ -364,7 +375,7 @@ are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 8.8172</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00807 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00859 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">

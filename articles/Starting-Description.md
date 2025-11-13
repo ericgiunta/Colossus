@@ -2,7 +2,6 @@
 
 ``` r
 library(Colossus)
-#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
 library(data.table)
 library(parallel)
 ```
@@ -37,14 +36,16 @@ function of a single covariate ($x$) and several parameters
 There are currently five types of risk models available. The risk can be
 expressed as an additive model ($R_{A}$), product additive model
 ($R_{PA}$), Product additive excess model ($R_{PAE}$), multiplicative
-excess model ($R_{M}$), or the geometric mixture model with relative
-risks or excess risks ($R_{GMIX}$).
+relative model ($R_{M}$), multiplicative excess model ($R_{M}E$), or the
+geometric mixture model with relative risks or excess risks
+($R_{GMIX}$).
 
 $$\begin{aligned}
 R_{A} & {= \sum\limits_{i = 0}^{n}T_{i}} \\
 R_{PA} & {= T_{0} \times \sum\limits_{i = 1}^{n}T_{i}} \\
 R_{PAE} & {= T_{0} \times \left( 1 + \sum\limits_{i = 1}^{n}T_{i} \right)} \\
-R_{M} & {= T_{0} \times \prod\limits_{i = 1}^{n}\left( 1 + T_{i} \right)} \\
+R_{M} & {= T_{0} \times \prod\limits_{i = 1}^{n}\left( T_{i} \right)} \\
+R_{ME} & {= T_{0} \times \prod\limits_{i = 1}^{n}\left( 1 + T_{i} \right)} \\
 R_{GMIX} & {= T_{0} \times \left( \prod\limits_{i = 1}^{n}\left( T_{i}^{*} \right) \right)^{\theta} \times \left( 1 + \sum\limits_{i = 1}^{n}\left( T_{i}^{*} - 1 \right) \right)^{1 - \theta}} \\
 T_{i}^{*} & {= \begin{cases}
 T_{i} & \text{Relative Risk} \\
@@ -365,15 +366,15 @@ print(e)
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:         a  loglin           0             40.3            NaN            NaN
-#> 2:         b     lin           1             40.7           3322          0.990
-#> 3:         c     lin           1             38.8            629          0.951
-#> 4:         d    plin           2             43.1            589          0.942
+#> 1:         a  loglin           0             7.42            NaN            NaN
+#> 2:         b     lin           1             0.10            NaN            NaN
+#> 3:         c     lin           1             0.10            NaN            NaN
+#> 4:         d    plin           2             0.10            Inf              1
 #> 
 #> Cox Model Used
-#> -2*Log-Likelihood: 1.402,  AIC: 9.402
-#> Iterations run: 42
-#> maximum step size: 1.000e+00, maximum first derivative: 9.817e-04
+#> -2*Log-Likelihood: 2.642,  AIC: 10.642
+#> Iterations run: 8
+#> maximum step size: 7.507e-01, maximum first derivative: 8.483e-04
 #> Analysis converged
 #> Run finished in 0.02 seconds
 #> |-------------------------------------------------------------------|
@@ -386,17 +387,17 @@ print(e)
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:         a  loglin           0          -0.4068        0.38163       2.86e-01
-#> 2:         b     lin           1          -0.0185        0.03517       6.00e-01
-#> 3:         c     lin           1          -0.0759        0.00769       5.58e-23
-#> 4:         d    plin           2          -0.7013        0.40538       8.36e-02
+#> 1:         a  loglin           0            -4.27            NaN            NaN
+#> 2:         b     lin           1             0.10            NaN            NaN
+#> 3:         c     lin           1             0.10            NaN            NaN
+#> 4:         d    plin           2             0.10            Inf              1
 #> 
 #> Poisson Model Used
-#> -2*Log-Likelihood: 89.48,  Deviation: 85.48,  AIC: 93.48,  BIC: 97.263
-#> Iterations run: 7
-#> maximum step size: 9.766e-04, maximum first derivative: 2.315e+03
-#> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.008 seconds
+#> -2*Log-Likelihood: 201.862,  Deviation: 197.862,  AIC: 205.862,  BIC: 209.646
+#> Iterations run: 11
+#> maximum step size: 8.181e-04, maximum first derivative: 5.467e-04
+#> Analysis converged
+#> Run finished in 0.009 seconds
 #> |-------------------------------------------------------------------|
 ```
 

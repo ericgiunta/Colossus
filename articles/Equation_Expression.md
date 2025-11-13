@@ -2,7 +2,6 @@
 
 ``` r
 library(Colossus)
-#> Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the 'Unified Equation Representation' vignette for more details.
 library(data.table)
 ```
 
@@ -75,7 +74,7 @@ tstart <- "t0"
 tend <- "t1"
 event <- "lung"
 
-Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative()
+Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative - excess()
 Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1) + linear(dose2, 1)
 
 df <- data.table(
@@ -118,7 +117,7 @@ get_form(Model_Eq, df)
 #> [1] 0 0 0
 #> 
 #> $modelform
-#> [1] "M"
+#> [1] "ME"
 #> 
 #> $gmix_term
 #> NULL
