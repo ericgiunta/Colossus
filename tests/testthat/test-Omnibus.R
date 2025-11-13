@@ -10,13 +10,13 @@ test_that("Coxph basic_single_null match", {
   tform <- c("loglin")
   keep_constant <- c(0)
   a_n <- c(0.0)
-  modelform <- "M"
+  modelform <- "ME"
 
   verbose <- FALSE
 
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
@@ -25,19 +25,19 @@ test_that("Coxph basic_single_null match", {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = FALSE, "basic" = j, "single" = k, "null" = l)
         a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
   }
   model_control <- list("strata" = TRUE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
   for (j in c(TRUE, FALSE)) {
     for (k in c(TRUE, FALSE)) {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = TRUE, "basic" = j, "single" = k, "null" = l)
         a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
@@ -106,7 +106,7 @@ test_that("Pois comb_forms", {
   strat_col <- "fac"
 
   verbose <- FALSE
-  modelforms <- c("A", "PAE", "M", "PA")
+  modelforms <- c("A", "PAE", "ME", "PA")
   j_iterate <- 1
   LL_comp <- c(-1644.494, -544.7434, -544.7434, -464.709, -1395.197, -1831.403, -1546.554, -464.709)
   for (modelform in modelforms) {
@@ -186,7 +186,7 @@ test_that("risk check omnibus plain", {
   tform <- c("loglin", "lin", "lin", "plin", "loglin")
   keep_constant <- c(0, 0, 0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2, 0.3, -0.5)
-  modelform <- "M"
+  modelform <- "ME"
 
 
   cens_weight <- c(0)
@@ -196,7 +196,7 @@ test_that("risk check omnibus plain", {
 
   df_order <- data.table("term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n, "names" = names, "order" = 1:5)
 
-  model_list <- c("M", "A", "PA", "PAE")
+  model_list <- c("ME", "A", "PA", "PAE")
   means <- c(1.039780, 1.074573, 0.1434144, 1.039780)
   medians <- c(1.017646, 1.049693, 0.0904543, 1.017646)
   sums <- c(1039.779856, 1074.573350, 143.4143522, 1039.779856)
@@ -302,7 +302,7 @@ test_that("check deviation calc, expected cox", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
 
 
   cens_weight <- c(0)
@@ -311,7 +311,7 @@ test_that("check deviation calc, expected cox", {
 
   devs <- c()
 
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   for (i in 1:3) {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
@@ -370,7 +370,7 @@ test_that("check deviation calc, Observed cox", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
 
 
   cens_weight <- c(0)
@@ -379,7 +379,7 @@ test_that("check deviation calc, Observed cox", {
 
   devs <- c()
 
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE, "observed_info" = TRUE)
   for (i in 1:3) {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
@@ -449,7 +449,7 @@ test_that("check Linear Constraints", {
     del <- abs(a_n[1] - a_n[2])
     a_n0 <- rep(sum(a_n) / 2, 2)
     a_n <- a_n0 - c(-del / 2, del / 2)
-    modelform <- "M"
+    modelform <- "ME"
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
     expect_equal(e$beta_0, c(0.357333, 0.357333), tolerance = 1e-2)
@@ -459,7 +459,7 @@ test_that("check Linear Constraints", {
     del <- abs(a_n[1] - a_n[2])
     a_n0 <- rep(sum(a_n) / 2, 2)
     a_n <- a_n0 + c(-del / 2, del / 2)
-    modelform <- "M"
+    modelform <- "ME"
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
     expect_equal(e$beta_0, c(-0.472812, -0.472812), tolerance = 1e-2)
@@ -479,10 +479,10 @@ test_that("check deviation calc, poisson", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
   devs <- c()
 
-  modelform <- "M"
+  modelform <- "ME"
   for (inma_type in c(T, F)) {
     model_control <- list("observed_info" = inma_type)
     for (i in 1:3) {
@@ -528,13 +528,13 @@ test_that("Various CoxRegressionOmnibus options", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
 
   cens_weight <- c(0)
   verbose <- FALSE
   devs <- c()
   options(warn = -1)
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
@@ -585,12 +585,12 @@ test_that("Various RunPoissonRegression_Omnibus options", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
 
   cens_weight <- c(0)
   verbose <- FALSE
   devs <- c()
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)

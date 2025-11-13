@@ -897,8 +897,10 @@ get_form_risk <- function(model_obj, df) {
         }
       }
     } else if (model_type %in% modelform_acceptable) {
-      if (model_type %in% c("m", "me", "multiplicative", "multiplicative-excess")) {
+      if (model_type %in% c("m", "multiplicative")) {
         model_type <- "M"
+      } else if (model_type %in% c("me", "multiplicative-excess")) {
+        model_type <- "ME"
       } else if (model_type %in% c("a", "additive")) {
         model_type <- "A"
       } else if (model_type %in% c("pa", "product-additive")) {
@@ -934,7 +936,7 @@ get_form_risk <- function(model_obj, df) {
   if (!null) {
     term_tot <- max(term_n) + 1
     if (modelform == "NONE") {
-      modelform <- "M"
+      modelform <- "ME"
     } else if (modelform == "GMIX-R") {
       modelform <- "GMIX"
       gmix_term <- rep(0, term_tot)

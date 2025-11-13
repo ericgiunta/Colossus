@@ -20,6 +20,7 @@ CoxCurveSolver
 coxph
 coxres
 coxresbound
+CoxRun
 cr
 csv
 CurveSolve
@@ -87,6 +88,7 @@ plinear
 pois
 poisres
 poisresbound
+PoisRun
 poisson
 pyr
 qchi

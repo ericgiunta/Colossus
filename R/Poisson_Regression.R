@@ -226,14 +226,14 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
       } else {
         val_cols <- c(val_cols, col)
       }
-#      data.table::setkeyv(df0, c(pyr0, event0))
+      #      data.table::setkeyv(df0, c(pyr0, event0))
     }
   } else {
     df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
     val_cols <- c("a")
   }
-#  data.table::setkeyv(df, c(pyr0, event0))
+  #  data.table::setkeyv(df, c(pyr0, event0))
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
@@ -411,14 +411,14 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
       } else {
         val_cols <- c(val_cols, col)
       }
-#      data.table::setkeyv(df0, c(pyr0, event0))
+      #      data.table::setkeyv(df0, c(pyr0, event0))
     }
   } else {
     df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
     val_cols <- c("a")
   }
-#  data.table::setkeyv(df, c(pyr0, event0))
+  #  data.table::setkeyv(df, c(pyr0, event0))
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)

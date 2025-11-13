@@ -1652,12 +1652,16 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             //
             //
         }
-    } else if ((modelform == "M") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
+    } else if ((modelform == "M") || (modelform == "ME") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
         //
         MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
-        TTerm_p << TTerm.array() + 1.0;
-        TTerm_p.col(fir) = TTerm.col(fir).array();
-        Te = TTerm_p.array().rowwise().prod().array();
+        if (modelform == "ME"){
+            TTerm_p << TTerm.array() + 1.0;
+            TTerm_p.col(fir) = TTerm.col(fir).array();
+            Te = TTerm_p.array().rowwise().prod().array();
+        } else {
+            Te = TTerm.array().rowwise().prod().array();
+        }
         R << Te.array();
         //
         Rd = Td0.array();
@@ -1913,12 +1917,16 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
                 }
             }
         }
-    } else if ((modelform == "M") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
+    } else if ((modelform == "M") || (modelform == "ME") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
         //
         MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
-        TTerm_p << TTerm.array() + 1.0;
-        TTerm_p.col(fir) = TTerm.col(fir).array();
-        Te = TTerm_p.array().rowwise().prod().array();
+        if (modelform == "ME"){
+            TTerm_p << TTerm.array() + 1.0;
+            TTerm_p.col(fir) = TTerm.col(fir).array();
+            Te = TTerm_p.array().rowwise().prod().array();
+        } else {
+            Te = TTerm.array().rowwise().prod().array();
+        }
         R << Te.array();
         Rd = Td0.array();
         //
@@ -2098,12 +2106,16 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
             }
             R << TTerm.col(fir).array() * Te.array();
         }
-    } else if ((modelform == "M") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
+    } else if ((modelform == "M") || (modelform == "ME") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
         //
         MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
-        TTerm_p << TTerm.array() + 1.0;
-        TTerm_p.col(fir) = TTerm.col(fir).array();
-        Te = TTerm_p.array().rowwise().prod().array();
+        if (modelform == "ME"){
+            TTerm_p << TTerm.array() + 1.0;
+            TTerm_p.col(fir) = TTerm.col(fir).array();
+            Te = TTerm_p.array().rowwise().prod().array();
+        } else {
+            Te = TTerm.array().rowwise().prod().array();
+        }
         R << Te.array();
         //
         R = (R.array().isFinite()).select(R,  - 1);

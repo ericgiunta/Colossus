@@ -30,6 +30,8 @@ The goal of Colossus is to provide an open-source means of performing survival a
 
 By default, a fully portable version of the code is compiled, which does not support OpenMP on every system. Note that Colossus requires OpenMP support to perform parallel calculations. The environment variable "R_COLOSSUS_NOT_CRAN" is checked to determine if OpenMP should be disabled for linux compiling with clang. The number of cores is set to 1 if the environment variable is empty, the operating system is detected as linux, and the default compiler or R compiler is clang. Colossus testing checks for the "NOT_CRAN" variable to determine if additional tests should be run. Setting "NOT_CRAN" to "false" will disable the longer tests. Currently, OpenMP support is not configured for linux compiling with clang.
 
+Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with CoxRun and PoisRun and formula inputs. Please see the "Unified Equation Representation" vignette for more details.
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem:

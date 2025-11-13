@@ -348,8 +348,10 @@ validate_formula <- function(x, df, verbose = FALSE) {
     "gmix-e", "excess-geometric-mixture"
   ))
   if (x$modelform %in% acceptable) {
-    if (x$modelform %in% c("ME", "MULTIPLICATIVE", "MULTIPLICATIVE-EXCESS")) {
+    if (x$modelform %in% c("MULTIPLICATIVE")) {
       x$modelform <- "M"
+    } else if (x$modelform %in% c("MULTIPLICATIVE-EXCESS")) {
+      x$modelform <- "ME"
     } else if (x$modelform == "ADDITIVE") {
       x$modelform <- "A"
     } else if (x$modelform == "PRODUCT-ADDITIVE") {

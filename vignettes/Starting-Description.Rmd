@@ -37,7 +37,7 @@ $$
 
 In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In Poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
 
-There are currently five types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), multiplicative excess model ($R_M$), or the geometric mixture model with relative risks or excess risks ($R_{GMIX}$).
+There are currently five types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), multiplicative relative model ($R_M$), multiplicative excess model ($R_ME$), or the geometric mixture model with relative risks or excess risks ($R_{GMIX}$).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -45,7 +45,8 @@ $$
     R_{A} &= \sum_{i=0}^n T_i\\
     R_{PA} &= T_0 \times \sum_{i=1}^n T_i\\
     R_{PAE} &= T_0 \times (1 + \sum_{i=1}^n T_i)\\
-    R_{M} &= T_0 \times \prod_{i=1}^n( 1 + T_i)\\
+    R_{M} &= T_0 \times \prod_{i=1}^n(T_i)\\
+    R_{ME} &= T_0 \times \prod_{i=1}^n( 1 + T_i)\\
     R_{GMIX} &= T_0 \times \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \times \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
     T^{*}_i &= \begin{cases} T_i &\text{Relative Risk} \\ T_i+1 &\text{Excess Risk} \end{cases}\\
 \end{aligned}
