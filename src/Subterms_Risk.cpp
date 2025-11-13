@@ -1660,6 +1660,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             TTerm_p.col(fir) = TTerm.col(fir).array();
             Te = TTerm_p.array().rowwise().prod().array();
         } else {
+            TTerm_p << TTerm.array();
             Te = TTerm.array().rowwise().prod().array();
         }
         R << Te.array();
@@ -1925,6 +1926,7 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
             TTerm_p.col(fir) = TTerm.col(fir).array();
             Te = TTerm_p.array().rowwise().prod().array();
         } else {
+            TTerm_p << TTerm.array();
             Te = TTerm.array().rowwise().prod().array();
         }
         R << Te.array();
@@ -2114,6 +2116,7 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
             TTerm_p.col(fir) = TTerm.col(fir).array();
             Te = TTerm_p.array().rowwise().prod().array();
         } else {
+            TTerm_p << TTerm.array();
             Te = TTerm.array().rowwise().prod().array();
         }
         R << Te.array();

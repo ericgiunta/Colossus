@@ -462,6 +462,28 @@ test_that("Object Validation Errors", {
   #
 })
 
+test_that("Multiplicative model check", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$col_bad <- "a"
+  #
+  time1 <- "t0"
+  time2 <- "t1"
+  event <- "lung"
+  control <- list(ncores = 2)
+  #
+  model <- Cox(t0, t1, lung) ~ loglinear(dose, rand0, 0) + M()
+  res0 <- CoxRun(model, df, control = control)
+  #
+  model <- Cox(t0, t1, lung) ~ loglinear(dose,0) + loglinear(rand0, 1) + M()
+  res1 <- CoxRun(model, df, control = control)
+  #
+  expect_equal(res0$beta_0, res1$beta_0, threshold = 1e-2)
+})
+
 test_that("Formula Validation Errors", {
   fname <- "dose.csv"
   set.seed(3742)
