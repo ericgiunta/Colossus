@@ -43,6 +43,7 @@ returns a list of the final results
 
 Other Poisson Wrapper Functions:
 [`EventAssignment.poisres()`](EventAssignment.poisres.md),
+[`EventAssignment.poisresbound()`](EventAssignment.poisresbound.md),
 [`PoisRun()`](PoisRun.md), [`PoisRunJoint()`](PoisRunJoint.md),
 [`PoisRunMulti()`](PoisRunMulti.md),
 [`Residual.poisres()`](Residual.poisres.md),

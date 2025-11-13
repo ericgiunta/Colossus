@@ -364,12 +364,18 @@ e <- CoxRun(model_cox, df, a_n = a_n, control = control)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:         a  loglin           0             7.42            NaN            NaN
-#> 2:         b     lin           1             0.10            NaN            NaN
-#> 3:         c     lin           1             0.10            NaN            NaN
-#> 4:         d    plin           2             0.10            Inf              1
+#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1:         a  loglin           0    FALSE             7.42            NaN
+#> 2:         b     lin           1    FALSE             0.10            NaN
+#> 3:         c     lin           1    FALSE             0.10            NaN
+#> 4:         d    plin           2    FALSE             0.10            Inf
+#>    2-tail p-value
+#>            <char>
+#> 1:            NaN
+#> 2:            NaN
+#> 3:            NaN
+#> 4:              1
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 2.642,  AIC: 10.642
@@ -385,12 +391,18 @@ e <- PoisRun(model_pois, df, a_n = a_n, control = control)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:         a  loglin           0            -4.27            NaN            NaN
-#> 2:         b     lin           1             0.10            NaN            NaN
-#> 3:         c     lin           1             0.10            NaN            NaN
-#> 4:         d    plin           2             0.10            Inf              1
+#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1:         a  loglin           0    FALSE            -4.27            NaN
+#> 2:         b     lin           1    FALSE             0.10            NaN
+#> 3:         c     lin           1    FALSE             0.10            NaN
+#> 4:         d    plin           2    FALSE             0.10            Inf
+#>    2-tail p-value
+#>            <char>
+#> 1:            NaN
+#> 2:            NaN
+#> 3:            NaN
+#> 4:              1
 #> 
 #> Poisson Model Used
 #> -2*Log-Likelihood: 201.862,  Deviation: 197.862,  AIC: 205.862,  BIC: 209.646

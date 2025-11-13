@@ -1,13 +1,13 @@
-# Predicts how many events are due to baseline vs excess for a completed poisson model
+# Predicts how many events are due to baseline vs excess for a completed poisson likelihood boundary regression
 
-`EventAssignment.poisres` uses user provided data, person-year/event
-columns, vectors specifying the model, and options to calculate
-background and excess events for a solved Poisson regression
+`EventAssignment.poisresbound` uses user provided data,
+person-year/event columns, vectors specifying the model, and options to
+calculate background and excess events for a solved Poisson regression
 
 ## Usage
 
 ``` r
-# S3 method for class 'poisres'
+# S3 method for class 'poisresbound'
 EventAssignment(
   x,
   df,
@@ -53,7 +53,7 @@ returns a list of the final results
 ## See also
 
 Other Poisson Wrapper Functions:
-[`EventAssignment.poisresbound()`](EventAssignment.poisresbound.md),
+[`EventAssignment.poisres()`](EventAssignment.poisres.md),
 [`LikelihoodBound.poisres()`](LikelihoodBound.poisres.md),
 [`PoisRun()`](PoisRun.md), [`PoisRunJoint()`](PoisRunJoint.md),
 [`PoisRunMulti()`](PoisRunMulti.md),

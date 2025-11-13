@@ -163,10 +163,14 @@ e2 <- CaseControlRun(model, df, control = control, conditional_threshold = 0)
 print(e0)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:   karno50  loglin           0          -0.0435         0.0232         0.0603
-#> 2:       trt  loglin           0          -0.3661         0.7370         0.6194
+#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1:   karno50  loglin           0    FALSE          -0.0435         0.0232
+#> 2:       trt  loglin           0    FALSE          -0.3661         0.7370
+#>    2-tail p-value
+#>            <char>
+#> 1:         0.0603
+#> 2:         0.6194
 #> 
 #> Matched Case-Control Model Used
 #> Deviance: 49.859
@@ -174,15 +178,19 @@ print(e0)
 #> Iterations run: 8
 #> maximum step size: 7.584e-05, maximum first derivative: 4.826e+01
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.018 seconds
+#> Run finished in 0.017 seconds
 #> |-------------------------------------------------------------------|
 print(e1)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:   karno50  loglin           0          -0.0439         0.0205         0.0323
-#> 2:       trt  loglin           0          -0.3704         0.5735         0.5183
+#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1:   karno50  loglin           0    FALSE          -0.0439         0.0205
+#> 2:       trt  loglin           0    FALSE          -0.3704         0.5735
+#>    2-tail p-value
+#>            <char>
+#> 1:         0.0323
+#> 2:         0.5183
 #> 
 #> Matched Case-Control Model Used
 #> Deviance: 52.752
@@ -190,15 +198,19 @@ print(e1)
 #> Iterations run: 9
 #> maximum step size: 7.380e-05, maximum first derivative: 4.286e+01
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.009 seconds
+#> Run finished in 0.008 seconds
 #> |-------------------------------------------------------------------|
 print(e2)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:   karno50  loglin           0          -0.0449         0.0163        0.00602
-#> 2:       trt  loglin           0          -0.3774         0.5568        0.49798
+#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1:   karno50  loglin           0    FALSE          -0.0449         0.0163
+#> 2:       trt  loglin           0    FALSE          -0.3774         0.5568
+#>    2-tail p-value
+#>            <char>
+#> 1:        0.00602
+#> 2:        0.49798
 #> 
 #> Matched Case-Control Model Used
 #> Deviance: 59.723

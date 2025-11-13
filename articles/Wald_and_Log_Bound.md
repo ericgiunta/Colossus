@@ -106,27 +106,27 @@ e1 <- CoxRun(Cox(time, status) ~ loglinear(temperature, voltage, 0), df, a_n = a
 print(e1, 5)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>      Covariate Central Estimate Standard Error 2-tail p-value
-#>         <char>           <char>         <char>         <char>
-#> 1: temperature          0.75995        0.39644      0.0552490
-#> 2:     voltage          1.98839        0.60631      0.0010399
+#>      Covariate Constant Central Estimate Standard Error 2-tail p-value
+#>         <char>   <lgcl>           <char>         <char>         <char>
+#> 1: temperature    FALSE          0.75995        0.39644      0.0552490
+#> 2:     voltage    FALSE          1.98839        0.60631      0.0010399
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 210.77792,  AIC: 214.77792
 #> Iterations run: 8
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
-#> Run finished in 0.02266 seconds
+#> Run finished in 0.02268 seconds
 #> |-------------------------------------------------------------------|
 
 e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0), df, a_n = a_n, control = control)
 print(e2, 5)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>      Covariate Subterm Term Number Central Estimate Standard Error
-#>         <char>  <char>       <int>           <char>         <char>
-#> 1: temperature  loglin           0          0.95035         0.4313
-#> 2:     voltage    plin           0          8.81720         6.1906
+#>      Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>         <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1: temperature  loglin           0    FALSE          0.95035         0.4313
+#> 2:     voltage    plin           0    FALSE          8.81720         6.1906
 #>    2-tail p-value
 #>            <char>
 #> 1:       0.027563
@@ -137,7 +137,7 @@ print(e2, 5)
 #> Iterations run: 13
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
-#> Run finished in 0.01199 seconds
+#> Run finished in 0.01273 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -191,7 +191,7 @@ print(e, 5)
 #> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
 #> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00786 seconds
+#> Run finished in 0.0081 seconds
 #> |-------------------------------------------------------------------|
 
 curve_control <- list(
@@ -217,7 +217,7 @@ print(e, 5)
 #> Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 1.9884
 #> Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.0071 seconds
+#> Run finished in 0.00731 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -261,7 +261,7 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00803 seconds
+#> Run finished in 0.00858 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
@@ -288,7 +288,7 @@ print(e, 5)
 #> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
 #> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00859 seconds
+#> Run finished in 0.00901 seconds
 #> |-------------------------------------------------------------------|
 ```
 

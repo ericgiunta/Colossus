@@ -110,6 +110,7 @@ returns a class fully describing the model and the regression results
 
 Other Poisson Wrapper Functions:
 [`EventAssignment.poisres()`](EventAssignment.poisres.md),
+[`EventAssignment.poisresbound()`](EventAssignment.poisresbound.md),
 [`LikelihoodBound.poisres()`](LikelihoodBound.poisres.md),
 [`PoisRun()`](PoisRun.md), [`PoisRunJoint()`](PoisRunJoint.md),
 [`Residual.poisres()`](Residual.poisres.md),

@@ -77,16 +77,19 @@ e <- PoisRun(Poisson(time, status) ~ linear(erate), cancer, a_n = a_n, control =
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:     erate     lin           0            0.474         0.0369       9.15e-38
+#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1:     erate     lin           0    FALSE            0.474         0.0369
+#>    2-tail p-value
+#>            <char>
+#> 1:       9.15e-38
 #> 
 #> Poisson Model Used
 #> -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.649
 #> Iterations run: 13
 #> maximum step size: 1.741e-10, maximum first derivative: 1.235e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.016 seconds
+#> Run finished in 0.017 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -106,10 +109,14 @@ e <- PoisRun(Poisson(time, status) ~ linear(erate, 0) + linear(sex, 1), cancer, 
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:     erate     lin           0             0.37          0.111       0.000882
-#> 2:       sex     lin           1             0.19          0.257       0.458904
+#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
+#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
+#> 1:     erate     lin           0    FALSE             0.37          0.111
+#> 2:       sex     lin           1    FALSE             0.19          0.257
+#>    2-tail p-value
+#>            <char>
+#> 1:       0.000882
+#> 2:       0.458904
 #> 
 #> Poisson Model Used
 #> -2*Log-Likelihood: 582.865,  Deviation: 252.865,  AIC: 256.865,  BIC: 593.724

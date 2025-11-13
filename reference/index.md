@@ -26,6 +26,9 @@
 - [`EventAssignment(`*`<poisres>`*`)`](EventAssignment.poisres.md) :
   Predicts how many events are due to baseline vs excess for a completed
   poisson model
+- [`EventAssignment(`*`<poisresbound>`*`)`](EventAssignment.poisresbound.md)
+  : Predicts how many events are due to baseline vs excess for a
+  completed poisson likelihood boundary regression
 - [`Event_Count_Gen()`](Event_Count_Gen.md) : uses a table, list of
   categories, and list of event summaries to generate person-count
   tables
