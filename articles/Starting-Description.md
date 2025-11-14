@@ -364,25 +364,19 @@ e <- CoxRun(model_cox, df, a_n = a_n, control = control)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
-#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
-#> 1:         a  loglin           0    FALSE             31.1       1.08e+06
-#> 2:         b     lin           1    FALSE             13.7       1.10e+09
-#> 3:         c     lin           1    FALSE             13.7       1.10e+09
-#> 4:         d    plin           2    FALSE             31.1       4.77e+02
-#>    2-tail p-value
-#>            <char>
-#> 1:          1.000
-#> 2:          1.000
-#> 3:          1.000
-#> 4:          0.948
+#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:         a  loglin           0             31.1       1.08e+06          1.000
+#> 2:         b     lin           1             13.7       1.10e+09          1.000
+#> 3:         c     lin           1             13.7       1.10e+09          1.000
+#> 4:         d    plin           2             31.1       4.77e+02          0.948
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 1.374,  AIC: 9.374
 #> Iterations run: 30
 #> maximum step size: 1.000e+00, maximum first derivative: 9.764e-04
 #> Analysis converged
-#> Run finished in 0.02 seconds
+#> Run finished in 0.021 seconds
 #> |-------------------------------------------------------------------|
 
 # or a Poisson model regression
@@ -391,18 +385,12 @@ e <- PoisRun(model_pois, df, a_n = a_n, control = control)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Constant Central Estimate Standard Error
-#>       <char>  <char>       <int>   <lgcl>           <char>         <char>
-#> 1:         a  loglin           0    FALSE          -0.5450         0.5261
-#> 2:         b     lin           1    FALSE          -0.0935         0.0666
-#> 3:         c     lin           1    FALSE           0.0203         0.0138
-#> 4:         d    plin           2    FALSE           0.1000         0.7026
-#>    2-tail p-value
-#>            <char>
-#> 1:          0.300
-#> 2:          0.161
-#> 3:          0.141
-#> 4:          0.887
+#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>       <int>           <char>         <char>         <char>
+#> 1:         a  loglin           0          -0.5450         0.5261          0.300
+#> 2:         b     lin           1          -0.0935         0.0666          0.161
+#> 3:         c     lin           1           0.0203         0.0138          0.141
+#> 4:         d    plin           2           0.1000         0.7026          0.887
 #> 
 #> Poisson Model Used
 #> -2*Log-Likelihood: 32.807,  Deviation: 28.807,  AIC: 36.807,  BIC: 40.59
