@@ -164,6 +164,15 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
+    if (!is.null(levels(df[[strat_col]]))) {
+      # The column is a factor, so we can convert to numbers
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    } else if (is(typeof(df[[strat_col]]), "character")) {
+      df[[strat_col]] <- factor(df[[strat_col]])
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    }
     dfend <- df[get(event0) == 1, ]
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
@@ -672,6 +681,15 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
+    if (!is.null(levels(df[[strat_col]]))) {
+      # The column is a factor, so we can convert to numbers
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    } else if (is(typeof(df[[strat_col]]), "character")) {
+      df[[strat_col]] <- factor(df[[strat_col]])
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    }
     dfend <- df[get(event0) == 1, ]
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
@@ -855,6 +873,15 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
+    if (!is.null(levels(df[[strat_col]]))) {
+      # The column is a factor, so we can convert to numbers
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    } else if (is(typeof(df[[strat_col]]), "character")) {
+      df[[strat_col]] <- factor(df[[strat_col]])
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    }
     dfend <- df[get(event0) == 1, ]
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE

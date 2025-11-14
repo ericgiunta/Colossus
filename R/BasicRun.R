@@ -172,7 +172,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   }
   # ------------------------------------------------------------------------------ #
   if (!coxmodel$null) {
-    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
@@ -190,7 +190,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
@@ -338,7 +338,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     }
   }
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -354,7 +354,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -519,7 +519,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     }
   }
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -535,7 +535,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -694,7 +694,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   }
   # ------------------------------------------------------------------------------ #
   if (!caseconmodel$null) {
-    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
@@ -712,7 +712,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
@@ -850,7 +850,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     }
   }
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -866,7 +866,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -955,6 +955,16 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))){
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]){
+      if (!(name %in% names(df))){
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name)-10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
   if (any(val$ce != ce)) {
@@ -1038,6 +1048,16 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
       # fine
     } else {
       df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names))){
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]){
+      if (!(name %in% names(df))){
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name)-10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
     }
   }
   ce <- c(time1, time2, event0)
@@ -1495,6 +1515,16 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))){
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]){
+      if (!(name %in% names(df))){
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name)-10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
   df <- val$df
@@ -1550,7 +1580,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     }
   }
   #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -1619,6 +1649,16 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))){
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]){
+      if (!(name %in% names(df))){
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name)-10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   object <- validate_poisres(x, df)
   #
   a_n <- object$beta_0
@@ -1663,7 +1703,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     }
   }
   #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -1751,6 +1791,16 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
       # fine
     } else {
       df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names))){
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]){
+      if (!(name %in% names(df))){
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name)-10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
     }
   }
   object <- validate_poisres(x, df)
@@ -1915,6 +1965,16 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
       # fine
     } else {
       df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names))){
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]){
+      if (!(name %in% names(df))){
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name)-10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
     }
   }
   object <- validate_poisres(poisres, df)
@@ -2101,6 +2161,16 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
       # fine
     } else {
       df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names))){
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]){
+      if (!(name %in% names(df))){
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name)-10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
     }
   }
   object <- validate_poisres(x, df)

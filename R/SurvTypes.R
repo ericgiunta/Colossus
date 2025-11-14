@@ -828,7 +828,6 @@ get_form_risk <- function(model_obj, df) {
                   for (j in entries) {
                     df[[comb]] <- df[[comb]] * df[[j]]
                   }
-
                   col_name <- c(col_name, comb)
                 }
               }
@@ -890,7 +889,16 @@ get_form_risk <- function(model_obj, df) {
         }
         for (col in col_name) {
           for (model_term in model_terms) {
-            names <- c(names, col)
+            if (grepl("_int", model_term)){
+                # we want to create a second column, for the intercept, to be normalized differently
+                new_col <- paste(col,":intercept",sep="")
+                if (!(new_col %in% names(df))){
+                    df[, new_col] <- df[, col, with = FALSE]
+                }
+                names <- c(names, new_col)
+            } else {
+              names <- c(names, col)
+            }
             tform <- c(tform, model_term)
             term_n <- c(term_n, term_num)
           }

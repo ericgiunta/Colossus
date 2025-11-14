@@ -478,7 +478,7 @@ test_that("Multiplicative model check", {
   model <- Cox(t0, t1, lung) ~ loglinear(dose, rand0, 0) + M()
   res0 <- CoxRun(model, df, control = control)
   #
-  model <- Cox(t0, t1, lung) ~ loglinear(dose,0) + loglinear(rand0, 1) + M()
+  model <- Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(rand0, 1) + M()
   res1 <- CoxRun(model, df, control = control)
   #
   expect_equal(res0$beta_0, res1$beta_0, threshold = 1e-2)
