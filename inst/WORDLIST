@@ -36,6 +36,7 @@ efron
 et
 extrema
 expres
+EventAssignment
 fg
 FITOPT
 finegray
@@ -93,13 +94,10 @@ poisson
 pyr
 qchi
 Raphson
+RunCoxPlots
 rmax
 rmin
 RMS
-RunCoxPlots
-RunCoxRegression
-RunPoissonEventAssignment
-RunPoissonRegression
 schoenfeld
 Schoenfeld
 SMR

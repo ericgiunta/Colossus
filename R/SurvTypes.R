@@ -889,13 +889,13 @@ get_form_risk <- function(model_obj, df) {
         }
         for (col in col_name) {
           for (model_term in model_terms) {
-            if (grepl("_int", model_term)){
-                # we want to create a second column, for the intercept, to be normalized differently
-                new_col <- paste(col,":intercept",sep="")
-                if (!(new_col %in% names(df))){
-                    df[, new_col] <- df[, col, with = FALSE]
-                }
-                names <- c(names, new_col)
+            if (grepl("_int", model_term)) {
+              # we want to create a second column, for the intercept, to be normalized differently
+              new_col <- paste(col, ":intercept", sep = "")
+              if (!(new_col %in% names(df))) {
+                df[, new_col] <- df[, col, with = FALSE]
+              }
+              names <- c(names, new_col)
             } else {
               names <- c(names, col)
             }

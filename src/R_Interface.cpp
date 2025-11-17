@@ -1214,13 +1214,13 @@ void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Re
     } else if (modelform == "M") {
         default_val = 1;
         for (int i = 1; i < term_tot; i++) {
-            default_val *= (1+term_val[i]);
+            default_val *= term_val[i];
         }
         default_val *= term_val[0];
     } else if (modelform == "ME") {
         default_val = 1;
         for (int i = 1; i < term_tot; i++) {
-            default_val *= term_val[i];
+            default_val *= (1 + term_val[i]);
         }
         default_val *= term_val[0];
     } else if (modelform == "GM") {

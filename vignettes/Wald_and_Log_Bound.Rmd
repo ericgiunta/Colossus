@@ -191,7 +191,7 @@ g
 
 ### Likelihood Boundary Algorithm Alternative
 
-As an alternative to the likelihood algorithm, a direct curve-solving method is implemented. The CoxCurveSolver function solves the boundary values by iteratively optimizing points and using the bisection method. Each step is approximately as fast as running a single regression. The same model_control options are used to select which parameter is selected and what alpha to use, but with an option "step_size" which is the default search window width used. The bisection method functions by (1) selecting an interval, (2) optimizing at the upper, lower, and midpoint of the interval, and (3) checking if the goal likelihood is crossed. If at least one of the interval points is on each side of the goal then the interval is narrowed, and if not then the interval is shifted away from the optimum.
+As an alternative to the likelihood algorithm, a direct curve-solving method is implemented. The bisect option solves the boundary values by iteratively optimizing points and using the bisection method. Each step is approximately as fast as running a single regression. The same model_control options are used to select which parameter is selected and what alpha to use, but with an option "step_size" which is the default search window width used. The bisection method functions by (1) selecting an interval, (2) optimizing at the upper, lower, and midpoint of the interval, and (3) checking if the goal likelihood is crossed. If at least one of the interval points is on each side of the goal then the interval is narrowed, and if not then the interval is shifted away from the optimum.
 
 ```{r, eval=FALSE}
 fname <- "base_example.csv"

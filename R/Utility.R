@@ -1275,7 +1275,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           if (val == 0.0) {
             warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
             val <- 1.0
-          } else if (tforms[i] == "step_slope"){
+          } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
             val <- 1.0
           }
@@ -1287,7 +1287,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           if (val == 0.0) {
             warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
             val <- 1.0
-          } else if (tforms[i] == "step_slope"){
+          } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
             val <- 1.0
           }
@@ -1298,14 +1298,14 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       }
       for (i in seq_along(names)) {
         if (typeof(a_n) != "list") {
-          if (grepl("_int", tforms[i])){
+          if (grepl("_int", tforms[i])) {
             a_n[i] <- a_n[i] / norm_weight[i]
           } else {
             a_n[i] <- a_n[i] * norm_weight[i]
           }
         } else {
           for (j in seq_len(length(a_n))) {
-            if (grepl("_int", tforms[i])){
+            if (grepl("_int", tforms[i])) {
               a_n[[j]][i] <- a_n[[j]][i] / norm_weight[i]
             } else {
               a_n[[j]][i] <- a_n[[j]][i] * norm_weight[i]
@@ -1318,7 +1318,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       }
       if (model_control[["constraint"]] == TRUE) {
         for (i in seq_along(names)) {
-          if (grepl("_int", tforms[i])){
+          if (grepl("_int", tforms[i])) {
             cons_mat[, i] <- cons_mat[, i] * norm_weight[i]
           } else {
             cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
@@ -1348,7 +1348,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       # weight by the maximum value
       if (model_control$single) {
         for (i in seq_along(names)) {
-          if (grepl("_int", tforms[i])){
+          if (grepl("_int", tforms[i])) {
             res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
           } else {
             res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
@@ -1358,39 +1358,39 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         for (i in seq_along(names)) {
           if (keep_constant[i] == 0) {
             i_der <- i - sum(head(keep_constant, i))
-            if (grepl("_int", tforms[i])){
-                res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
-                res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
-                res$Standard_Deviation[i] <- res$Standard_Deviation[i] * norm_weight[i]
+            if (grepl("_int", tforms[i])) {
+              res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
+              res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+              res$Standard_Deviation[i] <- res$Standard_Deviation[i] * norm_weight[i]
             } else {
-                res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
-                res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-                res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+              res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
+              res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+              res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
             }
             for (j in seq_along(names)) {
               if (keep_constant[j] == 0) {
                 j_der <- j - sum(head(keep_constant, j))
-                if (grepl("_int", tforms[i])){
-                    if (grepl("_int", tforms[j])){
-                        res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] / norm_weight[j]
-                        res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] * norm_weight[j]
-                    } else {
-                        res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] * norm_weight[j]
-                        res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] / norm_weight[j]
-                    }
+                if (grepl("_int", tforms[i])) {
+                  if (grepl("_int", tforms[j])) {
+                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] / norm_weight[j]
+                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] * norm_weight[j]
+                  } else {
+                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] * norm_weight[j]
+                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] / norm_weight[j]
+                  }
                 } else {
-                    if (grepl("_int", tforms[j])){
-                        res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] / norm_weight[j]
-                        res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] * norm_weight[j]
-                    } else {
-                        res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] * norm_weight[j]
-                        res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] / norm_weight[j]
-                    }
+                  if (grepl("_int", tforms[j])) {
+                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] / norm_weight[j]
+                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] * norm_weight[j]
+                  } else {
+                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] * norm_weight[j]
+                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] / norm_weight[j]
+                  }
                 }
               }
             }
           } else {
-            if (grepl("_int", tforms[i])){
+            if (grepl("_int", tforms[i])) {
               res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
             } else {
               res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
@@ -1399,7 +1399,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         }
         if (model_control[["constraint"]] == TRUE) {
           for (i in seq_along(names)) {
-            if (grepl("_int", tforms[i])){
+            if (grepl("_int", tforms[i])) {
               res$constraint_matrix[, i] <- res$constraint_matrix[, i] / norm_weight[i]
             } else {
               res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
@@ -2340,8 +2340,8 @@ Interpret_Output <- function(out_list, digits = 3) {
       lik_bound <- out_list$Likelihood_Boundary
       lik_goal <- out_list$Likelihood_Goal
       message("Likelihood Boundary Results")
-      if (all(strata != "NONE")){
-        message("Model stratified by ", paste(shQuote(strata), collapse=", "))
+      if (all(strata != "NONE")) {
+        message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
       }
       message(paste("Solving for the boundary of element: ", para_number, "\nApplied to column: '", name, "'\nSubterm: ", tform, "\nTerm number: ", term_n, sep = ""))
       if (neg[1]) {
@@ -2379,7 +2379,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         if ("Standard_Deviation" %in% names(out_list)) {
           stdev <- out_list$Standard_Deviation
           pval <- 2 * pnorm(-abs(beta_0 / stdev))
-          if (any(keep_constant)){
+          if (any(keep_constant)) {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
@@ -2400,7 +2400,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             )
           }
         } else {
-          if (any(keep_constant)){
+          if (any(keep_constant)) {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
@@ -2430,9 +2430,9 @@ Interpret_Output <- function(out_list, digits = 3) {
         strata <- out_list$model$strata
         #
         message("\nMatched Case-Control Model Used")
-        if (all(strata != "NONE")){
-            message("Model stratified by ", paste(shQuote(strata), collapse=", "))
-          }
+        if (all(strata != "NONE")) {
+          message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+        }
         message(paste("Deviance: ", round(deviance, digits), sep = ""))
         message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
         if (!is.null(converged)) {
@@ -2453,7 +2453,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         if ("Standard_Deviation" %in% names(out_list)) {
           stdev <- out_list$Standard_Deviation
           pval <- 2 * pnorm(-abs(beta_0 / stdev))
-          if (any(keep_constant)){
+          if (any(keep_constant)) {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
@@ -2474,7 +2474,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             )
           }
         } else {
-          if (any(keep_constant)){
+          if (any(keep_constant)) {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
@@ -2505,36 +2505,36 @@ Interpret_Output <- function(out_list, digits = 3) {
         cens_weight <- out_list$model$weight
         converged <- out_list$Converged
         if (is(out_list, "coxres")) {
-          if (cens_weight == "NONE"){
+          if (cens_weight == "NONE") {
             # cox model
             message("\nCox Model Used")
           } else {
             # fine-gray model
-            message(paste("\nFine-Gray Model Used, weighted by ",cens_weight,sep = ""))
+            message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
           }
-          if (all(strata != "NONE")){
-            message("Model stratified by ", paste(shQuote(strata), collapse=", "))
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
-          if (all(strata != "NONE")){
-        message("Model stratified by ", paste(shQuote(strata), collapse=", "))
-      }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
-          if (all(strata != "NONE")){
-        message("Model stratified by ", paste(shQuote(strata), collapse=", "))
-      }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
           message("\nUnknown Model Used")
-          if (all(strata != "NONE")){
-        message("Model stratified by ", paste(shQuote(strata), collapse=", "))
-      }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         }
         if (!is.null(converged)) {
