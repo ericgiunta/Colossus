@@ -14,9 +14,9 @@ and how many cases are excess cases. These are calculated by splitting a
 poisson model into a background term and an excess term. In Colossus,
 the background term is assumed to be the first term, and every other
 term is assumed to be causing excess cases. Colossus has a function,
-RunPoissonEventAssignment, which calculates the number of
-background/excess cases for both average predicted counts and true
-counts. Let us assume we have the following model for event rate:
+EventAssignment, which calculates the number of background/excess cases
+for both average predicted counts and true counts. Let us assume we have
+the following model for event rate:
 
 $$\begin{array}{r}
 {R(\beta,x,\alpha,D) = \exp(\beta \cdot x)*(1 + \alpha \cdot D)}
@@ -24,7 +24,7 @@ $$\begin{array}{r}
 
 ``` r
 a_n <- c(0.1, 0.1)
-model <- Pois(pyr, event) ~ loglinear(x, 0) + linear(D, 1) + Multiplicative()
+model <- Pois(pyr, event) ~ loglinear(x, 0) + plinear(D, 1) + Multiplicative()
 poisres <- PoisRun(model, df, a_n = a_n)
 ```
 
@@ -65,4 +65,24 @@ e1 <- e$caused
 BK <- e0[, 1]
 EX <- e0[, 2]
 Total <- e0[, 3]
+```
+
+EventAssignment can also be used to calculate the number of cases over
+the confidence interval of a model parameter. The excess and background
+cases are evaluated at the midpoint, as well as the risk model optimized
+with the model parameter held constant at the boundary values. This
+produces three lists of matrices, for the lower limit, midpoint, and
+upper limit. At each point the standard matrices for observed and
+predicted events are produced.
+
+``` r
+e <- EventAssignment(poisres, df, check_num = 2, z = 1.96)
+
+e_lower <- e$lower_limit$caused
+e_mid <- e$midpoint$caused
+e_high <- e$upper_limit$caused
+
+EX_low <- e_lower[, 2]
+EX_mid <- e_mid[, 2]
+EX_high <- e_high[, 2]
 ```

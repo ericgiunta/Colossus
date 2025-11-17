@@ -93,7 +93,7 @@ cases and how many cases are excess cases. These are calculated by
 splitting a poisson model into a background term and an excess term. In
 Colossus, the background term is assumed to be the first term, and every
 other term is assumed to be causing excess cases. Colossus has a
-function, RunPoissonEventAssignment, which calculates the number of
+function, EventAssignment, which calculates the number of
 background/excess cases for both average predicted counts and true
 counts. Let us assume we have the following model for event rate:</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -104,7 +104,7 @@ counts. Let us assume we have the following model for event rate:</p>
 </annotation></semantics></math></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
-<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Pois</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">x</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">D</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">Multiplicative</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Pois</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">x</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">D</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">Multiplicative</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">poisres</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRun.html">PoisRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span><span class="op">)</span></span></code></pre></div>
 <p>Our total rate
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>)
@@ -153,6 +153,23 @@ between the expected and true number of cases.</p>
 <span><span class="va">BK</span> <span class="op">&lt;-</span> <span class="va">e0</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">EX</span> <span class="op">&lt;-</span> <span class="va">e0</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
 <span><span class="va">Total</span> <span class="op">&lt;-</span> <span class="va">e0</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span></span></code></pre></div>
+<p>EventAssignment can also be used to calculate the number of cases
+over the confidence interval of a model parameter. The excess and
+background cases are evaluated at the midpoint, as well as the risk
+model optimized with the model parameter held constant at the boundary
+values. This produces three lists of matrices, for the lower limit,
+midpoint, and upper limit. At each point the standard matrices for
+observed and predicted events are produced.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/EventAssignment.html">EventAssignment</a></span><span class="op">(</span><span class="va">poisres</span>, <span class="va">df</span>, check_num <span class="op">=</span> <span class="fl">2</span>, z <span class="op">=</span> <span class="fl">1.96</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">e_lower</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">$</span><span class="va">lower_limit</span><span class="op">$</span><span class="va">caused</span></span>
+<span><span class="va">e_mid</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">$</span><span class="va">midpoint</span><span class="op">$</span><span class="va">caused</span></span>
+<span><span class="va">e_high</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">$</span><span class="va">upper_limit</span><span class="op">$</span><span class="va">caused</span></span>
+<span></span>
+<span><span class="va">EX_low</span> <span class="op">&lt;-</span> <span class="va">e_lower</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span><span class="va">EX_mid</span> <span class="op">&lt;-</span> <span class="va">e_mid</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span><span class="va">EX_high</span> <span class="op">&lt;-</span> <span class="va">e_high</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span></code></pre></div>
 </div>
   </main>
 </div>

@@ -175,7 +175,7 @@ print(e0)
 #> Iterations run: 8
 #> maximum step size: 7.584e-05, maximum first derivative: 4.826e+01
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.018 seconds
+#> Run finished in 0.019 seconds
 #> |-------------------------------------------------------------------|
 print(e1)
 #> |-------------------------------------------------------------------|
@@ -209,6 +209,6 @@ print(e2)
 #> Iterations run: 10
 #> maximum step size: 2.884e-05, maximum first derivative: 1.868e+01
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.008 seconds
+#> Run finished in 0.009 seconds
 #> |-------------------------------------------------------------------|
 ```

@@ -116,7 +116,7 @@ print(e1, 5)
 #> Iterations run: 8
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
-#> Run finished in 0.02272 seconds
+#> Run finished in 0.0239 seconds
 #> |-------------------------------------------------------------------|
 
 e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0), df, a_n = a_n, control = control)
@@ -137,7 +137,7 @@ print(e2, 5)
 #> Iterations run: 13
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
-#> Run finished in 0.01214 seconds
+#> Run finished in 0.01352 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -191,7 +191,7 @@ print(e, 5)
 #> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
 #> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00813 seconds
+#> Run finished in 0.00796 seconds
 #> |-------------------------------------------------------------------|
 
 curve_control <- list(
@@ -217,7 +217,7 @@ print(e, 5)
 #> Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 1.9884
 #> Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00728 seconds
+#> Run finished in 0.00812 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -261,7 +261,7 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00846 seconds
+#> Run finished in 0.00887 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
@@ -288,7 +288,7 @@ print(e, 5)
 #> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
 #> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00865 seconds
+#> Run finished in 0.00952 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -359,17 +359,17 @@ g
 ### Likelihood Boundary Algorithm Alternative
 
 As an alternative to the likelihood algorithm, a direct curve-solving
-method is implemented. The CoxCurveSolver function solves the boundary
-values by iteratively optimizing points and using the bisection method.
-Each step is approximately as fast as running a single regression. The
-same model_control options are used to select which parameter is
-selected and what alpha to use, but with an option “step_size” which is
-the default search window width used. The bisection method functions by
-(1) selecting an interval, (2) optimizing at the upper, lower, and
-midpoint of the interval, and (3) checking if the goal likelihood is
-crossed. If at least one of the interval points is on each side of the
-goal then the interval is narrowed, and if not then the interval is
-shifted away from the optimum.
+method is implemented. The bisect option solves the boundary values by
+iteratively optimizing points and using the bisection method. Each step
+is approximately as fast as running a single regression. The same
+model_control options are used to select which parameter is selected and
+what alpha to use, but with an option “step_size” which is the default
+search window width used. The bisection method functions by (1)
+selecting an interval, (2) optimizing at the upper, lower, and midpoint
+of the interval, and (3) checking if the goal likelihood is crossed. If
+at least one of the interval points is on each side of the goal then the
+interval is narrowed, and if not then the interval is shifted away from
+the optimum.
 
 ``` r
 fname <- "base_example.csv"
