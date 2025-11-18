@@ -246,7 +246,9 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   }
   e <- Assigned_Event_Poisson_transition(
     as.matrix(df[, ce, with = FALSE]),
-    as.matrix(df0), term_n, tform,
+    as.matrix(df0[, val_cols,
+      with = FALSE
+    ]), term_n, tform,
     a_n, dfc, x_all, 0,
     modelform, control, keep_constant,
     term_tot, model_control

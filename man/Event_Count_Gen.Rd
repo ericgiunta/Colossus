@@ -49,6 +49,7 @@ e <- Event_Count_Gen(table, categ, event, T)
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Iters}()},
+\code{\link{Check_Strata_Model}()},
 \code{\link{Date_Shift}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},

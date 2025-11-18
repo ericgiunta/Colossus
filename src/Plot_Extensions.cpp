@@ -508,8 +508,11 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     MatrixXd predict = MatrixXd::Zero(PyrC.rows(), 3);
     //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
-    predict.col(1) = (R.col(0).array() * PyrC.col(0).array()).array() - predict.col(0).array();
-    predict.col(2) = predict.col(0).array() + predict.col(1).array();
+    if (model_bool["strata"]){
+        predict.col(0) = predict.col(0).array() * s_weights.array();;
+    }
+    predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
+    predict.col(1) = predict.col(2).array() - predict.col(0).array();
     //
     caused.col(0) = PyrC.col(1).array() * predict.col(0).array() / predict.col(2).array();
     caused.col(1) = PyrC.col(1).array() * predict.col(1).array() / predict.col(2).array();

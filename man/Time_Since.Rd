@@ -43,6 +43,7 @@ df <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Iters}()},
+\code{\link{Check_Strata_Model}()},
 \code{\link{Date_Shift}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},

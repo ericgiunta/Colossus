@@ -232,6 +232,9 @@ get_form <- function(formula, df) {
     model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("pois", surv_model_type)) {
     model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    if (all(strata != "NONE")) {
+      Check_Strata_Model(term_n, tform, modelform)
+    } # verifies that a stratified model can be used
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("logit", surv_model_type)) || (grepl("logistic", surv_model_type))) {

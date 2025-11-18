@@ -421,6 +421,98 @@ Check_Iters <- function(control, a_n) {
   list("control" = control, "a_n" = a_n)
 }
 
+#' Checks the default value for a given model, if every parameter were 0
+#'
+#' \code{Check_Strata_Model} checks if a model is valid for stratified poisson
+#'
+#' @inheritParams R_template
+#' @family Data Cleaning Functions
+#' @return TRUE if passed
+Check_Strata_Model <- function(term_n, tform, modelform) {
+  term_tot <- length(unique(term_n))
+  lin_count <- rep(0, term_tot) # tracking which terms will go to 0 for only being linear
+  dose_count <- rep(0, term_tot) # tracking which terms will be a sum of 1s, for being dose non-piecewise
+  dose_lin_count <- rep(0, term_tot) # tracking which terms will go to 0 for being dose-piecewise
+  for (ij in 1:length(term_n)) {
+    tn <- term_n[ij] + 1
+    if (tform[ij] == "loglin") { #  setting parameters to zero makes the subterm 1
+    } else if (tform[ij] == "lin") { #  setting parameters to zero makes the subterm 0
+      lin_count[tn] <- lin_count[tn] + 1.0
+    } else if (tform[ij] == "plin") { #  setting parameters to zero makes the subterm 1
+    } else if (tform[ij] == "loglin_slope") { #  the slope paremeter sets the element to 0
+    } else if (tform[ij] == "loglin_top") { #  the top parameter sets the element to 1
+      if (ij == 1) {
+        dose_count[tn] <- dose_count[tn] + 1.0
+      } else if (tform[ij - 1] != "loglin_slope") {
+        dose_count[tn] <- dose_count[tn] + 1.0
+      } else {}
+    } else if (tform[ij] == "lin_slope") { #  every other dose term sets the elements to 0
+      dose_lin_count[tn] <- dose_lin_count[tn] + 1
+    } else if (tform[ij] == "lin_int") {} else if (tform[ij] == "quad_slope") {
+      dose_lin_count[tn] <- dose_lin_count[tn] + 1
+    } else if (tform[ij] == "step_slope") {
+      dose_lin_count[tn] <- dose_lin_count[tn] + 1
+    } else if (tform[ij] == "step_int") {} else if (tform[ij] == "lin_quad_slope") {
+      dose_lin_count[tn] <- dose_lin_count[tn] + 1
+    } else if (tform[ij] == "lin_quad_int") {} else if (tform[ij] == "lin_exp_slope") {
+      dose_lin_count[tn] <- dose_lin_count[tn] + 1
+    } else if (tform[ij] == "lin_exp_int") {} else if (tform[ij] == "lin_exp_exp_slope") {} else {
+      stop("Error: incorrect subterm type")
+    }
+  }
+  term_val <- rep(0, term_tot)
+  for (ijk in 1:term_tot) {
+    if (dose_count[ijk] == 0) { #  If the dose term isn't used
+      if (dose_lin_count[ijk] == 0) { # If no dose terms that default to 0 are used
+        dose_count[ijk] <- 1.0 #  the default term value becomes 1
+      }
+      #  otherwise the default term value is 0
+    }
+    if (lin_count[ijk] == 0) { #  if the linear term isn't used, the entire term is 1 times the dose term value, accounting for the piecewise dose values
+      term_val[ijk] <- dose_count[ijk]
+    } else { #  if the linear term is used, the entire term is 0
+      term_val[ijk] <- 0
+    }
+  }
+
+  default_val <- 0
+  if (modelform == "A") {
+    for (i in 1:term_tot) {
+      default_val <- default_val + term_val[i]
+    }
+  } else if (modelform == "PA") {
+    for (i in seq_len(term_tot - 1) + 1) {
+      default_val <- default_val + term_val[i]
+    }
+    default_val <- default_val * term_val[1]
+  } else if (modelform == "PAE") {
+    for (i in seq_len(term_tot - 1) + 1) {
+      default_val <- default_val + term_val[i]
+    }
+    default_val <- (1 + default_val) * term_val[1]
+  } else if (modelform == "M") {
+    default_val <- 1
+    for (i in seq_len(term_tot - 1) + 1) {
+      default_val <- default_val * term_val[i]
+    }
+    default_val <- default_val * term_val[1]
+  } else if (modelform == "ME") {
+    default_val <- 1
+    for (i in seq_len(term_tot - 1) + 1) {
+      default_val <- default_val * (1 + term_val[i])
+    }
+    default_val <- default_val * term_val[1]
+  } else if (modelform == "GM") {
+    stop("GM isn't implemented")
+  } else {
+    stop("Error: Model isn't implemented")
+  }
+  if (default_val == 0) {
+    stop("Error: Provided model predicts 0 rate for parameters set to 0. Invalid for use with stratified poisson.")
+  }
+  return(TRUE)
+}
+
 #' Calculates Full Parameter list for Special Dose Formula
 #'
 #' \code{Linked_Dose_Formula} Calculates all parameters for linear-quadratic and linear-exponential linked formulas

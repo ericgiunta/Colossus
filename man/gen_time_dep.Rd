@@ -80,6 +80,7 @@ file.remove("test_new.csv")
 \seealso{
 Other Data Cleaning Functions: 
 \code{\link{Check_Iters}()},
+\code{\link{Check_Strata_Model}()},
 \code{\link{Date_Shift}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},

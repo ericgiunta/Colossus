@@ -1154,8 +1154,9 @@ void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Re
     //
     s_weights = dfs * weight.matrix();
     //
-    vector<int> lin_count(term_tot, 0);
-    vector<int> dose_count(term_tot, 0);
+    vector<int> lin_count(term_tot, 0); //  tracking which terms will go to 0 for only being linear
+    vector<int> dose_count(term_tot, 0); // tracking which terms will be a sum of 1s, for being dose non-piecewise
+    vector<int> dose_lin_count(term_tot, 0); // tracking which terms will go to 0 for being dose-piecewise
     for (int ij = 0; ij < (term_n.size()); ij++) {
         int tn = term_n[ij];
         if (as<string>(tform[ij]) == "loglin") {  //  setting parameters to zero makes the subterm 1
@@ -1171,13 +1172,18 @@ void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Re
                 //
             } else {}
         } else if (as<string>(tform[ij]) == "lin_slope") {  //  every other dose term sets the elements to 0
+            dose_lin_count[tn] = dose_lin_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "lin_int") {
         } else if (as<string>(tform[ij]) == "quad_slope") {
+            dose_lin_count[tn] = dose_lin_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_slope") {
+            dose_lin_count[tn] = dose_lin_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_int") {
         } else if (as<string>(tform[ij]) == "lin_quad_slope") {
+            dose_lin_count[tn] = dose_lin_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "lin_quad_int") {
         } else if (as<string>(tform[ij]) == "lin_exp_slope") {
+            dose_lin_count[tn] = dose_lin_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "lin_exp_int") {
         } else if (as<string>(tform[ij]) == "lin_exp_exp_slope") {
         } else {
@@ -1187,10 +1193,13 @@ void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Re
     //
     vector<double> term_val(term_tot, 0);
     for (int ijk = 0;  ijk < term_tot; ijk++) {
-        if (dose_count[ijk] == 0) {  //  If the dose term isn't used, then the default value is 1
-            dose_count[ijk] = 1.0;
+        if (dose_count[ijk] == 0) {  //  If the dose term isn't used
+            if (dose_lin_count[ijk] == 0){ // If no dose terms that default to 0 are used
+                dose_count[ijk] = 1.0; //  the default term value becomes 1
+            }
+            //  otherwise the default term value is 0
         }
-        if (lin_count[ijk] == 0) {  //  if the linear term isn't used, the entire term is 1 times the dose term value
+        if (lin_count[ijk] == 0) {  //  if the linear term isn't used, the entire term is 1 times the dose term value, accounting for the piecewise dose values
             term_val[ijk] = dose_count[ijk];
         } else {  //  if the linear term is used, the entire term is 0
             term_val[ijk] = 0;
