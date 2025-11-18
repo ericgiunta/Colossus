@@ -39,6 +39,7 @@ cols for the new column names
 ## See also
 
 Other Data Cleaning Functions: [`Check_Iters()`](Check_Iters.md),
+[`Check_Strata_Model()`](Check_Strata_Model.md),
 [`Date_Shift()`](Date_Shift.md),
 [`Event_Count_Gen()`](Event_Count_Gen.md),
 [`Event_Time_Gen()`](Event_Time_Gen.md),

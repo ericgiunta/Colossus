@@ -376,7 +376,7 @@ print(e)
 #> Iterations run: 30
 #> maximum step size: 1.000e+00, maximum first derivative: 9.764e-04
 #> Analysis converged
-#> Run finished in 0.021 seconds
+#> Run finished in 0.023 seconds
 #> |-------------------------------------------------------------------|
 
 # or a Poisson model regression
@@ -397,7 +397,7 @@ print(e)
 #> Iterations run: 3
 #> maximum step size: 9.766e-04, maximum first derivative: 1.380e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.009 seconds
+#> Run finished in 0.01 seconds
 #> |-------------------------------------------------------------------|
 ```
 

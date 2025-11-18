@@ -27,7 +27,9 @@ returns a list with the corrected control list and a_n
 
 ## See also
 
-Other Data Cleaning Functions: [`Date_Shift()`](Date_Shift.md),
+Other Data Cleaning Functions:
+[`Check_Strata_Model()`](Check_Strata_Model.md),
+[`Date_Shift()`](Date_Shift.md),
 [`Event_Count_Gen()`](Event_Count_Gen.md),
 [`Event_Time_Gen()`](Event_Time_Gen.md),
 [`Joint_Multiple_Events()`](Joint_Multiple_Events.md),

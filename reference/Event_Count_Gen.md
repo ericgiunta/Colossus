@@ -42,6 +42,7 @@ returns a grouped table and a list of category boundaries used
 ## See also
 
 Other Data Cleaning Functions: [`Check_Iters()`](Check_Iters.md),
+[`Check_Strata_Model()`](Check_Strata_Model.md),
 [`Date_Shift()`](Date_Shift.md),
 [`Event_Time_Gen()`](Event_Time_Gen.md),
 [`Joint_Multiple_Events()`](Joint_Multiple_Events.md),

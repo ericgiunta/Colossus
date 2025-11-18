@@ -219,7 +219,12 @@ without stratification:</p>
 </annotation></semantics></math></p>
 <p>Only results associated with the non-stratified parameters are
 returned by default. An average event rate is calculated for every
-strata level, which weights the calculated risks.</p>
+strata level, which weights the calculated risks. The weighting is
+performed so that the predicted rate when every model parameter is set
+to 0 equals the average strata rates. Note that this can lead to errors
+if the model specified predicts a rate of 0 when the model parameters
+are all 0. Purely linear models cannot be used with stratification
+currently for this reason.</p>
 <p>In code, this is done by adding in a list of stratification columns
 and using a different function to call the regression. Colossus combines
 the list of stratification columns into a single interaction, so it does
