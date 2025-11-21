@@ -1595,6 +1595,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   }
   res$model <- coxmodel
   res$beta_0 <- object$beta_0
+  res$para_number <- model_control$para_number
   res$coxres <- object
   #
   if (tolower(norm) == "null") {
@@ -1718,6 +1719,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   res$model <- poismodel
   res$beta_0 <- object$beta_0
+  res$para_number <- model_control$para_number
   res$poisres <- object
   #
   if (tolower(norm) == "null") {
@@ -2007,19 +2009,8 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
     stop("Error: control argument must be a list")
   }
   #
-  check_num <- 1
-  z <- 2
-  if (length(assign_control) > 0) {
-    assign_control$bound <- TRUE
-    if ("check_num" %in% names(assign_control)) {
-      check_num <- assign_control$check_num
-    }
-    if ("z" %in% names(assign_control)) {
-      z <- assign_control$z
-    }
-  } else {
-    assign_control$bound <- FALSE
-  }
+  check_num <- x$para_number
+  assign_control$bound <- TRUE
   if (!assign_control$bound) {
     # Just a basic event assignment
     res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)

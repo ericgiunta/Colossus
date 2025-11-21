@@ -661,9 +661,10 @@ logitmodel <- function(trials = "",
 }
 
 # ------------------------------------------------------------------------ #
-ColossusControl <- function(verbose = 0,
+ColossusControl <- function(verbose = 1,
                             lr = 0.75,
                             maxiter = 20,
+                            maxiters = c(1, 20),
                             halfmax = 5,
                             epsilon = 1e-4,
                             deriv_epsilon = 1e-4,
@@ -671,11 +672,20 @@ ColossusControl <- function(verbose = 0,
                             thres_step_max = 1.0,
                             ties = "breslow",
                             ncores = as.numeric(detectCores())) {
+  if (missing(maxiters)) {
+    maxiters <- c(1, maxiter)
+    if (maxiter < 0) {
+      maxiters <- c(-1, -1)
+    }
+  }
+  maxiters <- as.integer(maxiters)
+  maxiters[maxiters < -1] <- -1
   verbose <- Check_Verbose(verbose)
   control <- list(
     "verbose" = verbose,
     "lr" = lr,
     "maxiter" = maxiter,
+    "maxiters" = maxiters,
     "halfmax" = halfmax,
     "epsilon" = epsilon,
     "deriv_epsilon" = deriv_epsilon,
@@ -685,7 +695,7 @@ ColossusControl <- function(verbose = 0,
     "ncores" = ncores
   )
   control_def <- list(
-    "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
+    "verbose" = 1, "lr" = 0.75, "maxiter" = 20,
     "halfmax" = 5, "epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "thres_step_max" = 100.0,

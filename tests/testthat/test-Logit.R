@@ -42,7 +42,7 @@ test_that("basic regression with link non-fail", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, maxiters = 100, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, maxiter = 100, ncores = 2)
     #
     def_rate <- log(sum(df$status) / length(df$status))
     a_n <- c(0.001, -0.95, def_rate)

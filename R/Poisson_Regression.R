@@ -221,8 +221,8 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
             sep = " "
           ))
         }
-        df <- df[get(col) != 1, ]
-        df0 <- df0[get(col) != 1, ]
+        #        df <- df[get(col) != 1, ]
+        #        df0 <- df0[get(col) != 1, ]
       } else {
         val_cols <- c(val_cols, col)
       }
@@ -408,8 +408,8 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
             sep = " "
           ))
         }
-        df <- df[get(col) != 1, ]
-        df0 <- df0[get(col) != 1, ]
+        #        df <- df[get(col) != 1, ]
+        #        df0 <- df0[get(col) != 1, ]
       } else {
         val_cols <- c(val_cols, col)
       }
