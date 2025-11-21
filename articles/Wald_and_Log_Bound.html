@@ -209,7 +209,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 8</span></span>
 <span><span class="co">#&gt; maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.02381 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02268 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
@@ -230,7 +230,7 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 13</span></span>
 <span><span class="co">#&gt; maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.0129 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01244 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -281,7 +281,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 0.75995</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00826 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00813 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -307,7 +307,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 1.9884</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00832 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00778 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
@@ -348,7 +348,7 @@ are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 0.95035</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00903 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00828 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -375,7 +375,7 @@ are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 8.8172</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00928 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00883 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">

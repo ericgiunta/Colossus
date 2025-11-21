@@ -128,7 +128,7 @@ print(e)
 #> Iterations run: 11
 #> maximum step size: 1.075e-04, maximum first derivative: 3.454e-05
 #> Analysis converged
-#> Run finished in 0.022 seconds
+#> Run finished in 0.021 seconds
 #> |-------------------------------------------------------------------|
 ```
 
