@@ -77,14 +77,6 @@
   calculation function, default option
 - [`Residual(`*`<poisres>`*`)`](Residual.poisres.md) : Calculates the
   Residuals for a completed poisson model
-- [`RunCaseControlRegression_Omnibus()`](RunCaseControlRegression_Omnibus.md)
-  : Performs Matched Case-Control Conditional Logistic Regression
-- [`RunCoxRegression_Omnibus()`](RunCoxRegression_Omnibus.md) : Performs
-  Cox Proportional Hazards regression using the omnibus function
-- [`RunLogisticRegression_Omnibus()`](RunLogisticRegression_Omnibus.md)
-  : Performs basic Logistic regression using the omnibus function
-- [`RunPoissonRegression_Omnibus()`](RunPoissonRegression_Omnibus.md) :
-  Performs basic Poisson regression using the omnibus function
 - [`System_Version()`](System_Version.md) : Checks OS, compilers, and
   OMP
 - [`Time_Since()`](Time_Since.md) : Automates creating a date since a

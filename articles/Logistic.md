@@ -160,7 +160,7 @@ print(e)
 #> Iterations run: 11
 #> maximum step size: 9.569e-05, maximum first derivative: 3.072e-05
 #> Analysis converged
-#> Run finished in 0.011 seconds
+#> Run finished in 0.012 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(-1, -1, -1, -1)
@@ -180,7 +180,7 @@ print(e)
 #> Iterations run: 11
 #> maximum step size: 4.859e-05, maximum first derivative: 1.145e-02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.02 seconds
+#> Run finished in 0.011 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)

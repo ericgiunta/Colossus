@@ -96,8 +96,7 @@ Other Poisson Wrapper Functions:
 [`EventAssignment.poisresbound()`](EventAssignment.poisresbound.md),
 [`LikelihoodBound.poisres()`](LikelihoodBound.poisres.md),
 [`PoisRun()`](PoisRun.md), [`PoisRunMulti()`](PoisRunMulti.md),
-[`Residual.poisres()`](Residual.poisres.md),
-[`RunPoissonRegression_Omnibus()`](RunPoissonRegression_Omnibus.md)
+[`Residual.poisres()`](Residual.poisres.md)
 
 ## Examples
 

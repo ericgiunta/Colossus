@@ -94,11 +94,6 @@ CaseControlRun(
 
 returns a class fully describing the model and the regression results
 
-## See also
-
-Other Case Control Wrapper Functions:
-[`RunCaseControlRegression_Omnibus()`](RunCaseControlRegression_Omnibus.md)
-
 ## Examples
 
 ``` r

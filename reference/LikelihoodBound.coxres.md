@@ -42,5 +42,4 @@ returns a list of the final results
 ## See also
 
 Other Cox Wrapper Functions: [`CoxRun()`](CoxRun.md),
-[`CoxRunMulti()`](CoxRunMulti.md),
-[`RunCoxRegression_Omnibus()`](RunCoxRegression_Omnibus.md)
+[`CoxRunMulti()`](CoxRunMulti.md)

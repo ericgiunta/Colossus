@@ -284,7 +284,7 @@ get_form_joint(formula_list, df)
 #> [1] "ME"
 #> 
 #> $gmix_term
-#> NULL
+#> [1] 1
 #> 
 #> $gmix_theta
 #> [1] 0

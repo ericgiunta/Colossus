@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Check_Strata_Model</span><span class="op">(</span><span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">modelform</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Check_Strata_Model</span><span class="op">(</span><span class="va">term_n</span>, <span class="va">tform</span>, <span class="va">modelform</span>, <span class="va">gmix_term</span>, <span class="va">gmix_theta</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -75,6 +75,14 @@
 
 <dt id="arg-modelform">modelform<a class="anchor" aria-label="anchor" href="#arg-modelform"></a></dt>
 <dd><p>string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E</p></dd>
+
+
+<dt id="arg-gmix-term">gmix_term<a class="anchor" aria-label="anchor" href="#arg-gmix-term"></a></dt>
+<dd><p>binary vector to denote excess (1) and relative terms (0). Excess terms have 1 added before use in risk model</p></dd>
+
+
+<dt id="arg-gmix-theta">gmix_theta<a class="anchor" aria-label="anchor" href="#arg-gmix-theta"></a></dt>
+<dd><p>double, used in gmix model. Multiplicative combination is taken to power of theta, additive combination is taken to 1-theta.</p></dd>
 
 </dl></div>
     <div class="section level2">

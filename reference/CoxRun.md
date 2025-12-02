@@ -91,8 +91,7 @@ returns a class fully describing the model and the regression results
 ## See also
 
 Other Cox Wrapper Functions: [`CoxRunMulti()`](CoxRunMulti.md),
-[`LikelihoodBound.coxres()`](LikelihoodBound.coxres.md),
-[`RunCoxRegression_Omnibus()`](RunCoxRegression_Omnibus.md)
+[`LikelihoodBound.coxres()`](LikelihoodBound.coxres.md)
 
 ## Examples
 

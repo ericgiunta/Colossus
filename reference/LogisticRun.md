@@ -96,11 +96,6 @@ LogisticRun(
 
 returns a class fully describing the model and the regression results
 
-## See also
-
-Other Logistic Wrapper Functions:
-[`RunLogisticRegression_Omnibus()`](RunLogisticRegression_Omnibus.md)
-
 ## Examples
 
 ``` r

@@ -5,7 +5,7 @@
 ## Usage
 
 ``` r
-Check_Strata_Model(term_n, tform, modelform)
+Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
 ```
 
 ## Arguments
@@ -22,6 +22,16 @@ Check_Strata_Model(term_n, tform, modelform)
 
   string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R,
   GMIX-E
+
+- gmix_term:
+
+  binary vector to denote excess (1) and relative terms (0). Excess
+  terms have 1 added before use in risk model
+
+- gmix_theta:
+
+  double, used in gmix model. Multiplicative combination is taken to
+  power of theta, additive combination is taken to 1-theta.
 
 ## Value
 

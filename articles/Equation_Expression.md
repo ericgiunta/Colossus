@@ -120,7 +120,7 @@ get_form(Model_Eq, df)
 #> [1] "ME"
 #> 
 #> $gmix_term
-#> NULL
+#> [1] 1 1
 #> 
 #> $gmix_theta
 #> [1] 0
