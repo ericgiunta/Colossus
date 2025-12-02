@@ -233,7 +233,7 @@ get_form <- function(formula, df) {
   } else if (grepl("pois", surv_model_type)) {
     model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
     if (all(strata != "NONE")) {
-      Check_Strata_Model(term_n, tform, modelform)
+      Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
     } # verifies that a stratified model can be used
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
@@ -330,6 +330,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
 #' @family Formula Interpretation
 get_form_surv <- function(surv_obj, df) {
   surv_obj <- gsub(" ", "", surv_obj)
+  surv_obj <- gsub("\"", "", surv_obj) # remove literal strings if needed
   surv_model_type <- "NONE"
   tstart <- "NONE"
   tend <- "NONE"
@@ -918,22 +919,84 @@ get_form_risk <- function(model_obj, df) {
         model_type <- "PA"
       } else if (model_type %in% c("pae", "product-additive-excess")) {
         model_type <- "PAE"
-      } else if (model_type %in% c("gmix", "geometric-mixture")) {
+      } else if (model_type %in% c("gm", "gmix", "geometric-mixture")) {
         model_type <- "GMIX"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        model_paras <- tolower(strsplit(model_paras, ",")[[1]])
-        gmix_theta <- as.numeric(model_paras[1])
-        gmix_term <- ifelse(model_paras[2:length(model_paras)] == "e", 1, 0)
+        model_paras <- gsub("\"", "", model_paras) # remove literal strings if needed
+        #
+        if (is.na(model_paras) || model_paras == "") {
+          # Nothing, just give the defaults
+          gmix_theta <- 0.5
+          gmix_term <- c()
+        } else {
+          # There is something, but what?
+          if (grepl(",", model_paras)) {
+            # Multiple items
+            model_paras <- tolower(strsplit(model_paras, ",")[[1]])
+            # we need to start by checking if the first thing is a number
+            if (all(vapply(model_paras[1], function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(model_paras[1], function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
+              # Good, the first item is a number
+              gmix_theta <- as.numeric(model_paras[1])
+              para_else <- model_paras[2:length(model_paras)]
+              # Check if they are all valid
+              if (all(vapply(para_else, function(x) grepl(x, "er"), logical(1)))) {
+                gmix_term <- ifelse(para_else == "e", 1, 0)
+              } else {
+                # Remaining entry was wrong
+                stop("Error: Gmix term had an invalid option after the theta value. Please only use 'e/r'")
+              }
+            } else {
+              # wasn't a number
+              gmix_theta <- 0.5
+              para_else <- model_paras[1:length(model_paras)]
+              # Check if they are all valid
+              if (all(vapply(para_else, function(x) grepl(x, "er"), logical(1)))) {
+                gmix_term <- ifelse(para_else == "e", 1, 0)
+              } else {
+                # Remaining entry was wrong
+                stop("Error: Gmix term had an invalid option. Please only use a number or 'e/r'")
+              }
+            }
+          } else {
+            # Single Item
+            if (all(vapply(model_paras, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(model_paras, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
+              # It is a number, make it the gmix_theta
+              gmix_theta <- as.numeric(model_paras)
+              gmix_term <- c()
+            } else {
+              # it is not a number, is it a 'e' or 'r'?
+              if (grepl(tolower(model_paras), "er")) {
+                # it is an option!
+                gmix_theta <- 0.5
+                gmix_term <- ifelse(tolower(model_paras) == "e", 1, 0)
+              } else {
+                # Doesn't match anything
+                stop("Error: Gmix term had an invalid option. Please only use a number or 'e/r'")
+              }
+            }
+          }
+        }
+        #
       } else if (model_type %in% c("gmix-r", "relative-geometric-mixture")) {
         model_type <- "GMIX-R"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        model_paras <- tolower(strsplit(model_paras, ",")[[1]])
-        gmix_theta <- as.numeric(model_paras[1])
+        if (is.na(model_paras) || model_paras == "") {
+          # Nothing, just give the defaults
+          gmix_theta <- 0.5
+        } else {
+          model_paras <- tolower(strsplit(model_paras, ",")[[1]])
+          gmix_theta <- as.numeric(model_paras[1])
+        }
       } else if (model_type %in% c("gmix-e", "excess-geometric-mixture")) {
         model_type <- "GMIX-E"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        model_paras <- tolower(strsplit(model_paras, ",")[[1]])
-        gmix_theta <- as.numeric(model_paras[1])
+        if (is.na(model_paras) || model_paras == "") {
+          # Nothing, just give the defaults
+          gmix_theta <- 0.5
+        } else {
+          model_paras <- tolower(strsplit(model_paras, ",")[[1]])
+          gmix_theta <- as.numeric(model_paras[1])
+        }
       }
       if (modelform == "NONE") {
         modelform <- model_type
@@ -954,6 +1017,11 @@ get_form_risk <- function(model_obj, df) {
     } else if (modelform == "GMIX-E") {
       modelform <- "GMIX"
       gmix_term <- rep(1, term_tot)
+    }
+    if (length(gmix_term) < term_tot) {
+      gmix_term <- c(gmix_term, rep(1.0, term_tot - length(gmix_term)))
+    } else if (length(gmix_term) > term_tot) {
+      stop("Error: The gmix option was used with more values than terms")
     }
   }
   #

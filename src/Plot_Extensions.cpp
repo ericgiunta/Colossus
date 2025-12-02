@@ -498,7 +498,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     VectorXd s_weights;
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(df0.rows());
-        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
+        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot, gmix_theta, gmix_term);
         Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
     } else {
         Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
@@ -508,7 +508,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     MatrixXd predict = MatrixXd::Zero(PyrC.rows(), 3);
     //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
-    if (model_bool["strata"]){
+    if (model_bool["strata"]) {
         predict.col(0) = predict.col(0).array() * s_weights.array();;
     }
     predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
@@ -582,7 +582,7 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, St
     VectorXd s_weights;
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(df0.rows());
-        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
+        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot, gmix_theta, gmix_term);
     }
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------

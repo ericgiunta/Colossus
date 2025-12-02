@@ -425,10 +425,12 @@ Check_Iters <- function(control, a_n) {
 #'
 #' \code{Check_Strata_Model} checks if a model is valid for stratified poisson
 #'
+#' @param gmix_term binary vector to denote excess (1) and relative terms (0). Excess terms have 1 added before use in risk model
+#' @param gmix_theta double, used in gmix model. Multiplicative combination is taken to power of theta, additive combination is taken to 1-theta.
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return TRUE if passed
-Check_Strata_Model <- function(term_n, tform, modelform) {
+Check_Strata_Model <- function(term_n, tform, modelform, gmix_term, gmix_theta) {
   term_tot <- length(unique(term_n))
   lin_count <- rep(0, term_tot) # tracking which terms will go to 0 for only being linear
   dose_count <- rep(0, term_tot) # tracking which terms will be a sum of 1s, for being dose non-piecewise
@@ -502,8 +504,16 @@ Check_Strata_Model <- function(term_n, tform, modelform) {
       default_val <- default_val * (1 + term_val[i])
     }
     default_val <- default_val * term_val[1]
-  } else if (modelform == "GM") {
-    stop("GM isn't implemented")
+  } else if (modelform == "GMIX") {
+    T0 <- term_val[1]
+    Ta <- 1
+    Tm <- 1
+    for (i in seq_len(term_tot - 1) + 1) {
+      Ta <- Ta + (term_val[i] + gmix_term[i] - 1)
+      Tm <- Tm * (term_val[i] + gmix_term[i])
+    }
+    default_val <- T0 * Tm^gmix_theta * Ta^(1 - gmix_theta)
+    #    stop("GM isn't implemented")
   } else {
     stop("Error: Model isn't implemented")
   }
@@ -1434,76 +1444,78 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
     norm_weight <- values$norm_weight
     keep_constant <- res$Parameter_Lists$keep_constant
     tforms <- values$tform
-    if (tolower(norm) == "null") {
-      # nothing changes
-    } else if (tolower(norm) %in% c("mean", "max")) {
-      # weight by the maximum value
-      if (model_control$single) {
-        for (i in seq_along(names)) {
-          if (grepl("_int", tforms[i])) {
-            res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
-          } else {
-            res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-          }
-        }
-      } else {
-        for (i in seq_along(names)) {
-          if (keep_constant[i] == 0) {
-            i_der <- i - sum(head(keep_constant, i))
+    if (any(norm_weight != 1.0)) {
+      if (tolower(norm) == "null") {
+        # nothing changes
+      } else if (tolower(norm) %in% c("mean", "max")) {
+        # weight by the maximum value
+        if (model_control$single) {
+          for (i in seq_along(names)) {
             if (grepl("_int", tforms[i])) {
-              res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
               res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
-              res$Standard_Deviation[i] <- res$Standard_Deviation[i] * norm_weight[i]
             } else {
-              res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
               res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-              res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
             }
-            for (j in seq_along(names)) {
-              if (keep_constant[j] == 0) {
-                j_der <- j - sum(head(keep_constant, j))
-                if (grepl("_int", tforms[i])) {
-                  if (grepl("_int", tforms[j])) {
-                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] / norm_weight[j]
-                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] * norm_weight[j]
+          }
+        } else {
+          for (i in seq_along(names)) {
+            if (keep_constant[i] == 0) {
+              i_der <- i - sum(head(keep_constant, i))
+              if (grepl("_int", tforms[i])) {
+                res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
+                res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+                res$Standard_Deviation[i] <- res$Standard_Deviation[i] * norm_weight[i]
+              } else {
+                res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
+                res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+                res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+              }
+              for (j in seq_along(names)) {
+                if (keep_constant[j] == 0) {
+                  j_der <- j - sum(head(keep_constant, j))
+                  if (grepl("_int", tforms[i])) {
+                    if (grepl("_int", tforms[j])) {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] / norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] * norm_weight[j]
+                    } else {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] * norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] / norm_weight[j]
+                    }
                   } else {
-                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] * norm_weight[j]
-                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] / norm_weight[j]
-                  }
-                } else {
-                  if (grepl("_int", tforms[j])) {
-                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] / norm_weight[j]
-                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] * norm_weight[j]
-                  } else {
-                    res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] * norm_weight[j]
-                    res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] / norm_weight[j]
+                    if (grepl("_int", tforms[j])) {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] / norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] * norm_weight[j]
+                    } else {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] * norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] / norm_weight[j]
+                    }
                   }
                 }
               }
-            }
-          } else {
-            if (grepl("_int", tforms[i])) {
-              res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
             } else {
-              res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+              if (grepl("_int", tforms[i])) {
+                res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+              } else {
+                res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+              }
+            }
+          }
+          if (model_control[["constraint"]] == TRUE) {
+            for (i in seq_along(names)) {
+              if (grepl("_int", tforms[i])) {
+                res$constraint_matrix[, i] <- res$constraint_matrix[, i] / norm_weight[i]
+              } else {
+                res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
+              }
             }
           }
         }
-        if (model_control[["constraint"]] == TRUE) {
-          for (i in seq_along(names)) {
-            if (grepl("_int", tforms[i])) {
-              res$constraint_matrix[, i] <- res$constraint_matrix[, i] / norm_weight[i]
-            } else {
-              res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-            }
-          }
-        }
+      } else {
+        stop(gettextf(
+          "Error: Normalization arguement '%s' not valid.",
+          norm
+        ), domain = NA)
       }
-    } else {
-      stop(gettextf(
-        "Error: Normalization arguement '%s' not valid.",
-        norm
-      ), domain = NA)
     }
     output <- res
   }
@@ -2528,7 +2540,11 @@ Interpret_Output <- function(out_list, digits = 3) {
         message(paste("Deviance: ", round(deviance, digits), sep = ""))
         message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
         if (!is.null(converged)) {
-          message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          if (iteration == 0) {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          } else {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          }
           if (converged) {
             message("Analysis converged")
           } else {
@@ -2630,7 +2646,11 @@ Interpret_Output <- function(out_list, digits = 3) {
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         }
         if (!is.null(converged)) {
-          message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          if (iteration == 0) {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          } else {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          }
           if (converged) {
             message("Analysis converged")
           } else {

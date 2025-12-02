@@ -82,7 +82,6 @@ Other Poisson Wrapper Functions:
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunMulti}()},
-\code{\link{Residual.poisres}()},
-\code{\link{RunPoissonRegression_Omnibus}()}
+\code{\link{Residual.poisres}()}
 }
 \concept{Poisson Wrapper Functions}

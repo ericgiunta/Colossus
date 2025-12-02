@@ -151,3 +151,8 @@
 * Corrected factorization not being applied to factored columns
 * Fixed event assignment reordering the data
 * Multiplicative and Multiplicative-excess models are now distinct. The default is left as multiplicative-excess.
+
+# Colossus 1.4.5
+
+* Updated geometric-mixture code to apply defaults of 0.5 theta and only excess terms
+* Corrected normalization for intercept parameters

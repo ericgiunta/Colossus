@@ -8,17 +8,14 @@ test_that("Joint data generation, no error", {
   d <- c(1, 1, 0, 0, 1, 1)
   e <- c(0, 1, 1, 1, 0, 0)
   df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
-  time1 <- "t0"
-  time2 <- "t1"
   df$pyr <- df$t1 - df$t0
-  pyr <- "pyr"
   events <- c("e0", "e1")
   keep_constant_shared <- c(0, 0)
   a_n_shared <- c(0.001, -0.02)
   #
-  model_1 <- Pois(pyr, e0) ~ loglin(fac, 0)
-  model_2 <- Pois(pyr, e1) ~ loglin(fac, 0)
-  model_s <- Pois(pyr) ~ plinear(t0, 0)
+  model_1 <- Pois(pyr, e0) ~ loglin(fac, 0) + gmix()
+  model_2 <- Pois(pyr, e1) ~ loglin(fac, 0) + GMIX()
+  model_s <- Pois(pyr) ~ plinear(t0, 0) + gmix()
   formula_list <- list(model_1, model_2, "shared" = model_s)
   #
   expect_no_error(PoisRunJoint(formula_list, df, ncores = 2))
@@ -34,31 +31,7 @@ test_that("Joint data generation fill defaults, no error", {
   d <- c(1, 1, 0, 0, 1, 1)
   e <- c(0, 1, 1, 1, 0, 0)
   df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
-  time1 <- "t0"
-  time2 <- "t1"
   df$pyr <- df$t1 - df$t0
-  pyr <- "pyr"
-  #  events <- c("e0", "e1")
-  #  names_e0 <- c("fac")
-  #  names_e1 <- c("fac")
-  #  names_shared <- c("t0", "t0")
-  #  term_n_e0 <- c(0)
-  #  term_n_e1 <- c(0)
-  #  term_n_shared <- c(0, 0)
-  #  tform_e0 <- c("loglin")
-  #  tform_e1 <- c("loglin")
-  #  tform_shared <- c("quad_slope", "loglin_top")
-  #  keep_constant_e0 <- c(0)
-  #  keep_constant_e1 <- c(0)
-  #  keep_constant_shared <- c(0, 0)
-  #  a_n_e0 <- c(-0.1)
-  #  a_n_e1 <- c(0.1)
-  #  a_n_shared <- c(0.001, -0.02)
-  #  name_list <- list("shared" = names_shared, "e0" = names_e0, "e1" = names_e1)
-  #  term_n_list <- list("shared" = term_n_shared, "e0" = term_n_e0, "e1" = term_n_e1)
-  #  tform_list <- list("shared" = tform_shared, "e0" = tform_e0, "e1" = tform_e1)
-  #  keep_constant_list <- list("shared" = keep_constant_shared, "e0" = keep_constant_e0, "e1" = keep_constant_e1)
-  #  a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
   model_1 <- Pois(pyr, e0) ~ loglin(fac, 0)
   model_2 <- Pois(pyr, e1) ~ loglin(fac, 0)
   model_s <- Pois(pyr) ~ plinear(t0, 0)
@@ -78,31 +51,8 @@ test_that("Joint data generation, check results", {
   d <- c(1, 1, 0, 0, 1, 1)
   e <- c(0, 1, 1, 1, 0, 0)
   df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
-  time1 <- "t0"
-  time2 <- "t1"
   df$pyr <- df$t1 - df$t0
-  pyr <- "pyr"
   events <- c("e0", "e1")
-  #  names_e0 <- c("fac")
-  #  names_e1 <- c("fac")
-  #  names_shared <- c("t0", "t0")
-  #  term_n_e0 <- c(0)
-  #  term_n_e1 <- c(0)
-  #  term_n_shared <- c(0, 0)
-  #  tform_e0 <- c("loglin")
-  #  tform_e1 <- c("loglin")
-  #  tform_shared <- c("quad_slope", "loglin_top")
-  #  keep_constant_e0 <- c(0)
-  #  keep_constant_e1 <- c(0)
-  #  keep_constant_shared <- c(0, 0)
-  #  a_n_e0 <- c(-0.1)
-  #  a_n_e1 <- c(0.1)
-  #  a_n_shared <- c(0.001, -0.02)
-  #  name_list <- list("shared" = names_shared, "e0" = names_e0, "e1" = names_e1)
-  #  term_n_list <- list("shared" = term_n_shared, "e0" = term_n_e0, "e1" = term_n_e1)
-  #  tform_list <- list("shared" = tform_shared, "e0" = tform_e0, "e1" = tform_e1)
-  #  keep_constant_list <- list("shared" = keep_constant_shared, "e0" = keep_constant_e0, "e1" = keep_constant_e1)
-  #  a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
   #
   model_1 <- Pois(pyr, e0) ~ loglin(fac, 0)
   model_2 <- Pois(pyr, e1) ~ loglin(fac, 0)
@@ -122,10 +72,7 @@ test_that("Joint data regression, no error", {
   e <- c(0, 1, 1, 1, 0, 0)
   f <- c(0, 1, 0, 0, 1, 1)
   df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
-  time1 <- "t0"
-  time2 <- "t1"
   df$pyr <- df$t1 - df$t0
-  pyr <- "pyr"
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 2, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
@@ -147,12 +94,8 @@ test_that("Joint data regression, check results", {
   e <- c(0, 1, 1, 1, 0, 0)
   f <- c(0, 1, 0, 0, 1, 1)
   df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
-  time1 <- "t0"
-  time2 <- "t1"
   df$pyr <- df$t1 - df$t0
-  pyr <- "pyr"
   events <- c("e0", "e1")
-
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,

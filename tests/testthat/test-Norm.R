@@ -82,6 +82,15 @@ test_that("Checking values converted back", {
     res_max <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt) + plinear(karno), df, a_n = a_n, norm = "max", control = control)
     expect_equal(res$beta_0, res_max$beta_0, tolerance = 1e-2)
   }
+  #
+  model <- Cox_Strata(time, status, cell) ~ loglinear(trt) + step - dose(karno, 1) + ME()
+  a_n <- c(0.1, 0.2, 50)
+  res <- CoxRun(model, df, a_n = a_n, control = control)
+  res_max <- CoxRun(model, df, a_n = a_n, norm = "max", control = control)
+  res_mean <- CoxRun(model, df, a_n = a_n, norm = "mean", control = control)
+  #
+  expect_equal(res$First_Der, res_max$First_Der, tolerance = 1e-2)
+  expect_equal(res$First_Der, res_mean$First_Der, tolerance = 1e-2)
 })
 
 test_that("Checking combination with gradient/single/null", {

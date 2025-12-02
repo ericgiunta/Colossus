@@ -7,7 +7,7 @@
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Logistic Wrapper Functions
 #' @examples
 #' library(data.table)

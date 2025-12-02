@@ -74,6 +74,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
     #endif
     for (int ij = 0; ij < totalnum; ij++) {
         int df0_c = dfc[ij] - 1;
+        int df0_int;
         int tn = term_n[ij];
         if (as<string>(tform[ij]) == "loglin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
@@ -110,7 +111,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
             } else {
             }
         } else if (as<string>(tform[ij]) == "lin_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             //
             T0.col(ij) = (T0.col(ij).array() < 0).select(0, T0.col(ij));
             //
@@ -127,7 +129,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             //
             T0.col(ij) = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(T0.rows(), 1).array() + 1.0);
             //
@@ -137,7 +140,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_int") {
         } else if (as<string>(tform[ij]) == "lin_quad_slope") {
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]);
             T0.col(ij + 1) = (df0.col(df0_c).array().pow(2).array() * beta_0[ij] /2 / beta_0[ij + 1] + beta_0[ij] /2 * beta_0[ij + 1]);
             //
@@ -149,7 +153,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "lin_quad_int") {
         } else if (as<string>(tform[ij]) == "lin_exp_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             double c1 = 0.0;
             double a1 = 0.0;
             if (beta_0[ij] < 0) {
@@ -194,6 +199,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
     #endif
     for (int ij = 0; ij < totalnum; ij++) {
         int df0_c = dfc[ij] - 1;
+        int df0_int;
         int tn = term_n[ij];
         if (KeepConstant[ij] == 0) {
             int jk = ij - sum(head(KeepConstant, ij));
@@ -239,10 +245,11 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                     T0.col(ij - 1) = Dose.col(tn);
                 }
             } else if (as<string>(tform[ij]) == "lin_slope") {
+                df0_int = dfc[ij+1] - 1;
                 if (KeepConstant[ij + 1] == 0) {
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
-                    T0.col(ij)  = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                    T0.col(ij + 1) = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
+                    T0.col(ij)  = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                    T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                     //
                     Td0.col(jk) = (Td0.col(jk).array()  < 0).select(0, Td0.col(jk));
                     T0.col(ij)  = (T0.col(ij).array()   < 0).select(0, T0.col(ij));
@@ -256,7 +263,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                     T0.col(ij)  = Dose.col(tn);
                     T0.col(ij + 1) = Dose.col(tn);
                 } else {  //  Special case with a fixed intercept, but not a fixed slope
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     Td0.col(jk) = (Td0.col(jk).array()  < 0).select(0, Td0.col(jk));
                     //
                     T0.col(ij)  = Dose.col(tn);
@@ -267,10 +274,11 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 //
                 T0.col(ij) = Dose.col(tn);
             } else if (as<string>(tform[ij]) == "step_slope") {
+                df0_int = dfc[ij+1] - 1;
                 if (KeepConstant[ij + 1] == 0) {
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
-                    T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                    T0.col(ij + 1) = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
+                    T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                    T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                     //
                     Td0.col(jk) = (Td0.col(jk).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(), 1).array() + 1.0);
                     T0.col(ij)  = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(), 1).array() + 1.0);
@@ -284,7 +292,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                     T0.col(ij) = Dose.col(tn);
                     T0.col(ij + 1) = Dose.col(tn);
                 } else {  //  Special case with a fixed intercept, but not a fixed slope
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     Td0.col(jk) = (Td0.col(jk).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(), 1).array() + 1.0);
                     //
                     T0.col(ij)  = Dose.col(tn);
@@ -292,13 +300,15 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 }
 
             } else if (as<string>(tform[ij]) == "lin_quad_slope") {
-                ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                df0_int = dfc[ij+1] - 1;
+                //
+                ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                ArrayXd temp0 = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                ArrayXd temp1 = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 double a1 = 0.0;
                 double b1 = 0.0;
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 a1 = (beta_0[ij] - dslp) /2.0 / (beta_0[ij + 1]-dint);
                 b1 = (beta_0[ij] - dslp) /2.0 * (beta_0[ij + 1]-dint);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
@@ -306,7 +316,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 //
                 T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                 a1 = (beta_0[ij] + dslp) /2.0 / (beta_0[ij + 1]+dint);
                 b1 = (beta_0[ij] + dslp) /2.0 * (beta_0[ij + 1]+dint);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
@@ -314,7 +324,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
                 a1 = (beta_0[ij]) /2.0 / (beta_0[ij + 1]);
                 b1 = (beta_0[ij]) /2.0 * (beta_0[ij + 1]);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
@@ -335,7 +345,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
 
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
                 a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij + 1]);
                 b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij + 1]);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
@@ -348,7 +358,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 Td0.col(jk)  = (T0.col(ij + 1).array() - T0.col(ij).array()) / 2/dslp;
                 Tdd0.col((jk+0)*(jk + 1)/2+jk+0) = (T0.col(ij + 1).array()-2*temp11.array()+T0.col(ij).array()) / pow(dslp, 2);
 
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 a1 = beta_0[ij] /2 / (beta_0[ij + 1]-dint);
                 b1 = beta_0[ij] /2 * (beta_0[ij + 1]-dint);
                 temp0 = (df0.col(df0_c).array() * beta_0[ij]);
@@ -357,7 +367,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
 
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                 //
                 a1 = (beta_0[ij]) /2 / (beta_0[ij + 1]+dint);
                 b1 = (beta_0[ij]) /2 * (beta_0[ij + 1]+dint);
@@ -375,6 +385,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 T0.col(ij + 1) = Dose.col(tn);
                 //
             } else if (as<string>(tform[ij]) == "lin_exp_slope") {
+                df0_int = dfc[ij+1] - 1;
                 //  the exp_exp_slope term must be greater than zero
                 double eeslp = dslp;
                 if (eeslp >= beta_0[ij+2]) {
@@ -383,7 +394,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 double c1 = 0.0;
                 double a1 = 0.0;
                 //
-                ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
                 if (beta_0[ij] < 0) {
                     c1 = log((- 1*beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
                     a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
@@ -461,7 +472,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 Td0.col(jk+2) = (T0.col(ij+2).array() - T0.col(ij + 1).array()) / 2/eeslp;
                 Tdd0.col((jk+2)*(jk+3)/2+jk+2) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij + 1).array()) / pow(eeslp, 2);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 if (beta_0[ij] < 0) {
                     c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]);
                     a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]-dint));
@@ -476,7 +487,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                 if (beta_0[ij] < 0) {
                     c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
                     a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
@@ -508,7 +519,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 //
                 if (beta_0[ij] - dslp < 0) {
                     c1 = log(- 1*(beta_0[ij] - dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]);
@@ -554,7 +565,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
                 Tdd0.col((jk+2)*(jk+3)/2+jk+0) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij + 1).array()) / (pow(dslp, 2)+pow(eeslp, 2));
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 //
                 if (beta_0[ij] < 0) {
                     c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]-eeslp);
@@ -570,7 +581,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                 if (beta_0[ij] < 0) {
                     c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]+eeslp);
                     a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]+dint));
@@ -662,6 +673,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
     #endif
     for (int ij = 0; ij < totalnum; ij++) {
         int df0_c = dfc[ij] - 1;
+        int df0_int;
         int tn = term_n[ij];
         if (as<string>(tform[ij]) == "loglin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
@@ -698,7 +710,8 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
             } else {
             }
         } else if (as<string>(tform[ij]) == "lin_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             //
             T0.col(ij) = (T0.col(ij).array() < 0).select(0, T0.col(ij));
             //
@@ -715,7 +728,8 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             //
             T0.col(ij) = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(T0.rows(), 1).array() + 1.0);
             //
@@ -725,7 +739,8 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_int") {
         } else if (as<string>(tform[ij]) == "lin_quad_slope") {
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]);
             T0.col(ij + 1) = (df0.col(df0_c).array().pow(2).array() * beta_0[ij] /2 / beta_0[ij + 1] + beta_0[ij] /2 * beta_0[ij + 1]);
             //
@@ -737,7 +752,8 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "lin_quad_int") {
         } else if (as<string>(tform[ij]) == "lin_exp_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             double c1 = 0.0;
             double a1 = 0.0;
             if (beta_0[ij] < 0) {
@@ -782,6 +798,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
     #endif
     for (int ij = 0; ij < totalnum; ij++) {
         int df0_c = dfc[ij] - 1;
+        int df0_int;
         int tn = term_n[ij];
         if (KeepConstant[ij] == 0) {
             int jk = ij - sum(head(KeepConstant, ij));
@@ -824,10 +841,11 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                     T0.col(ij - 1) = Dose.col(tn);
                 }
             } else if (as<string>(tform[ij]) == "lin_slope") {
+                df0_int = dfc[ij+1] - 1;
                 if (KeepConstant[ij + 1] == 0) {
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
-                    T0.col(ij)  = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                    T0.col(ij + 1) = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
+                    T0.col(ij)  = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                    T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                     //
                     Td0.col(jk) = (Td0.col(jk).array()  < 0).select(0, Td0.col(jk));
                     T0.col(ij)  = (T0.col(ij).array()   < 0).select(0, T0.col(ij));
@@ -838,7 +856,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                     T0.col(ij)  = Dose.col(tn);
                     T0.col(ij + 1) = Dose.col(tn);
                 } else {  //  Special case with a fixed intercept, but not a fixed slope
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     Td0.col(jk) = (Td0.col(jk).array()  < 0).select(0, Td0.col(jk));
                     //
                     T0.col(ij)  = Dose.col(tn);
@@ -849,10 +867,11 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 //
                 T0.col(ij) = Dose.col(tn);
             } else if (as<string>(tform[ij]) == "step_slope") {
+                df0_int = dfc[ij+1] - 1;
                 if (KeepConstant[ij + 1] == 0) {
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
-                    T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                    T0.col(ij + 1) = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
+                    T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                    T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                     //
                     Td0.col(jk) = (Td0.col(jk).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(), 1).array() + 1.0);
                     T0.col(ij)  = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(), 1).array() + 1.0);
@@ -863,20 +882,21 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                     T0.col(ij) = Dose.col(tn);
                     T0.col(ij + 1) = Dose.col(tn);
                 } else {  //  Special case with a fixed intercept, but not a fixed slope
-                    Td0.col(jk) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                    Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     Td0.col(jk) = (Td0.col(jk).array() < 0).select(0.0, MatrixXd::Zero(Td0.rows(), 1).array() + 1.0);
                     //
                     T0.col(ij)  = Dose.col(tn);
                     T0.col(ij + 1) = Dose.col(tn);
                 }
             } else if (as<string>(tform[ij]) == "lin_quad_slope") {
-                ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                ArrayXd temp0 = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
-                ArrayXd temp1 = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                df0_int = dfc[ij+1] - 1;
+                ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                ArrayXd temp0 = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                ArrayXd temp1 = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 double a1 = 0.0;
                 double b1 = 0.0;
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 a1 = (beta_0[ij] - dslp) /2.0 / (beta_0[ij + 1]-dint);
                 b1 = (beta_0[ij] - dslp) /2.0 * (beta_0[ij + 1]-dint);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
@@ -884,7 +904,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 //
                 T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                 a1 = (beta_0[ij] + dslp) /2.0 / (beta_0[ij + 1]+dint);
                 b1 = (beta_0[ij] + dslp) /2.0 * (beta_0[ij + 1]+dint);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
@@ -899,7 +919,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
                 a1 = (beta_0[ij] - dslp) /2 / (beta_0[ij + 1]);
                 b1 = (beta_0[ij] - dslp) /2 * (beta_0[ij + 1]);
                 temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
@@ -909,7 +929,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
 
                 Td0.col(jk)  = (T0.col(ij + 1).array() - T0.col(ij).array()) / 2/dslp;
 
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 a1 = beta_0[ij] /2 / (beta_0[ij + 1]-dint);
                 b1 = beta_0[ij] /2 * (beta_0[ij + 1]-dint);
                 temp0 = (df0.col(df0_c).array() * beta_0[ij]);
@@ -918,7 +938,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
 
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                 //
                 a1 = (beta_0[ij]) /2 / (beta_0[ij + 1]+dint);
                 b1 = (beta_0[ij]) /2 * (beta_0[ij + 1]+dint);
@@ -933,6 +953,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 T0.col(ij + 1) = Dose.col(tn);
                 //
             } else if (as<string>(tform[ij]) == "lin_exp_slope") {
+                df0_int = dfc[ij+1] - 1;
                 //  the exp_exp_slope term must be greater than zero
                 double eeslp = dslp;
                 if (eeslp >= beta_0[ij+2]) {
@@ -941,7 +962,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 double c1 = 0.0;
                 double a1 = 0.0;
                 //
-                ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+                ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
                 if (beta_0[ij] < 0) {
                     c1 = log((- 1*beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
                     a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
@@ -984,9 +1005,9 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 //
                 Td0.col(jk+2) = (T0.col(ij+2).array() - T0.col(ij + 1).array()) / 2/eeslp;
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]+dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 //
-                temp = (df0.col(df0_c).array() - beta_0[ij + 1]-dint);
+                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
                 if (beta_0[ij] < 0) {
                     c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
                     a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
@@ -1044,6 +1065,7 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
     #endif
     for (int ij = 0; ij < totalnum; ij++) {
         int df0_c = dfc[ij] - 1;
+        int df0_int;
         int tn = term_n[ij];
         if (as<string>(tform[ij]) == "loglin") {
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]).matrix();
@@ -1076,7 +1098,8 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
                 dose_count[tn] = dose_count[tn] + 1;
             } else {}
         } else if (as<string>(tform[ij]) == "lin_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             //
             T0.col(ij) = (T0.col(ij).array() < 0).select(0, T0.col(ij));
             //
@@ -1093,7 +1116,8 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
             Dose.col(tn) = Dose.col(tn).array() + T0.col(ij).array();
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             //
             T0.col(ij) = (T0.col(ij).array() < 0).select(0.0, MatrixXd::Zero(T0.rows(), 1).array() + 1.0);
             //
@@ -1103,7 +1127,8 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "step_int") {
         } else if (as<string>(tform[ij]) == "lin_quad_slope") {
-            ArrayXd temp = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
             T0.col(ij) = (df0.col(df0_c).array() * beta_0[ij]);
             T0.col(ij + 1) = (df0.col(df0_c).array().pow(2).array() * beta_0[ij] /2 / beta_0[ij + 1] + beta_0[ij] /2 * beta_0[ij + 1]);
             //
@@ -1115,7 +1140,8 @@ void Make_subterms_Single(const int& totalnum, const IntegerVector& term_n, cons
             dose_count[tn] = dose_count[tn] + 1;
         } else if (as<string>(tform[ij]) == "lin_quad_int") {
         } else if (as<string>(tform[ij]) == "lin_exp_slope") {
-            T0.col(ij) = (df0.col(df0_c).array() - beta_0[ij + 1]);
+            df0_int = dfc[ij+1] - 1;
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             double c1 = 0.0;
             double a1 = 0.0;
             if (beta_0[ij] < 0) {
@@ -1655,7 +1681,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
     } else if ((modelform == "M") || (modelform == "ME") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
         //
         MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
-        if (modelform == "ME"){
+        if (modelform == "ME") {
             TTerm_p << TTerm.array() + 1.0;
             TTerm_p.col(fir) = TTerm.col(fir).array();
             Te = TTerm_p.array().rowwise().prod().array();
@@ -1809,10 +1835,7 @@ void Make_Risks(string modelform, const StringVector& tform, const IntegerVector
             }
         }
         //
-    } else if (modelform == "GM") {
-        throw invalid_argument("GM isn't implemented");
     } else {
-        Rcout << "C++ Note: " << modelform << ", " << TTerm.cols() << endl;
         throw invalid_argument("Model isn't implemented");
     }
     //
@@ -1921,7 +1944,7 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
     } else if ((modelform == "M") || (modelform == "ME") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
         //
         MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
-        if (modelform == "ME"){
+        if (modelform == "ME") {
             TTerm_p << TTerm.array() + 1.0;
             TTerm_p.col(fir) = TTerm.col(fir).array();
             Te = TTerm_p.array().rowwise().prod().array();
@@ -1989,10 +2012,7 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
             }
         }
         //
-    } else if (modelform == "GM") {
-        throw invalid_argument("GM isn't implemented");
     } else {
-        Rcout << "C++ Note: " << modelform << ", " << TTerm.cols() << endl;
         throw invalid_argument("Model isn't implemented");
     }
     //
@@ -2111,7 +2131,7 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
     } else if ((modelform == "M") || (modelform == "ME") || (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() == 1))) {
         //
         MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
-        if (modelform == "ME"){
+        if (modelform == "ME") {
             TTerm_p << TTerm.array() + 1.0;
             TTerm_p.col(fir) = TTerm.col(fir).array();
             Te = TTerm_p.array().rowwise().prod().array();
@@ -2136,8 +2156,6 @@ void Make_Risks_Single(string modelform, const StringVector& tform, const Intege
         B_vec = TTerm.rightCols(TTerm.cols() - 1).array().rowwise().sum().array() - TTerm.cols() + 2;
         R << TTerm.col(0).array() * A_vec.array().pow(gmix_theta).array() * B_vec.array().pow(1-gmix_theta).array();
         R = (R.array().isFinite()).select(R,  - 1);
-    } else if (modelform == "GM") {
-        throw invalid_argument("GM isn't implemented");
     } else {
         throw invalid_argument("Model isn't implemented");
     }

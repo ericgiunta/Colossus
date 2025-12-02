@@ -178,7 +178,6 @@ test_that("risk check omnibus plain", {
 
   time1 <- "t0"
   time2 <- "t1"
-  df$censor <- (df$lung == 0)
   #
   event <- "lung"
   names <- c("dose", "fac", "dose", "fac", "rand")
@@ -225,7 +224,6 @@ test_that("risk check omnibus gmix", {
 
   time1 <- "t0"
   time2 <- "t1"
-  df$censor <- (df$lung == 0)
   #
   event <- "lung"
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")

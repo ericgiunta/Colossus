@@ -9,7 +9,7 @@
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Case Control Wrapper Functions
 #' @examples
 #' library(data.table)

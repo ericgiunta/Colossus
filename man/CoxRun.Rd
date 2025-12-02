@@ -78,7 +78,6 @@ res <- CoxRun(formula, df,
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxRunMulti}()},
-\code{\link{LikelihoodBound.coxres}()},
-\code{\link{RunCoxRegression_Omnibus}()}
+\code{\link{LikelihoodBound.coxres}()}
 }
 \concept{Cox Wrapper Functions}

@@ -4,7 +4,7 @@
 \alias{Check_Strata_Model}
 \title{Checks the default value for a given model, if every parameter were 0}
 \usage{
-Check_Strata_Model(term_n, tform, modelform)
+Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
 }
 \arguments{
 \item{term_n}{term numbers for each element of the model}
@@ -12,6 +12,10 @@ Check_Strata_Model(term_n, tform, modelform)
 \item{tform}{list of string function identifiers, used for linear/step}
 
 \item{modelform}{string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E}
+
+\item{gmix_term}{binary vector to denote excess (1) and relative terms (0). Excess terms have 1 added before use in risk model}
+
+\item{gmix_theta}{double, used in gmix model. Multiplicative combination is taken to power of theta, additive combination is taken to 1-theta.}
 }
 \value{
 TRUE if passed

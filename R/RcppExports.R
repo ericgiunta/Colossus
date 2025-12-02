@@ -111,16 +111,6 @@ NULL
 #'
 NULL
 
-#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation. but not derivatives
-#'
-#' \code{Calculate_Sides_Single} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: risk storage matrices
-#' @noRd
-#'
-NULL
-
 #' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with Strata
 #'
 #' \code{Calculate_Sides_Strata} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
@@ -906,30 +896,6 @@ logist_Omnibus_transition <- function(CountEvent, term_n, tform, a_ns, dfc, df0,
 #'
 Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox, nthreads) {
     invisible(.Call(`_Colossus_Write_Time_Dep`, df0_Times, df0_dep, df0_const, df0_event, dt, filename, tform_tdep, tu, iscox, nthreads))
-}
-
-#' Generates factored columns in parallel
-#'
-#' \code{Gen_Fac_Par} Called directly from R, returns a matrix with factored columns
-#' @inheritParams CPP_template
-#'
-#' @return saves a dataframe to be used with time-dependent covariate analysis
-#' @noRd
-#'
-Gen_Fac_Par <- function(df0, vals, cols, nthreads) {
-    .Call(`_Colossus_Gen_Fac_Par`, df0, vals, cols, nthreads)
-}
-
-#' Interface between R code and the risk check
-#'
-#' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
-#' @inheritParams CPP_template
-#'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-#' @noRd
-#'
-risk_check_transition <- function(term_n, tform, a_n, dfc, df0, fir, modelform, Control, model_control, KeepConstant, term_tot) {
-    .Call(`_Colossus_risk_check_transition`, term_n, tform, a_n, dfc, df0, fir, modelform, Control, model_control, KeepConstant, term_tot)
 }
 
 #' Checks the OMP flag

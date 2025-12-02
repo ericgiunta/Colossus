@@ -265,14 +265,14 @@ test_that("threshold nonfail, gradient", {
         }
       }
     }
-    devs <- c(75.325, 62.48172, 63.38723, 75.325, 62.48172, 63.38723, 75.325, 62.48172, 63.38723)
-    free_strat <- c(1, 1, 1, 1, 1, 1, 1, 1, 1)
+    devs <- c(75.325, 62.48172, 63.38723, 113.11, 75.325, 62.48172, 63.38723, 113.11, 75.325, 62.48172, 63.38723, 113.11)
+    free_strat <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
     i_index <- 1
     for (time_bool in c(F)) {
       for (strat_bool in c(F)) {
         model <- CaseCon(status) ~ loglinear(karno50, trt)
         for (thres in c(0, 40, 100)) {
-          for (method in c("momentum", "adadelta", "adam")) {
+          for (method in c("momentum", "adadelta", "adam", "none")) {
             gradient_control <- list()
             gradient_control[[method]] <- TRUE
             e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)

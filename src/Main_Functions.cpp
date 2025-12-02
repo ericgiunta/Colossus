@@ -649,6 +649,18 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     if (!model_bool["basic"]) {
         para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     }
+    dbeta_max = abs(dbeta[0]);
+    for (int ij = 1; ij < totalnum; ij++) {
+        if (abs(dbeta[ij]) > dbeta_max) {
+            dbeta_max = abs(dbeta[ij]);
+        }
+    }
+    Lld_worst = 0;
+    for (int ij = 0; ij < reqrdnum; ij++) {
+        if (abs(Lld[ij]) > Lld_worst) {
+            Lld_worst = abs(Lld[ij]);
+        }
+    }
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
@@ -820,7 +832,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
     VectorXd s_weights;
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(mat_row);
-        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot);
+        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, term_n, term_tot, gmix_theta, gmix_term);
     }
     //  ------------------------------------------------------------------------- //  initialize
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
@@ -1225,6 +1237,18 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         beta_abs_best = beta_c;
     }
     //
+    dbeta_max = abs(dbeta[0]);
+    for (int ij = 1; ij < totalnum; ij++) {
+        if (abs(dbeta[ij]) > dbeta_max) {
+            dbeta_max = abs(dbeta[ij]);
+        }
+    }
+    Lld_worst = 0;
+    for (int ij = 0; ij < reqrdnum; ij++) {
+        if (abs(Lld[ij]) > Lld_worst) {
+            Lld_worst = abs(Lld[ij]);
+        }
+    }
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst);  //  stores the total number of iterations used
     //
@@ -2046,6 +2070,18 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
     //
+    dbeta_max = abs(dbeta[0]);
+    for (int ij = 1; ij < totalnum; ij++) {
+        if (abs(dbeta[ij]) > dbeta_max) {
+            dbeta_max = abs(dbeta[ij]);
+        }
+    }
+    Lld_worst = 0;
+    for (int ij = 0; ij < reqrdnum; ij++) {
+        if (abs(Lld[ij]) > Lld_worst) {
+            Lld_worst = abs(Lld[ij]);
+        }
+    }
     List para_list;
     if (!model_bool["basic"]) {
         para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
@@ -2779,6 +2815,18 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
     if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
         Ll_abs_best = Ll[ind0];
         beta_abs_best = beta_c;
+    }
+    dbeta_max = abs(dbeta[0]);
+    for (int ij = 1; ij < totalnum; ij++) {
+        if (abs(dbeta[ij]) > dbeta_max) {
+            dbeta_max = abs(dbeta[ij]);
+        }
+    }
+    Lld_worst = 0;
+    for (int ij = 0; ij < reqrdnum; ij++) {
+        if (abs(Lld[ij]) > Lld_worst) {
+            Lld_worst = abs(Lld[ij]);
+        }
     }
     //
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information

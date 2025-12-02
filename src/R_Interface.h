@@ -50,11 +50,7 @@ List logist_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, String
 
 void Write_Time_Dep(const MatrixXd dfs_Times, const MatrixXd dfs_dep, const MatrixXd dfs_const, const NumericVector df0_event, double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox, int nthreads);
 
-NumericMatrix Gen_Fac_Par(const MatrixXd dfs, const NumericVector vals, const NumericVector cols, const int nthreads);
-
-bool risk_check_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot);
-
-void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& term_n, const int& term_tot);
+void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& term_n, const int& term_tot, const double gmix_theta, const IntegerVector& gmix_term);
 
 bool OMP_Check();
 

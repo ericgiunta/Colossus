@@ -1,27 +1,30 @@
 .onAttach <- function(libname, pkgname) {
-  syscheck <- Colossus::System_Version()
-  OpenMP <- syscheck[["OpenMP Enabled"]]
-  if (!OpenMP) {
-    Sys.setenv(ColossusOMP = "FALSE")
-  } else {
-    Sys.setenv(ColossusOMP = "TRUE")
-    Sys.setenv(ColossusGCC = "TRUE")
-    os <- syscheck[["Operating System"]]
-    if (os == "linux") {
-      cpp_compiler <- syscheck[["Default c++"]]
-      if (cpp_compiler != "") {
-        if (cpp_compiler == "gcc") {
-          R_compiler <- syscheck[["R Compiler"]]
+  # Checks if the system can use openmp
+  syscheck <- Colossus::System_Version() # nocov
+  # Starts by checking if openmp is linked with C++
+  OpenMP <- syscheck[["OpenMP Enabled"]] # nocov
+  if (!OpenMP) { # nocov
+    Sys.setenv(ColossusOMP = "FALSE") # nocov
+  } else { # nocov
+    Sys.setenv(ColossusOMP = "TRUE") # nocov
+    Sys.setenv(ColossusGCC = "TRUE") # nocov
+    os <- syscheck[["Operating System"]] # nocov
+    # Issues have been found on some older clang machines
+    if (os == "linux") { # nocov
+      cpp_compiler <- syscheck[["Default c++"]] # nocov
+      if (cpp_compiler != "") { # nocov
+        if (cpp_compiler == "gcc") { # nocov
+          R_compiler <- syscheck[["R Compiler"]] # nocov
           if (R_compiler != "gcc") { # nocov
-            Sys.setenv(ColossusGCC = "FALSE")
-          }
+            Sys.setenv(ColossusGCC = "FALSE") # nocov
+          } # nocov
         } else if (cpp_compiler == "clang") { # nocov
-          Sys.setenv(ColossusGCC = "FALSE")
-        }
-      } else {
-        R_compiler <- syscheck[["R Compiler"]]
+          Sys.setenv(ColossusGCC = "FALSE") # nocov
+        } # nocov
+      } else { # nocov
+        R_compiler <- syscheck[["R Compiler"]] # nocov
         if (R_compiler != "gcc") { # nocov
-          Sys.setenv(ColossusGCC = "FALSE")
+          Sys.setenv(ColossusGCC = "FALSE") # nocov
         }
       }
     }

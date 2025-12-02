@@ -78,8 +78,4 @@ res <- CaseControlRun(formula, df,
   control = control
 )
 }
-\seealso{
-Other Case Control Wrapper Functions: 
-\code{\link{RunCaseControlRegression_Omnibus}()}
-}
 \concept{Case Control Wrapper Functions}

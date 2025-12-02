@@ -7,7 +7,7 @@
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
@@ -254,63 +254,6 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     term_tot, model_control
   )
   return(e)
-}
-
-#' Predicts how many events are due to baseline vs excess at the confidence bounds of a single parameter
-#'
-#' \code{RunPoissonEventAssignment_bound} uses user provided data, the results of a poisson regression, and options to calculate background and excess events
-#'
-#' @noRd
-#' @inheritParams R_template
-#' @param check_num the parameter number to check at the bounds of, indexed from 1 using the order returned by Colossus
-#' @param z Z score to use for confidence interval
-#' @family Poisson Wrapper Functions
-#' @return returns a list of the final results
-#'
-RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", alternative_model = list(), keep_constant = c(0), modelform = "M", check_num = 1, z = 2, control = list(), strat_col = "null", model_control = list()) {
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        df <- setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  names <- alternative_model$Parameter_Lists$names
-  term_n <- alternative_model$Parameter_Lists$term_n
-  tform <- alternative_model$Parameter_Lists$tforms
-  a_n <- alternative_model$beta_0
-  stdev <- alternative_model$Standard_Deviation
-  e_mid <- RunPoissonEventAssignment(
-    df, pyr0, event0, names, term_n,
-    tform, keep_constant, a_n, modelform,
-    control, strat_col,
-    model_control
-  )
-  a_n <- alternative_model$beta_0
-  a_n[check_num] <- a_n[check_num] - z * stdev[check_num]
-  e_low <- RunPoissonEventAssignment(
-    df, pyr0, event0, names, term_n,
-    tform, keep_constant, a_n, modelform,
-    control, strat_col,
-    model_control
-  )
-  a_n <- alternative_model$beta_0
-  a_n[check_num] <- a_n[check_num] + z * stdev[check_num]
-  e_high <- RunPoissonEventAssignment(
-    df, pyr0, event0, names,
-    term_n, tform, keep_constant,
-    a_n, modelform,
-    control, strat_col,
-    model_control
-  )
-  bound_results <- list(
-    "lower_limit" = e_low, "midpoint" = e_mid,
-    "upper_limit" = e_high
-  )
-  return(bound_results)
 }
 
 #' Calculates poisson residuals

@@ -73,6 +73,9 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -171,15 +174,34 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   # ------------------------------------------------------------------------------ #
+  int_count <- 0.0
   if (!coxmodel$null) {
     norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
     df <- norm_res$df
+    if (any(norm_weight != 1.0)) {
+      int_avg_weight <- 0.0
+      for (i in seq_along(names)) {
+        if (grepl("_int", tform[i])) {
+          int_avg_weight <- int_avg_weight + norm_weight[i]
+          int_count <- int_count + 1
+        }
+      }
+      if (int_count > 0) {
+        if (control$verbose >= 3) {
+          message("Note: Threshold max step adjusted to match new weighting")
+        }
+        control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+      }
+    }
   }
   # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -271,6 +293,9 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -311,13 +336,13 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   if (length(unique(term_n)) == 1) {
     modelform <- "M"
   } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
+    model_control[["gmix_term"]] <- poismodel$gmix_term
+    model_control[["gmix_theta"]] <- poismodel$gmix_theta
   }
   if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control["constraint"] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -343,8 +368,27 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  int_count <- 0.0
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -429,6 +473,9 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -469,8 +516,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   if (length(unique(term_n)) == 1) {
     modelform <- "M"
   } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
+    model_control[["gmix_term"]] <- logitmodel$gmix_term
+    model_control[["gmix_theta"]] <- logitmodel$gmix_theta
   }
   if (missing(link)) {
     model_control["logit_odds"] <- TRUE
@@ -498,7 +545,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       ), domain = NA)
     }
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control["constraint"] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -524,8 +571,27 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  int_count <- 0.0
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- logitmodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -615,6 +681,9 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -661,8 +730,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
     } else if (modelform == "GMIX") {
-      model_control["gmix_term"] <- caseconmodel$gmix_term
-      model_control["gmix_theta"] <- caseconmodel$gmix_theta
+      model_control[["gmix_term"]] <- caseconmodel$gmix_term
+      model_control[["gmix_theta"]] <- caseconmodel$gmix_theta
     }
   }
   if (caseconmodel$strata != "NONE") {
@@ -671,7 +740,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (time1 != time2) {
     model_control[["time_risk"]] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control[["constraint"]] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -693,15 +762,34 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     }
   }
   # ------------------------------------------------------------------------------ #
+  int_count <- 0.0
   if (!caseconmodel$null) {
     norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
     df <- norm_res$df
+    if (any(norm_weight != 1.0)) {
+      int_avg_weight <- 0.0
+      for (i in seq_along(names)) {
+        if (grepl("_int", tform[i])) {
+          int_avg_weight <- int_avg_weight + norm_weight[i]
+          int_count <- int_count + 1
+        }
+      }
+      if (int_count > 0) {
+        if (control$verbose >= 3) {
+          message("Note: Threshold max step adjusted to match new weighting")
+        }
+        control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+      }
+    }
   }
   # ------------------------------------------------------------------------------ #
   res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- caseconmodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -791,6 +879,9 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -823,13 +914,13 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (length(unique(term_n)) == 1) {
     modelform <- "M"
   } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
+    model_control[["gmix_term"]] <- poismodel$gmix_term
+    model_control[["gmix_theta"]] <- poismodel$gmix_theta
   }
   if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control["constraint"] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -855,8 +946,27 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  int_count <- 0.0
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -1177,6 +1287,9 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -1245,7 +1358,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control[["constraint"]] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -1364,6 +1477,9 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -1403,13 +1519,13 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (length(unique(term_n)) == 1) {
     modelform <- "M"
   } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
+    model_control[["gmix_term"]] <- poismodel$gmix_term
+    model_control[["gmix_theta"]] <- poismodel$gmix_theta
   }
   if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control["constraint"] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -1585,6 +1701,22 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    int_count <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   #
   if ("bisect" %in% names(model_control)) {
     res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
@@ -1611,6 +1743,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   }
   #
   coxres <- new_coxresbound(res)
+  coxres <- validate_coxresbound(coxres, df)
   coxres
 }
 
@@ -1709,6 +1842,22 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    int_count <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   #
   if ("bisect" %in% names(model_control)) {
     res <- PoissonCurveSolver(df, pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
@@ -1735,6 +1884,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   #
   poisres <- new_poisresbound(res)
+  poisres <- validate_poisresbound(poisres, df)
   poisres
 }
 
