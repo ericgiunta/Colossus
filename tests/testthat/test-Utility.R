@@ -553,3 +553,109 @@ test_that("Check Date Since, exact value", {
   e <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
   expect_equal(as.numeric(e$date_since), c(1417, 2148, 2908, 3274))
 })
+
+## ------------------------------------- ##
+## Checking the nested split and parse literal string codes
+## ------------------------------------- ##
+test_that("Usual nested split", {
+  temp_str <- "1,2,3,c(4, 5, 6)"
+  split_str <- nested_split(temp_str)
+  expect_equal(split_str, c("1", "2", "3", "c(4, 5, 6)"))
+  temp_str <- "1,2,3,c(4, 5, 6))"
+  split_str <- nested_split(temp_str)
+  expect_equal(split_str, c("1", "2", "3", "c(4, 5, 6))"))
+})
+test_that("Parse strings", {
+  temp_str <- "."
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, ".")
+  temp_str <- "e"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, "e")
+  temp_str <- "e0"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, "e0")
+  temp_str <- "1e"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, "1e")
+  #
+  temp_str <- "T"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, "T")
+  temp_str <- "t"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, "t")
+  #
+  temp_str <- "(1,2, 3,4)"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, "(1,2, 3,4)")
+})
+test_that("Parse number", {
+  temp_str <- "1"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, 1)
+  temp_str <- "1."
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, 1)
+  temp_str <- "-1"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, -1)
+  temp_str <- "0.1"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, 0.1)
+  temp_str <- ".1"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, 0.1)
+  temp_str <- "-.1"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, -0.1)
+  temp_str <- "1e-2"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, 0.01)
+  temp_str <- "1e2"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, 100)
+  temp_str <- "-1e-2"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, -0.01)
+  temp_str <- "1e0"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, 1)
+})
+test_that("Parse boolean", {
+  temp_str <- "true"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, TRUE)
+  temp_str <- "TRUE"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, TRUE)
+  temp_str <- "True"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, TRUE)
+  #
+  temp_str <- "false"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, FALSE)
+  temp_str <- "FALSE"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, FALSE)
+  temp_str <- "False"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, FALSE)
+})
+test_that("Parse vector", {
+  temp_str <- "c(1,2,3,4)"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, c(1, 2, 3, 4))
+})
+test_that("Parse list", {
+  temp_str <- "list(100)"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, list(100))
+  temp_str <- "list(x=100)"
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, list(x = 100))
+  temp_str <- 'list("x"=100)'
+  split_str <- parse_literal_string(temp_str)
+  expect_equal(split_str, list(x = 100))
+})

@@ -81,8 +81,11 @@ test_that("Coxph_strata strata with no error", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
   keep_constant <- c(0)
   a_n <- c(-0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  expect_no_error(CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  expect_no_error(e0 <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
+  expect_no_error(e1 <- CoxRun(Cox_Strata(a, b, c, c(e)) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
+  expect_no_error(e2 <- CoxRun(Cox_Strata(a, b, c, c(e, e)) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
+  #
 })
 
 test_that("Coxph null time column missing", {
@@ -133,6 +136,10 @@ test_that("Coxph loglin_M Strata", {
   a_n <- c(0.01)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- CoxRun(Cox_Strata(t0, t1, lung, fac) ~ loglinear(dose, 0) + multiplicative(), df, a_n = a_n, control = control)
+  expect_equal(e$beta_0, c(-0.106), tolerance = 1e-2)
+  e <- CoxRun(Cox_Strata(t0, t1, lung, c(fac)) ~ loglinear(dose, 0) + multiplicative(), df, a_n = a_n, control = control)
+  expect_equal(e$beta_0, c(-0.106), tolerance = 1e-2)
+  e <- CoxRun(Cox_Strata(t0, t1, lung, c(fac, fac)) ~ loglinear(dose, 0) + multiplicative(), df, a_n = a_n, control = control)
   expect_equal(e$beta_0, c(-0.106), tolerance = 1e-2)
 })
 test_that("Coxph loglin_M Single", {

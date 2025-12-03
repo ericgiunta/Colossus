@@ -61,7 +61,6 @@ template <typename T> int sign(T val) {
 //' @return Updates vector in place: parameter vector
 //' @noRd
 //'
-//
 void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const Ref<const MatrixXd>& df0, const IntegerVector& KeepConstant, const StringVector&  tform) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("lin_int");
@@ -97,7 +96,6 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose, double mult) {
     //  starts with solved likelihoods and derivatives
     //  store the second derivative as D0
@@ -220,7 +218,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble) {
     int kept_covs = totalnum - sum(KeepConstant_trouble);
     NumericVector Lldd_vec(kept_covs * kept_covs);

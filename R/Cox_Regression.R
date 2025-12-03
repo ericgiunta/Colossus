@@ -57,10 +57,10 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -290,10 +290,10 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -338,10 +338,10 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -395,6 +395,16 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       if ("strat_col" %in% names(plot_options)) {
         if (plot_options$strat_col %in% names(df)) {
           # fine
+          strat_col <- plot_options$strat_col
+          if (!is.null(levels(df[[strat_col]]))) {
+            # The column is a factor, so we can convert to numbers
+            factor_lvl <- levels(df[[strat_col]])
+            df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+          } else if (is(typeof(df[[strat_col]]), "character")) {
+            df[[strat_col]] <- factor(df[[strat_col]])
+            factor_lvl <- levels(df[[strat_col]])
+            df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+          }
         } else {
           stop("Error: Stratification Column not in dataframe")
         }
@@ -611,10 +621,10 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -788,10 +798,10 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }

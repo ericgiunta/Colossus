@@ -72,6 +72,7 @@ parse_literal_string <- function(string) {
       options(warn = 0)
       return(as.logical(string))
     }
+    # needs to detect numbers
     if (all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
       options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
       return(as.numeric(string))
@@ -103,10 +104,10 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -389,6 +390,7 @@ Def_model_control <- function(control) {
 #'
 #' \code{Check_Iters} checks the number of iterations and number of guesses, and corrects
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a list with the corrected control list and a_n
@@ -425,6 +427,7 @@ Check_Iters <- function(control, a_n) {
 #'
 #' \code{Check_Strata_Model} checks if a model is valid for stratified poisson
 #'
+#' @noRd
 #' @param gmix_term binary vector to denote excess (1) and relative terms (0). Excess terms have 1 added before use in risk model
 #' @param gmix_theta double, used in gmix model. Multiplicative combination is taken to power of theta, additive combination is taken to 1-theta.
 #' @inheritParams R_template
@@ -662,10 +665,10 @@ factorize <- function(df, col_list, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -735,10 +738,10 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -831,10 +834,10 @@ Check_Trunc <- function(df, ce, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -898,10 +901,10 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -1004,10 +1007,10 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -1066,10 +1069,10 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -1149,10 +1152,10 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -1297,10 +1300,10 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -1358,6 +1361,7 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
 #' @param input boolean if the normalization is being performed on the input values or on an output
 #' @param values list of values using during normalization
 #' @inheritParams R_template
+#' @noRd
 #' @family Data Cleaning Functions
 #' @return returns list with the normalized values
 apply_norm <- function(df, norm, names, input, values, model_control) {

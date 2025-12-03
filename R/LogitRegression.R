@@ -50,10 +50,10 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }

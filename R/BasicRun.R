@@ -147,8 +147,14 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       model_control[["gmix_theta"]] <- coxmodel$gmix_theta
     }
   }
-  if (coxmodel$strata != "NONE") {
+  if (all(coxmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
@@ -198,7 +204,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
+  res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
@@ -734,8 +740,14 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       model_control[["gmix_theta"]] <- caseconmodel$gmix_theta
     }
   }
-  if (caseconmodel$strata != "NONE") {
+  if (all(caseconmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
   if (time1 != time2) {
     model_control[["time_risk"]] <- TRUE
@@ -786,7 +798,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
+  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
@@ -1207,9 +1219,15 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
-  if (coxmodel$strata != "NONE") {
+  if (all(coxmodel$strata != "NONE")) {
     plot_options[["strat_haz"]] <- TRUE
-    plot_options$strat_col <- strat_col
+    plot_options$strat_col <- "_strata_col"
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
   RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
 }
@@ -1352,8 +1370,14 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       model_control[["gmix_theta"]] <- coxmodel$gmix_theta
     }
   }
-  if (coxmodel$strata != "NONE") {
+  if (all(coxmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
@@ -1389,7 +1413,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -1696,6 +1720,15 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     }
   }
   #
+  if (all(strat_col != "NONE")) {
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
+  }
+  #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
@@ -1719,10 +1752,10 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   }
   #
   if ("bisect" %in% names(model_control)) {
-    res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+    res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
     res$method <- "bisection"
   } else {
-    res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+    res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
     res$method <- "Venzon-Moolgavkar"
   }
   res$model <- coxmodel
@@ -1735,6 +1768,15 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   } else if (tolower(norm) %in% c("max", "mean")) {
     # weight by the maximum value
     res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        res$Lower_Values[i] <- res$Lower_Values[i] * norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] * norm_weight[i]
+      } else {
+        res$Lower_Values[i] <- res$Lower_Values[i] / norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] / norm_weight[i]
+      }
+    }
   } else {
     stop(gettextf(
       "Error: Normalization arguement '%s' not valid.",
@@ -1876,6 +1918,15 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   } else if (tolower(norm) %in% c("max", "mean")) {
     # weight by the maximum value
     res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        res$Lower_Values[i] <- res$Lower_Values[i] * norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] * norm_weight[i]
+      } else {
+        res$Lower_Values[i] <- res$Lower_Values[i] / norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] / norm_weight[i]
+      }
+    }
   } else {
     stop(gettextf(
       "Error: Normalization arguement '%s' not valid.",
@@ -2207,8 +2258,9 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
         }
       }
       # Start with low
-      a_n <- object$beta_0
-      a_n[check_num] <- Parameter_Limits[1]
+      a_n <- x$Lower_Values
+      #      a_n <- object$beta_0
+      #      a_n[check_num] <- Parameter_Limits[1]
       # Get the new optimum values
       if (model_control[["constraint"]]) {
         low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
@@ -2223,8 +2275,9 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
         model_control
       )
       # Now the high
-      a_n <- object$beta_0
-      a_n[check_num] <- Parameter_Limits[2]
+      a_n <- x$Upper_Values
+      #      a_n <- object$beta_0
+      #      a_n[check_num] <- Parameter_Limits[2]
       # Get the new optimum values
       if (model_control[["constraint"]]) {
         high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)

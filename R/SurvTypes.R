@@ -12,10 +12,10 @@ get_form_joint <- function(formula_list, df) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        df <- setDT(df) # nocov
       },
-      error = function(e) {
-        df <- data.table(df)
+      error = function(e) { # nocov
+        df <- data.table(df) # nocov
       }
     )
   }
@@ -1348,20 +1348,20 @@ ColossusCoxStrataSurv <- function(...) {
   strata <- "NULL"
   # Is stata a named entry?
   if ("strata" %in% argName) {
-    strata <- args$strata
+    strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCoxSurv, args[names(args) != "strata"])
   } else if (all(argName == "")) {
-    strata <- args[[length(args)]]
+    strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
-      strata <- args[[length(args)]]
+      strata <- parse_literal_string(args[[length(args)]])
       res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Error: Final entry of Cox Strata object was not named correctly")
     }
   }
-  res["strata"] <- strata
+  res[["strata"]] <- strata
   res
 }
 
@@ -1661,13 +1661,13 @@ ColossusCaseConStrataSurv <- function(...) {
   #
   if ("event" %in% argName) {
     event <- args$event
-    strata <- args[names(args) != "event"][[1]]
+    strata <- parse_literal_string(args[names(args) != "event"][[1]])
   } else if ("strata" %in% argName) {
-    strata <- args$strata
+    strata <- parse_literal_string(args$strata)
     event <- args[names(args) != "strata"][[1]]
   } else {
     event <- args[[1]]
-    strata <- args[[2]]
+    strata <- parse_literal_string(args[[2]])
   }
   #
   list("event" = event, "strata" = strata)
@@ -1694,20 +1694,20 @@ ColossusCaseConTimeStrataSurv <- function(...) {
   strata <- "NULL"
   # Is stata a named entry?
   if ("strata" %in% argName) {
-    strata <- args$strata
+    strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCaseConTimeSurv, args[names(args) != "strata"])
   } else if (all(argName == "")) {
-    strata <- args[[length(args)]]
+    strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
-      strata <- args[[length(args)]]
+      strata <- parse_literal_string(args[[length(args)]])
       res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Error: Final entry of Case Control Strata and Time object was not named correctly")
     }
   }
-  res["strata"] <- strata
+  res[["strata"]] <- strata
   res
 }
 

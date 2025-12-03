@@ -50,11 +50,15 @@ $$
 
 In which r denotes hazard ratios, the denominator is the sum of hazard ratios of intervals containing the event time, and each term is raised to the power of 1 if the interval has an event and 0 otherwise. Different tie methods modify the denominator based on how the order of events is assumed, but the general form still stands. The goal is to compare each event interval to intervals within a similar time span. Stratification adds a condition: if the user stratifies over a covariate "F" then each risk group is split into subgroups with the same value of "F". So the goal becomes to compare event intervals to intervals with similar strata AND time. This is done to remove the influence of the stratification variables from the calculations.
 
-In code, this is done by adding an additional parameter for the stratification column and using a different function to call the regression.
+In code, this is done by adding an additional parameter for the stratification column and using a different function to call the regression. Multiple strata columns can be provided by including a vector of columns.
 
 ```{r, eval=FALSE}
-Strat_Col <- "e"
-e <- CoxRun_Strata(Cox(time1, time2, event, e) ~ loglinear(dose), df,
+Strat_Col <- "s0"
+e <- CoxRun_Strata(Cox(time1, time2, event, s0) ~ loglinear(dose), df,
+  a_n = a_n, control = control
+)
+Strat_Cols <- c("s0", "s1", "s2")
+e <- CoxRun_Strata(Cox(time1, time2, event, c(s0, s1, s2)) ~ loglinear(dose), df,
   a_n = a_n, control = control
 )
 ```

@@ -79,15 +79,12 @@ file.remove("test_new.csv")
 }
 \seealso{
 Other Data Cleaning Functions: 
-\code{\link{Check_Iters}()},
-\code{\link{Check_Strata_Model}()},
 \code{\link{Date_Shift}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Replace_Missing}()},
 \code{\link{Time_Since}()},
-\code{\link{apply_norm}()},
 \code{\link{factorize}()}
 }
 \concept{Data Cleaning Functions}

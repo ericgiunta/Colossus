@@ -267,11 +267,11 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
             _["log_bound"] = false,
             _["cox"] = true);
     //
-    bool Surv_bool      = model_control["surv"];
+    bool Surv_bool       = model_control["surv"];
     bool Schoenfeld_bool = model_control["schoenfeld"];
-    bool Risk_bool      = model_control["risk"];
-    bool Risk_Sub_bool  = model_control["risk_subset"];
-    int uniq_v          = model_control["unique_values"];
+    bool Risk_bool       = model_control["risk"];
+    bool Risk_Sub_bool   = model_control["risk_subset"];
+    int uniq_v           = model_control["unique_values"];
     //
     //  Performs regression
     List res;
@@ -1086,7 +1086,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
 //' @return assigns weight in place and returns nothing
 //' @noRd
 //'
-//
 void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& term_n, const int& term_tot, const double gmix_theta, const IntegerVector& gmix_term) {
     ArrayXd Pyrs  = dfs.transpose() * PyrC.col(0);
     ArrayXd Events = dfs.transpose() * PyrC.col(1);
@@ -1110,7 +1109,6 @@ void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Re
                 dose_count[tn] = dose_count[tn] + 1.0;
             } else if (tform[ij - 1] != "loglin_slope") {
                 dose_count[tn] = dose_count[tn] + 1.0;
-                //
             } else {}
         } else if (as<string>(tform[ij]) == "lin_slope") {  //  every other dose term sets the elements to 0
             dose_lin_count[tn] = dose_lin_count[tn] + 1;
@@ -1181,7 +1179,6 @@ void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Re
             Tm *= (term_val[i] + gmix_term[i]);
         }
         default_val = term_val[0] * pow(Tm, gmix_theta) * pow(Ta, 1-gmix_theta);
-        // throw invalid_argument("GMIX isn't implemented");
     } else {
         throw invalid_argument("Model isn't implemented");
     }

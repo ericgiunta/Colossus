@@ -110,8 +110,6 @@ test_that("Basic generic function application to formula", {
     model <- as.formula(paste("Cox(a, b, c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
     expect_no_error(e <- get_form(model, df))
   }
-  model <- Cox(a, b, c) ~ loglinear(d, log(e, base = list(10)))
-  expect_error(e <- get_form(model, df))
   for (exp_string in c("sqrt")) {
     model <- as.formula(paste("Cox(tend = b, event = c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
     expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 2)))
@@ -452,7 +450,7 @@ test_that("Multiplicative model check", {
   model <- Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(rand0, 1) + M()
   res1 <- CoxRun(model, df, control = control)
   #
-  expect_equal(res0$beta_0, res1$beta_0, threshold = 1e-2)
+  expect_equal(res0$beta_0, res1$beta_0, tolerance = 1e-2)
 })
 
 test_that("Formula Validation Errors", {

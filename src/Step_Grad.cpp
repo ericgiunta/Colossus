@@ -61,7 +61,6 @@ template <typename T> int sign(T val) {
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lld_vec(kept_covs);
@@ -155,7 +154,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const int& nthreads, List& model_bool, const int& totalnum, List& optim_para, int& iteration, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, const VectorXd& beta_0, vector<double>& dbeta, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     // We need to get the penalized function
@@ -163,7 +161,6 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
     penalty_weight *= pow(1.1, iteration);  // scaling the penalty weight up with additional iterations
     VectorXd pred_sys = Lin_Sys * beta_0.matrix();
     VectorXd pred_delta = pred_sys.array() - Lin_Res.array();
-//    double S = Ll[0] - penalty_weight * (pred_delta.array().pow(2).sum());
     VectorXd dbeta_vec = VectorXd::Zero(totalnum);
     NumericVector Lld_vec(kept_covs);
     double score_adjust = 0;
@@ -274,7 +271,6 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata) {
     int kept_covs = totalnum - sum(KeepConstant);
     int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());

@@ -76,7 +76,6 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//
 List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
@@ -93,23 +92,17 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) {
-            Rcout << "null model is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) {
-            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) {
-            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -200,6 +193,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
+    vector<double> beta_lower(totalnum, 0.0);
+    vector<double> beta_upper(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
@@ -264,9 +259,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     vector<double> ll_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) {
-        Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    }
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
     upper = true;
     int step = -1;
     bool iter_continue = true;
@@ -359,6 +352,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
             limit_converged[1] = TRUE;
         }
     }
+    VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
@@ -481,8 +475,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
             limit_converged[0] = TRUE;
         }
     }
+    VectorXd::Map(&beta_lower[0], beta_0.size()) = beta_0;  //  stores the final lower parameters
     //
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Lower_Values"] = wrap(beta_lower), _["Upper_Values"] = wrap(beta_upper), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -496,7 +491,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//
 List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
@@ -512,16 +506,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) {
-            Rcout << "null model is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) {
-            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -615,6 +605,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
+    vector<double> beta_lower(totalnum, 0.0);
+    vector<double> beta_upper(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
@@ -679,13 +671,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<bool>   limit_converged(2, FALSE);
     vector<double> ll_final(2, 0.0);
     List res_list;
-    if (verbose >= 4) {
-        Rcout << "C++ Note: STARTING BOUNDS" << endl;
-    }
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING BOUNDS" << endl; }
     //  //
-    if (verbose >= 4) {
-         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    }
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
     upper = true;
     //  Now define the list of points to check
     trouble = false;
@@ -1019,6 +1007,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
            limit_converged[1] = TRUE;
         }
     }
+    VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  Now refresh matrices back to the maximum point
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
@@ -1353,8 +1342,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             limit_converged[0] = TRUE;
         }
     }
+    VectorXd::Map(&beta_lower[0], beta_0.size()) = beta_0;  //  stores the final lower parameters
     //
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Lower_Values"] = wrap(beta_lower), _["Upper_Values"] = wrap(beta_upper), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -1368,7 +1358,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//
 List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
@@ -1384,16 +1373,12 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
-        if (verbose >= 1) {
-            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) {
-            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -1474,6 +1459,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
+    vector<double> beta_lower(totalnum, 0.0);
+    vector<double> beta_upper(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
@@ -1533,9 +1520,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
     vector<double> ll_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) {
-        Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    }
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
     upper = true;
     int step = -1;
     bool iter_continue = true;
@@ -1633,9 +1618,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
             limit_converged[1] = TRUE;
         }
     }
-    if (verbose >= 4) {
-        Rcout << "C++ Note: STARTING Lower Bound" << endl;
-    }
+    VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING Lower Bound" << endl; }
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -1753,7 +1737,8 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
             limit_converged[0] = TRUE;
         }
     }
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
+    VectorXd::Map(&beta_lower[0], beta_0.size()) = beta_0;  //  stores the final lower parameters
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Lower_Values"] = wrap(beta_lower), _["Upper_Values"] = wrap(beta_upper), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -1767,7 +1752,6 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//
 List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, NumericVector maxiters, int guesses, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
@@ -1784,16 +1768,12 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
-        if (verbose >= 1) {
-            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) {
-            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -1802,7 +1782,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
     double dbeta_max = 0.0;
     Rcout.precision(7);  //  forces higher precision numbers printed to terminal
     //  ------------------------------------------------------------------------- //  initialize
-    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     VectorXd beta_max = beta_0;
     MatrixXd T0;
     MatrixXd Td0;
@@ -1883,6 +1862,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
+    vector<double> beta_lower(totalnum, 0.0);
+    vector<double> beta_upper(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
@@ -2260,6 +2241,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
            limit_converged[1] = TRUE;
         }
     }
+    VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  Now refresh matrices back to the maximum point
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
@@ -2380,7 +2362,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-//                iter_check = 1;
                 beta_p = beta_best;  //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
@@ -2586,8 +2567,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
            limit_converged[0] = TRUE;
         }
     }
+    VectorXd::Map(&beta_lower[0], beta_0.size()) = beta_0;  //  stores the final lower parameters
     //
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Status"] = "PASSED");
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Lower_Values"] = wrap(beta_lower), _["Upper_Values"] = wrap(beta_upper), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -2601,7 +2583,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//
 List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
@@ -2617,16 +2598,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) {
-            Rcout << "null model is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["constraint"]) {
-        if (verbose >= 1) {
-            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -2642,7 +2619,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     //  ---------------------------------------------
     //
     //  ------------------------------------------------------------------------- //  initialize
-    // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
@@ -2719,6 +2695,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
+    vector<double> beta_lower(totalnum, 0.0);
+    vector<double> beta_upper(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
@@ -2761,9 +2739,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     vector<int>    step_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) {
-        Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    }
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
     bool convgd = false;
     ///
     //  variables added for log loop code
@@ -2827,7 +2803,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         //
         int step = 0;
         //  now run the bisection until stopping point
-        //  while ((step < step_limit) & (abs(beta_low[para_num] - beta_high[para_num]) > control$epsilon) & (!Limit_Hit[2])) {
         while ((step < maxstep) && (abs(beta_L[para_number] - beta_H[para_number]) > epsilon) && (!limit_hit[1])) {
             step = step + 1;
             if (L_L < Lstar) {
@@ -2910,10 +2885,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         width_final[1] = abs(beta_L[para_number] - beta_H[para_number]);
         step_final[1] = step;
     }
+    VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  upper limit found, now solve lower limit
-    if (verbose >= 4) {
-        Rcout << "C++ Note: STARTING Lower Bound" << endl;
-    }
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING Lower Bound" << endl; }
     for (int ij = 0; ij < totalnum; ij++) {
         beta_L[ij] = beta_peak[ij];
         beta_H[ij] = beta_peak[ij];
@@ -3043,7 +3017,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         width_final[0] = abs(beta_L[para_number] - beta_H[para_number]);
         step_final[0] = step;
     }
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Final_Window_Width"] = wrap(width_final), _["Final_Step"] = wrap(step_final), _["Status"] = "PASSED");
+    VectorXd::Map(&beta_lower[0], beta_0.size()) = beta_0;  //  stores the final lower parameters
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Final_Window_Width"] = wrap(width_final), _["Final_Step"] = wrap(step_final), _["Lower_Values"] = wrap(beta_lower), _["Upper_Values"] = wrap(beta_upper), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -3057,7 +3032,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-//
 List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
@@ -3074,30 +3048,22 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) {
-            Rcout << "null model is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) {
-            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) {
-            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["constraint"]) {
-        if (verbose >= 1) {
-            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-        }
+        if (verbose >= 1) { Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl; }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -3194,6 +3160,8 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_p(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
+    vector<double> beta_lower(totalnum, 0.0);
+    vector<double> beta_upper(totalnum, 0.0);
     VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
@@ -3231,9 +3199,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     vector<int>    step_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) {
-        Rcout << "C++ Note: STARTING Upper Bound" << endl;
-    }
+    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
     bool convgd = false;
     ///
     //  We need the values reserved for the upper, middle, lower estimates and scores
@@ -3376,6 +3342,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
         width_final[1] = abs(beta_L[para_number] - beta_H[para_number]);
         step_final[1] = step;
     }
+    VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  upper limit found, now solve lower limit
     for (int ij = 0; ij < totalnum; ij++) {
         beta_L[ij] = beta_peak[ij];
@@ -3506,7 +3473,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
         width_final[0] = abs(beta_L[para_number] - beta_H[para_number]);
         step_final[0] = step;
     }
-    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Final_Window_Width"] = wrap(width_final), _["Final_Step"] = wrap(step_final), _["Status"] = "PASSED");
+    VectorXd::Map(&beta_lower[0], beta_0.size()) = beta_0;  //  stores the final lower parameters
+    //
+    res_list = List::create(_["Parameter_Limits"] = wrap(limits), _["Negative_Risk_Limit_Hit"] = wrap(limit_hit), _["Likelihood_Boundary"] = wrap(ll_final), _["Likelihood_Goal"] = wrap(Lstar), _["Limit_Converged"] = wrap(limit_converged), _["Final_Window_Width"] = wrap(width_final), _["Final_Step"] = wrap(step_final), _["Lower_Values"] = wrap(beta_lower), _["Upper_Values"] = wrap(beta_upper), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
