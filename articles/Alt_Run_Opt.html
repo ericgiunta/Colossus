@@ -189,10 +189,15 @@ similar strata AND time. This is done to remove the influence of the
 stratification variables from the calculations.</p>
 <p>In code, this is done by adding an additional parameter for the
 stratification column and using a different function to call the
-regression.</p>
+regression. Multiple strata columns can be provided by including a
+vector of columns.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"e"</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">CoxRun_Strata</span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">e</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
+<code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"s0"</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">CoxRun_Strata</span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">s0</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">Strat_Cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s0"</span>, <span class="st">"s1"</span>, <span class="st">"s2"</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">CoxRun_Strata</span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">s0</span>, <span class="va">s1</span>, <span class="va">s2</span><span class="op">)</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>

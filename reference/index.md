@@ -4,10 +4,6 @@
 
 - [`CaseControlRun()`](CaseControlRun.md) : Fully runs a case-control
   regression model, returning the model and results
-- [`Check_Iters()`](Check_Iters.md) : Automatically checks the number of
-  starting guesses
-- [`Check_Strata_Model()`](Check_Strata_Model.md) : Checks the default
-  value for a given model, if every parameter were 0
 - [`ColossusCoxSurv()`](ColossusCoxSurv.md) : Interprets basic cox
   survival formula RHS
 - [`ColossusLogitSurv()`](ColossusLogitSurv.md) : Interprets basic
@@ -81,8 +77,6 @@
   OMP
 - [`Time_Since()`](Time_Since.md) : Automates creating a date since a
   reference column
-- [`apply_norm()`](apply_norm.md) : Automatically applies a
-  normalization to either an input or output
 - [`factorize()`](factorize.md) : Splits a parameter into factors
 - [`gen_time_dep()`](gen_time_dep.md) : Applies time dependence to
   parameters

@@ -53,11 +53,16 @@ stratification variables from the calculations.
 
 In code, this is done by adding an additional parameter for the
 stratification column and using a different function to call the
-regression.
+regression. Multiple strata columns can be provided by including a
+vector of columns.
 
 ``` r
-Strat_Col <- "e"
-e <- CoxRun_Strata(Cox(time1, time2, event, e) ~ loglinear(dose), df,
+Strat_Col <- "s0"
+e <- CoxRun_Strata(Cox(time1, time2, event, s0) ~ loglinear(dose), df,
+  a_n = a_n, control = control
+)
+Strat_Cols <- c("s0", "s1", "s2")
+e <- CoxRun_Strata(Cox(time1, time2, event, c(s0, s1, s2)) ~ loglinear(dose), df,
   a_n = a_n, control = control
 )
 ```

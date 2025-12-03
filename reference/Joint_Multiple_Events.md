@@ -58,14 +58,12 @@ returns the updated dataframe and model inputs
 
 ## See also
 
-Other Data Cleaning Functions: [`Check_Iters()`](Check_Iters.md),
-[`Check_Strata_Model()`](Check_Strata_Model.md),
-[`Date_Shift()`](Date_Shift.md),
+Other Data Cleaning Functions: [`Date_Shift()`](Date_Shift.md),
 [`Event_Count_Gen()`](Event_Count_Gen.md),
 [`Event_Time_Gen()`](Event_Time_Gen.md),
 [`Replace_Missing()`](Replace_Missing.md),
-[`Time_Since()`](Time_Since.md), [`apply_norm()`](apply_norm.md),
-[`factorize()`](factorize.md), [`gen_time_dep()`](gen_time_dep.md)
+[`Time_Since()`](Time_Since.md), [`factorize()`](factorize.md),
+[`gen_time_dep()`](gen_time_dep.md)
 
 ## Examples
 
