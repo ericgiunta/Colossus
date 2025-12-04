@@ -176,10 +176,8 @@ test_that("Coxph multidose, extra warnings and checks", {
   options(warn = -1)
   verbose <- FALSE
   j_iterate <- 1
-  # LL_comp <- c(-69.51585, -69.51585, -77.97632, -77.97632, -59.95167, -60.05273, -75.34028, -75.3691, -69.51585, -69.51585, -77.97632, -77.97632, -59.95167, -60.05273, -75.34028, -75.3691, -111.3009, -111.3009, -119.9814, -119.9814, -100.8329, -101.007, -117.0147, -117.0539, -111.3009, -111.3009, -119.9814, -119.9814, -100.8329, -101.007, -117.0147, -117.0539)
   model_control <- list("cr" = TRUE)
   a_n <- c(-0.1, -0.1)
-  # expect_equal(0,0)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   model <- FineGray(t0, t1, lung, weighting) ~ loglinear(dose, rand, 0)
   res <- get_form(model, df)

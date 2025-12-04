@@ -68,7 +68,7 @@ EX <- e0[, 2]
 Total <- e0[, 3]
 ```
 
-EventAssignment can also be used to calculate the number of cases over the confidence interval of a model parameter. The excess and background cases are evaluated at the midpoint, as well as the risk model optimized with the model parameter held constant at the boundary values. This produces three lists of matrices, for the lower limit, midpoint, and upper limit. At each point the standard matrices for observed and predicted events are produced.
+EventAssignment can also be used to calculate the number of cases over the confidence interval of a model parameter. The excess and background cases are evaluated at the midpoint, as well as the risk model optimized with the model parameter held constant at the boundary values. This produces three lists of matrices, for the lower limit, midpoint, and upper limit. At each point the standard matrices for observed and predicted events are produced. This method can also be applied to the results of a likelihood-based boundary regression to evaluate the distribution of cases at the likelihood-based confidence interval.
 
 ```{r, eval=FALSE}
 e <- EventAssignment(poisres, df, check_num = 2, z = 1.96)
@@ -80,4 +80,7 @@ e_high <- e$upper_limit$caused
 EX_low <- e_lower[, 2]
 EX_mid <- e_mid[, 2]
 EX_high <- e_high[, 2]
+
+p_bound <- LikelihoodBound(poisres, df, para_number = 2, alpha = 0.05)
+e <- EventAssignment(p_bound, df)
 ```
