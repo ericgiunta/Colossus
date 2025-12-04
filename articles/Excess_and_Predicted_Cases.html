@@ -159,7 +159,10 @@ background cases are evaluated at the midpoint, as well as the risk
 model optimized with the model parameter held constant at the boundary
 values. This produces three lists of matrices, for the lower limit,
 midpoint, and upper limit. At each point the standard matrices for
-observed and predicted events are produced.</p>
+observed and predicted events are produced. This method can also be
+applied to the results of a likelihood-based boundary regression to
+evaluate the distribution of cases at the likelihood-based confidence
+interval.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/EventAssignment.html">EventAssignment</a></span><span class="op">(</span><span class="va">poisres</span>, <span class="va">df</span>, check_num <span class="op">=</span> <span class="fl">2</span>, z <span class="op">=</span> <span class="fl">1.96</span><span class="op">)</span></span>
 <span></span>
@@ -169,7 +172,10 @@ observed and predicted events are produced.</p>
 <span></span>
 <span><span class="va">EX_low</span> <span class="op">&lt;-</span> <span class="va">e_lower</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
 <span><span class="va">EX_mid</span> <span class="op">&lt;-</span> <span class="va">e_mid</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
-<span><span class="va">EX_high</span> <span class="op">&lt;-</span> <span class="va">e_high</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">EX_high</span> <span class="op">&lt;-</span> <span class="va">e_high</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">p_bound</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">poisres</span>, <span class="va">df</span>, para_number <span class="op">=</span> <span class="fl">2</span>, alpha <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/EventAssignment.html">EventAssignment</a></span><span class="op">(</span><span class="va">p_bound</span>, <span class="va">df</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main>
 </div>

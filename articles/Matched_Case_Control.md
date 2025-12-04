@@ -175,22 +175,22 @@ print(e0)
 #> Iterations run: 3
 #> maximum step size: 3.052e-05, maximum first derivative: 1.465e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.02 seconds
+#> Run finished in 0.021 seconds
 #> |-------------------------------------------------------------------|
 print(e1)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>           <char>         <char>         <char>
-#> 1:   karno50  loglin           0             0.01         0.0171          0.558
-#> 2:       trt  loglin           0             0.01         0.5726          0.986
+#> 1:   karno50  loglin           0          -0.0439         0.0205         0.0323
+#> 2:       trt  loglin           0          -0.3704         0.5735         0.5183
 #> 
 #> Matched Case-Control Model Used
 #> Model stratified by 'cell'
-#> Deviance: 59.956
+#> Deviance: 52.752
 #> 1 out of 4 matched sets used Unconditional Likelihood
-#> Iterations run: 3
-#> maximum step size: 3.052e-05, maximum first derivative: 1.463e+02
+#> Iterations run: 9
+#> maximum step size: 2.378e-05, maximum first derivative: 1.087e-03
 #> Analysis did not converge, check convergence criteria or run further
 #> Run finished in 0.01 seconds
 #> |-------------------------------------------------------------------|
