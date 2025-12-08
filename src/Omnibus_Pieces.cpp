@@ -196,6 +196,50 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         //  Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
+        int reqrdnum = totalnum - sum(KeepConstant);
+        if (verbose >= 4) {
+           Rcout << "C++ Note: Values checked ";
+           for (int ijk = 0; ijk < totalnum; ijk++) {
+               Rcout << beta_0[ijk] << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << T0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Td0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk checked ";
+           for (int ijk = 0; ijk < 1; ijk++) {
+               Rcout << R.col(0).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           //
+           Rcout << "C++ Note: ALL risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+               Rcout << Rdd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+       }
     }
     return;
 }
@@ -384,6 +428,50 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         //  Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
+        int reqrdnum = totalnum - sum(KeepConstant);
+        if (verbose >= 4) {
+           Rcout << "C++ Note: Values checked ";
+           for (int ijk = 0; ijk < totalnum; ijk++) {
+               Rcout << beta_0[ijk] << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << T0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Td0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk checked ";
+           for (int ijk = 0; ijk < 1; ijk++) {
+               Rcout << R.col(0).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           //
+           Rcout << "C++ Note: ALL risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+               Rcout << Rdd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+       }
         //
         //
         if (R.minCoeff() <= 0) {

@@ -58,7 +58,7 @@ test_that("Poisson Assigned Events, check results strata", {
 
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
-    "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
   #
@@ -92,7 +92,7 @@ test_that("Poisson Assigned Events, check results strata", {
     expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
   }
 })
-#
+
 test_that("Poisson Assigned Events, combinations", {
   df <- data.table::data.table(
     "UserID" = c(112, 114, 213, 214, 115, 116, 117),
@@ -113,14 +113,14 @@ test_that("Poisson Assigned Events, combinations", {
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5,
     "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-    "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0,
+    "step_max" = 0.2, "change_all" = TRUE, "thres_step_max" = 100.0,
     "verbose" = 0, "ties" = "breslow"
   )
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + loglinear(b, 1) + loglinear(c, 2), df, a_n = a_n, control = control)
   df$Cancer_Status <- rep(0, nrow(df))
   expect_error(EventAssignment(poisres, df))
 })
-#
+
 test_that("Poisson Assigned Events bounds, check results", {
   df <- data.table::data.table(
     "UserID" = c(112, 114, 213, 214, 115, 116, 117),
@@ -138,7 +138,7 @@ test_that("Poisson Assigned Events bounds, check results", {
   keep_constant <- c(0, 0, 0, 0)
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
-    "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
   #
@@ -183,7 +183,7 @@ test_that("Poisson Assigned Events bounds single entry, check results", {
   keep_constant <- c(0)
   control <- list(
     "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
-    "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
   #

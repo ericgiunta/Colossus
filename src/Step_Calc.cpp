@@ -220,72 +220,74 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
 //'
 void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble) {
     int kept_covs = totalnum - sum(KeepConstant_trouble);
-    NumericVector Lldd_vec(kept_covs * kept_covs);
-    NumericVector Lld_vec(kept_covs);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < kept_covs*(kept_covs + 1)/2; ijk++) {
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
+    if (kept_covs > 0) {
+        NumericVector Lldd_vec(kept_covs * kept_covs);
+        NumericVector Lld_vec(kept_covs);
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < kept_covs*(kept_covs + 1)/2; ijk++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            int ij0 = ij;
+            int jk0 = jk;
+            if (ij >= para_number) {
+                ij0++;
+            }
+            if (jk >= para_number) {
+                jk0++;
+            }
+            Lldd_vec[jk * kept_covs + ij] = Lldd[jk0 * (kept_covs + 1) + ij0];
+            if (ij == jk) {
+                Lld_vec[ij] = Lld[ij0];
+            } else {
+                Lldd_vec[ij * kept_covs + jk] = Lldd_vec[jk0 * (kept_covs + 1) + ij0];
+            }
         }
-        int ij0 = ij;
-        int jk0 = jk;
-        if (ij >= para_number) {
-            ij0++;
+        Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+        VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
+        VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+        for (int ij = 0; ij < totalnum; ij++) {
+            if (KeepConstant_trouble[ij] == 0) {
+                int pij_ind = ij - sum(head(KeepConstant_trouble, ij));
+                Lldd_solve(ij) = Lldd_solve0(pij_ind);
+            }
         }
-        if (jk >= para_number) {
-            jk0++;
-        }
-        Lldd_vec[jk * kept_covs + ij] = Lldd[jk0 * (kept_covs + 1) + ij0];
-        if (ij == jk) {
-            Lld_vec[ij] = Lld[ij0];
-        } else {
-            Lldd_vec[ij * kept_covs + jk] = Lldd_vec[jk0 * (kept_covs + 1) + ij0];
-        }
-    }
-    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-    const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-    VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
-    VectorXd Lldd_solve = VectorXd::Zero(totalnum);
-    for (int ij = 0; ij < totalnum; ij++) {
-        if (KeepConstant_trouble[ij] == 0) {
-            int pij_ind = ij - sum(head(KeepConstant_trouble, ij));
-            Lldd_solve(ij) = Lldd_solve0(pij_ind);
-        }
-    }
-    //
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < totalnum; ijk++) {
-        if (KeepConstant_trouble[ijk] == 0) {
-            int pjk_ind = ijk - sum(head(KeepConstant_trouble, ijk));
-            if (isnan(Lldd_solve(ijk))) {
-                if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                    dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+        //
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant_trouble[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant_trouble, ijk));
+                if (isnan(Lldd_solve(ijk))) {
+                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+                    } else {
+                        dbeta[ijk] = 0;
+                    }
                 } else {
-                    dbeta[ijk] = 0;
+                    dbeta[ijk] = lr * Lldd_solve(ijk);
+                }
+               //
+                if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  //  the threshold values use different maximum deviation values
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
+                    }
+                } else {
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
+                    }
                 }
             } else {
-                dbeta[ijk] = lr * Lldd_solve(ijk);
+                dbeta[ijk] = 0;
             }
-           //
-            if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  //  the threshold values use different maximum deviation values
-                if (abs(dbeta[ijk]) > thres_step_max) {
-                    dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
-                }
-            } else {
-                if (abs(dbeta[ijk]) > step_max) {
-                    dbeta[ijk] = step_max * sign(dbeta[ijk]);
-                }
-            }
-        } else {
-            dbeta[ijk] = 0;
         }
     }
     return;
