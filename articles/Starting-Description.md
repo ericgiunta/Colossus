@@ -367,8 +367,8 @@ print(e)
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>           <char>         <char>         <char>
 #> 1:         a  loglin           0             31.1       1.08e+06          1.000
-#> 2:         b     lin           1             13.7       1.10e+09          1.000
-#> 3:         c     lin           1             13.7       1.10e+09          1.000
+#> 2:         b     lin           1             13.7       7.38e+08          1.000
+#> 3:         c     lin           1             13.7       7.38e+08          1.000
 #> 4:         d    plin           2             31.1       4.77e+02          0.948
 #> 
 #> Cox Model Used
@@ -376,7 +376,7 @@ print(e)
 #> Iterations run: 30
 #> maximum step size: 1.000e+00, maximum first derivative: 9.764e-04
 #> Analysis converged
-#> Run finished in 0.021 seconds
+#> Run finished in 0.02 seconds
 #> |-------------------------------------------------------------------|
 
 # or a Poisson model regression
@@ -397,7 +397,7 @@ print(e)
 #> Iterations run: 3
 #> maximum step size: 9.766e-04, maximum first derivative: 1.380e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.009 seconds
+#> Run finished in 0.008 seconds
 #> |-------------------------------------------------------------------|
 ```
 

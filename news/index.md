@@ -211,3 +211,8 @@ CRAN release: 2025-10-30
 - Updated geometric-mixture code to apply defaults of 0.5 theta and only
   excess terms
 - Corrected normalization for intercept parameters
+
+## Colossus 1.4.6
+
+- Fixed bug in second derivative risk calculations, wrong correction to
+  multi-term risk values
