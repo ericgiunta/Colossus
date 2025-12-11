@@ -234,7 +234,7 @@ test_that("Gen_time_dep time error", {
   func_form <- c("lin")
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 2))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1))
 })
 test_that("Gen_time_dep event error", {
   a <- c(20, 20, 5, 10, 15)
@@ -252,7 +252,7 @@ test_that("Gen_time_dep event error", {
   func_form <- c("lin")
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 2))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1))
 })
 test_that("Gen_time_dep function error", {
   a <- c(20, 20, 5, 10, 15)
@@ -271,7 +271,7 @@ test_that("Gen_time_dep function error", {
   func_form <- c("lin")
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 2))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1))
 })
 test_that("Gen_time_dep functional form error", {
   a <- c(20, 20, 5, 10, 15)
@@ -289,7 +289,7 @@ test_that("Gen_time_dep functional form error", {
   func_form <- c("badbad")
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 2))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
 })
 
 test_that("Gen_time_dep no error lin cox", {
@@ -308,7 +308,7 @@ test_that("Gen_time_dep no error lin cox", {
   func_form <- c("lin")
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new", sep = ""), func_form, 2))
+  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new", sep = ""), func_form, 1))
 })
 test_that("Gen_time_dep, error length names, tform, func_form", {
   a <- c(20, 20, 5, 10, 15)
@@ -326,9 +326,9 @@ test_that("Gen_time_dep, error length names, tform, func_form", {
   func_form <- c("lin", "lin", "lin", "lin")
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 2))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
   func_form <- c("lin")
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f, grt_f, grt_f, grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 2))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f, grt_f, grt_f, grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
 })
 test_that("Gen_time_dep no error step cox", {
   a <- c(20, 20, 5, 10, 15)
@@ -346,7 +346,7 @@ test_that("Gen_time_dep no error step cox", {
   func_form <- c("step?0g?7l?12a?18b?")
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 2))
+  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
 })
 
 test_that("Gen_time_dep no error lin not cox", {
@@ -365,7 +365,7 @@ test_that("Gen_time_dep no error lin not cox", {
   func_form <- c("lin")
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 2))
+  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
 })
 test_that("Gen_time_dep no error step not cox", {
   a <- c(20, 20, 5, 10, 15)
@@ -383,7 +383,7 @@ test_that("Gen_time_dep no error step not cox", {
   func_form <- c("step?0g?7l?10u?12a?18b?")
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 2))
+  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
 })
 
 test_that("linked quad negative slope error", {
