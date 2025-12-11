@@ -78,7 +78,7 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
+#>       <char>  <char>       <int>            <num>          <num>          <num>
 #> 1:     erate     lin           0            0.474         0.0369       9.15e-38
 #> 
 #> Poisson Model Used
@@ -86,7 +86,7 @@ print(e)
 #> Iterations run: 13
 #> maximum step size: 1.741e-10, maximum first derivative: 1.235e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.016 seconds
+#> Run finished in 0.017 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -107,7 +107,7 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
+#>       <char>  <char>       <int>            <num>          <num>          <num>
 #> 1:     erate     lin           0             0.37          0.111       0.000882
 #> 2:       sex     lin           1             0.19          0.257       0.458904
 #> 

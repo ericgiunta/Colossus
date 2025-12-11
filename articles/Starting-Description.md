@@ -365,7 +365,7 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
+#>       <char>  <char>       <int>            <num>          <num>          <num>
 #> 1:         a  loglin           0             31.1       1.08e+06          1.000
 #> 2:         b     lin           1             13.7       7.38e+08          1.000
 #> 3:         c     lin           1             13.7       7.38e+08          1.000
@@ -386,7 +386,7 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
+#>       <char>  <char>       <int>            <num>          <num>          <num>
 #> 1:         a  loglin           0          -0.5450         0.5261          0.300
 #> 2:         b     lin           1          -0.0935         0.0666          0.161
 #> 3:         c     lin           1           0.0203         0.0138          0.141

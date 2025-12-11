@@ -331,7 +331,7 @@ print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>           <char>         <char>         <char>
+#>       <char>  <char>       <int>            <num>          <num>          <num>
 #> 1:        t0    plin           0           -0.184          0.385          0.631
 #> 2:    fac_e0  loglin           0            0.574          0.468          0.219
 #> 3:    fac_e1  loglin           0           -1.035          1.009          0.305
@@ -341,6 +341,6 @@ print(e)
 #> Iterations run: 10
 #> maximum step size: 4.775e-06, maximum first derivative: 1.595e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.012 seconds
+#> Run finished in 0.013 seconds
 #> |-------------------------------------------------------------------|
 ```

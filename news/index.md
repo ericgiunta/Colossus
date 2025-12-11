@@ -208,6 +208,8 @@ CRAN release: 2025-10-30
 
 ## Colossus 1.4.5
 
+CRAN release: 2025-12-07
+
 - Updated geometric-mixture code to apply defaults of 0.5 theta and only
   excess terms
 - Corrected normalization for intercept parameters
