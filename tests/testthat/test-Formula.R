@@ -57,34 +57,34 @@ test_that("Run basic errors and checks", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
 
   model <- Cox(a, b, c) ~ loglinear(d) ~ M()
-  expect_error(CoxRun(model, df, ncores = 2))
+  expect_error(CoxRun(model, df, ncores = 1))
   model <- Cox(a, b, c) ~ loglinear(d)
-  expect_no_error(CoxRun(model, df, ncores = 2))
-  expect_error(CoxRun(model, df, ncores = 2, bad = "wrong")) # arguement not in control list
+  expect_no_error(CoxRun(model, df, ncores = 1))
+  expect_error(CoxRun(model, df, ncores = 1, bad = "wrong")) # arguement not in control list
   expect_error(CoxRun(model, df, control = c(2))) # control wasn't a list
   e <- get_form(Cox(tstart = a, event = c) ~ loglinear(d), df)
   model <- e$model
-  expect_no_error(CoxRun(model, df, ncores = 2))
+  expect_no_error(CoxRun(model, df, ncores = 1))
   #
   model <- Pois(b, c) ~ loglinear(d)
-  expect_no_error(PoisRun(model, df, ncores = 2))
+  expect_no_error(PoisRun(model, df, ncores = 1))
   expect_error(PoisRun(model, df, control = c(2))) # control wasn't a list
-  expect_error(PoisRun(model, df, ncores = 2, bad = "wrong")) # arguement not in control list
+  expect_error(PoisRun(model, df, ncores = 1, bad = "wrong")) # arguement not in control list
   #
   model <- CaseCon(c) ~ loglinear(d)
   e <- get_form(model, df)
   model <- e$model
-  expect_no_error(CaseControlRun(model, df, ncores = 2, keep_constant = c(0)))
-  expect_error(CaseControlRun("bad", df, ncores = 2)) # wasn't a formula or model object
+  expect_no_error(CaseControlRun(model, df, ncores = 1, keep_constant = c(0)))
+  expect_error(CaseControlRun("bad", df, ncores = 1)) # wasn't a formula or model object
   expect_error(CaseControlRun(model, df, control = 2)) # control wasn't a list
   #
   model <- Pois(b, c) ~ loglinear(d)
   e <- get_form(model, df)
   model <- e$model
-  expect_no_error(PoisRunJoint(model, df, ncores = 2))
-  expect_error(PoisRunJoint("bad", df, ncores = 2)) # wasn't a formula or model object
+  expect_no_error(PoisRunJoint(model, df, ncores = 1))
+  expect_error(PoisRunJoint("bad", df, ncores = 1)) # wasn't a formula or model object
   expect_error(PoisRunJoint(model, df, control = 2)) # control wasn't a list
-  expect_no_error(PoisRunJoint(model, df, ncores = 2, a_n = c(0.1), keep_constant = c(0)))
+  expect_no_error(PoisRunJoint(model, df, ncores = 1, a_n = c(0.1), keep_constant = c(0)))
   #
 })
 
@@ -112,22 +112,22 @@ test_that("Basic generic function application to formula", {
   }
   for (exp_string in c("sqrt")) {
     model <- as.formula(paste("Cox(tend = b, event = c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
-    expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 2)))
+    expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
     expect_no_error(f <- RelativeRisk(e, df))
   }
   model <- Cox(a, b, c) ~ loglinear(factor(d))
-  expect_no_error(e <- CoxRun(model, df, ncores = 2))
+  expect_no_error(e <- CoxRun(model, df, ncores = 1))
   expect_no_error(f <- RelativeRisk(e, df))
 })
 
 test_that("Basic factor application to formula with formula column", {
   df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 1:100)
   model <- Cox(a, b, c) ~ loglinear(factor(d))
-  expect_no_error(e <- CoxRun(model, df, ncores = 2))
+  expect_no_error(e <- CoxRun(model, df, ncores = 1))
   expect_no_error(f <- RelativeRisk(e, df))
   df$d <- factor(df$d)
   model <- Cox(a, b, c) ~ loglinear(d)
-  expect_no_error(e <- CoxRun(model, df, ncores = 2))
+  expect_no_error(e <- CoxRun(model, df, ncores = 1))
   expect_no_error(f <- RelativeRisk(e, df))
 })
 
@@ -141,15 +141,15 @@ test_that("Checking formula works with result modification", {
   df$b <- df$dose2 + 0.001
   #
   model <- Cox(t0, t1, lung) ~ loglinear(ns(x = a), b)
-  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 2)))
+  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 548.6874, tolerance = 1e-2)
-  expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, bs(x = b)), df, control = list("ncores" = 2)))
+  expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, bs(x = b)), df, control = list("ncores" = 1)))
   f <- Residual(e, df)
   expect_equal(f$Residual_Sum, 0.497, tolerance = 1e-2)
   #
   model <- Cox(t0, t1, lung) ~ loglinear(bs(a), b)
-  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 2)))
+  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
   expect_no_error(f <- RelativeRisk(e, df))
 })
 
@@ -169,7 +169,7 @@ test_that("Checking interaction works in formula and call results", {
   model <- Cox(t0, t1, lung) ~ loglinear(a, a * rand0, a * rand0 * rand1)
   e <- get_form(model, df)
   expect_equal(e$model$names, c("a", "rand0", "a:rand0", "rand1_1", "a:rand1_1", "rand0:rand1_1", "a:rand0:rand1_1"))
-  expect_no_error(e <- CoxRun(model, df, control = list(ncores = 2)))
+  expect_no_error(e <- CoxRun(model, df, control = list(ncores = 1)))
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 1607.914, tolerance = 1e-2)
 })
@@ -183,7 +183,7 @@ test_that("Checking power works in formula and call results", {
   model <- Cox(t0, t1, lung) ~ loglinear(dose, I(dose^2))
   e <- get_form(model, df)
   expect_equal(e$model$names, c("dose", "dose^2"))
-  e <- CoxRun(model, df, control = list(ncores = 2))
+  e <- CoxRun(model, df, control = list(ncores = 1))
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 862.3834, tolerance = 1e-2)
 })
@@ -196,14 +196,14 @@ test_that("Checking model and formula can be input", {
   #
   model <- Cox(t0, t1, lung) ~ loglinear(dose, I(dose^2))
   e <- get_form(model, df)
-  expect_no_error(e0 <- CoxRun(model, df, control = list(ncores = 2)))
-  expect_no_error(e1 <- CoxRun(e$model, df, control = list(ncores = 2)))
+  expect_no_error(e0 <- CoxRun(model, df, control = list(ncores = 1)))
+  expect_no_error(e1 <- CoxRun(e$model, df, control = list(ncores = 1)))
   expect_equal(e0$beta_0, e1$beta_0)
 
   model <- Pois(t1, lung) ~ loglinear(CONST, dose, I(dose^2))
   e <- get_form(model, df)
-  expect_no_error(e0 <- PoisRun(model, df, control = list(ncores = 2)))
-  expect_no_error(e1 <- PoisRun(e$model, df, control = list(ncores = 2)))
+  expect_no_error(e0 <- PoisRun(model, df, control = list(ncores = 1)))
+  expect_no_error(e1 <- PoisRun(e$model, df, control = list(ncores = 1)))
   expect_equal(e0$beta_0, e1$beta_0)
 })
 
@@ -378,7 +378,7 @@ test_that("Object Validation Errors", {
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$col_bad <- "a"
   #
-  control <- list(ncores = 2, maxiter = -1, maxiters = c(-1, -1))
+  control <- list(ncores = 1, maxiter = -1, maxiters = c(-1, -1))
   #
   true_cox <- get_form(Cox(t0, t1, lung) ~ loglinear(dose), df)
   cox_model <- copy(true_cox$model)
@@ -442,7 +442,7 @@ test_that("Multiplicative model check", {
   df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$col_bad <- "a"
-  control <- list(ncores = 2)
+  control <- list(ncores = 1)
   #
   model <- Cox(t0, t1, lung) ~ loglinear(dose, rand0, 0) + M()
   res0 <- CoxRun(model, df, control = control)
@@ -461,7 +461,7 @@ test_that("Formula Validation Errors", {
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$col_bad <- "a"
   #
-  control <- list(ncores = 2, maxiter = -1, maxiters = c(-1, -1))
+  control <- list(ncores = 1, maxiter = -1, maxiters = c(-1, -1))
   #
   true_cox <- get_form(Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(rand0, 1), df)
   cox_model <- copy(true_cox$model)

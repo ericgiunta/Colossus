@@ -53,6 +53,26 @@ template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+void removeRow(MatrixXd& matrix, unsigned int rowToRemove) {
+    unsigned int numRows = matrix.rows() - 1;
+    unsigned int numCols = matrix.cols();
+
+    if (rowToRemove < numRows)
+        matrix.block(rowToRemove, 0, numRows-rowToRemove, numCols) = matrix.block(rowToRemove + 1, 0, numRows-rowToRemove, numCols);
+
+    matrix.conservativeResize(numRows, numCols);
+}
+
+void removeColumn(MatrixXd& matrix, unsigned int colToRemove) {
+    unsigned int numRows = matrix.rows();
+    unsigned int numCols = matrix.cols() - 1;
+
+    if (colToRemove < numCols)
+        matrix.block(0, colToRemove, numRows, numCols-colToRemove) = matrix.block(0, colToRemove + 1, numRows, numCols-colToRemove);
+
+    matrix.conservativeResize(numRows, numCols);
+}
+
 //' Utility function to keep intercept parameters within the range of possible values
 //'
 //' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
@@ -102,33 +122,49 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
     MatrixXd D0 = Lldd_mat;
     deriv_max = 100;
     if (step == 0) {
-        //  initial step, calculate dom/dbet and h
-        MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
-        removeRow(D0, para_number);
-        removeColumn(D0, para_number);
-        removeRow(dOmdBeta, para_number);
-        D0 = D0.inverse().matrix();
-        dOmdBeta = - 1 * D0 * dOmdBeta;
-        //
-        MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
-        removeColumn(dLdBdO, para_number);
-        double h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0, 0);
-        h = mult * pow(qchi/(- 1*h), 0.5);
-        if (upper) {
-            h = abs(h)/2;
+        //  initial step
+        //  Special case if there is only one parameter
+        double h = 0.0;
+        if (totalnum == 1){
+            //  Don't need to calculate everything else, only h
+            h = Lldd_mat(para_number, para_number);
+            //
+            h = mult * pow(qchi/(- 1*h), 0.5);
+            if (upper) {
+                h = abs(h)/2;
+            } else {
+                h = abs(h)/-2;
+            }
+            dbeta[para_number] = h;
         } else {
-            h = abs(h)/-2;
-        }
-        //  calculate first step
-        int j = 0;
-        for (int ij = 0; ij < totalnum; ij++) {
-            if (KeepConstant[ij] == 0) {
-                int pij_ind = ij - sum(head(KeepConstant, ij));
-                if (pij_ind == para_number) {
-                    dbeta[ij] = h;
-                } else {
-                    dbeta[ij] = h * dOmdBeta(j);
-                    j = j + 1;
+            //  Calculate dom/dbet and h
+            MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
+            removeRow(D0, para_number);
+            removeColumn(D0, para_number);
+            removeRow(dOmdBeta, para_number);
+            D0 = D0.inverse().matrix();
+            dOmdBeta = - 1 * D0 * dOmdBeta;
+            //
+            MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
+            removeColumn(dLdBdO, para_number);
+            h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0, 0);
+            h = mult * pow(qchi/(- 1*h), 0.5);
+            if (upper) {
+                h = abs(h)/2;
+            } else {
+                h = abs(h)/-2;
+            }
+            //  calculate first step
+            int j = 0;
+            for (int ij = 0; ij < totalnum; ij++) {
+                if (KeepConstant[ij] == 0) {
+                    int pij_ind = ij - sum(head(KeepConstant, ij));
+                    if (pij_ind == para_number) {
+                        dbeta[ij] = h;
+                    } else {
+                        dbeta[ij] = h * dOmdBeta(j);
+                        j = j + 1;
+                    }
                 }
             }
         }

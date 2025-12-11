@@ -320,9 +320,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[1]) {
-            limits[1] = 0;
-            ll_final[1] = 0;
+            limits[1] = beta_0[para_number];
+            ll_final[1] = Ll[0];
             limit_converged[1] = FALSE;
             break;
         }
@@ -441,9 +444,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[0]) {
-            limits[0] = 0;
-            ll_final[0] = 0;
+            limits[0] = beta_0[para_number];
+            ll_final[0] = Ll[0];
             limit_converged[0] = FALSE;
             break;
         }
@@ -975,9 +981,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[1]) {
-            limits[1] = 0;
-            ll_final[1] = 0;
+            limits[1] = beta_0[para_number];
+            ll_final[1] = Ll[0];
             limit_converged[1] = FALSE;
             break;
         }
@@ -1310,9 +1319,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[0]) {
-            limits[0] = 0;
-            ll_final[0] = 0;
+            limits[0] = beta_0[para_number];
+            ll_final[0] = Ll[0];
             limit_converged[0] = FALSE;
             break;
         }
@@ -1584,9 +1596,12 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[1]) {
-            limits[1] = 0;
-            ll_final[1] = 0;
+            limits[1] = beta_0[para_number];
+            ll_final[1] = Ll[0];
             limit_converged[1] = FALSE;
             break;
         }
@@ -1703,9 +1718,12 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[0]) {
-            limits[0] = 0;
-            ll_final[0] = 0;
+            limits[0] = beta_0[para_number];
+            ll_final[0] = Ll[0];
             limit_converged[0] = FALSE;
             break;
         }
@@ -2207,9 +2225,12 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[1]) {
-            limits[1] = 0;
-            ll_final[1] = 0;
+            limits[1] = beta_0[para_number];
+            ll_final[1] = Ll[0];
             limit_converged[1] = FALSE;
             break;
         }
@@ -2533,9 +2554,12 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 0;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_c[ij];
+        }
         if (limit_hit[0]) {
-            limits[0] = 0;
-            ll_final[0] = 0;
+            limits[0] = beta_0[para_number];
+            ll_final[0] = Ll[0];
             limit_converged[0] = FALSE;
             break;
         }
@@ -2778,9 +2802,10 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         }
     }
     if (loop_check) {
+        reg_beta = reg_out["beta_0"];
         limit_hit[1] = true;
-        limits[1] = 0;
-        ll_final[1] = 0;
+        limits[1] = reg_beta[para_number];
+        ll_final[1] = temp_L[0];
         limit_converged[1] = false;
     } else {
         //  Now we can run the actual algorithm
@@ -2851,9 +2876,10 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     }
                 }
                 if (loop_check) {
+                    reg_beta = reg_out["beta_0"];
                     limit_hit[1] = true;
-                    limits[1] = 0;
-                    ll_final[1] = 0;
+                    limits[1] = reg_beta[para_number];
+                    ll_final[1] = temp_L[0];
                     limit_converged[1] = false;
                 } else {
                     reg_beta = reg_out["beta_0"];
@@ -2911,8 +2937,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     }
     if (loop_check) {
         limit_hit[0] = true;
-        limits[0] = 0;
-        ll_final[0] = 0;
+        reg_beta = reg_out["beta_0"];
+        limits[0] = reg_beta[para_number];
+        ll_final[0] = temp_L[0];
         limit_converged[0] = false;
     } else {
         //  Now we can run the actual algorithm
@@ -2984,8 +3011,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                 }
                 if (loop_check) {
                     limit_hit[0] = true;
-                    limits[0] = 0;
-                    ll_final[0] = 0;
+                    reg_beta = reg_out["beta_0"];
+                    limits[0] = reg_beta[para_number];
+                    ll_final[0] = temp_L[0];
                     limit_converged[0] = false;
                 } else {
                     reg_beta = reg_out["beta_0"];
@@ -3236,8 +3264,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     }
     if (loop_check) {
         limit_hit[1] = true;
-        limits[1] = 0;
-        ll_final[1] = 0;
+        reg_beta = reg_out["beta_0"];
+        limits[1] = reg_beta[para_number];
+        ll_final[1] = temp_L[0];
         limit_converged[1] = false;
     } else {
         //  Now we can run the actual algorithm
@@ -3309,8 +3338,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
                 }
                 if (loop_check) {
                     limit_hit[1] = true;
-                    limits[1] = 0;
-                    ll_final[1] = 0;
+                    reg_beta = reg_out["beta_0"];
+                    limits[1] = reg_beta[para_number];
+                    ll_final[1] = temp_L[0];
                     limit_converged[1] = false;
                 } else {
                     reg_beta = reg_out["beta_0"];
@@ -3367,8 +3397,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     }
     if (loop_check) {
         limit_hit[0] = true;
-        limits[0] = 0;
-        ll_final[0] = 0;
+        reg_beta = reg_out["beta_0"];
+        limits[0] = reg_beta[para_number];
+        ll_final[0] = temp_L[0];
         limit_converged[0] = false;
     } else {
         //  Now we can run the actual algorithm
@@ -3440,8 +3471,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
                 }
                 if (loop_check) {
                     limit_hit[0] = true;
-                    limits[0] = 0;
-                    ll_final[0] = 0;
+                    reg_beta = reg_out["beta_0"];
+                    limits[0] = reg_beta[para_number];
+                    ll_final[0] = temp_L[0];
                     limit_converged[0] = false;
                 } else {
                     reg_beta = reg_out["beta_0"];

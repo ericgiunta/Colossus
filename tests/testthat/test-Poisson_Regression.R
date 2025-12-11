@@ -6,7 +6,7 @@ test_that("Poisson time column missing", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
   keep_constant <- c(0)
   a_n <- c(-0.1)
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
+  control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
   expect_error(PoisRun(Poisson(a_bad, c) ~ loglinear(d, 0), df, control = control, a_n = a_n))
 })
 test_that("Poisson no events", {
@@ -18,7 +18,7 @@ test_that("Poisson no events", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
   keep_constant <- c(0)
   a_n <- c(-0.1)
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
+  control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
   expect_error(PoisRun(Poisson(a, c) ~ loglinear(d, 0), df, control = control, a_n = a_n))
   #
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -37,7 +37,7 @@ test_that("Pois loglin_M Single", {
   df$pyr <- df$t1 - df$t0
   keep_constant <- c(0, 0)
   a_n <- c(0.01, 0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- PoisRun(Poisson(pyr, lung) ~ loglinear(dose, fac, 0), df, control = control, a_n = a_n, single = TRUE)
   expect_equal(e$AIC, 2354.055, tolerance = 1e-2)
 })
@@ -48,7 +48,7 @@ test_that("Pois loglin_M Strata", {
   df$pyr <- df$t1 - df$t0
   keep_constant <- c(0)
   a_n <- c(0.01)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ loglinear(dose, 0), df, control = control, a_n = a_n)
   expect_equal(e$beta_0, c(0.05476188), tolerance = 1e-1)
 })
@@ -67,7 +67,7 @@ test_that("Checking pois strata default values", {
     cell_lvl <- c("large", "squamous", "smallcell", "adeno")
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
-    control <- list(ncores = 2, maxiter = 20, halfmax = 1)
+    control <- list(ncores = 1, maxiter = 20, halfmax = 1)
     #
     a_n <- c(-1, 0.1, 0.1)
     model <- Pois_Strata(time, status, cell) ~ loglinear(CONST, trt, 0) + linear(karno, 1) + A()

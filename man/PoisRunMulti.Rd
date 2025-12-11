@@ -78,7 +78,7 @@ names <- c("dose", "rand")
 realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 realization_index <- c("rand")
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
+  "ncores" = 1, "lr" = 0.75, "maxiter" = 1,
   "halfmax" = 2, "epsilon" = 1e-6,
   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
   "thres_step_max" = 100.0,

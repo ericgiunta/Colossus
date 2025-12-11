@@ -25,10 +25,6 @@ using Rcpp::List;
 
 template <typename T> int sign(T val);
 
-void removeRow(MatrixXd& matrix, unsigned int rowToRemove);
-
-void removeColumn(MatrixXd& matrix, unsigned int colToRemove);
-
 void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads);
 
 void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads);

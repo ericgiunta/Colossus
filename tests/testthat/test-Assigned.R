@@ -19,7 +19,7 @@ test_that("Poisson Assigned Events, check results", {
   keep_constant <- c(0, 0, 0, 0)
 
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
@@ -57,7 +57,7 @@ test_that("Poisson Assigned Events, check results strata", {
   keep_constant <- c(0, 0, 0)
 
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
@@ -71,10 +71,15 @@ test_that("Poisson Assigned Events, check results strata", {
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
+  control <- list(
+    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
+    "thres_step_max" = 100.0, "verbose" = 0
+  )
   for (i in 1:9) {
     a_n <- 2 * runif(3) - 1
     poisres$beta_0 <- a_n
-    e <- EventAssignment(poisres, df)
+    e <- EventAssignment(poisres, df, control = control)
 
     e0 <- e$predict
     e1 <- e$caused
@@ -83,7 +88,7 @@ test_that("Poisson Assigned Events, check results strata", {
     expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
 
     poisres_strata$beta_0 <- a_n
-    e <- EventAssignment(poisres_strata, df)
+    e <- EventAssignment(poisres_strata, df, control = control)
 
     e0 <- e$predict
     e1 <- e$caused
@@ -111,7 +116,7 @@ test_that("Poisson Assigned Events, combinations", {
 
   keep_constant <- c(0, 0, 0, 0)
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5,
     "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
     "step_max" = 0.2, "change_all" = TRUE, "thres_step_max" = 100.0,
     "verbose" = 0, "ties" = "breslow"
@@ -137,7 +142,7 @@ test_that("Poisson Assigned Events bounds, check results", {
   a_n <- c(-0.75, 0.1, -0.05, -1.5)
   keep_constant <- c(0, 0, 0, 0)
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
@@ -182,7 +187,7 @@ test_that("Poisson Assigned Events bounds single entry, check results", {
   a_n <- c(-0.75)
   keep_constant <- c(0)
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )

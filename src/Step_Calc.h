@@ -24,6 +24,10 @@ using Rcpp::List;
 
 template <typename T> int sign(T val);
 
+void removeRow(MatrixXd& matrix, unsigned int rowToRemove);
+
+void removeColumn(MatrixXd& matrix, unsigned int colToRemove);
+
 void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const Ref<const MatrixXd>& df0, const IntegerVector& KeepConstant, const StringVector&  tform);
 
 void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose, double mult);

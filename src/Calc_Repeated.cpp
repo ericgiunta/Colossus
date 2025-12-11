@@ -68,27 +68,6 @@ void visit_lambda(const Mat& m, const Func& f) {
     m.visit(visitor);
 }
 
-void removeRow(MatrixXd& matrix, unsigned int rowToRemove) {
-    unsigned int numRows = matrix.rows() - 1;
-    unsigned int numCols = matrix.cols();
-
-    if (rowToRemove < numRows)
-        matrix.block(rowToRemove, 0, numRows-rowToRemove, numCols) = matrix.block(rowToRemove + 1, 0, numRows-rowToRemove, numCols);
-
-    matrix.conservativeResize(numRows, numCols);
-}
-
-void removeColumn(MatrixXd& matrix, unsigned int colToRemove) {
-    unsigned int numRows = matrix.rows();
-    unsigned int numCols = matrix.cols() - 1;
-
-    if (colToRemove < numCols)
-        matrix.block(0, colToRemove, numRows, numCols-colToRemove) = matrix.block(0, colToRemove + 1, numRows, numCols-colToRemove);
-
-    matrix.conservativeResize(numRows, numCols);
-}
-
-
 //' Utility function to define risk groups
 //'
 //' \code{Make_Groups} Called to update lists of risk groups, Uses list of event times and row time/event information, Matrices store starting/stopping row indices for each group
@@ -434,9 +413,8 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
         #endif
         for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
+            //
             vector<int> indices_end;
-            //
-            //
             int th = 1;
             visit_lambda(select_ind_end,
                 [&indices_end, th](double v, int i, int j) {
@@ -444,7 +422,6 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
                         indices_end.push_back(i + 1);
                 });
             //
-            vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
                 RiskFail(s_ij, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                 RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
@@ -457,6 +434,7 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
                         if (v == th)
                             indices_end.push_back(i + 1);
                     });
+                vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
                 for (auto it = begin(indices_end); it != end(indices_end); ++it) {
                     if (indices.size() == 0) {
                         indices.push_back(*it);
@@ -634,9 +612,8 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
             for (int ijk = 0; ijk < ntime; ijk++) {
                 double t0 = tu[ijk];
                 VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
+                //
                 vector<int> indices_end;
-                //
-                //
                 int th = 1;
                 visit_lambda(select_ind_end,
                     [&indices_end, th](double v, int i, int j) {
@@ -644,7 +621,6 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
                             indices_end.push_back(i + 1);
                     });
                 //
-                vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
                 if (indices_end.size() > 0) {
                     RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                     RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
@@ -658,6 +634,7 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
                             if (v == th)
                                 indices_end.push_back(i + 1);
                         });
+                    vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
                     for (auto it = begin(indices_end); it != end(indices_end); ++it) {
                         if (indices.size() == 0) {
                             indices.push_back(*it);

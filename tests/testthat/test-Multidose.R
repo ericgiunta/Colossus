@@ -18,7 +18,7 @@ test_that("Coxph multidose", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   j_iterate <- 1
@@ -28,11 +28,11 @@ test_that("Coxph multidose", {
   k <- 1
   a_n <- c(-0.1, -0.1)
   # expect_equal(0,0)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   ##
   expect_error(CoxRunMulti("bad", df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, bad = "wrong"))
-  expect_no_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, fma = TRUE, ncores = 2))
+  expect_no_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, fma = TRUE, ncores = 1))
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = "wrong"))
   ##
   e <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
@@ -68,7 +68,7 @@ test_that("Pois multidose", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   j_iterate <- 1
@@ -78,11 +78,11 @@ test_that("Pois multidose", {
   k <- 1
   a_n <- c(-0.02, -0.1, -0.1)
   # expect_equal(0,0)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   model <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0)
   res <- get_form(model, df)
   expect_no_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, fma = TRUE))
-  expect_no_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, ncores = 2))
+  expect_no_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, ncores = 1))
   expect_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = "bad"))
   expect_error(PoisRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, bad = "wrong"))
   expect_error(PoisRunMulti("bad", df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
@@ -119,7 +119,7 @@ test_that("Coxph multidose negative shift check", {
   keep_constant <- c(0, 0)
   model_control <- list()
   # expect_equal(0,0)
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, 0) + plinear(rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
   val <- e$LogLik
   expect_equal(c(-450.7240, -449.4633, -449.4633), val, tolerance = 1e-4)
@@ -145,7 +145,7 @@ test_that("Pois multidose negative shift check", {
   keep_constant <- c(0, 0, 0)
   model_control <- list()
   # expect_equal(0,0)
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, 0) + plinear(rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
   val <- e$LogLik
   expect_equal(c(-329.7473, -328.71485, -328.71485), val, tolerance = 1e-3)
@@ -172,16 +172,16 @@ test_that("Coxph multidose, extra warnings and checks", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   options(warn = -1)
   verbose <- FALSE
   j_iterate <- 1
   model_control <- list("cr" = TRUE)
   a_n <- c(-0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   model <- FineGray(t0, t1, lung, weighting) ~ loglinear(dose, rand, 0)
   res <- get_form(model, df)
-  expect_no_error(CoxRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, ncores = 2))
+  expect_no_error(CoxRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, ncores = 1))
   expect_error(CoxRunMulti(FineGray(t0, t1, lung, bad_weighting) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   #
   keep_constant <- c(1, 1)
@@ -220,13 +220,13 @@ test_that("Coxph multidose failures", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   j_iterate <- 1
 
   model_control <- list("strata" = FALSE, "basic" = FALSE)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
   realization_index <- c("rand", "more_rand")
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
@@ -261,13 +261,13 @@ test_that("Coxph multidose model failures", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   j_iterate <- 1
 
   model_control <- list("strata" = FALSE, "basic" = FALSE)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   model_control <- list("single" = TRUE, "basic" = FALSE)
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE))
   model_control <- list("null" = TRUE, "basic" = FALSE)
@@ -295,12 +295,12 @@ test_that("Coxph multidose MCML repeated column", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   model_control <- list("mcml" = TRUE)
   a_n <- c(-0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
   a_n <- c(-0.1, -0.1)
@@ -335,12 +335,12 @@ test_that("Poisson multidose MCML repeated column", {
   a_n <- c(-0.02, -0.1, -0.1)
   keep_constant <- c(0, 0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   model_control <- list("mcml" = TRUE)
   a_n <- c(-0.02, -0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e0 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
   a_n <- c(-0.02, -0.1, -0.1)
@@ -375,12 +375,12 @@ test_that("Coxph multidose MCML swapped columns", {
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   model_control <- list("mcml" = TRUE)
   a_n <- c(-0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand1"), nrow = 1)
   a_n <- c(-0.1, -0.1)
@@ -408,12 +408,12 @@ test_that("Pois multidose MCML swapped columns", {
   a_n <- c(-0.02, -0.1, -0.1)
   keep_constant <- c(0, 0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   verbose <- FALSE
   model_control <- list("mcml" = TRUE)
   a_n <- c(-0.02, -0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   realization_columns <- matrix(c("rand1", "rand0"), nrow = 1)
   e0 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand1"), nrow = 1)

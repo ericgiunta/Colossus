@@ -11,53 +11,13 @@
 #' @return returns a list of the final results
 #' @noRd
 #' @family Case Control Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
-#' # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
-#'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "step_max" = 1.0, "thres_step_max" = 100.0,
-#'   "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1
-#' )
-#' e <- RunCaseControlRegression_Omnibus(df, time1, time2, event,
-#'   names, term_n, tform, keep_constant,
-#'   a_n, modelform, control,
-#'   model_control = list(
-#'     "stata" = FALSE,
-#'     "time_risk" = FALSE
-#'   )
-#' )
 #' @importFrom rlang .data
 RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov

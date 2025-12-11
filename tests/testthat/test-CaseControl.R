@@ -16,7 +16,7 @@ test_that("check errors", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
     #
     i_index <- 1
     model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
@@ -45,7 +45,7 @@ test_that("threshold nonfail", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
     #
     i_index <- 1
     #
@@ -97,7 +97,7 @@ test_that("threshold nonfail, single", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
     #
     i_index <- 1
     #
@@ -150,7 +150,7 @@ test_that("threshold nonfail, null", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
     #
     i_index <- 1
     #
@@ -203,7 +203,7 @@ test_that("threshold nonfail, gradient", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
     #
     i_index <- 1
     #
@@ -306,7 +306,7 @@ test_that("information matrix calculations", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
     #
     i_index <- 1
     #

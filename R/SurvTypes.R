@@ -12,7 +12,7 @@ get_form_joint <- function(formula_list, df) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -263,7 +263,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)

@@ -23,7 +23,7 @@
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -180,6 +180,9 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!coxmodel$null) {
     norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
@@ -221,6 +224,9 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
@@ -253,7 +259,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Pois(Ending_Age, Cancer_Status) ~
@@ -369,6 +375,9 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     }
   }
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
@@ -406,6 +415,9 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   }
   res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
@@ -438,7 +450,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- logit(Cancer_Status) ~
@@ -572,6 +584,9 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     }
   }
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
@@ -609,6 +624,9 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   }
   res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
@@ -642,7 +660,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- CaseCon_Strata(Cancer_Status, e) ~
@@ -774,6 +792,9 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     }
   }
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!caseconmodel$null) {
     norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
@@ -815,6 +836,9 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
@@ -848,7 +872,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
@@ -953,6 +977,9 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     }
   }
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
@@ -989,6 +1016,9 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     res$constraint_vector <- cons_vec
   }
   res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -1045,7 +1075,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -1103,7 +1133,16 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   }
   control <- object$control
   model_control <- object$modelcontrol
-  Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
 }
 
 #' Performs Cox Proportional Hazard model plots
@@ -1132,7 +1171,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -1200,6 +1239,10 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   control <- object$control
   model_control <- object$modelcontrol
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   #
   extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
@@ -1229,7 +1272,12 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
     }
     df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
-  RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
+  res <- RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
 }
 
 #' Fully runs a cox or fine-gray regression model with multiple column realizations, returning the model and results
@@ -1261,7 +1309,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
+#'   "ncores" = 1, "lr" = 0.75, "maxiter" = 1,
 #'   "halfmax" = 2, "epsilon" = 1e-6,
 #'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
 #'   "thres_step_max" = 100.0,
@@ -1346,6 +1394,9 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   strat_col <- coxmodel$strata
   cens_weight <- coxmodel$weight
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
   if (coxmodel$null) {
@@ -1417,6 +1468,10 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
@@ -1457,7 +1512,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
+#'   "ncores" = 1, "lr" = 0.75, "maxiter" = 1,
 #'   "halfmax" = 2, "epsilon" = 1e-6,
 #'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
 #'   "thres_step_max" = 100.0,
@@ -1527,6 +1582,9 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   validate_poissurv(poismodel, df)
   poismodel <- validate_formula(poismodel, df, control$verbose)
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
   event0 <- poismodel$event
@@ -1584,6 +1642,10 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
@@ -1682,6 +1744,10 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   if (model_control[["constraint"]]) {
@@ -1719,7 +1785,10 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
       stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
     }
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   if (all(strat_col != "NONE")) {
     #
     df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
@@ -1783,7 +1852,10 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
       norm
     ), domain = NA)
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   coxres <- new_coxresbound(res)
   coxres <- validate_coxresbound(coxres, df)
   coxres
@@ -1841,6 +1913,10 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   if (model_control[["constraint"]]) {
@@ -1878,7 +1954,10 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
     }
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
@@ -1933,7 +2012,10 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       norm
     ), domain = NA)
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   poisres <- new_poisresbound(res)
   poisres <- validate_poisresbound(poisres, df)
   poisres
@@ -2014,6 +2096,10 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   extraArgs <- list(...) # gather additional arguments
@@ -2034,7 +2120,10 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   } else {
     stop("Error: control argument must be a list")
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   check_num <- 1
   z <- 2
   if (length(assign_control) > 0) {
@@ -2133,6 +2222,10 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
     names(res$parameter_info) <- c("Column", "Subterm", "term_number")
   }
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   res
 }
 
@@ -2189,6 +2282,10 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   extraArgs <- list(...) # gather additional arguments
@@ -2209,6 +2306,10 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   } else {
     stop("Error: control argument must be a list")
   }
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   #
   check_num <- x$para_number
   assign_control$bound <- TRUE
@@ -2298,6 +2399,10 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
     )
   }
   res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   res
 }
 
@@ -2376,6 +2481,10 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   if ((pearson == deviance) && (pearson)) {
@@ -2383,7 +2492,14 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   }
   model_control$pearson <- pearson
   model_control$deviance <- deviance
-  #
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   res
 }

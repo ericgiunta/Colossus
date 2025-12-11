@@ -6,14 +6,14 @@ test_that("Coxph strata_gradient_CR", {
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   df$weighting <- df$t1 / 20
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   verbose <- FALSE
   j_iterate <- 1
   a_n <- c(-0.1, -0.1)
@@ -35,25 +35,25 @@ test_that("Coxph gradient methods", {
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   #
   event <- "lung"
   keep_constant <- c(0, 0)
   model_control <- list("gradient" = TRUE)
   a_n <- c(-0.1, -0.1)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   for (method in c("momentum", "adadelta", "adam")) {
     model_control <- list("gradient" = TRUE)
     model_control[[method]] <- TRUE
     a_n <- c(-0.1, -0.1)
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+    control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     gradient_control <- list()
     gradient_control[[method]] <- TRUE
     e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, fac, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = gradient_control)
     expect_equal(e$Status, "PASSED")
   }
   #
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   a_n <- c(1.0, 1.0)
   gradient_control <- list("adadelta" = TRUE)
   e1 <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(fac, 1) + A(), df, a_n = a_n, control = control, gradient_control = gradient_control)
@@ -73,7 +73,7 @@ test_that("Pois strata_gradient", {
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   keep_constant <- c(0, 0)
   a_n <- c(0.01, 0.1)
-  control <- list("ncores" = 2, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.001, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   strat_col <- "fac"
   verbose <- FALSE
   j_iterate <- 1
@@ -99,7 +99,7 @@ test_that("Logit Gradient Test", {
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     a_n <- c(0.1, 0.1)
-    control <- list(verbose = 0, step_max = 0.1, maxiter = 100, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, maxiter = 100, ncores = 1)
     #
     def_rate <- log(sum(df$status) / length(df$status))
     a_n <- c(0.001, -0.95, def_rate)
@@ -124,7 +124,7 @@ test_that("Constraint Check", {
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
-    control <- list(ncores = 2)
+    control <- list(ncores = 1)
     #
     e2 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0), gradient_control = list("adam" = TRUE))
     expect_equal(e2$beta_0, c(0.158278, -0.158278), tolerance = 1e-3)

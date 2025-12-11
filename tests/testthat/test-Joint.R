@@ -18,11 +18,11 @@ test_that("Joint data generation, no error", {
   model_s <- Pois(pyr) ~ plinear(t0, 0) + gmix()
   formula_list <- list(model_1, model_2, "shared" = model_s)
   #
-  expect_no_error(PoisRunJoint(formula_list, df, ncores = 2))
-  expect_no_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "mean"))
-  expect_no_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "max"))
-  expect_error(PoisRunJoint(formula_list, df, ncores = 2, norm = "bad"))
-  expect_error(PoisRunJoint(formula_list, df, ncores = 2, bad = "wrong"))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, norm = "mean"))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, norm = "max"))
+  expect_error(PoisRunJoint(formula_list, df, ncores = 1, norm = "bad"))
+  expect_error(PoisRunJoint(formula_list, df, ncores = 1, bad = "wrong"))
 })
 test_that("Joint data generation fill defaults, no error", {
   a <- c(0, 0, 0, 1, 1, 1)
@@ -74,7 +74,7 @@ test_that("Joint data regression, no error", {
   df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
   df$pyr <- df$t1 - df$t0
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 2, "halfmax" = 5, "epsilon" = 1e-3,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 2, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow"
   )
@@ -97,7 +97,7 @@ test_that("Joint data regression, check results", {
   df$pyr <- df$t1 - df$t0
   events <- c("e0", "e1")
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-3,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow"
   )

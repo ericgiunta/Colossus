@@ -8,7 +8,7 @@ test_that("Poisson residual no error", {
   keep_constant <- c(0)
   a_n <- c(-0.1)
 
-  control <- list("ncores" = 2, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
+  control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
   poisres <- PoisRun(Poisson(a, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   expect_no_error(Residual(poisres, df, pearson = FALSE, deviance = FALSE))
   expect_no_error(Residual(poisres, df, pearson = TRUE, deviance = FALSE))

@@ -104,7 +104,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -665,7 +665,7 @@ factorize <- function(df, col_list, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -738,7 +738,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -834,7 +834,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -893,7 +893,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' func_form <- c("lin")
 #' df_new <- gen_time_dep(
 #'   df, time1, time2, event, TRUE, 0.01, c("grt"), c(),
-#'   c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 2
+#'   c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1
 #' )
 #' file.remove("test_new.csv")
 #'
@@ -901,7 +901,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -967,7 +967,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     fname <- paste(fname, ".csv", sep = "_")
   }
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-    nthreads <- 2
+    nthreads <- min(c(2, nthreads))
   }
   Write_Time_Dep(
     x_time, x_dep, x_same, x_event, dt, fname,
@@ -1007,7 +1007,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -1069,7 +1069,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -1152,7 +1152,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -1300,7 +1300,7 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df) # nocov
+        setDT(df) # nocov
       },
       error = function(e) { # nocov
         df <- data.table(df) # nocov
@@ -2453,7 +2453,7 @@ Interpret_Output <- function(out_list, digits = 3) {
       }
       message(paste("Solving for the boundary of element: ", para_number, "\nApplied to column: '", name, "'\nSubterm: ", tform, "\nTerm number: ", term_n, sep = ""))
       if (neg[1]) {
-        message("Lower limit was not found")
+        message(paste("Lower limit was not found, last step was at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
       } else {
         if (conv[1]) {
           message(paste("Lower limit converged to at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
@@ -2463,7 +2463,7 @@ Interpret_Output <- function(out_list, digits = 3) {
       }
       message(paste("Central estimate was ", format(beta_0, digits = digits), sep = ""))
       if (neg[2]) {
-        message("Upper limit was not found")
+        message(paste("Upper limit was not found, last step was at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
       } else {
         if (conv[2]) {
           message(paste("Upper limit converged to at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
@@ -2493,18 +2493,18 @@ Interpret_Output <- function(out_list, digits = 3) {
               "Subterm" = tforms,
               "Term Number" = term_n,
               "Constant" = keep_constant,
-              "Central Estimate" = format(beta_0, digits = digits),
-              "Standard Error" = format(stdev, digits = digits),
-              "2-tail p-value" = format(pval, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
+              "Standard Error" = as.numeric(format(stdev, digits = digits)),
+              "2-tail p-value" = as.numeric(format(pval, digits = digits))
             )
           } else {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
               "Term Number" = term_n,
-              "Central Estimate" = format(beta_0, digits = digits),
-              "Standard Error" = format(stdev, digits = digits),
-              "2-tail p-value" = format(pval, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
+              "Standard Error" = as.numeric(format(stdev, digits = digits)),
+              "2-tail p-value" = as.numeric(format(pval, digits = digits))
             )
           }
         } else {
@@ -2514,14 +2514,14 @@ Interpret_Output <- function(out_list, digits = 3) {
               "Subterm" = tforms,
               "Term Number" = term_n,
               "Constant" = keep_constant,
-              "Central Estimate" = format(beta_0, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
             )
           } else {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
               "Term Number" = term_n,
-              "Central Estimate" = format(beta_0, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
             )
           }
         }
@@ -2571,18 +2571,18 @@ Interpret_Output <- function(out_list, digits = 3) {
               "Subterm" = tforms,
               "Term Number" = term_n,
               "Constant" = keep_constant,
-              "Central Estimate" = format(beta_0, digits = digits),
-              "Standard Error" = format(stdev, digits = digits),
-              "2-tail p-value" = format(pval, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
+              "Standard Error" = as.numeric(format(stdev, digits = digits)),
+              "2-tail p-value" = as.numeric(format(pval, digits = digits))
             )
           } else {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
               "Term Number" = term_n,
-              "Central Estimate" = format(beta_0, digits = digits),
-              "Standard Error" = format(stdev, digits = digits),
-              "2-tail p-value" = format(pval, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
+              "Standard Error" = as.numeric(format(stdev, digits = digits)),
+              "2-tail p-value" = as.numeric(format(pval, digits = digits))
             )
           }
         } else {
@@ -2592,14 +2592,14 @@ Interpret_Output <- function(out_list, digits = 3) {
               "Subterm" = tforms,
               "Term Number" = term_n,
               "Constant" = keep_constant,
-              "Central Estimate" = format(beta_0, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
             )
           } else {
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
               "Term Number" = term_n,
-              "Central Estimate" = format(beta_0, digits = digits)
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
             )
           }
         }

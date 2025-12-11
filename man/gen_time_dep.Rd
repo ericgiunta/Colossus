@@ -72,7 +72,7 @@ grt_f <- function(df, time_col) {
 func_form <- c("lin")
 df_new <- gen_time_dep(
   df, time1, time2, event, TRUE, 0.01, c("grt"), c(),
-  c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 2
+  c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1
 )
 file.remove("test_new.csv")
 

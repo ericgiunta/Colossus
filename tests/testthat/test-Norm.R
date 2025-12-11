@@ -13,7 +13,7 @@ test_that("Checking basic function", {
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
-    control <- list(ncores = 2)
+    control <- list(ncores = 1)
     #
     expect_no_error(res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control))
     expect_no_error(res_max <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
@@ -48,7 +48,7 @@ test_that("Checking values converted back", {
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
-    control <- list(ncores = 2, maxiter = -1, halfmax = -1)
+    control <- list(ncores = 1, maxiter = -1, halfmax = -1)
     for (i in c(0.1, -0.1, -0.035, 0.035)) {
       a_n <- c(i, -1 * i)
       res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = a_n, control = control)
@@ -108,7 +108,7 @@ test_that("Checking combination with gradient/single/null", {
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
-    control <- list(ncores = 2, maxiter = -1, halfmax = -1)
+    control <- list(ncores = 1, maxiter = -1, halfmax = -1)
     #
     expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ null(), df, control = control, norm = "max"))
     expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control, gradient_control = list(momentum = TRUE)))
@@ -131,7 +131,7 @@ test_that("Checking errors and warnings", {
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     df$karno50 <- df$karno - 50
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
-    control <- list(ncores = 2, maxiter = -1, halfmax = -1)
+    control <- list(ncores = 1, maxiter = -1, halfmax = -1)
 
     df$trt_mean <- df$trt - mean(df$trt)
     #
@@ -156,7 +156,7 @@ test_that("Checking likelihood bound", {
     df$trt <- as.integer(df$trt == 0)
     cell_lvl <- c("large", "squamous", "smallcell", "adeno")
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
-    control <- list(ncores = 2)
+    control <- list(ncores = 1)
     #
     res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, control = control)
     res_max <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, norm = "max", control = control)

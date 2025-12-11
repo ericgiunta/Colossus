@@ -10,7 +10,7 @@ test_that("Basic formula and regression passes and fails", {
   model <- logit(a) ~ loglinear(d)
   e <- get_form(model, df)$model
   expect_equal("CONST", e$trials)
-  expect_no_error(LogisticRun(model, df, ncores = 2))
+  expect_no_error(LogisticRun(model, df, ncores = 1))
   expect_error(LogisticRun(model, df, control = "bad"))
 
   df <- data.table(
@@ -42,7 +42,7 @@ test_that("basic regression with link non-fail", {
     a_n <- c(0.1, 0.1)
 
 
-    control <- list(verbose = 0, step_max = 0.1, maxiter = 100, ncores = 2)
+    control <- list(verbose = 0, step_max = 0.1, maxiter = 100, ncores = 1)
     #
     def_rate <- log(sum(df$status) / length(df$status))
     a_n <- c(0.001, -0.95, def_rate)
@@ -65,9 +65,9 @@ test_that("basic regression with link non-fail", {
 })
 
 test_that("epicure check", {
-  df <- fread("sholom.csv")
+  df <- fread("sholom.csv", nThread = min(c(detectCores(), 2)), data.table = TRUE)
 
-  control <- list(verbose = 0, ncores = 2)
+  control <- list(verbose = 0, ncores = 1)
   a_n <- c(0.4)
   model <- logit(n, x) ~ linear(CONST)
   e <- LogisticRun(model, df, control = control, a_n = a_n)
