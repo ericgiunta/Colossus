@@ -58,9 +58,5 @@ res <- CoxRun(formula, df,
   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
   control = control
 )
-RelativeRisk(res, df)
-#> $Risk
-#> [1] 4.281139e+09 1.579239e+11 1.754924e+10 6.715755e+10 2.386059e+12
-#> [6] 7.839025e+08 2.607087e+11
-#> 
+res_risk <- RelativeRisk(res, df)
 ```

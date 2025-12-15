@@ -71,6 +71,5 @@ plot_options <- list(
   )), "studyid" = "UserID",
   "verbose" = FALSE
 )
-plot(res, df, plot_options)
-#> list()
+res_plot <- plot(res, df, plot_options)
 ```

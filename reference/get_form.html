@@ -61,7 +61,7 @@ for a Colossus regression function.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_form</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_form</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span>, nthreads <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -74,6 +74,10 @@ for a Colossus regression function.</p>
 
 <dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
 <dd><p>a data.table containing the columns of interest</p></dd>
+
+
+<dt id="arg-nthreads">nthreads<a class="anchor" aria-label="anchor" href="#arg-nthreads"></a></dt>
+<dd><p>number of threads to use, do not use more threads than available on your machine</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -106,7 +110,7 @@ for a Colossus regression function.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Starting_Age</span>, <span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span></span></span>
 <span class="r-in"><span>  <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span>, <span class="va">c</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">get_form</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">get_form</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
