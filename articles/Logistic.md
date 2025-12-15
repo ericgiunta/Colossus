@@ -116,19 +116,19 @@ e <- LogisticRun(model, df, control = control)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0             3.26          1.019       1.39e-03
-#> 2:    cell_1  loglin           0             2.05          0.531       1.16e-04
-#> 3:    cell_2  loglin           0             2.71          0.596       5.58e-06
-#> 4:    cell_3  loglin           0             3.26          1.019       1.39e-03
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:    cell_0  loglin             3.26          1.019       1.39e-03
+#> 2:    cell_1  loglin             2.05          0.531       1.16e-04
+#> 3:    cell_2  loglin             2.71          0.596       5.58e-06
+#> 4:    cell_3  loglin             3.26          1.019       1.39e-03
 #> 
 #> Logisitic Model Used
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 11
 #> maximum step size: 1.075e-04, maximum first derivative: 3.454e-05
 #> Analysis converged
-#> Run finished in 0.024 seconds
+#> Run finished in 0.023 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -148,12 +148,12 @@ e <- LogisticRun(model, df, control = control, a_n = a_n, link = "odds")
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0             3.26          1.019       1.39e-03
-#> 2:    cell_1  loglin           0             2.05          0.531       1.16e-04
-#> 3:    cell_2  loglin           0             2.71          0.596       5.58e-06
-#> 4:    cell_3  loglin           0             3.26          1.019       1.39e-03
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:    cell_0  loglin             3.26          1.019       1.39e-03
+#> 2:    cell_1  loglin             2.05          0.531       1.16e-04
+#> 3:    cell_2  loglin             2.71          0.596       5.58e-06
+#> 4:    cell_3  loglin             3.26          1.019       1.39e-03
 #> 
 #> Logisitic Model Used
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
@@ -168,19 +168,19 @@ e <- LogisticRun(model, df, control = control, a_n = a_n, link = "ident")
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0          -0.0377         0.0377         0.3174
-#> 2:    cell_1  loglin           0          -0.1214         0.0607         0.0456
-#> 3:    cell_2  loglin           0          -0.0645         0.0373         0.0833
-#> 4:    cell_3  loglin           0          -0.0377         0.0377         0.3174
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:    cell_0  loglin          -0.0377         0.0377         0.3174
+#> 2:    cell_1  loglin          -0.1214         0.0607         0.0456
+#> 3:    cell_2  loglin          -0.0645         0.0373         0.0833
+#> 4:    cell_3  loglin          -0.0377         0.0377         0.3174
 #> 
 #> Logisitic Model Used
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 11
 #> maximum step size: 4.859e-05, maximum first derivative: 1.145e-02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.014 seconds
+#> Run finished in 0.013 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
@@ -188,12 +188,12 @@ e <- LogisticRun(model, df, control = control, a_n = a_n, link = "loglink")
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:    cell_0  loglin           0            -3.28          1.000       1.05e-03
-#> 2:    cell_1  loglin           0            -2.11          0.500       2.49e-05
-#> 3:    cell_2  loglin           0            -2.74          0.577       2.08e-06
-#> 4:    cell_3  loglin           0            -3.28          1.000       1.05e-03
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:    cell_0  loglin            -3.28          1.000       1.05e-03
+#> 2:    cell_1  loglin            -2.11          0.500       2.49e-05
+#> 3:    cell_2  loglin            -2.74          0.577       2.08e-06
+#> 4:    cell_3  loglin            -3.28          1.000       1.05e-03
 #> 
 #> Logisitic Model Used
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109

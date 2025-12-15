@@ -330,11 +330,11 @@ e <- PoisRunJoint(formula_list, df, control = control)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:        t0    plin           0           -0.184          0.385          0.631
-#> 2:    fac_e0  loglin           0            0.574          0.468          0.219
-#> 3:    fac_e1  loglin           0           -1.035          1.009          0.305
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:        t0    plin           -0.184          0.385          0.631
+#> 2:    fac_e0  loglin            0.574          0.468          0.219
+#> 3:    fac_e1  loglin           -1.035          1.009          0.305
 #> 
 #> Poisson Model Used
 #> -2*Log-Likelihood: 20.891,  Deviation: 6.436,  AIC: 12.436,  BIC: 28.346

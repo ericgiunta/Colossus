@@ -77,16 +77,16 @@ e <- PoisRun(Poisson(time, status) ~ linear(erate), cancer, a_n = a_n, control =
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:     erate     lin           0            0.474         0.0369       9.15e-38
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:     erate     lin            0.474         0.0369       9.15e-38
 #> 
 #> Poisson Model Used
 #> -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.649
 #> Iterations run: 13
 #> maximum step size: 1.741e-10, maximum first derivative: 1.235e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.019 seconds
+#> Run finished in 0.02 seconds
 #> |-------------------------------------------------------------------|
 ```
 

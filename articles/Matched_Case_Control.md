@@ -163,10 +163,10 @@ e2 <- CaseControlRun(model, df, control = control, conditional_threshold = 0)
 print(e0)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:   karno50  loglin           0             0.01          0.017          0.556
-#> 2:       trt  loglin           0             0.01          0.700          0.989
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:   karno50  loglin             0.01          0.017          0.556
+#> 2:       trt  loglin             0.01          0.700          0.989
 #> 
 #> Matched Case-Control Model Used
 #> Model stratified by 'cell'
@@ -180,10 +180,10 @@ print(e0)
 print(e1)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:   karno50  loglin           0             0.01         0.0171          0.558
-#> 2:       trt  loglin           0             0.01         0.5726          0.986
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:   karno50  loglin             0.01         0.0171          0.558
+#> 2:       trt  loglin             0.01         0.5726          0.986
 #> 
 #> Matched Case-Control Model Used
 #> Model stratified by 'cell'
@@ -192,15 +192,15 @@ print(e1)
 #> Iterations run: 3
 #> maximum step size: 3.052e-05, maximum first derivative: 1.463e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.012 seconds
+#> Run finished in 0.013 seconds
 #> |-------------------------------------------------------------------|
 print(e2)
 #> |-------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:   karno50  loglin           0          -0.0449         0.0163        0.00602
-#> 2:       trt  loglin           0          -0.3774         0.5568        0.49798
+#>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
+#>       <char>  <char>            <num>          <num>          <num>
+#> 1:   karno50  loglin          -0.0449         0.0163        0.00602
+#> 2:       trt  loglin          -0.3774         0.5568        0.49798
 #> 
 #> Matched Case-Control Model Used
 #> Model stratified by 'cell'
