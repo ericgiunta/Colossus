@@ -908,6 +908,13 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
       }
     )
   }
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
+    nthreads <- min(c(2, nthreads))
+  }
+  thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   dfn <- names(df)
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
@@ -966,9 +973,6 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   } else {
     fname <- paste(fname, ".csv", sep = "_")
   }
-  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-    nthreads <- min(c(2, nthreads))
-  }
   Write_Time_Dep(
     x_time, x_dep, x_same, x_event, dt, fname,
     tform, tu, iscox, nthreads
@@ -979,6 +983,9 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     col.names = c(time1, time2, new_names, dfn_same, event0)
   )
   data.table::setkeyv(df_new, c(event0, time2, time1))
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   return(df_new)
 }
 

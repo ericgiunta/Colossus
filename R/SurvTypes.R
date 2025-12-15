@@ -194,8 +194,15 @@ get_form_joint <- function(formula_list, df) {
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' model <- get_form(formula, df)
-get_form <- function(formula, df) {
+#' model <- get_form(formula, df, 1)
+get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
+    nthreads <- min(c(2, nthreads))
+  }
+  thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   if (length(lapply(strsplit(format(formula), ""), function(x) which(x == "~"))[[1]]) != 1) {
     stop("Error: The formula contained multiple '~', invalid formula")
   }
@@ -242,6 +249,9 @@ get_form <- function(formula, df) {
   } else {
     stop("Error: Bad survival model type passed")
   }
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   list(
     "model" = model, "data" = df
   )

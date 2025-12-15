@@ -1084,7 +1084,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
 #'   control = control
 #' )
-#' RelativeRisk(res, df)
+#' res_risk <- RelativeRisk(res, df)
 RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   #
   coxmodel <- x$model
@@ -1187,7 +1187,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
 #'   )), "studyid" = "UserID",
 #'   "verbose" = FALSE
 #' )
-#' plot(res, df, plot_options)
+#' res_plot <- plot(res, df, plot_options)
 plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   #
   coxmodel <- x$model

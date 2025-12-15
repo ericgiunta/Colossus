@@ -45,6 +45,6 @@ res <- CoxRun(formula, df,
   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
   control = control
 )
-RelativeRisk(res, df)
+res_risk <- RelativeRisk(res, df)
 }
 \concept{Cox Analysis Functions}

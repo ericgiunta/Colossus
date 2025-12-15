@@ -54,6 +54,6 @@ plot_options <- list(
   )), "studyid" = "UserID",
   "verbose" = FALSE
 )
-plot(res, df, plot_options)
+res_plot <- plot(res, df, plot_options)
 }
 \concept{Plotting Wrapper Functions}
