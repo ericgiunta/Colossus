@@ -770,9 +770,9 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (time1 != time2) {
     model_control[["time_risk"]] <- TRUE
   }
-  if (ncol(cons_mat) > 1) {
-    model_control[["constraint"]] <- TRUE
-  }
+  #  if (ncol(cons_mat) > 1) {
+  #    model_control[["constraint"]] <- TRUE
+  #  }
   if (!missing(gradient_control)) {
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
@@ -819,7 +819,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control, cons_mat, cons_vec)
+  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control) # , cons_mat, cons_vec)
   if (int_count > 0) {
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
@@ -1400,6 +1400,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
   if (coxmodel$null) {
+    stop()
     model_control["null"] <- TRUE
     #
     names <- c("CONST")

@@ -18,6 +18,16 @@ test_that("Basic factor application to formula", {
   model <- Cox(a, b, c) ~ loglinear(d, factor(e, levels = c(2, 1), labels = c("high", "low")))
   e <- get_form(model, df)$model
   expect_equal(c("d", "e_low"), e$names)
+  #
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + PA()
+  e <- get_form(model, df)$model
+  expect_equal(c("loglin","loglin"), e$tform)
+  model <- Cox(a, b, c) ~ exponential(d, factor(e)) + PA()
+  e <- get_form(model, df)$model
+  expect_equal(c("loglin","loglin"), e$tform)
+  model <- Cox(a, b, c) ~ exp(d, factor(e)) + PA()
+  e <- get_form(model, df)$model
+  expect_equal(c("loglin","loglin"), e$tform)
 })
 
 test_that("Basic gmix application to formula", {

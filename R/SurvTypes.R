@@ -511,6 +511,7 @@ get_form_risk <- function(model_obj, df) {
     tform_acceptable <- c(
       "plin", "lin", "loglin", "loglin-dose", "lin-dose",
       "lin-quad-dose", "lin-exp-dose", "plinear", "product-linear", "linear",
+      "exponential", "exp",
       "loglinear", "log-linear", "loglinear-dose", "log-linear-dose", "linear-dose", "linear-piecewise",
       "quadratic", "quad", "quad-dose", "quadratic-dose",
       "step-dose", "step-piecewise",
@@ -884,7 +885,7 @@ get_form_risk <- function(model_obj, df) {
           model_terms <- c("plin")
         } else if (model_type %in% c("lin", "linear")) {
           model_terms <- c("lin")
-        } else if (model_type %in% c("loglin", "loglinear", "log-linear")) {
+        } else if (model_type %in% c("loglin", "loglinear", "log-linear", "exponential", "exp")) {
           model_terms <- c("loglin")
         } else if (model_type %in% c("loglin-dose", "loglinear-dose", "log-linear-dose")) {
           model_terms <- c("loglin_slope", "loglin_top")

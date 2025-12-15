@@ -109,7 +109,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     //
     //  cout.precision: controls the number of significant digits printed
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------
@@ -531,7 +531,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     //
     //  cout.precision: controls the number of significant digits printed
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     double dbeta_max = 0.0;
     //  ------------------------------------------------------------------------- //  initialize
     // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
@@ -1397,7 +1397,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, const Ref
     //
     //  cout.precision: controls the number of significant digits printed
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ------------------------------------------------------------------------- //  initialize
     // Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     MatrixXd T0;
@@ -1798,7 +1798,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
     //  cout.precision: controls the number of significant digits printed
     //
     double dbeta_max = 0.0;
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ------------------------------------------------------------------------- //  initialize
     VectorXd beta_max = beta_0;
     MatrixXd T0;
@@ -2635,7 +2635,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------
@@ -3099,7 +3099,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------

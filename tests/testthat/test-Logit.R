@@ -61,6 +61,8 @@ test_that("basic regression with link non-fail", {
     expect_no_error(LogisticRun(res$model, df, control = control, a_n = a_n, norm = "max"))
     expect_no_error(LogisticRun(res$model, df, control = control, a_n = a_n, norm = "mean"))
     expect_error(LogisticRun(model, df, control = control, link = "bad", a_n = a_n))
+    # observed_info
+    expect_no_error(LogisticRun(res$model, df, control = control, a_n = a_n, observed_info = TRUE))
   }
 })
 

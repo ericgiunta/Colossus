@@ -320,7 +320,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0
     totalnum = term_n.size();
     reqrdnum = totalnum - sum(KeepConstant);
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
     //  ------------------------------------------------------------------------- //  initialize
     MatrixXd T0;
@@ -465,7 +465,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     int totalnum = term_n.size();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
@@ -538,7 +538,7 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, St
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms

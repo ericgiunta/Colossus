@@ -2485,16 +2485,17 @@ Interpret_Output <- function(out_list, digits = 3) {
       } else if (out_list$Survival_Type == "CaseControl") {
         # case control output
         # get the model details
-        names <- out_list$Parameter_Lists$names
-        tforms <- out_list$Parameter_Lists$tforms
-        term_n <- out_list$Parameter_Lists$term_n
-        beta_0 <- out_list$beta_0
+        null_model <- out_list$modelcontrol$null
         strata_odds <- out_list$StrataOdds
-        keep_constant <- out_list$Parameter_Lists$keep_constant == 1
-        if ("Standard_Deviation" %in% names(out_list)) {
-          stdev <- out_list$Standard_Deviation
-          pval <- 2 * pnorm(-abs(beta_0 / stdev))
-          if (any(keep_constant)) {
+        if (!null_model) {
+          names <- out_list$Parameter_Lists$names
+          tforms <- out_list$Parameter_Lists$tforms
+          term_n <- out_list$Parameter_Lists$term_n
+          beta_0 <- out_list$beta_0
+          keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+          if ("Standard_Deviation" %in% names(out_list)) {
+            stdev <- out_list$Standard_Deviation
+            pval <- 2 * pnorm(-abs(beta_0 / stdev))
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
@@ -2509,31 +2510,17 @@ Interpret_Output <- function(out_list, digits = 3) {
               "Covariate" = names,
               "Subterm" = tforms,
               "Term Number" = term_n,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
-              "Standard Error" = as.numeric(format(stdev, digits = digits)),
-              "2-tail p-value" = as.numeric(format(pval, digits = digits))
+              "Constant" = keep_constant,
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
             )
           }
-        } else {
-          if (any(keep_constant)) {
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Constant" = keep_constant,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
-            )
-          } else {
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
-            )
+          if (!any(keep_constant)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Constant"], with = FALSE]
+          }
+          if (min(term_n) == max(term_n)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
           }
         }
-        message("Final Results")
-        print(res_table)
         deviance <- out_list$Deviation
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
@@ -2543,10 +2530,25 @@ Interpret_Output <- function(out_list, digits = 3) {
         freepara <- out_list$FreeParameters
         freestrata <- out_list$FreeSets
         strata <- out_list$model$strata
+        time_model <- out_list$modelcontrol$time_risk
+        message("Final Results")
+        if (null_model) {
+          message("Null model used")
+        } else {
+          print(res_table)
+        }
         #
         message("\nMatched Case-Control Model Used")
         if (all(strata != "NONE")) {
-          message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          if (time_model) {
+            message("Model stratified by ", paste(shQuote(strata), " and time at risk", collapse = ", "))
+          } else {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
+        } else if (time_model) {
+          message("Model stratified by time at risk")
+        } else {
+          message("No risk grouping applied")
         }
         message(paste("Deviance: ", round(deviance, digits), sep = ""))
         message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
@@ -2564,15 +2566,17 @@ Interpret_Output <- function(out_list, digits = 3) {
         }
       } else {
         # get the model details
-        names <- out_list$Parameter_Lists$names
-        tforms <- out_list$Parameter_Lists$tforms
-        term_n <- out_list$Parameter_Lists$term_n
-        beta_0 <- out_list$beta_0
-        keep_constant <- out_list$Parameter_Lists$keep_constant == 1
-        if ("Standard_Deviation" %in% names(out_list)) {
-          stdev <- out_list$Standard_Deviation
-          pval <- 2 * pnorm(-abs(beta_0 / stdev))
-          if (any(keep_constant)) {
+        null_model <- out_list$modelcontrol$null
+        if (!null_model) {
+          ##
+          names <- out_list$Parameter_Lists$names
+          tforms <- out_list$Parameter_Lists$tforms
+          term_n <- out_list$Parameter_Lists$term_n
+          beta_0 <- out_list$beta_0
+          keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+          if ("Standard_Deviation" %in% names(out_list)) {
+            stdev <- out_list$Standard_Deviation
+            pval <- 2 * pnorm(-abs(beta_0 / stdev))
             res_table <- data.table(
               "Covariate" = names,
               "Subterm" = tforms,
@@ -2587,31 +2591,23 @@ Interpret_Output <- function(out_list, digits = 3) {
               "Covariate" = names,
               "Subterm" = tforms,
               "Term Number" = term_n,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
-              "Standard Error" = as.numeric(format(stdev, digits = digits)),
-              "2-tail p-value" = as.numeric(format(pval, digits = digits))
+              "Constant" = keep_constant,
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
             )
           }
-        } else {
-          if (any(keep_constant)) {
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Constant" = keep_constant,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
-            )
-          } else {
-            res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
-            )
+          if (!any(keep_constant)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Constant"], with = FALSE]
+          }
+          if (min(term_n) == max(term_n)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
           }
         }
         message("Final Results")
-        print(res_table)
+        if (null_model) {
+          message("Null model used")
+        } else {
+          print(res_table)
+        }
         # get the model results
         LogLik <- out_list$LogLik
         AIC <- out_list$AIC

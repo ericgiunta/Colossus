@@ -112,7 +112,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     double Lld_worst = 0.0;  //  stores derivative value used to determine if every parameter is near convergence
@@ -522,7 +522,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     double Lld_worst = 0.0;  //  stores derivative value used to determine if every parameter is near convergence
@@ -1100,7 +1100,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     double Lld_worst = 0.0;  //  stores derivative value used to determine if every parameter is near convergence
@@ -1482,7 +1482,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
-    Rcout.precision(7);  //  forces higher precision numbers printed to terminal
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     double Lld_worst = 0.0;  //  stores derivative value used to determine if every parameter is near convergence
