@@ -83,7 +83,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
       term_n <- rep(0, length(term_n))
     }
-    if (modelform != "M") {
+    if (!(modelform %in% c("ME", "M"))) {
       if (control$verbose >= 2) {
         warning("Warning: Basic loglinear model used, but multiplicative model not used. Modelform corrected")
       }
@@ -103,7 +103,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
       term_n <- rep(0, length(term_n))
     }
-    if (modelform != "M") {
+    if (!(modelform %in% c("ME", "M"))) {
       if (control$verbose >= 2) {
         warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
       }
@@ -822,7 +822,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
       }
       term_n <- rep(0, length(term_n))
     }
-    if (modelform != "M") {
+    if (!(modelform %in% c("ME", "M"))) {
       if (control$verbose >= 2) {
         warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
       }

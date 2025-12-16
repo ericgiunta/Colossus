@@ -8,7 +8,14 @@
 #' @return returns a class fully describing the model and the updated data
 #' @family Formula Interpretation
 #' @export
-get_form_joint <- function(formula_list, df) {
+get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()) / 2) {
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
+    nthreads <- min(c(2, nthreads))
+  }
+  thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -162,6 +169,9 @@ get_form_joint <- function(formula_list, df) {
   }
   #
   model <- poismodel(pyr, "events", strata, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   list(
     "model" = model, "data" = df
   )

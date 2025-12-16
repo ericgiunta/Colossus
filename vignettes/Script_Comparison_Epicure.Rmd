@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(parallel)
@@ -87,13 +88,17 @@ df_Dose <- fread("EX_DOSE.csv")
 Colossus defines the model as a formula. The left-hand side of the formula defines the type of model, the time observed, and the event columns. The right-hand side defines the risk factors in each term and subterm. The model is a Cox regression, the intervals are defined by the age_entry/age_exit columns, and the event status is stored in the nonCLL column. This is denoted by 'Cox(age_entry, age_exit, nonCLL)'. The loglinear and product-linear subterms are added to the formula by specifying the subterm type, included columns, and term number, i.e. 'subterm(column 1, column 2, ..., term number)'. Factored columns are added by using 'factor(column)', the default level is assumed to be the first level.
 
 ```{r, eval=FALSE}
-model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) + loglinear(factor(SES_CAT), factor(YOB_CAT), sexm)
+model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) +
+  loglinear(factor(SES_CAT), factor(YOB_CAT), sexm)
 ```
 
 Next, the script defines the control information. The "control" variable serves a similar purpose as the "FITOPT" option in Epicure. This control list specifies that two cores should be used to perform calculations in parallel, up to 100 iterations should be used, and the iterations should stop if the step size is below 1e-9 or the first derivatives are all below 1e-9. The verbose options specifies that any errors or warnings should be printed to the console.
 
 ```{r, eval=FALSE}
-control <- list("Ncores" = 2, "maxiter" = 100, "verbose" = 2, "epsilon" = 1e-9, "der_epsilon" = 1e-9)
+control <- list(
+  "Ncores" = 1, "maxiter" = 100, "verbose" = 2,
+  "epsilon" = 1e-9, "der_epsilon" = 1e-9
+)
 ```
 
 Finally, the regression is run and a list of the results is returned to a variable "e". Regressions in Colossus return a list of results, a summary can be printed.

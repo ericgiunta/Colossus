@@ -159,4 +159,6 @@
 
 # Colossus 1.4.6
 
-* Fixed bug in second derivative risk calculations, wrong correction to multi-term risk values
+* Fixed bug in second derivative risk calculations, wrong correction to multi-term risk values.
+* Improved results printing. Basic regression results only print term number column when multiple terms used. Likelihood boundary results now print the limit and score when negative limit hit.
+* ncores option used for Colossus calculations now also applied to data.table operations. Previous number reset after calculations, may need to be manually reset if the regression hits an error.

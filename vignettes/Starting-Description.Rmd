@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(parallel)
@@ -35,9 +36,9 @@ $$
 $$
 </p>
 
-In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In Poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a single covariate ($x$) and several parameters ($\alpha,\beta$).
+In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In Poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a covariates ($x$) and parameters ($\alpha,\beta$).
 
-There are currently five types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), multiplicative relative model ($R_M$), multiplicative excess model ($R_ME$), or the geometric mixture model with relative risks or excess risks ($R_{GMIX}$).
+There are currently five types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), multiplicative relative model ($R_M$), multiplicative excess model ($R_{ME}$), or the geometric mixture model with relative risks or excess risks ($R_{GMIX}$).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -113,9 +114,9 @@ $$
 $$
 </p>
 
-Note that the multiplicative model is taking the product of terms, each of which is the product of subterms. The same equation may be written with subterms distributed over different terms in the multiplicative model without changing the final value. The only exception is subterms moved from or into the "first" term in the multiplicative excess model. The same equation could be expressed in ways with different computational complexity.
+Note that the multiplicative excess model is taking the product of terms, each of which is the product of subterms. The same equation may be written with subterms distributed over different terms in the multiplicative model without changing the final value. The only exception is subterms moved from or into the "first" term in the multiplicative excess model. The same equation could be expressed in ways with different computational complexity.
 
-Models in Colossus are passed in the form of a formula. Each subterm of the model is expressed as an element of the formula. The model identifiers (A, M, PA, PAE, GMIX) are included at the end of the formula. Every model except the additive model has a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term.
+Models in Colossus are passed in the form of a formula. Each subterm of the model is expressed as an element of the formula. The model identifiers (A, M, PA, PAE, GMIX) are included at the end of the formula. Every model except the additive and multiplicative models have a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term.
 
 The final table is also equivalent to the following code.
 
@@ -127,10 +128,11 @@ modelform <- "M"
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 
-model <- outcome ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
+model <- outcome ~ loglinear(a, 0) + linear(b, c, 1) +
+  plinear(d, 2) + ME()
 ```
 
-*names* denotes the column names used, *term_n* denotes the term numbers, *tform* denotes the subterm formula, *modelform* denotes the term formula, *fir* denotes the "first" term indexed from zero which defaults to 0, and *a_n* denotes the initial guesses for the parameter values. All of which are assumed to be in the same order. A function is called before regression that reorders the inputs in order of terms, subterm types, etc.
+Interior colossus functions convert between the vectors and formula representations. *names* denotes the column names used, *term_n* denotes the term numbers, *tform* denotes the subterm formula, *modelform* denotes the term formula, and *a_n* denotes the initial guesses for the parameter values. All of which are assumed to be in the same order. A function is called before regression that reorders the inputs in order of terms, subterm types, etc.
 
 ## Survival Time and Event Data
 
@@ -145,7 +147,7 @@ On the user side, the names of columns containing the time and events need to be
 | 213           | 18    | 57         | 1 |
 | ...           | ...    | ...         | ... |
 
-For Cox proportional hazard, we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example, we have interval data but that may not always be the case. Colossus is designed to allow the user to input "%trunc%" in place of a missing side of the interval. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. So in code, these variables would look like this:
+For Cox proportional hazard, we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example, we have interval data but that may not always be the case. Colossus is designed to allow the user to omit interval columns to represent truncation. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. In the formula, the interval endpoints can be named "tstart" and "tend". So in code, these variables would look like this:
 
 ```{r}
 df <- data.table(
@@ -159,24 +161,12 @@ df <- data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1)
 )
 # For the interval case
-time1 <- "Starting_Age"
-time2 <- "Ending_Age"
+tstart <- "Starting_Age"
+tend <- "Ending_Age"
 event <- "Cancer_Status"
-
-# Supposing we had left truncated data the following would change
-time1 <- "Starting_Age"
-time2 <- "%trunc%"
-
-# and with right truncated data the following is used
-time1 <- "%trunc%"
-time2 <- "Ending_Age"
-
-# setting back to normal
-time1 <- "Starting_Age"
-time2 <- "Ending_Age"
 ```
 
-Suppose instead we were interested in a Poisson model regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. In this case, we need to define a new column, but that may not be the case in general. Suppose we are now working with the following table:
+Suppose instead we were interested in a Poisson model regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. Suppose we are now working with the following table:
 
 | UserID | Starting_Age | Ending_Age | Person_Years | Cancer_Status |
 | :---------: | :----------: | :-------: | :-------: |  :-------: |
@@ -193,23 +183,16 @@ pyr <- "Person_Years"
 event <- "Cancer_Status"
 ```
 
-The regression types are added to the formula on the left-hand side. Similar to the Surv function in the survival library, the left-hand side of the formula specifies the type of model and which time/event columns are used. The following options are equivalent:
+The regression types are added to the formula on the left-hand side. Similar to the Surv function in the survival library, the left-hand side of the formula specifies the type of model and which time/event columns are used.
 
 ```{r}
 # For the interval case
-time1 <- "Starting_Age"
-time2 <- "Ending_Age"
-event <- "Cancer_Status"
 RHS <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ risk_factors
 
 # Supposing we had left truncated data the following would change
-time1 <- "Starting_Age"
-time2 <- "%trunc%"
 RHS <- Cox(tstart = Starting_Age, event = Cancer_Status) ~ risk_factors
 
 # and with right truncated data the following is used
-time1 <- "%trunc%"
-time2 <- "Ending_Age"
 RHS <- Cox(Ending_Age, Cancer_Status) ~ risk_factors
 ```
 
@@ -217,34 +200,21 @@ RHS <- Cox(Ending_Age, Cancer_Status) ~ risk_factors
 
 Colossus offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information.
 
-The convergence parameters currently supported in general are as follows:
+The common convergence parameters are as follows:
 
 | Parameter | Description |
 | :---------: | :----------: |
 | lr            | learning rate applied to steps taken, smaller values avoid overshooting at the risk of slower convergence. Applied to the solution for setting the first derivative of Log-Likelihood to zero  |
 | maxiter       | maximum number of iterations run |
-| maxiters      | list of maximum iterations if a list of initial values is given |
 | halfmax       | Maximum number of half-steps taken each iteration |
 | epsilon       | Minimum parameter change above convergence. If the change is below this, the regression exits |
-| dbeta_max     | learning rate applied to limit on the steps taken. Applied to solution to zero Log-Likelihood, for double_step=0|
+| dbeta_max     | learning rate applied to limit on the steps taken. Applied to solution to zero Log-Likelihood|
 | deriv_epsilon | Minimum Log-Likelihood first derivative above convergence. If the largest first derivative is below this, the regression exits |
 | step_max       | Largest starting step size. Code reduces it every time halfmax is hit without finding an improvement. When step_max is below epsilon, the code exits  |
-| thres_step_max  | Largest starting step size for threshold parameters. Assumes the threshold parameters may be orders of magnitude different than other parameters   |
-| ties          | Allows for efron or breslow tie methods |
-| double_step   | Changes what step calculation method is used. double_step=0 changes each parameter by the ratio of first to second derivative independently. double_step=1 solves the system of equations for all first and second derivatives  |
-
-The additional information parameters currently supported are as follows:
-
-| Parameter | Description |
-| :---------: | :----------: |
 | verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
 | ncores | Number of physical cores assigned, cannot be greater than the number of cores available |
 
-The previous options are all contained within a list of parameters, however, there are additional standalone parameters that control the convergence and information. They are as follows:
-
-| Parameter | Description |
-| :---------: | :----------: |
-| keep_constant | a vector of 0/1 to denote if any parameters should be held constant over the calculations. 0 denoting false and 1 denoting true |
+The previous options are all contained within a list of parameters, however, there are additional standalone parameters that control the convergence. A common example is *keep_constant* which can be used to hold parameters constant. *keep_constant* can be assigned a vector of 0/1 for each element to denote free (0) and constant (1) parameters.
 
 Going back to our example, the code may look like the following:
 ```{r}
@@ -253,11 +223,11 @@ keep_constant <- c(0, 0, 0, 0)
 control <- list(
   "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
   "dbeta_max" = 0.5, "deriv_epsilon" = 1e-3, "step_max" = 1.0,
-  "thres_step_max" = 100.0, "verbose" = 2, "ties" = "breslow", "double_step" = 1
+  "verbose" = 2
 )
 ```
 
-In this example, no parameters are held constant, 100 iterations with 5 half-steps are used, a regression is performed with matrix step solutions, and Breslow's method for tied event times is used. There are no errors for unused control parameters being used, they will simply be ignored. Every commonly required control parameter has a default value which is automatically used if not declared. This includes an optional list of model control options. These are used for nonstandard model options not covered in this vignette.
+In this example, no parameters are held constant and 100 iterations with 5 half-steps are used. There are no errors for unused control parameters being used, they will simply be ignored. Every commonly required control parameter has a default value which is automatically used if not declared.
 
 ## Running the Regression and Output
 
@@ -266,7 +236,8 @@ Finally, the user calls the regression function they need. The names used throug
 ```{r}
 # assuming the table of covariates is stored in a data.table "df"
 
-model_cox <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
+model_cox <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) +
+  linear(b, c, 1) + plinear(d, 2) + multiplicative()
 
 e <- CoxRun(model_cox, df, a_n = a_n, control = control)
 print(e)
@@ -292,9 +263,9 @@ The following are output in the regression output lists:
 | Control_List | a list containing the number of iterations, the maximum step at the final iteration, and the highest first derivative magnitude |
 |Converged | TRUE/FALSE if the regression converged |
 
-For both cases, the regressions did not converge. Given that the examples were arbitrary this is not unexpected. The Cox PH ran out of iterations and did not decrease the step limit, so if it were restarted at the new optimal guess it would be expected to continue converging. The Poisson model regression exited due to the step limit being below the threshold, which means that it hit some local optimum. To find a better solution the user would likely have to either change the model equation or provide a new starting guess. This is an example of how to interpret the results of a Colossus run.
+In this case, the poisson regression did not converge. Given that the examples were arbitrary this is not unexpected. The Poisson model regression exited due to the step limit being below the threshold, which means that the score was still changing significantly even at low step sizes. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a Colossus run.
 
-There are additional variants of these functions which will be described outside of this section. They return a similar list of results.
+There are additional variants of these functions which are described in greater detail in the other vignettes.
 
 
 
