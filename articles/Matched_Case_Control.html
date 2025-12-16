@@ -81,7 +81,8 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"OMP_THREAD_LIMIT"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -266,7 +267,7 @@ outputs.</p>
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">CaseControl_Strata</span><span class="op">(</span><span class="va">status</span>, <span class="va">cell</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">karno50</span>, <span class="va">trt</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">2</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span>, ncores <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">2</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span>, ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -304,24 +305,24 @@ outputs.</p>
 <span><span class="co">#&gt; Iterations run: 3</span></span>
 <span><span class="co">#&gt; maximum step size: 3.052e-05, maximum first derivative: 1.463e+02</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.012 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin          -0.0449         0.0163        0.00602</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin          -0.3774         0.5568        0.49798</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin             0.01         0.0172          0.561</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin             0.01         0.5164          0.985</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
 <span><span class="co">#&gt; Model stratified by 'cell'</span></span>
-<span><span class="co">#&gt; Deviance: 59.723</span></span>
+<span><span class="co">#&gt; Deviance: 67.073</span></span>
 <span><span class="co">#&gt; 4 out of 4 matched sets used Unconditional Likelihood</span></span>
-<span><span class="co">#&gt; Iterations run: 10</span></span>
-<span><span class="co">#&gt; maximum step size: 7.448e-06, maximum first derivative: 1.358e-04</span></span>
+<span><span class="co">#&gt; Iterations run: 3</span></span>
+<span><span class="co">#&gt; maximum step size: 3.052e-05, maximum first derivative: 1.498e+02</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.012 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>

@@ -1,6 +1,7 @@
 # Script comparisons with 32-bit Epicure
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(parallel)
@@ -100,7 +101,8 @@ added by using ‘factor(column)’, the default level is assumed to be the
 first level.
 
 ``` r
-model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) + loglinear(factor(SES_CAT), factor(YOB_CAT), sexm)
+model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) +
+  loglinear(factor(SES_CAT), factor(YOB_CAT), sexm)
 ```
 
 Next, the script defines the control information. The “control” variable
@@ -112,7 +114,10 @@ below 1e-9. The verbose options specifies that any errors or warnings
 should be printed to the console.
 
 ``` r
-control <- list("Ncores" = 2, "maxiter" = 100, "verbose" = 2, "epsilon" = 1e-9, "der_epsilon" = 1e-9)
+control <- list(
+  "Ncores" = 1, "maxiter" = 100, "verbose" = 2,
+  "epsilon" = 1e-9, "der_epsilon" = 1e-9
+)
 ```
 
 Finally, the regression is run and a list of the results is returned to

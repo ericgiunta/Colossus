@@ -81,7 +81,8 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"OMP_THREAD_LIMIT"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -164,10 +165,9 @@ Newton-Raphson algorithm, which may solve for local solutions instead of
 the global solution. Similar to the general Colossus regressions,
 limitations can be placed on step size to limit these effects. However,
 there is no analog to selecting multiple starting locations. This is the
-basis for ongoing work to code in an alternative that can more directly
-solve for the true optimum. Methods have been implemented to optimize
-multiple points and apply a bisection method instead of a
-derivative-based method.</p>
+basis for alternatives provided that can more directly solve for the
+true optimum. Methods have been implemented to optimize multiple points
+and apply a bisection method instead of a derivative-based method.</p>
 <p>This method directly solves the confidence interval, which for linear
 cases may be non-symmetric or even not have upper or lower bounds.
 Linear models may be defined only above a parameter threshold. If the
@@ -181,7 +181,7 @@ threshold value, then the interval would not have a lower bound.</p>
 <p>For the sake of comparison, we will consider an analysis of the
 capacitor data available in the survival package. Consider the two
 regressions, one fully exponential and one with a linear effect. Both
-regressions converge with nearly identical scores.</p>
+regressions converge with similar scores.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">reliability</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
 <span><span class="va">capacitor</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -195,7 +195,9 @@ regressions converge with nearly identical scores.</p>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.01</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">df</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e1</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
@@ -209,10 +211,13 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 8</span></span>
 <span><span class="co">#&gt; maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.02527 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02509 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
-<span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
+<span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  <span class="va">df</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e2</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
@@ -226,21 +231,20 @@ regressions converge with nearly identical scores.</p>
 <span><span class="co">#&gt; Iterations run: 13</span></span>
 <span><span class="co">#&gt; maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.01509 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01495 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
-boundaries and for both parameters in each model. Let us start with the
-fully exponential model. The Wald boundary is estimated using the
-central estimates and standard deviations. The Likelihood boundary is
-solved using the “log_bound” option under the model control list. The
-parameter number needs to be provided (indexed starting at zero) and an
-alpha level needs to be provided. Overall, the likelihood boundaries
-were all solved with scores within a narrow margin of the threshold.
-However, the boundaries are not the same. The boundaries for temperature
-are (-0.017, 1.537) and (-0.01, 1.560), and the boundaries for voltage
-are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off on a
-scale of less than 0.1.</p>
+boundaries and for both parameters in each model.</p>
+<p>Let us start with the fully exponential model. The Wald boundary is
+estimated using the central estimates and standard deviations. The
+Likelihood boundary is solved using the LikelihoodBound function applied
+to the result. The parameter number needs to be provided (indexed
+starting at one) and an alpha level needs to be provided.</p>
+<p>Overall, the Wald and likelihood-based boundaries are not the same.
+The boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560),
+and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242).
+The two boundaries are off by less than 0.1.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
 <span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span><span class="op">)</span></span>
@@ -260,9 +264,6 @@ scale of less than 0.1.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e1</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
-<span><span class="co">#&gt; event0, : Warning: Basic loglinear model used, but multiplicative model not</span></span>
-<span><span class="co">#&gt; used. Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
@@ -277,7 +278,7 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 0.75995</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00781 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00704 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -286,9 +287,6 @@ scale of less than 0.1.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e1</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
-<span><span class="co">#&gt; event0, : Warning: Basic loglinear model used, but multiplicative model not</span></span>
-<span><span class="co">#&gt; used. Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Likelihood Bound Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Likelihood Bound Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
@@ -303,14 +301,13 @@ scale of less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 1.9884</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00751 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.0073 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
-(-0.523, 2.800) and (-0.010, 3.758), and the boundaries for voltage are
-(0.800, 3.177) and (0.841, 3.242). The estimates for the voltage
-boundary are the same, but the estimates for the temperature boundary
-are much further off.</p>
+(0.105, 1.796) and (0.129, 1.840), and the boundaries for voltage are
+(-3.32, 20.95) and (1.97, 34.472). The estimates for the temperature and
+voltage boundaries are much further off.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ci_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="va">e2</span><span class="op">$</span><span class="va">beta_0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">e2</span><span class="op">$</span><span class="va">Standard_Deviation</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
@@ -327,9 +324,6 @@ are much further off.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e2</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
-<span><span class="co">#&gt; event0, : Warning: Linear ERR model used, but multiplicative model not used.</span></span>
-<span><span class="co">#&gt; Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_1</span><span class="op">)</span></span>
@@ -344,7 +338,7 @@ are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 0.95035</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00789 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00756 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -354,9 +348,6 @@ are much further off.</p>
 <span>  <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"manual"</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">e2</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =</span></span>
-<span><span class="co">#&gt; event0, : Warning: Linear ERR model used, but multiplicative model not used.</span></span>
-<span><span class="co">#&gt; Modelform corrected</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"|------------------- Wald Estimate -------------------|"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "|------------------- Wald Estimate -------------------|"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ci_2</span><span class="op">)</span></span>
@@ -371,7 +362,7 @@ are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 8.8172</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00839 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00833 seconds</span></span>
 <span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -394,7 +385,7 @@ optimized.</p>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">entry</span>, <span class="va">exit</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">dose0</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#</span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiters"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiters"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"step_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
 <span>  <span class="st">"thres_step_max"</span> <span class="op">=</span> <span class="fl">100.0</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span></span>
@@ -413,7 +404,7 @@ a small range (-0.6 and the global solution at 1.4). The algorithms used
 for solving the likelihood boundary, similar to the standard regression
 optimizing algorithm, can be trapped by local optimums. This means that
 if the algorithm at any point has to cross over the local optimum, it
-can be trapped. The two optimums have scores close enough that a 95%
+can get stuck. The two optimums have scores close enough that a 95%
 confidence interval has a lower boundary below -0.5, but a 50%
 confidence interval has a lower bound between -0.5 and 1.4. This meant
 that the algorithm converged to the 50% confidence interval boundary,
@@ -436,18 +427,38 @@ solving the complete likelihood curve.</p>
 <div class="section level3">
 <h3 id="likelihood-boundary-algorithm-alternative">Likelihood Boundary Algorithm Alternative<a class="anchor" aria-label="anchor" href="#likelihood-boundary-algorithm-alternative"></a>
 </h3>
-<p>As an alternative to the likelihood algorithm, a direct curve-solving
-method is implemented. The bisect option solves the boundary values by
-iteratively optimizing points and using the bisection method. Each step
-is approximately as fast as running a single regression. The same
-model_control options are used to select which parameter is selected and
-what alpha to use, but with an option “step_size” which is the default
-search window width used. The bisection method functions by (1)
-selecting an interval, (2) optimizing at the upper, lower, and midpoint
-of the interval, and (3) checking if the goal likelihood is crossed. If
-at least one of the interval points is on each side of the goal then the
-interval is narrowed, and if not then the interval is shifted away from
-the optimum.</p>
+<p>There are three functions available for calculating likelihood-based
+boundaries. The first method is the standard Venzon-Moolgavkar
+algorithm. This method attempts to both optimize the model and guide the
+desired parameter to the boundary value. This method is the fastest, but
+most susceptible to local extrema. Using this algorithm depends on the
+initial step not being close to a local extrema, so the initial step can
+be scaled up or down.</p>
+<p>The second method is a modification of the Venzon-Moolgavkar
+algorithm. In the second method, the initial step is split into multiple
+guesses, and each guess is optimized independently. The
+Venzon-Moolgavkar algorithm is then continued at the closest guess that
+did not exceed the target likelihood. In theory, this method makes it
+more likely for the algorithm to start at an appropriate point, so it is
+slower but slightly less susceptible to local extrema. However the final
+portion of the algorithm is still based on derivatives, so it is still
+susceptible to local extrema.</p>
+<p>The third method is an iterative bisection method. In this algorithm,
+the desired parameter is fixed, and the model is optimized at the
+endpoints of an interval until an interval is located which contains the
+goal likelihood. Then the interval is split in half until the interval
+width is within a user-set limit. This method takes advantage of the
+fact that the likelihood curve is continuous and we know that the
+optimum point must be above the goal. The algorithm is split into two
+steps: optimizing the model at fixed points and determining if the
+interval contains the goal. The second step does not depend on the
+likelihood derivatives, so it is not prone to getting stuck in local
+extrema. However, the interval width must be small enough not to step
+over the solution. Given a small enough interval width, every
+optimization is likely to converge and the solution is unlikely to be
+skipped. This method requires the model to be optimized repeatedly, so
+it is expected to take the longest. However, the bisection method is the
+least likely to have issues converging.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fname</span> <span class="op">&lt;-</span> <span class="st">"base_example.csv"</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">fname</span><span class="op">)</span></span>
@@ -457,43 +468,13 @@ the optimum.</p>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.493177</span>, <span class="fl">5.020007</span>, <span class="fl">1.438377</span><span class="op">)</span></span>
 <span><span class="co">#</span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">coxres</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"maxstep"</span> <span class="op">=</span> <span class="fl">20</span>, <span class="st">"alpha"</span> <span class="op">=</span> <span class="fl">0.005</span>, <span class="st">"para_number"</span> <span class="op">=</span> <span class="fl">3</span>, <span class="st">"step_size"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"bisect"</span> <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LikelihoodBound.html">LikelihoodBound</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">curve_control</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span></code></pre></div>
-<p>There are three functions available for calculating likelihood-based
-boundaries. The first method is the standard Venzon-Moolgavkar
-algorithm. This method attempts to both optimize the model and guide the
-desired parameter to the boundary value. This method is the fastest, but
-most susceptible to local extrema. Using this algorithm depends on the
-initial step not being close to a local extrema, so the initial step can
-be scaled up or down. The second method is a modification of the
-Venzon-Moolgavkar algorithm. In the second method, the initial step is
-split into multiple guesses, and each guess is optimized independently.
-The Venzon-Moolgavkar algorithm is then continued at the closest guess
-that did not exceed the target likelihood. In theory, this method makes
-it more likely for the algorithm to start at an appropriate point, so it
-is slower but slightly less susceptible to local extrema. However the
-final portion of the algorithm is still based on derivatives, so it is
-still susceptible to local extrema. The third method is an iterative
-bisection method. In this algorithm, the desired parameter is fixed, and
-the model is optimized at the endpoints of an interval until an interval
-is located which contains the goal likelihood. Then the interval is
-split in half until the interval width is within a user-set limit. This
-method takes advantage of the fact that the likelihood curve is
-continuous and we know that the optimum point must be above the goal.
-The algorithm is split into two steps: optimizing the model at fixed
-points and determining if the interval contains the goal. The second
-step does not depend on the likelihood derivatives, so it is not prone
-to getting stuck in local extrema. However, the interval width must be
-small enough not to step over the solution. Given a small enough
-interval width, every optimization is likely to converge and the
-solution is unlikely to be skipped. This method requires the model to be
-optimized repeatedly, so it is expected to take the longest. However,
-the bisection method is the least likely to have issues converging.</p>
 </div>
 </div>
 <div class="section level2">

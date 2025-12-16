@@ -1,6 +1,7 @@
 # Generating Person-Count and Person-Time Tables
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(parallel)
@@ -51,20 +52,22 @@ includes the lower bound. The interval includes the upper bound if “\]”
 is used, and does not otherwise. So the interval \[2,5) is equivalent to
 “2/5” and the interval \[5,8\] is equivalent to “5\]8”. This method uses
 each triplet sequentially, so the categories will cover every value that
-falls between the first and last number listed. The list notation is
-very similar. There are 2 values required in the list and 1 optional
-value. The list has to have vectors titled lower and upper, which are
-the lower and upper bounds for each interval. This method can include
-gaps. Similarly to the string version, the lower bound is always
-included and the upper bound is included if the upper bound entry
-includes “\]”. The list option allows the categories to be labeled
-instead of being automatically numbered. A third list titled name can be
-provided to label each category. Suppose we want to break the apple
-column into the intervals: \[0, 3), \[3, 5), \[5,7\] and break our
-oranges column into the intervals: \[-1,3), \[3,6), \[6,10) with the
-labels: few, good, and excessive. That would look like the following
-code. This splits each category into 3 levels and in total 9
-combinations.
+falls between the first and last number listed.
+
+The list notation is very similar. There are 2 values required in the
+list and 1 optional value. The list has to have vectors titled lower and
+upper, which are the lower and upper bounds for each interval. This
+method can include gaps. Similarly to the string version, the lower
+bound is always included and the upper bound is included if the upper
+bound entry includes “\]”. The list option allows the categories to be
+labeled instead of being automatically numbered. A third list titled
+name can be provided to label each category.
+
+Suppose we want to break the apple column into the intervals: \[0, 3),
+\[3, 5), \[5,7\] and break our oranges column into the intervals:
+\[-1,3), \[3,6), \[6,10) with the labels: few, good, and excessive. That
+would look like the following code. This splits each category into 3
+levels and in total 9 combinations.
 
 ``` r
 apple_category <- "0/3/5]7"

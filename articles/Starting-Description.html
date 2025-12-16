@@ -81,7 +81,8 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"OMP_THREAD_LIMIT"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -116,9 +117,9 @@ has a set formula dependent on terms
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>).
 Each term has a formula dependent on the product of subterms
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>).
-Each subterm is a function of a single covariate
+Each subterm is a function of a covariates
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>)
-and several parameters
+and parameters
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>,</mo><mi>β</mi></mrow><annotation encoding="application/x-tex">\alpha,\beta</annotation></semantics></math>).</p>
 <p>There are currently five types of risk models available. The risk can
 be expressed as an additive model
@@ -130,7 +131,7 @@ Product additive excess model
 multiplicative relative model
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>M</mi></msub><annotation encoding="application/x-tex">R_M</annotation></semantics></math>),
 multiplicative excess model
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>M</mi></msub><mi>E</mi></mrow><annotation encoding="application/x-tex">R_ME</annotation></semantics></math>),
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mrow><mi>M</mi><mi>E</mi></mrow></msub><annotation encoding="application/x-tex">R_{ME}</annotation></semantics></math>),
 or the geometric mixture model with relative risks or excess risks
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mrow><mi>G</mi><mi>M</mi><mi>I</mi><mi>X</mi></mrow></msub><annotation encoding="application/x-tex">R_{GMIX}</annotation></semantics></math>).</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -266,9 +267,9 @@ with a new row.</p>
     R = \exp{(\beta_{a} \cdot x_{a})} \times (1 + (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})) \times (2 + \beta_{d} \cdot x_{d})
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Note that the multiplicative model is taking the product of terms,
-each of which is the product of subterms. The same equation may be
-written with subterms distributed over different terms in the
+<p>Note that the multiplicative excess model is taking the product of
+terms, each of which is the product of subterms. The same equation may
+be written with subterms distributed over different terms in the
 multiplicative model without changing the final value. The only
 exception is subterms moved from or into the “first” term in the
 multiplicative excess model. The same equation could be expressed in
@@ -276,9 +277,9 @@ ways with different computational complexity.</p>
 <p>Models in Colossus are passed in the form of a formula. Each subterm
 of the model is expressed as an element of the formula. The model
 identifiers (A, M, PA, PAE, GMIX) are included at the end of the
-formula. Every model except the additive model has a distinction between
-the first and remaining terms. Colossus defaults to term 0 being the
-unique term.</p>
+formula. Every model except the additive and multiplicative models have
+a distinction between the first and remaining terms. Colossus defaults
+to term 0 being the unique term.</p>
 <p>The final table is also equivalent to the following code.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span><span class="op">)</span></span>
@@ -288,14 +289,16 @@ unique term.</p>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">outcome</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">b</span>, <span class="va">c</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><em>names</em> denotes the column names used, <em>term_n</em> denotes
-the term numbers, <em>tform</em> denotes the subterm formula,
-<em>modelform</em> denotes the term formula, <em>fir</em> denotes the
-“first” term indexed from zero which defaults to 0, and <em>a_n</em>
-denotes the initial guesses for the parameter values. All of which are
-assumed to be in the same order. A function is called before regression
-that reorders the inputs in order of terms, subterm types, etc.</p>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">outcome</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">b</span>, <span class="va">c</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ME</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Interior colossus functions convert between the vectors and formula
+representations. <em>names</em> denotes the column names used,
+<em>term_n</em> denotes the term numbers, <em>tform</em> denotes the
+subterm formula, <em>modelform</em> denotes the term formula, and
+<em>a_n</em> denotes the initial guesses for the parameter values. All
+of which are assumed to be in the same order. A function is called
+before regression that reorders the inputs in order of terms, subterm
+types, etc.</p>
 </div>
 <div class="section level2">
 <h2 id="survival-time-and-event-data">Survival Time and Event Data<a class="anchor" aria-label="anchor" href="#survival-time-and-event-data"></a>
@@ -356,11 +359,12 @@ follows:</p>
 the starting age, the ending age, and if an event happened during the
 interval. In this case that would be “Starting_Age”, “Ending_Age”, and
 “Cancer_Status”. In this example, we have interval data but that may not
-always be the case. Colossus is designed to allow the user to input
-“%trunc%” in place of a missing side of the interval. Colossus assumes
-that this means that the person has the missing endpoint outside of the
-available data range and creates a dummy column to reference as the
-interval endpoint. So in code, these variables would look like this:</p>
+always be the case. Colossus is designed to allow the user to omit
+interval columns to represent truncation. Colossus assumes that this
+means that the person has the missing endpoint outside of the available
+data range and creates a dummy column to reference as the interval
+endpoint. In the formula, the interval endpoints can be named “tstart”
+and “tend”. So in code, these variables would look like this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  <span class="st">"UserID"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">112</span>, <span class="fl">114</span>, <span class="fl">213</span>, <span class="fl">214</span>, <span class="fl">115</span>, <span class="fl">116</span>, <span class="fl">117</span><span class="op">)</span>,</span>
@@ -373,26 +377,13 @@ interval endpoint. So in code, these variables would look like this:</p>
 <span>  <span class="st">"d"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># For the interval case</span></span>
-<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"Starting_Age"</span></span>
-<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"Ending_Age"</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"Cancer_Status"</span></span>
-<span></span>
-<span><span class="co"># Supposing we had left truncated data the following would change</span></span>
-<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"Starting_Age"</span></span>
-<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
-<span></span>
-<span><span class="co"># and with right truncated data the following is used</span></span>
-<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
-<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"Ending_Age"</span></span>
-<span></span>
-<span><span class="co"># setting back to normal</span></span>
-<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"Starting_Age"</span></span>
-<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"Ending_Age"</span></span></code></pre></div>
+<span><span class="va">tstart</span> <span class="op">&lt;-</span> <span class="st">"Starting_Age"</span></span>
+<span><span class="va">tend</span> <span class="op">&lt;-</span> <span class="st">"Ending_Age"</span></span>
+<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"Cancer_Status"</span></span></code></pre></div>
 <p>Suppose instead we were interested in a Poisson model regression, the
 only difference is instead of providing interval endpoints we give a
-column of interval lengths. In this case, we need to define a new
-column, but that may not be the case in general. Suppose we are now
-working with the following table:</p>
+column of interval lengths. Suppose we are now working with the
+following table:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="center">UserID</th>
@@ -442,22 +433,15 @@ following:</p>
 <p>The regression types are added to the formula on the left-hand side.
 Similar to the Surv function in the survival library, the left-hand side
 of the formula specifies the type of model and which time/event columns
-are used. The following options are equivalent:</p>
+are used.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># For the interval case</span></span>
-<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"Starting_Age"</span></span>
-<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"Ending_Age"</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"Cancer_Status"</span></span>
 <span><span class="va">RHS</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Starting_Age</span>, <span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="va">risk_factors</span></span>
 <span></span>
 <span><span class="co"># Supposing we had left truncated data the following would change</span></span>
-<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"Starting_Age"</span></span>
-<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
 <span><span class="va">RHS</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span>tstart <span class="op">=</span> <span class="va">Starting_Age</span>, event <span class="op">=</span> <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="va">risk_factors</span></span>
 <span></span>
 <span><span class="co"># and with right truncated data the following is used</span></span>
-<span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"%trunc%"</span></span>
-<span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"Ending_Age"</span></span>
 <span><span class="va">RHS</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="va">risk_factors</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -469,8 +453,7 @@ first category is convergence parameters. These cover the number of
 iterations used, limits on parameter changes, and stopping criteria. The
 second category is parameters used for debugging and additional
 information.</p>
-<p>The convergence parameters currently supported in general are as
-follows:</p>
+<p>The common convergence parameters are as follows:</p>
 <table class="table">
 <colgroup>
 <col width="47%">
@@ -492,69 +475,33 @@ solution for setting the first derivative of Log-Likelihood to zero</td>
 <td align="center">maximum number of iterations run</td>
 </tr>
 <tr class="odd">
-<td align="center">maxiters</td>
-<td align="center">list of maximum iterations if a list of initial
-values is given</td>
-</tr>
-<tr class="even">
 <td align="center">halfmax</td>
 <td align="center">Maximum number of half-steps taken each
 iteration</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">epsilon</td>
 <td align="center">Minimum parameter change above convergence. If the
 change is below this, the regression exits</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">dbeta_max</td>
 <td align="center">learning rate applied to limit on the steps taken.
-Applied to solution to zero Log-Likelihood, for double_step=0</td>
+Applied to solution to zero Log-Likelihood</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">deriv_epsilon</td>
 <td align="center">Minimum Log-Likelihood first derivative above
 convergence. If the largest first derivative is below this, the
 regression exits</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">step_max</td>
 <td align="center">Largest starting step size. Code reduces it every
 time halfmax is hit without finding an improvement. When step_max is
 below epsilon, the code exits</td>
 </tr>
-<tr class="odd">
-<td align="center">thres_step_max</td>
-<td align="center">Largest starting step size for threshold parameters.
-Assumes the threshold parameters may be orders of magnitude different
-than other parameters</td>
-</tr>
 <tr class="even">
-<td align="center">ties</td>
-<td align="center">Allows for efron or breslow tie methods</td>
-</tr>
-<tr class="odd">
-<td align="center">double_step</td>
-<td align="center">Changes what step calculation method is used.
-double_step=0 changes each parameter by the ratio of first to second
-derivative independently. double_step=1 solves the system of equations
-for all first and second derivatives</td>
-</tr>
-</tbody>
-</table>
-<p>The additional information parameters currently supported are as
-follows:</p>
-<table class="table">
-<colgroup>
-<col width="47%">
-<col width="52%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">Parameter</th>
-<th align="center">Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
 <td align="center">verbose</td>
 <td align="center">integer valued 0-4 controlling what information is
 printed to the terminal. Each level includes the lower levels. 0:
@@ -565,7 +512,7 @@ user might not have intended, notes provide information on regression
 progress, and debug prints out C++ progress and intermediate results.
 The default level is 2 and True/False is converted to 3/0.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">ncores</td>
 <td align="center">Number of physical cores assigned, cannot be greater
 than the number of cores available</td>
@@ -574,23 +521,10 @@ than the number of cores available</td>
 </table>
 <p>The previous options are all contained within a list of parameters,
 however, there are additional standalone parameters that control the
-convergence and information. They are as follows:</p>
-<table class="table">
-<colgroup>
-<col width="47%">
-<col width="52%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">Parameter</th>
-<th align="center">Description</th>
-</tr></thead>
-<tbody><tr class="odd">
-<td align="center">keep_constant</td>
-<td align="center">a vector of 0/1 to denote if any parameters should be
-held constant over the calculations. 0 denoting false and 1 denoting
-true</td>
-</tr></tbody>
-</table>
+convergence. A common example is <em>keep_constant</em> which can be
+used to hold parameters constant. <em>keep_constant</em> can be assigned
+a vector of 0/1 for each element to denote free (0) and constant (1)
+parameters.</p>
 <p>Going back to our example, the code may look like the following:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
@@ -598,16 +532,13 @@ true</td>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span>
 <span>  <span class="st">"dbeta_max"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>, <span class="st">"step_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
-<span>  <span class="st">"thres_step_max"</span> <span class="op">=</span> <span class="fl">100.0</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"ties"</span> <span class="op">=</span> <span class="st">"breslow"</span>, <span class="st">"double_step"</span> <span class="op">=</span> <span class="fl">1</span></span>
+<span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>In this example, no parameters are held constant, 100 iterations with
-5 half-steps are used, a regression is performed with matrix step
-solutions, and Breslow’s method for tied event times is used. There are
-no errors for unused control parameters being used, they will simply be
-ignored. Every commonly required control parameter has a default value
-which is automatically used if not declared. This includes an optional
-list of model control options. These are used for nonstandard model
-options not covered in this vignette.</p>
+<p>In this example, no parameters are held constant and 100 iterations
+with 5 half-steps are used. There are no errors for unused control
+parameters being used, they will simply be ignored. Every commonly
+required control parameter has a default value which is automatically
+used if not declared.</p>
 </div>
 <div class="section level2">
 <h2 id="running-the-regression-and-output">Running the Regression and Output<a class="anchor" aria-label="anchor" href="#running-the-regression-and-output"></a>
@@ -623,7 +554,8 @@ as follows:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># assuming the table of covariates is stored in a data.table "df"</span></span>
 <span></span>
-<span><span class="va">model_cox</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Starting_Age</span>, <span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">b</span>, <span class="va">c</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">model_cox</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Starting_Age</span>, <span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">linear</span><span class="op">(</span><span class="va">b</span>, <span class="va">c</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model_cox</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
@@ -726,18 +658,16 @@ magnitude</td>
 </tr>
 </tbody>
 </table>
-<p>For both cases, the regressions did not converge. Given that the
-examples were arbitrary this is not unexpected. The Cox PH ran out of
-iterations and did not decrease the step limit, so if it were restarted
-at the new optimal guess it would be expected to continue converging.
-The Poisson model regression exited due to the step limit being below
-the threshold, which means that it hit some local optimum. To find a
-better solution the user would likely have to either change the model
-equation or provide a new starting guess. This is an example of how to
-interpret the results of a Colossus run.</p>
-<p>There are additional variants of these functions which will be
-described outside of this section. They return a similar list of
-results.</p>
+<p>In this case, the poisson regression did not converge. Given that the
+examples were arbitrary this is not unexpected. The Poisson model
+regression exited due to the step limit being below the threshold, which
+means that the score was still changing significantly even at low step
+sizes. To find a better solution the user would likely have to either
+change the model equation or provide a new starting guess with a lower
+step size limit. This is an example of how to interpret the results of a
+Colossus run.</p>
+<p>There are additional variants of these functions which are described
+in greater detail in the other vignettes.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -1,6 +1,7 @@
 # Functions for Plotting and Analysis
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(survival)
@@ -33,9 +34,12 @@ df$UserID <- seq_len(nrow(df))
 df$status <- df$status - 1
 df$sex <- df$sex - 1
 
-control <- list(ncore = 2)
+control <- list(ncore = 1)
 a_n <- c(0.01701289, -0.51256478)
-coxres <- CoxRun(Cox(time, status) ~ loglinear(age, sex, 0), df, control = control, a_n = a_n)
+coxres <- CoxRun(Cox(time, status) ~ loglinear(age, sex, 0),
+  df,
+  control = control, a_n = a_n
+)
 ```
 
 ## Survival Function Approximation

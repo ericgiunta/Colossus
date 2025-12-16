@@ -1,6 +1,7 @@
 # Time Dependent Covariate Use
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(survival)
@@ -110,8 +111,8 @@ Monotonic Step Function Applied
 $$\begin{array}{r}
 {Y(x) = \begin{cases}
 0 & (x < 0) \\
-1 & (x \geq 0) \\
-2 & (x \geq 6) \\
+1 & (6 > x \geq 0) \\
+2 & (12 > x \geq 6) \\
 3 & (x \geq 12)
 \end{cases}} \\
 
@@ -137,8 +138,8 @@ Step Function Applied
 $$\begin{array}{r}
 {Y(x) = \begin{cases}
 1 & (x < 0) \\
-2 & (x \geq 0) \\
-3 & (x \geq 6) \\
+2 & (6 > x \geq 0) \\
+3 & (12 > x \geq 6) \\
 2 & (x \geq 12)
 \end{cases}} \\
 

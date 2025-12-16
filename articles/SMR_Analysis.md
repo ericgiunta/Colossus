@@ -1,6 +1,7 @@
 # SMR Analysis
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(survival)
@@ -73,7 +74,9 @@ control <- list(
   "ncores" = 1, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-9,
   "deriv_epsilon" = 1e-9, "verbose" = 2
 )
-e <- PoisRun(Poisson(time, status) ~ linear(erate), cancer, a_n = a_n, control = control)
+e <- PoisRun(Poisson(time, status) ~ linear(erate), cancer,
+  a_n = a_n, control = control
+)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results
@@ -91,18 +94,21 @@ print(e)
 ```
 
 In this case, we found the SMR to be 0.474, analysis of the confidence
-interval (either Wald or Likelihood-based) could be performed to check
-if the results are statistically significant. Suppose we wanted to take
-the analysis a step further and investigate the effect of difference
-covariates. The SMR equation can be adjusted to either an additive or
-multiplicative effect, similar to any other Poisson regression model.
-Let us assume we are interested in the effects of biological sex. We can
-add another element to our model and rerun the regression.
+interval (Likelihood-based) could be performed to check if the results
+are statistically significant. Suppose we wanted to take the analysis a
+step further and investigate the effect of difference covariates. The
+SMR equation can be adjusted to either an additive or multiplicative
+effect, similar to any other Poisson regression model. Let us assume we
+are interested in the effects of biological sex. We can add another
+element to our model and rerun the regression.
 
 ``` r
 a_n <- c(1, 1)
 
-e <- PoisRun(Poisson(time, status) ~ linear(erate, 0) + linear(sex, 1), cancer, a_n = a_n, control = control)
+e <- PoisRun(Poisson(time, status) ~ linear(erate, 0) + linear(sex, 1),
+  cancer,
+  a_n = a_n, control = control
+)
 print(e)
 #> |-------------------------------------------------------------------|
 #> Final Results

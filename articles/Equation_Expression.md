@@ -1,6 +1,7 @@
 # Unified Equation Representation
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 ```
@@ -24,44 +25,46 @@ method to combine terms is added as a separate item (multiplicative,
 additive, etc.).
 
 $$\begin{array}{r}
-\text{Surv(interval, event) ~ name + ... + factor(name)} \\
-\text{’Survival(interval, event) ~ subterm(name, factor(name), term\_number) + ... + term\_model()’}
+{{\text{Surv(interval, event)}\mspace{6mu}} \sim \text{name + ... + factor(name)}} \\
+{{\text{’Survival(interval, event)}\mspace{6mu}} \sim {\mspace{6mu}\text{subterm(name, factor(name), term\_number) + ... + term\_model()’}}}
 \end{array}$$
 
 Based on the number of entries, the format of the time interval is
-assumed. Cox models used an entry, exit, and event time. These can be
-either named ‘start’, ‘tend’, and ‘event’ or included in order. If none
-are named, a left truncated interval is assumed. A stratified cox model
-includes the named entry ‘strata’ or the right-most entry is assumed to
-be the stratification column. A Fine-Gray model adds a weighting column
-to the standard Cox interval representation, assumed to be an entry
-named ‘weight’ or the right-most entry. In total, the assumed order is:
-entry time, exit time, strata column, and weighting column.
+assumed. Cox models use an entry time, an exit time, and an event
+status. These can be either named ‘start’, ‘tend’, and ‘event’ or
+included in order. If none are named, a left truncated interval is
+assumed. A stratified cox model includes the named entry ‘strata’ or the
+right-most entry is assumed to be the stratification column. A Fine-Gray
+model adds a weighting column to the standard Cox interval
+representation, assumed to be an entry named ‘weight’ or the right-most
+entry. In total, the assumed order is: entry time, exit time, event
+status, strata column, and weighting column.
 
 $$\begin{array}{r}
-\text{’Cox(tstart, tend, event) ~ ...’} \\
-\text{’Cox\_Strata(tstart, tend, event, strata) ~ ...’} \\
-\text{’FineGray(tstart, tend, event, weight) ~ ...’} \\
-\text{’FineGray\_Strata(tstart, tend, event, strata, weight) ~ ...’}
+{{\text{’Cox(tstart, tend, event)}\mspace{6mu}} \sim {\mspace{6mu}\text{...’}}} \\
+{{\text{’Cox\_Strata(tstart, tend, event, strata)}\mspace{6mu}} \sim {\mspace{6mu}\text{...’}}} \\
+{{\text{’FineGray(tstart, tend, event, weight)}\mspace{6mu}} \sim {\mspace{6mu}\text{...’}}} \\
+{{\text{’FineGray\_Strata(tstart, tend, event, strata, weight)}\mspace{6mu}} \sim {\mspace{6mu}\text{...’}}}
 \end{array}$$
 
-Poisson models use a measure of duration (named ‘pyr’), the event column
-(named ‘event’), and any strata columns. The assumed order is ‘pyr’,
-‘event’, and the strata columns listed sequentially. The duration and
-event columns can be named, but the naming of the strata columns is
+Poisson models use a measure of duration (named ‘pyr’), the number of
+events (named ‘event’), and any strata columns. The assumed order is
+‘pyr’, ‘event’, and the strata columns listed sequentially. The duration
+and event columns can be named, but the naming of the strata columns is
 currently not supported.
 
 $$\begin{array}{r}
-\text{’Pois(pyr, event) ~ ...’} \\
-\text{’Pois\_Strata(pyr, event, strata\_0) ~ ...’} \\
-\text{’Pois\_Strata(pyr, event, strata\_0, strata\_1, ...) ~ ...’}
+{{\text{’Pois(pyr, event)}\mspace{6mu}} \sim {\mspace{6mu}\text{...’}}} \\
+{{\text{’Pois\_Strata(pyr, event, strata\_0)}\mspace{6mu}} \sim {\mspace{6mu}\text{...’}}} \\
+{{\text{’Pois\_Strata(pyr, event, strata\_0, strata\_1, ...)}\mspace{6mu}} \sim {\mspace{6mu}\text{...’}}}
 \end{array}$$
 
 The right hand side adds elements to subterms. Each subterm should have
 the included columns, and optionally the term number. Subterms are
-assumed to be in term 0 is not provided, and the model is assumed to be
-multiplicative. The factor option automatically removes the first level
-as a reference.
+assumed to be in term 0 if a term number is not provided, and the model
+is assumed to be multiplicative excess. The factor option automatically
+removes the first level as a reference. Note that unused levels can be
+listed first to use all levels.
 
 The following expressions are equivalent.
 
@@ -74,70 +77,18 @@ tstart <- "t0"
 tend <- "t1"
 event <- "lung"
 
-Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) + linear(dose2, 1) + multiplicative - excess()
-Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1) + linear(dose2, 1)
+Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) +
+  linear(dose2, 1) + ME()
+Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1) +
+  linear(dose2, 1)
 
 df <- data.table(
   "dose0" = 1:4, "dose1" = 2:5, "dose2" = 3:6,
   "t0" = c(0, 0, 1, 0), "t1" = 5:8, "lung" = c(1, 0, 0, 1)
 )
-get_form(Model_Eq, df)
-#> $model
-#> $start_age
-#> [1] "t0"
-#> 
-#> $end_age
-#> [1] "t1"
-#> 
-#> $event
-#> [1] "lung"
-#> 
-#> $strata
-#> [1] "NONE"
-#> 
-#> $weight
-#> [1] "NONE"
-#> 
-#> $null
-#> [1] FALSE
-#> 
-#> $term_n
-#> [1] 0 0 1
-#> 
-#> $tform
-#> [1] "loglin" "loglin" "lin"   
-#> 
-#> $names
-#> [1] "dose0" "dose1" "dose2"
-#> 
-#> $a_n
-#> [1] 0.01 0.01 0.01
-#> 
-#> $keep_constant
-#> [1] 0 0 0
-#> 
-#> $modelform
-#> [1] "ME"
-#> 
-#> $gmix_term
-#> [1] 1 1
-#> 
-#> $gmix_theta
-#> [1] 0
-#> 
-#> $expres_calls
-#> list()
-#> 
-#> attr(,"class")
-#> [1] "coxmodel"
-#> 
-#> $data
-#>    dose0 dose1 dose2    t0    t1  lung
-#>    <int> <int> <int> <num> <int> <num>
-#> 1:     1     2     3     0     5     1
-#> 2:     2     3     4     0     6     0
-#> 3:     3     4     5     1     7     0
-#> 4:     4     5     6     0     8     1
+res <- get_form(Model_Eq, df, nthreads = 1)
+formula <- res$model
+new_data <- res$data
 ```
 
 The following tables cover the subterms and term models that are
@@ -162,7 +113,7 @@ aliases that all refer to the same subterm or model formula.
 |:-------------------------------------------:|:-------------------------------------------------------------------------:|
 |                    plin                     |                    “plin”, “plinear”, “product-linear”                    |
 |                     lin                     |                              “lin”, “linear”                              |
-|                   loglin                    |                    “loglin”, “loglinear”, “log-linear”                    |
+|                   loglin                    |        “loglin”, “loglinear”, “log-linear” , “exponential”, “exp”         |
 |           loglin_slope/loglin_top           |            “loglin-dose”, “loglinear-dose”, “log-linear-dose”             |
 |              lin_slope/lin_top              |               “lin-dose”, “linear-dose”, “linear-piecewise”               |
 |                 quad_slope                  |            “quadratic”, “quad”, “quad-dose”, “quadratic-dose”             |
@@ -170,12 +121,13 @@ aliases that all refer to the same subterm or model formula.
 |         lin_quad_slope/lin_quad_int         |  “lin-quad-dose”, “linear-quadratic-dose”, “linear-quadratic-piecewise”   |
 | lin_exp_slope/lin_exp_int/lin_exp_exp_slope | “lin-exp-dose”, “linear-exponential-dose”, “linear-exponential-piecewise” |
 
-| Term Type |                  Equivalent Aliases                  |
-|:---------:|:----------------------------------------------------:|
-|     M     | “m”, “me”, “multiplicative”, “multiplicative-excess” |
-|     A     |                   “a”, “additive”                    |
-|    PA     |               “pa”, “product-additive”               |
-|    PAE    |           “pae”, “product-additive-excess”           |
-|   GMIX    |              “gmix”,“geometric-mixture”              |
-|  GMIX-R   |        “gmix-r”,“relative-geometric-mixture”         |
-|  GMIX-E   |         “gmix-e”,“excess-geometric-mixture”          |
+|                   Term Type                   |          Equivalent Aliases           |
+|:---------------------------------------------:|:-------------------------------------:|
+|                Multiplicative                 |         “m”, “multiplicative”         |
+|             Multiplicative Excess             |     “me”, “multiplicative-excess”     |
+|                   Additive                    |            “a”, “additive”            |
+|               Product Additive                |       “pa”, “product-additive”        |
+|            Product Additive Excess            |   “pae”, “product-additive-excess”    |
+|            Geometric Mixture Model            |      “gmix”,“geometric-mixture”       |
+| Geometric Mixture Model, relative error terms | “gmix-r”,“relative-geometric-mixture” |
+|  Geometric Mixture Model, excess error terms  |  “gmix-e”,“excess-geometric-mixture”  |

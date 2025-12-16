@@ -6,7 +6,7 @@ data.table, to fully describe the model for a joint Poisson model.
 ## Usage
 
 ``` r
-get_form_joint(formula_list, df)
+get_form_joint(formula_list, df, nthreads = as.numeric(detectCores())/2)
 ```
 
 ## Arguments
@@ -22,6 +22,11 @@ get_form_joint(formula_list, df)
 - df:
 
   a data.table containing the columns of interest
+
+- nthreads:
+
+  number of threads to use, do not use more threads than available on
+  your machine
 
 ## Value
 

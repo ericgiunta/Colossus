@@ -81,7 +81,8 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"OMP_THREAD_LIMIT"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -127,19 +128,20 @@ includes the lower bound. The interval includes the upper bound if “]”
 is used, and does not otherwise. So the interval [2,5) is equivalent to
 “2/5” and the interval [5,8] is equivalent to “5]8”. This method uses
 each triplet sequentially, so the categories will cover every value that
-falls between the first and last number listed. The list notation is
-very similar. There are 2 values required in the list and 1 optional
-value. The list has to have vectors titled lower and upper, which are
-the lower and upper bounds for each interval. This method can include
-gaps. Similarly to the string version, the lower bound is always
-included and the upper bound is included if the upper bound entry
-includes “]”. The list option allows the categories to be labeled
-instead of being automatically numbered. A third list titled name can be
-provided to label each category. Suppose we want to break the apple
-column into the intervals: [0, 3), [3, 5), [5,7] and break our oranges
-column into the intervals: [-1,3), [3,6), [6,10) with the labels: few,
-good, and excessive. That would look like the following code. This
-splits each category into 3 levels and in total 9 combinations.</p>
+falls between the first and last number listed.</p>
+<p>The list notation is very similar. There are 2 values required in the
+list and 1 optional value. The list has to have vectors titled lower and
+upper, which are the lower and upper bounds for each interval. This
+method can include gaps. Similarly to the string version, the lower
+bound is always included and the upper bound is included if the upper
+bound entry includes “]”. The list option allows the categories to be
+labeled instead of being automatically numbered. A third list titled
+name can be provided to label each category.</p>
+<p>Suppose we want to break the apple column into the intervals: [0, 3),
+[3, 5), [5,7] and break our oranges column into the intervals: [-1,3),
+[3,6), [6,10) with the labels: few, good, and excessive. That would look
+like the following code. This splits each category into 3 levels and in
+total 9 combinations.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">apple_category</span> <span class="op">&lt;-</span> <span class="st">"0/3/5]7"</span></span>
 <span><span class="va">orange_category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>

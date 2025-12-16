@@ -1,6 +1,7 @@
 # Matched Case-Control Logistic Regression
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(survival)
@@ -154,7 +155,7 @@ be summarized similarly to other regression function outputs.
 model <- CaseControl_Strata(status, cell) ~ loglinear(karno50, trt)
 
 
-control <- list(verbose = 2, maxiters = c(25, 25), ncores = 2)
+control <- list(verbose = 2, maxiters = c(25, 25), ncores = 1)
 e0 <- CaseControlRun(model, df, control = control, conditional_threshold = 100)
 e1 <- CaseControlRun(model, df, control = control, conditional_threshold = 40)
 e2 <- CaseControlRun(model, df, control = control, conditional_threshold = 0)
@@ -192,23 +193,23 @@ print(e1)
 #> Iterations run: 3
 #> maximum step size: 3.052e-05, maximum first derivative: 1.463e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.013 seconds
+#> Run finished in 0.012 seconds
 #> |-------------------------------------------------------------------|
 print(e2)
 #> |-------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
-#> 1:   karno50  loglin          -0.0449         0.0163        0.00602
-#> 2:       trt  loglin          -0.3774         0.5568        0.49798
+#> 1:   karno50  loglin             0.01         0.0172          0.561
+#> 2:       trt  loglin             0.01         0.5164          0.985
 #> 
 #> Matched Case-Control Model Used
 #> Model stratified by 'cell'
-#> Deviance: 59.723
+#> Deviance: 67.073
 #> 4 out of 4 matched sets used Unconditional Likelihood
-#> Iterations run: 10
-#> maximum step size: 7.448e-06, maximum first derivative: 1.358e-04
+#> Iterations run: 3
+#> maximum step size: 3.052e-05, maximum first derivative: 1.498e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.012 seconds
+#> Run finished in 0.013 seconds
 #> |-------------------------------------------------------------------|
 ```

@@ -212,7 +212,9 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.6" id="colossus-146">Colossus 1.4.6<a class="anchor" aria-label="anchor" href="#colossus-146"></a></h2>
-<ul><li>Fixed bug in second derivative risk calculations, wrong correction to multi-term risk values</li>
+<ul><li>Fixed bug in second derivative risk calculations, wrong correction to multi-term risk values.</li>
+<li>Improved results printing. Basic regression results only print term number column when multiple terms used. Likelihood boundary results now print the limit and score when negative limit hit.</li>
+<li>ncores option used for Colossus calculations now also applied to data.table operations. Previous number reset after calculations, may need to be manually reset if the regression hits an error.</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

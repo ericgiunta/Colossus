@@ -1,6 +1,7 @@
 # Alternative Regression Options
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 ```
@@ -52,17 +53,17 @@ similar strata AND time. This is done to remove the influence of the
 stratification variables from the calculations.
 
 In code, this is done by adding an additional parameter for the
-stratification column and using a different function to call the
-regression. Multiple strata columns can be provided by including a
-vector of columns.
+stratification column and using a different response term in the model.
+Multiple strata columns can be provided by including a vector of
+columns.
 
 ``` r
 Strat_Col <- "s0"
-e <- CoxRun_Strata(Cox(time1, time2, event, s0) ~ loglinear(dose), df,
+e <- CoxRun(Cox_Strata(time1, time2, event, s0) ~ loglinear(dose), df,
   a_n = a_n, control = control
 )
 Strat_Cols <- c("s0", "s1", "s2")
-e <- CoxRun_Strata(Cox(time1, time2, event, c(s0, s1, s2)) ~ loglinear(dose), df,
+e <- CoxRun(Cox_Strata(time1, time2, event, c(s0, s1, s2)) ~ loglinear(dose), df,
   a_n = a_n, control = control
 )
 ```
@@ -95,8 +96,8 @@ Purely linear models cannot be used with stratification currently for
 this reason.
 
 In code, this is done by adding in a list of stratification columns and
-using a different function to call the regression. Colossus combines the
-list of stratification columns into a single interaction, so it does not
+using a different response term in the model. Colossus combines the list
+of stratification columns into a single interaction, so it does not
 matter if the user provides a list or combines them themselves.
 
 ``` r
@@ -131,7 +132,7 @@ e <- CoxRun(Cox(time1, time2, event) ~ loglinear(dose), df,
 In Cox PH there is an assumption that every individual is recorded until
 they have an event or they are naturally censored. Censoring is assumed
 to be statistically independent with regard to the event being studied.
-These assumptions are violated when there is a competing event
+These assumptions are commonly violated when there is a competing event
 occurring. In sensitivity analysis, two extremes are generally tested.
 Either every person with a competing event is treated as having the
 event of interest instead, or they are assumed to never experience the
@@ -191,8 +192,8 @@ model a joint analysis method (Cologne, 2019) is available in Colossus.
 
 Suppose one has a table of person-years, a covariate, and counts for two
 events. Assume we are fitting the event rate ($\lambda$) for each event
-and have reason to believe that the background rate ($\beta$) is the
-same for each event.
+($y,z$) and have reason to believe that the background rate ($\beta$) is
+the same for each event.
 
 |  Time   |    a    |    y    |    z    |
 |:-------:|:-------:|:-------:|:-------:|
@@ -244,7 +245,7 @@ events <- c("e0", "e1")
 Colossus generally accepts a formula to describe the elements of the
 model. For a joint analysis, Colossus instead expects a list of formula.
 The formula are expect to cover the model elements specific to each
-event, and potentially a model for shared elements. Colossus expects
+event, and potentially a model for shared elements. Colossus expects the
 name of the shared model to be “shared”. The left hand side of the
 shared model is not used.
 
@@ -259,7 +260,7 @@ The function returns a list containing the combined table and model
 object.
 
 ``` r
-get_form_joint(formula_list, df)
+get_form_joint(formula_list, df, nthreads = 1)
 #> $model
 #> $person_year
 #> [1] "pyr"
@@ -324,7 +325,7 @@ the Poisson model regression function.
 ``` r
 control <- list(
   "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-6,
-  "deriv_epsilon" = 1e-6, "verbose" = 2, "ncores" = 2
+  "deriv_epsilon" = 1e-6, "verbose" = 2
 )
 e <- PoisRunJoint(formula_list, df, control = control)
 print(e)
@@ -341,6 +342,6 @@ print(e)
 #> Iterations run: 10
 #> maximum step size: 4.775e-06, maximum first derivative: 1.595e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.014 seconds
+#> Run finished in 0.016 seconds
 #> |-------------------------------------------------------------------|
 ```

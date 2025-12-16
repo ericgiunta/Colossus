@@ -1,6 +1,7 @@
 # Confidence Interval Selection
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(survival)
@@ -71,10 +72,9 @@ Newton-Raphson algorithm, which may solve for local solutions instead of
 the global solution. Similar to the general Colossus regressions,
 limitations can be placed on step size to limit these effects. However,
 there is no analog to selecting multiple starting locations. This is the
-basis for ongoing work to code in an alternative that can more directly
-solve for the true optimum. Methods have been implemented to optimize
-multiple points and apply a bisection method instead of a
-derivative-based method.
+basis for alternatives provided that can more directly solve for the
+true optimum. Methods have been implemented to optimize multiple points
+and apply a bisection method instead of a derivative-based method.
 
 This method directly solves the confidence interval, which for linear
 cases may be non-symmetric or even not have upper or lower bounds.
@@ -87,7 +87,7 @@ threshold value, then the interval would not have a lower bound.
 For the sake of comparison, we will consider an analysis of the
 capacitor data available in the survival package. Consider the two
 regressions, one fully exponential and one with a linear effect. Both
-regressions converge with nearly identical scores.
+regressions converge with similar scores.
 
 ``` r
 data(reliability, package = "survival")
@@ -102,7 +102,9 @@ control <- list("Ncores" = 1, "maxiter" = 100, "verbose" = 2)
 
 a_n <- c(0.01, 0.01)
 
-e1 <- CoxRun(Cox(time, status) ~ loglinear(temperature, voltage, 0), df, a_n = a_n, control = control)
+e1 <- CoxRun(Cox(time, status) ~ loglinear(temperature, voltage, 0), df,
+  a_n = a_n, control = control
+)
 print(e1, 5)
 #> |-------------------------------------------------------------------|
 #> Final Results
@@ -116,10 +118,13 @@ print(e1, 5)
 #> Iterations run: 8
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
-#> Run finished in 0.02527 seconds
+#> Run finished in 0.02509 seconds
 #> |-------------------------------------------------------------------|
 
-e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0), df, a_n = a_n, control = control)
+e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0),
+  df,
+  a_n = a_n, control = control
+)
 print(e2, 5)
 #> |-------------------------------------------------------------------|
 #> Final Results
@@ -133,23 +138,24 @@ print(e2, 5)
 #> Iterations run: 13
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
-#> Run finished in 0.01509 seconds
+#> Run finished in 0.01495 seconds
 #> |-------------------------------------------------------------------|
 ```
 
 Next, suppose we were interested in the confidence intervals. Suppose we
 want 95% confidence intervals for both the Wald and likelihood-based
-boundaries and for both parameters in each model. Let us start with the
-fully exponential model. The Wald boundary is estimated using the
-central estimates and standard deviations. The Likelihood boundary is
-solved using the “log_bound” option under the model control list. The
-parameter number needs to be provided (indexed starting at zero) and an
-alpha level needs to be provided. Overall, the likelihood boundaries
-were all solved with scores within a narrow margin of the threshold.
-However, the boundaries are not the same. The boundaries for temperature
-are (-0.017, 1.537) and (-0.01, 1.560), and the boundaries for voltage
-are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off on a
-scale of less than 0.1.
+boundaries and for both parameters in each model.
+
+Let us start with the fully exponential model. The Wald boundary is
+estimated using the central estimates and standard deviations. The
+Likelihood boundary is solved using the LikelihoodBound function applied
+to the result. The parameter number needs to be provided (indexed
+starting at one) and an alpha level needs to be provided.
+
+Overall, the Wald and likelihood-based boundaries are not the same. The
+boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560), and
+the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The
+two boundaries are off by less than 0.1.
 
 ``` r
 names <- c("temperature", "voltage")
@@ -170,9 +176,6 @@ curve_control <- list(
   "para_number" = 1, "manual" = TRUE
 )
 e <- LikelihoodBound(e1, df, curve_control, control = control)
-#> Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =
-#> event0, : Warning: Basic loglinear model used, but multiplicative model not
-#> used. Modelform corrected
 print("|------------------- Wald Estimate -------------------|")
 #> [1] "|------------------- Wald Estimate -------------------|"
 print(ci_1)
@@ -187,7 +190,7 @@ print(e, 5)
 #> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
 #> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00781 seconds
+#> Run finished in 0.00704 seconds
 #> |-------------------------------------------------------------------|
 
 curve_control <- list(
@@ -196,9 +199,6 @@ curve_control <- list(
   "para_number" = 2, "manual" = TRUE
 )
 e <- LikelihoodBound(e1, df, curve_control, control = control)
-#> Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =
-#> event0, : Warning: Basic loglinear model used, but multiplicative model not
-#> used. Modelform corrected
 print("|------------------- Likelihood Bound Estimate -------------------|")
 #> [1] "|------------------- Likelihood Bound Estimate -------------------|"
 print(ci_2)
@@ -213,16 +213,15 @@ print(e, 5)
 #> Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 1.9884
 #> Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00751 seconds
+#> Run finished in 0.0073 seconds
 #> |-------------------------------------------------------------------|
 ```
 
 Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
-(-0.523, 2.800) and (-0.010, 3.758), and the boundaries for voltage are
-(0.800, 3.177) and (0.841, 3.242). The estimates for the voltage
-boundary are the same, but the estimates for the temperature boundary
-are much further off.
+(0.105, 1.796) and (0.129, 1.840), and the boundaries for voltage are
+(-3.32, 20.95) and (1.97, 34.472). The estimates for the temperature and
+voltage boundaries are much further off.
 
 ``` r
 ci_1 <- c(
@@ -240,9 +239,6 @@ curve_control <- list(
   "para_number" = 1, "manual" = TRUE
 )
 e <- LikelihoodBound(e2, df, curve_control, control = control)
-#> Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =
-#> event0, : Warning: Linear ERR model used, but multiplicative model not used.
-#> Modelform corrected
 print("|------------------- Wald Estimate -------------------|")
 #> [1] "|------------------- Wald Estimate -------------------|"
 print(ci_1)
@@ -257,7 +253,7 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00789 seconds
+#> Run finished in 0.00756 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
@@ -267,9 +263,6 @@ curve_control <- list(
   "para_number" = 2, "manual" = TRUE
 )
 e <- LikelihoodBound(e2, df, curve_control, control = control)
-#> Warning in RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 =
-#> event0, : Warning: Linear ERR model used, but multiplicative model not used.
-#> Modelform corrected
 print("|------------------- Wald Estimate -------------------|")
 #> [1] "|------------------- Wald Estimate -------------------|"
 print(ci_2)
@@ -284,7 +277,7 @@ print(e, 5)
 #> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
 #> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00839 seconds
+#> Run finished in 0.00833 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -308,7 +301,7 @@ a_n <- c(-1.493177, 5.020007, 1.438377)
 model <- Cox(entry, exit, event) ~ loglinear(dose0, dose1, 0) + linear(dose0, 1)
 #
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiters" = c(100, 100), "halfmax" = 5,
+  "ncores" = 1, "lr" = 0.75, "maxiters" = c(100, 100), "halfmax" = 5,
   "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0,
   "thres_step_max" = 100.0, "verbose" = 2,
   "ties" = "breslow"
@@ -329,7 +322,7 @@ small range (-0.6 and the global solution at 1.4). The algorithms used
 for solving the likelihood boundary, similar to the standard regression
 optimizing algorithm, can be trapped by local optimums. This means that
 if the algorithm at any point has to cross over the local optimum, it
-can be trapped. The two optimums have scores close enough that a 95%
+can get stuck. The two optimums have scores close enough that a 95%
 confidence interval has a lower boundary below -0.5, but a 50%
 confidence interval has a lower bound between -0.5 and 1.4. This meant
 that the algorithm converged to the 50% confidence interval boundary,
@@ -354,18 +347,40 @@ g
 
 ### Likelihood Boundary Algorithm Alternative
 
-As an alternative to the likelihood algorithm, a direct curve-solving
-method is implemented. The bisect option solves the boundary values by
-iteratively optimizing points and using the bisection method. Each step
-is approximately as fast as running a single regression. The same
-model_control options are used to select which parameter is selected and
-what alpha to use, but with an option “step_size” which is the default
-search window width used. The bisection method functions by (1)
-selecting an interval, (2) optimizing at the upper, lower, and midpoint
-of the interval, and (3) checking if the goal likelihood is crossed. If
-at least one of the interval points is on each side of the goal then the
-interval is narrowed, and if not then the interval is shifted away from
-the optimum.
+There are three functions available for calculating likelihood-based
+boundaries. The first method is the standard Venzon-Moolgavkar
+algorithm. This method attempts to both optimize the model and guide the
+desired parameter to the boundary value. This method is the fastest, but
+most susceptible to local extrema. Using this algorithm depends on the
+initial step not being close to a local extrema, so the initial step can
+be scaled up or down.
+
+The second method is a modification of the Venzon-Moolgavkar algorithm.
+In the second method, the initial step is split into multiple guesses,
+and each guess is optimized independently. The Venzon-Moolgavkar
+algorithm is then continued at the closest guess that did not exceed the
+target likelihood. In theory, this method makes it more likely for the
+algorithm to start at an appropriate point, so it is slower but slightly
+less susceptible to local extrema. However the final portion of the
+algorithm is still based on derivatives, so it is still susceptible to
+local extrema.
+
+The third method is an iterative bisection method. In this algorithm,
+the desired parameter is fixed, and the model is optimized at the
+endpoints of an interval until an interval is located which contains the
+goal likelihood. Then the interval is split in half until the interval
+width is within a user-set limit. This method takes advantage of the
+fact that the likelihood curve is continuous and we know that the
+optimum point must be above the goal. The algorithm is split into two
+steps: optimizing the model at fixed points and determining if the
+interval contains the goal. The second step does not depend on the
+likelihood derivatives, so it is not prone to getting stuck in local
+extrema. However, the interval width must be small enough not to step
+over the solution. Given a small enough interval width, every
+optimization is likely to converge and the solution is unlikely to be
+skipped. This method requires the model to be optimized repeatedly, so
+it is expected to take the longest. However, the bisection method is the
+least likely to have issues converging.
 
 ``` r
 fname <- "base_example.csv"
@@ -376,7 +391,7 @@ keep_constant <- c(0, 0, 0)
 a_n <- c(-1.493177, 5.020007, 1.438377)
 #
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5,
+  "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5,
   "verbose" = 2
 )
 coxres <- CoxRun(model, df, a_n = a_n, control = control)
@@ -384,37 +399,6 @@ coxres <- CoxRun(model, df, a_n = a_n, control = control)
 curve_control <- list("maxstep" = 20, "alpha" = 0.005, "para_number" = 3, "step_size" = 0.5, "bisect" = TRUE)
 e <- LikelihoodBound(coxres, df, curve_control, control = control)
 ```
-
-There are three functions available for calculating likelihood-based
-boundaries. The first method is the standard Venzon-Moolgavkar
-algorithm. This method attempts to both optimize the model and guide the
-desired parameter to the boundary value. This method is the fastest, but
-most susceptible to local extrema. Using this algorithm depends on the
-initial step not being close to a local extrema, so the initial step can
-be scaled up or down. The second method is a modification of the
-Venzon-Moolgavkar algorithm. In the second method, the initial step is
-split into multiple guesses, and each guess is optimized independently.
-The Venzon-Moolgavkar algorithm is then continued at the closest guess
-that did not exceed the target likelihood. In theory, this method makes
-it more likely for the algorithm to start at an appropriate point, so it
-is slower but slightly less susceptible to local extrema. However the
-final portion of the algorithm is still based on derivatives, so it is
-still susceptible to local extrema. The third method is an iterative
-bisection method. In this algorithm, the desired parameter is fixed, and
-the model is optimized at the endpoints of an interval until an interval
-is located which contains the goal likelihood. Then the interval is
-split in half until the interval width is within a user-set limit. This
-method takes advantage of the fact that the likelihood curve is
-continuous and we know that the optimum point must be above the goal.
-The algorithm is split into two steps: optimizing the model at fixed
-points and determining if the interval contains the goal. The second
-step does not depend on the likelihood derivatives, so it is not prone
-to getting stuck in local extrema. However, the interval width must be
-small enough not to step over the solution. Given a small enough
-interval width, every optimization is likely to converge and the
-solution is unlikely to be skipped. This method requires the model to be
-optimized repeatedly, so it is expected to take the longest. However,
-the bisection method is the least likely to have issues converging.
 
 ## Expected Information Matrix Derivation
 

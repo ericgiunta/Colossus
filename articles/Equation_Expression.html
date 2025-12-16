@@ -81,7 +81,8 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"OMP_THREAD_LIMIT"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 <p>The underlying functions in Colossus specify a survival model using a
 series of vectors, which can be overly complicated at times. Colossus
@@ -101,48 +102,50 @@ Each subterm has a list of columns and a term number. Finally, the
 method to combine terms is added as a separate item (multiplicative,
 additive, etc.).</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">Surv(interval, event)   name + ... + factor(name)</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’Survival(interval, event)   subterm(name, factor(name), term_number) + ... + term_model()’</mtext></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">Surv(interval, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mtext mathvariant="normal">name + ... + factor(name)</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Survival(interval, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> subterm(name, factor(name), term_number) + ... + term_model()’</mtext></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \text{Surv(interval, event) ~ name + ... + factor(name)} \\
-    \text{'Survival(interval, event) ~ subterm(name, factor(name), term_number) + ... + term_model()'}
+    \text{Surv(interval, event) } \sim \text{name + ... + factor(name)} \\
+    \text{'Survival(interval, event) } \sim \text{ subterm(name, factor(name), term_number) + ... + term_model()'}
 \end{aligned}
 </annotation></semantics></math></p>
 <p>Based on the number of entries, the format of the time interval is
-assumed. Cox models used an entry, exit, and event time. These can be
-either named ‘start’, ‘tend’, and ‘event’ or included in order. If none
-are named, a left truncated interval is assumed. A stratified cox model
-includes the named entry ‘strata’ or the right-most entry is assumed to
-be the stratification column. A Fine-Gray model adds a weighting column
-to the standard Cox interval representation, assumed to be an entry
-named ‘weight’ or the right-most entry. In total, the assumed order is:
-entry time, exit time, strata column, and weighting column.</p>
+assumed. Cox models use an entry time, an exit time, and an event
+status. These can be either named ‘start’, ‘tend’, and ‘event’ or
+included in order. If none are named, a left truncated interval is
+assumed. A stratified cox model includes the named entry ‘strata’ or the
+right-most entry is assumed to be the stratification column. A Fine-Gray
+model adds a weighting column to the standard Cox interval
+representation, assumed to be an entry named ‘weight’ or the right-most
+entry. In total, the assumed order is: entry time, exit time, event
+status, strata column, and weighting column.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’Cox(tstart, tend, event)   ...’</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’Cox_Strata(tstart, tend, event, strata)   ...’</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’FineGray(tstart, tend, event, weight)   ...’</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’FineGray_Strata(tstart, tend, event, strata, weight)   ...’</mtext></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Cox(tstart, tend, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Cox_Strata(tstart, tend, event, strata) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’FineGray(tstart, tend, event, weight) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’FineGray_Strata(tstart, tend, event, strata, weight) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \text{'Cox(tstart, tend, event) ~ ...'} \\
-    \text{'Cox_Strata(tstart, tend, event, strata) ~ ...'} \\
-    \text{'FineGray(tstart, tend, event, weight) ~ ...'} \\
-    \text{'FineGray_Strata(tstart, tend, event, strata, weight) ~ ...'}
+    \text{'Cox(tstart, tend, event) } \sim \text{ ...'} \\
+    \text{'Cox_Strata(tstart, tend, event, strata) } \sim \text{ ...'} \\
+    \text{'FineGray(tstart, tend, event, weight) } \sim \text{ ...'} \\
+    \text{'FineGray_Strata(tstart, tend, event, strata, weight) } \sim \text{ ...'}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Poisson models use a measure of duration (named ‘pyr’), the event
-column (named ‘event’), and any strata columns. The assumed order is
+<p>Poisson models use a measure of duration (named ‘pyr’), the number of
+events (named ‘event’), and any strata columns. The assumed order is
 ‘pyr’, ‘event’, and the strata columns listed sequentially. The duration
 and event columns can be named, but the naming of the strata columns is
 currently not supported.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’Pois(pyr, event)   ...’</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’Pois_Strata(pyr, event, strata_0)   ...’</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mtext mathvariant="normal">’Pois_Strata(pyr, event, strata_0, strata_1, ...)   ...’</mtext></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Pois(pyr, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Pois_Strata(pyr, event, strata_0) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Pois_Strata(pyr, event, strata_0, strata_1, ...) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \text{'Pois(pyr, event) ~ ...'} \\
-    \text{'Pois_Strata(pyr, event, strata_0) ~ ...'} \\
-    \text{'Pois_Strata(pyr, event, strata_0, strata_1, ...) ~ ...'}
+    \text{'Pois(pyr, event) } \sim \text{ ...'} \\
+    \text{'Pois_Strata(pyr, event, strata_0) } \sim \text{ ...'} \\
+    \text{'Pois_Strata(pyr, event, strata_0, strata_1, ...) } \sim \text{ ...'}
 \end{aligned}
 </annotation></semantics></math></p>
 <p>The right hand side adds elements to subterms. Each subterm should
 have the included columns, and optionally the term number. Subterms are
-assumed to be in term 0 is not provided, and the model is assumed to be
-multiplicative. The factor option automatically removes the first level
-as a reference.</p>
+assumed to be in term 0 if a term number is not provided, and the model
+is assumed to be multiplicative excess. The factor option automatically
+removes the first level as a reference. Note that unused levels can be
+listed first to use all levels.</p>
 <p>The following expressions are equivalent.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
@@ -153,70 +156,18 @@ as a reference.</p>
 <span><span class="va">tend</span> <span class="op">&lt;-</span> <span class="st">"t1"</span></span>
 <span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"lung"</span></span>
 <span></span>
-<span><span class="va">Model_Eq</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">dose2</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="va">multiplicative</span> <span class="op">-</span> <span class="fu">excess</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">Model_Eq</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">dose2</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">Model_Eq</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">linear</span><span class="op">(</span><span class="va">dose2</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ME</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">Model_Eq</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">linear</span><span class="op">(</span><span class="va">dose2</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  <span class="st">"dose0"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="st">"dose1"</span> <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, <span class="st">"dose2"</span> <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">6</span>,</span>
 <span>  <span class="st">"t0"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="st">"t1"</span> <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">8</span>, <span class="st">"lung"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_form.html">get_form</a></span><span class="op">(</span><span class="va">Model_Eq</span>, <span class="va">df</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $model</span></span>
-<span><span class="co">#&gt; $start_age</span></span>
-<span><span class="co">#&gt; [1] "t0"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $end_age</span></span>
-<span><span class="co">#&gt; [1] "t1"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $event</span></span>
-<span><span class="co">#&gt; [1] "lung"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $strata</span></span>
-<span><span class="co">#&gt; [1] "NONE"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $weight</span></span>
-<span><span class="co">#&gt; [1] "NONE"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $null</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $term_n</span></span>
-<span><span class="co">#&gt; [1] 0 0 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tform</span></span>
-<span><span class="co">#&gt; [1] "loglin" "loglin" "lin"   </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $names</span></span>
-<span><span class="co">#&gt; [1] "dose0" "dose1" "dose2"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $a_n</span></span>
-<span><span class="co">#&gt; [1] 0.01 0.01 0.01</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $keep_constant</span></span>
-<span><span class="co">#&gt; [1] 0 0 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $modelform</span></span>
-<span><span class="co">#&gt; [1] "ME"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gmix_term</span></span>
-<span><span class="co">#&gt; [1] 1 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gmix_theta</span></span>
-<span><span class="co">#&gt; [1] 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $expres_calls</span></span>
-<span><span class="co">#&gt; list()</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "coxmodel"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $data</span></span>
-<span><span class="co">#&gt;    dose0 dose1 dose2    t0    t1  lung</span></span>
-<span><span class="co">#&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;num&gt; &lt;int&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1     2     3     0     5     1</span></span>
-<span><span class="co">#&gt; 2:     2     3     4     0     6     0</span></span>
-<span><span class="co">#&gt; 3:     3     4     5     1     7     0</span></span>
-<span><span class="co">#&gt; 4:     4     5     6     0     8     1</span></span></code></pre></div>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_form.html">get_form</a></span><span class="op">(</span><span class="va">Model_Eq</span>, <span class="va">df</span>, nthreads <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">model</span></span>
+<span><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">data</span></span></code></pre></div>
 <p>The following tables cover the subterms and term models that are
 currently implemented. Every option listed has multiple equivalent
 aliases that all refer to the same subterm or model formula.</p>
@@ -301,7 +252,8 @@ strata</td>
 </tr>
 <tr class="odd">
 <td align="center">loglin</td>
-<td align="center">“loglin”, “loglinear”, “log-linear”</td>
+<td align="center">“loglin”, “loglinear”, “log-linear” , “exponential”,
+“exp”</td>
 </tr>
 <tr class="even">
 <td align="center">loglin_slope/loglin_top</td>
@@ -334,38 +286,45 @@ strata</td>
 </tbody>
 </table>
 <table class="table">
+<colgroup>
+<col width="47%">
+<col width="52%">
+</colgroup>
 <thead><tr class="header">
 <th align="center">Term Type</th>
 <th align="center">Equivalent Aliases</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">M</td>
-<td align="center">“m”, “me”, “multiplicative”,
-“multiplicative-excess”</td>
+<td align="center">Multiplicative</td>
+<td align="center">“m”, “multiplicative”</td>
 </tr>
 <tr class="even">
-<td align="center">A</td>
+<td align="center">Multiplicative Excess</td>
+<td align="center">“me”, “multiplicative-excess”</td>
+</tr>
+<tr class="odd">
+<td align="center">Additive</td>
 <td align="center">“a”, “additive”</td>
 </tr>
-<tr class="odd">
-<td align="center">PA</td>
+<tr class="even">
+<td align="center">Product Additive</td>
 <td align="center">“pa”, “product-additive”</td>
 </tr>
-<tr class="even">
-<td align="center">PAE</td>
+<tr class="odd">
+<td align="center">Product Additive Excess</td>
 <td align="center">“pae”, “product-additive-excess”</td>
 </tr>
-<tr class="odd">
-<td align="center">GMIX</td>
+<tr class="even">
+<td align="center">Geometric Mixture Model</td>
 <td align="center">“gmix”,“geometric-mixture”</td>
 </tr>
-<tr class="even">
-<td align="center">GMIX-R</td>
+<tr class="odd">
+<td align="center">Geometric Mixture Model, relative error terms</td>
 <td align="center">“gmix-r”,“relative-geometric-mixture”</td>
 </tr>
-<tr class="odd">
-<td align="center">GMIX-E</td>
+<tr class="even">
+<td align="center">Geometric Mixture Model, excess error terms</td>
 <td align="center">“gmix-e”,“excess-geometric-mixture”</td>
 </tr>
 </tbody>

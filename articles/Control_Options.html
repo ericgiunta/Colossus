@@ -215,10 +215,29 @@ defaults to the number of unique values in the column or 2.</td>
 </tbody>
 </table>
 <p>The following options can be used by the poisson residual function to
-select difference types of residuals: | pearson | Boolean used by
-Residual.poisres to select calculating pearson residuals. Defaults to
-FALSE. | | deviance | Boolean used by Residual.poisres to select
-calculating deviance residuals. Defaults to FALSE. |</p>
+select difference types of residuals:</p>
+<table class="table">
+<colgroup>
+<col width="47%">
+<col width="52%">
+</colgroup>
+<thead><tr class="header">
+<th align="center">Option</th>
+<th align="center">Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">pearson</td>
+<td align="center">Boolean used by Residual.poisres to select
+calculating pearson residuals. Defaults to FALSE.</td>
+</tr>
+<tr class="even">
+<td align="center">deviance</td>
+<td align="center">Boolean used by Residual.poisres to select
+calculating deviance residuals. Defaults to FALSE.</td>
+</tr>
+</tbody>
+</table>
 <p>If a likelihood boundary is being calculated, there are several
 additional control options used:</p>
 <table class="table">
@@ -270,15 +289,15 @@ scope of the search if the initial quadratic assumption made by the
 Venzon-Moolgavkar algorithm is incorrect.</td>
 </tr>
 <tr class="odd">
-<td align="center">step_size</td>
-<td align="center">Double used by the Curve Search functions. Sets the
-initial interval length used. Defaults to 0.5</td>
-</tr>
-<tr class="even">
 <td align="center">bisect</td>
 <td align="center">Boolean to denote the bisection method of boundary
 solution. Solves for the optimal log-likelihood at both ends and middle
 of a searching interval, then updates the window until convergence.</td>
+</tr>
+<tr class="even">
+<td align="center">step_size</td>
+<td align="center">Double used by the bisection method. Sets the initial
+interval length used. Defaults to 0.5</td>
 </tr>
 </tbody>
 </table>

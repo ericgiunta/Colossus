@@ -81,7 +81,8 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"OMP_THREAD_LIMIT"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/" class="external-link">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -167,7 +168,8 @@ i.e. ‘subterm(column 1, column 2, …, term number)’. Factored columns are
 added by using ‘factor(column)’, the default level is assumed to be the
 first level.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model_ERR</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">age_entry</span>, <span class="va">age_exit</span>, <span class="va">nonCLL</span><span class="op">)</span> <span class="op">~</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">cumulative_dose</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">loglinear</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">SES_CAT</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">YOB_CAT</span><span class="op">)</span>, <span class="va">sexm</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model_ERR</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">age_entry</span>, <span class="va">age_exit</span>, <span class="va">nonCLL</span><span class="op">)</span> <span class="op">~</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">cumulative_dose</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">loglinear</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">SES_CAT</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">YOB_CAT</span><span class="op">)</span>, <span class="va">sexm</span><span class="op">)</span></span></code></pre></div>
 <p>Next, the script defines the control information. The “control”
 variable serves a similar purpose as the “FITOPT” option in Epicure.
 This control list specifies that two cores should be used to perform
@@ -176,7 +178,10 @@ iterations should stop if the step size is below 1e-9 or the first
 derivatives are all below 1e-9. The verbose options specifies that any
 errors or warnings should be printed to the console.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"der_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"der_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Finally, the regression is run and a list of the results is returned
 to a variable “e”. Regressions in Colossus return a list of results, a
 summary can be printed.</p>

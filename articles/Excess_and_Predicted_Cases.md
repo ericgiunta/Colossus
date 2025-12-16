@@ -1,6 +1,7 @@
 # Excess and Predicted Cases
 
 ``` r
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 ```
@@ -11,9 +12,9 @@ In the field of radiation epidemiology, a common question is “How many
 additional cancer cases occurred due to radiation exposures?”. This is
 often generalized to the question of how many cases are background cases
 and how many cases are excess cases. These are calculated by splitting a
-poisson model into a background term and an excess term. In Colossus,
-the background term is assumed to be the first term, and every other
-term is assumed to be causing excess cases. Colossus has a function,
+poisson model into a background term and excess terms. In Colossus, the
+background term is assumed to be the first term, and every other term is
+assumed to be causing excess cases. Colossus has a function,
 EventAssignment, which calculates the number of background/excess cases
 for both average predicted counts and true counts. Let us assume we have
 the following model for event rate:
