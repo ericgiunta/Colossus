@@ -539,11 +539,11 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
         for (int ijk = 0; ijk < totalnum; ijk++) {
             int tij = term_n[ijk];
             if (TTerm.col(tij).minCoeff() <= 0) {
-                dbeta[ijk] = dbeta[ijk] / 2.0;
+                dbeta[ijk] = dbeta[ijk] / 1.25;
             } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                dbeta[ijk] = dbeta[ijk] / 2.0;
+                dbeta[ijk] = dbeta[ijk] / 1.25;
             } else if (isnan(TTerm.col(tij).minCoeff())) {
-                dbeta[ijk] = dbeta[ijk] / 2.0;
+                dbeta[ijk] = dbeta[ijk] / 1.25;
             }
         }
         halves+=0.2;
@@ -725,6 +725,9 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
         } else {
             halves = 0;
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
+                if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
+                    break;
+                }
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
@@ -765,7 +768,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                     convgd = TRUE;
                 }
                 Ll_comp[1] = Ll[0];
-                if (step_max < epsilon/10) {  //  if the maximum change is too low, then it ends
+                if (step_max < epsilon) {  //  if the maximum change is too low, then it ends
                     iter_stop = 1;
                 }
             }
@@ -884,6 +887,9 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
         } else {
             halves = 0;
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
+                if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
+                    break;
+                }
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
@@ -924,7 +930,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
                     convgd = TRUE;
                 }
                 Ll_comp[1] = Ll[0];
-                if (step_max < epsilon/10) {  //  if the maximum change is too low, then it ends
+                if (step_max < epsilon) {  //  if the maximum change is too low, then it ends
                     iter_stop = 1;
                 }
             }

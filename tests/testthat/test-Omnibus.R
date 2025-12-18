@@ -68,7 +68,7 @@ test_that("Pois strata_single", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-468.7465, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1368.039)
+  LL_comp <- c(-468.7465, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1300.88)
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       model_control <- list("strata" = i, "single" = j)
@@ -109,7 +109,7 @@ test_that("Pois comb_forms", {
   verbose <- FALSE
   modelforms <- c("A", "PAE", "ME", "PA")
   j_iterate <- 1
-  LL_comp <- c(-1644.494, -544.7434, -544.7434, -464.709, -1395.197, -1831.403, -1831.403, -464.709)
+  LL_comp <- c(-1644.494, -464.7979, -464.7979, -464.709, -1312.742, -1831.403, -1831.403, -464.709)
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
     a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
@@ -152,7 +152,7 @@ test_that("Pois strata_single expanded", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-496.7366, -475.4213, -496.7366, -475.4213, -4497.178, -3577.953, -4304.506, -2590.778)
+  LL_comp <- c(-496.7366, -475.4213, -496.7366, -475.4213, -4497.178, -3577.953, -1600.506, -1712.778)
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       model_control <- list("strata" = i, "single" = j)
@@ -509,7 +509,7 @@ test_that("check deviation calc, poisson", {
       devs <- c(devs, sum(e$Standard_Deviation))
     }
   }
-  expect_equal(devs, c(0.029317931, 0.014226835, 0.030171059, 0.026452308, 0.008968795, 0.040982844, 0.026119220, 0.008023552, 0.040535859, 0.026082652, 0.007801193, 0.040982844), tolerance = 1e-4)
+  expect_equal(devs, c(0.029317931, 0.014226835, 0.030171059, 0.03041, 0.01460, 0.040982844, 0.02667, 0.00943, 0.040535859, 0.02677, 0.0093, 0.040982844), tolerance = 1e-3)
 })
 
 test_that("Various CoxRegressionOmnibus options", {

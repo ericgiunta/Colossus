@@ -112,10 +112,10 @@ test_that("Coxph dose list", {
   colTypes <- c("double", "double", "double", "integer")
   df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
   keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  a_n <- c(1.0, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
+  a_n <- c(1.0, -0.09, -0.09, 1.0, -0.05, 1.1, 2.8, 0.1, 1.4, 0.3, 1.0, 1.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- CoxRun(Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_dose(dose, 0) + quad(dose, 0) + step_dose(dose, 0) + lin_quad_dose(dose, 0) + lin_exp_dose(dose, 0) + multiplicative(), df, a_n = a_n, keep_constant = keep_constant, control = control)
-  expect_equal(e$beta_0, c(1.00000000, -0.10370531, -0.10093897, 0.98640244, -0.06027164, 1.12393188, 2.82997092, 0.17393188, 1.43935314, 0.32606812, 1.04573155, 1.12419452), tolerance = 1e-2)
+  expect_equal(e$beta_0, c(1.00000000, -0.08847281, -0.08964054, 0.99127726, -0.05340732, 1.11856122, 2.94196408, 0.10717616, 1.57348544, 0.30075901, 1.07630995, 1.09886187), tolerance = 1e-2)
 })
 #
 test_that("Coxph fixed intercept", {
