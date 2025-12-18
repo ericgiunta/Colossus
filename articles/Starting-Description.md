@@ -333,9 +333,9 @@ print(e)
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:         a  loglin           0             31.1        1080651          1.000
-#> 2:         b     lin           1             13.4            NaN            NaN
-#> 3:         c     lin           1             13.4            NaN            NaN
+#> 1:         a  loglin           0             31.1        1079824          1.000
+#> 2:         b     lin           1             14.4            NaN            NaN
+#> 3:         c     lin           1             14.4            NaN            NaN
 #> 4:         d    plin           2             31.1            477          0.948
 #> 
 #> Cox Model Used
@@ -354,15 +354,15 @@ print(e)
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:         a  loglin           0        -0.253052        1.54642       8.70e-01
-#> 2:         b     lin           1         0.030895        0.05440       5.70e-01
-#> 3:         c     lin           1         0.000538        0.00449       9.05e-01
-#> 4:         d    plin           2        -0.900000        0.21243       2.27e-05
+#> 1:         a  loglin           0         -0.29681        1.10226       7.88e-01
+#> 2:         b     lin           1         -0.01166        0.04784       8.07e-01
+#> 3:         c     lin           1          0.00725        0.00993       4.65e-01
+#> 4:         d    plin           2         -0.84726        0.19126       9.42e-06
 #> 
 #> Poisson Model Used
-#> -2*Log-Likelihood: 14.921,  Deviation: 10.921,  AIC: 18.921,  BIC: 22.704
-#> Iterations run: 4
-#> maximum step size: 9.766e-04, maximum first derivative: 6.513e+02
+#> -2*Log-Likelihood: 11.992,  Deviation: 7.992,  AIC: 15.992,  BIC: 19.776
+#> Iterations run: 5
+#> maximum step size: 9.766e-04, maximum first derivative: 4.346e+02
 #> Analysis did not converge, check convergence criteria or run further
 #> Run finished in 0.011 seconds
 #> |-------------------------------------------------------------------|

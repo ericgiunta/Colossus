@@ -226,3 +226,11 @@ CRAN release: 2025-12-16
 - ncores option used for Colossus calculations now also applied to
   data.table operations. Previous number reset after calculations, may
   need to be manually reset if the regression hits an error.
+
+## Colossus 1.4.7
+
+- Updated behavior when negative risk is hit. Partial steps are now
+  smaller, and the overall maximum step size will be checked during
+  loop.
+- Regressions that end after hitting a negative limit will now print a
+  warning in the result table.

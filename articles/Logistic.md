@@ -129,7 +129,7 @@ print(e)
 #> Iterations run: 11
 #> maximum step size: 1.075e-04, maximum first derivative: 3.454e-05
 #> Analysis converged
-#> Run finished in 0.023 seconds
+#> Run finished in 0.024 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -171,15 +171,15 @@ print(e)
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
-#> 1:    cell_0  loglin          -0.0377         0.0377         0.3174
+#> 1:    cell_0  loglin          -0.0377         0.0377         0.3173
 #> 2:    cell_1  loglin          -0.1214         0.0607         0.0456
 #> 3:    cell_2  loglin          -0.0645         0.0373         0.0833
-#> 4:    cell_3  loglin          -0.0377         0.0377         0.3174
+#> 4:    cell_3  loglin          -0.0377         0.0377         0.3173
 #> 
 #> Logisitic Model Used
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
-#> Iterations run: 11
-#> maximum step size: 4.859e-05, maximum first derivative: 1.145e-02
+#> Iterations run: 9
+#> maximum step size: 3.037e-05, maximum first derivative: 7.168e-03
 #> Analysis did not converge, check convergence criteria or run further
 #> Run finished in 0.013 seconds
 #> |-------------------------------------------------------------------|
@@ -201,6 +201,6 @@ print(e)
 #> Iterations run: 12
 #> maximum step size: 1.263e-04, maximum first derivative: 4.514e-05
 #> Analysis converged
-#> Run finished in 0.012 seconds
+#> Run finished in 0.013 seconds
 #> |-------------------------------------------------------------------|
 ```
