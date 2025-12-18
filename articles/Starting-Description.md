@@ -333,10 +333,10 @@ print(e)
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:         a  loglin           0             31.1       1.08e+06          1.000
-#> 2:         b     lin           1             13.7       7.38e+08          1.000
-#> 3:         c     lin           1             13.7       7.38e+08          1.000
-#> 4:         d    plin           2             31.1       4.77e+02          0.948
+#> 1:         a  loglin           0             31.1        1080651          1.000
+#> 2:         b     lin           1             13.4            NaN            NaN
+#> 3:         c     lin           1             13.4            NaN            NaN
+#> 4:         d    plin           2             31.1            477          0.948
 #> 
 #> Cox Model Used
 #> -2*Log-Likelihood: 1.374,  AIC: 9.374
@@ -354,17 +354,17 @@ print(e)
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:         a  loglin           0          -0.5450         0.5261          0.300
-#> 2:         b     lin           1          -0.0935         0.0666          0.161
-#> 3:         c     lin           1           0.0203         0.0138          0.141
-#> 4:         d    plin           2           0.1000         0.7026          0.887
+#> 1:         a  loglin           0        -0.253052        1.54642       8.70e-01
+#> 2:         b     lin           1         0.030895        0.05440       5.70e-01
+#> 3:         c     lin           1         0.000538        0.00449       9.05e-01
+#> 4:         d    plin           2        -0.900000        0.21243       2.27e-05
 #> 
 #> Poisson Model Used
-#> -2*Log-Likelihood: 32.807,  Deviation: 28.807,  AIC: 36.807,  BIC: 40.59
-#> Iterations run: 3
-#> maximum step size: 9.766e-04, maximum first derivative: 1.380e+02
+#> -2*Log-Likelihood: 14.921,  Deviation: 10.921,  AIC: 18.921,  BIC: 22.704
+#> Iterations run: 4
+#> maximum step size: 9.766e-04, maximum first derivative: 6.513e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.011 seconds
+#> Run finished in 0.012 seconds
 #> |-------------------------------------------------------------------|
 ```
 

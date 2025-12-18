@@ -216,6 +216,8 @@ CRAN release: 2025-12-07
 
 ## Colossus 1.4.6
 
+CRAN release: 2025-12-16
+
 - Fixed bug in second derivative risk calculations, wrong correction to
   multi-term risk values.
 - Improved results printing. Basic regression results only print term

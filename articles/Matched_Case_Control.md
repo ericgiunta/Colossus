@@ -174,9 +174,9 @@ print(e0)
 #> Deviance: 57.029
 #> 0 out of 4 matched sets used Unconditional Likelihood
 #> Iterations run: 3
-#> maximum step size: 3.052e-05, maximum first derivative: 1.465e+02
+#> maximum step size: 6.104e-05, maximum first derivative: 1.465e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.024 seconds
+#> Run finished in 0.025 seconds
 #> |-------------------------------------------------------------------|
 print(e1)
 #> |-------------------------------------------------------------------|
@@ -191,9 +191,9 @@ print(e1)
 #> Deviance: 59.956
 #> 1 out of 4 matched sets used Unconditional Likelihood
 #> Iterations run: 3
-#> maximum step size: 3.052e-05, maximum first derivative: 1.463e+02
+#> maximum step size: 6.104e-05, maximum first derivative: 1.463e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.012 seconds
+#> Run finished in 0.014 seconds
 #> |-------------------------------------------------------------------|
 print(e2)
 #> |-------------------------------------------------------------------|
@@ -208,8 +208,8 @@ print(e2)
 #> Deviance: 67.073
 #> 4 out of 4 matched sets used Unconditional Likelihood
 #> Iterations run: 3
-#> maximum step size: 3.052e-05, maximum first derivative: 1.498e+02
+#> maximum step size: 6.104e-05, maximum first derivative: 1.498e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.013 seconds
+#> Run finished in 0.015 seconds
 #> |-------------------------------------------------------------------|
 ```

@@ -84,27 +84,16 @@ table <- data.table::data.table(
   "g" = g, "h" = h, "i" = i
 )
 categ <- list(
-  "a" = "-1/3/5]7",
-  "b" = list(
-    lower = c(-1, 3, 6), upper = c(3, 6, 10),
-    name = c("low", "medium", "high")
-  ),
-  "time AS time" = list(
-    "day" = c(1, 1, 1, 1, 1),
-    "month" = c(1, 1, 1, 1, 1),
-    "year" = c(1899, 1903, 1910)
-  )
+  "a" = "-1/3/5]7"
 )
 summary <- list(
-  "c" = "count AS cases",
-  "a" = "mean",
-  "b" = "weighted_mean"
+  "c" = "count AS cases"
 )
 events <- list("c")
 pyr <- list(
-  entry = list(year = "f", month = "e", day = "d"),
-  exit = list(year = "i", month = "h", day = "g"),
+  entry = list(year = "f"),
+  exit = list(year = "i"),
   unit = "years"
 )
-e <- Event_Time_Gen(table, pyr, categ, summary, events, T)
+e <- Event_Time_Gen(table, pyr, categ, summary, events)
 ```
