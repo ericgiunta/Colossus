@@ -591,7 +591,7 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
 
 //' Utility function to check if risk is valid, and if so continue
 //'
-//' \code{Cox_Pois_Check_Continue} Called to perform repeated risk checks
+//' \code{Cox_Pois_Log_Loop} Called to perform repeated risk checks
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk, scores, etc storage matrices

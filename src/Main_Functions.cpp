@@ -1661,11 +1661,11 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             int tij = term_n[ijk];
                             if (TTerm.col(tij).minCoeff() <= 0) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             } else if (isnan(TTerm.col(tij).minCoeff())) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             }
                         }
                         halves+=0.2;
@@ -1811,7 +1811,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     step_max = step_max0;
     thres_step_max = thres_step_max0;
     iter_stop = 0;
-    halves = 0;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
     ind0 = fir;  //  used for validations
@@ -1960,11 +1959,11 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         int tij = term_n[ijk];
                         if (TTerm.col(tij).minCoeff() <= 0) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         } else if (isnan(TTerm.col(tij).minCoeff())) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         }
                     }
                     halves+=0.2;

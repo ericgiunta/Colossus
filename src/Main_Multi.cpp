@@ -784,11 +784,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         int tij = term_n[ijk];
                         if (TTerm.col(tij).minCoeff() <= 0) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         } else if (isnan(TTerm.col(tij).minCoeff())) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         }
                     }
                     halves+=0.2;
@@ -862,11 +862,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             int tij = term_n[ijk];
                             if (TTerm.col(tij).minCoeff() <= 0) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             } else if (isnan(TTerm.col(tij).minCoeff())) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             }
                         }
                         halves+=0.2;
@@ -1729,11 +1729,11 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         int tij = term_n[ijk];
                         if (TTerm.col(tij).minCoeff() <= 0) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         } else if (isnan(TTerm.col(tij).minCoeff())) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.25;
                         }
                     }
                     halves+=0.2;
@@ -1808,11 +1808,11 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             int tij = term_n[ijk];
                             if (TTerm.col(tij).minCoeff() <= 0) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             } else if (isnan(TTerm.col(tij).minCoeff())) {
-                                dbeta[ijk] = dbeta[ijk] / 2.0;
+                                dbeta[ijk] = dbeta[ijk] / 1.25;
                             }
                         }
                         halves+=0.2;

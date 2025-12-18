@@ -125,7 +125,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
         //  initial step
         //  Special case if there is only one parameter
         double h = 0.0;
-        if (totalnum == 1){
+        if (totalnum == 1) {
             //  Don't need to calculate everything else, only h
             h = Lldd_mat(para_number, para_number);
             //
