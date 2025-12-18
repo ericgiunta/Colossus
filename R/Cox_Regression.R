@@ -17,10 +17,10 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        setDT(df) # nocov
+        setDT(df)
       },
-      error = function(e) { # nocov
-        df <- data.table(df) # nocov
+      error = function(e) {
+        df <- data.table(df)
       }
     )
   }
@@ -250,10 +250,10 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        setDT(df) # nocov
+        setDT(df)
       },
-      error = function(e) { # nocov
-        df <- data.table(df) # nocov
+      error = function(e) {
+        df <- data.table(df)
       }
     )
   }
@@ -298,10 +298,10 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        setDT(df) # nocov
+        setDT(df)
       },
-      error = function(e) { # nocov
-        df <- data.table(df) # nocov
+      error = function(e) {
+        df <- data.table(df)
       }
     )
   }
@@ -581,10 +581,10 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        setDT(df) # nocov
+        setDT(df)
       },
-      error = function(e) { # nocov
-        df <- data.table(df) # nocov
+      error = function(e) {
+        df <- data.table(df)
       }
     )
   }
@@ -732,11 +732,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
   e$Parameter_Lists$keep_constant <- keep_constant
-  if (model_control$MCML) {
-    e$Survival_Type <- "Cox_Multidose"
-  } else {
-    e$Survival_Type <- "Cox_Multidose"
-  }
+  e$Survival_Type <- "Cox_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   return(e)
@@ -758,10 +754,10 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        setDT(df) # nocov
+        setDT(df)
       },
-      error = function(e) { # nocov
-        df <- data.table(df) # nocov
+      error = function(e) {
+        df <- data.table(df)
       }
     )
   }

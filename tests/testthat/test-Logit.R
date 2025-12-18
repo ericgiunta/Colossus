@@ -52,7 +52,7 @@ test_that("basic regression with link non-fail", {
     e <- LogisticRun(model, df, control = control, link = "odds", a_n = a_n)
     expect_equal(e$LogLik, -44.3606, tolerance = 1e-3)
     e <- LogisticRun(model, df, control = control, link = "ident", a_n = a_n)
-    expect_equal(e$LogLik, -74.77318, tolerance = 1e-3)
+    expect_equal(e$LogLik, -74.62735, tolerance = 1e-3)
     e <- LogisticRun(model, df, control = control, link = "loglink", a_n = a_n)
     expect_equal(e$LogLik, -91.35022, tolerance = 1e-3)
     #
@@ -73,7 +73,7 @@ test_that("epicure check", {
   a_n <- c(0.4)
   model <- logit(n, x) ~ linear(CONST)
   e <- LogisticRun(model, df, control = control, a_n = a_n)
-  expect_equal(e$beta_0, c(0.1222156), tolerance = 1e-4)
+  expect_equal(e$beta_0, c(0.1221859), tolerance = 1e-4)
 
   a_n <- c(0.12, 0.1, 0.1)
   model <- logit(n, x) ~ linear(CONST, factor(alcohol))

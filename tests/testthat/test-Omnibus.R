@@ -68,7 +68,7 @@ test_that("Pois strata_single", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-468.7465, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1300.88)
+  LL_comp <- c(-468.7465, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1344.793)
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       model_control <- list("strata" = i, "single" = j)
@@ -84,6 +84,7 @@ test_that("Pois strata_single", {
       j_iterate <- j_iterate + 1
     }
   }
+  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 2) + linear(rand, 1) + plinear(rand, 0) + A(), df, a_n = a_n, control = control)
 })
 #
 test_that("Pois comb_forms", {
@@ -109,7 +110,8 @@ test_that("Pois comb_forms", {
   verbose <- FALSE
   modelforms <- c("A", "PAE", "ME", "PA")
   j_iterate <- 1
-  LL_comp <- c(-1644.494, -464.7979, -464.7979, -464.709, -1312.742, -1831.403, -1831.403, -464.709)
+  LL_comp <- c(-1644.494, -472.2172, -472.2172, -464.709, -1381.102, -1831.403, -1831.403, -464.709)
+  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 1) + linear(rand, 0) + plinear(rand, 0) + loglinear-dose(dose, 0) + PAE(), df, a_n = a_n, control = control)
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
     a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
@@ -117,6 +119,7 @@ test_that("Pois comb_forms", {
     expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
     j_iterate <- j_iterate + 1
   }
+  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 1) + linear(rand, 1) + plinear(rand, 1) + loglinear-dose(dose, 0) + A(), df, a_n = a_n, control = control)
   term_n <- c(1, 1, 1, 0, 0)
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
@@ -137,13 +140,6 @@ test_that("Pois strata_single expanded", {
   event <- "lung"
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
-  names <- c("dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand")
-  term_n <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-  tform <- c("loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
-  keep_constant <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  a_n <- c(-0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-
-  modelform <- "PAE"
 
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   strat_col <- "fac"
@@ -152,22 +148,36 @@ test_that("Pois strata_single expanded", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-496.7366, -475.4213, -496.7366, -475.4213, -4497.178, -3577.953, -1600.506, -1712.778)
-  for (i in c(TRUE, FALSE)) {
-    for (j in c(TRUE, FALSE)) {
-      model_control <- list("strata" = i, "single" = j)
-      a_n <- c(-0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-      modelform <- "PAE"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-      expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
-      j_iterate <- j_iterate + 1
-      a_n <- c(-0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-      modelform <- "A"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-      expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
-      j_iterate <- j_iterate + 1
-    }
-  }
+  LL_comp <- c(-491.2242, -475.0687, -491.2242, -475.0687, -1101.539, -1257.393, -751.6969, -1257.393)
+  a_n <- c(-0.4, 0.1, 0.1, 0.1, 0.1, -0.5, 0.1, 0.1, 0.1, 0.1, 0.01, 0.1, 0.1)
+  # SINGLE AND STRATA
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  # NOT SINGLE AND STRATA
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  # SINGLE AND NOT STRATA
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  # NOT SINGLE AND NOT STRATA
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
 })
 
 test_that("risk check omnibus plain", {
@@ -489,7 +499,8 @@ test_that("check deviation calc, poisson", {
       keep_constant[i] <- 1
       #
       control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      #      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + loglinear(rand, 1), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
       devs <- c(devs, sum(e$Standard_Deviation))
     }
     event <- "lung"
@@ -505,11 +516,12 @@ test_that("check deviation calc, poisson", {
       keep_constant[i] <- 1
       #
       control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      #      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + plinear(rand, 0), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
       devs <- c(devs, sum(e$Standard_Deviation))
     }
   }
-  expect_equal(devs, c(0.029317931, 0.014226835, 0.030171059, 0.03041, 0.01460, 0.040982844, 0.02667, 0.00943, 0.040535859, 0.02677, 0.0093, 0.040982844), tolerance = 1e-3)
+  expect_equal(devs, c(0.02931793, 0.01422684, 0.03017106, 0.03298415, 0.01800232, 0.04098284, 0.03682491, 0.02111656, 0.03017106, 0.02698643, 0.01008488, 0.04098284), tolerance = 1e-3)
 })
 
 test_that("Various CoxRegressionOmnibus options", {

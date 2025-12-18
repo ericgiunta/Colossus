@@ -19,10 +19,10 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        setDT(df) # nocov
+        setDT(df)
       },
-      error = function(e) { # nocov
-        df <- data.table(df) # nocov
+      error = function(e) {
+        df <- data.table(df)
       }
     )
   }

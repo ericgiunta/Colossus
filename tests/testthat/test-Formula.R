@@ -69,7 +69,8 @@ test_that("Run basic errors and checks", {
   model <- Cox(a, b, c) ~ loglinear(d) ~ M()
   expect_error(CoxRun(model, df, ncores = 1))
   model <- Cox(a, b, c) ~ loglinear(d)
-  expect_no_error(CoxRun(model, df, ncores = 1))
+  expect_no_error(res <- CoxRun(model, df, ncores = 1))
+  expect_no_error(CoxRun(res, df, ncores = 1))
   expect_error(CoxRun(model, df, ncores = 1, bad = "wrong")) # arguement not in control list
   expect_error(CoxRun(model, df, control = c(2))) # control wasn't a list
   e <- get_form(Cox(tstart = a, event = c) ~ loglinear(d), df)
@@ -84,7 +85,8 @@ test_that("Run basic errors and checks", {
   model <- CaseCon(c) ~ loglinear(d)
   e <- get_form(model, df)
   model <- e$model
-  expect_no_error(CaseControlRun(model, df, ncores = 1, keep_constant = c(0)))
+  expect_no_error(res <- CaseControlRun(model, df, ncores = 1, keep_constant = c(0)))
+  expect_no_error(CaseControlRun(res, df, ncores = 1, keep_constant = c(0)))
   expect_error(CaseControlRun("bad", df, ncores = 1)) # wasn't a formula or model object
   expect_error(CaseControlRun(model, df, control = 2)) # control wasn't a list
   #
@@ -531,4 +533,10 @@ test_that("Basic formula passes and fails", {
   expect_no_error(get_form(logit(trials = b, a) ~ loglinear(d), df)) # all good
   expect_no_error(get_form(logit(b, event = a) ~ loglinear(d), df)) # all good
   expect_no_error(get_form(logit(b, events = a) ~ loglinear(d), df)) # all good
+  #
+  control <- list(ncores = 1, maxiter = -1, maxiters = c(-1, -1))
+  model <- logit(b, a) ~ loglinear(d)
+  expect_error(LogisticRun(model, df, bad_arg = control))
+  expect_no_error(res <- LogisticRun(model, df, control = control))
+  expect_no_error(LogisticRun(res, df, control = control))
 })

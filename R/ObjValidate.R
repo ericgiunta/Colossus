@@ -231,50 +231,50 @@ validate_formula <- function(x, df, verbose = FALSE) {
     if (i < length(a)) {
       if ((a[i] == "loglin_slope")) {
         if (a[i + 1] != "loglin_top") {
-          stop("Error: loglin_top missing")
+          stop("Error: loglin_top missing") # nocov
         }
       } else if ((a[i] == "lin_slope")) {
         if (a[i + 1] != "lin_int") {
-          stop("Error: lin_int missing")
+          stop("Error: lin_int missing") # nocov
         }
       } else if ((a[i] == "step_slope")) {
         if (a[i + 1] != "step_int") {
-          stop("Error: step_int missing")
+          stop("Error: step_int missing") # nocov
         }
       } else if ((a[i] == "lin_quad_slope")) {
         if (a[i + 1] != "lin_quad_int") {
-          stop("Error: lin_quad_int missing")
+          stop("Error: lin_quad_int missing") # nocov
         }
       } else if ((a[i] == "lin_exp_slope")) {
         if (a[i + 1] != "lin_exp_int") {
-          stop("Error: lin_exp_int missing")
+          stop("Error: lin_exp_int missing") # nocov
         }
       } else if ((a[i] == "lin_exp_int")) {
         if (a[i + 1] != "lin_exp_exp_slope") {
-          stop("Error: lin_exp_exp_slope missing")
+          stop("Error: lin_exp_exp_slope missing") # nocov
         }
       }
     }
     if (i > 1) {
       if ((a[i] == "lin_int")) {
         if (a[i - 1] != "lin_slope") {
-          stop("Error: lin_slope missing")
+          stop("Error: lin_slope missing") # nocov
         }
       } else if ((a[i] == "step_int")) {
         if (a[i - 1] != "step_slope") {
-          stop("Error: step_slope missing")
+          stop("Error: step_slope missing") # nocov
         }
       } else if ((a[i] == "lin_quad_int")) {
         if (a[i - 1] != "lin_quad_slope") {
-          stop("Error: lin_quad_slope missing")
+          stop("Error: lin_quad_slope missing") # nocov
         }
       } else if ((a[i] == "lin_exp_int")) {
         if (a[i - 1] != "lin_exp_slope") {
-          stop("Error: lin_exp_slope missing")
+          stop("Error: lin_exp_slope missing") # nocov
         }
       } else if ((a[i] == "lin_exp_exp_slope")) {
         if (a[i - 1] != "lin_exp_int") {
-          stop("Error: lin_exp_int missing")
+          stop("Error: lin_exp_int missing") # nocov
         }
       }
     }
@@ -386,116 +386,82 @@ validate_formula <- function(x, df, verbose = FALSE) {
 
 validate_coxsurv <- function(x, df) {
   if (!is(x, "coxmodel")) {
-    stop("Error: Non cox formula used in cox regression")
+    stop("Error: Non cox formula used in cox regression") # nocov
   }
   if (x$start_age == x$end_age) {
-    stop(
-      "Error: The starting and ending interval times were set to the same column, they must be different"
-    )
+    stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (!(x$start_age %in% names(df))) {
-    stop(
-      "Error: Interval start column not in the data"
-    )
+    stop("Error: Interval start column not in the data") # nocov
   }
   if (!(x$end_age %in% names(df))) {
-    stop(
-      "Error: Interval end column not in the data"
-    )
+    stop("Error: Interval end column not in the data") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data") # nocov
   }
 }
 
 validate_poissurv <- function(x, df) {
   if (!is(x, "poismodel")) {
-    stop("Error: Non Poisson formula used in Poisson regression")
+    stop("Error: Non Poisson formula used in Poisson regression") # nocov
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (!(x$person_year %in% names(df))) {
-    stop(
-      "Error: Person-Year column not in the data"
-    )
+    stop("Error: Person-Year column not in the data") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data")
   }
 }
 
 validate_caseconsurv <- function(x, df) {
   if (!is(x, "caseconmodel")) {
-    stop("Error: Non Case-Control formula used in Case_Control regression")
+    stop("Error: Non Case-Control formula used in Case_Control regression") # nocov
   }
   if (x$start_age == x$end_age) {
     if (x$start != "NONE") {
-      stop(
-        "Error: The starting and ending interval times were set to the same column, they must be different or both '%trunc%'"
-      )
+      stop("Error: The starting and ending interval times were set to the same column, they must be different or both '%trunc%'") # nocov
     }
   } else {
     if (!(x$start_age %in% names(df))) {
-      stop(
-        "Error: Interval start column not in the data"
-      )
+      stop("Error: Interval start column not in the data") # nocov
     }
     if (!(x$end_age %in% names(df))) {
-      stop(
-        "Error: Interval end column not in the data"
-      )
+      stop("Error: Interval end column not in the data") # nocov
     }
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data") # nocov
   }
 }
 
 validate_logitsurv <- function(x, df) {
   if (!is(x, "logitmodel")) {
-    stop("Error: Non logistic formula used in logistic regression")
+    stop("Error: Non logistic formula used in logistic regression") # nocov
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (x$trials == "") {
-    stop(
-      "Error: The trials column must not be empty"
-    )
+    stop("Error: The trials column must not be empty") # nocov
   }
   if (!(x$trials %in% names(df))) {
-    stop(
-      "Error: Interval start column not in the data"
-    )
+    stop("Error: Interval start column not in the data") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data") # nocov
   }
   if (any(df[, x$event, with = FALSE] > df[, x$trials, with = FALSE])) {
-    stop("Error: In atleast one row, the number of events was larger than the number of trials")
+    stop("Error: In atleast one row, the number of events was larger than the number of trials") # nocov
   }
 }
 

@@ -1086,7 +1086,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
 //' @return assigns weight in place and returns nothing
 //' @noRd
 //'
-void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& term_n, const int& term_tot, const double gmix_theta, const IntegerVector& gmix_term) {
+void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& KeepConstant, const IntegerVector& term_n, const int& term_tot, const double gmix_theta, const IntegerVector& gmix_term) {
     ArrayXd Pyrs  = dfs.transpose() * PyrC.col(0);
     ArrayXd Events = dfs.transpose() * PyrC.col(1);
     ArrayXd weight = Events.array() * Pyrs.array().pow(- 1).array();

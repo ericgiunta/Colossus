@@ -463,6 +463,11 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     logitmodel <- copy(model)
     calls <- logitmodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
+  } else if (is(model, "logitres")) {
+    logitmodel <- model$model
+    calls <- logitmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    logitmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -677,6 +682,11 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     calls <- caseconmodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
     #
+  } else if (is(model, "caseconres")) {
+    caseconmodel <- model$model
+    calls <- caseconmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    caseconmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -1479,7 +1489,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (fma) {
     coxres <- new_coxresfma(res)
   } else {
-    coxres <- new_coxres(res)
+    coxres <- new_coxresmcml(res)
   }
   coxres
 }
@@ -1653,7 +1663,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (fma) {
     poisres <- new_poisresfma(res)
   } else {
-    poisres <- new_poisres(res)
+    poisres <- new_poisresmcml(res)
   }
   poisres
 }

@@ -186,6 +186,8 @@ test_that("Factorize factor", {
   df <- data.table("a" = a, "b" = b, "c" = c)
   col_list <- c("c")
   expect_equal(factorize(df, col_list, TRUE)$cols, c("c_1"))
+  col_list <- c("a", "c")
+  expect_equal(factorize(df, col_list, TRUE)$cols, c("a_0", "a_1", "a_2", "a_3", "a_4", "a_5", "a_6", "c_1"))
 })
 test_that("Factorize discrete", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
