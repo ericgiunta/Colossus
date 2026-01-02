@@ -172,19 +172,19 @@ time.</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"Instantaneous Hazard"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">norm_surv</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">ch</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"Cumulative Hazard"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">norm_surv</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">surv</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"Surviving Fraction"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"type"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>, <span class="st">"studyid"</span> <span class="op">=</span> <span class="st">"UserID"</span>,</span>
@@ -198,7 +198,7 @@ time.</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"KM Survival"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-4.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-4.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="cox-proportional-hazards-model-assumptions">Cox Proportional Hazards model assumptions<a class="anchor" aria-label="anchor" href="#cox-proportional-hazards-model-assumptions"></a>
@@ -243,7 +243,7 @@ standard deviation.</p>
 <span>    y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Schoenfeld Residual (age)"</span>, sep <span class="op">=</span> <span class="st">" "</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">res_age</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y_scale</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -252,7 +252,7 @@ standard deviation.</p>
 <span>    y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Schoenfeld Residual Scaled (age)"</span>, sep <span class="op">=</span> <span class="st">" "</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_sex</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"sex"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -263,7 +263,7 @@ standard deviation.</p>
 <span>    y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Schoenfeld Residual (sex)"</span>, sep <span class="op">=</span> <span class="st">" "</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-3.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-3.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">res_sex</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y_scale</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -272,7 +272,7 @@ standard deviation.</p>
 <span>    y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Schoenfeld Residual Scaled (sex)"</span>, sep <span class="op">=</span> <span class="st">" "</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-4.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-4.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level3">
 <h3 id="martingale-residuals">Martingale Residuals<a class="anchor" aria-label="anchor" href="#martingale-residuals"></a>
@@ -308,7 +308,7 @@ or under-predicting dependent on time.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="va">g</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Max Age"</span>, y <span class="op">=</span> <span class="st">"Martingale Residuals"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_sex</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"sex"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -318,7 +318,7 @@ or under-predicting dependent on time.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="va">g</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Sex"</span>, y <span class="op">=</span> <span class="st">"Martingale Residuals"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-2.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-2.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_surv</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"survival_time"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -328,7 +328,7 @@ or under-predicting dependent on time.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="va">g</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Survival Time"</span>, y <span class="op">=</span> <span class="st">"Martingale Residuals"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-3.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-3.png" class="r-plt" alt="" width="672"></p>
 </div>
 </div>
 <div class="section level2">
@@ -350,14 +350,14 @@ constant.</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Age"</span>, y <span class="op">=</span> <span class="st">"Relative Risk"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_sex</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"sex"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">res_sex</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">x</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Sex"</span>, y <span class="op">=</span> <span class="st">"Relative Risk"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
-<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-6-2.png" class="r-plt" width="672"></p>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-6-2.png" class="r-plt" alt="" width="672"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
