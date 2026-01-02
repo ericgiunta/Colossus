@@ -327,6 +327,38 @@ test_that("Colossus Surv Errors", {
   #
 })
 
+test_that("Poisson, long formula correction", {
+  fname <- "dose.csv"
+  set.seed(3742)
+  colTypes <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  df$rand0 <- floor(runif(nrow(df)) * 5)
+  df$rand1 <- floor(runif(nrow(df)) * 5)
+  df$rand2 <- floor(runif(nrow(df)) * 5)
+  df$rand3 <- floor(runif(nrow(df)) * 5)
+  df$rand4 <- floor(runif(nrow(df)) * 5)
+  df$rand5 <- floor(runif(nrow(df)) * 5)
+  df$rand6 <- floor(runif(nrow(df)) * 5)
+  df$rand7 <- floor(runif(nrow(df)) * 5)
+  df$rand8 <- floor(runif(nrow(df)) * 5)
+  df$rand9 <- floor(runif(nrow(df)) * 5)
+  df$rand10 <- floor(runif(nrow(df)) * 5)
+  df$rand11 <- floor(runif(nrow(df)) * 5)
+  df$rand12 <- floor(runif(nrow(df)) * 5)
+  df$rand13 <- floor(runif(nrow(df)) * 5)
+  df$rand14 <- floor(runif(nrow(df)) * 5)
+  df$rand15 <- floor(runif(nrow(df)) * 5)
+  df$rand16 <- floor(runif(nrow(df)) * 5)
+  #
+  #
+  model0 <- Pois_Strata(t1, lung, rand0, rand1, rand2, rand3, rand4, rand5, rand6, rand7, rand8, rand10, rand11, rand12, rand13, rand14, rand15, rand16) ~ loglinear(dose)
+  model1 <- Pois_Strata(t1, lung, rand0, rand1, rand2, rand3, rand4, rand5, rand6, rand7, rand8, rand10, rand11, rand12, rand13, rand14, rand15, rand16) ~ loglinear(I(dose^2))
+  models <- Pois_Strata(t1, lung, rand0, rand1, rand2, rand3, rand4, rand5, rand6, rand7, rand8, rand10, rand11, rand12, rand13, rand14, rand15, rand16) ~ loglinear(t0)
+  #
+  expect_no_error(get_form_joint(list(model0, model1, "shared" = models), df)) # same strata
+  expect_no_error(get_form(model0, df))
+})
+
 test_that("Pois multi_surv nonerror", {
   fname <- "dose.csv"
   set.seed(3742)

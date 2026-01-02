@@ -43,8 +43,8 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   for (formula_i in seq_along(formula_list)) {
     #
     formula <- formula_list[[formula_i]]
-    surv_obj <- format(formula[[2]])
-    model_obj <- paste(format(formula[[3]]), collapse = " ")
+    surv_obj <- Reduce(paste, deparse(formula[[2]]))
+    model_obj <- paste(Reduce(paste, deparse(formula[[3]])), collapse = " ")
     surv_obj <- gsub(" ", "", surv_obj)
     model_obj <- gsub(" ", "", model_obj)
     res <- get_form_list(surv_obj, model_obj, df)
@@ -57,7 +57,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
     model_list <- c(model_list, model_temp)
   }
   #
-  model_obj <- paste(format(formula_shared[[3]]), collapse = " ")
+  model_obj <- paste(Reduce(paste, deparse(formula_shared[[3]])), collapse = " ")
   if (model_obj != ".") {
     res <- get_form_risk(model_obj, df)
     model_share <- res$model
@@ -75,7 +75,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
       stop(paste("Error: The joint models need to use the same person-year column. Instead they use ", model_1$pyr, " and ", model_2$pyr, ".", sep = ""))
     }
     # The strata should match
-    if (model_1$strata != model_2$strata) {
+    if (any(model_1$strata != model_2$strata)) {
       stop(paste("Error: The joint models need to use the same stratification.", sep = ""))
     }
     # The modelform should match
@@ -157,10 +157,10 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
     if (len_1 < len_2) {
       if (len_s < len_1) {
         # 2 is longest
-        if (gmix_term_s != gmix_term_2[1:len_s]) {
+        if (any(gmix_term_s != gmix_term_2[1:len_s])) {
           stop("Error: Second model and shared model have different geometric mixture term values.")
         }
-        if (gmix_term_1 != gmix_term_2[1:len_1]) {
+        if (any(gmix_term_1 != gmix_term_2[1:len_1])) {
           stop("Error: Second model and first model have different geometric mixture term values.")
         }
         gmix_term <- gmix_term_2
@@ -213,11 +213,11 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   }
   thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
   # ------------------------------------------------------------------------------ #
-  if (length(lapply(strsplit(format(formula), ""), function(x) which(x == "~"))[[1]]) != 1) {
+  if (length(lapply(strsplit(Reduce(paste, deparse(formula)), ""), function(x) which(x == "~"))[[1]]) != 1) {
     stop("Error: The formula contained multiple '~', invalid formula")
   }
-  surv_obj <- format(formula[[2]])
-  model_obj <- paste(format(formula[[3]]), collapse = " ")
+  surv_obj <- Reduce(paste, deparse(formula[[2]]))
+  model_obj <- paste(Reduce(paste, deparse(formula[[3]])), collapse = " ")
   surv_obj <- gsub(" ", "", surv_obj)
   model_obj <- gsub(" ", "", model_obj)
   res <- get_form_list(surv_obj, model_obj, df)
@@ -411,7 +411,7 @@ get_form_surv <- function(surv_obj, df) {
     res <- do.call(ColossusPoisSurv, surv_para_list)
     pyr <- res$pyr
     event <- res$event
-    if (res$strata != "NULL") {
+    if (any(res$strata != "NULL")) {
       stop("Error: Too many columns passed to non-stratified Poisson model")
     }
   } else if (surv_type %in% c("poisson_strata", "pois_strata")) {
