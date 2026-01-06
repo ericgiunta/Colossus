@@ -271,6 +271,9 @@ get_form_joint(formula_list, df, nthreads = 1)
 #> $strata
 #> [1] "NONE"
 #> 
+#> $null
+#> [1] FALSE
+#> 
 #> $term_n
 #> [1] 0 0 0
 #> 
@@ -342,6 +345,6 @@ print(e)
 #> Iterations run: 10
 #> maximum step size: 4.775e-06, maximum first derivative: 1.595e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.017 seconds
+#> Run finished in 0.018 seconds
 #> |-------------------------------------------------------------------|
 ```

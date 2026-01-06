@@ -234,3 +234,9 @@ CRAN release: 2025-12-16
   loop.
 - Regressions that end after hitting a negative limit will now print a
   warning in the result table.
+
+## Colossus 1.4.8
+
+- Updated stratified poisson modeling to correctly update background
+  strata risk levels
+- Updated formula reading to not throw errors on long formulas
