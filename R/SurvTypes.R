@@ -168,7 +168,8 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
     }
   }
   #
-  model <- poismodel(pyr, "events", strata, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
+  null <- FALSE
+  model <- poismodel(pyr, "events", strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
@@ -243,15 +244,22 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   #
   expres_calls <- model$expres_calls
   #
+  if (null) {
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    modelform <- "M"
+  }
+  #
   if (grepl("cox", surv_model_type)) {
     model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("finegray", surv_model_type)) {
     model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("pois", surv_model_type)) {
-    model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
-    if (all(strata != "NONE")) {
-      Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
-    } # verifies that a stratified model can be used
+    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    # if (all(strata != "NONE")) {
+    #   Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
+    # } # verifies that a stratified model can be used
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("logit", surv_model_type)) || (grepl("logistic", surv_model_type))) {

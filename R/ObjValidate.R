@@ -550,6 +550,7 @@ coxmodel <- function(start_age = "",
 poismodel <- function(person_year = "",
                       event = "",
                       strata = "",
+                      null = FALSE,
                       term_n = c(),
                       tform = c(),
                       names = c(),
@@ -562,13 +563,15 @@ poismodel <- function(person_year = "",
                       expres_calls = list(),
                       verbose = FALSE) {
   pois_obj <- list(
-    "person_year" = person_year, "event" = event, "strata" = strata,
+    "person_year" = person_year, "event" = event, "strata" = strata, "null" = null,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
     "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
   )
   pois_obj <- new_poismodel(pois_obj)
   validate_poissurv(pois_obj, df)
-  pois_obj <- validate_formula(pois_obj, df, verbose)
+  if (!null) {
+    pois_obj <- validate_formula(pois_obj, df, verbose)
+  }
   pois_obj
 }
 

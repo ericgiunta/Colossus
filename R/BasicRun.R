@@ -330,7 +330,9 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   }
   # Checks that the current coxmodel is valid
   validate_poissurv(poismodel, df)
-  poismodel <- validate_formula(poismodel, df, control$verbose)
+  if (!poismodel$null) {
+    poismodel <- validate_formula(poismodel, df, control$verbose)
+  }
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
@@ -345,23 +347,42 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
-  if (length(unique(term_n)) == 1) {
-    modelform <- "M"
-  } else if (modelform == "GMIX") {
-    model_control[["gmix_term"]] <- poismodel$gmix_term
-    model_control[["gmix_theta"]] <- poismodel$gmix_theta
-  }
-  if (all(poismodel$strata != "NONE")) {
-    model_control["strata"] <- TRUE
-  }
-  if (ncol(cons_mat) > 1) {
-    model_control["constraint"] <- TRUE
-  }
-  if (!missing(gradient_control)) {
-    model_control["gradient"] <- TRUE
-    for (nm in names(gradient_control)) {
-      model_control[nm] <- gradient_control[nm]
+  if (poismodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
+    if (all(poismodel$strata != "NONE")) {
+      model_control["strata"] <- TRUE
+      a_n <- c(0)
+    } else {
+      event_total <- sum(df[, event0, with = F])
+      time_total <- sum(df[, pyr0, with = F])
+      avg_rate <- event_total / time_total
+      a_n <- c(log(avg_rate))
     }
+  } else {
+      if (length(unique(term_n)) == 1) {
+        modelform <- "M"
+      } else if (modelform == "GMIX") {
+        model_control[["gmix_term"]] <- poismodel$gmix_term
+        model_control[["gmix_theta"]] <- poismodel$gmix_theta
+      }
+      if (all(poismodel$strata != "NONE")) {
+        model_control["strata"] <- TRUE
+      }
+      if (ncol(cons_mat) > 1) {
+        model_control["constraint"] <- TRUE
+      }
+      if (!missing(gradient_control)) {
+        model_control["gradient"] <- TRUE
+        for (nm in names(gradient_control)) {
+          model_control[nm] <- gradient_control[nm]
+        }
+      }
   }
   model_control["single"] <- single
   model_control["observed_info"] <- observed_info
@@ -378,26 +399,28 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
-  a_n <- norm_res$a_n
-  cons_mat <- norm_res$cons_mat
-  norm_weight <- norm_res$norm_weight
-  df <- norm_res$df
   int_count <- 0.0
-  if (any(norm_weight != 1.0)) {
-    int_avg_weight <- 0.0
-    for (i in seq_along(names)) {
-      if (grepl("_int", tform[i])) {
-        int_avg_weight <- int_avg_weight + norm_weight[i]
-        int_count <- int_count + 1
+  if (!poismodel$null) {
+      norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+      a_n <- norm_res$a_n
+      cons_mat <- norm_res$cons_mat
+      norm_weight <- norm_res$norm_weight
+      df <- norm_res$df
+      if (any(norm_weight != 1.0)) {
+        int_avg_weight <- 0.0
+        for (i in seq_along(names)) {
+          if (grepl("_int", tform[i])) {
+            int_avg_weight <- int_avg_weight + norm_weight[i]
+            int_count <- int_count + 1
+          }
+        }
+        if (int_count > 0) {
+          if (control$verbose >= 3) {
+            message("Note: Threshold max step adjusted to match new weighting")
+          }
+          control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+        }
       }
-    }
-    if (int_count > 0) {
-      if (control$verbose >= 3) {
-        message("Note: Threshold max step adjusted to match new weighting")
-      }
-      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
-    }
   }
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
@@ -409,11 +432,13 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
-  if (model_control[["constraint"]]) {
-    res$constraint_matrix <- cons_mat
-    res$constraint_vector <- cons_vec
+  if (!model_control$null) {
+      if (model_control[["constraint"]]) {
+        res$constraint_matrix <- cons_mat
+        res$constraint_vector <- cons_vec
+      }
+      res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
@@ -1410,14 +1435,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
   if (coxmodel$null) {
-    stop()
-    model_control["null"] <- TRUE
-    #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    stop("Error: Multiple realization analysis cannot be used with a null model.")
   } else {
     # check for basic and linear_err
     if (length(unique(term_n)) == 1) {
@@ -1588,6 +1606,9 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   }
   if (!missing(keep_constant)) { # assigns the paramter constant values if given
     poismodel$keep_constant <- keep_constant
+  }
+  if (poismodel$null) {
+    stop("Error: Multiple realization analysis cannot be used with a null model.")
   }
   # Checks that the current poismodel is valid
   validate_poissurv(poismodel, df)

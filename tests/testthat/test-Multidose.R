@@ -72,9 +72,9 @@ test_that("Pois multidose", {
 
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp_1 <- c(-329.7453, -397.8750)
-  LL_comp_2 <- c(-328.7705, -387.2309)
-  LL_comp_3 <- c(-329.9031, -405.6820)
+  LL_comp_1 <- c(-329.7453, -329.6589)
+  LL_comp_2 <- c(-328.7705, -328.7010)
+  LL_comp_3 <- c(-329.9031, -329.8220)
   k <- 1
   a_n <- c(-0.02, -0.1, -0.1)
   # expect_equal(0,0)

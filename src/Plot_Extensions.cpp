@@ -490,8 +490,8 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     VectorXd s_weights;
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(df0.rows());
-        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
-        Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
+        // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
+        Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
     } else {
         Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
     }
@@ -572,14 +572,14 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, St
     VectorXd s_weights;
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(df0.rows());
-        Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
+        // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
     }
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //
-    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     List res_list;
     //
     res_list = List::create(_["Risk"] = wrap(R.col(0)), _["Residual_Sum"] = wrap(R.col(0).sum()));  //  returns list of covariate values and risk

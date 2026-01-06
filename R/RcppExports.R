@@ -709,16 +709,6 @@ NULL
 #'
 NULL
 
-#' Generates weightings for stratified poisson regression
-#'
-#' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
-#' @inheritParams CPP_template
-#'
-#' @return assigns weight in place and returns nothing
-#' @noRd
-#'
-NULL
-
 #' Interface between R code and the Cox PH omnibus regression function
 #'
 #' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function

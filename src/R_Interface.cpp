@@ -162,7 +162,7 @@ List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector t
             _["strata"] = model_control["strata"],
             _["basic"] = false,
             _["linear_err"] = false,
-            _["null"] = false,
+            _["null"] = model_control["null"],
             _["cr"] = false,
             _["single"] = model_control["single"],
             _["gradient"] = model_control["gradient"],
@@ -1076,114 +1076,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
     if (file.is_open()) {
         file.close();
     }
-}
-
-//' Generates weightings for stratified poisson regression
-//'
-//' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
-//' @inheritParams CPP_template
-//'
-//' @return assigns weight in place and returns nothing
-//' @noRd
-//'
-void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& KeepConstant, const IntegerVector& term_n, const int& term_tot, const double gmix_theta, const IntegerVector& gmix_term) {
-    ArrayXd Pyrs  = dfs.transpose() * PyrC.col(0);
-    ArrayXd Events = dfs.transpose() * PyrC.col(1);
-    ArrayXd weight = Events.array() * Pyrs.array().pow(- 1).array();
-    //
-    //
-    s_weights = dfs * weight.matrix();
-    //
-    vector<int> lin_count(term_tot, 0);  //  tracking which terms will go to 0 for only being linear
-    vector<int> dose_count(term_tot, 0);  // tracking which terms will be a sum of 1s, for being dose non-piecewise
-    vector<int> dose_lin_count(term_tot, 0);  // tracking which terms will go to 0 for being dose-piecewise
-    for (int ij = 0; ij < (term_n.size()); ij++) {
-        int tn = term_n[ij];
-        if (as<string>(tform[ij]) == "loglin") {  //  setting parameters to zero makes the subterm 1
-        } else if (as<string>(tform[ij]) == "lin") {  //  setting parameters to zero makes the subterm 0
-            lin_count[tn] = lin_count[tn] + 1.0;
-        } else if (as<string>(tform[ij]) == "plin") {  //  setting parameters to zero makes the subterm 1
-        } else if (as<string>(tform[ij]) == "loglin_slope") {  //  the slope paremeter sets the element to 0
-        } else if (as<string>(tform[ij]) == "loglin_top") {  //  the top parameter sets the element to 1
-            if (ij == 0) {
-                dose_count[tn] = dose_count[tn] + 1.0;
-            } else if (tform[ij - 1] != "loglin_slope") {
-                dose_count[tn] = dose_count[tn] + 1.0;
-            } else {}
-        } else if (as<string>(tform[ij]) == "lin_slope") {  //  every other dose term sets the elements to 0
-            dose_lin_count[tn] = dose_lin_count[tn] + 1;
-        } else if (as<string>(tform[ij]) == "lin_int") {
-        } else if (as<string>(tform[ij]) == "quad_slope") {
-            dose_lin_count[tn] = dose_lin_count[tn] + 1;
-        } else if (as<string>(tform[ij]) == "step_slope") {
-            dose_lin_count[tn] = dose_lin_count[tn] + 1;
-        } else if (as<string>(tform[ij]) == "step_int") {
-        } else if (as<string>(tform[ij]) == "lin_quad_slope") {
-            dose_lin_count[tn] = dose_lin_count[tn] + 1;
-        } else if (as<string>(tform[ij]) == "lin_quad_int") {
-        } else if (as<string>(tform[ij]) == "lin_exp_slope") {
-            dose_lin_count[tn] = dose_lin_count[tn] + 1;
-        } else if (as<string>(tform[ij]) == "lin_exp_int") {
-        } else if (as<string>(tform[ij]) == "lin_exp_exp_slope") {
-        } else {
-            throw invalid_argument("incorrect subterm type");
-        }
-    }
-    //
-    vector<double> term_val(term_tot, 0);
-    for (int ijk = 0;  ijk < term_tot; ijk++) {
-        if (dose_count[ijk] == 0) {  //  If the dose term isn't used
-            if (dose_lin_count[ijk] == 0) {  // If no dose terms that default to 0 are used
-                dose_count[ijk] = 1.0;  //  the default term value becomes 1
-            }
-            //  otherwise the default term value is 0
-        }
-        if (lin_count[ijk] == 0) {  //  if the linear term isn't used, the entire term is 1 times the dose term value, accounting for the piecewise dose values
-            term_val[ijk] = dose_count[ijk];
-        } else {  //  if the linear term is used, the entire term is 0
-            term_val[ijk] = 0;
-        }
-    }
-    double default_val = 0;
-    if (modelform == "A") {
-        for (int i = 0;  i < term_tot; i++) {
-            default_val += term_val[i];
-        }
-    } else if (modelform == "PA") {
-        for (int i=1; i < term_tot; i++) {
-            default_val += term_val[i];
-        }
-        default_val *= term_val[0];
-    } else if (modelform == "PAE") {
-        for (int i=1; i < term_tot; i++) {
-            default_val += term_val[i];
-        }
-        default_val = (1 + default_val) * term_val[0];
-    } else if (modelform == "M") {
-        default_val = 1;
-        for (int i = 1; i < term_tot; i++) {
-            default_val *= term_val[i];
-        }
-        default_val *= term_val[0];
-    } else if (modelform == "ME") {
-        default_val = 1;
-        for (int i = 1; i < term_tot; i++) {
-            default_val *= (1 + term_val[i]);
-        }
-        default_val *= term_val[0];
-    } else if (modelform == "GMIX") {
-        double Ta = 1;
-        double Tm = 1;
-        for (int i = 1; i < term_tot; i++) {
-            Ta += (term_val[i] + gmix_term[i] - 1);
-            Tm *= (term_val[i] + gmix_term[i]);
-        }
-        default_val = term_val[0] * pow(Tm, gmix_theta) * pow(Ta, 1-gmix_theta);
-    } else {
-        throw invalid_argument("Model isn't implemented");
-    }
-    s_weights = s_weights / default_val;
-    return;
 }
 
 //' Checks the OMP flag

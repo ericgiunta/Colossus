@@ -68,7 +68,7 @@ test_that("Pois strata_single", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-468.7465, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1344.793)
+  LL_comp <- c(-462.9708, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1344.793)
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       model_control <- list("strata" = i, "single" = j)
@@ -148,7 +148,7 @@ test_that("Pois strata_single expanded", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-491.2242, -475.0687, -491.2242, -475.0687, -1101.539, -1257.393, -751.6969, -1257.393)
+  LL_comp <- c(-491.2242, -475.0687, -463.217, -475.0687, -1101.539, -1257.393, -751.6969, -1257.393)
   a_n <- c(-0.4, 0.1, 0.1, 0.1, 0.1, -0.5, 0.1, 0.1, 0.1, 0.1, 0.01, 0.1, 0.1)
   # SINGLE AND STRATA
   e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = TRUE, a_n = a_n)

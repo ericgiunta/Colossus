@@ -323,7 +323,6 @@ test_that("Colossus Surv Errors", {
   expect_error(get_form(Pois_Strata(pyr = t1, event = lung) ~ loglinear(dose), df)) # too few
   expect_error(get_form(Pois_Strata(t1, lung) ~ loglinear(dose), df)) # too few
   expect_error(get_form(Pois_Strata(alpha = t1, lung, rand0) ~ loglinear(dose), df)) # wrong named
-  expect_error(get_form(Pois_Strata(pyr = t1, event = lung, rand0, rand1) ~ linear(dose), df)) # can't correct with a default value of 0
   #
 })
 
